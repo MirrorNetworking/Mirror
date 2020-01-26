@@ -48,7 +48,10 @@ public class #SCRIPTNAME# : NetworkDiscoveryBase<DiscoveryRequest, DiscoveryResp
     /// <param name="request">Request comming from client</param>
     /// <param name="endpoint">Address of the client that sent the request</param>
     /// <returns>A message containing information about this server</returns>
-    protected override DiscoveryResponse ProcessRequest(DiscoveryRequest request, IPEndPoint endpoint) { }
+    protected override DiscoveryResponse ProcessRequest(DiscoveryRequest request, IPEndPoint endpoint) 
+    {
+        return new DiscoveryResponse();
+    }
 
     #endregion
 
@@ -75,10 +78,7 @@ public class #SCRIPTNAME# : NetworkDiscoveryBase<DiscoveryRequest, DiscoveryResp
     /// </remarks>
     /// <param name="response">Response that came from the server</param>
     /// <param name="endpoint">Address of the server that replied</param>
-    protected override DiscoveryResponse ProcessRequest(DiscoveryRequest request, IPEndPoint endpoint)
-    {
-        return new DiscoveryResponse();
-    }
+    protected override void ProcessResponse(DiscoveryResponse response, IPEndPoint endpoint) { }
 
     #endregion
 }
