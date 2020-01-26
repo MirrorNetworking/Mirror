@@ -245,8 +245,6 @@ namespace Mirror.Discovery
             InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
         }
 
-        // I call this when I leave the lobby menu and in my override of NetworkManager::OnStopServer
-        // Note that if plugged into a Mirrror sample the game continues being broadcast in the background
         public void StopDiscovery()
         {
             Shutdown();
