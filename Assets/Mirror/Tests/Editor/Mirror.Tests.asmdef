@@ -5,8 +5,7 @@
         "Mirror.Weaver",
         "Mirror.Components",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "Mirror.Discovery"
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [
         "Editor"
