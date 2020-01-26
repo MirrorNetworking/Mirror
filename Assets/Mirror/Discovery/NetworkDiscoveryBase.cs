@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using System;
 using System.Threading.Tasks;
-using UnityEngine.Events;
 
 namespace Mirror.Discovery
 {
@@ -15,8 +14,8 @@ namespace Mirror.Discovery
     [DisallowMultipleComponent]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]
     public abstract class NetworkDiscoveryBase<Request, Response> : MonoBehaviour
-        where Request: IMessageBase, new()
-        where Response: IMessageBase, new()
+        where Request : IMessageBase, new()
+        where Response : IMessageBase, new()
     {
         public static bool SupportedOnThisPlatform { get { return Application.platform != RuntimePlatform.WebGLPlayer; } }
 
@@ -252,9 +251,7 @@ namespace Mirror.Discovery
             {
                 try
                 {
-
                     await ReceiveGameBroadcastAsync(clientUdpClient);
-
                 }
                 catch (ObjectDisposedException)
                 {
