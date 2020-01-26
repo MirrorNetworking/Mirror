@@ -32,13 +32,9 @@ You can completely replace the user interface by adding your own interface (typi
 Sometimes you want to provide more information in the discovery messages. Some use cases could include:
 
 -   The client can show if the server is in PvP or PvE mode
-
 -   The client can show how full the servers are.
-
 -   The client can show the ping to each server so the player can chose the fastest server
-
 -   The client can show the language
-
 -   The client can show if the server is password protected
 
 To do this, we've provided a [Template](../General/ScriptTemplates.md), so from the Assets menu, click Create > Mirror > Network Discovery.
