@@ -3,9 +3,10 @@
     "references": [
         "Mirror",
         "Mirror.Weaver",
-        "Mirror.Components",
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "Mirror.Components"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
     ],
     "includePlatforms": [
         "Editor"
@@ -16,12 +17,8 @@
     "precompiledReferences": [
         "NSubstitute.dll",
         "Castle.Core.dll",
-        "System.Threading.Tasks.Extensions.dll",
-        "nunit.framework.dll"
+        "System.Threading.Tasks.Extensions.dll"
     ],
-    "autoReferenced": false,
-    "defineConstraints": [
-        "UNITY_INCLUDE_TESTS"
-    ],
-    "versionDefines": []
+    "autoReferenced": true,
+    "defineConstraints": []
 }
