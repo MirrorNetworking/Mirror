@@ -331,7 +331,7 @@ namespace Mirror.Discovery
             Response response = new Response();
             response.Deserialize(reader);
 
-            ProcessReply(response, udpReceiveResult.RemoteEndPoint);
+            ProcessResponse(response, udpReceiveResult.RemoteEndPoint);
         }
 
         /// <summary>
@@ -342,7 +342,7 @@ namespace Mirror.Discovery
         /// </remarks>
         /// <param name="reader"></param>
         /// <param name="remoteEndPoint"></param>
-        protected abstract void ProcessReply(Response response, IPEndPoint remoteEndPoint);
+        protected abstract void ProcessResponse(Response response, IPEndPoint remoteEndPoint);
 
 
         public void NotifyServerFound(Response packet)

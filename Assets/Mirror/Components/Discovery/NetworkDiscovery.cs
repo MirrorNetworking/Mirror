@@ -80,7 +80,7 @@ namespace Mirror.Discovery
         /// </remarks>
         /// <param name="reader"></param>
         /// <param name="remoteEndPoint"></param>
-        protected override void ProcessReply(ServerResponse packet, IPEndPoint remoteEndPoint)
+        protected override void ProcessResponse(ServerResponse packet, IPEndPoint remoteEndPoint)
         {
             // we received a message from the remote endpoint
             packet.EndPoint = remoteEndPoint;
