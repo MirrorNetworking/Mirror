@@ -197,14 +197,16 @@ namespace Mirror.Discovery
         }
 
         /// <summary>
-        /// Provide the server information to be sent to the client
+        /// Process the request from a client
         /// </summary>
         /// <remarks>
         /// Override if you wish to provide more information to the clients
         /// such as the name of the host player
         /// </remarks>
-        /// <returns></returns>
-        protected abstract Response ProcessRequest(Request reader, IPEndPoint endpoint);
+        /// <param name="request">Request comming from client</param>
+        /// <param name="endpoint">Address of the client that sent the request</param>
+        /// <returns>The message to be sent back to the client or null</returns>
+        protected abstract Response ProcessRequest(Request request, IPEndPoint endpoint);
 
         #endregion
 
@@ -328,11 +330,12 @@ namespace Mirror.Discovery
         /// Process the answer from a server
         /// </summary>
         /// <remarks>
-        /// Override if you have your own message type
+        /// A client receives a reply from a server, this method processes the
+        /// reply and raises an event
         /// </remarks>
-        /// <param name="reader"></param>
-        /// <param name="remoteEndPoint"></param>
-        protected abstract void ProcessResponse(Response response, IPEndPoint remoteEndPoint);
+        /// <param name="response">Response that came from the server</param>
+        /// <param name="endpoint">Address of the server that replied</param>
+        protected abstract void ProcessResponse(Response response, IPEndPoint endpoint);
 
         #endregion
     }
