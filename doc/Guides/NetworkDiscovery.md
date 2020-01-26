@@ -6,7 +6,7 @@ To solve this problem you can use Network Discovery. When your game starts, it s
 
 Mirror comes with a simple implementation of Network Discovery you can simply use in your game.  It also provides a way for you to extend it so that you can pass additional data during the discovery phase.
 
-## Quick start
+## Quick Start
 
 To use Network Discovery follow these steps:
 
@@ -22,7 +22,7 @@ A NetworkDiscovery component will be automatically added and wired up to your HU
 
 5) Build and run a standalone version
 
-6) Click on start host
+6) Click on Start Host
 
 7) Start play mode in the editor and click on Find Servers
 
@@ -30,21 +30,21 @@ A NetworkDiscovery component will be automatically added and wired up to your HU
 
 9) Click on the button to connect to it.
 
-The NetworkDiscoveryHUD is provided as a simple and quick way to get started,  but you will probably want to replace it with your own user interface.
+The NetworkDiscoveryHUD is provided as a simple and quick way to get started, but you will probably want to replace it with your own user interface.
 
 ## Custom Network Discovery
 
-You can completely replace the user inteface.  Do not add NetworkDiscoveryHUD but add your own interface (typically Unity UI based).  You do still need the NetworkDiscovery component to do the heavy lifting.
+You can completely replace the user interface by adding your own interface (typically Unity UI based) instead of the default NetworkDiscoveryHUD.  You do still need the NetworkDiscovery component to do the heavy lifting.
 
 Sometimes you want to provide more information in the discovery messages. Some use cases could include:
 
-* The client can see if the server is in PvP or PvE mode
-* The client can see how full the servers are.
-* The client could show the ping to each server so the player can chose the fastest server
+* The client can show if the server is in PvP or PvE mode
+* The client can show how full the servers are.
+* The client can show the ping to each server so the player can chose the fastest server
 * The client can show the language
-* The client can see if the server is password protected
+* The client can show if the server is password protected
 
-To do this,  create 2 Messages with whatever data you want to pass.  One message for the request and one message for the response.  For example:
+To do this, create 2 Messages with whatever data you want to pass.  One message for the request and one message for the response.  For example:
 
 ```cs
 public class MyDiscoveryRequest : MessageBase
