@@ -43,10 +43,10 @@ namespace Mirror.Discovery
         /// Override if you wish to provide more information to the clients
         /// such as the name of the host player
         /// </remarks>
-        /// <param name="_"></param>
-        /// <param name="endpoint"></param>
-        /// <returns>A message containing information about this server</returns>
-        protected override ServerResponse ProcessRequest(ServerRequest _, IPEndPoint endpoint)
+        /// <param name="request">Request comming from client</param>
+        /// <param name="endpoint">Address of the client that sent the request</param>
+        /// <returns>The message to be sent back to the client or null</returns>
+        protected override ServerResponse ProcessRequest(ServerRequest request, IPEndPoint endpoint)
         {
             // In this case we don't do anything with the request
             // but other discovery implementations might want to use the data
