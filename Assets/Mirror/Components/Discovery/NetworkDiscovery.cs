@@ -50,13 +50,21 @@ namespace Mirror.Discovery
             // in there,  This way the client can ask for
             // specific game mode or something
 
-            // this is an example reply message,  return your own
-            // to include whatever is relevant for your game
-            return new ServerResponse
+            try
             {
-                serverId = ServerId,
-                uri = transport.ServerUri()
-            };
+                // this is an example reply message,  return your own
+                // to include whatever is relevant for your game
+                return new ServerResponse
+                {
+                    serverId = ServerId,
+                    uri = transport.ServerUri()
+                };
+            }
+            catch (NotImplementedException)
+            {
+                Debug.LogError($"Transport {transport} does not support network discovery");
+                throw;
+            }
         }
 
         #endregion
