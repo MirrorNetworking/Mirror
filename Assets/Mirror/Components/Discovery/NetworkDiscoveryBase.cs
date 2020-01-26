@@ -13,11 +13,13 @@ namespace Mirror.Discovery
     /// </summary>
     [DisallowMultipleComponent]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]
-    public abstract class NetworkDiscoveryBase : MonoBehaviour
+    public abstract class NetworkDiscoveryBase<Request, Response> : MonoBehaviour
+        where Request: IMessageBase, new()
+        where Response: IMessageBase, new()
     {
         public static bool SupportedOnThisPlatform { get { return Application.platform != RuntimePlatform.WebGLPlayer; } }
 
-        public static event Action<IMessageBase> OnServerFound;
+        public static event Action<Response> OnServerFound;
 
         public long ServerId { get; private set; }
 
@@ -158,7 +160,10 @@ namespace Mirror.Discovery
                 throw new ProtocolViolationException("Invalid handshake");
             }
 
-            ProcessClientRequest(reader, udpReceiveResult.RemoteEndPoint);
+            Request request = new Request();
+            request.Deserialize(reader);
+
+            ProcessClientRequest(request, udpReceiveResult.RemoteEndPoint);
         }
 
         /// <summary>
@@ -169,9 +174,9 @@ namespace Mirror.Discovery
         /// custom criteria such as language, full server game mode or difficulty
         /// </remarks>
         /// <param name="request"></param>
-        protected virtual void ProcessClientRequest(NetworkReader reader, IPEndPoint endpoint)
+        protected virtual void ProcessClientRequest(Request request, IPEndPoint endpoint)
         {
-            IMessageBase info = ProcessRequest(reader);
+            Response info = ProcessRequest(request);
 
             if (info == null)
                 return;
@@ -207,7 +212,7 @@ namespace Mirror.Discovery
         /// such as the name of the host player
         /// </remarks>
         /// <returns></returns>
-        protected abstract IMessageBase ProcessRequest(NetworkReader reader);
+        protected abstract Response ProcessRequest(Request reader);
 
         #endregion
 
@@ -284,7 +289,7 @@ namespace Mirror.Discovery
 
             try
             {
-                IMessageBase request = GetDiscoveryRequest();
+                Request request = GetRequest();
 
                 request.Serialize(writer);
 
@@ -309,7 +314,7 @@ namespace Mirror.Discovery
         /// Override if you wish to include additional data in the discovery message
         /// such as desired game mode, language, difficulty, etc... </remarks>
         /// <returns>An instance of ServerRequest with data to be broadcasted</returns>
-        protected abstract IMessageBase GetDiscoveryRequest();
+        protected virtual Request GetRequest() => new Request();
 
         async Task ReceiveGameBroadcastAsync(UdpClient udpClient)
         {
@@ -323,7 +328,10 @@ namespace Mirror.Discovery
             if (reader.ReadInt64() != secretHandshake)
                 return;
 
-            ProcessReply(reader, udpReceiveResult.RemoteEndPoint);
+            Response response = new Response();
+            response.Deserialize(reader);
+
+            ProcessReply(response, udpReceiveResult.RemoteEndPoint);
         }
 
         /// <summary>
@@ -334,10 +342,10 @@ namespace Mirror.Discovery
         /// </remarks>
         /// <param name="reader"></param>
         /// <param name="remoteEndPoint"></param>
-        protected abstract void ProcessReply(NetworkReader reader, IPEndPoint remoteEndPoint);
+        protected abstract void ProcessReply(Response response, IPEndPoint remoteEndPoint);
 
 
-        public void NotifyServerFound(IMessageBase packet)
+        public void NotifyServerFound(Response packet)
         {
             OnServerFound?.Invoke(packet);
         }

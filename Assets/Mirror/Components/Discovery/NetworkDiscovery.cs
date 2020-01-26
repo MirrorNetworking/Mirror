@@ -13,7 +13,7 @@ namespace Mirror.Discovery
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkDiscovery")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]
-    public class NetworkDiscovery : NetworkDiscoveryBase
+    public class NetworkDiscovery : NetworkDiscoveryBase<ServerRequest, ServerInfo>
     {
 
         #region Server
@@ -40,14 +40,12 @@ namespace Mirror.Discovery
         /// such as the name of the host player
         /// </remarks>
         /// <returns>A message containing information about this server</returns>
-        protected override IMessageBase ProcessRequest(NetworkReader reader)
+        protected override ServerInfo ProcessRequest(ServerRequest _)
         {
             // In this case we don't do anything with the request
             // but other discovery implementations might want to use the data
             // in there,  This way the client can ask for
             // specific game mode or something
-            ServerRequest request = new ServerRequest();
-            request.Deserialize(reader);
 
             // this is an example reply message,  return your own
             // to include whatever is relevant for your game
@@ -71,7 +69,7 @@ namespace Mirror.Discovery
         /// Override if you wish to include additional data in the discovery message
         /// such as desired game mode, language, difficulty, etc... </remarks>
         /// <returns>An instance of ServerRequest with data to be broadcasted</returns>
-        protected override IMessageBase GetDiscoveryRequest() => new ServerRequest();
+        protected override ServerRequest GetRequest() => new ServerRequest();
 
         /// <summary>
         /// Process the answer from a server
@@ -82,13 +80,9 @@ namespace Mirror.Discovery
         /// </remarks>
         /// <param name="reader"></param>
         /// <param name="remoteEndPoint"></param>
-        protected override void ProcessReply(NetworkReader reader, IPEndPoint remoteEndPoint)
+        protected override void ProcessReply(ServerInfo packet, IPEndPoint remoteEndPoint)
         {
             // we received a message from the remote endpoint
-            // parse it and raise the event
-            ServerInfo packet = new ServerInfo();
-            packet.Deserialize(reader);
-
             packet.EndPoint = remoteEndPoint;
 
             // although we got a supposedly valid url, we may not be able to resolve
