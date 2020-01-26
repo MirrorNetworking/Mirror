@@ -95,12 +95,10 @@ namespace Mirror.Discovery
             // the provided host
             // However we know the real ip address of the server because we just
             // received a packet from it,  so use that as host.
-
             UriBuilder realUri = new UriBuilder(packet.uri)
             {
                 Host = packet.EndPoint.Address.ToString()
             };
-
             packet.uri = realUri.Uri;
 
             ServerFound.Invoke(packet);
