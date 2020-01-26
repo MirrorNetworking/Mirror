@@ -103,8 +103,6 @@ namespace Mirror.Discovery
 
             packet.uri = realUri.Uri;
 
-            Debug.Log("Detected server at" + packet.uri);
-
             ServerFound.Invoke(packet);
         }
         #endregion
