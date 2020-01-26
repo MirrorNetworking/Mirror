@@ -19,9 +19,9 @@ public class #SCRIPTNAME# : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     /// </remarks>
     /// <param name="request">Request comming from client</param>
     /// <param name="endpoint">Address of the client that sent the request</param>
-    protected override void ProcessClientRequest(Request request, IPEndPoint endpoint)
+    protected override void ProcessClientRequest(ServerRequest request, IPEndPoint endpoint)
     {
-        base.ProcessClientRequest(request, endpoint)
+        base.ProcessClientRequest(request, endpoint);
     }
 
     /// <summary>
