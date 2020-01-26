@@ -217,6 +217,9 @@ namespace Mirror.Discovery
 
         #region Client
 
+        /// <summary>
+        /// Start Active Discovery
+        /// </summary>
         public void StartDiscovery()
         {
             if (!SupportedOnThisPlatform)
@@ -245,11 +248,18 @@ namespace Mirror.Discovery
             InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
         }
 
+        /// <summary>
+        /// Start Active Discovery
+        /// </summary>
         public void StopDiscovery()
         {
             Shutdown();
         }
 
+        /// <summary>
+        /// Awaits for server response
+        /// </summary>
+        /// <returns>ClientListenAsync Task</returns>
         public async Task ClientListenAsync()
         {
             while (true)
@@ -270,6 +280,9 @@ namespace Mirror.Discovery
             }
         }
 
+        /// <summary>
+        /// Sends discovery request from client
+        /// </summary>
         public void BroadcastDiscoveryRequest()
         {
             if (clientUdpClient == null)

@@ -34,7 +34,7 @@ public class #SCRIPTNAME# : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     /// <param name="request">Request comming from client</param>
     /// <param name="endpoint">Address of the client that sent the request</param>
     /// <returns>A message containing information about this server</returns>
-    protected override ServerResponse ProcessRequest(ServerRequest request, IPEndPoint endpoint) => new ServerResponse();
+    protected override Response ProcessRequest(Request request, IPEndPoint endpoint);
 
     #endregion
 
