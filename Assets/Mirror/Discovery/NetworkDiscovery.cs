@@ -3,12 +3,15 @@ using System.Net;
 using System.Net.Sockets;
 using System;
 using System.Threading.Tasks;
+using UnityEngine.Events;
 
 namespace Mirror.Discovery
 {
     // Based on https://github.com/EnlightenedOne/MirrorNetworkDiscovery
     // forked from https://github.com/in0finite/MirrorNetworkDiscovery
     // Both are MIT Licensed
+    [System.Serializable]
+    public class ServerFoundUnityEvent : UnityEvent<ServerResponse> { };
 
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkDiscovery")]
@@ -17,6 +20,9 @@ namespace Mirror.Discovery
     {
         #region Server
         public long ServerId { get; private set; }
+
+
+        public ServerFoundUnityEvent ServerFound;
 
         [Tooltip("Transport exposed for discovery")]
         public Transport transport;
@@ -99,7 +105,7 @@ namespace Mirror.Discovery
 
             Debug.Log("Detected server at" + packet.uri);
 
-            NotifyServerFound(packet);
+            ServerFound.Invoke(packet);
         }
         #endregion
     }

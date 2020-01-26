@@ -18,19 +18,13 @@ namespace Mirror.Discovery
         private void OnValidate()
         {
             if (networkDiscovery == null)
+            {
                 networkDiscovery = GetComponent<NetworkDiscovery>();
+                UnityEditor.Events.UnityEventTools.AddPersistentListener(networkDiscovery.ServerFound, OnDiscoveredServer);
+                UnityEditor.Undo.RecordObjects(new Object[] { this, networkDiscovery }, "Set NetworkDiscovery");
+            }
         }
 #endif
-
-        void OnEnable()
-        {
-            NetworkDiscovery.OnServerFound += OnDiscoveredServer;
-        }
-
-        void OnDisable()
-        {
-            NetworkDiscovery.OnServerFound -= OnDiscoveredServer;
-        }
 
         void OnGUI()
         {
@@ -93,12 +87,10 @@ namespace Mirror.Discovery
             NetworkManager.singleton.StartClient(info.uri);
         }
 
-        void OnDiscoveredServer(IMessageBase info)
+        public void OnDiscoveredServer(ServerResponse info)
         {
-            ServerResponse serverInfo = (ServerResponse)info;
-
             // Note that you can check the versioning to decide if you can connect to the server or not using this method
-            discoveredServers[serverInfo.serverId] = (ServerResponse)info;
+            discoveredServers[info.serverId] = info;
         }
     }
 }

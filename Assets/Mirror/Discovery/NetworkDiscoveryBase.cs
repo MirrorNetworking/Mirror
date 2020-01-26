@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System;
 using System.Threading.Tasks;
+using UnityEngine.Events;
 
 namespace Mirror.Discovery
 {
@@ -18,8 +19,6 @@ namespace Mirror.Discovery
         where Response: IMessageBase, new()
     {
         public static bool SupportedOnThisPlatform { get { return Application.platform != RuntimePlatform.WebGLPlayer; } }
-
-        public static event Action<Response> OnServerFound;
 
         // each game should have a random unique handshake,  this way you can tell if this is the same game or not
         [HideInInspector]
@@ -337,11 +336,6 @@ namespace Mirror.Discovery
         /// <param name="remoteEndPoint"></param>
         protected abstract void ProcessResponse(Response response, IPEndPoint remoteEndPoint);
 
-
-        public void NotifyServerFound(Response packet)
-        {
-            OnServerFound?.Invoke(packet);
-        }
         #endregion
     }
 }
