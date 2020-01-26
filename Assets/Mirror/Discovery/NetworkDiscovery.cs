@@ -21,7 +21,6 @@ namespace Mirror.Discovery
         #region Server
         public long ServerId { get; private set; }
 
-
         public ServerFoundUnityEvent ServerFound;
 
         [Tooltip("Transport exposed for discovery")]
