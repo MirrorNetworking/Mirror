@@ -13,7 +13,7 @@ namespace Mirror.Discovery
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkDiscovery")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]
-    public class NetworkDiscovery : NetworkDiscoveryBase<ServerRequest, ServerInfo>
+    public class NetworkDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     {
 
         #region Server
@@ -40,7 +40,7 @@ namespace Mirror.Discovery
         /// such as the name of the host player
         /// </remarks>
         /// <returns>A message containing information about this server</returns>
-        protected override ServerInfo ProcessRequest(ServerRequest _)
+        protected override ServerResponse ProcessRequest(ServerRequest _)
         {
             // In this case we don't do anything with the request
             // but other discovery implementations might want to use the data
@@ -49,7 +49,7 @@ namespace Mirror.Discovery
 
             // this is an example reply message,  return your own
             // to include whatever is relevant for your game
-            return new ServerInfo
+            return new ServerResponse
             {
                 age = Time.time,
                 totalPlayers = (ushort)NetworkServer.connections.Count,
@@ -80,7 +80,7 @@ namespace Mirror.Discovery
         /// </remarks>
         /// <param name="reader"></param>
         /// <param name="remoteEndPoint"></param>
-        protected override void ProcessReply(ServerInfo packet, IPEndPoint remoteEndPoint)
+        protected override void ProcessReply(ServerResponse packet, IPEndPoint remoteEndPoint)
         {
             // we received a message from the remote endpoint
             packet.EndPoint = remoteEndPoint;

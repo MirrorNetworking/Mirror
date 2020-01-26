@@ -9,7 +9,7 @@ namespace Mirror.Discovery
     [RequireComponent(typeof(NetworkDiscovery))]
     public class NetworkDiscoveryHUD : MonoBehaviour
     {
-        readonly Dictionary<long, ServerInfo> discoveredServers = new Dictionary<long, ServerInfo>();
+        readonly Dictionary<long, ServerResponse> discoveredServers = new Dictionary<long, ServerResponse>();
         Vector2 scrollViewPos = Vector2.zero;
 
         public NetworkDiscovery networkDiscovery;
@@ -81,24 +81,24 @@ namespace Mirror.Discovery
             // servers
             scrollViewPos = GUILayout.BeginScrollView(scrollViewPos);
 
-            foreach (ServerInfo info in discoveredServers.Values)
+            foreach (ServerResponse info in discoveredServers.Values)
                 if (GUILayout.Button(info.EndPoint.Address.ToString()))
                     Connect(info);
 
             GUILayout.EndScrollView();
         }
 
-        void Connect(ServerInfo info)
+        void Connect(ServerResponse info)
         {
             NetworkManager.singleton.StartClient(info.uri);
         }
 
         void OnDiscoveredServer(IMessageBase info)
         {
-            ServerInfo serverInfo = (ServerInfo)info;
+            ServerResponse serverInfo = (ServerResponse)info;
 
             // Note that you can check the versioning to decide if you can connect to the server or not using this method
-            discoveredServers[serverInfo.serverId] = (ServerInfo)info;
+            discoveredServers[serverInfo.serverId] = (ServerResponse)info;
         }
     }
 }
