@@ -217,7 +217,6 @@ namespace Mirror.Discovery
 
         #region Client
 
-        // I call this when the Lobby screen is loaded in my game
         public void StartDiscovery()
         {
             if (!SupportedOnThisPlatform)
