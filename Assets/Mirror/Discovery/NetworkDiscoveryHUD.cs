@@ -34,7 +34,6 @@ namespace Mirror.Discovery
             if (NetworkServer.active || NetworkClient.active)
                 return;
 
-            // In my own game I ripped this out, this is just as an example (wanted to avoid adding a NetworkManager to the sample)
             if (!NetworkClient.isConnected && !NetworkServer.active && !NetworkClient.active)
                 DrawGUI();
         }
