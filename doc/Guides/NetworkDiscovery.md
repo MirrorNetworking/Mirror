@@ -88,12 +88,12 @@ public class MyNetworkDiscovery: NetworkDiscoveryBase<MyDiscoveryRequest, MyDisc
         // TODO: Create your request and return it
     }
 
-    protected override ServerResponse ProcessRequest(ServerRequest request, IPEndPoint endpoint) 
+    protected override MyDiscoveryResponse ProcessRequest(MyDiscoveryRequest request, IPEndPoint endpoint) 
     {
         // TODO: Create your response and return it   
     }
 
-    protected override void ProcessResponse(ServerResponse response, IPEndPoint endpoint)
+    protected override void ProcessResponse(MyDiscoveryResponse response, IPEndPoint endpoint)
     {
         // TODO: a server replied,  do something with the response such as invoking a unityevent
     }
