@@ -29,6 +29,7 @@ namespace Mirror.Discovery
 
         [SerializeField]
         [Tooltip("Time in seconds between multi-cast messages")]
+        [Range(1, 60)]
         float ActiveDiscoverySecondInterval = 3;
 
         protected UdpClient serverUdpClient = null;
