@@ -82,24 +82,24 @@ namespace Mirror.Discovery
         /// A client receives a reply from a server, this method processes the
         /// reply and raises an event
         /// </remarks>
-        /// <param name="packet"></param>
-        /// <param name="remoteEndPoint"></param>
-        protected override void ProcessResponse(ServerResponse packet, IPEndPoint remoteEndPoint)
+        /// <param name="response">Response that came from the server</param>
+        /// <param name="endpoint">Address of the server that replied</param>
+        protected override void ProcessResponse(ServerResponse response, IPEndPoint endpoint)
         {
             // we received a message from the remote endpoint
-            packet.EndPoint = remoteEndPoint;
+            response.EndPoint = endpoint;
 
             // although we got a supposedly valid url, we may not be able to resolve
             // the provided host
             // However we know the real ip address of the server because we just
             // received a packet from it,  so use that as host.
-            UriBuilder realUri = new UriBuilder(packet.uri)
+            UriBuilder realUri = new UriBuilder(response.uri)
             {
-                Host = packet.EndPoint.Address.ToString()
+                Host = response.EndPoint.Address.ToString()
             };
-            packet.uri = realUri.Uri;
+            response.uri = realUri.Uri;
 
-            ServerFound.Invoke(packet);
+            ServerFound.Invoke(response);
         }
 
         #endregion
