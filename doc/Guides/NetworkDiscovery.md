@@ -62,7 +62,7 @@ public class MyDiscoveryResponse : MessageBase
     enum GameMode {PvP, PvE};
 
     // you probably want uri so 
-    // the clients know how to connect to the server
+    // clients know how to connect to the server
     public Uri uri;
 
     public GameMode GameMode;
