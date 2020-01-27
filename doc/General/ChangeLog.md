@@ -4,9 +4,9 @@
 - Added: NetworkAnimator now has a ResetTrigger function and server / client authority warnings
 - Added: NetworkTransform now has 3 new floats for Sensitivity to quiet down message traffic from micro changes.
 - Added: Network Observer added to [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
-- Added: [Network Discovery](../Components/NetworkDiscovery.html) has been reimplemented including an example and script template -- thanks to all those who contributed!
-- Added: [Network Discovery](../Guides/NetworkDiscovery.html) Guide added to documentation
-- Added: [Network Scene Checker Component](../Components/NetworkSceneChecker.html)
+- Added: [Network Discovery](../Components/NetworkDiscovery.md) has been reimplemented including an example and script template -- thanks to all those who contributed!
+- Added: [Network Discovery](../Guides/NetworkDiscovery.md) Guide added to documentation
+- Added: [Network Scene Checker Component](../Components/NetworkSceneChecker.md)
 - Fixed: NetworkTransform and NetworkAnimator now uses NetworkWriterPool
 - Fixed: NetworkTransform and NetworkAnimator now respect `hasAuthority` for client owned objects
 - Fixed: NetworkTransform will now correctly teleport if time / distance are too large
