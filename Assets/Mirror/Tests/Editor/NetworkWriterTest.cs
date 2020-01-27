@@ -8,6 +8,19 @@ namespace Mirror.Tests
     public class NetworkWriterTest
     {
         [Test]
+        public void Benchmark()
+        {
+            // 10 million reads, Unity 2019.3, code coverage disabled
+            //    4014ms ms
+            NetworkWriter writer = new NetworkWriter();
+            for (int i = 0; i < 10000000; ++i)
+            {
+                writer.SetLength(0);
+                writer.WriteVector3(new Vector3(1, 2, 3));
+            }
+        }
+
+        [Test]
         public void TestWritingSmallMessage()
         {
             // try serializing less than 32kb and see what happens
@@ -1137,6 +1150,19 @@ namespace Mirror.Tests
             Assert.That(reader.ReadBytesAndSize(), Is.EqualTo(new byte[] { 20, 21 }));
 
             Assert.That(reader.ReadBytesAndSize(), Is.EqualTo(new byte[] { 22, 23 }));
+        }
+
+        [Test]
+        public void TestWritingUri()
+        {
+
+            Uri testUri = new Uri("https://www.mirror-networking.com?somthing=other");
+
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteUri(testUri);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadUri(), Is.EqualTo(testUri));
         }
     }
 }
