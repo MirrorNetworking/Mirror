@@ -100,10 +100,7 @@ namespace Mirror
         /// Useful for network discovery
         /// </summary>
         /// <returns>the url at which this server can be reached</returns>
-        public virtual Uri ServerUri()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Uri ServerUri();
 
         /// <summary>
         /// Notify subscribers when a client connects to this server
