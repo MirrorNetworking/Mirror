@@ -7,6 +7,7 @@
 - Added: [Network Discovery](../Components/NetworkDiscovery.md) has been reimplemented including an example and script template -- thanks to all those who contributed!
 - Added: [Network Discovery](../Guides/NetworkDiscovery.md) Guide added to documentation
 - Added: [Network Scene Checker Component](../Components/NetworkSceneChecker.md)
+- Added: URI added to supported data types
 - Fixed: NetworkTransform and NetworkAnimator now uses NetworkWriterPool
 - Fixed: NetworkTransform and NetworkAnimator now respect `hasAuthority` for client owned objects
 - Fixed: NetworkTransform will now correctly teleport if time / distance are too large
