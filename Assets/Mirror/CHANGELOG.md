@@ -1,3 +1,21 @@
+# [7.0.0](https://github.com/MirrorNG/MirrorNG/compare/6.0.0-master...7.0.0-master) (2020-01-27)
+
+
+### Features
+
+* Network Scene Checker Component ([#1271](https://github.com/MirrorNG/MirrorNG/issues/1271)) ([71c0d3b](https://github.com/MirrorNG/MirrorNG/commit/71c0d3b2ee1bbdb29d1c39ee6eca3ef9635d70bf))
+* network writer and reader now support uri ([0c2556a](https://github.com/MirrorNG/MirrorNG/commit/0c2556ac64bd93b9e52dae34cf8d84db114b4107))
+
+
+* Rename NetworkServer.localClientActive ([7cd0894](https://github.com/MirrorNG/MirrorNG/commit/7cd0894853b97fb804ae15b8a75b75c9d7bc04a7))
+* Simplify spawning ([c87a38a](https://github.com/MirrorNG/MirrorNG/commit/c87a38a4ff0c350901138b90db7fa8e61b1ab7db))
+
+
+### BREAKING CHANGES
+
+* rename localClientActive to LocalClientActive
+* Spawn no longer receives NetworkClient
+
 # [6.0.0](https://github.com/MirrorNG/MirrorNG/compare/5.0.0-master...6.0.0-master) (2020-01-22)
 
 
