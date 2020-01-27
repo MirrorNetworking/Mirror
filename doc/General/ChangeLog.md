@@ -6,6 +6,7 @@
 - Added: Network Observer added to [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
 - Added: [Network Scene Checker Component](../Components/NetworkSceneChecker.html)
 - Added: Mirror Icon for all components
+- Added: URI added to supported data types
 - Fixed: NetworkTransform and NetworkAnimator now uses NetworkWriterPool
 - Fixed: NetworkTransform and NetworkAnimator now respect `hasAuthority` for client owned objects
 - Fixed: NetworkTransform will now correctly teleport if time / distance are too large
