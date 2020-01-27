@@ -105,5 +105,3 @@ public class NewNetworkDiscovery: NetworkDiscoveryBase<DiscoveryRequest, Discove
     #endregion
 }
 ```
-
-NetworkDiscovery.cs is a good example of how to implement these methods.
