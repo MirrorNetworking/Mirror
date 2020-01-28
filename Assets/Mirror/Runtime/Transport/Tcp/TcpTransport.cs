@@ -38,7 +38,11 @@ namespace Mirror.Tcp
 
         // client
         public override bool ClientConnected() { return client.IsConnected; }
-        public override void ClientConnect(string address) { client.Connect(address, port); }
+        public override void ClientConnect(string address)
+        {
+            _ = client.ConnectAsync(address, port);
+        }
+
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
             _ = client.SendAsync(segment);

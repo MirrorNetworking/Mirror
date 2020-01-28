@@ -21,7 +21,7 @@ namespace Mirror.Tcp
         public bool Connecting { get; set; }
         public bool IsConnected { get; set; }
 
-        public async Task Connect(string host, int port)
+        public async Task ConnectAsync(string host, int port)
         {
             // not if already started
             if (client != null)
