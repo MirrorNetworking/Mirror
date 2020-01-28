@@ -23,6 +23,27 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void AddConnectionsTest()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                var connToClient = new NetworkConnectionToClient(i);
+                testServer.AddConnection(connToClient);
+            }
+
+            Assert.That(testServer.connections.Count == 10);
+        }
+
+        [Test]
+        public void RemoveConnectionsTest()
+        {
+            for (int i = 0; i < 10; i++)
+                testServer.RemoveConnection(i);
+
+            Assert.That(testServer.connections.Count == 0);
+        }
+
+        [Test]
         public void ShutdownTest()
         {
             testServer.Shutdown();
