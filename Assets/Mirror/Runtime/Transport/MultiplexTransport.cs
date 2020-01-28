@@ -162,6 +162,14 @@ namespace Mirror
             }
         }
 
+        // for now returns the first uri,
+        // should we return all available uris?
+        public override Uri ServerUri()
+        {
+            return transports[0].ServerUri();
+        }
+
+
         public override bool ServerActive()
         {
             // avoid Linq.All allocations
