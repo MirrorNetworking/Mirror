@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -21,7 +20,7 @@ namespace Mirror
         [Tooltip("Enable to force this object to be hidden from all observers.")]
         public bool forceHidden;
 
-        static Dictionary<string, HashSet<NetworkIdentity>> sceneCheckerObjects = new Dictionary<string, HashSet<NetworkIdentity>>();
+        public static readonly Dictionary<string, HashSet<NetworkIdentity>> sceneCheckerObjects = new Dictionary<string, HashSet<NetworkIdentity>>();
 
         string currentScene;
 
