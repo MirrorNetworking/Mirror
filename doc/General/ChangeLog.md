@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 7.x.x - In Progress
+## Version 8.x.x - In Progress
 - Added: NetworkAnimator now has a ResetTrigger function and server / client authority warnings
 - Added: NetworkTransform now has 3 new floats for Sensitivity to quiet down message traffic from micro changes.
 - Added: Network Observer added to [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
