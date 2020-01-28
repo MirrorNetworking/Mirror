@@ -7,7 +7,7 @@ namespace Mirror.Tests
     {
         NetworkServer testServer;
 
-        [Test]
+        [Test, Order(1)]
         public void InitializeTest()
         {
             var gameObject = new GameObject();
