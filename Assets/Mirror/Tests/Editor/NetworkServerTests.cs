@@ -43,11 +43,39 @@ namespace Mirror.Tests
             Assert.That(testServer.connections.Count == 0);
         }
 
-        [Test]
+        [Test, Order(2)]
+        public void SpawnTest()
+        {
+            var gameObject = new GameObject();
+            gameObject.AddComponent<NetworkIdentity>();
+            testServer.Spawn(gameObject);
+
+            Assert.That(gameObject.GetComponent<NetworkIdentity>().server == testServer);
+        }
+
+        [Test, Order(2)]
+        public void SpawnWithAuthorityTest()
+        {
+            var player = new GameObject();
+            player.AddComponent<NetworkIdentity>();
+            var connToClient = new NetworkConnectionToClient(0);
+            player.GetComponent<NetworkIdentity>().connectionToClient = connToClient;
+
+            var gameObject = new GameObject();
+            gameObject.AddComponent<NetworkIdentity>();
+
+            testServer.Spawn(gameObject, player);
+
+            NetworkIdentity networkIdentity = gameObject.GetComponent<NetworkIdentity>();
+            Assert.That(networkIdentity.server == testServer);
+            Assert.That(networkIdentity.connectionToClient == connToClient);
+        }
+
+        [Test, Order(999)]
         public void ShutdownTest()
         {
             testServer.Shutdown();
-
+            
             Assert.That(testServer.active == false);
         }
     }
