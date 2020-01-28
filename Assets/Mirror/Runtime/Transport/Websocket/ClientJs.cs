@@ -1,17 +1,10 @@
 #if UNITY_WEBGL && !UNITY_EDITOR
-
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using AOT;
-using Ninja.WebSockets;
-using UnityEngine;
 
 namespace Mirror.Websocket
 {
@@ -45,13 +38,14 @@ namespace Mirror.Websocket
             id = Interlocked.Increment(ref idGenerator);
         }
 
-        public void Connect(Uri uri)
+        public Task ConnectAsync(Uri uri)
         {
             clients[id] = this;
 
             Connecting = true;
 
             nativeRef = SocketCreate(uri.ToString(), id, OnOpen, OnData, OnClose);
+            return Task.CompletedTask;
         }
 
         public void Disconnect()
@@ -60,9 +54,10 @@ namespace Mirror.Websocket
         }
 
         // send the data or throw exception
-        public void Send(ArraySegment<byte> segment)
+        public Task SendAsync(ArraySegment<byte> segment)
         {
             SocketSend(nativeRef, segment.Array, segment.Count);
+            return Task.CompletedTask;
         }
 
 #region Javascript native functions

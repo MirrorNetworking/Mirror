@@ -27,7 +27,7 @@ namespace Mirror.Websocket
 
         Uri uri;
 
-        public async Task Connect(Uri uri)
+        public async Task ConnectAsync(Uri uri)
         {
             // not if already started
             if (webSocket != null)
@@ -147,7 +147,7 @@ namespace Mirror.Websocket
         }
 
         // send the data or throw exception
-        public async Task Send(ArraySegment<byte> segment)
+        public async Task SendAsync(ArraySegment<byte> segment)
         {
             if (webSocket == null)
             {

@@ -268,7 +268,7 @@ namespace Mirror.Websocket
         }
 
         // send message to client using socket connection or throws exception
-        public async Task Send(int connectionId, ArraySegment<byte> segment)
+        public async Task SendAsync(int connectionId, ArraySegment<byte> segment)
         {
             // find the connection
             if (clients.TryGetValue(connectionId, out WebSocket client))

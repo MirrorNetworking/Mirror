@@ -55,11 +55,11 @@ namespace Mirror.Websocket
         {
             if (Secure)
             {
-                client.Connect(new Uri($"wss://{host}:{port}"));
+                _ = client.ConnectAsync(new Uri($"wss://{host}:{port}"));
             }
             else
             {
-                client.Connect(new Uri($"ws://{host}:{port}"));
+                _ = client.ConnectAsync(new Uri($"ws://{host}:{port}"));
             }
         }
 
@@ -75,12 +75,12 @@ namespace Mirror.Websocket
                 uri = uriBuilder.Uri;
             }
 
-            client.Connect(uri);
+            _ = client.ConnectAsync(uri);
         }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
-            client.Send(segment);
+            _ = client.SendAsync(segment);
             return true;
         }
 
@@ -112,7 +112,7 @@ namespace Mirror.Websocket
         {
             // send to all
             foreach (int connectionId in connectionIds)
-                server.Send(connectionId, segment);
+                _ = server.SendAsync(connectionId, segment);
             return true;
         }
 
