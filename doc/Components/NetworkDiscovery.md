@@ -2,6 +2,8 @@
 
 Network Discovery uses a UDP broadcast on the LAN enabling clients to find the running server and connect to it.
 
+See also our extended [guide document](../Guides/NetworkDiscovery.md).
+
 ![Inspector](NetworkDiscovery.png)
 
 NetworkDiscovery and NetworkDiscoveryHUD components are included, or you can make your own from a [ScriptTemplate](../General/ScriptTemplates.md).
