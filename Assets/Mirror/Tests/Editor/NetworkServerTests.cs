@@ -12,6 +12,7 @@ namespace Mirror.Tests
         {
             var gameObject = new GameObject();
             testServer = gameObject.AddComponent<NetworkServer>();
+            gameObject.AddComponent<NetworkClient>();
             Transport transport = gameObject.AddComponent<TelepathyTransport>();
 
             Transport.activeTransport = transport;
@@ -21,7 +22,7 @@ namespace Mirror.Tests
         [Test]
         public void InitializeTest()
         {
-            Assert.That(server.localClient != null);
+            Assert.That(testServer.localClient != null);
             Assert.That(testServer.connections.Count == 0);
             Assert.That(testServer.active);
         }
