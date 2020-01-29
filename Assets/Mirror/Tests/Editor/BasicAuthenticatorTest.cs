@@ -85,6 +85,9 @@ namespace Mirror.Tests
             connectionToServer.Disconnect();
         }
 
+        public delegate void AuthRequestMessageDelegate(AuthRequestMessage netMsg);
+        public delegate void AuthResponseMessageDelegate(AuthResponseMessage netMsg);
+
         [Test]
         public void OnClientAuthenticateTest()
         {
@@ -96,12 +99,16 @@ namespace Mirror.Tests
 
             bool invoked = false;
 
-            void handler(NetworkConnection conn, AuthRequestMessage msg)
+            void handler(AuthRequestMessage msg)
             {
                 Assert.That(msg.authUsername, Is.EqualTo("abc"));
                 Assert.That(msg.authPassword, Is.EqualTo("123"));
                 invoked = true;
             }
+
+            //Dictionary<int, AuthRequestMessageDelegate> handlers = new Dictionary<int, AuthRequestMessageDelegate>();
+            //handlers.Add(MessagePacker.GetId<AuthRequestMessage>(), handler);
+            //connectionToClient.SetHandlers(handlers);
 
             // This is wrong...what should be done here?
             NetworkServer.RegisterHandler<AuthRequestMessage>(handler);
@@ -123,12 +130,16 @@ namespace Mirror.Tests
 
             bool invoked = false;
 
-            void handler(NetworkConnection conn, AuthResponseMessage msg)
+            void handler(AuthResponseMessage msg)
             {
                 Assert.That(msg.code, Is.EqualTo(123));
                 Assert.That(msg.message, Is.EqualTo("abc"));
                 invoked = true;
             }
+
+            //Dictionary<int, AuthResponseMessageDelegate> handlers = new Dictionary<int, AuthResponseMessageDelegate>();
+            //handlers.Add(MessagePacker.GetId<AuthResponseMessage>(), handler);
+            //connectionToClient.SetHandlers(handlers);
 
             // This is wrong...what should be done here?
             NetworkClient.RegisterHandler<AuthResponseMessage>(handler);
