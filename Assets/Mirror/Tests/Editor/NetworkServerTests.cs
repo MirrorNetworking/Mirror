@@ -80,13 +80,13 @@ namespace Mirror.Tests
         public void ShutdownTest()
         {
             testServer.Shutdown();
+            Assert.That(testServer.active == false);
         }
 
         [OneTimeTearDown]
         public void ShutdownNetworkServer()
         {
             testServer.Shutdown();
-            Assert.That(testServer.active == false);
         }
     }
 }
