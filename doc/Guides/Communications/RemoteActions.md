@@ -14,6 +14,8 @@ Commands are sent from player objects on the client to player objects on the ser
 
 Commands functions must have the prefix “Cmd”. This is a hint when reading code that calls the command - this function is special and is not invoked locally like a normal function.
 
+>   Commands cannot be used directly as event handlers e.g. UI OnClick events, either by code or by inspector assignment. Create a separate method for the handler that calls the Command.
+
 ``` cs
 public class Player : NetworkBehaviour
 {
@@ -52,6 +54,8 @@ ClientRpc calls are sent from objects on the server to objects on clients. They 
 
 ClientRpc functions must have the prefix “Rpc”. This is a hint when reading code that calls the method - this function is special and is not invoked locally like a normal function.
 
+>   ClientRpc's cannot be used directly as event handlers e.g. UI OnClick events, either by code or by inspector assignment. Create a separate method for the handler that calls the ClientRpc.
+
 ``` cs
 public class Player : NetworkBehaviour
 {
@@ -80,6 +84,8 @@ When running a game as a host with a local client, ClientRpc calls will be invok
 TargetRpc functions are called by user code on the server, and then invoked on the corresponding client object on the client of the specified NetworkConnection. The arguments to the RPC call are serialized across the network, so that the client function is invoked with the same values as the function on the server. These functions must begin with the prefix "Target" and cannot be static.
 
 The first argument to an TargetRpc function must be a NetworkConnection object.
+
+>   TargetRpc's cannot be used directly as event handlers e.g. UI OnClick events, either by code or by inspector assignment. Create a separate method for the handler that calls the TargetRpc.
 
 This example shows how a client can use a Command to make a request from the server (`CmdMagic`) by including its own `connectionToClient` as one of the parameters of the TargetRpc invoked directly from that Command:
 
