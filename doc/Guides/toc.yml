@@ -8,6 +8,8 @@
   href: ClientsServers.md
 - name: Authentication
   href: Authentication.md
+- name: Network Discovery
+  href: NetworkDiscovery.md
 - name: Conversion
   href: Conversion.md
 - name: Network Profiler
