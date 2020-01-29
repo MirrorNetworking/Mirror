@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -66,17 +66,77 @@ namespace Mirror.Tests
             Assert.That(fresh.message, Is.EqualTo("abc"));
         }
 
-        [Test]
-        public void OnClientAuthenticateTest(NetworkConnection conn)
+        ULocalConnectionToClient connectionToClient;
+        ULocalConnectionToServer connectionToServer;
+
+        [SetUp]
+        public void SetUpConnections()
         {
-            AuthRequestMessage message = new AuthRequestMessage
+            connectionToServer = new ULocalConnectionToServer();
+            connectionToClient = new ULocalConnectionToClient();
+
+            connectionToClient.connectionToServer = connectionToServer;
+            connectionToServer.connectionToClient = connectionToClient;
+        }
+
+        [TearDown]
+        public void Disconnect()
+        {
+            connectionToServer.Disconnect();
+        }
+
+        [Test]
+        public void OnClientAuthenticateTest()
+        {
+            AuthRequestMessage authRequestMessage = new AuthRequestMessage
             {
                 authUsername = "abc",
                 authPassword = "123"
             };
 
-            // TODO: How do I write a test for this?
-            //conn.Send(message);
+            bool invoked = false;
+
+            void handler(NetworkConnection conn, AuthRequestMessage msg)
+            {
+                Assert.That(msg.authUsername, Is.EqualTo("abc"));
+                Assert.That(msg.authPassword, Is.EqualTo("123"));
+                invoked = true;
+            }
+
+            // This is wrong...what should be done here?
+            NetworkServer.RegisterHandler<AuthRequestMessage>(handler);
+            connectionToClient.Send(authRequestMessage);
+
+            connectionToServer.Update();
+
+            Assert.True(invoked, "handler should have been invoked");
+        }
+
+        [Test]
+        public void OnAuthRequestMessage()
+        {
+            AuthResponseMessage authResponseMessage = new AuthResponseMessage
+            {
+                code = 123,
+                message = "abc"
+            };
+
+            bool invoked = false;
+
+            void handler(NetworkConnection conn, AuthResponseMessage msg)
+            {
+                Assert.That(msg.code, Is.EqualTo(123));
+                Assert.That(msg.message, Is.EqualTo("abc"));
+                invoked = true;
+            }
+
+            // This is wrong...what should be done here?
+            NetworkClient.RegisterHandler<AuthResponseMessage>(handler);
+            connectionToServer.Send(authResponseMessage);
+
+            connectionToServer.Update();
+
+            Assert.True(invoked, "handler should have been invoked");
         }
     }
 }
