@@ -7,8 +7,8 @@ namespace Mirror.Tests
     {
         NetworkServer testServer;
 
-        [Test, Order(1)]
-        public void InitializeTest()
+        [SetUp]
+        public void SetupNetworkServer()
         {
             var gameObject = new GameObject();
             testServer = gameObject.AddComponent<NetworkServer>();
@@ -16,7 +16,11 @@ namespace Mirror.Tests
 
             Transport.activeTransport = transport;
             testServer.Listen(1);
+        }
 
+        [Test]
+        public void InitializeTest()
+        {
             Assert.That(server.localClient != null);
             Assert.That(testServer.connections.Count == 0);
             Assert.That(testServer.active);
@@ -30,12 +34,12 @@ namespace Mirror.Tests
                 var connToClient = new NetworkConnectionToClient(i);
                 testServer.AddConnection(connToClient);
             }
-
+            Assert.That(testServer.active);
             Assert.That(testServer.connections.Count == 10);
         }
 
         [Test]
-        public void RemoveConnectionsTest()
+        public void ClearConnectionsTest()
         {
             for (int i = 0; i < 10; i++)
                 testServer.RemoveConnection(i);
@@ -43,7 +47,7 @@ namespace Mirror.Tests
             Assert.That(testServer.connections.Count == 0);
         }
 
-        [Test, Order(2)]
+        [Test]
         public void SpawnTest()
         {
             var gameObject = new GameObject();
@@ -53,7 +57,7 @@ namespace Mirror.Tests
             Assert.That(gameObject.GetComponent<NetworkIdentity>().server == testServer);
         }
 
-        [Test, Order(2)]
+        [Test]
         public void SpawnWithAuthorityTest()
         {
             var player = new GameObject();
@@ -71,11 +75,16 @@ namespace Mirror.Tests
             Assert.That(networkIdentity.connectionToClient == connToClient);
         }
 
-        [Test, Order(999)]
+        [Test]
         public void ShutdownTest()
         {
             testServer.Shutdown();
-            
+        }
+
+        [OneTimeTearDown]
+        public void ShutdownNetworkServer()
+        {
+            testServer.Shutdown();
             Assert.That(testServer.active == false);
         }
     }
