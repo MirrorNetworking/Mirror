@@ -1,6 +1,6 @@
 # NetworkTransform
 
-[![Network transform video tutorial](../images/video_tutorial.png)](https://www.youtube.com/watch?v=5EgN8IqFfUI&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=2)
+[![Network transform video tutorial](../images/video_tutorial.png)](https://www.youtube.com/watch?v=Z0th49NERl4&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=3)
 
 The Network Transform component synchronizes the position, rotation, and scale of networked game objects across the network.
 
