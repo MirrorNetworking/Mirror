@@ -247,5 +247,25 @@ namespace Mirror.Tests
             ObjectSpawnFinishedMessage fresh = new ObjectSpawnFinishedMessage();
             fresh.Deserialize(new NetworkReader(writerData));
         }
+
+        [Test]
+        public void ObjectHideMessageTest()
+        {
+            // try setting value with constructor
+            ObjectHideMessage message = new ObjectHideMessage
+            {
+                netId = 42,
+            };
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            ObjectHideMessage fresh = new ObjectHideMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+            Assert.That(fresh.netId, Is.EqualTo(message.netId));
+        }
     }
 }
