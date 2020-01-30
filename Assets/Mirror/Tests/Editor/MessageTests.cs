@@ -183,5 +183,21 @@ namespace Mirror.Tests
                         Is.EqualTo(message.payload.Array[message.payload.Offset + i]));
             }
         }
+
+        [Test]
+        public void RemovePlayerMessageTest()
+        {
+            // try setting value with constructor
+            RemovePlayerMessage message = new RemovePlayerMessage();
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            RemovePlayerMessage fresh = new RemovePlayerMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+        }
     }
 }
