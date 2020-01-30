@@ -25,6 +25,45 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SpawnMessageTest()
+        {
+            // try setting value with constructor
+            SpawnMessage message = new SpawnMessage
+            {
+                netId = 42,
+                isLocalPlayer = true,
+                isOwner = true,
+                sceneId = 42,
+                assetId = Guid.NewGuid(),
+                position = UnityEngine.Vector3.one,
+                rotation = UnityEngine.Quaternion.identity,
+                scale = UnityEngine.Vector3.one,
+                payload = new ArraySegment<byte>(new byte[] { 0x01, 0x02 })
+            };
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            SpawnMessage fresh = new SpawnMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+            Assert.That(fresh.netId, Is.EqualTo(message.netId));
+            Assert.That(fresh.isLocalPlayer, Is.EqualTo(message.isLocalPlayer));
+            Assert.That(fresh.isOwner, Is.EqualTo(message.isOwner));
+            Assert.That(fresh.sceneId, Is.EqualTo(message.sceneId));
+            Assert.That(fresh.assetId, Is.EqualTo(message.assetId));
+            Assert.That(fresh.position, Is.EqualTo(message.position));
+            Assert.That(fresh.rotation, Is.EqualTo(message.rotation));
+            Assert.That(fresh.scale, Is.EqualTo(message.scale));
+            Assert.That(fresh.payload.Count, Is.EqualTo(message.payload.Count));
+            for (int i = 0; i < fresh.payload.Count; ++i)
+                Assert.That(fresh.payload.Array[fresh.payload.Offset + i],
+                    Is.EqualTo(message.payload.Array[message.payload.Offset + i]));
+        }
+
+        [Test]
         public void CommandMessageTest()
         {
             // try setting value with constructor
