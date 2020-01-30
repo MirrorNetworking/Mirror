@@ -287,5 +287,21 @@ namespace Mirror.Tests
             fresh.Deserialize(new NetworkReader(writerData));
             Assert.That(fresh.netId, Is.EqualTo(message.netId));
         }
+
+        [Test]
+        public void NotReadyMessageTest()
+        {
+            // try setting value with constructor
+            NotReadyMessage message = new NotReadyMessage();
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            NotReadyMessage fresh = new NotReadyMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+        }
     }
 }
