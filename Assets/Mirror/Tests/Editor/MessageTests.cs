@@ -215,5 +215,21 @@ namespace Mirror.Tests
             ReadyMessage fresh = new ReadyMessage();
             fresh.Deserialize(new NetworkReader(writerData));
         }
+
+        [Test]
+        public void ObjectSpawnStartedMessageTest()
+        {
+            // try setting value with constructor
+            ObjectSpawnStartedMessage message = new ObjectSpawnStartedMessage();
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            ObjectSpawnStartedMessage fresh = new ObjectSpawnStartedMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+        }
     }
 }
