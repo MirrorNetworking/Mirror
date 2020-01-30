@@ -292,10 +292,7 @@ namespace Mirror.Tests
         public void NetworkPingMessageTest()
         {
             // try setting value with constructor
-            NetworkPingMessage message = new NetworkPingMessage
-            {
-                clientTime = 42,
-            };
+            NetworkPingMessage message = new NetworkPingMessage(42);
 
             // serialize
             NetworkWriter writer = new NetworkWriter();
