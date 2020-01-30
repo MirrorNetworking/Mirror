@@ -289,6 +289,26 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void NetworkPingMessageTest()
+        {
+            // try setting value with constructor
+            NetworkPingMessage message = new NetworkPingMessage
+            {
+                clientTime = 42,
+            };
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            NetworkPingMessage fresh = new NetworkPingMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+            Assert.That(fresh.clientTime, Is.EqualTo(message.clientTime));
+        }
+
+        [Test]
         public void NotReadyMessageTest()
         {
             // try setting value with constructor
