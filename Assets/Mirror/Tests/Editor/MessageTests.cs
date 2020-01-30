@@ -142,7 +142,7 @@ namespace Mirror.Tests
             DoTest(0);
             DoTest(42);
 
-            void DoTest(uint testSceneId)
+            void DoTest(ulong testSceneId)
             {
                 // try setting value with constructor
                 SpawnMessage message = new SpawnMessage
