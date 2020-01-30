@@ -42,11 +42,13 @@ namespace Mirror
         public void SetBuffer(byte[] bytes)
         {
             buffer = new ArraySegment<byte>(bytes);
+            Position = 0;
         }
 
         public void SetBuffer(ArraySegment<byte> segment)
         {
             buffer = segment;
+            Position = 0;
         }
 
 

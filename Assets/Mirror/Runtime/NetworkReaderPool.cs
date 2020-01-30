@@ -9,7 +9,7 @@ namespace Mirror
 
         public static NetworkReader GetReader(byte[] bytes)
         {
-            UnityEngine.Debug.Log("GetReader byte[]");
+            UnityEngine.Debug.Log($"NetworkReaderPool:GetReader byte[] {pool.Count}");
 
             if (pool.Count != 0)
             {
@@ -24,7 +24,7 @@ namespace Mirror
 
         public static NetworkReader GetReader(ArraySegment<byte> segment)
         {
-            UnityEngine.Debug.Log("GetReader ArraySegment");
+            UnityEngine.Debug.Log($"NetworkReaderPool:GetReader ArraySegment {pool.Count}");
 
             if (pool.Count != 0)
             {
@@ -39,6 +39,8 @@ namespace Mirror
 
         public static void Recycle(NetworkReader reader)
         {
+            UnityEngine.Debug.Log($"NetworkReaderPool:Recycle {pool.Count}");
+
             pool.Push(reader);
         }
     }
