@@ -14,6 +14,8 @@ namespace Mirror.Discovery
 
         public NetworkDiscovery networkDiscovery;
 
+        public NetworkManager networkManager;
+
 #if UNITY_EDITOR
         void OnValidate()
         {
@@ -23,18 +25,22 @@ namespace Mirror.Discovery
                 UnityEditor.Events.UnityEventTools.AddPersistentListener(networkDiscovery.OnServerFound, OnDiscoveredServer);
                 UnityEditor.Undo.RecordObjects(new Object[] { this, networkDiscovery }, "Set NetworkDiscovery");
             }
+
+            if (networkManager == null)
+            {
+                networkManager = GetComponent<NetworkManager>();
+                UnityEditor.Undo.RecordObjects(new Object[] { this }, "Set NetworkManager");
+
+            }
         }
 #endif
 
         void OnGUI()
         {
-            if (NetworkManager.singleton == null)
+            if (networkManager.server.active || networkManager.client.active)
                 return;
 
-            if (NetworkServer.active || NetworkClient.active)
-                return;
-
-            if (!NetworkClient.isConnected && !NetworkServer.active && !NetworkClient.active)
+            if (!networkManager.client.isConnected && !networkManager.server.active && !networkManager.client.active)
                 DrawGUI();
         }
 
@@ -52,7 +58,7 @@ namespace Mirror.Discovery
             if (GUILayout.Button("Start Host"))
             {
                 discoveredServers.Clear();
-                NetworkManager.singleton.StartHost();
+                networkManager.StartHost();
                 networkDiscovery.AdvertiseServer();
             }
 
@@ -60,7 +66,7 @@ namespace Mirror.Discovery
             if (GUILayout.Button("Start Server"))
             {
                 discoveredServers.Clear();
-                NetworkManager.singleton.StartServer();
+                networkManager.StartServer();
 
                 networkDiscovery.AdvertiseServer();
             }
@@ -83,7 +89,7 @@ namespace Mirror.Discovery
 
         void Connect(ServerResponse info)
         {
-            NetworkManager.singleton.StartClient(info.uri);
+            networkManager.StartClient(info.uri);
         }
 
         public void OnDiscoveredServer(ServerResponse info)

@@ -1,12 +1,18 @@
 // wraps Telepathy for use as HLAPI TransportLayer
 using System;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 
 namespace Mirror.Tcp
 {
     public class TcpTransport : Transport
     {
+        // scheme used by this transport
+        // "tcp4" means tcp with 4 bytes header, network byte order
+        public const string Scheme = "tcp4";
+
+
         protected Client client = new Client();
         protected Server server = new Server();
 
@@ -116,6 +122,24 @@ namespace Mirror.Tcp
                 return server.ToString();
             }
             return "";
+        }
+
+        public override Uri ServerUri()
+        {
+            UriBuilder builder = new UriBuilder();
+            builder.Scheme = Scheme;
+            builder.Host = Dns.GetHostName();
+            builder.Port = port;
+            return builder.Uri;
+        }
+
+        public override void ClientConnect(Uri uri)
+        {
+            if (uri.Scheme != Scheme)
+                throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
+
+            int serverPort = uri.IsDefaultPort ? port : uri.Port;
+            _ = client.ConnectAsync(uri.Host, port);
         }
     }
 }
