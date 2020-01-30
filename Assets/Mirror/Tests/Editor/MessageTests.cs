@@ -292,7 +292,7 @@ namespace Mirror.Tests
         public void NetworkPingMessageTest()
         {
             // try setting value with constructor
-            NetworkPingMessage message = new NetworkPingMessage(42);
+            NetworkPingMessage message = new NetworkPingMessage(DateTime.Now.ToOADate());
 
             // serialize
             NetworkWriter writer = new NetworkWriter();
@@ -303,6 +303,28 @@ namespace Mirror.Tests
             NetworkPingMessage fresh = new NetworkPingMessage();
             fresh.Deserialize(new NetworkReader(writerData));
             Assert.That(fresh.clientTime, Is.EqualTo(message.clientTime));
+        }
+
+        [Test]
+        public void NetworkPongMessageTest()
+        {
+            // try setting value with constructor
+            NetworkPongMessage message = new NetworkPongMessage
+            {
+                clientTime = DateTime.Now.ToOADate(),
+                serverTime = DateTime.Now.ToOADate(),
+            };
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            NetworkPongMessage fresh = new NetworkPongMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+            Assert.That(fresh.clientTime, Is.EqualTo(message.clientTime));
+            Assert.That(fresh.serverTime, Is.EqualTo(message.serverTime));
         }
 
         [Test]
