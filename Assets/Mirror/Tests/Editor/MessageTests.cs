@@ -199,5 +199,21 @@ namespace Mirror.Tests
             RemovePlayerMessage fresh = new RemovePlayerMessage();
             fresh.Deserialize(new NetworkReader(writerData));
         }
+
+        [Test]
+        public void ReadyMessageTest()
+        {
+            // try setting value with constructor
+            ReadyMessage message = new ReadyMessage();
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            ReadyMessage fresh = new ReadyMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+        }
     }
 }
