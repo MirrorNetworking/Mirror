@@ -2,7 +2,7 @@
   "dependencies": {
     "com.unity.ext.nunit": "1.0.0",
     "com.unity.ide.vscode": "1.1.3",
-    "com.unity.test-framework": "1.1.9",
+    "com.unity.test-framework": "1.1.11",
     "com.unity.testtools.codecoverage": "0.2.2-preview",
     "com.unity.textmeshpro": "2.0.1",
     "com.unity.ugui": "1.0.0",
