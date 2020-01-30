@@ -303,5 +303,21 @@ namespace Mirror.Tests
             NotReadyMessage fresh = new NotReadyMessage();
             fresh.Deserialize(new NetworkReader(writerData));
         }
+
+        [Test]
+        public void DisconnectMessageTest()
+        {
+            // try setting value with constructor
+            DisconnectMessage message = new DisconnectMessage();
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            DisconnectMessage fresh = new DisconnectMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+        }
     }
 }
