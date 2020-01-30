@@ -10,18 +10,17 @@ namespace Mirror.Tests
         public void ErrorMessageTest()
         {
             // try setting value with constructor
-            ErrorMessage errorMessage = new ErrorMessage(123);
-            Assert.That(errorMessage.value, Is.EqualTo(123));
+            ErrorMessage message = new ErrorMessage(42);
 
-            // try deserialize
-            byte[] data = { 123 };
-            errorMessage.Deserialize(new NetworkReader(data));
-            Assert.That(errorMessage.value, Is.EqualTo(123));
-
-            // try serialize
+            // serialize
             NetworkWriter writer = new NetworkWriter();
-            errorMessage.Serialize(writer);
-            Assert.That(writer.ToArray()[0], Is.EqualTo(123));
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            ErrorMessage fresh = new ErrorMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+            Assert.That(fresh.value, Is.EqualTo(message.value));
         }
 
         [Test]
