@@ -39,13 +39,13 @@ namespace Mirror
         }
 
         // set buffer methods mirror constructor for ReaderPool
-        public void SetBuffer(byte[] bytes)
+        internal void SetBuffer(byte[] bytes)
         {
             buffer = new ArraySegment<byte>(bytes);
             Position = 0;
         }
 
-        public void SetBuffer(ArraySegment<byte> segment)
+        internal void SetBuffer(ArraySegment<byte> segment)
         {
             buffer = segment;
             Position = 0;
