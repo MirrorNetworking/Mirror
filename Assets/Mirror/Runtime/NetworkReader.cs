@@ -28,7 +28,6 @@ namespace Mirror
         public int Position;
         public int Length => buffer.Count;
 
-
         public NetworkReader(byte[] bytes)
         {
             buffer = new ArraySegment<byte>(bytes);
@@ -38,6 +37,18 @@ namespace Mirror
         {
             buffer = segment;
         }
+
+        // set buffer methods mirror constructor for ReaderPool
+        public void SetBuffer(byte[] bytes)
+        {
+            buffer = new ArraySegment<byte>(bytes);
+        }
+
+        public void SetBuffer(ArraySegment<byte> segment)
+        {
+            buffer = segment;
+        }
+
 
         public byte ReadByte()
         {
