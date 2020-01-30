@@ -305,6 +305,22 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void ConnectMessageTest()
+        {
+            // try setting value with constructor
+            ConnectMessage message = new ConnectMessage();
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            ConnectMessage fresh = new ConnectMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+        }
+
+        [Test]
         public void DisconnectMessageTest()
         {
             // try setting value with constructor
