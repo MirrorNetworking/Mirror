@@ -728,5 +728,14 @@ namespace Mirror.Tests
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for interface MirrorTest.SuperCoolInterface. Use a concrete type or provide a custom writer"));
         }
         #endregion
+            
+            
+                [Test]
+        public void TestingScriptableObjectArraySerialization()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+           
+  
+        }
     }
 }
