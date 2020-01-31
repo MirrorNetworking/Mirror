@@ -21,7 +21,7 @@ namespace MirrorTest
 
     public class Data : ScriptableObject
     {
-        private int Var1;
+        public int Var1;
     }
 
     public class PlayerScript : NetworkBehaviour
