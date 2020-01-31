@@ -21,7 +21,7 @@ namespace MirrorTest
 
     public class Data : ScriptableObject
     {
-        public int Var1;
+        private int Var1;
     }
 
     public class PlayerScript : NetworkBehaviour
@@ -29,6 +29,7 @@ namespace MirrorTest
         [Command]
         public void Cmdwritedata(Data arg)
         {
+            //some code
         }
 
         [Command]
@@ -37,6 +38,7 @@ namespace MirrorTest
                 Data[] arg) //This gonna give error saying-- Mirror.Weaver error: Cannot generate writer for scriptable object Data[]. Use a supported type or provide a custom writer
         {
 
+            //some code
         }
     }
 }
