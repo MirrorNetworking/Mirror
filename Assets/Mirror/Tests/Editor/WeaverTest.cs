@@ -733,8 +733,6 @@ namespace Mirror.Tests
         public void TestingScriptableObjectArraySerialization()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
-           
-  
         }
     }
 }
