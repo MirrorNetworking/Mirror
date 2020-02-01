@@ -18,6 +18,7 @@ namespace Mirror.Weaver
 
         public static void Register(TypeReference dataType, MethodReference methodReference)
         {
+            Log.Warning("registering writer for " + dataType.FullName);
             writeFuncs[dataType.FullName] = methodReference;
         }
 
@@ -26,6 +27,19 @@ namespace Mirror.Weaver
             if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
             {
                 return foundFunc;
+            }
+
+            MethodDefinition newWriterFunc;
+
+            // Arrays are special,  if we resolve them, we get the element type,
+            // so the following ifs might choke on it for scriptable objects
+            // or other objects that require a custom serializer
+            // thus check if it is an array and skip all the checks.
+            if (variable.IsArray)
+            {
+                newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
+                RegisterWriteFunc(variable.FullName, newWriterFunc);
+                return newWriterFunc;
             }
 
             if (variable.IsByReference)
@@ -61,13 +75,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            MethodDefinition newWriterFunc;
-
-            if (variable.IsArray)
-            {
-                newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
-            }
-            else if (variable.Resolve().IsEnum)
+            if (variable.Resolve().IsEnum)
             {
                 return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType(), recursionCount);
             }
