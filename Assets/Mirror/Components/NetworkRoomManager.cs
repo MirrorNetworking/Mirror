@@ -268,28 +268,25 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
-            if (SceneManager.GetActiveScene().name != RoomScene) return;
+            if (SceneManager.GetActiveScene().name == RoomScene)
+            {
+                if (roomSlots.Count == maxConnections) return;
 
-            if (roomSlots.Count == maxConnections) return;
+                allPlayersReady = false;
 
-            allPlayersReady = false;
+                if (LogFilter.Debug) Debug.LogFormat("NetworkRoomManager.OnServerAddPlayer playerPrefab:{0}", roomPlayerPrefab.name);
 
-            if (LogFilter.Debug) Debug.LogFormat("NetworkRoomManager.OnServerAddPlayer playerPrefab:{0}", roomPlayerPrefab.name);
+                GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
+                if (newRoomGameObject == null)
+                    newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
 
-            GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
-            if (newRoomGameObject == null)
-                newRoomGameObject = (GameObject)Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
-
-            NetworkRoomPlayer newRoomPlayer = newRoomGameObject.GetComponent<NetworkRoomPlayer>();
-
-            roomSlots.Add(newRoomPlayer);
-
-            RecalculateRoomPlayerIndices();
-
-            NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
+                NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
+            }
+            else
+                OnRoomServerAddPlayer(conn);
         }
 
-        void RecalculateRoomPlayerIndices()
+        public void RecalculateRoomPlayerIndices()
         {
             if (roomSlots.Count > 0)
             {
@@ -326,6 +323,8 @@ namespace Mirror
                         NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
                     }
                 }
+
+                allPlayersReady = false;
             }
 
             base.ServerChangeScene(sceneName);
@@ -448,6 +447,7 @@ namespace Mirror
         {
             OnRoomStopClient();
             CallOnClientExitRoom();
+            roomSlots.Clear();
         }
 
         /// <summary>
@@ -527,6 +527,17 @@ namespace Mirror
         public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer)
         {
             return null;
+        }
+
+        /// <summary>
+        /// This allows customization of the creation of the GamePlayer object on the server.
+        /// <para>This is only called for subsequent GamePlay scenes after the first one.</para>
+        /// <para>See <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)"/> to customize the player object for the initial GamePlay scene.</para>
+        /// </summary>
+        /// <param name="conn">The connection the player object is for.</param>
+        public virtual void OnRoomServerAddPlayer(NetworkConnection conn)
+        {
+            base.OnServerAddPlayer(conn);
         }
 
         /// <summary>

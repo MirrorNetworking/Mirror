@@ -77,6 +77,17 @@ public class #SCRIPTNAME# : NetworkRoomManager
     }
 
     /// <summary>
+    /// This allows customization of the creation of the GamePlayer object on the server.
+    /// <para>This is only called for subsequent GamePlay scenes after the first one.</para>
+    /// <para>See OnRoomServerCreateGamePlayer to customize the player object for the initial GamePlay scene.</para>
+    /// </summary>
+    /// <param name="conn">The connection the player object is for.</param>
+    public virtual void OnRoomServerAddPlayer(NetworkConnection conn)
+    {
+        base.OnServerAddPlayer(conn);
+    }
+
+    /// <summary>
     /// This is called on the server when it is told that a client has finished switching from the room scene to a game player scene.
     /// <para>When switching from the room, the room-player is replaced with a game-player object. This callback function gives an opportunity to apply state from the room-player to the game-player object.</para>
     /// </summary>

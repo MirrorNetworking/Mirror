@@ -94,19 +94,11 @@ class Player : NetworkBehaviour {
                 // index is where it got added in the list
                 // item is the new item
                 break;
-            case SyncListItem.Operation.OP_REMOVE:
-                // index is where it got removed in the list
-                // item is the item that was removed
-                break;
             case SyncListItem.Operation.OP_REMOVEAT:
                 // index is where it got removed in the list
                 // item is the item that was removed
                 break;
             case SyncListItem.Operation.OP_SET:
-                // index is the index of the item that was updated
-                // item is the previous item
-                break;
-            case SyncListItem.Operation.OP_DIRTY:
                 // index is the index of the item that was updated
                 // item is the previous item
                 break;

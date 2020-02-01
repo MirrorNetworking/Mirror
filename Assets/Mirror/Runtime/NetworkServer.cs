@@ -1016,7 +1016,10 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) Debug.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
-            identity.HandleCommand(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
+
+            NetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload);
+            identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader);
+            NetworkReaderPool.Recycle(networkReader);
         }
 
         internal static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
