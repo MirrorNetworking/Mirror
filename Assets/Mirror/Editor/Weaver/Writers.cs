@@ -96,13 +96,8 @@ namespace Mirror.Weaver
             }
 
             #endregion
-
-          
-
-
-
+                
             return null;
-
         }
 
         static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
