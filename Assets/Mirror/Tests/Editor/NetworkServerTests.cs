@@ -28,27 +28,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void AddConnectionsTest()
-        {
-            for (int i = 0; i < 10; i++)
-            {
-                var connToClient = new NetworkConnectionToClient(i);
-                testServer.AddConnection(connToClient);
-            }
-            Assert.That(testServer.active);
-            Assert.That(testServer.connections.Count == 10);
-        }
-
-        [Test]
-        public void ClearConnectionsTest()
-        {
-            for (int i = 0; i < 10; i++)
-                testServer.RemoveConnection(i);
-
-            Assert.That(testServer.connections.Count == 0);
-        }
-
-        [Test]
         public void SpawnTest()
         {
             var gameObject = new GameObject();
@@ -83,7 +62,7 @@ namespace Mirror.Tests
             Assert.That(testServer.active == false);
         }
 
-        [OneTimeTearDown]
+        [TearDown]
         public void ShutdownNetworkServer()
         {
             testServer.Shutdown();
