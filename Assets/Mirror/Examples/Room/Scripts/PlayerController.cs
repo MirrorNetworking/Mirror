@@ -26,7 +26,7 @@ namespace Mirror.Examples.NetworkRoom
 
         void OnDisable()
         {
-            if (isLocalPlayer)
+            if (isLocalPlayer && Camera.main != null)
             {
                 Camera.main.orthographic = true;
                 Camera.main.transform.SetParent(null);

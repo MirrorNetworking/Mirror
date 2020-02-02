@@ -5,8 +5,9 @@
 The client and server can pass data to each other via [Remote methods](Communications/RemoteActions.md), [State Synchronization](Sync/index.md) or via [Network Messages](Communications/NetworkMessages.md)
 
 Mirror supports a number of data types you can use with these, including:
-- Basic c# types (byte, int, char, uint, float, string, UInt64, etc)
+- Basic c# types (byte, int, char, uint, UInt64, float, string, etc)
 - Built-in Unity math type (Vector3, Quaternion, Rect, Plane, Vector3Int, etc)
+- URI
 - NetworkIdentity
 - Game object with a NetworkIdentity component attached.
 - Structures with any of the above (it's recommended to implement IEquatable\<T\> to avoid boxing and to have the struct readonly, cause modifying one of fields doesn't cause a resync)

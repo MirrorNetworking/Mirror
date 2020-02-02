@@ -1,9 +1,15 @@
 # Change Log
 
-## Version 7.x.x - In Progress
+## Version 8.x.x - In Progress
 - Added: NetworkAnimator now has a ResetTrigger function and server / client authority warnings
 - Added: NetworkTransform now has 3 new floats for Sensitivity to quiet down message traffic from micro changes.
 - Added: Network Observer added to [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
+- Added: [Network Discovery](../Components/NetworkDiscovery.md) has been reimplemented including an example and script template -- thanks to all those who contributed!
+- Added: [Network Discovery](../Guides/NetworkDiscovery.md) Guide added to documentation
+- Added: [Network Scene Checker Component](../Components/NetworkSceneChecker.md)
+- Added: Mirror Icon for all components
+- Added: URI added to supported data types
+- Added: `NetworkReaderPool` has been implemented in place of `new NetworkReader` everywhere, significantly reducing garbage allocation
 - Fixed: NetworkTransform and NetworkAnimator now uses NetworkWriterPool
 - Fixed: NetworkTransform and NetworkAnimator now respect `hasAuthority` for client owned objects
 - Fixed: NetworkTransform will now correctly teleport if time / distance are too large
@@ -15,7 +21,11 @@
 - Fixed: SyncVars are now set for Host player before hook is invoked
 - Fixed: StopHost no longer tries to change to the Offline scene twice
 - Fixed: NetworkRoomManager roomSlots are now correctly managed on both server and clients
+- Fixed: NetworkRoomManager now correctly supports multiple GamePlay scenes and adds a virtual `OnRoomServerAddPlayer`
+- Fixed: Additive scene operations no longer incorrectly lead to extraneous AddPlayer messages from clients.
+- Fixed: `NetworkWriterPool` is now used everywhere instead of `new NetworkWriter` (we missed a couple when the pool was implemented)
 - Changed: Shutdown logic has been streamlined
+- Changed: NetworkIdentity `GetSceneIdenity` method renamed to `GetSceneIdentity` (name typo)
 - Changed: OnApplicationQuit virtual method added to Transport class and `Transport.activeTransport.Shutdown()` is no longer called from Network Manager
 - Changed: **Breaking** SyncVar Hooks now require **two** parameters, one each for the old and new value, and the property value is now set **before** the hook is called.
 

@@ -28,7 +28,6 @@ namespace Mirror
         public int Position;
         public int Length => buffer.Count;
 
-
         public NetworkReader(byte[] bytes)
         {
             buffer = new ArraySegment<byte>(bytes);
@@ -38,6 +37,20 @@ namespace Mirror
         {
             buffer = segment;
         }
+
+        // SetBuffer methods mirror constructor for ReaderPool
+        internal void SetBuffer(byte[] bytes)
+        {
+            buffer = new ArraySegment<byte>(bytes);
+            Position = 0;
+        }
+
+        internal void SetBuffer(ArraySegment<byte> segment)
+        {
+            buffer = segment;
+            Position = 0;
+        }
+
 
         public byte ReadByte()
         {
@@ -350,6 +363,11 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
             return null;
+        }
+
+        public static Uri ReadUri(this NetworkReader reader)
+        {
+            return new Uri(reader.ReadString());
         }
     }
 }
