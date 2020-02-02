@@ -325,11 +325,8 @@ namespace Mirror
 
             MessagePacker.Pack(msg, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
-            NetworkReader networkReader = NetworkReaderPool.GetReader(segment);
-            bool result = InvokeHandler(msgType, networkReader, channelId);
-
-            // recycle writer and return
-            return result;
+            using NetworkReader networkReader = NetworkReaderPool.GetReader(segment);
+            return InvokeHandler(msgType, networkReader, channelId); ;
         }
 
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
@@ -345,7 +342,7 @@ namespace Mirror
         internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
-            NetworkReader networkReader = NetworkReaderPool.GetReader(buffer);
+            using NetworkReader networkReader = NetworkReaderPool.GetReader(buffer);
             if (MessagePacker.UnpackMessage(networkReader, out int msgType))
             {
                 // logging
@@ -362,8 +359,6 @@ namespace Mirror
                 Debug.LogError("Closed connection: " + this + ". Invalid message header.");
                 Disconnect();
             }
-
-            NetworkReaderPool.Recycle(networkReader);
         }
 
         internal void AddOwnedObject(NetworkIdentity obj)

@@ -252,9 +252,8 @@ namespace Mirror
         void CmdClientToServerSync(byte[] payload)
         {
             // deserialize payload
-            NetworkReader networkReader = NetworkReaderPool.GetReader(payload);
+            using NetworkReader networkReader = NetworkReaderPool.GetReader(payload);
             DeserializeFromReader(networkReader);
-            NetworkReaderPool.Recycle(networkReader);
 
             // server-only mode does no interpolation to save computations,
             // but let's set the position directly

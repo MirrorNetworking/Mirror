@@ -147,13 +147,12 @@ namespace Mirror.Discovery
 
             UdpReceiveResult udpReceiveResult = await udpClient.ReceiveAsync();
 
-            NetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer);
+            using NetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer);
 
             long handshake = networkReader.ReadInt64();
             if (handshake != secretHandshake)
             {
                 // message is not for us
-                NetworkReaderPool.Recycle(networkReader);
                 throw new ProtocolViolationException("Invalid handshake");
             }
 
@@ -161,8 +160,6 @@ namespace Mirror.Discovery
             request.Deserialize(networkReader);
 
             ProcessClientRequest(request, udpReceiveResult.RemoteEndPoint);
-
-            NetworkReaderPool.Recycle(networkReader);
         }
 
         /// <summary>
@@ -325,20 +322,15 @@ namespace Mirror.Discovery
 
             UdpReceiveResult udpReceiveResult = await udpClient.ReceiveAsync();
 
-            NetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer);
+            using NetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer);
 
             if (networkReader.ReadInt64() != secretHandshake)
-            {
-                NetworkReaderPool.Recycle(networkReader);
                 return;
-            }
 
             Response response = new Response();
             response.Deserialize(networkReader);
 
             ProcessResponse(response, udpReceiveResult.RemoteEndPoint);
-
-            NetworkReaderPool.Recycle(networkReader);
         }
 
         /// <summary>
