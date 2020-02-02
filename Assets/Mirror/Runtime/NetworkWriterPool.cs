@@ -20,6 +20,9 @@ namespace Mirror
             return new NetworkWriter();
         }
 
+        // NetworkWriter implements IDisposable so there should only be
+        // one reference to Recycle in NetworkWriter's Dispose method.
+        // If this shows additional references, investigate why.
         public static void Recycle(NetworkWriter writer)
         {
             pool.Push(writer);
