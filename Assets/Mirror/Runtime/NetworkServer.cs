@@ -1055,38 +1055,35 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
             // one writer for owner, one for observers
-            using (NetworkWriter ownerWriter = NetworkWriterPool.GetWriter())
+            using (NetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
             {
-                using (NetworkWriter observersWriter = NetworkWriterPool.GetWriter())
+                // serialize all components with initialState = true
+                // (can be null if has none)
+                identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+
+                // convert to ArraySegment to avoid reader allocations
+                // (need to handle null case too)
+                ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
+                ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
+
+                SpawnMessage msg = new SpawnMessage
                 {
-                    // serialize all components with initialState = true
-                    // (can be null if has none)
-                    identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                    netId = identity.netId,
+                    isLocalPlayer = conn?.identity == identity,
+                    isOwner = identity.connectionToClient == conn && conn != null,
+                    sceneId = identity.sceneId,
+                    assetId = identity.assetId,
+                    // use local values for VR support
+                    position = identity.transform.localPosition,
+                    rotation = identity.transform.localRotation,
+                    scale = identity.transform.localScale
+                };
 
-                    // convert to ArraySegment to avoid reader allocations
-                    // (need to handle null case too)
-                    ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
-                    ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
+                // use owner segment if 'conn' owns this identity, otherwise
+                // use observers segment
+                msg.payload = msg.isOwner ? ownerSegment : observersSegment;
 
-                    SpawnMessage msg = new SpawnMessage
-                    {
-                        netId = identity.netId,
-                        isLocalPlayer = conn?.identity == identity,
-                        isOwner = identity.connectionToClient == conn && conn != null,
-                        sceneId = identity.sceneId,
-                        assetId = identity.assetId,
-                        // use local values for VR support
-                        position = identity.transform.localPosition,
-                        rotation = identity.transform.localRotation,
-                        scale = identity.transform.localScale
-                    };
-
-                    // use owner segment if 'conn' owns this identity, otherwise
-                    // use observers segment
-                    msg.payload = msg.isOwner ? ownerSegment : observersSegment;
-
-                    conn.Send(msg);
-                }
+                conn.Send(msg);
             }
         }
 
