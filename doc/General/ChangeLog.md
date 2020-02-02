@@ -9,6 +9,7 @@
 - Added: [Network Scene Checker Component](../Components/NetworkSceneChecker.md)
 - Added: Mirror Icon for all components
 - Added: URI added to supported data types
+- Added: `NetworkReaderPool` has been implemented in place of `new NetworkReader` everywhere, significantly reducing garbage allocation
 - Fixed: NetworkTransform and NetworkAnimator now uses NetworkWriterPool
 - Fixed: NetworkTransform and NetworkAnimator now respect `hasAuthority` for client owned objects
 - Fixed: NetworkTransform will now correctly teleport if time / distance are too large
@@ -20,7 +21,9 @@
 - Fixed: SyncVars are now set for Host player before hook is invoked
 - Fixed: StopHost no longer tries to change to the Offline scene twice
 - Fixed: NetworkRoomManager roomSlots are now correctly managed on both server and clients
+- Fixed: NetworkRoomManager now correctly supports multiple GamePlay scenes and adds a virtual `OnRoomServerAddPlayer`
 - Fixed: Additive scene operations no longer incorrectly lead to extraneous AddPlayer messages from clients.
+- Fixed: `NetworkWriterPool` is now used everywhere instead of `new NetworkWriter` (we missed a couple when the pool was implemented)
 - Changed: Shutdown logic has been streamlined
 - Changed: NetworkIdentity `GetSceneIdenity` method renamed to `GetSceneIdentity` (name typo)
 - Changed: OnApplicationQuit virtual method added to Transport class and `Transport.activeTransport.Shutdown()` is no longer called from Network Manager

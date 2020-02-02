@@ -65,21 +65,22 @@ namespace Mirror
         // unpack a message we received
         public static T Unpack<T>(byte[] data) where T : IMessageBase, new()
         {
-            return Unpack<T>(new ArraySegment<byte>(data));
-        }
-
-        public static T Unpack<T>(ArraySegment<byte> data) where T : IMessageBase, new()
-        {
-            var reader = new NetworkReader(data);
+            var networkReader = NetworkReaderPool.GetReader(data);
 
             int msgType = GetId<T>();
 
-            int id = reader.ReadUInt16();
+            int id = networkReader.ReadUInt16();
             if (id != msgType)
+            {
+                NetworkReaderPool.Recycle(networkReader);
                 throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
+            }
 
             var message = new T();
-            message.Deserialize(reader);
+            message.Deserialize(networkReader);
+
+            NetworkReaderPool.Recycle(networkReader);
+            
             return message;
         }
         // unpack message after receiving
