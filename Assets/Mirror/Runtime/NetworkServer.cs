@@ -223,33 +223,34 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // get writer from pool
-                using NetworkWriter writer = NetworkWriterPool.GetWriter();
-
-                // pack message into byte[] once
-                MessagePacker.Pack(msg, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
-
-                // filter and then send to all internet connections at once
-                // -> makes code more complicated, but is HIGHLY worth it to
-                //    avoid allocations, allow for multicast, etc.
-                connectionIdsCache.Clear();
-                bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                using (NetworkWriter writer = NetworkWriterPool.GetWriter())
                 {
-                    // use local connection directly because it doesn't send via transport
-                    if (kvp.Value is ULocalConnectionToClient)
-                        result &= localConnection.Send(segment);
-                    // gather all internet connections
-                    else
-                        connectionIdsCache.Add(kvp.Key);
+                    // pack message into byte[] once
+                    MessagePacker.Pack(msg, writer);
+                    ArraySegment<byte> segment = writer.ToArraySegment();
+
+                    // filter and then send to all internet connections at once
+                    // -> makes code more complicated, but is HIGHLY worth it to
+                    //    avoid allocations, allow for multicast, etc.
+                    connectionIdsCache.Clear();
+                    bool result = true;
+                    foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                    {
+                        // use local connection directly because it doesn't send via transport
+                        if (kvp.Value is ULocalConnectionToClient)
+                            result &= localConnection.Send(segment);
+                        // gather all internet connections
+                        else
+                            connectionIdsCache.Add(kvp.Key);
+                    }
+
+                    // send to all internet connections at once
+                    if (connectionIdsCache.Count > 0)
+                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
+                    NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
+
+                    return result;
                 }
-
-                // send to all internet connections at once
-                if (connectionIdsCache.Count > 0)
-                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
-                NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
-
-                return result;
             }
             return false;
         }
@@ -287,33 +288,34 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
 
             // get writer from pool
-            using NetworkWriter writer = NetworkWriterPool.GetWriter();
-
-            // pack message only once
-            MessagePacker.Pack(msg, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
-
-            // filter and then send to all internet connections at once
-            // -> makes code more complicated, but is HIGHLY worth it to
-            //    avoid allocations, allow for multicast, etc.
-            connectionIdsCache.Clear();
-            bool result = true;
-            foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
+            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                // use local connection directly because it doesn't send via transport
-                if (kvp.Value is ULocalConnectionToClient)
-                    result &= localConnection.Send(segment);
-                // gather all internet connections
-                else
-                    connectionIdsCache.Add(kvp.Key);
+                // pack message only once
+                MessagePacker.Pack(msg, writer);
+                ArraySegment<byte> segment = writer.ToArraySegment();
+
+                // filter and then send to all internet connections at once
+                // -> makes code more complicated, but is HIGHLY worth it to
+                //    avoid allocations, allow for multicast, etc.
+                connectionIdsCache.Clear();
+                bool result = true;
+                foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
+                {
+                    // use local connection directly because it doesn't send via transport
+                    if (kvp.Value is ULocalConnectionToClient)
+                        result &= localConnection.Send(segment);
+                    // gather all internet connections
+                    else
+                        connectionIdsCache.Add(kvp.Key);
+                }
+
+                // send to all internet connections at once
+                if (connectionIdsCache.Count > 0)
+                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
+                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, connections.Count);
+
+                return result;
             }
-
-            // send to all internet connections at once
-            if (connectionIdsCache.Count > 0)
-                result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
-            NetworkDiagnostics.OnSend(msg, channelId, segment.Count, connections.Count);
-
-            return result;
         }
 
         /// <summary>
@@ -360,40 +362,41 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // get writer from pool
-                using NetworkWriter writer = NetworkWriterPool.GetWriter();
-
-                // pack message only once
-                MessagePacker.Pack(msg, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
-
-                // filter and then send to all internet connections at once
-                // -> makes code more complicated, but is HIGHLY worth it to
-                //    avoid allocations, allow for multicast, etc.
-                connectionIdsCache.Clear();
-                bool result = true;
-                int count = 0;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                using (NetworkWriter writer = NetworkWriterPool.GetWriter())
                 {
-                    bool isOwner = kvp.Value == identity.connectionToClient;
-                    if ((!isOwner || includeOwner) && kvp.Value.isReady)
+                    // pack message only once
+                    MessagePacker.Pack(msg, writer);
+                    ArraySegment<byte> segment = writer.ToArraySegment();
+
+                    // filter and then send to all internet connections at once
+                    // -> makes code more complicated, but is HIGHLY worth it to
+                    //    avoid allocations, allow for multicast, etc.
+                    connectionIdsCache.Clear();
+                    bool result = true;
+                    int count = 0;
+                    foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                     {
-                        count++;
+                        bool isOwner = kvp.Value == identity.connectionToClient;
+                        if ((!isOwner || includeOwner) && kvp.Value.isReady)
+                        {
+                            count++;
 
-                        // use local connection directly because it doesn't send via transport
-                        if (kvp.Value is ULocalConnectionToClient)
-                            result &= localConnection.Send(segment);
-                        // gather all internet connections
-                        else
-                            connectionIdsCache.Add(kvp.Key);
+                            // use local connection directly because it doesn't send via transport
+                            if (kvp.Value is ULocalConnectionToClient)
+                                result &= localConnection.Send(segment);
+                            // gather all internet connections
+                            else
+                                connectionIdsCache.Add(kvp.Key);
+                        }
                     }
+
+                    // send to all internet connections at once
+                    if (connectionIdsCache.Count > 0)
+                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
+                    NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
+
+                    return result;
                 }
-
-                // send to all internet connections at once
-                if (connectionIdsCache.Count > 0)
-                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
-
-                return result;
             }
             return false;
         }
@@ -1011,8 +1014,8 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
 
-            using NetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload);
-            identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader);
+            using (NetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
+                identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader);
         }
 
         internal static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
@@ -1052,36 +1055,39 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
             // one writer for owner, one for observers
-            using NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
-            using NetworkWriter observersWriter = NetworkWriterPool.GetWriter();
-
-            // serialize all components with initialState = true
-            // (can be null if has none)
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
-
-            // convert to ArraySegment to avoid reader allocations
-            // (need to handle null case too)
-            ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
-            ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
-
-            SpawnMessage msg = new SpawnMessage
+            using (NetworkWriter ownerWriter = NetworkWriterPool.GetWriter())
             {
-                netId = identity.netId,
-                isLocalPlayer = conn?.identity == identity,
-                isOwner = identity.connectionToClient == conn && conn != null,
-                sceneId = identity.sceneId,
-                assetId = identity.assetId,
-                // use local values for VR support
-                position = identity.transform.localPosition,
-                rotation = identity.transform.localRotation,
-                scale = identity.transform.localScale
-            };
+                using (NetworkWriter observersWriter = NetworkWriterPool.GetWriter())
+                {
+                    // serialize all components with initialState = true
+                    // (can be null if has none)
+                    identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
-            // use owner segment if 'conn' owns this identity, otherwise
-            // use observers segment
-            msg.payload = msg.isOwner ? ownerSegment : observersSegment;
+                    // convert to ArraySegment to avoid reader allocations
+                    // (need to handle null case too)
+                    ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
+                    ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
 
-            conn.Send(msg);
+                    SpawnMessage msg = new SpawnMessage
+                    {
+                        netId = identity.netId,
+                        isLocalPlayer = conn?.identity == identity,
+                        isOwner = identity.connectionToClient == conn && conn != null,
+                        sceneId = identity.sceneId,
+                        assetId = identity.assetId,
+                        // use local values for VR support
+                        position = identity.transform.localPosition,
+                        rotation = identity.transform.localRotation,
+                        scale = identity.transform.localScale
+                    };
+
+                    // use owner segment if 'conn' owns this identity, otherwise
+                    // use observers segment
+                    msg.payload = msg.isOwner ? ownerSegment : observersSegment;
+
+                    conn.Send(msg);
+                }
+            }
         }
 
         /// <summary>

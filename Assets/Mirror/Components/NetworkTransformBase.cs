@@ -252,8 +252,8 @@ namespace Mirror
         void CmdClientToServerSync(byte[] payload)
         {
             // deserialize payload
-            using NetworkReader networkReader = NetworkReaderPool.GetReader(payload);
-            DeserializeFromReader(networkReader);
+            using (NetworkReader networkReader = NetworkReaderPool.GetReader(payload))
+                DeserializeFromReader(networkReader);
 
             // server-only mode does no interpolation to save computations,
             // but let's set the position directly
@@ -393,11 +393,13 @@ namespace Mirror
                         {
                             // serialize
                             // local position/rotation for VR support
-                            using NetworkWriter writer = NetworkWriterPool.GetWriter();
-                            SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation, targetComponent.transform.localScale);
+                            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+                            {
+                                SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation, targetComponent.transform.localScale);
 
-                            // send to server
-                            CmdClientToServerSync(writer.ToArray());
+                                // send to server
+                                CmdClientToServerSync(writer.ToArray());
+                            }
                         }
                         lastClientSendTime = Time.time;
                     }

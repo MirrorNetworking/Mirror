@@ -36,19 +36,21 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
         public static byte[] PackMessage(int msgType, MessageBase msg)
         {
-            using NetworkWriter writer = NetworkWriterPool.GetWriter();
-            try
+            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                // write message type
-                writer.WriteInt16((short)msgType);
+                try
+                {
+                    // write message type
+                    writer.WriteInt16((short)msgType);
 
-                // serialize message into writer
-                msg.Serialize(writer);
+                    // serialize message into writer
+                    msg.Serialize(writer);
 
-                // return byte[]
-                return writer.ToArray();
+                    // return byte[]
+                    return writer.ToArray();
+                }
+                finally { }
             }
-            finally { }
         }
 
         // pack message before sending
@@ -73,28 +75,31 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static byte[] Pack<T>(T message) where T : IMessageBase
         {
-            using NetworkWriter writer = NetworkWriterPool.GetWriter();
-            Pack(message, writer);
-            byte[] data = writer.ToArray();
+            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                Pack(message, writer);
+                byte[] data = writer.ToArray();
 
-            return data;
+                return data;
+            }
         }
 
         // unpack a message we received
         public static T Unpack<T>(byte[] data) where T : IMessageBase, new()
         {
-            using NetworkReader networkReader = NetworkReaderPool.GetReader(data);
+            using (NetworkReader networkReader = NetworkReaderPool.GetReader(data))
+            {
+                int msgType = GetId<T>();
 
-            int msgType = GetId<T>();
+                int id = networkReader.ReadUInt16();
+                if (id != msgType)
+                    throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
 
-            int id = networkReader.ReadUInt16();
-            if (id != msgType)
-                throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
+                T message = new T();
+                message.Deserialize(networkReader);
 
-            T message = new T();
-            message.Deserialize(networkReader);
-
-            return message;
+                return message;
+            }
         }
 
         // unpack message after receiving

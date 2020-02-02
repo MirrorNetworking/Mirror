@@ -315,18 +315,19 @@ namespace Mirror
         public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
         {
             // get writer from pool
-            using NetworkWriter writer = NetworkWriterPool.GetWriter();
+            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                // if it is a value type,  just use typeof(T) to avoid boxing
+                // this works because value types cannot be derived
+                // if it is a reference type (for example IMessageBase),
+                // ask the message for the real type
+                int msgType = MessagePacker.GetId(typeof(T).IsValueType ? typeof(T) : msg.GetType());
 
-            // if it is a value type,  just use typeof(T) to avoid boxing
-            // this works because value types cannot be derived
-            // if it is a reference type (for example IMessageBase),
-            // ask the message for the real type
-            int msgType = MessagePacker.GetId(typeof(T).IsValueType ? typeof(T) : msg.GetType());
-
-            MessagePacker.Pack(msg, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
-            using NetworkReader networkReader = NetworkReaderPool.GetReader(segment);
-            return InvokeHandler(msgType, networkReader, channelId); ;
+                MessagePacker.Pack(msg, writer);
+                ArraySegment<byte> segment = writer.ToArraySegment();
+                using (NetworkReader networkReader = NetworkReaderPool.GetReader(segment))
+                    return InvokeHandler(msgType, networkReader, channelId);
+            }
         }
 
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
@@ -342,22 +343,24 @@ namespace Mirror
         internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
-            using NetworkReader networkReader = NetworkReaderPool.GetReader(buffer);
-            if (MessagePacker.UnpackMessage(networkReader, out int msgType))
+            using (NetworkReader networkReader = NetworkReaderPool.GetReader(buffer))
             {
-                // logging
-                if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
-
-                // try to invoke the handler for that message
-                if (InvokeHandler(msgType, networkReader, channelId))
+                if (MessagePacker.UnpackMessage(networkReader, out int msgType))
                 {
-                    lastMessageTime = Time.time;
+                    // logging
+                    if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+
+                    // try to invoke the handler for that message
+                    if (InvokeHandler(msgType, networkReader, channelId))
+                    {
+                        lastMessageTime = Time.time;
+                    }
                 }
-            }
-            else
-            {
-                Debug.LogError("Closed connection: " + this + ". Invalid message header.");
-                Disconnect();
+                else
+                {
+                    Debug.LogError("Closed connection: " + this + ". Invalid message header.");
+                    Disconnect();
+                }
             }
         }
 
