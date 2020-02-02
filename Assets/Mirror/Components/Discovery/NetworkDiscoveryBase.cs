@@ -181,7 +181,7 @@ namespace Mirror.Discovery
             if (info == null)
                 return;
 
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            using NetworkWriter writer = NetworkWriterPool.GetWriter();
 
             try
             {
@@ -197,10 +197,6 @@ namespace Mirror.Discovery
             catch (Exception ex)
             {
                 Debug.LogException(ex, this);
-            }
-            finally
-            {
-                NetworkWriterPool.Recycle(writer);
             }
         }
 
@@ -293,7 +289,7 @@ namespace Mirror.Discovery
 
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, serverBroadcastListenPort);
 
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            using NetworkWriter writer = NetworkWriterPool.GetWriter();
 
             writer.WriteInt64(secretHandshake);
 
@@ -310,10 +306,6 @@ namespace Mirror.Discovery
             catch (Exception)
             {
                 // It is ok if we can't broadcast to one of the addresses
-            }
-            finally
-            {
-                NetworkWriterPool.Recycle(writer);
             }
         }
 

@@ -1155,9 +1155,8 @@ namespace Mirror
             if (observers != null && observers.Count > 0)
             {
                 // one writer for owner, one for observers
-                NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
-                NetworkWriter observersWriter = NetworkWriterPool.GetWriter();
-
+                using NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
+                using NetworkWriter observersWriter = NetworkWriterPool.GetWriter();
                 // serialize all the dirty components and send (if any were dirty)
                 OnSerializeAllSafely(false, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
                 if (ownerWritten > 0 || observersWritten > 0)
@@ -1194,8 +1193,6 @@ namespace Mirror
                     //  them if initialState. clearing the dirty ones is enough.)
                     ClearDirtyComponentsDirtyBits();
                 }
-                NetworkWriterPool.Recycle(ownerWriter);
-                NetworkWriterPool.Recycle(observersWriter);
             }
             else
             {

@@ -205,15 +205,15 @@ namespace Mirror
         /// <returns></returns>
         public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                // pack message and send allocation free
+                MessagePacker.Pack(msg, writer);
+                NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
+                bool result = Send(writer.ToArraySegment(), channelId);
 
-            // pack message and send allocation free
-            MessagePacker.Pack(msg, writer);
-            NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
-            bool result = Send(writer.ToArraySegment(), channelId);
-
-            NetworkWriterPool.Recycle(writer);
-            return result;
+                return result;
+            }
         }
 
         // validate packet size before sending. show errors if too big/small.
@@ -315,7 +315,7 @@ namespace Mirror
         public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
         {
             // get writer from pool
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            using NetworkWriter writer = NetworkWriterPool.GetWriter();
 
             // if it is a value type,  just use typeof(T) to avoid boxing
             // this works because value types cannot be derived
@@ -327,10 +327,8 @@ namespace Mirror
             ArraySegment<byte> segment = writer.ToArraySegment();
             NetworkReader networkReader = NetworkReaderPool.GetReader(segment);
             bool result = InvokeHandler(msgType, networkReader, channelId);
-            NetworkReaderPool.Recycle(networkReader);
 
             // recycle writer and return
-            NetworkWriterPool.Recycle(writer);
             return result;
         }
 

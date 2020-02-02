@@ -36,7 +36,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
         public static byte[] PackMessage(int msgType, MessageBase msg)
         {
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            using NetworkWriter writer = NetworkWriterPool.GetWriter();
             try
             {
                 // write message type
@@ -48,10 +48,7 @@ namespace Mirror
                 // return byte[]
                 return writer.ToArray();
             }
-            finally
-            {
-                NetworkWriterPool.Recycle(writer);
-            }
+            finally { }
         }
 
         // pack message before sending
@@ -76,12 +73,9 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static byte[] Pack<T>(T message) where T : IMessageBase
         {
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
-
+            using NetworkWriter writer = NetworkWriterPool.GetWriter();
             Pack(message, writer);
             byte[] data = writer.ToArray();
-
-            NetworkWriterPool.Recycle(writer);
 
             return data;
         }
@@ -104,7 +98,7 @@ namespace Mirror
             message.Deserialize(networkReader);
 
             NetworkReaderPool.Recycle(networkReader);
-            
+
             return message;
         }
 
