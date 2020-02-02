@@ -23,6 +23,7 @@ namespace Mirror
 {
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
+        [Header("Authority")]
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool clientAuthority;
 
@@ -31,13 +32,22 @@ namespace Mirror
         bool isClientWithAuthority => hasAuthority && clientAuthority;
 
         // Selection of which values to synchronize
-        [Header("Selection")]
+        [Header("Sync Selection")]
         [Tooltip("Should local position be synchronized over the network?")]
         public bool syncLocalPosition = true;
         [Tooltip("Should local rotation be synchronized over the network?")]
         public bool syncLocalRotation = true;
         [Tooltip("Should local scale be synchronized over the network?")]
         public bool syncLocalScale = true;
+
+        // Selection of which values to interpolate
+        [Header("Interpolation")]
+        [Tooltip("Should local position be synchronized over the network?")]
+        public bool interpolateLocalPosition = true;
+        [Tooltip("Should local rotation be synchronized over the network?")]
+        public bool interpolateLocalRotation = true;
+        [Tooltip("Should local scale be synchronized over the network?")]
+        public bool interpolateLocalScale = true;
 
         // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
@@ -293,17 +303,22 @@ namespace Mirror
         {
             if (syncLocalPosition && start != null)
             {
-                // Option 1: simply interpolate based on time. but stutter
-                // will happen, it's not that smooth. especially noticeable if
-                // the camera automatically follows the player
-                //   float t = CurrentInterpolationFactor();
-                //   return Vector3.Lerp(start.position, goal.position, t);
+                if (!interpolateLocalPosition)
+                    return goal.localPosition;
+                else
+                {
+                    // Option 1: simply interpolate based on time. but stutter
+                    // will happen, it's not that smooth. especially noticeable if
+                    // the camera automatically follows the player
+                    //   float t = CurrentInterpolationFactor();
+                    //   return Vector3.Lerp(start.position, goal.position, t);
 
-                // Option 2: always += speed
-                // -> speed is 0 if we just started after idle, so always use max
-                //    for best results
-                float speed = Mathf.Max(start.movementSpeed, goal.movementSpeed);
-                return Vector3.MoveTowards(currentPosition, goal.localPosition, speed * Time.deltaTime);
+                    // Option 2: always += speed
+                    // -> speed is 0 if we just started after idle, so always use max
+                    //    for best results
+                    float speed = Mathf.Max(start.movementSpeed, goal.movementSpeed);
+                    return Vector3.MoveTowards(currentPosition, goal.localPosition, speed * Time.deltaTime);
+                }
             }
             return currentPosition;
         }
@@ -312,8 +327,13 @@ namespace Mirror
         {
             if (syncLocalRotation && start != null)
             {
-                float t = CurrentInterpolationFactor(start, goal);
-                return Quaternion.Slerp(start.localRotation, goal.localRotation, t);
+                if (!interpolateLocalRotation)
+                    return goal.localRotation;
+                else
+                {
+                    float t = CurrentInterpolationFactor(start, goal);
+                    return Quaternion.Slerp(start.localRotation, goal.localRotation, t);
+                }
             }
             return defaultRotation;
         }
@@ -322,8 +342,13 @@ namespace Mirror
         {
             if (syncLocalScale && start != null)
             {
-                float t = CurrentInterpolationFactor(start, goal);
-                return Vector3.Lerp(start.localScale, goal.localScale, t);
+                if (!interpolateLocalScale)
+                    return goal.localScale;
+                else
+                {
+                    float t = CurrentInterpolationFactor(start, goal);
+                    return Vector3.Lerp(start.localScale, goal.localScale, t);
+                }
             }
             return currentScale;
         }
@@ -444,6 +469,8 @@ namespace Mirror
             }
         }
 
+        #region Debug Gizmos
+
         static void DrawDataPointGizmo(DataPoint data, Color color)
         {
             // use a little offset because transform.localPosition might be in
@@ -478,5 +505,7 @@ namespace Mirror
             // draw line between them
             if (start != null && goal != null) DrawLineBetweenDataPoints(start, goal, Color.cyan);
         }
+
+        #endregion
     }
 }
