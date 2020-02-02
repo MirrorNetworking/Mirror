@@ -33,6 +33,9 @@ namespace Mirror
             return new NetworkReader(segment);
         }
 
+        // NetworkReader implements IDisposable so there should only be
+        // one reference to Recycle in NetworkReader's Dispose method.
+        // If this shows additional references, investigate why.
         public static void Recycle(NetworkReader reader)
         {
             pool.Push(reader);
