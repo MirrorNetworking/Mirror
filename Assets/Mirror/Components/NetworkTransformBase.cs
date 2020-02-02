@@ -23,6 +23,7 @@ namespace Mirror
 {
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
+        [Header("Authority")]
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool clientAuthority;
 
