@@ -16,8 +16,13 @@ namespace Mirror
     // Note: This class is intended to be extremely pedantic, and
     // throw exceptions whenever stuff is going slightly wrong.
     // The exceptions will be handled in NetworkServer/NetworkClient.
-    public class NetworkReader
+    public class NetworkReader : IDisposable
     {
+        public void Dispose()
+        {
+            NetworkReaderPool.Recycle(this);
+        }
+
         // internal buffer
         // byte[] pointer would work, but we use ArraySegment to also support
         // the ArraySegment constructor

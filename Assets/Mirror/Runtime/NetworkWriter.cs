@@ -6,8 +6,13 @@ using UnityEngine;
 namespace Mirror
 {
     // Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
-    public class NetworkWriter
+    public class NetworkWriter : IDisposable
     {
+        public void Dispose()
+        {
+            NetworkWriterPool.Recycle(this);
+        }
+
         public const int MaxStringLength = 1024 * 32;
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
