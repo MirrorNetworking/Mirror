@@ -26,6 +26,7 @@
 - Fixed: NetworkRoomManager now correctly supports multiple GamePlay scenes and adds a virtual `OnRoomServerAddPlayer`
 - Fixed: Additive scene operations no longer incorrectly lead to extraneous AddPlayer messages from clients.
 - Fixed: `NetworkWriterPool` is now used everywhere instead of `new NetworkWriter` (we missed a couple when the pool was implemented)
+- Fixed: Patch for Unity 2019.3.x `RequestScriptReload` was moved to EditorUtility from UnityEditorInternal.InternalEditorUtility
 - Changed: Shutdown logic has been streamlined
 - Changed: NetworkIdentity `GetSceneIdenity` method renamed to `GetSceneIdentity` (name typo)
 - Changed: OnApplicationQuit virtual method added to Transport class and `Transport.activeTransport.Shutdown()` is no longer called from Network Manager
