@@ -20,6 +20,7 @@
 - Fixed: Starting server immediately after cancelling client connection attempt no longer throws a NRE
 - Fixed: IL2CPP builds no longer trigger an assert when stopping server
 - Fixed: SyncVars are now set for Host player before hook is invoked
+- Fixed: SyncDictionary now correctly updates the value before invoking callbacks.
 - Fixed: StopHost no longer tries to change to the Offline scene twice
 - Fixed: NetworkRoomManager roomSlots are now correctly managed on both server and clients
 - Fixed: NetworkRoomManager now correctly supports multiple GamePlay scenes and adds a virtual `OnRoomServerAddPlayer`
