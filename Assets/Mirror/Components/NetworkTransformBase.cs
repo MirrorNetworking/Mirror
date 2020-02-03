@@ -23,6 +23,7 @@ namespace Mirror
 {
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
+        [Header("Authority")]
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool ClientAuthority;
 
@@ -36,7 +37,8 @@ namespace Mirror
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float LocalPositionSensitivity = .01f;
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
-        public float LocalEulerAnglesSensitivity = .01f;
+
+        public float LocalRotationSensitivity = .01f;
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float LocalScaleSensitivity = .01f;
 
@@ -340,7 +342,7 @@ namespace Mirror
             // moved or rotated or scaled?
             // local position/rotation/scale for VR support
             bool moved = Vector3.Distance(lastPosition, TargetComponent.transform.localPosition) > LocalPositionSensitivity;
-            bool rotated = Vector3.Distance(lastRotation.eulerAngles, TargetComponent.transform.localRotation.eulerAngles) > LocalEulerAnglesSensitivity;
+            bool rotated = Vector3.Distance(lastRotation.eulerAngles, TargetComponent.transform.localRotation.eulerAngles) > LocalRotationSensitivity;
             bool scaled = Vector3.Distance(lastScale, TargetComponent.transform.localScale) > LocalScaleSensitivity;
 
             // save last for next frame to compare

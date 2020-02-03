@@ -21,7 +21,8 @@ namespace Mirror
                 "MIRROR_5_0_OR_NEWER",
                 "MIRROR_6_0_OR_NEWER",
                 "MIRROR_7_0_OR_NEWER",
-                "MIRROR_8_0_OR_NEWER"
+                "MIRROR_8_0_OR_NEWER",
+                "MIRROR_9_0_OR_NEWER"
             };
             PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, string.Join(";", defines));
         }
