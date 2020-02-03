@@ -229,13 +229,14 @@ namespace Mirror
             {
                 if (ContainsKey(i))
                 {
+                    objects[i] = value;
                     AddOperation(Operation.OP_SET, i, value);
                 }
                 else
                 {
+                    objects[i] = value;
                     AddOperation(Operation.OP_ADD, i, value);
                 }
-                objects[i] = value;
             }
         }
 
