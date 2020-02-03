@@ -83,7 +83,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                newReaderFunc = GenerateStructReadFunction(variable, recursionCount);
+                newReaderFunc = GenerateClassOrStructReadFunction(variable, recursionCount);
             }
 
             if (newReaderFunc == null)
@@ -293,7 +293,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateStructReadFunction(TypeReference variable, int recursionCount)
+        static MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable, int recursionCount)
         {
             if (recursionCount > MaxRecursionCount)
             {
