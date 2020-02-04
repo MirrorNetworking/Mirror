@@ -46,18 +46,15 @@ namespace Mirror.Weaver
         [InitializeOnLoadMethod]
         static void OnInitializeOnLoad()
         {
+            CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
+
             // We only need to run this once per session
             // after that, all assemblies will be weaved by the event
             if (!SessionState.GetBool("MIRROR_WEAVED", false))
             {
-                // reset session flag
                 SessionState.SetBool("MIRROR_WEAVED", true);
-
                 WeaveExistingAssemblies();
             }
-
-            // hook the event after the first run of WeaveExistingAssemblies
-            CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
         }
 
         public static void WeaveExistingAssemblies()
