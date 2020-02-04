@@ -52,28 +52,30 @@ namespace Mirror.Weaver
             // after that, all assemblies will be weaved by the event
             if (!SessionState.GetBool("MIRROR_WEAVED", false))
             {
+                // reset the flags
+                WeaveFailed = false;
                 SessionState.SetBool("MIRROR_WEAVED", true);
+
                 WeaveExistingAssemblies();
             }
+            //else
+            //    Debug.LogWarning("OnInitializeOnLoad: Not Running Weaver?!?!");
         }
 
         public static void WeaveExistingAssemblies()
         {
-            // reset the flag
-            WeaveFailed = false;
+            //return;
+            Debug.LogWarning("WeaveExistingAssemblies");
 
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
-            {
                 if (File.Exists(assembly.outputPath))
-                {
                     OnCompilationFinished(assembly.outputPath, new CompilerMessage[0]);
-                }
-            }
-#if UNITY_2019_3_OR_NEWER
-            EditorUtility.RequestScriptReload();
-#else
-            UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
-#endif
+
+            //#if UNITY_2019_3_OR_NEWER
+            //            EditorUtility.RequestScriptReload();
+            //#else
+            //            UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
+            //#endif
 
         }
 
@@ -154,14 +156,10 @@ namespace Mirror.Weaver
             }
 
             // passing null in the outputDirectory param will do an in-place update of the assembly
-            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
-            {
-                //WeaveFailed = false;
-                Debug.Log("Weaving succeeded for: " + assemblyPath);
-            }
-            else
+            if (!Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
             {
                 WeaveFailed = true;
+                SessionState.SetBool("MIRROR_WEAVED", false);
                 if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
             }
         }

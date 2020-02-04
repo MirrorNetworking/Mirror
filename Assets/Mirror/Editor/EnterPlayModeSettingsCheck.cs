@@ -13,6 +13,8 @@ namespace Mirror
         static void OnInitializeOnLoad()
         {
             // check immediately on load
+            //CheckSuccessfulWeave();
+
 #if UNITY_2019_3_OR_NEWER
       CheckPlayModeOptions();
 #endif
@@ -26,7 +28,7 @@ namespace Mirror
         {
             // only check when entering play mode. no need to show it again
             // when exiting.
-            if (state == PlayModeStateChange.EnteredPlayMode)
+            if (state == PlayModeStateChange.ExitingEditMode)
             {
                 CheckSuccessfulWeave();
 #if UNITY_2019_3_OR_NEWER
@@ -37,13 +39,15 @@ namespace Mirror
 
         static void CheckSuccessfulWeave()
         {
-            if (Weaver.CompilationFinishedHook.WeaveFailed)
+            bool weaved = SessionState.GetBool("MIRROR_WEAVED", true);
+            if (!weaved)
             {
                 // try to weave again...faults will show in the console that may have been cleared by "Clear on Play"
                 Weaver.CompilationFinishedHook.WeaveExistingAssemblies();
             }
 
-            if (Weaver.CompilationFinishedHook.WeaveFailed)
+            weaved = SessionState.GetBool("MIRROR_WEAVED", true);
+            if (!weaved)
             {
                 // still failed, and console has the issues logged
                 Debug.LogError("Can't enter play mode until weaver issues are resolved.");
