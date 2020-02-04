@@ -1,4 +1,4 @@
-# Change Log.
+# Change Log
 
 ## Version 9.0.2 - 2020-Feb-04
 - Added: NetworkAnimator now has a ResetTrigger function and server / client authority warnings.
