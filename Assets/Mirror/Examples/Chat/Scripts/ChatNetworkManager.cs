@@ -6,6 +6,7 @@ using System;
 
 namespace Mirror.Examples.Chat
 {
+    [AddComponentMenu("")]
     public class ChatNetworkManager : NetworkManager
     {
         public string playerName { get; set; }
