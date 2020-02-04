@@ -57,8 +57,11 @@ namespace Mirror.Weaver
             }
         }
 
-        static void WeaveExistingAssemblies()
+        public static void WeaveExistingAssemblies()
         {
+            // reset the flag
+            WeaveFailed = false;
+
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
             {
                 if (File.Exists(assembly.outputPath))
@@ -153,8 +156,8 @@ namespace Mirror.Weaver
             // passing null in the outputDirectory param will do an in-place update of the assembly
             if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
             {
-                WeaveFailed = false;
-                //Debug.Log("Weaving succeeded for: " + assemblyPath);
+                //WeaveFailed = false;
+                Debug.Log("Weaving succeeded for: " + assemblyPath);
             }
             else
             {
