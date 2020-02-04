@@ -50,8 +50,7 @@ namespace Mirror.Weaver
             // after that, all assemblies will be weaved by the event
             if (!SessionState.GetBool("MIRROR_WEAVED", false))
             {
-                // reset the flags
-                WeaveFailed = false;
+                // reset session flag
                 SessionState.SetBool("MIRROR_WEAVED", true);
 
                 WeaveExistingAssemblies();
@@ -149,7 +148,12 @@ namespace Mirror.Weaver
             }
 
             // passing null in the outputDirectory param will do an in-place update of the assembly
-            if (!Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
+            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
+            {
+                WeaveFailed = false;
+                //Debug.Log("Weaving succeeded for: " + assemblyPath);
+            }
+            else
             {
                 WeaveFailed = true;
                 SessionState.SetBool("MIRROR_WEAVED", false);
