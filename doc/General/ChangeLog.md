@@ -16,7 +16,7 @@
 - Fixed: NetworkTransform will now correctly teleport if time / distance are too large.
 - Fixed: NetworkAnimator now correctly syncs when clientAuthority is false.
 - Fixed: Client owned objects are now destroyed when client disconnects (regression).
-- Fixed: Client authority is now preserved for networked objects carried through scene change in DDOL.
+- Fixed: Client authority is now preserved for networked objects carried through scene change in DontDestroyOnLoad (DDOL).
 - Fixed: Starting server immediately after cancelling client connection attempt no longer throws a NRE.
 - Fixed: IL2CPP builds no longer trigger an assert when stopping server.
 - Fixed: SyncVars are now set for Host player before hook is invoked.
