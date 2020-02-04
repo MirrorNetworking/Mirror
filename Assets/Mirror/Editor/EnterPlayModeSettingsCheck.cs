@@ -12,57 +12,59 @@ namespace Mirror
         [InitializeOnLoadMethod]
         static void OnInitializeOnLoad()
         {
-            // check immediately on load
-            //CheckSuccessfulWeave();
-
 #if UNITY_2019_3_OR_NEWER
-      CheckPlayModeOptions();
+            // We can't support experimental "Enter Play Mode Options" mode
+            // Check immediately on load, and before entering play mode, and warn the user
+            CheckPlayModeOptions();
 #endif
 
-            // check each time we press play. OnLoad is only called once and
-            // wouldn't detect editor-time setting changes
+            // Hook this event to see if we have a good weave every time
+            // user attempts to enter play mode or tries to do a build
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
 
         static void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            // only check when entering play mode. no need to show it again
-            // when exiting.
+            // Per Unity docs, this fires "when exiting edit mode before the Editor is in play mode".
+            // This doesn't fire when closing the editor.
             if (state == PlayModeStateChange.ExitingEditMode)
             {
                 CheckSuccessfulWeave();
+
 #if UNITY_2019_3_OR_NEWER
-               CheckPlayModeOptions();
+                // We can't support experimental "Enter Play Mode Options" mode
+                // Check and prevent entering play mode if enabled
+                CheckPlayModeOptions();
 #endif
             }
         }
 
         static void CheckSuccessfulWeave()
         {
-            bool weaved = SessionState.GetBool("MIRROR_WEAVED", true);
-            if (!weaved)
+            // Check if last weave result was successful
+            if (!SessionState.GetBool("MIRROR_WEAVED", false))
             {
-                // try to weave again...faults will show in the console that may have been cleared by "Clear on Play"
+                // Last weave result was a failure...try to weave again
+                // Faults will show in the console that may have been cleared by "Clear on Play"
                 Weaver.CompilationFinishedHook.WeaveExistingAssemblies();
-            }
 
-            weaved = SessionState.GetBool("MIRROR_WEAVED", true);
-            if (!weaved)
-            {
-                // still failed, and console has the issues logged
-                Debug.LogError("Can't enter play mode until weaver issues are resolved.");
-                EditorApplication.isPlaying = false;
+                // Did that clear things up for us?
+                if (!SessionState.GetBool("MIRROR_WEAVED", false))
+                {
+                    // Nope, still failed, and console has the issues logged
+                    Debug.LogError("Can't enter play mode until weaver issues are resolved.");
+                    EditorApplication.isPlaying = false;
+                }
             }
         }
 
 #if UNITY_2019_3_OR_NEWER
         static void CheckPlayModeOptions()
         {
-            // enabling the checkbox is enough. it controls all the other
-            // settings.
+            // enabling the checkbox is enough. it controls all the other settings.
             if (EditorSettings.enterPlayModeOptionsEnabled)
             {
-                Debug.LogError("Enter Play Mode Options are not supported by Mirror. Please disable 'ProjectSettings->Editor->Enter Play Mode Settings (Experimental)'.");
+                Debug.LogError("Enter Play Mode Options are not supported by Mirror. Please disable 'ProjectSettings -> Editor -> Enter Play Mode Settings (Experimental)'.");
                 EditorApplication.isPlaying = false;
             }
         }
