@@ -66,6 +66,10 @@ namespace Mirror.Weaver
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
                 if (File.Exists(assembly.outputPath))
                     OnCompilationFinished(assembly.outputPath, new CompilerMessage[0]);
+
+            // Previously this method called UnityEditorInternal.InternalEditorUtility.RequestScriptReload
+            // but doing so now creates an endless loop of reloading and reweaving because now we're blocking
+            // play mode for weaver failures. Let Unity be Unity and don't RequestScriptReload anymore.
         }
 
         static string FindMirrorRuntime()
