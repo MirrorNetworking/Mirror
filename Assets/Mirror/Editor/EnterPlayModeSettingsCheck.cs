@@ -1,4 +1,4 @@
-﻿// Unity 2019.3 has an experimental 'disable domain reload on play'
+// Unity 2019.3 has an experimental 'disable domain reload on play'
 // feature. keeping any global state between sessions will break
 // Mirror and most of our user's projects. don't allow it for now.
 // https://blogs.unity3d.com/2019/11/05/enter-play-mode-faster-in-unity-2019-3/
@@ -33,11 +33,10 @@ namespace Mirror
 
         static void CheckPlayModeOptions()
         {
-            // enabling the checkbox is enough. it controls all the other
-            // settings.
+            // enabling the checkbox is enough. it controls all the other settings.
             if (EditorSettings.enterPlayModeOptionsEnabled)
             {
-                Debug.LogError("Enter Play Mode Options are not supported by Mirror. Please disable 'ProjectSettings->Editor->Enter Play Mode Settings (Experimental)'.");
+                Debug.LogError("Enter Play Mode Options are not supported by Mirror. Please disable 'ProjectSettings -> Editor -> Enter Play Mode Settings (Experimental)'.");
                 EditorApplication.isPlaying = false;
             }
         }

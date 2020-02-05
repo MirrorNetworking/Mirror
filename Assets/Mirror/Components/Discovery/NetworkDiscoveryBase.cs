@@ -101,7 +101,6 @@ namespace Mirror.Discovery
         /// <summary>
         /// Advertise this server in the local network
         /// </summary>
-        /// <param name="networkManager">Network Manager</param>
         public void AdvertiseServer()
         {
             if (!SupportedOnThisPlatform)
