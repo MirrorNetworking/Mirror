@@ -1,4 +1,4 @@
-﻿// Unity 2019.3 has an experimental 'disable domain reload on play'
+// Unity 2019.3 has an experimental 'disable domain reload on play'
 // feature. keeping any global state between sessions will break
 // Mirror and most of our user's projects. don't allow it for now.
 // https://blogs.unity3d.com/2019/11/05/enter-play-mode-faster-in-unity-2019-3/
