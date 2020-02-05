@@ -20,7 +20,10 @@ namespace Mirror.Weaver
 
         public static bool WeaverEnabled { get; set; } // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
         public static bool UnityLogEnabled = true; // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
-        public static bool WeaveFailed { get; private set; } // holds the result status of our latest Weave operation
+
+        // holds the result status of our latest Weave operation
+        // NOTE: WeaveFailed is critical to unit tests, but isn't used for anything else. 
+        public static bool WeaveFailed { get; private set; }
 
         // debug message handler that also calls OnMessageMethod delegate
         static void HandleMessage(string msg)
@@ -153,7 +156,9 @@ namespace Mirror.Weaver
             // passing null in the outputDirectory param will do an in-place update of the assembly
             if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
             {
+                // NOTE: WeaveFailed is critical for unit tests but isn't used elsewhere
                 WeaveFailed = false;
+
                 //Debug.Log("Weaving succeeded for: " + assemblyPath);
             }
             else
