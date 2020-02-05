@@ -42,14 +42,15 @@ namespace Mirror
         static void CheckSuccessfulWeave()
         {
             // Check if last weave result was successful
-            if (!SessionState.GetBool("MIRROR_WEAVED", false))
+            if (!SessionState.GetBool("MIRROR_WEAVE_SUCCESS", false))
             {
                 // Last weave result was a failure...try to weave again
                 // Faults will show in the console that may have been cleared by "Clear on Play"
+                SessionState.SetBool("MIRROR_WEAVE_SUCCESS", true);
                 Weaver.CompilationFinishedHook.WeaveExistingAssemblies();
 
                 // Did that clear things up for us?
-                if (!SessionState.GetBool("MIRROR_WEAVED", false))
+                if (!SessionState.GetBool("MIRROR_WEAVE_SUCCESS", false))
                 {
                     // Nope, still failed, and console has the issues logged
                     Debug.LogError("Can't enter play mode until weaver issues are resolved.");

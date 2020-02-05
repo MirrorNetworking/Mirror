@@ -49,18 +49,18 @@ namespace Mirror.Weaver
         [InitializeOnLoadMethod]
         static void OnInitializeOnLoad()
         {
+            CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
+
             // We only need to run this once per session
             // after that, all assemblies will be weaved by the event
             if (!SessionState.GetBool("MIRROR_WEAVED", false))
             {
                 // reset session flag
                 SessionState.SetBool("MIRROR_WEAVED", true);
+                SessionState.SetBool("MIRROR_WEAVE_SUCCESS", true);
 
                 WeaveExistingAssemblies();
             }
-
-            // hook the event after the first run of WeaveExistingAssemblies to avoid a double firing
-            CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
         }
 
         public static void WeaveExistingAssemblies()
@@ -68,6 +68,12 @@ namespace Mirror.Weaver
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
                 if (File.Exists(assembly.outputPath))
                     OnCompilationFinished(assembly.outputPath, new CompilerMessage[0]);
+
+#if UNITY_2019_3_OR_NEWER
+            EditorUtility.RequestScriptReload();
+#else
+            UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
+#endif
 
             // Previously this method called UnityEditorInternal.InternalEditorUtility.RequestScriptReload
             // but doing so now creates an endless loop of reloading and reweaving because now we're blocking
@@ -156,12 +162,12 @@ namespace Mirror.Weaver
                 // NOTE: WeaveFailed is critical for unit tests but isn't used elsewhere
                 WeaveFailed = false;
 
-                //Debug.Log("Weaving succeeded for: " + assemblyPath);
+                Debug.Log("Weaving succeeded for: " + assemblyPath);
             }
             else
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
-                SessionState.SetBool("MIRROR_WEAVED", false);
+                SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
 
                 WeaveFailed = true;
                 if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
