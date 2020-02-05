@@ -23,7 +23,7 @@ namespace Mirror.Weaver
 
         // holds the result status of our latest Weave operation
         // NOTE: WeaveFailed is critical to unit tests, but isn't used for anything else. 
-        public static bool WeaveFailed { get; private set; } 
+        public static bool WeaveFailed { get; private set; }
 
         // debug message handler that also calls OnMessageMethod delegate
         static void HandleMessage(string msg)
