@@ -1,3 +1,38 @@
+# [8.0.0](https://github.com/MirrorNG/MirrorNG/compare/7.0.0-master...8.0.0-master) (2020-02-06)
+
+
+### Bug Fixes
+
+* call callback after update dictionary in host ([#1476](https://github.com/MirrorNG/MirrorNG/issues/1476)) ([1736bb0](https://github.com/MirrorNG/MirrorNG/commit/1736bb0c42c0d2ad341e31a645658722de3bfe07))
+* port network discovery ([d6a1154](https://github.com/MirrorNG/MirrorNG/commit/d6a1154e98c52e7873411ce9d7b87f7b294dc436))
+* remove scriptableobject error Tests ([479b78b](https://github.com/MirrorNG/MirrorNG/commit/479b78bf3cabe93938bf61b7f8fd63ba46da0f4a))
+* Telepathy reverted to older version to fix freezes when calling Client.Disconnect on some platforms like Windows 10 ([d0d77b6](https://github.com/MirrorNG/MirrorNG/commit/d0d77b661cd07e25887f0e2f4c2d72b4f65240a2))
+* Telepathy updated to latest version. Threads are closed properly now. ([4007423](https://github.com/MirrorNG/MirrorNG/commit/4007423db28f7044f6aa97b108a6bfbe3f2d46a9))
+
+
+* Renamed localEulerAnglesSensitivity (#1474) ([eee9692](https://github.com/MirrorNG/MirrorNG/commit/eee969201d69df1e1ee1f1623b55a78f6003fbb1)), closes [#1474](https://github.com/MirrorNG/MirrorNG/issues/1474)
+
+
+### breaking
+
+* Transports can now provide their Uri ([#1454](https://github.com/MirrorNG/MirrorNG/issues/1454)) ([b916064](https://github.com/MirrorNG/MirrorNG/commit/b916064856cf78f1c257f0de0ffe8c9c1ab28ce7)), closes [#38](https://github.com/MirrorNG/MirrorNG/issues/38)
+
+
+### Features
+
+* Implemented NetworkReaderPool ([#1464](https://github.com/MirrorNG/MirrorNG/issues/1464)) ([9257112](https://github.com/MirrorNG/MirrorNG/commit/9257112c65c92324ad0bd51e4a017aa1b4c9c1fc))
+* LAN Network discovery ([#1453](https://github.com/MirrorNG/MirrorNG/issues/1453)) ([e75b45f](https://github.com/MirrorNG/MirrorNG/commit/e75b45f8889478456573ea395694b4efc560ace0)), closes [#38](https://github.com/MirrorNG/MirrorNG/issues/38)
+* Mirror Icon for all components ([#1452](https://github.com/MirrorNG/MirrorNG/issues/1452)) ([a7efb13](https://github.com/MirrorNG/MirrorNG/commit/a7efb13e29e0bc9ed695a86070e3eb57b7506b4c))
+* supports scriptable objects ([4b8f819](https://github.com/MirrorNG/MirrorNG/commit/4b8f8192123fe0b79ea71f2255a4bbac404c88b1))
+
+
+### BREAKING CHANGES
+
+* localEulerAnglesSensitivity renamed to localRotationSensitivity
+* Make the server uri method mandatory in transports
+
+Co-authored-by: MrGadget <chris@clevertech.net>
+
 # [7.0.0](https://github.com/MirrorNG/MirrorNG/compare/6.0.0-master...7.0.0-master) (2020-01-27)
 
 
