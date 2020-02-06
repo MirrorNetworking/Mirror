@@ -73,6 +73,10 @@ namespace Mirror
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
             localPlayer = identity;
+
+            // still need to set isClient flag
+            localPlayer.isClient = true;
+
             if (readyConnection != null)
             {
                 readyConnection.identity = identity;
