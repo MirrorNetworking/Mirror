@@ -1,3 +1,10 @@
+## [8.0.1](https://github.com/MirrorNG/MirrorNG/compare/8.0.0-master...8.0.1-master) (2020-02-06)
+
+
+### Bug Fixes
+
+* first connection id = 1 ([#60](https://github.com/MirrorNG/MirrorNG/issues/60)) ([891dab9](https://github.com/MirrorNG/MirrorNG/commit/891dab92d065821ca46b47ef2d3eb27124058d74))
+
 # [8.0.0](https://github.com/MirrorNG/MirrorNG/compare/7.0.0-master...8.0.0-master) (2020-02-06)
 
 
