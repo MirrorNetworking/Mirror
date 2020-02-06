@@ -561,9 +561,15 @@ namespace Mirror
             writer.WriteString(uri.ToString());
         }
 
-        public static void Write<T>(this NetworkWriter writer, T msg) where T : IMessageBase
+        public static void WriteMessage<T>(this NetworkWriter writer, T msg) where T : IMessageBase
         {
             msg.Serialize(writer);
+        }
+
+        [Obsolete("Use WriteMessage instead")]
+        public static void Write<T>(this NetworkWriter writer, T msg) where T : IMessageBase
+        {
+            WriteMessage(writer, msg);
         }
     }
 }
