@@ -122,5 +122,38 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
         }
+
+        // check isClient/isServer/isLocalPlayer in host mode
+        [Test]
+        public void HostMode_IsFlags_Test()
+        {
+            // start the server
+            Transport.activeTransport = Substitute.For<Transport>();
+            NetworkServer.Listen(1000);
+
+            // start the client
+            NetworkClient.ConnectHost();
+
+            // create a networkidentity+component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
+
+            // spawn it
+            NetworkServer.Spawn(gameObject);
+
+            // OnStartServer should have been called. check the flags.
+            Assert.That(component.OnStartServer_isClient, Is.EqualTo(true));
+            Assert.That(component.OnStartServer_isLocalPlayer, Is.EqualTo(false));
+            Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
+
+            // stop the client
+            NetworkClient.Shutdown();
+            NetworkServer.RemoveLocalConnection();
+
+            // stop the server
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+        }
     }
 }
