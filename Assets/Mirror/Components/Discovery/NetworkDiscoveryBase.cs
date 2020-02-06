@@ -251,7 +251,7 @@ namespace Mirror.Discovery
         }
 
         /// <summary>
-        /// Start Active Discovery
+        /// Stop Active Discovery
         /// </summary>
         public void StopDiscovery()
         {
