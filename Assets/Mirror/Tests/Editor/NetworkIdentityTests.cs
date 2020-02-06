@@ -139,17 +139,21 @@ namespace Mirror.Tests
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
 
+            // set is as local player
+            ClientScene.InternalAddPlayer(identity);
+
             // spawn it
             NetworkServer.Spawn(gameObject);
 
             // OnStartServer should have been called. check the flags.
             Assert.That(component.OnStartServer_isClient, Is.EqualTo(true));
-            Assert.That(component.OnStartServer_isLocalPlayer, Is.EqualTo(false));
+            Assert.That(component.OnStartServer_isLocalPlayer, Is.EqualTo(true));
             Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
 
             // stop the client
             NetworkClient.Shutdown();
             NetworkServer.RemoveLocalConnection();
+            ClientScene.Shutdown();
 
             // stop the server
             NetworkServer.Shutdown();
