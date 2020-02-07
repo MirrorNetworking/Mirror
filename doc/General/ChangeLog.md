@@ -1,5 +1,10 @@
 # Change Log
 
+## Version 10.x.x - In Progress
+- Added: NetworkReader.ReadMessage<T>.
+- Added: NetworkDiscovery now handles headless server mode.
+- Changed: Breaking - Renamed NeworkWriter.Write to WriteMessage for consistency.
+
 ## Version 9.0.2 - 2020-Feb-04
 - Added: NetworkAnimator now has a ResetTrigger function and server / client authority warnings.
 - Added: NetworkTransform now has 3 new floats for Sensitivity to quiet down message traffic from micro changes.
