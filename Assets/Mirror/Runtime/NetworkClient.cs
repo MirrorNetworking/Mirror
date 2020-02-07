@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Mirror
@@ -59,7 +60,7 @@ namespace Mirror
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="address"></param>
-        public void Connect(string address)
+        public async Task ConnectAsync(string address)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
 
@@ -68,18 +69,19 @@ namespace Mirror
             InitializeTransportHandlers();
 
             connectState = ConnectState.Connecting;
-            Transport.activeTransport.ClientConnect(address);
+            await Transport.activeTransport.ClientConnectAsync(address);
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
             connection.SetHandlers(handlers);
+            OnConnected();
         }
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="uri">Address of the server to connect to</param>
-        public void Connect(Uri uri)
+        public async Task ConnectAsync(Uri uri)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + uri);
 
@@ -88,11 +90,12 @@ namespace Mirror
             InitializeTransportHandlers();
 
             connectState = ConnectState.Connecting;
-            Transport.activeTransport.ClientConnect(uri);
+            await Transport.activeTransport.ClientConnectAsync(uri);
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
             connection.SetHandlers(handlers);
+            OnConnected();
         }
 
         internal void ConnectHost(NetworkServer server)
@@ -126,7 +129,6 @@ namespace Mirror
 
         void InitializeTransportHandlers()
         {
-            Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
             Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
             Transport.activeTransport.OnClientDisconnected.AddListener(OnDisconnected);
             Transport.activeTransport.OnClientError.AddListener(OnError);
@@ -157,18 +159,14 @@ namespace Mirror
 
         void OnConnected()
         {
-            if (connection != null)
-            {
-                // reset network time stats
-                NetworkTime.Reset();
+            // reset network time stats
+            NetworkTime.Reset();
 
-                // the handler may want to send messages to the client
-                // thus we should set the connected state before calling the handler
-                connectState = ConnectState.Connected;
-                NetworkTime.UpdateClient(this);
-                connection.InvokeHandler(new ConnectMessage(), -1);
-            }
-            else Debug.LogError("Skipped Connect message handling because connection is null.");
+            // the handler may want to send messages to the client
+            // thus we should set the connected state before calling the handler
+            connectState = ConnectState.Connected;
+            NetworkTime.UpdateClient(this);
+            connection.InvokeHandler(new ConnectMessage(), -1);
         }
 
         /// <summary>
@@ -204,7 +202,6 @@ namespace Mirror
         void RemoveTransportHandlers()
         {
             // so that we don't register them more than once
-            Transport.activeTransport.OnClientConnected.RemoveListener(OnConnected);
             Transport.activeTransport.OnClientDataReceived.RemoveListener(OnDataReceived);
             Transport.activeTransport.OnClientDisconnected.RemoveListener(OnDisconnected);
             Transport.activeTransport.OnClientError.RemoveListener(OnError);

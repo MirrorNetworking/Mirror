@@ -133,6 +133,10 @@ namespace Telepathy
                         // are silent
                         try
                         {
+                            // add connected event to queue with ip address as data in case
+                            // it's needed
+                            receiveQueue.Enqueue(new Message(connectionId, EventType.Connected, null));
+
                             // run the receive loop
                             ReceiveLoop(connectionId, client, receiveQueue, MaxMessageSize);
 
@@ -278,7 +282,7 @@ namespace Telepathy
         }
 
         // disconnect (kick) a client
-        public bool Disconnect(int connectionId)
+        public void Disconnect(int connectionId)
         {
             // find the connection
             ClientToken token;
@@ -287,9 +291,7 @@ namespace Telepathy
                 // just close it. client thread will take care of the rest.
                 token.client.Close();
                 Logger.Log("Server.Disconnect connectionId:" + connectionId);
-                return true;
             }
-            return false;
         }
     }
 }

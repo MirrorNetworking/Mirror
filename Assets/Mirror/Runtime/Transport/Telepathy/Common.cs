@@ -154,10 +154,6 @@ namespace Telepathy
             // are silent
             try
             {
-                // add connected event to queue with ip address as data in case
-                // it's needed
-                receiveQueue.Enqueue(new Message(connectionId, EventType.Connected, null));
-
                 // let's talk about reading data.
                 // -> normally we would read as much as possible and then
                 //    extract as many <size,content>,<size,content> messages

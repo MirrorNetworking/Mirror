@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Mirror
@@ -46,28 +47,26 @@ namespace Mirror
             // wire all the base transports to my events
             foreach (Transport transport in transports)
             {
-                transport.OnClientConnected.AddListener(OnClientConnected.Invoke);
                 transport.OnClientDataReceived.AddListener(OnClientDataReceived.Invoke);
                 transport.OnClientError.AddListener(OnClientError.Invoke);
                 transport.OnClientDisconnected.AddListener(OnClientDisconnected.Invoke);
             }
         }
 
-        public override void ClientConnect(string address)
+        public override Task ClientConnectAsync(string address)
         {
             foreach (Transport transport in transports)
             {
                 if (transport.Available())
                 {
                     available = transport;
-                    transport.ClientConnect(address);
-                    return;
+                    return transport.ClientConnectAsync(address);
                 }
             }
             throw new Exception("No transport suitable for this platform");
         }
 
-        public override void ClientConnect(Uri uri)
+        public override Task ClientConnectAsync(Uri uri)
         {
             foreach (Transport transport in transports)
             {
@@ -75,9 +74,8 @@ namespace Mirror
                 {
                     try
                     {
-                        transport.ClientConnect(uri);
                         available = transport;
-                        return;
+                        return transport.ClientConnectAsync(uri);
                     }
                     catch (ArgumentException)
                     {
@@ -190,11 +188,11 @@ namespace Mirror
             return transports[transportId].ServerGetClientAddress(baseConnectionId);
         }
 
-        public override bool ServerDisconnect(int connectionId)
+        public override void ServerDisconnect(int connectionId)
         {
             int baseConnectionId = ToBaseId(connectionId);
             int transportId = ToTransportId(connectionId);
-            return transports[transportId].ServerDisconnect(baseConnectionId);
+            transports[transportId].ServerDisconnect(baseConnectionId);
         }
 
         public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)

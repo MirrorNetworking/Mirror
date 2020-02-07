@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -32,10 +33,6 @@ namespace Mirror
         public abstract bool Available();
 
         #region Client
-        /// <summary>
-        /// Notify subscribers when when this client establish a successful connection to the server
-        /// </summary>
-        [HideInInspector] public UnityEvent OnClientConnected = new UnityEvent();
 
         /// <summary>
         /// Notify subscribers when this client receive data from the server
@@ -62,17 +59,17 @@ namespace Mirror
         /// Establish a connection to a server
         /// </summary>
         /// <param name="address">The IP address or FQDN of the server we are trying to connect to</param>
-        public abstract void ClientConnect(string address);
+        public abstract Task ClientConnectAsync(string address);
 
         /// <summary>
         /// Establish a connection to a server
         /// </summary>
         /// <param name="uri">The address of the server we are trying to connect to</param>
-        public virtual void ClientConnect(Uri uri)
+        public virtual Task ClientConnectAsync(Uri uri)
         {
             // By default, to keep backwards compatibility, just connect to the host
             // in the uri
-            ClientConnect(uri.Host);
+            return ClientConnectAsync(uri.Host);
         }
 
         /// <summary>
@@ -152,7 +149,7 @@ namespace Mirror
         /// </summary>
         /// <param name="connectionId">the id of the client to disconnect</param>
         /// <returns>true if the client was kicked</returns>
-        public abstract bool ServerDisconnect(int connectionId);
+        public abstract void ServerDisconnect(int connectionId);
 
         /// <summary>
         /// Get the client address

@@ -137,7 +137,7 @@ namespace Mirror.Examples.ListServer
                 else if (!gameServerToListenConnection.Connecting)
                 {
                     Debug.Log("[List Server] GameServer connecting......");
-                    gameServerToListenConnection.Connect(listServerIp, gameServerToListenPort);
+                    gameServerToListenConnection.ConnectAsync(listServerIp, gameServerToListenPort);
                 }
             }
             // shouldn't use game server, but still using it?
@@ -195,10 +195,7 @@ namespace Mirror.Examples.ListServer
                     while (clientToListenConnection.GetNextMessage(out Telepathy.Message message))
                     {
                         // connected?
-                        if (message.eventType == Telepathy.EventType.Connected)
-                            Debug.Log("[List Server] Client connected!");
-                        // data message?
-                        else if (message.eventType == Telepathy.EventType.Data)
+                        if (message.eventType == Telepathy.EventType.Data)
                             ParseMessage(message.data);
                         // disconnected?
                         else if (message.eventType == Telepathy.EventType.Disconnected)
@@ -222,7 +219,7 @@ namespace Mirror.Examples.ListServer
                 else if (!clientToListenConnection.Connecting)
                 {
                     Debug.Log("[List Server] Client connecting...");
-                    clientToListenConnection.Connect(listServerIp, clientToListenPort);
+                    clientToListenConnection.ConnectAsync(listServerIp, clientToListenPort);
                 }
             }
             // shouldn't use client, but still using it? (e.g. after joining)

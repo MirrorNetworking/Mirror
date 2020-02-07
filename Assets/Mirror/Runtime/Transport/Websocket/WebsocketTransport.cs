@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Net;
 using UnityEngine;
 
@@ -31,7 +32,6 @@ namespace Mirror.Websocket
             server.ReceivedError += (connectionId, error) => OnServerError.Invoke(connectionId, error);
 
             // dispatch events from the client
-            client.Connected += () => OnClientConnected.Invoke();
             client.Disconnected += () => OnClientDisconnected.Invoke();
             client.ReceivedData += (data) => OnClientDataReceived.Invoke(data, Channels.DefaultReliable);
             client.ReceivedError += (error) => OnClientError.Invoke(error);
@@ -52,19 +52,19 @@ namespace Mirror.Websocket
         // client
         public override bool ClientConnected() => client.IsConnected;
 
-        public override void ClientConnect(string host)
+        public override Task ClientConnectAsync(string host)
         {
             if (Secure)
             {
-                _ = client.ConnectAsync(new Uri($"wss://{host}:{port}"));
+                return client.ConnectAsync(new Uri($"wss://{host}:{port}"));
             }
             else
             {
-                _ = client.ConnectAsync(new Uri($"ws://{host}:{port}"));
+                return client.ConnectAsync(new Uri($"ws://{host}:{port}"));
             }
         }
 
-        public override void ClientConnect(Uri uri)
+        public override Task ClientConnectAsync(Uri uri)
         {
             if (uri.Scheme != Scheme && uri.Scheme != SecureScheme)
                 throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port or {SecureScheme}://host:port instead", nameof(uri));
@@ -76,7 +76,7 @@ namespace Mirror.Websocket
                 uri = uriBuilder.Uri;
             }
 
-            _ = client.ConnectAsync(uri);
+            return client.ConnectAsync(uri);
         }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
@@ -127,9 +127,9 @@ namespace Mirror.Websocket
             return true;
         }
 
-        public override bool ServerDisconnect(int connectionId)
+        public override void ServerDisconnect(int connectionId)
         {
-            return server.Disconnect(connectionId);
+            server.Disconnect(connectionId);
         }
 
         public override string ServerGetClientAddress(int connectionId)

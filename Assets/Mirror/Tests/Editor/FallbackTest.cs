@@ -58,10 +58,10 @@ namespace Mirror.Tests
             transport2.Available().Returns(true);
             transport.Awake();
 
-            transport.ClientConnect("some.server.com");
+            transport.ClientConnectAsync("some.server.com");
 
-            transport1.DidNotReceive().ClientConnect(Arg.Any<string>());
-            transport2.Received().ClientConnect("some.server.com");
+            transport1.DidNotReceive().ClientConnectAsync(Arg.Any<string>());
+            transport2.Received().ClientConnectAsync("some.server.com");
         }
 
         // A Test behaves as an ordinary method
@@ -73,9 +73,9 @@ namespace Mirror.Tests
             transport1.Available().Returns(true);
             transport2.Available().Returns(true);
             transport.Awake();
-            transport.ClientConnect(uri);
-            transport1.Received().ClientConnect(uri);
-            transport2.DidNotReceive().ClientConnect(uri);
+            transport.ClientConnectAsync(uri);
+            transport1.Received().ClientConnectAsync(uri);
+            transport2.DidNotReceive().ClientConnectAsync(uri);
         }
 
 
@@ -90,13 +90,13 @@ namespace Mirror.Tests
 
             // first transport does not support websocket
             transport1
-                .When(x => x.ClientConnect(uri))
+                .When(x => x.ClientConnectAsync(uri))
                 .Do(x => { throw new ArgumentException("Scheme not supported"); });
 
             transport2.Available().Returns(true);
 
-            transport.ClientConnect(uri);
-            transport2.Received().ClientConnect(uri);
+            transport.ClientConnectAsync(uri);
+            transport2.Received().ClientConnectAsync(uri);
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace Mirror.Tests
         {
             transport1.Available().Returns(true);
             transport.Awake();
-            transport.ClientConnect("some.server.com");
+            transport.ClientConnectAsync("some.server.com");
 
             transport1.ClientConnected().Returns(true);
 
@@ -116,7 +116,7 @@ namespace Mirror.Tests
         {
             transport1.Available().Returns(true);
             transport.Awake();
-            transport.ClientConnect("some.server.com");
+            transport.ClientConnectAsync("some.server.com");
 
             transport.ClientDisconnect();
 
@@ -129,7 +129,7 @@ namespace Mirror.Tests
             transport1.Available().Returns(true);
             transport.Awake();
 
-            transport.ClientConnect("some.server.com");
+            transport.ClientConnectAsync("some.server.com");
 
             byte[] data = { 1, 2, 3 };
             var segment = new ArraySegment<byte>(data);
@@ -137,32 +137,6 @@ namespace Mirror.Tests
             transport.ClientSend(3, segment);
 
             transport1.Received().ClientSend(3, segment);
-        }
-
-        [Test]
-        public void TestClient1Connected()
-        {
-            transport1.Available().Returns(true);
-            transport2.Available().Returns(true);
-
-            UnityAction callback = Substitute.For<UnityAction>();
-            transport.Awake();
-            transport.OnClientConnected.AddListener(callback);
-            transport1.OnClientConnected.Invoke();
-            callback.Received().Invoke();
-        }
-
-        [Test]
-        public void TestClient2Connected()
-        {
-            transport1.Available().Returns(true);
-            transport2.Available().Returns(true);
-
-            UnityAction callback = Substitute.For<UnityAction>();
-            transport.Awake();
-            transport.OnClientConnected.AddListener(callback);
-            transport2.OnClientConnected.Invoke();
-            callback.Received().Invoke();
         }
 
         #endregion

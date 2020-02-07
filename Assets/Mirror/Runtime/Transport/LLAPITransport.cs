@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Net;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -68,7 +69,6 @@ namespace Mirror
         };
 
         readonly int channelId; // always use first channel
-        byte error;
 
         int clientId = -1;
         int clientConnectionId = -1;
@@ -113,7 +113,7 @@ namespace Mirror
             return clientConnectionId != -1;
         }
 
-        void ClientConnect(string address, int port)
+        async Task ClientConnectAsync(string address, int port)
         {
             // LLAPI can't handle 'localhost'
             if (address.ToLower() == "localhost") address = "127.0.0.1";
@@ -125,28 +125,49 @@ namespace Mirror
             //   AddHost(topology, port) works in standalone and webgl if port=0
             clientId = NetworkTransport.AddHost(hostTopology, 0);
 
-            clientConnectionId = NetworkTransport.Connect(clientId, address, port, 0, out error);
+            clientConnectionId = NetworkTransport.Connect(clientId, address, port, 0, out byte error);
             var networkError = (UnityEngine.Networking.NetworkError)error;
             if (networkError != UnityEngine.Networking.NetworkError.Ok)
             {
-                Debug.LogWarning("NetworkTransport.Connect failed: clientId=" + clientId + " address= " + address + " port=" + port + " error=" + error);
-                clientConnectionId = -1;
+                throw new UnityException($"NetworkTransport.Connect failed: clientId={clientId} address={address} port={port} error={error}");
             }
+
+            // wait until we connect or error out
+
+            while (true)
+            {
+                NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out int connectionId, out int channel, clientReceiveBuffer, clientReceiveBuffer.Length, out int receivedSize, out error);
+                clientConnectionId = NetworkTransport.Connect(clientId, address, port, 0, out error);
+                networkError = (UnityEngine.Networking.NetworkError)error;
+                if (networkError != UnityEngine.Networking.NetworkError.Ok)
+                {
+                    throw new UnityException($"NetworkTransport.Connect failed: clientId={clientId} address={address} port={port} error={error}");
+                }
+
+                // successfully connected
+                if (networkEvent == NetworkEventType.ConnectEvent)
+                    break;
+
+                // try again next frame
+                await Task.Yield();
+            }
+
+
         }
 
-        public override void ClientConnect(string address)
+        public override Task ClientConnectAsync(string address)
         {
-            ClientConnect(address, port);
+            return ClientConnectAsync(address, port);
         }
 
-        public override void ClientConnect(Uri uri)
+        public override Task ClientConnectAsync(Uri uri)
         {
             if (uri.Scheme != Scheme)
                 throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
 
             int serverPort = uri.IsDefaultPort ? port : uri.Port;
 
-            ClientConnect(uri.Host, serverPort);
+            return ClientConnectAsync(uri.Host, serverPort);
         }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
@@ -158,7 +179,7 @@ namespace Mirror
             if (segment.Count <= clientSendBuffer.Length)
             {
                 Array.Copy(segment.Array, segment.Offset, clientSendBuffer, 0, segment.Count);
-                return NetworkTransport.Send(clientId, clientConnectionId, channelId, clientSendBuffer, segment.Count, out error);
+                return NetworkTransport.Send(clientId, clientConnectionId, channelId, clientSendBuffer, segment.Count, out byte error);
             }
             Debug.LogError("LLAPI.ClientSend: buffer( " + clientSendBuffer.Length + ") too small for: " + segment.Count);
             return false;
@@ -168,7 +189,7 @@ namespace Mirror
         {
             if (clientId == -1) return false;
 
-            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out int connectionId, out int channel, clientReceiveBuffer, clientReceiveBuffer.Length, out int receivedSize, out error);
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out int connectionId, out int channel, clientReceiveBuffer, clientReceiveBuffer.Length, out int receivedSize, out byte error);
 
             // note: 'error' is used for extra information, e.g. the reason for
             // a disconnect. we don't necessarily have to throw an error if
@@ -186,9 +207,6 @@ namespace Mirror
             // raise events
             switch (networkEvent)
             {
-                case NetworkEventType.ConnectEvent:
-                    OnClientConnected.Invoke();
-                    break;
                 case NetworkEventType.DataEvent:
                     var data = new ArraySegment<byte>(clientReceiveBuffer, 0, receivedSize);
                     OnClientDataReceived.Invoke(data, channel);
@@ -205,7 +223,7 @@ namespace Mirror
 
         public string ClientGetAddress()
         {
-            NetworkTransport.GetConnectionInfo(serverHostId, clientId, out string address, out int port, out NetworkID networkId, out NodeID node, out error);
+            NetworkTransport.GetConnectionInfo(serverHostId, clientId, out string address, out int port, out NetworkID networkId, out NodeID node, out byte error);
             return address;
         }
 
@@ -268,7 +286,7 @@ namespace Mirror
                 bool result = true;
                 foreach (int connectionId in connectionIds)
                 {
-                    result &= NetworkTransport.Send(serverHostId, connectionId, channelId, serverSendBuffer, segment.Count, out error);
+                    result &= NetworkTransport.Send(serverHostId, connectionId, channelId, serverSendBuffer, segment.Count, out byte error);
                 }
                 return result;
             }
@@ -280,7 +298,7 @@ namespace Mirror
         {
             if (serverHostId == -1) return false;
 
-            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out int connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out error);
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out int connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out byte error);
 
             // note: 'error' is used for extra information, e.g. the reason for
             // a disconnect. we don't necessarily have to throw an error if
@@ -324,14 +342,14 @@ namespace Mirror
             return true;
         }
 
-        public override bool ServerDisconnect(int connectionId)
+        public override void ServerDisconnect(int connectionId)
         {
-            return NetworkTransport.Disconnect(serverHostId, connectionId, out error);
+            NetworkTransport.Disconnect(serverHostId, connectionId, out byte error);
         }
 
         public override string ServerGetClientAddress(int connectionId)
         {
-            NetworkTransport.GetConnectionInfo(serverHostId, connectionId, out string address, out int port, out NetworkID networkId, out NodeID node, out error);
+            NetworkTransport.GetConnectionInfo(serverHostId, connectionId, out string address, out int port, out NetworkID networkId, out NodeID node, out byte error);
             return address;
         }
 

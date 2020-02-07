@@ -1,6 +1,7 @@
 // wraps Telepathy for use as HLAPI TransportLayer
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Net;
 using UnityEngine;
 
@@ -11,7 +12,6 @@ namespace Mirror.Tcp
         // scheme used by this transport
         // "tcp4" means tcp with 4 bytes header, network byte order
         public const string Scheme = "tcp4";
-
 
         protected Client client = new Client();
         protected Server server = new Server();
@@ -30,7 +30,6 @@ namespace Mirror.Tcp
             server.ReceivedError += (connectionId, error) => OnServerError.Invoke(connectionId, error);
 
             // dispatch events from the client
-            client.Connected += () => OnClientConnected.Invoke();
             client.Disconnected += () => OnClientDisconnected.Invoke();
             client.ReceivedData += (data) => OnClientDataReceived.Invoke(new ArraySegment<byte>(data), Channels.DefaultReliable);
             client.ReceivedError += (error) => OnClientError.Invoke(error);
@@ -43,11 +42,7 @@ namespace Mirror.Tcp
         }
 
         // client
-        public override bool ClientConnected() { return client.IsConnected; }
-        public override void ClientConnect(string address)
-        {
-            _ = client.ConnectAsync(address, port);
-        }
+        public override bool ClientConnected() { return client.Connected; }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
@@ -74,9 +69,9 @@ namespace Mirror.Tcp
             return true;
         }
 
-        public override bool ServerDisconnect(int connectionId)
+        public override void ServerDisconnect(int connectionId)
         {
-            return server.Disconnect(connectionId);
+            server.Disconnect(connectionId);
         }
 
         public override string ServerGetClientAddress(int connectionId)
@@ -113,7 +108,7 @@ namespace Mirror.Tcp
 
         public override string ToString()
         {
-            if (client.Connecting || client.IsConnected)
+            if (client.Connecting || client.Connected)
             {
                 return client.ToString();
             }
@@ -133,13 +128,18 @@ namespace Mirror.Tcp
             return builder.Uri;
         }
 
-        public override void ClientConnect(Uri uri)
+        public override Task ClientConnectAsync(string address)
+        {
+            return client.ConnectAsync(address, port);
+        }
+
+        public override Task ClientConnectAsync(Uri uri)
         {
             if (uri.Scheme != Scheme)
                 throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
 
             int serverPort = uri.IsDefaultPort ? port : uri.Port;
-            _ = client.ConnectAsync(uri.Host, port);
+            return client.ConnectAsync(uri.Host, serverPort);
         }
     }
 }

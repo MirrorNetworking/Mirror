@@ -1,8 +1,9 @@
 ﻿using NUnit.Framework;
 using System;
-using System.Net;
+using System.Collections;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine.TestTools;
 
 namespace Telepathy.Tests
@@ -12,15 +13,26 @@ namespace Telepathy.Tests
     public class TransportTest
     {
         // just a random port that will hopefully not be taken
-        const int port = 9587;
+        const int Port = 9587;
 
         Server server;
+
+
+        // Unity's nunit does not support async tests
+        // so we do this boilerplate to run our async methods
+        public IEnumerator RunAsync(Func<Task> block)
+        {
+            var task = Task.Run(block);
+
+            while (!task.IsCompleted) { yield return null; }
+            if (task.IsFaulted) { throw task.Exception; }
+        }
 
         [SetUp]
         public void Setup()
         {
             server = new Server();
-            server.Start(port);
+            server.Start(Port);
 
         }
 
@@ -39,313 +51,312 @@ namespace Telepathy.Tests
             Assert.That(id, Is.EqualTo(1));
         }
 
-        [Test]
-        public void DisconnectImmediateTest()
+        [UnityTest]
+        public IEnumerator DisconnectImmediateTest()
         {
-            // telepathy will expect and log a ObjectDisposedException
-            LogAssert.ignoreFailingMessages = true;
+            return RunAsync(async () =>
+            {
+                // telepathy will expect and log a ObjectDisposedException
+                LogAssert.ignoreFailingMessages = true;
 
-            Client client = new Client();
-            client.Connect("127.0.0.1", port);
+                var client = new Client();
+                await client.ConnectAsync("127.0.0.1", Port);
 
-            // I should be able to disconnect right away
-            // if connection was pending,  it should just cancel
-            client.Disconnect();
+                // I should be able to disconnect right away
+                // if connection was pending,  it should just cancel
+                client.Disconnect();
 
-            Assert.That(client.Connected, Is.False);
-            Assert.That(client.Connecting, Is.False);
+                Assert.That(client.Connected, Is.False);
+                Assert.That(client.Connecting, Is.False);
 
-            // restore
-            LogAssert.ignoreFailingMessages = false;
+                // restore
+                LogAssert.ignoreFailingMessages = false;
+            });
         }
 
-        /* this works fine outside of Unity. but we might have to live with it
-           failing inside of Unity sometimes
-        [Test]
-        public void SpamConnectTest()
+        [UnityTest]
+        public IEnumerator SpamConnectTest()
         {
-            // telepathy will expect and log a ObjectDisposedException
-            LogAssert.ignoreFailingMessages = true;
-
-            Client client = new Client();
-            for (int i = 0; i < 1000; i++)
+            return RunAsync(async () =>
             {
-                client.Connect("127.0.0.1", port);
-                Assert.That(client.Connecting || client.Connected, Is.True);
+                // telepathy will expect and log a ObjectDisposedException
+                LogAssert.ignoreFailingMessages = true;
+
+                var client = new Client();
+                for (int i = 0; i < 1000; i++)
+                {
+                    await client.ConnectAsync("127.0.0.1", Port);
+                    Assert.That(client.Connecting || client.Connected, Is.True);
+                    client.Disconnect();
+                    Assert.That(client.Connected, Is.False);
+                    Assert.That(client.Connecting, Is.False);
+                }
+
+                // restore
+                LogAssert.ignoreFailingMessages = false;
+            });
+        }
+
+        [UnityTest]
+        public IEnumerator SpamSendTest()
+        {
+            return RunAsync(async () =>
+            {
+                // BeginSend can't be called again after previous one finished. try
+                // to trigger that case.
+                var client = new Client();
+                await client.ConnectAsync("127.0.0.1", Port);
+
+                Assert.That(client.Connected, Is.True);
+
+                byte[] data = new byte[99999];
+                for (int i = 0; i < 1000; i++)
+                {
+                    client.Send(data);
+                }
+
                 client.Disconnect();
                 Assert.That(client.Connected, Is.False);
                 Assert.That(client.Connecting, Is.False);
-            }
-
-            // restore
-            LogAssert.ignoreFailingMessages = false;
+            });
         }
-        */
 
-        [Test]
-        public void SpamSendTest()
+        [UnityTest]
+        public IEnumerator ReconnectTest()
         {
-            // BeginSend can't be called again after previous one finished. try
-            // to trigger that case.
-            Client client = new Client();
-            client.Connect("127.0.0.1", port);
-
-            // wait for successful connection
-            Message connectMsg = NextMessage(client);
-            Assert.That(connectMsg.eventType, Is.EqualTo(EventType.Connected));
-            Assert.That(client.Connected, Is.True);
-
-            byte[] data = new byte[99999];
-            for (int i = 0; i < 1000; i++)
+            return RunAsync(async () =>
             {
-                client.Send(data);
-            }
+                var client = new Client();
+                await client.ConnectAsync("127.0.0.1", Port);
 
-            client.Disconnect();
-            Assert.That(client.Connected, Is.False);
-            Assert.That(client.Connecting, Is.False);
+                // disconnect and lets try again
+                client.Disconnect();
+                Assert.That(client.Connected, Is.False);
+                Assert.That(client.Connecting, Is.False);
+
+                // connecting should flush message queue  right?
+                await client.ConnectAsync("127.0.0.1", Port);
+                client.Disconnect();
+                Assert.That(client.Connected, Is.False);
+                Assert.That(client.Connecting, Is.False);
+            });
         }
 
-
-        /* this works fine outside of Unity. but we might have to live with it
-           failing inside of Unity sometimes
-        [Test]
-        public void ReconnectTest()
+        [UnityTest]
+        public IEnumerator ServerTest()
         {
-            Client client = new Client();
-            client.Connect("127.0.0.1", port);
+            return RunAsync(async () =>
+            {
+                Encoding utf8 = Encoding.UTF8;
+                var client = new Client();
 
-            // wait for successful connection
-            Message connectMsg = NextMessage(client);
-            Assert.That(connectMsg.eventType, Is.EqualTo(EventType.Connected));
-            // disconnect and lets try again
-            client.Disconnect();
-            Assert.That(client.Connected, Is.False);
-            Assert.That(client.Connecting, Is.False);
+                await client.ConnectAsync("127.0.0.1", Port);
 
-            // connecting should flush message queue  right?
-            client.Connect("127.0.0.1", port);
-            // wait for successful connection
-            connectMsg = NextMessage(client);
-            Assert.That(connectMsg.eventType, Is.EqualTo(EventType.Connected));
-            client.Disconnect();
-            Assert.That(client.Connected, Is.False);
-            Assert.That(client.Connecting, Is.False);
-        }
-        */
+                // we should first receive a connected message
+                Message connectMsg = NextMessage(server);
+                Assert.That(connectMsg.eventType, Is.EqualTo(EventType.Connected));
 
-        [Test]
-        public void ServerTest()
-        {
-            Encoding utf8 = Encoding.UTF8;
-            Client client = new Client();
+                // then we should receive the data
+                client.Send(utf8.GetBytes("Hello world"));
+                Message dataMsg = NextMessage(server);
+                Assert.That(dataMsg.eventType, Is.EqualTo(EventType.Data));
+                string str = utf8.GetString(dataMsg.data);
+                Assert.That(str, Is.EqualTo("Hello world"));
 
-            client.Connect("127.0.0.1", port);
-
-            // we should first receive a connected message
-            Message connectMsg = NextMessage(server);
-            Assert.That(connectMsg.eventType, Is.EqualTo(EventType.Connected));
-
-            // then we should receive the data
-            client.Send(utf8.GetBytes("Hello world"));
-            Message dataMsg = NextMessage(server);
-            Assert.That(dataMsg.eventType, Is.EqualTo(EventType.Data));
-            string str = utf8.GetString(dataMsg.data);
-            Assert.That(str, Is.EqualTo("Hello world"));
-
-            // finally when the client disconnect,  we should get a disconnected message
-            client.Disconnect();
-            Message disconnectMsg = NextMessage(server);
-            Assert.That(disconnectMsg.eventType, Is.EqualTo(EventType.Disconnected));
+                // finally when the client disconnect,  we should get a disconnected message
+                client.Disconnect();
+                Message disconnectMsg = NextMessage(server);
+                Assert.That(disconnectMsg.eventType, Is.EqualTo(EventType.Disconnected));
+            });
         }
 
-        [Test]
-        public void ClientTest()
+        [UnityTest]
+        public IEnumerator ClientTest()
         {
-            Encoding utf8 = Encoding.UTF8;
-            Client client = new Client();
+            return RunAsync(async () =>
+            {
+                Encoding utf8 = Encoding.UTF8;
+                var client = new Client();
 
-            client.Connect("127.0.0.1", port);
+                await client.ConnectAsync("127.0.0.1", Port);
 
-            // we  should first receive a connected message
-            Message serverConnectMsg = NextMessage(server);
-            int id = serverConnectMsg.connectionId;
+                // we  should first receive a connected message
+                Message serverConnectMsg = NextMessage(server);
+                int id = serverConnectMsg.connectionId;
 
-            // we  should first receive a connected message
-            Message clientConnectMsg = NextMessage(client);
-            Assert.That(serverConnectMsg.eventType, Is.EqualTo(EventType.Connected));
+                // Send some data to the client
+                server.Send(id, utf8.GetBytes("Hello world"));
+                Message dataMsg = NextMessage(client);
+                Assert.That(dataMsg.eventType, Is.EqualTo(EventType.Data));
+                string str = utf8.GetString(dataMsg.data);
+                Assert.That(str, Is.EqualTo("Hello world"));
 
-            // Send some data to the client
-            server.Send(id, utf8.GetBytes("Hello world"));
-            Message dataMsg = NextMessage(client);
-            Assert.That(dataMsg.eventType, Is.EqualTo(EventType.Data));
-            string str = utf8.GetString(dataMsg.data);
-            Assert.That(str, Is.EqualTo("Hello world"));
+                // finally if the server stops,  the clients should get a disconnect error
+                server.Stop();
+                Message disconnectMsg = NextMessage(client);
+                Assert.That(disconnectMsg.eventType, Is.EqualTo(EventType.Disconnected));
 
-            // finally if the server stops,  the clients should get a disconnect error
-            server.Stop();
-            Message disconnectMsg = NextMessage(client);
-            Assert.That(disconnectMsg.eventType, Is.EqualTo(EventType.Disconnected));
-
-            client.Disconnect();
+                client.Disconnect();
+            });
         }
 
-        [Test]
-        public void ServerDisconnectClientTest()
+        [UnityTest]
+        public IEnumerator ClientKickedCleanupTest()
         {
-            Client client = new Client();
+            return RunAsync(async () =>
+            {
+                var client = new Client();
 
-            client.Connect("127.0.0.1", port);
+                await client.ConnectAsync("127.0.0.1", Port);
 
-            // we  should first receive a connected message
-            Message serverConnectMsg = NextMessage(server);
-            int id = serverConnectMsg.connectionId;
+                // read connected message on server
+                Message serverConnectMsg = NextMessage(server);
+                int id = serverConnectMsg.connectionId;
 
-            bool result = server.Disconnect(id);
-            Assert.That(result, Is.True);
+                // server kicks the client
+                server.Disconnect(id);
+
+                // wait for client disconnected message
+                Message clientDisconnectedMsg = NextMessage(client);
+                Assert.That(clientDisconnectedMsg.eventType, Is.EqualTo(EventType.Disconnected));
+
+                // was everything cleaned perfectly?
+                // if Connecting or Connected is still true then we wouldn't be able
+                // to reconnect otherwise
+                Assert.That(client.Connecting, Is.False);
+                Assert.That(client.Connected, Is.False);
+            });
         }
 
-        [Test]
-        public void ClientKickedCleanupTest()
+        [UnityTest]
+        public IEnumerator GetConnectionInfoTest()
         {
-            Client client = new Client();
+            return RunAsync(async () =>
+            {
+                // connect a client
+                var client = new Client();
+                await client.ConnectAsync("127.0.0.1", Port);
 
-            client.Connect("127.0.0.1", port);
+                // get server's connect message
+                Message serverConnectMsg = NextMessage(server);
+                Assert.That(serverConnectMsg.eventType, Is.EqualTo(EventType.Connected));
 
-            // read connected message on client
-            Message clientConnectedMsg = NextMessage(client);
-            Assert.That(clientConnectedMsg.eventType, Is.EqualTo(EventType.Connected));
+                // get server's connection info for that client
+                string address = server.GetClientAddress(serverConnectMsg.connectionId);
+                Assert.That(address == "127.0.0.1" || address == "::ffff:127.0.0.1");
 
-            // read connected message on server
-            Message serverConnectMsg = NextMessage(server);
-            int id = serverConnectMsg.connectionId;
-
-            // server kicks the client
-            bool result = server.Disconnect(id);
-            Assert.That(result, Is.True);
-
-            // wait for client disconnected message
-            Message clientDisconnectedMsg = NextMessage(client);
-            Assert.That(clientDisconnectedMsg.eventType, Is.EqualTo(EventType.Disconnected));
-
-            // was everything cleaned perfectly?
-            // if Connecting or Connected is still true then we wouldn't be able
-            // to reconnect otherwise
-            Assert.That(client.Connecting, Is.False);
-            Assert.That(client.Connected, Is.False);
-        }
-
-        [Test]
-        public void GetConnectionInfoTest()
-        {
-            // connect a client
-            Client client = new Client();
-            client.Connect("127.0.0.1", port);
-
-            // get server's connect message
-            Message serverConnectMsg = NextMessage(server);
-            Assert.That(serverConnectMsg.eventType, Is.EqualTo(EventType.Connected));
-
-            // get server's connection info for that client
-            string address = server.GetClientAddress(serverConnectMsg.connectionId);
-            Assert.That(address == "127.0.0.1" || address == "::ffff:127.0.0.1");
-
-            client.Disconnect();
+                client.Disconnect();
+            });
         }
 
         // all implementations should be able to handle 'localhost' as IP too
-        [Test]
-        public void ParseLocalHostTest()
+        [UnityTest]
+        public IEnumerator ParseLocalHostTest()
         {
-            // connect a client
-            Client client = new Client();
-            client.Connect("localhost", port);
+            return RunAsync(async () =>
+            {
+                // connect a client
+                var client = new Client();
+                await client.ConnectAsync("localhost", Port);
 
-            // get server's connect message
-            Message serverConnectMsg = NextMessage(server);
-            Assert.That(serverConnectMsg.eventType, Is.EqualTo(EventType.Connected));
+                // get server's connect message
+                Message serverConnectMsg = NextMessage(server);
+                Assert.That(serverConnectMsg.eventType, Is.EqualTo(EventType.Connected));
 
-            client.Disconnect();
+                client.Disconnect();
+            });
         }
 
         // IPv4 needs to work
-        [Test]
-        public void ConnectIPv4Test()
+        [UnityTest]
+        public IEnumerator ConnectIPv4Test()
         {
-            // connect a client
-            Client client = new Client();
-            client.Connect("127.0.0.1", port);
+            return RunAsync(async () =>
+            {
+                // connect a client
+                var client = new Client();
+                await client.ConnectAsync("127.0.0.1", Port);
 
-            // get server's connect message
-            Message serverConnectMsg = NextMessage(server);
-            Assert.That(serverConnectMsg.eventType, Is.EqualTo(EventType.Connected));
+                // get server's connect message
+                Message serverConnectMsg = NextMessage(server);
+                Assert.That(serverConnectMsg.eventType, Is.EqualTo(EventType.Connected));
 
-            client.Disconnect();
+                client.Disconnect();
+            });
         }
 
         // IPv6 needs to work
-        [Test]
-        public void ConnectIPv6Test()
+        [UnityTest]
+        public IEnumerator ConnectIPv6Test()
         {
-            // connect a client
-            Client client = new Client();
-            client.Connect("::ffff:127.0.0.1", port);
+            return RunAsync(async () =>
+            {
+                // connect a client
+                var client = new Client();
+                await client.ConnectAsync("::ffff:127.0.0.1", Port);
 
-            // get server's connect message
-            Message serverConnectMsg = NextMessage(server);
-            Assert.That(serverConnectMsg.eventType, Is.EqualTo(EventType.Connected));
+                // get server's connect message
+                Message serverConnectMsg = NextMessage(server);
+                Assert.That(serverConnectMsg.eventType, Is.EqualTo(EventType.Connected));
 
-            client.Disconnect();
+                client.Disconnect();
+            });
         }
 
-        [Test]
-        public void LargeMessageTest()
+        [UnityTest]
+        public IEnumerator LargeMessageTest()
         {
-            // connect a client
-            Client client = new Client();
-            client.Connect("127.0.0.1", port);
+            return RunAsync(async () =>
+            {
+                // connect a client
+                var client = new Client();
+                await client.ConnectAsync("127.0.0.1", Port);
 
-            // we should first receive a connected message
-            Message serverConnectMsg = NextMessage(server);
-            int id = serverConnectMsg.connectionId;
+                // we should first receive a connected message
+                Message serverConnectMsg = NextMessage(server);
+                int id = serverConnectMsg.connectionId;
 
-            // Send largest allowed message
-            bool sent = client.Send(new byte[server.MaxMessageSize]);
-            Assert.That(sent, Is.EqualTo(true));
-            Message dataMsg = NextMessage(server);
-            Assert.That(dataMsg.eventType, Is.EqualTo(EventType.Data));
-            Assert.That(dataMsg.data.Length, Is.EqualTo(server.MaxMessageSize));
+                // Send largest allowed message
+                bool sent = client.Send(new byte[server.MaxMessageSize]);
+                Assert.That(sent, Is.EqualTo(true));
+                Message dataMsg = NextMessage(server);
+                Assert.That(dataMsg.eventType, Is.EqualTo(EventType.Data));
+                Assert.That(dataMsg.data.Length, Is.EqualTo(server.MaxMessageSize));
 
-            // finally if the server stops,  the clients should get a disconnect error
-            server.Stop();
-            client.Disconnect();
+                // finally if the server stops,  the clients should get a disconnect error
+                server.Stop();
+                client.Disconnect();
+            });
         }
 
-        [Test]
-        public void AllocationAttackTest()
+        [UnityTest]
+        public IEnumerator AllocationAttackTest()
         {
-            // connect a client
-            Client client = new Client();
-            client.Connect("127.0.0.1", port);
+            return RunAsync(async () =>
+            {
+                // connect a client
+                var client = new Client();
+                await client.ConnectAsync("127.0.0.1", Port);
 
-            // we should first receive a connected message
-            Message serverConnectMsg = NextMessage(server);
-            int id = serverConnectMsg.connectionId;
+                // we should first receive a connected message
+                Message serverConnectMsg = NextMessage(server);
+                int id = serverConnectMsg.connectionId;
 
-            // allow client to send large message
-            int attackSize = server.MaxMessageSize * 2;
-            client.MaxMessageSize = attackSize;
+                // allow client to send large message
+                int attackSize = server.MaxMessageSize * 2;
+                client.MaxMessageSize = attackSize;
 
-            // Send a large message, bigger thank max message size
-            // -> this should disconnect the client
-            bool sent = client.Send(new byte[attackSize]);
-            Assert.That(sent, Is.EqualTo(true));
-            Message dataMsg = NextMessage(server);
-            Assert.That(dataMsg.eventType, Is.EqualTo(EventType.Disconnected));
+                // Send a large message, bigger thank max message size
+                // -> this should disconnect the client
+                bool sent = client.Send(new byte[attackSize]);
+                Assert.That(sent, Is.EqualTo(true));
+                Message dataMsg = NextMessage(server);
+                Assert.That(dataMsg.eventType, Is.EqualTo(EventType.Disconnected));
 
-            // finally if the server stops,  the clients should get a disconnect error
-            server.Stop();
-            client.Disconnect();
+                // finally if the server stops,  the clients should get a disconnect error
+                server.Stop();
+                client.Disconnect();
+            });
         }
 
         [Test]
@@ -353,8 +364,8 @@ namespace Telepathy.Tests
         {
             // create a server that only starts and stops without ever accepting
             // a connection
-            Server sv = new Server();
-            Assert.That(sv.Start(port + 1), Is.EqualTo(true));
+            var sv = new Server();
+            Assert.That(sv.Start(Port + 1), Is.EqualTo(true));
             Assert.That(sv.Active, Is.EqualTo(true));
             sv.Stop();
             Assert.That(sv.Active, Is.EqualTo(false));
@@ -364,10 +375,10 @@ namespace Telepathy.Tests
         public void ServerStartStopRepeatedTest()
         {
             // can we start/stop on the same port repeatedly?
-            Server sv = new Server();
+            var sv = new Server();
             for (int i = 0; i < 10; ++i)
             {
-                Assert.That(sv.Start(port + 1), Is.EqualTo(true));
+                Assert.That(sv.Start(Port + 1), Is.EqualTo(true));
                 Assert.That(sv.Active, Is.EqualTo(true));
                 sv.Stop();
                 Assert.That(sv.Active, Is.EqualTo(false));

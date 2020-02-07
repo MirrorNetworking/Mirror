@@ -1,7 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -9,7 +7,6 @@ namespace Mirror.Tcp
 {
     public class Client : Common
     {
-        public event Action Connected;
         public event Action<byte[]> ReceivedData;
         public event Action Disconnected;
         public event Action<Exception> ReceivedError;
@@ -18,8 +15,8 @@ namespace Mirror.Tcp
 
         public bool NoDelay = true;
 
-        public bool Connecting { get; set; }
-        public bool IsConnected { get; set; }
+        public bool Connecting { get; private set; }
+        public bool Connected { get; private set; }
 
         public async Task ConnectAsync(string host, int port)
         {
@@ -27,8 +24,7 @@ namespace Mirror.Tcp
             if (client != null)
             {
                 // paul:  exceptions are better than silence
-                ReceivedError?.Invoke(new Exception("Client already connected"));
-                return;
+                throw new Exception("Client already connected");
             }
 
             // We are connecting from now until Connect succeeds or fails
@@ -49,24 +45,14 @@ namespace Mirror.Tcp
                 await client.ConnectAsync(host, port);
 
                 // now we are connected:
-                IsConnected = true;
+                Connected = true;
                 Connecting = false;
 
-                Connected?.Invoke();
-                await ReceiveLoop(client);
+                _ = ReceiveLoop(client);
             }
             catch (ObjectDisposedException)
             {
                 // No error, the client got closed
-            }
-            catch (Exception ex)
-            {
-                ReceivedError?.Invoke(ex);
-            }
-            finally
-            {
-                Disconnect();
-                Disconnected?.Invoke();
             }
         }
 
@@ -77,7 +63,6 @@ namespace Mirror.Tcp
                 while (true)
                 {
                     byte[] data = await ReadMessageAsync(networkStream);
-
                     if (data == null)
                         break;
 
@@ -91,6 +76,8 @@ namespace Mirror.Tcp
                         ReceivedError?.Invoke(exception);
                     }
                 }
+
+                Disconnect();
             }
         }
 
@@ -99,11 +86,12 @@ namespace Mirror.Tcp
             // only if started
             if (client != null)
             {
+                Disconnected?.Invoke();
                 // close client
                 client.Close();
                 client = null;
                 Connecting = false;
-                IsConnected = false;
+                Connected = false;
             }
         }
 
@@ -130,7 +118,7 @@ namespace Mirror.Tcp
 
         public override string ToString()
         {
-            if (IsConnected)
+            if (Connected)
             {
                 return $"TCP connected to {client.Client.RemoteEndPoint}";
             }
