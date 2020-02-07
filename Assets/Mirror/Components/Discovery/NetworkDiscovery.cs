@@ -22,7 +22,7 @@ namespace Mirror.Discovery
         [Tooltip("Invoked when a server is found")]
         public ServerFoundUnityEvent OnServerFound;
 
-        public void Start()
+        public override void Start()
         {
             ServerId = RandomLong();
 
@@ -31,6 +31,8 @@ namespace Mirror.Discovery
             // Or just let the user assign it in the inspector
             if (transport == null)
                 transport = Transport.activeTransport;
+
+            base.Start();
         }
 
         /// <summary>

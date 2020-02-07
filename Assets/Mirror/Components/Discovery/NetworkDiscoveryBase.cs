@@ -57,6 +57,18 @@ namespace Mirror.Discovery
             return value1 + ((long)value2 << 32);
         }
 
+        /// <summary>
+        /// virtual so that inheriting classes' Start() can call base.Start() too
+        /// </summary>
+        public virtual void Start()
+        {
+            // headless mode? then start advertising
+            if (NetworkManager.isHeadless)
+            {
+                AdvertiseServer();
+            }
+        }
+
         // Ensure the ports are cleared no matter when Game/Unity UI exits
         void OnApplicationQuit()
         {
