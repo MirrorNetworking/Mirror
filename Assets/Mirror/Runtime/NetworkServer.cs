@@ -223,7 +223,7 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // get writer from pool
-                using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+                using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
                 {
                     // pack message into byte[] once
                     MessagePacker.Pack(msg, writer);
@@ -288,7 +288,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
 
             // get writer from pool
-            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
             {
                 // pack message only once
                 MessagePacker.Pack(msg, writer);
@@ -362,7 +362,7 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // get writer from pool
-                using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+                using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
                 {
                     // pack message only once
                     MessagePacker.Pack(msg, writer);
@@ -1055,7 +1055,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
             // one writer for owner, one for observers
-            using (NetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPool ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
             {
                 // serialize all components with initialState = true
                 // (can be null if has none)

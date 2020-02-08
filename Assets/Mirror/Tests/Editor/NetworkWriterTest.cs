@@ -12,7 +12,7 @@ namespace Mirror.Tests
         {
             // 10 million reads, Unity 2019.3, code coverage disabled
             //    4014ms ms
-            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
             {
                 for (int i = 0; i < 10000000; ++i)
                 {

@@ -205,7 +205,7 @@ namespace Mirror
         /// <returns></returns>
         public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
             {
                 // pack message and send allocation free
                 MessagePacker.Pack(msg, writer);
@@ -315,7 +315,7 @@ namespace Mirror
         public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
         {
             // get writer from pool
-            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
             {
                 // if it is a value type,  just use typeof(T) to avoid boxing
                 // this works because value types cannot be derived

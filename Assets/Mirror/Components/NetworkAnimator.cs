@@ -91,7 +91,7 @@ namespace Mirror
                     continue;
                 }
 
-                using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+                using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
                 {
                     WriteParameters(writer);
                     SendAnimationMessage(stateHash, normalizedTime, i, writer.ToArray());
@@ -140,7 +140,7 @@ namespace Mirror
             {
                 sendTimer = Time.time + syncInterval;
 
-                using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+                using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
                 {
                     if (WriteParameters(writer))
                         SendAnimationParametersMessage(writer.ToArray());

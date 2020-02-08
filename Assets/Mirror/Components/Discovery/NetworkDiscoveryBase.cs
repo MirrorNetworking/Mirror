@@ -190,7 +190,7 @@ namespace Mirror.Discovery
             if (info == null)
                 return;
 
-            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
             {
                 try
                 {
@@ -299,7 +299,7 @@ namespace Mirror.Discovery
 
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, serverBroadcastListenPort);
 
-            using (NetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
             {
                 writer.WriteInt64(secretHandshake);
 
