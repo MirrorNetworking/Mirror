@@ -33,8 +33,6 @@ namespace Mirror
         public int Position;
         public int Length => buffer.Count;
 
-        internal NetworkReader() { }
-
         public NetworkReader(byte[] bytes)
         {
             buffer = new ArraySegment<byte>(bytes);
