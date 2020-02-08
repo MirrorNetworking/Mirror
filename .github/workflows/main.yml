@@ -6,8 +6,6 @@ name: CI
 on: 
   pull_request: {}
   push:
-    branches: 
-      - master
     paths-ignore:
       - 'doc/**'
       - '*.md'
