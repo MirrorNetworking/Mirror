@@ -65,8 +65,6 @@ namespace Mirror.Weaver
 
         public static void WeaveExistingAssemblies()
         {
-            Debug.Log("WeaveExistingAssemblies");
-
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
             {
                 if (File.Exists(assembly.outputPath))
