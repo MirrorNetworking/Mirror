@@ -154,6 +154,15 @@ namespace Mirror.Tcp
                 // this is thrown when the socket is closed
                 // can be ignored
             }
+            catch (IOException ex)
+            {
+                if (ex.InnerException is SocketException se && se.SocketErrorCode == SocketError.Interrupted)
+                {
+                    // nothing to do,  socket was interupted
+                }
+                else
+                    throw;
+            }
             catch (Exception exception)
             {
                 ReceivedError?.Invoke(connectionId, exception);
