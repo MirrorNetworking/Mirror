@@ -27,6 +27,19 @@ namespace Mirror.Weaver
                 return foundFunc;
             }
 
+            MethodDefinition newReaderFunc;
+
+            // Arrays are special,  if we resolve them, we get teh element type,
+            // so the following ifs might choke on it for scriptable objects
+            // or other objects that require a custom serializer
+            // thus check if it is an array and skip all the checks.
+            if (variable.IsArray)
+            {
+                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
+                RegisterReadFunc(variable.FullName, newReaderFunc);
+                return newReaderFunc;
+            }
+
             TypeDefinition td = variable.Resolve();
             if (td == null)
             {
@@ -60,13 +73,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            MethodDefinition newReaderFunc;
-
-            if (variable.IsArray)
-            {
-                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
-            }
-            else if (td.IsEnum)
+            if (td.IsEnum)
             {
                 return GetReadFunc(td.GetEnumUnderlyingType(), recursionCount);
             }
@@ -76,7 +83,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                newReaderFunc = GenerateStructReadFunction(variable, recursionCount);
+                newReaderFunc = GenerateClassOrStructReadFunction(variable, recursionCount);
             }
 
             if (newReaderFunc == null)
@@ -286,7 +293,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateStructReadFunction(TypeReference variable, int recursionCount)
+        static MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable, int recursionCount)
         {
             if (recursionCount > MaxRecursionCount)
             {

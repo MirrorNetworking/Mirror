@@ -57,7 +57,13 @@ namespace Mirror
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
-        public bool isClient => NetworkClient.active && netId != 0 && !serverOnly;
+        //
+        // IMPORTANT: checking NetworkClient.active means that isClient is false in OnDestroy:
+        //   public bool isClient => NetworkClient.active && netId != 0 && !serverOnly;
+        // but we need it in OnDestroy, e.g. when saving skillbars on quit. this
+        // works fine if we keep the UNET way of setting isClient manually.
+        // => fixes https://github.com/vis2k/Mirror/issues/1475
+        public bool isClient { get; internal set; }
 
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
@@ -509,6 +515,13 @@ namespace Mirror
             // because we already set m_isServer=true above)
             spawned[netId] = this;
 
+            // in host mode we set isClient true before calling OnStartServer,
+            // otherwise isClient is false in OnStartServer.
+            if (NetworkClient.active)
+            {
+                isClient = true;
+            }
+
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
@@ -528,6 +541,8 @@ namespace Mirror
             if (clientStarted)
                 return;
             clientStarted = true;
+
+            isClient = true;
 
             if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
@@ -1135,6 +1150,7 @@ namespace Mirror
                 return;
 
             clientStarted = false;
+            isClient = false;
             reset = false;
 
             netId = 0;

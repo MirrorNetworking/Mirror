@@ -1,18 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Mirror;
-using System;
 
 namespace Mirror.Examples.Chat
 {
+    [AddComponentMenu("")]
     public class ChatNetworkManager : NetworkManager
     {
         public string playerName { get; set; }
 
         public void SetHostname(string hostname)
         {
-            this.networkAddress = hostname;
+            networkAddress = hostname;
         }
 
         public ChatWindow chatWindow;
@@ -33,10 +30,7 @@ namespace Mirror.Examples.Chat
             base.OnClientConnect(conn);
 
             // tell the server to create a player with this name
-            conn.Send(new CreatePlayerMessage
-            {
-                name = playerName
-            });
+            conn.Send(new CreatePlayerMessage { name = playerName });
         }
 
         private void OnCreatePlayer(NetworkConnection connection, CreatePlayerMessage createPlayerMessage)

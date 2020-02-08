@@ -20,7 +20,7 @@ namespace Mirror.Tests
         {
             NetworkWriter w = new NetworkWriter();
 
-            w.Write(new ChildMessage
+            w.WriteMessage(new ChildMessage
             {
                 parentValue = 3,
                 childValue = 4

@@ -28,6 +28,19 @@ namespace Mirror.Weaver
                 return foundFunc;
             }
 
+            MethodDefinition newWriterFunc;
+
+            // Arrays are special,  if we resolve them, we get the element type,
+            // so the following ifs might choke on it for scriptable objects
+            // or other objects that require a custom serializer
+            // thus check if it is an array and skip all the checks.
+            if (variable.IsArray)
+            {
+                newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
+                RegisterWriteFunc(variable.FullName, newWriterFunc);
+                return newWriterFunc;
+            }
+
             if (variable.IsByReference)
             {
                 // error??
@@ -61,13 +74,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            MethodDefinition newWriterFunc;
-
-            if (variable.IsArray)
-            {
-                newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
-            }
-            else if (variable.Resolve().IsEnum)
+            if (variable.Resolve().IsEnum)
             {
                 return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType(), recursionCount);
             }
@@ -77,7 +84,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                newWriterFunc = GenerateStructWriterFunction(variable, recursionCount);
+                newWriterFunc = GenerateClassOrStructWriterFunction(variable, recursionCount);
             }
 
             if (newWriterFunc == null)
@@ -98,7 +105,7 @@ namespace Mirror.Weaver
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
         }
 
-        static MethodDefinition GenerateStructWriterFunction(TypeReference variable, int recursionCount)
+        static MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable, int recursionCount)
         {
             if (recursionCount > MaxRecursionCount)
             {
