@@ -57,9 +57,9 @@ namespace Mirror.Weaver
             {
                 // reset session flag
                 SessionState.SetBool("MIRROR_WEAVED", true);
-                //SessionState.SetBool("MIRROR_WEAVE_SUCCESS", true);
+                SessionState.SetBool("MIRROR_WEAVE_SUCCESS", true);
 
-                //WeaveExistingAssemblies();
+                WeaveExistingAssemblies();
             }
         }
 
