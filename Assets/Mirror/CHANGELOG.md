@@ -1,3 +1,43 @@
+# [9.0.0](https://github.com/MirrorNG/MirrorNG/compare/8.0.1-master...9.0.0-master) (2020-02-08)
+
+
+### Bug Fixes
+
+* don't report error when stopping the server ([c965d4b](https://github.com/MirrorNG/MirrorNG/commit/c965d4b0ff32288ebe4e5c63a43e32559203deb1))
+
+
+### Features
+
+* awaitable connect ([#55](https://github.com/MirrorNG/MirrorNG/issues/55)) ([952e8a4](https://github.com/MirrorNG/MirrorNG/commit/952e8a43e2b2e4443e24865c60af1ee47467e4cf))
+
+
+### BREAKING CHANGES
+
+* ClientConnect replaced with ClientConnectAsync
+that can be awaited
+
+* fix: TCP transport for async compliance
+
+* use async connect
+
+* Ignore telepathy tests until they are fixed
+
+* It is ok to interrupt sockets
+
+* Remove some warnings
+
+* Remove some warnings
+
+* Remove some warnings
+
+* Remove some warnings
+
+* Remove some warnings
+
+* Remove some warnings
+
+* Remove some warnings
+
 ## [8.0.1](https://github.com/MirrorNG/MirrorNG/compare/8.0.0-master...8.0.1-master) (2020-02-06)
 
 
