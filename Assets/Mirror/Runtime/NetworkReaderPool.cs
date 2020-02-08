@@ -5,6 +5,10 @@ namespace Mirror
 {
     public class NetworkReaderPool : NetworkReader, IDisposable
     {
+        private NetworkReaderPool(byte[] bytes) : base(bytes) { }
+
+        private NetworkReaderPool(ArraySegment<byte> segment) : base(segment) { }
+
         static readonly Stack<NetworkReaderPool> pool = new Stack<NetworkReaderPool>();
 
         public static NetworkReaderPool GetReader(byte[] bytes)
@@ -17,7 +21,7 @@ namespace Mirror
                 return reader;
             }
 
-            return new NetworkReader(bytes) as NetworkReaderPool;
+            return new NetworkReaderPool(bytes);
         }
 
         public static NetworkReaderPool GetReader(ArraySegment<byte> segment)
@@ -30,7 +34,7 @@ namespace Mirror
                 return reader;
             }
 
-            return new NetworkReader(segment) as NetworkReaderPool;
+            return new NetworkReaderPool(segment);
         }
 
         // SetBuffer methods mirror constructor for ReaderPool
@@ -46,9 +50,6 @@ namespace Mirror
             reader.Position = 0;
         }
 
-        // NetworkReader implements IDisposable so there should only be
-        // one reference to Recycle in NetworkReader's Dispose method.
-        // If this shows additional references, investigate why.
         public static void Recycle(NetworkReaderPool reader)
         {
             pool.Push(reader);
