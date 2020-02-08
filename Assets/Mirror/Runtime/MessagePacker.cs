@@ -87,7 +87,7 @@ namespace Mirror
         // unpack a message we received
         public static T Unpack<T>(byte[] data) where T : IMessageBase, new()
         {
-            using (NetworkReader networkReader = NetworkReaderPool.GetReader(data))
+            using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(data))
             {
                 int msgType = GetId<T>();
 
@@ -157,7 +157,7 @@ namespace Mirror
             finally
             {
                 // TODO: Figure out the correct channel
-                NetworkDiagnostics.OnReceive(message, networkMessage.channelId, networkMessage.reader.Length);
+                //NetworkDiagnostics.OnReceive(message, networkMessage.channelId, networkMessage.reader.Length);
             }
 
             handler(networkMessage.conn, message);

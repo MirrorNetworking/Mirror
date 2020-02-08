@@ -325,7 +325,7 @@ namespace Mirror
 
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
-                using (NetworkReader networkReader = NetworkReaderPool.GetReader(segment))
+                using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(segment))
                     return InvokeHandler(msgType, networkReader, channelId);
             }
         }
@@ -343,7 +343,7 @@ namespace Mirror
         internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
-            using (NetworkReader networkReader = NetworkReaderPool.GetReader(buffer))
+            using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(buffer))
             {
                 if (MessagePacker.UnpackMessage(networkReader, out int msgType))
                 {

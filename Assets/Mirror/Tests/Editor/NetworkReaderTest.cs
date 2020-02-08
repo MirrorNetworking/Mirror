@@ -34,7 +34,7 @@ namespace Mirror.Tests
             byte[] bytes = { 0x00, 0x01 };
             //NetworkReader reader = new NetworkReader(bytes);
 
-            using (NetworkReader reader = NetworkReaderPool.GetReader(bytes))
+            using (NetworkReaderPool reader = NetworkReaderPool.GetReader(bytes))
             {
                 try
                 {

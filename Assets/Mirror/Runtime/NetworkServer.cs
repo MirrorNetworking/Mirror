@@ -1014,7 +1014,7 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
 
-            using (NetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
+            using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(msg.payload))
                 identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader);
         }
 

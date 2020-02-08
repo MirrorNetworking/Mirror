@@ -1,44 +1,62 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Mirror
 {
-    public static class NetworkReaderPool
+    public class NetworkReaderPool : NetworkReader, IDisposable
     {
-        static readonly Stack<NetworkReader> pool = new Stack<NetworkReader>();
+        static readonly Stack<NetworkReaderPool> pool = new Stack<NetworkReaderPool>();
 
-        public static NetworkReader GetReader(byte[] bytes)
+        public static NetworkReaderPool GetReader(byte[] bytes)
         {
             if (pool.Count != 0)
             {
-                NetworkReader reader = pool.Pop();
+                NetworkReaderPool reader = pool.Pop();
                 // reset buffer
-                reader.SetBuffer(bytes);
+                SetBuffer(reader, bytes);
                 return reader;
             }
 
-            return new NetworkReader(bytes);
+            return new NetworkReader(bytes) as NetworkReaderPool;
         }
 
-        public static NetworkReader GetReader(ArraySegment<byte> segment)
+        public static NetworkReaderPool GetReader(ArraySegment<byte> segment)
         {
             if (pool.Count != 0)
             {
-                NetworkReader reader = pool.Pop();
+                NetworkReaderPool reader = pool.Pop();
                 // reset buffer
-                reader.SetBuffer(segment);
+                SetBuffer(reader, segment);
                 return reader;
             }
 
-            return new NetworkReader(segment);
+            return new NetworkReader(segment) as NetworkReaderPool;
+        }
+
+        // SetBuffer methods mirror constructor for ReaderPool
+        static void SetBuffer(NetworkReader reader, byte[] bytes)
+        {
+            reader.buffer = new ArraySegment<byte>(bytes);
+            reader.Position = 0;
+        }
+
+        static void SetBuffer(NetworkReader reader, ArraySegment<byte> segment)
+        {
+            reader.buffer = segment;
+            reader.Position = 0;
         }
 
         // NetworkReader implements IDisposable so there should only be
         // one reference to Recycle in NetworkReader's Dispose method.
         // If this shows additional references, investigate why.
-        public static void Recycle(NetworkReader reader)
+        public static void Recycle(NetworkReaderPool reader)
         {
             pool.Push(reader);
+        }
+
+        public void Dispose()
+        {
+            Recycle(this);
         }
     }
 }

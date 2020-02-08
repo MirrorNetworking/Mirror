@@ -158,7 +158,7 @@ namespace Mirror.Discovery
 
             UdpReceiveResult udpReceiveResult = await udpClient.ReceiveAsync();
 
-            using (NetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer))
+            using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer))
             {
                 long handshake = networkReader.ReadInt64();
                 if (handshake != secretHandshake)
@@ -336,7 +336,7 @@ namespace Mirror.Discovery
 
             UdpReceiveResult udpReceiveResult = await udpClient.ReceiveAsync();
 
-            using (NetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer))
+            using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer))
             {
                 if (networkReader.ReadInt64() != secretHandshake)
                     return;
