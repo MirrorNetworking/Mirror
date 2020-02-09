@@ -48,10 +48,10 @@ public class MyNetworkManager : MonoBehaviour
 This basic code calls setup functions to get things going. Below are the simple setup functions for each of the scenarios. These functions create a server, or the right kind of client for each scenario. Note that the remote client assumes the server is on the same machine (localhost). For a finished game this would be an internet address, or something supplied by a matchmaker or master server.
 
 ``` cs
-// Create a server and listen on a port  
+// Create a server with a maximum number of connections
 public void SetupServer()
 {
-    NetworkServer.Listen(7777);
+    NetworkServer.Listen(4);
     isAtStartup = false;
 }
 

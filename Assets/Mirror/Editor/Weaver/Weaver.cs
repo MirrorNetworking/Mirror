@@ -53,6 +53,8 @@ namespace Mirror.Weaver
         public static TypeReference SyncSetType;
         public static TypeReference SyncDictionaryType;
 
+        public static MethodReference ScriptableObjectCreateInstanceMethod;
+
         public static MethodReference NetworkBehaviourDirtyBitsReference;
         public static MethodReference GetPooledWriterReference;
         public static MethodReference RecycleWriterReference;
@@ -269,6 +271,10 @@ namespace Mirror.Weaver
 
             MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = UnityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");
+
+            ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(
+                ScriptableObjectType, CurrentAssembly,
+                md => md.Name == "CreateInstance" && md.HasGenericParameters);
 
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
