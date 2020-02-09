@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,9 +13,7 @@ namespace Mirror.Examples.Chat
 
         public void Awake()
         {
-
             Player.OnMessage += OnPlayerMessage;
-
         }
 
         private void OnPlayerMessage(Player player, string message)

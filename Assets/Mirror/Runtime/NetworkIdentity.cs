@@ -512,6 +512,13 @@ namespace Mirror
             // because we already set m_isServer=true above)
             spawned[netId] = this;
 
+            // in host mode we set isClient true before calling OnStartServer,
+            // otherwise isClient is false in OnStartServer.
+            if (NetworkClient.active)
+            {
+                isClient = true;
+            }
+
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
@@ -531,6 +538,8 @@ namespace Mirror
             if (clientStarted)
                 return;
             clientStarted = true;
+
+            isClient = true;
 
             if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
@@ -1105,6 +1114,7 @@ namespace Mirror
                 return;
 
             clientStarted = false;
+            isClient = false;
             reset = false;
 
             netId = 0;
