@@ -1,4 +1,8 @@
-﻿using NUnit.Framework;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Mirror;
+using NSubstitute;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -34,5 +38,136 @@ namespace Mirror.Tests
             Assert.That(component2.onStartServerInvoked);
         }
 
+        class IsClientServerCheckComponent : NetworkBehaviour
+        {
+            // OnStartClient
+            internal bool OnStartClient_isClient;
+            internal bool OnStartClient_isServer;
+            internal bool OnStartClient_isLocalPlayer;
+            public override void OnStartClient()
+            {
+                OnStartClient_isClient = isClient;
+                OnStartClient_isServer = isServer;
+                OnStartClient_isLocalPlayer = isLocalPlayer;
+            }
+
+            // OnStartServer
+            internal bool OnStartServer_isClient;
+            internal bool OnStartServer_isServer;
+            internal bool OnStartServer_isLocalPlayer;
+            public override void OnStartServer()
+            {
+                OnStartServer_isClient = isClient;
+                OnStartServer_isServer = isServer;
+                OnStartServer_isLocalPlayer = isLocalPlayer;
+            }
+
+            // OnStartLocalPlayer
+            internal bool OnStartLocalPlayer_isClient;
+            internal bool OnStartLocalPlayer_isServer;
+            internal bool OnStartLocalPlayer_isLocalPlayer;
+            public override void OnStartLocalPlayer()
+            {
+                OnStartLocalPlayer_isClient = isClient;
+                OnStartLocalPlayer_isServer = isServer;
+                OnStartLocalPlayer_isLocalPlayer = isLocalPlayer;
+            }
+
+            // Start
+            internal bool Start_isClient;
+            internal bool Start_isServer;
+            internal bool Start_isLocalPlayer;
+            public void Start()
+            {
+                Start_isClient = isClient;
+                Start_isServer = isServer;
+                Start_isLocalPlayer = isLocalPlayer;
+            }
+
+            // OnDestroy
+            internal bool OnDestroy_isClient;
+            internal bool OnDestroy_isServer;
+            internal bool OnDestroy_isLocalPlayer;
+            public void OnDestroy()
+            {
+                OnDestroy_isClient = isClient;
+                OnDestroy_isServer = isServer;
+                OnDestroy_isLocalPlayer = isLocalPlayer;
+            }
+        }
+
+        // check isClient/isServer/isLocalPlayer in server-only mode
+        [Test]
+        public void ServerMode_IsFlags_Test()
+        {
+            // start the server
+            Transport.activeTransport = Substitute.For<Transport>();
+            var networkManagerGameObject = new GameObject();
+            NetworkServer server = networkManagerGameObject.AddComponent<NetworkServer>();
+
+            server.Listen(1000);
+
+            // create a networkidentity+component
+            var gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
+
+            // spawn it
+            server.Spawn(gameObject);
+
+            // OnStartServer should have been called. check the flags.
+            Assert.That(component.OnStartServer_isClient, Is.EqualTo(false));
+            Assert.That(component.OnStartServer_isLocalPlayer, Is.EqualTo(false));
+            Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
+
+            // stop the server
+            server.Shutdown();
+            Transport.activeTransport = null;
+            Object.DestroyImmediate(gameObject);
+            Object.DestroyImmediate(networkManagerGameObject);
+        }
+
+        // check isClient/isServer/isLocalPlayer in host mode
+        [Test]
+        public void HostMode_IsFlags_Test()
+        {
+            // start the server
+            Transport.activeTransport = Substitute.For<Transport>();
+            var networkManagerGameObject = new GameObject();
+            NetworkServer server = networkManagerGameObject.AddComponent<NetworkServer>();
+            NetworkClient client = networkManagerGameObject.AddComponent<NetworkClient>();
+            server.Listen(1000);
+
+            // start the client
+            client.ConnectHost(server);
+
+            // create a networkidentity+component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
+
+            // set is as local player
+            ClientScene.InternalAddPlayer(identity);
+
+            // spawn it
+            server.Spawn(gameObject);
+
+            // OnStartServer should have been called. check the flags.
+            Assert.That(component.OnStartServer_isClient, Is.EqualTo(true));
+            Assert.That(component.OnStartServer_isLocalPlayer, Is.EqualTo(true));
+            Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
+
+            // stop the client
+            client.Shutdown();
+            server.RemoveLocalConnection();
+            ClientScene.Shutdown();
+
+            // stop the server
+            server.Shutdown();
+            Transport.activeTransport = null;
+            Object.DestroyImmediate(gameObject);
+            Object.DestroyImmediate(networkManagerGameObject);
+
+        }
     }
 }
