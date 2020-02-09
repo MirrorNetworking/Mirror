@@ -10,7 +10,7 @@ namespace Mirror.Tests
     {
         // A Test behaves as an ordinary method
         [Test]
-        public void NetworkWriterPoolTestSimplePasses()
+        public void TestPoolRecycling()
         {
 
             object retrievedWriter;
@@ -21,8 +21,10 @@ namespace Mirror.Tests
             }
 
             // Use the Assert class to test conditions
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                Assert.That(writer, Is.SameAs(retrievedWriter), "Pool should reuse the writer");
+            }
         }
-
-       
     }
 }
