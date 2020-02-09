@@ -13,17 +13,17 @@ namespace Mirror.Tests
         public void TestPoolRecycling()
         {
 
-            object retrievedWriter;
+            object firstWriter;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                retrievedWriter = writer;
+                firstWriter = writer;
             }
 
             // Use the Assert class to test conditions
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                Assert.That(writer, Is.SameAs(retrievedWriter), "Pool should reuse the writer");
+                Assert.That(writer, Is.SameAs(firstWriter), "Pool should reuse the writer");
             }
         }
     }
