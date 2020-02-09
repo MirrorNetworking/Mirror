@@ -168,13 +168,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SyncVarsDerivedScriptableObject()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for scriptable object MirrorTest.MirrorTestPlayer/MySyncVar. Use a supported type or provide a custom writer"));
-        }
-
-        [Test]
         public void SyncVarsStatic()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);

@@ -46,7 +46,7 @@ public class PlayerEquip : NetworkBehaviour
     [SyncVar(hook = nameof(OnChangeEquipment))]
     public EquippedItem equippedItem;
 
-    void OnChangeEquipment(EquippedItem newEquippedItem)
+    void OnChangeEquipment(EquippedItem oldEquippedItem, EquippedItem newEquippedItem)
     {
         StartCoroutine(ChangeEquipment(newEquippedItem));
     }
@@ -166,7 +166,7 @@ public class SceneObject : NetworkBehaviour
     public GameObject boxPrefab;
     public GameObject cylinderPrefab;
 
-    void OnChangeEquipment(EquippedItem newEquippedItem)
+    void OnChangeEquipment(EquippedItem oldEquippedItem, EquippedItem newEquippedItem)
     {
         StartCoroutine(ChangeEquipment(newEquippedItem));
     }

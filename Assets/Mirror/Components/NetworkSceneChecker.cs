@@ -25,9 +25,10 @@ namespace Mirror
         string currentScene;
 
         [ServerCallback]
-        void Awake()
+        void OnEnable()
         {
             currentScene = gameObject.scene.name;
+            if (LogFilter.Debug) Debug.Log($"NetworkSceneChecker.OnEnable currentScene: {currentScene}");
         }
 
         public override void OnStartServer()
@@ -74,6 +75,11 @@ namespace Mirror
                     networkIdentity.RebuildObservers(false);
         }
 
+        /// <summary>
+        /// Called when a new player enters the scene
+        /// </summary>
+        /// <param name="newObserver">NetworkConnection of player object</param>
+        /// <returns>True if object is in the same scene</returns>
         public override bool OnCheckObserver(NetworkConnection conn)
         {
             if (forceHidden)

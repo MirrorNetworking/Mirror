@@ -8,6 +8,8 @@ The default state of authority in networked games using Mirror is that the Serve
 
 ## Client Authority
 
+[![Client and server authority video tutorial](../images/video_tutorial.png)](https://www.youtube.com/watch?v=WBFrA0Gnpi8&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=4)
+
 Client authority means the local client can control a networked game object. By default only the server has control over a networked object.
 
 In practical terms, having client authority means that the client can call [Command](Communications/RemoteActions.md) methods, and if the client disconnects, the object is automatically destroyed.

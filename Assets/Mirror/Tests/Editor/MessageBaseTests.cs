@@ -47,7 +47,7 @@ namespace Mirror.Tests
         public void Roundtrip()
         {
             NetworkWriter w = new NetworkWriter();
-            w.Write(new TestMessage(1, "2", 3.3));
+            w.WriteMessage(new TestMessage(1, "2", 3.3));
 
             byte[] arr = w.ToArray();
 
@@ -62,7 +62,7 @@ namespace Mirror.Tests
         public void WovenSerializationBodyRoundtrip()
         {
             NetworkWriter w = new NetworkWriter();
-            w.Write(new WovenTestMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
+            w.WriteMessage(new WovenTestMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
 
             byte[] arr = w.ToArray();
 

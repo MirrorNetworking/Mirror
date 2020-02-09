@@ -46,11 +46,6 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variable} is not a supported type");
                 return null;
             }
-            if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
-            {
-                Weaver.Error($"Cannot generate reader for scriptable object {variable}. Use a supported type or provide a custom reader");
-                return null;
-            }
             if (td.IsDerivedFrom(Weaver.ComponentType))
             {
                 Weaver.Error($"Cannot generate reader for component type {variable}. Use a supported type or provide a custom reader");
@@ -331,13 +326,22 @@ namespace Mirror.Weaver
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
+            TypeDefinition td = variable.Resolve();
+
             if (variable.IsValueType)
             {
                 // structs are created with Initobj
                 worker.Append(worker.Create(OpCodes.Ldloca, 0));
                 worker.Append(worker.Create(OpCodes.Initobj, variable));
             }
-            else
+            else if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
+            {
+                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(Weaver.ScriptableObjectCreateInstanceMethod);
+                genericInstanceMethod.GenericArguments.Add(variable);
+                worker.Append(worker.Create(OpCodes.Call, genericInstanceMethod));
+                worker.Append(worker.Create(OpCodes.Stloc_0));
+            }
+            else 
             {
                 // classes are created with their constructor
 

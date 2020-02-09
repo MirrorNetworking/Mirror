@@ -114,6 +114,20 @@ namespace Mirror.Weaver
             return null;
         }
 
+        public static MethodReference ResolveMethod(TypeReference t, AssemblyDefinition scriptDef, System.Func<MethodDefinition, bool> predicate)
+        {
+            foreach (MethodDefinition methodRef in t.Resolve().Methods)
+            {
+                if (predicate(methodRef))
+                {
+                    return scriptDef.MainModule.ImportReference(methodRef);
+                }
+            }
+
+            Weaver.Error($"Method not found");
+            return null;
+        }
+
         public static FieldReference ResolveField(TypeReference tr, AssemblyDefinition scriptDef, string name)
         {
             foreach (FieldDefinition fd in tr.Resolve().Fields)
