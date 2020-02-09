@@ -1,4 +1,6 @@
+using IDisposable = System.IDisposable;
 using System.Collections.Generic;
+
 
 namespace Mirror
 {
@@ -6,6 +8,16 @@ namespace Mirror
     public static class NetworkWriterPool
     {
         static readonly Stack<NetworkWriter> pool = new Stack<NetworkWriter>();
+
+        // a NetworkWriter that will put itself back in the pool
+        // if disposed
+        class PooledNetworkWriter : NetworkWriter, IDisposable
+        {
+            public void Dispose()
+            {
+                pool.Push(this);
+            }
+        }
 
         public static NetworkWriter GetWriter()
         {
@@ -17,7 +29,7 @@ namespace Mirror
                 return writer;
             }
 
-            return new NetworkWriter();
+            return new PooledNetworkWriter();
         }
 
         public static void Recycle(NetworkWriter writer)
