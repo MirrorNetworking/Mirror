@@ -18,11 +18,6 @@ namespace Mirror
     // The exceptions will be handled in NetworkServer/NetworkClient.
     public class NetworkReader
     {
-        //public void Dispose()
-        //{
-        //    NetworkReaderPool.Recycle(this);
-        //}
-
         // internal buffer
         // byte[] pointer would work, but we use ArraySegment to also support
         // the ArraySegment constructor

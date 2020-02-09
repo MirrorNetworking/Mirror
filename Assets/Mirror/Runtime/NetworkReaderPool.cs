@@ -5,9 +5,9 @@ namespace Mirror
 {
     public class NetworkReaderPool : NetworkReader, IDisposable
     {
-        private NetworkReaderPool(byte[] bytes) : base(bytes) { }
+        NetworkReaderPool(byte[] bytes) : base(bytes) { }
 
-        private NetworkReaderPool(ArraySegment<byte> segment) : base(segment) { }
+        NetworkReaderPool(ArraySegment<byte> segment) : base(segment) { }
 
         static readonly Stack<NetworkReaderPool> pool = new Stack<NetworkReaderPool>();
 
