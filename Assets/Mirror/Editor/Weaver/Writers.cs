@@ -53,11 +53,6 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variable} is not a supported type. Use a supported type or provide a custom writer");
                 return null;
             }
-            if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
-            {
-                Weaver.Error($"Cannot generate writer for scriptable object {variable}. Use a supported type or provide a custom writer");
-                return null;
-            }
             if (td.IsDerivedFrom(Weaver.ComponentType))
             {
                 Weaver.Error($"Cannot generate writer for component type {variable}. Use a supported type or provide a custom writer");
