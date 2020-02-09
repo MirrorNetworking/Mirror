@@ -22,7 +22,7 @@ namespace Mirror
 
         public static readonly Dictionary<string, HashSet<NetworkIdentity>> sceneCheckerObjects = new Dictionary<string, HashSet<NetworkIdentity>>();
 
-        [SerializeField] string currentScene;
+        string currentScene;
 
         [ServerCallback]
         void OnEnable()
