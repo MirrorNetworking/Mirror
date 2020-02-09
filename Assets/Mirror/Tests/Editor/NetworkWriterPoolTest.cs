@@ -20,7 +20,6 @@ namespace Mirror.Tests
                 firstWriter = writer;
             }
 
-            // Use the Assert class to test conditions
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 Assert.That(writer, Is.SameAs(firstWriter), "Pool should reuse the writer");
