@@ -8,7 +8,6 @@ namespace Mirror.Tests
         [Test]
         public void TestPoolRecycling()
         {
-
             object firstWriter;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
