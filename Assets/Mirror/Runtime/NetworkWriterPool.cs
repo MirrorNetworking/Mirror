@@ -30,11 +30,11 @@ namespace Mirror
             return new PooledNetworkWriter();
         }
 
-        public static void Recycle(NetworkWriter writer)
+        public static void Recycle(PooledNetworkWriter writer)
         {
             // ideally we would just receive PooledNetworkWriter
             // but that would make this a breaking change
-            pool.Push((PooledNetworkWriter)writer);
+            pool.Push(writer);
         }
     }
 }

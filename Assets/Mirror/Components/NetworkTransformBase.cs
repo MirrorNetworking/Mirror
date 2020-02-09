@@ -395,7 +395,7 @@ namespace Mirror
                         {
                             // serialize
                             // local position/rotation for VR support
-                            NetworkWriter writer = NetworkWriterPool.GetWriter();
+                            PooledNetworkWriter writer = NetworkWriterPool.GetWriter();
                             SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation, targetComponent.transform.localScale);
 
                             // send to server
