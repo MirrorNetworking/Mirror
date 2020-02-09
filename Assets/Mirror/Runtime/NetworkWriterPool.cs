@@ -1,7 +1,6 @@
 using IDisposable = System.IDisposable;
 using System.Collections.Generic;
 
-
 namespace Mirror
 {
 
