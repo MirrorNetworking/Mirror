@@ -3,33 +3,35 @@ using System.Collections.Generic;
 
 namespace Mirror
 {
-    public class NetworkWriterPool : NetworkWriter, IDisposable
+    // a NetworkWriter that will recycle itself when disposed
+    public class PooledNetworkWriter : NetworkWriter, IDisposable
     {
-        NetworkWriterPool() { }
+        public void Dispose()
+        {
+            NetworkWriterPool.Recycle(this);
+        }
+    }
 
-        static readonly Stack<NetworkWriterPool> pool = new Stack<NetworkWriterPool>();
+    public static class NetworkWriterPool
+    {
+        static readonly Stack<PooledNetworkWriter> pool = new Stack<PooledNetworkWriter>();
 
-        public static NetworkWriterPool GetWriter()
+        public static PooledNetworkWriter GetWriter()
         {
             if (pool.Count != 0)
             {
-                NetworkWriterPool writer = pool.Pop();
+                PooledNetworkWriter writer = pool.Pop();
                 // reset cached writer length and position
                 writer.SetLength(0);
                 return writer;
             }
 
-            return new NetworkWriterPool();
+            return new PooledNetworkWriter();
         }
 
-        public static void Recycle(NetworkWriterPool writer)
+        public static void Recycle(PooledNetworkWriter writer)
         {
             pool.Push(writer);
-        }
-
-        public void Dispose()
-        {
-            Recycle(this);
         }
     }
 }

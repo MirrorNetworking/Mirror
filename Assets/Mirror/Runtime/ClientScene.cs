@@ -493,7 +493,7 @@ namespace Mirror
             // (Count is 0 if there were no components)
             if (msg.payload.Count > 0)
             {
-                using (NetworkReaderPool payloadReader = NetworkReaderPool.GetReader(msg.payload))
+                using (PooledNetworkReader payloadReader = NetworkReaderPool.GetReader(msg.payload))
                 {
                     identity.OnUpdateVars(payloadReader, true);
                 }
@@ -690,7 +690,7 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
-                using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(msg.payload))
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
                     localObject.OnUpdateVars(networkReader, false);
             }
             else
@@ -705,7 +705,7 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
-                using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(msg.payload))
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
                     identity.HandleRPC(msg.componentIndex, msg.functionHash, networkReader);
             }
         }
@@ -716,7 +716,7 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
-                using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(msg.payload))
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
                     identity.HandleSyncEvent(msg.componentIndex, msg.functionHash, networkReader);
             }
             else

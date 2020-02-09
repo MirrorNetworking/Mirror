@@ -205,7 +205,7 @@ namespace Mirror
         /// <returns></returns>
         public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message and send allocation free
                 MessagePacker.Pack(msg, writer);
@@ -315,7 +315,7 @@ namespace Mirror
         public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
         {
             // get writer from pool
-            using (NetworkWriterPool writer = NetworkWriterPool.GetWriter())
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // if it is a value type,  just use typeof(T) to avoid boxing
                 // this works because value types cannot be derived
@@ -325,7 +325,7 @@ namespace Mirror
 
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
-                using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(segment))
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(segment))
                     return InvokeHandler(msgType, networkReader, channelId);
             }
         }
@@ -343,7 +343,7 @@ namespace Mirror
         internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
-            using (NetworkReaderPool networkReader = NetworkReaderPool.GetReader(buffer))
+            using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(buffer))
             {
                 if (MessagePacker.UnpackMessage(networkReader, out int msgType))
                 {
