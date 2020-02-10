@@ -32,7 +32,6 @@ namespace Mirror.Tests
             // calling ReadBytes with a count bigger than what is in Reader
             // should throw an exception
             byte[] bytes = { 0x00, 0x01 };
-            //NetworkReader reader = new NetworkReader(bytes);
 
             using (PooledNetworkReader reader = NetworkReaderPool.GetReader(bytes))
             {
