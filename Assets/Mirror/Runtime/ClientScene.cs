@@ -494,9 +494,10 @@ namespace Mirror
             // (Count is 0 if there were no components)
             if (msg.payload.Count > 0)
             {
-                NetworkReader payloadReader = NetworkReaderPool.GetReader(msg.payload);
-                identity.OnUpdateVars(payloadReader, true);
-                NetworkReaderPool.Recycle(payloadReader);
+                using (PooledNetworkReader payloadReader = NetworkReaderPool.GetReader(msg.payload))
+                {
+                    identity.OnUpdateVars(payloadReader, true);
+                }
             }
 
             NetworkIdentity.spawned[msg.netId] = identity;
@@ -690,9 +691,8 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
-                NetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload);
-                localObject.OnUpdateVars(networkReader, false);
-                NetworkReaderPool.Recycle(networkReader);
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
+                    localObject.OnUpdateVars(networkReader, false);
             }
             else
             {
@@ -706,9 +706,8 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
-                NetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload);
-                identity.HandleRPC(msg.componentIndex, msg.functionHash, networkReader);
-                NetworkReaderPool.Recycle(networkReader);
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
+                    identity.HandleRPC(msg.componentIndex, msg.functionHash, networkReader);
             }
         }
 
@@ -718,9 +717,8 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
-                NetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload);
-                identity.HandleSyncEvent(msg.componentIndex, msg.functionHash, networkReader);
-                NetworkReaderPool.Recycle(networkReader);
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
+                    identity.HandleSyncEvent(msg.componentIndex, msg.functionHash, networkReader);
             }
             else
             {
