@@ -12,13 +12,11 @@ namespace Mirror.Tests
         {
             // 10 million reads, Unity 2019.3, code coverage disabled
             //    4014ms ms
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            NetworkWriter writer = new NetworkWriter();
+            for (int i = 0; i < 10000000; ++i)
             {
-                for (int i = 0; i < 10000000; ++i)
-                {
-                    writer.SetLength(0);
-                    writer.WriteVector3(new Vector3(1, 2, 3));
-                }
+                writer.SetLength(0);
+                writer.WriteVector3(new Vector3(1, 2, 3));
             }
         }
 
