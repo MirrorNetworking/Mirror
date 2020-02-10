@@ -155,7 +155,7 @@ namespace Mirror
         public abstract bool ServerDisconnect(int connectionId);
 
         /// <summary>
-        /// Deprecated: Use ServerGetClientAddress(int connectionId) instead
+        /// Obsolete: Use <see cref="ServerGetClientAddress(int)"/> instead
         /// </summary>
         // Removed 2/17/2019 and restored 3/2/2019
         // Deprecated 03/02/2019
