@@ -21,6 +21,7 @@ namespace Mirror
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
 
+        // Deprecated 04/08/2019
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use MaxMessageSizeFromClient or MaxMessageSizeFromServer instead.")]
         public int MaxMessageSize
         {

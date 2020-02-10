@@ -102,6 +102,7 @@ namespace Mirror
                 syncVarHookGuard &= ~dirtyBit;
         }
 
+        // Deprecated 04/07/2019
         /// <summary>
         /// Obsolete: Use <see cref="syncObjects"/> instead.
         /// </summary>
@@ -802,7 +803,8 @@ namespace Mirror
             return false;
         }
 
-        [Obsolete("Rename to OnSetHostVisibility instead.")]
+        // Deprecated 11/21/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Rename to OnSetHostVisibility instead.")]
         public virtual void OnSetLocalVisibility(bool visible) { }
 
         /// <summary>

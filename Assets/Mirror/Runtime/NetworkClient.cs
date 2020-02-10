@@ -22,6 +22,7 @@ namespace Mirror
     /// </summary>
     public class NetworkClient
     {
+        // Deprecated 03/25/2019
         /// <summary>
         /// Obsolete: Use <see cref="NetworkClient"/> directly.
         /// <para>Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).</para>
@@ -29,6 +30,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly. Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).")]
         public static NetworkClient singleton = new NetworkClient();
 
+        // Deprecated 03/25/2019
         /// <summary>
         /// A list of all the active network clients in the current process.
         /// <para>This is NOT a list of all clients that are connected to the remote server, it is client instances on the local game.</para>
@@ -225,6 +227,7 @@ namespace Mirror
             Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="Send{T}(T, int)"/> instead with no message id instead
         /// </summary>
@@ -332,6 +335,7 @@ namespace Mirror
         }
         */
 
+        // Deprecated 10/05/2018
         /// <summary>
         /// Obsolete: Use <see cref="NetworkTime.rtt"/> instead
         /// </summary>
@@ -370,6 +374,7 @@ namespace Mirror
             RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead
         /// </summary>
@@ -383,6 +388,7 @@ namespace Mirror
             handlers[msgType] = handler;
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead
         /// </summary>
@@ -421,6 +427,7 @@ namespace Mirror
             RegisterHandler((NetworkConnection _, T value) => { handler(value); }, requireAuthentication);
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
         /// </summary>
@@ -430,6 +437,7 @@ namespace Mirror
             handlers.Remove(msgType);
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
         /// </summary>
@@ -467,10 +475,11 @@ namespace Mirror
             Transport.activeTransport.ClientDisconnect();
         }
 
+        // Deprecated 03/22/2019
         /// <summary>
-        /// Obsolete: Call <see cref="NetworkClient.Shutdown"/> instead. There is only one client.
+        /// Obsolete: Call <see cref="Shutdown"/> instead. There is only one client.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Call NetworkClient.Shutdown() instead. There is only one client.")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Call Shutdown() instead. There is only one client.")]
         public static void ShutdownAll()
         {
             Shutdown();

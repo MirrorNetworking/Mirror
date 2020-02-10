@@ -64,7 +64,8 @@ namespace Mirror
         /// <summary>
         /// Obsolete: use <see cref="identity"/> instead
         /// </summary>
-        [Obsolete("Use NetworkConnection.identity instead")]
+        // Deprecated 09/18/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkConnection.identity instead")]
         public NetworkIdentity playerController
         {
             get
@@ -103,11 +104,13 @@ namespace Mirror
 
         // this is always true for regular connections, false for local
         // connections because it's set in the constructor and never reset.
+        // Deprecated 02/26/2019
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("isConnected will be removed because it's pointless. A NetworkConnection is always connected.")]
         public bool isConnected { get; protected set; }
 
         // this is always 0 for regular connections, -1 for local
         // connections because it's set in the constructor and never reset.
+        // Deprecated 02/26/2019
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("hostId will be removed because it's not needed ever since we removed LLAPI as default. It's always 0 for regular connections and -1 for local connections. Use connection.GetType() == typeof(NetworkConnection) to check if it's a regular or local connection.")]
         public int hostId = -1;
 
@@ -163,8 +166,9 @@ namespace Mirror
             messageHandlers = handlers;
         }
 
+        // Deprecated 04/09/2019
         /// <summary>
-        /// Obsolete: Use NetworkClient/NetworkServer.RegisterHandler{T} instead
+        /// Obsolete: Use <see cref="NetworkClient.RegisterHandler{T}"/> or <see cref="NetworkServer.RegisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient/NetworkServer.RegisterHandler<T> instead")]
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
@@ -176,6 +180,7 @@ namespace Mirror
             messageHandlers[msgType] = handler;
         }
 
+        // Deprecated 04/09/2019
         /// <summary>
         /// Obsolete: Use <see cref="NetworkClient.UnregisterHandler{T}"/> and <see cref="NetworkServer.UnregisterHandler{T}"/> instead
         /// </summary>
@@ -185,10 +190,11 @@ namespace Mirror
             messageHandlers.Remove(msgType);
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: use <see cref="Send{T}(T, int)"/> instead
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("use Send<T> instead")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("use Send<T>(msg, channelId) instead")]
         public bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             // pack message and send
@@ -277,6 +283,7 @@ namespace Mirror
             visList.Clear();
         }
 
+        // Deprecated 04/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="InvokeHandler(int, NetworkReader, int)"/> instead
         /// </summary>

@@ -150,6 +150,7 @@ namespace Mirror
         [NonSerialized]
         public bool clientLoadedScene;
 
+        // Deprecated 03/27/2019
         /// <summary>
         /// Obsolete: Use <see cref="NetworkClient.isConnected"/> instead
         /// </summary>
@@ -160,11 +161,11 @@ namespace Mirror
             return NetworkClient.isConnected;
         }
 
+        // Deprecated 04/09/2019
         /// <summary>
         /// Obsolete: Use <see cref="isHeadless"/> instead.
         /// <para>This is a static property now. This method will be removed by summer 2019.</para>
         /// </summary>
-        /// <returns></returns>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use isHeadless instead of IsHeadless()")]
         public static bool IsHeadless()
         {
@@ -184,6 +185,7 @@ namespace Mirror
         //    during FinishLoadScene.
         public NetworkManagerMode mode { get; private set; }
 
+        // Deprecated 03/25/2019
         /// <summary>
         /// Obsolete: Use <see cref="NetworkClient"/> directly
         /// <para>For example, use <c>NetworkClient.Send(message)</c> instead of <c>NetworkManager.client.Send(message)</c></para>
@@ -1274,12 +1276,11 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
+        // Deprecated 10/02/2019
         /// <summary>
         /// Obsolete: Override <see cref="OnServerAddPlayer(NetworkConnection)"/> instead.
         /// <para>See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a> for details.</para>
         /// </summary>
-        /// <param name="conn">Connection from client.</param>
-        /// <param name="extraMessage">An extra message object passed for the new player.</param>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnServerAddPlayer(NetworkConnection conn) instead. See https://mirror-networking.com/docs/Guides/GameObjects/SpawnPlayerCustom.html for details.")]
         public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
@@ -1409,6 +1410,7 @@ namespace Mirror
         /// <param name="conn">Connection to the server.</param>
         public virtual void OnClientNotReady(NetworkConnection conn) { }
 
+        // Deprecated 09/17/2019
         /// <summary>
         /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.).
         /// </summary>
@@ -1418,6 +1420,7 @@ namespace Mirror
             OnClientChangeScene(newSceneName, SceneOperation.Normal, false);
         }
 
+        // Deprecated 12/22/2019
         /// <summary>
         /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.).
         /// </summary>
@@ -1474,6 +1477,7 @@ namespace Mirror
         /// </summary>
         public virtual void OnStartServer() { }
 
+        // Deprecated 03/25/2019
         /// <summary>
         /// Obsolete: Use <see cref="OnStartClient()"/> instead of OnStartClient(NetworkClient client).
         /// <para>All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.</para>

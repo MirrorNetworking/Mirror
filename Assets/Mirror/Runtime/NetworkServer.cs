@@ -256,6 +256,7 @@ namespace Mirror
             return false;
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="SendToAll{T}(T, int)"/> instead.
         /// </summary>
@@ -320,6 +321,7 @@ namespace Mirror
             return result;
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="SendToReady{T}(NetworkIdentity, T, int)"/> instead.
         /// </summary>
@@ -555,6 +557,7 @@ namespace Mirror
             Debug.LogException(exception);
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead.
         /// </summary>
@@ -568,6 +571,7 @@ namespace Mirror
             handlers[msgType] = handler;
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead.
         /// </summary>
@@ -606,6 +610,7 @@ namespace Mirror
             RegisterHandler<T>((_, value) => { handler(value); }, requireAuthentication);
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead.
         /// </summary>
@@ -615,6 +620,7 @@ namespace Mirror
             handlers.Remove(msgType);
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead.
         /// </summary>
@@ -642,10 +648,11 @@ namespace Mirror
             handlers.Clear();
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
-        /// Obsolete: Use <see cref="SendToClient{T}(int, T)"/> instead.
+        /// Obsolete: Use <see cref="NetworkConnection.Send{T}(T msg, int channelId = Channels.DefaultReliable)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use connection.Send(msg) instead.")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkConnection.Send<T>(msg) instead.")]
         public static void SendToClient(int connectionId, int msgType, MessageBase msg)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
@@ -656,14 +663,11 @@ namespace Mirror
             Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
         }
 
+        // Deprecated 10/22/2019
         /// <summary>
-        /// Send a message to the client which owns the given connection ID.
-        /// <para>It accepts the connection ID as a parameter as well as a message and MsgType. Remember to set the client up for receiving the messages by using NetworkClient.RegisterHandler. Also, for user messages you must use a MsgType with a higher ID number than MsgType.Highest.</para>
+        /// Obsolete: Use <see cref="NetworkConnection.Send{T}(T msg, int channelId = Channels.DefaultReliable)"/> instead.
         /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="connectionId">Client connection ID.</param>
-        /// <param name="msg">Message struct to send</param>
-        [Obsolete("Use connection.Send(msg) instead")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use connection.Send(msg) instead")]
         public static void SendToClient<T>(int connectionId, T msg) where T : IMessageBase
         {
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
@@ -674,6 +678,7 @@ namespace Mirror
             Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
         }
 
+        // Deprecated 03/03/2019
         /// <summary>
         /// Obsolete: Use <see cref="SendToClientOfPlayer{T}(NetworkIdentity, T)"/> instead.
         /// </summary>
@@ -1150,6 +1155,7 @@ namespace Mirror
             return true;
         }
 
+        // Deprecated 11/23/2019
         /// <summary>
         /// Obsolete: Use <see cref="Spawn(GameObject, GameObject)"/> instead.
         /// </summary>
@@ -1160,6 +1166,7 @@ namespace Mirror
             return true;
         }
 
+        // Deprecated 11/23/2019
         /// <summary>
         /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
         /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
@@ -1184,20 +1191,22 @@ namespace Mirror
             Spawn(obj, identity.connectionToClient);
         }
 
+        // Deprecated 11/23/2019
         /// <summary>
         /// Use <see cref="Spawn(GameObject, NetworkConnection)"/> instead
         /// </summary>
-        [Obsolete("Use Spawn(obj, connection) instead")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Spawn(obj, connection) instead")]
         public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection ownerConnection)
         {
             Spawn(obj, ownerConnection);
             return true;
         }
 
+        // Deprecated 11/23/2019
         /// <summary>
         /// Use <see cref="Spawn(GameObject, Guid, NetworkConnection)"/> instead
         /// </summary>
-        [Obsolete("Use Spawn(obj, assetId, connection) instead")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Spawn(obj, assetId, connection) instead")]
         public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection ownerConnection)
         {
             Spawn(obj, assetId, ownerConnection);
@@ -1289,6 +1298,7 @@ namespace Mirror
             }
         }
 
+        // Deprecated 01/15/2019
         /// <summary>
         /// Obsolete: Use <see cref="NetworkIdentity.spawned"/> instead.
         /// </summary>

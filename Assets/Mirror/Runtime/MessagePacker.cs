@@ -33,6 +33,7 @@ namespace Mirror
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
         //    and do an allocation free send before recycling it.
+        // Deprecated 03/03/2019
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
         public static byte[] PackMessage(int msgType, MessageBase msg)
         {

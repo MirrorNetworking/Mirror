@@ -23,7 +23,8 @@ namespace Mirror
             OP_CLEAR,
             OP_REMOVE,
             OP_SET,
-            [Obsolete("SyncDictionaries now use OP_SET instead of OP_DIRTY")]
+            // Deprecated 12/03/2019
+            [EditorBrowsable(EditorBrowsableState.Never), Obsolete("SyncDictionaries now use OP_SET instead of OP_DIRTY")]
             OP_DIRTY
         }
 

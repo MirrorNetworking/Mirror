@@ -454,6 +454,7 @@ namespace Mirror
             NetworkIdentity.spawned.Clear();
         }
 
+        // Deprecated 01/15/2019
         /// <summary>
         /// Obsolete: Use <see cref="NetworkIdentity.spawned"/> instead.
         /// </summary>

@@ -112,7 +112,8 @@ namespace Mirror
         /// <summary>
         /// Obsolete: Use <see cref="connectionToClient" /> instead
         /// </summary>
-        [Obsolete("Use connectionToClient instead")]
+        // Deprecated 11/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use connectionToClient instead")]
         public NetworkConnectionToClient clientAuthorityOwner => connectionToClient;
 
         /// <summary>
@@ -191,7 +192,8 @@ namespace Mirror
         /// <summary>
         /// Obsolete: Use <see cref="GetSceneIdentity(ulong)" /> instead
         /// </summary>
-        [Obsolete("Use GetSceneIdentity instead")]
+        // Deprecated 01/23/2020
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use GetSceneIdentity instead")]
         public static NetworkIdentity GetSceneIdenity(ulong id) => GetSceneIdentity(id);
 
         /// <summary>
@@ -1051,6 +1053,7 @@ namespace Mirror
             }
         }
 
+        // Deprecated 09/25/2019
         /// <summary>
         /// Obsolete: Use <see cref="RemoveClientAuthority()"/> instead
         /// </summary>

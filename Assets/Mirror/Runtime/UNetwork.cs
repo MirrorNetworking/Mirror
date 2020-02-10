@@ -28,6 +28,7 @@ namespace Mirror
     // original HLAPI uses short, so let's keep short to not break packet header etc.
     // => use .ToString() to get the field name from the field value
     // => we specify the short values so it's easier to look up opcodes when debugging packets
+    // Deprecated 03/03/2019
     [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Send<T>  with no message id instead")]
     public enum MsgType : short
     {

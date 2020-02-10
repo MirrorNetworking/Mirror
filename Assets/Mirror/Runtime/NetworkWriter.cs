@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -86,98 +87,130 @@ namespace Mirror
         public void WriteInt64(long value) => WriteUInt64((ulong)value);
 
         #region Obsoletes
-        [Obsolete("Use WriteUInt16 instead")]
+
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteUInt16 instead")]
         public void Write(ushort value) => this.WriteUInt16(value);
 
-        [Obsolete("Use WriteUInt32 instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteUInt32 instead")]
         public void Write(uint value) => WriteUInt32(value);
 
-        [Obsolete("Use WriteUInt64 instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteUInt64 instead")]
         public void Write(ulong value) => WriteUInt64(value);
 
-        [Obsolete("Use WriteByte instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteByte instead")]
         public void Write(byte value) => stream.WriteByte(value);
 
-        [Obsolete("Use WriteSByte instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteSByte instead")]
         public void Write(sbyte value) => WriteByte((byte)value);
 
         // write char the same way that NetworkReader reads it (2 bytes)
-        [Obsolete("Use WriteChar instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteChar instead")]
         public void Write(char value) => this.WriteUInt16((ushort)value);
 
-        [Obsolete("Use WriteBoolean instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteBoolean instead")]
         public void Write(bool value) => WriteByte((byte)(value ? 1 : 0));
 
-        [Obsolete("Use WriteInt16 instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteInt16 instead")]
         public void Write(short value) => this.WriteUInt16((ushort)value);
 
-        [Obsolete("Use WriteInt32 instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteInt32 instead")]
         public void Write(int value) => WriteUInt32((uint)value);
 
-        [Obsolete("Use WriteInt64 instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteInt64 instead")]
         public void Write(long value) => WriteUInt64((ulong)value);
 
-        [Obsolete("Use WriteSingle instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteSingle instead")]
         public void Write(float value) => this.WriteSingle(value);
 
-        [Obsolete("Use WriteDouble instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteDouble instead")]
         public void Write(double value) => this.WriteDouble(value);
 
-        [Obsolete("Use WriteDecimal instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteDecimal instead")]
         public void Write(decimal value) => this.WriteDecimal(value);
 
-        [Obsolete("Use WriteString instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteString instead")]
         public void Write(string value) => this.WriteString(value);
 
-        [Obsolete("Use WriteBytes instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteBytes instead")]
         public void Write(byte[] buffer, int offset, int count) => WriteBytes(buffer, offset, count);
 
-        [Obsolete("Use WriteVector2 instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteVector2 instead")]
         public void Write(Vector2 value) => this.WriteVector2(value);
 
-        [Obsolete("Use WriteVector3 instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteVector3 instead")]
         public void Write(Vector3 value) => this.WriteVector3(value);
 
-        [Obsolete("Use WriteVector4 instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteVector4 instead")]
         public void Write(Vector4 value) => this.WriteVector4(value);
 
-        [Obsolete("Use WriteVector2Int instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteVector2Int instead")]
         public void Write(Vector2Int value) => this.WriteVector2Int(value);
 
-        [Obsolete("Use WriteVector3Int instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteVector3Int instead")]
         public void Write(Vector3Int value) => this.WriteVector3Int(value);
 
-        [Obsolete("Use WriteColor instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteColor instead")]
         public void Write(Color value) => this.WriteColor(value);
 
-        [Obsolete("Use WriteColor32 instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteColor32 instead")]
         public void Write(Color32 value) => this.WriteColor32(value);
 
-        [Obsolete("Use WriteQuaternion instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteQuaternion instead")]
         public void Write(Quaternion value) => this.WriteQuaternion(value);
 
-        [Obsolete("Use WriteRect instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteRect instead")]
         public void Write(Rect value) => this.WriteRect(value);
 
-        [Obsolete("Use WritePlane instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WritePlane instead")]
         public void Write(Plane value) => this.WritePlane(value);
 
-        [Obsolete("Use WriteRay instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteRay instead")]
         public void Write(Ray value) => this.WriteRay(value);
 
-        [Obsolete("Use WriteMatrix4x4 instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteMatrix4x4 instead")]
         public void Write(Matrix4x4 value) => this.WriteMatrix4x4(value);
 
-        [Obsolete("Use WriteGuid instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteGuid instead")]
         public void Write(Guid value) => this.WriteGuid(value);
 
-        [Obsolete("Use WriteNetworkIdentity instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteNetworkIdentity instead")]
         public void Write(NetworkIdentity value) => this.WriteNetworkIdentity(value);
 
-        [Obsolete("Use WriteTransform instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteTransform instead")]
         public void Write(Transform value) => this.WriteTransform(value);
 
-        [Obsolete("Use WriteGameObject instead")]
+        // Deprecated 03/03/2019
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteGameObject instead")]
         public void Write(GameObject value) => this.WriteGameObject(value);
 
         #endregion
@@ -566,7 +599,8 @@ namespace Mirror
             msg.Serialize(writer);
         }
 
-        [Obsolete("Use WriteMessage instead")]
+        // Deprecated 02/06/2020
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteMessage instead")]
         public static void Write<T>(this NetworkWriter writer, T msg) where T : IMessageBase
         {
             WriteMessage(writer, msg);

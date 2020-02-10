@@ -20,6 +20,8 @@ namespace Mirror
     }
 
     #region General Typed Messages
+
+    // Deprecated 11/20/2019
     [Obsolete("Create your own message class instead")]
     public class StringMessage : MessageBase
     {
@@ -43,6 +45,7 @@ namespace Mirror
         }
     }
 
+    // Deprecated 11/20/2019
     [Obsolete("Create your own message class instead")]
     public class ByteMessage : MessageBase
     {
@@ -66,6 +69,7 @@ namespace Mirror
         }
     }
 
+    // Deprecated 11/20/2019
     [Obsolete("Create your own message class instead")]
     public class BytesMessage : MessageBase
     {
@@ -89,6 +93,7 @@ namespace Mirror
         }
     }
 
+    // Deprecated 11/20/2019
     [Obsolete("Create your own message class instead")]
     public class IntegerMessage : MessageBase
     {
@@ -112,6 +117,7 @@ namespace Mirror
         }
     }
 
+    // Deprecated 11/20/2019
     [Obsolete("Create your own message class instead")]
     public class DoubleMessage : MessageBase
     {
@@ -135,6 +141,7 @@ namespace Mirror
         }
     }
 
+    // Deprecated 11/20/2019
     [Obsolete("Create your own message class instead")]
     public class EmptyMessage : MessageBase
     {
@@ -181,12 +188,14 @@ namespace Mirror
 
     public struct AddPlayerMessage : IMessageBase
     {
+        // Deprecated 09/29/2019
         /// <summary>
         /// Obsolete: Create your own message instead. See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a>
         /// </summary>
         [Obsolete("Create your own message instead. See https://mirror-networking.com/docs/Guides/GameObjects/SpawnPlayerCustom.html")]
         public byte[] value;
 
+        // Deprecated 09/29/2019
         /// <summary>
         /// Obsolete: Create your own message instead. See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a>
         /// </summary>
@@ -196,6 +205,7 @@ namespace Mirror
             value = reader.ReadBytesAndSize();
         }
 
+        // Deprecated 09/29/2019
         /// <summary>
         /// Obsolete: Create your own message instead. See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a>
         /// </summary>
