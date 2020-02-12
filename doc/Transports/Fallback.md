@@ -1,4 +1,4 @@
-# FallbackTransport
+# Fallback Transport
 
 The FallbackTransport can be used to work around transport platform limits.
 
@@ -16,3 +16,5 @@ Usage:
 6. Add both ApathyTransport and TelepathyTransport to the FallbackTransport's transport property.
 
 Important: all fallback transport need to be binary compatible with each other. For example, it might happen that the server runs Apathy and a client connects to it with Telepathy.
+
+![The Fallback Transport](Fallback.PNG)
