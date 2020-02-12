@@ -1,3 +1,16 @@
+# [9.1.0](https://github.com/MirrorNG/MirrorNG/compare/9.0.0-master...9.1.0-master) (2020-02-12)
+
+
+### Bug Fixes
+
+* weaver support array of custom types ([#1470](https://github.com/MirrorNG/MirrorNG/issues/1470)) ([d0b0bc9](https://github.com/MirrorNG/MirrorNG/commit/d0b0bc92bc33ff34491102a2f9e1855f2a5ed476))
+
+
+### Features
+
+* Added Read<T> Method to NetworkReader ([#1480](https://github.com/MirrorNG/MirrorNG/issues/1480)) ([58df3fd](https://github.com/MirrorNG/MirrorNG/commit/58df3fd6d6f53336668536081bc33e2ca22fd38d))
+* supports scriptable objects ([#1471](https://github.com/MirrorNG/MirrorNG/issues/1471)) ([0f10c72](https://github.com/MirrorNG/MirrorNG/commit/0f10c72744864ac55d2e1aa96ba8d7713c77d9e7))
+
 # [9.0.0](https://github.com/MirrorNG/MirrorNG/compare/8.0.1-master...9.0.0-master) (2020-02-08)
 
 
