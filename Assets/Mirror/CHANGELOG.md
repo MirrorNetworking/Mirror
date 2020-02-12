@@ -1,3 +1,17 @@
+# [10.0.0](https://github.com/MirrorNG/MirrorNG/compare/9.1.0-master...10.0.0-master) (2020-02-12)
+
+
+* Simplify AddPlayerForConnection (#62) ([fb26755](https://github.com/MirrorNG/MirrorNG/commit/fb267557af292e048df248d4f85fff3569ac2963)), closes [#62](https://github.com/MirrorNG/MirrorNG/issues/62)
+
+
+### BREAKING CHANGES
+
+* AddPlayerForConnection no longer receives the client
+
+* fix compilatio errors
+
+* fix build errors
+
 # [9.1.0](https://github.com/MirrorNG/MirrorNG/compare/9.0.0-master...9.1.0-master) (2020-02-12)
 
 
