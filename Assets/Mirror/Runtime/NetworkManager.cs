@@ -1256,7 +1256,7 @@ namespace Mirror
                 ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
                 : Instantiate(playerPrefab);
 
-            server.AddPlayerForConnection(conn, client, player);
+            server.AddPlayerForConnection(conn, player);
         }
 
         /// <summary>

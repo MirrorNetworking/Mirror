@@ -622,13 +622,13 @@ namespace Mirror
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="assetId"></param>
         /// <returns></returns>
-        public bool AddPlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player, Guid assetId)
+        public bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
                 identity.assetId = assetId;
             }
-            return AddPlayerForConnection(conn, client, player);
+            return AddPlayerForConnection(conn, player);
         }
 
         void SpawnObserversForConnection(NetworkConnection conn)
@@ -675,7 +675,7 @@ namespace Mirror
         /// <param name="client">Client associated to the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
         /// <returns></returns>
-        public bool AddPlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player)
+        public bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -699,8 +699,7 @@ namespace Mirror
             // set server to the NetworkIdentity
             identity.server = this;
 
-            // set client to the NetworkIdentity
-            identity.client = client;
+            identity.client = this.localClient;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
