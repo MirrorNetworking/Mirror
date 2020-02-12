@@ -15,5 +15,4 @@ Discord-Mirror is a networking transport that enables sending networking packets
 * Encryption - Discord automatically encrypts all your data
 
 ## Credits
-MrGadget - Helped with code and functionality
 Derek - Made Discord-Mirror
