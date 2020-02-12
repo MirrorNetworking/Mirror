@@ -6,4 +6,14 @@ Discord-Mirror is a networking transport that enables sending networking packets
 
 [Latest Release](https://github.com/Derek-R-S/Discord-Mirror/releases)
 
-Documentation coming soon.
+[Getting Started](https://github.com/Derek-R-S/Discord-Mirror)
+
+## Features
+
+* Discord's Relay - No need to port forward or worry about NAT issues!
+* No IPs - No IPs mean no IP leaks or hassle
+* Encryption - Discord automatically encrypts all your data
+
+## Credits
+MrGadget - Helped with code and functionality
+Derek - Made Discord-Mirror
