@@ -1,3 +1,19 @@
+# [11.0.0](https://github.com/MirrorNG/MirrorNG/compare/10.0.0-master...11.0.0-master) (2020-02-13)
+
+
+* Remove all compiler defines ([a394345](https://github.com/MirrorNG/MirrorNG/commit/a3943459598d30a325fb1e1315b84c0dedf1741c))
+
+
+### Features
+
+* Block Play Mode and Builds for Weaver Errors ([#1479](https://github.com/MirrorNG/MirrorNG/issues/1479)) ([0e80e19](https://github.com/MirrorNG/MirrorNG/commit/0e80e1996fb2673364169782c330e69cd598a21d))
+* Disposable PooledNetworkReader / PooledNetworkWriter ([#1490](https://github.com/MirrorNG/MirrorNG/issues/1490)) ([bb55baa](https://github.com/MirrorNG/MirrorNG/commit/bb55baa679ae780e127ed5817ef10d7f12cd08c8))
+
+
+### BREAKING CHANGES
+
+* removed compilation defines,  use upm version defines instead
+
 # [10.0.0](https://github.com/MirrorNG/MirrorNG/compare/9.1.0-master...10.0.0-master) (2020-02-12)
 
 
