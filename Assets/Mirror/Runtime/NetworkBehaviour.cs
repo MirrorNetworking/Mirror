@@ -112,6 +112,7 @@ namespace Mirror
                 syncVarHookGuard &= ~dirtyBit;
         }
 
+        // Deprecated 04/07/2019
         /// <summary>
         /// objects that can synchronize themselves, such as synclists
         /// </summary>

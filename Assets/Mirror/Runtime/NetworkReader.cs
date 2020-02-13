@@ -21,7 +21,7 @@ namespace Mirror
         // internal buffer
         // byte[] pointer would work, but we use ArraySegment to also support
         // the ArraySegment constructor
-        ArraySegment<byte> buffer;
+        internal ArraySegment<byte> buffer;
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
@@ -37,20 +37,6 @@ namespace Mirror
         {
             buffer = segment;
         }
-
-        // SetBuffer methods mirror constructor for ReaderPool
-        internal void SetBuffer(byte[] bytes)
-        {
-            buffer = new ArraySegment<byte>(bytes);
-            Position = 0;
-        }
-
-        internal void SetBuffer(ArraySegment<byte> segment)
-        {
-            buffer = segment;
-            Position = 0;
-        }
-
 
         public byte ReadByte()
         {

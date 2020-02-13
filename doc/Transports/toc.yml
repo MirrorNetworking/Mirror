@@ -2,15 +2,17 @@
   href: index.md
 - name: TCP - Telepathy
   href: Telepathy.md
+- name: WebGL - WebSockets
+  href: WebSockets.md
+- name: Multiplexer
+  href: Multiplexer.md
+- name: Fallback
+  href: Fallback.md
+- name: Discord
+  href: DiscordMirror.md
 - name: UDP - Ignorance
   href: Ignorance.md
 - name: UDP - LiteNetLib4Mirror
   href: LiteNetLib4Mirror.md
-- name: WebGL - WebSockets
-  href: WebSockets.md
 - name: Steam - Fizzy
   href: Fizzy.md
-- name: Multiplexer - Multiplexer
-  href: Multiplexer.md
-- name: Fallback - Fallback
-  href: Fallback.md

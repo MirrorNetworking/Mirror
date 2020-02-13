@@ -1,9 +1,14 @@
 # Change Log
 
 ## Version 10.x.x - In Progress
+- Added: Weaver will now block play mode and builds if there are weaver errors and show them in the console again.
+- Added: PooledNetworkReader and PooledNetworkWriter, both Disposable.
 - Added: NetworkReader.ReadMessage<T>.
 - Added: NetworkDiscovery now handles headless server mode.
-- Changed: Breaking - Renamed NeworkWriter.Write to WriteMessage for consistency.
+- Added: SyncVar, Cmd's and Rpc's now support Scriptable Objects via CreateInstance on the receiving side.
+- Fixed: `isClient` now returns true on clients in OnDestroy for networked objects.
+- Changed: NetworkSceneChecker now works from OnEnable instead of Awake.
+- Changed: Renamed NeworkWriter.Write to WriteMessage for consistency.
 
 ## Version 9.0.2 - 2020-Feb-04
 - Added: NetworkAnimator now has a ResetTrigger function and server / client authority warnings.

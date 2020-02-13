@@ -1,8 +1,8 @@
-# FizzySteam
+# FizzySteam Transport
 
 Fizzy Steam is a Steam P2P transport for Mirror, it utilizes Steam's P2P service to directly connect or relay your connection to another player. Fizzy Steam is based of [Steamworks.Net](https://github.com/rlabrecque/Steamworks.NET) wrapper.
 
-You can get the release **[Here](https://github.com/Raystorms/FizzySteamyMirror/releases)** with the latest version of Steamworks.Net included or you can clone the repo **[Here](https://github.com/Raystorms/FizzySteamyMirror)**.
+You can get the release **[Here](https://github.com/Chykary/FizzySteamyMirror/releases)** with the latest version of Steamworks.Net included or you can clone the repo **[Here](https://github.com/Chykary/FizzySteamyMirror)**.
 
 ## Features
 
@@ -14,7 +14,7 @@ You can get the release **[Here](https://github.com/Raystorms/FizzySteamyMirror/
 
 ## Credits
 * [Fizz Cube](https://github.com/FizzCube) : Original author for this Transport.
-* [Raystorms](https://github.com/Raystorms) : The current maintainer for this Transport.
+* [Chykary](https://github.com/Chykary/FizzySteamyMirror) : The current maintainer for this Transport.
 * [rlabrecque](https://github.com/rlabrecque) : Creator of Steamworks.Net.
 * [vis2k](https://github.com/vis2k) : Creator of Mirror.
 * Valve : Steam

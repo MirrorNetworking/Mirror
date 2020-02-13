@@ -52,36 +52,31 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static byte[] Pack<T>(T message) where T : IMessageBase
         {
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                Pack(message, writer);
+                byte[] data = writer.ToArray();
 
-            Pack(message, writer);
-            byte[] data = writer.ToArray();
-
-            NetworkWriterPool.Recycle(writer);
-
-            return data;
+                return data;
+            }
         }
 
         // unpack a message we received
         public static T Unpack<T>(byte[] data) where T : IMessageBase, new()
         {
-            var networkReader = NetworkReaderPool.GetReader(data);
-
-            int msgType = GetId<T>();
-
-            int id = networkReader.ReadUInt16();
-            if (id != msgType)
+            using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(data))
             {
-                NetworkReaderPool.Recycle(networkReader);
-                throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
+                int msgType = GetId<T>();
+
+                int id = networkReader.ReadUInt16();
+                if (id != msgType)
+                    throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
+
+                T message = new T();
+                message.Deserialize(networkReader);
+
+                return message;
             }
-
-            var message = new T();
-            message.Deserialize(networkReader);
-
-            NetworkReaderPool.Recycle(networkReader);
-            
-            return message;
         }
         // unpack message after receiving
         // -> pass NetworkReader so it's less strange if we create it in here

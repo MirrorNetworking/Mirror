@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -469,7 +470,8 @@ namespace Mirror
             msg.Serialize(writer);
         }
 
-        [Obsolete("Use WriteMessage instead")]
+        // Deprecated 02/06/2020
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteMessage<T> instead")]
         public static void Write<T>(this NetworkWriter writer, T msg) where T : IMessageBase
         {
             WriteMessage(writer, msg);

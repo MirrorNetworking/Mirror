@@ -17,7 +17,7 @@ namespace Mirror.Tests
         {
             // 10 million reads, Unity 2019.3, code coverage disabled
             //   4049ms (+GC later)
-            byte[] bytes = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C};
+            byte[] bytes = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C };
             for (int i = 0; i < 10000000; ++i)
             {
                 ArraySegment<byte> segment = new ArraySegment<byte>(bytes);
@@ -31,18 +31,20 @@ namespace Mirror.Tests
         {
             // calling ReadBytes with a count bigger than what is in Reader
             // should throw an exception
-            byte[] bytes = {0x00, 0x01};
-            NetworkReader reader = new NetworkReader(bytes);
+            byte[] bytes = { 0x00, 0x01 };
 
-            try
+            using (PooledNetworkReader reader = NetworkReaderPool.GetReader(bytes))
             {
-                byte[] result = reader.ReadBytes(bytes, bytes.Length + 1);
-                // BAD: IF WE GOT HERE, THEN NO EXCEPTION WAS THROWN
-                Assert.Fail();
-            }
-            catch (EndOfStreamException)
-            {
-                // GOOD
+                try
+                {
+                    byte[] result = reader.ReadBytes(bytes, bytes.Length + 1);
+                    // BAD: IF WE GOT HERE, THEN NO EXCEPTION WAS THROWN
+                    Assert.Fail();
+                }
+                catch (EndOfStreamException)
+                {
+                    // GOOD
+                }
             }
         }
     }
