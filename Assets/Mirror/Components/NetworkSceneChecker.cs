@@ -21,6 +21,7 @@ namespace Mirror
         [Tooltip("Enable to force this object to be hidden from all observers.")]
         public bool forceHidden;
 
+        // Use Scene instead of string scene.name because when additively loading multiples of a subscene the name won't be unique
         static readonly Dictionary<Scene, HashSet<NetworkIdentity>> sceneCheckerObjects = new Dictionary<Scene, HashSet<NetworkIdentity>>();
 
         Scene currentScene;
