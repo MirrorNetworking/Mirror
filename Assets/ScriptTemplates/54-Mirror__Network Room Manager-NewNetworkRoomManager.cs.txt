@@ -82,9 +82,9 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// <para>See OnRoomServerCreateGamePlayer to customize the player object for the initial GamePlay scene.</para>
     /// </summary>
     /// <param name="conn">The connection the player object is for.</param>
-    public virtual void OnRoomServerAddPlayer(NetworkConnection conn)
+    public override void OnRoomServerAddPlayer(NetworkConnection conn)
     {
-        base.OnServerAddPlayer(conn);
+        base.OnRoomServerAddPlayer(conn);
     }
 
     /// <summary>
