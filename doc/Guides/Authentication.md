@@ -44,7 +44,7 @@ Mirror includes a [Basic Authenticator](../Components/Authenticators/Basic.md) i
 
 Authenticators are derived from an `Authenticator` abstract class that allows you to implement any authentication scheme you need.
 
-To make your Authenticator, create a class that inherits from `Authenticator` and override the methods as needed. - When a client is successfully authenticated,  call `base.OnServerAuthenticated.Invoke(conn)` on the server and `base.OnClientAuthenticated.Invoke(conn)` on the client. Mirror is listening for these events to proceed with the connection sequence. Subscribe to OnServerAuthenticated and OnClientAuthenticated events if you wish to perform additional steps after authentication.
+From the Assets menu, click Create > Mirror > Network Authenticator to make your own custom Authenticator from our [Script Templates](../General/ScriptTemplates.md), and just fill in the messages and validation code to suit your needs. When a client is successfully authenticated,  call `base.OnServerAuthenticated.Invoke(conn)` on the server and `base.OnClientAuthenticated.Invoke(conn)` on the client. Mirror is listening for these events to proceed with the connection sequence. Subscribe to OnServerAuthenticated and OnClientAuthenticated events if you wish to perform additional steps after authentication.
 
 ### Tips
 
