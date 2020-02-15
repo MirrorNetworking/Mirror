@@ -504,8 +504,7 @@ namespace Mirror
         protected GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
         {
             // server always uses the field
-            if (isServer)
-                return gameObjectField;
+            if (isServer) return gameObjectField;
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
