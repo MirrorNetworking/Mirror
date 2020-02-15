@@ -65,9 +65,7 @@ namespace Mirror.Weaver
 
             // add paramters
             foreach (ParameterDefinition pd in md.Parameters)
-            {
                 rpc.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
-            }
 
             // move the old body to the new function
             MethodBody newBody = rpc.Body;
@@ -81,15 +79,12 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(rpcWorker);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, false))
-                return null;
+            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, false)) return null;
 
             string rpcName = md.Name;
             int index = rpcName.IndexOf(RpcPrefix);
             if (index > -1)
-            {
                 rpcName = rpcName.Substring(RpcPrefix.Length);
-            }
 
             // invoke SendInternal and return
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
