@@ -179,10 +179,9 @@ namespace Mirror
             {
                 string newAssetIdString = value.ToString("N");
                 if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
-                {
                     m_AssetId = newAssetIdString;
-                }
-                else Debug.LogWarning($"SetDynamicAssetId object {this.name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
+                else 
+                    Debug.LogWarning($"SetDynamicAssetId object {this.name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
             }
         }
 
@@ -207,9 +206,8 @@ namespace Mirror
         internal void SetClientOwner(NetworkConnection conn)
         {
             if (connectionToClient != null && conn != connectionToClient)
-            {
                 Debug.LogError($"Object {this} netId={netId} already has an owner", this);
-            }
+
             connectionToClient = (NetworkConnectionToClient)conn;
         }
 
@@ -264,9 +262,7 @@ namespace Mirror
                     Destroy(gameObject);
                 }
                 else
-                {
                     sceneIds[sceneId] = this;
-                }
             }
         }
 
@@ -288,9 +284,8 @@ namespace Mirror
             prefab = null;
 
             if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
-            {
                 return false;
-            }
+
             prefab = PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 
             if (prefab == null)
@@ -361,8 +356,7 @@ namespace Mirror
             // by definition, only the original scene objects should get one.
             // -> if we assign at runtime then server and client would generate
             //    different random numbers!
-            if (Application.isPlaying)
-                return;
+            if (Application.isPlaying) return;
 
             // no valid sceneId yet, or duplicate?
             bool duplicate = sceneIds.TryGetValue(sceneId, out NetworkIdentity existing) && existing != null && existing != this;
@@ -492,9 +486,7 @@ namespace Mirror
             sceneIds.Remove(sceneId & 0x00000000FFFFFFFF);
 
             if (isServer)
-            {
                 NetworkServer.Destroy(gameObject);
-            }
         }
 
         internal void OnStartServer()
@@ -520,12 +512,9 @@ namespace Mirror
             // in host mode we set isClient true before calling OnStartServer,
             // otherwise isClient is false in OnStartServer.
             if (NetworkClient.active)
-            {
                 isClient = true;
-            }
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
                 try
                 {
                     comp.OnStartServer();
@@ -534,19 +523,18 @@ namespace Mirror
                 {
                     Debug.LogError("Exception in OnStartServer:" + e.Message + " " + e.StackTrace);
                 }
-            }
         }
 
         bool clientStarted;
         internal void OnStartClient()
         {
-            if (clientStarted)
-                return;
-            clientStarted = true;
+            if (clientStarted) return;
 
+            clientStarted = true;
             isClient = true;
 
             if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
+
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
@@ -565,15 +553,16 @@ namespace Mirror
         {
             if (!hadAuthority && hasAuthority)
                 OnStartAuthority();
+
             if (hadAuthority && !hasAuthority)
                 OnStopAuthority();
+
             hadAuthority = hasAuthority;
         }
 
         void OnStartAuthority()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
                 try
                 {
                     comp.OnStartAuthority();
@@ -582,13 +571,11 @@ namespace Mirror
                 {
                     Debug.LogError("Exception in OnStartAuthority:" + e.Message + " " + e.StackTrace);
                 }
-            }
         }
 
         void OnStopAuthority()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
                 try
                 {
                     comp.OnStopAuthority();
@@ -597,13 +584,11 @@ namespace Mirror
                 {
                     Debug.LogError("Exception in OnStopAuthority:" + e.Message + " " + e.StackTrace);
                 }
-            }
         }
 
         internal void OnSetHostVisibility(bool visible)
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
                 try
                 {
 #pragma warning disable 618
@@ -615,13 +600,11 @@ namespace Mirror
                 {
                     Debug.LogError("Exception in OnSetLocalVisibility:" + e.Message + " " + e.StackTrace);
                 }
-            }
         }
 
         internal bool OnCheckObserver(NetworkConnection conn)
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
                 try
                 {
                     if (!comp.OnCheckObserver(conn))
@@ -631,7 +614,7 @@ namespace Mirror
                 {
                     Debug.LogError("Exception in OnCheckObserver:" + e.Message + " " + e.StackTrace);
                 }
-            }
+
             return true;
         }
 
@@ -750,9 +733,7 @@ namespace Mirror
             {
                 NetworkBehaviour comp = components[i];
                 if (initialState || comp.IsDirty())
-                {
                     dirtyComponentsMask |= (ulong)(1L << i);
-                }
             }
 
             return dirtyComponentsMask;
@@ -768,9 +749,7 @@ namespace Mirror
             {
                 NetworkBehaviour comp = components[i];
                 if (comp.syncMode == SyncMode.Observers)
-                {
                     mask |= 1UL << i;
-                }
             }
 
             return mask;
@@ -821,9 +800,7 @@ namespace Mirror
                 // is the dirty bit at position 'i' set to 1?
                 ulong dirtyBit = (ulong)(1L << i);
                 if ((dirtyComponentsMask & dirtyBit) != 0L)
-                {
                     OnDeserializeSafely(components[i], reader, initialState);
-                }
             }
         }
 
@@ -846,9 +823,7 @@ namespace Mirror
                 }
             }
             else
-            {
                 Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
-            }
         }
 
         // happens on client
@@ -879,20 +854,17 @@ namespace Mirror
         {
             if (previousLocalPlayer == this)
                 return;
+
             previousLocalPlayer = this;
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
                 comp.OnStartLocalPlayer();
-            }
         }
 
         internal void OnNetworkDestroy()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
                 comp.OnNetworkDestroy();
-            }
         }
 
         internal void ClearObservers()
@@ -900,9 +872,8 @@ namespace Mirror
             if (observers != null)
             {
                 foreach (NetworkConnection conn in observers.Values)
-                {
                     conn.RemoveFromVisList(this, true);
-                }
+
                 observers.Clear();
             }
         }
@@ -946,18 +917,14 @@ namespace Mirror
 
             // call OnRebuildObservers function in components
             foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
                 result |= comp.OnRebuildObservers(newObservers, initialize);
-            }
 
             // if player connection: ensure player always see himself no matter what.
             // -> fixes https://github.com/vis2k/Mirror/issues/692 where a
             //    player might teleport out of the ProximityChecker's cast,
             //    losing the own connection as observer.
             if (connectionToClient != null && connectionToClient.isReady)
-            {
                 newObservers.Add(connectionToClient);
-            }
 
             // if no component implemented OnRebuildObservers, then add all
             // connections.
@@ -966,15 +933,11 @@ namespace Mirror
                 if (initialize)
                 {
                     foreach (NetworkConnection conn in NetworkServer.connections.Values)
-                    {
                         if (conn.isReady)
                             AddObserver(conn);
-                    }
 
                     if (NetworkServer.localConnection != null && NetworkServer.localConnection.isReady)
-                    {
                         AddObserver(NetworkServer.localConnection);
-                    }
                 }
                 return;
             }
@@ -982,10 +945,7 @@ namespace Mirror
             // apply changes from rebuild
             foreach (NetworkConnection conn in newObservers)
             {
-                if (conn == null)
-                {
-                    continue;
-                }
+                if (conn == null) continue;
 
                 if (!conn.isReady)
                 {
@@ -1037,19 +997,15 @@ namespace Mirror
             if (initialize)
             {
                 if (!newObservers.Contains(NetworkServer.localConnection))
-                {
                     OnSetHostVisibility(false);
-                }
             }
 
             if (changed)
             {
                 observers.Clear();
                 foreach (NetworkConnection conn in newObservers)
-                {
                     if (conn.isReady)
                         observers.Add(conn.connectionId, conn);
-                }
             }
         }
 
@@ -1149,8 +1105,7 @@ namespace Mirror
         // if we have marked an identity for reset we do the actual reset.
         internal void Reset()
         {
-            if (!reset)
-                return;
+            if (!reset) return;
 
             clientStarted = false;
             isClient = false;
@@ -1225,9 +1180,7 @@ namespace Mirror
         internal void ClearAllComponentsDirtyBits()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
                 comp.ClearAllDirtyBits();
-            }
         }
 
         // clear only dirty component's dirty bits. ignores components which
@@ -1235,12 +1188,8 @@ namespace Mirror
         internal void ClearDirtyComponentsDirtyBits()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
                 if (comp.IsDirty())
-                {
                     comp.ClearAllDirtyBits();
-                }
-            }
         }
     }
 }
