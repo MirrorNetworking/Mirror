@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
     public class MultiplexTest
     {
-
         Transport transport1;
         Transport transport2;
         MultiplexTransport transport;
@@ -32,6 +29,7 @@ namespace Mirror.Tests
         }
 
         #region Client tests
+
         // A Test behaves as an ordinary method
         [Test]
         public void TestAvailable()
@@ -75,7 +73,6 @@ namespace Mirror.Tests
             transport1.Received().ClientConnect(uri);
             transport2.DidNotReceive().ClientConnect(uri);
         }
-
 
         // A Test behaves as an ordinary method
         [Test]
@@ -160,7 +157,6 @@ namespace Mirror.Tests
             byte[] data = { 1, 2, 3 };
             ArraySegment<byte> segment = new ArraySegment<byte>(data);
 
-
             // on connect, send a message back
             void SendMessage(int connectionId)
             {
@@ -180,8 +176,6 @@ namespace Mirror.Tests
                 segment);
         }
 
-
         #endregion
-
     }
 }
