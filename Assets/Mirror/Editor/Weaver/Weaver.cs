@@ -134,8 +134,7 @@ namespace Mirror.Weaver
 
         public static void DLog(TypeDefinition td, string fmt, params object[] args)
         {
-            if (!DebugLogEnabled)
-                return;
+            if (!DebugLogEnabled) return;
 
             Console.WriteLine("[" + td.Name + "] " + string.Format(fmt, args));
         }
@@ -150,9 +149,7 @@ namespace Mirror.Weaver
 
         public static int GetSyncVarStart(string className)
         {
-            return WeaveLists.numSyncVars.ContainsKey(className)
-                   ? WeaveLists.numSyncVars[className]
-                   : 0;
+            return WeaveLists.numSyncVars.ContainsKey(className) ? WeaveLists.numSyncVars[className] : 0;
         }
 
         public static void SetNumSyncVars(string className, int num)
@@ -221,9 +218,8 @@ namespace Mirror.Weaver
         {
             TypeDefinition type = CorLibModule.GetType(fullName) ?? CorLibModule.ExportedTypes.First(t => t.FullName == fullName).Resolve();
             if (type != null)
-            {
                 return CurrentAssembly.MainModule.ImportReference(type);
-            }
+
             Error("Failed to import mscorlib type: " + fullName + " because Resolve failed. (Might happen when trying to Resolve in NetStandard dll, see also: https://github.com/vis2k/Mirror/issues/791)");
             return null;
         }
@@ -338,9 +334,7 @@ namespace Mirror.Weaver
         static void CheckMonoBehaviour(TypeDefinition td)
         {
             if (td.IsDerivedFrom(MonoBehaviourType))
-            {
                 MonoBehaviourProcessor.Process(td);
-            }
         }
 
         static bool CheckNetworkBehaviour(TypeDefinition td)
@@ -362,9 +356,8 @@ namespace Mirror.Weaver
             while (parent != null)
             {
                 if (parent.FullName == NetworkBehaviourType.FullName)
-                {
                     break;
-                }
+
                 try
                 {
                     behaviourClasses.Insert(0, parent);
@@ -380,16 +373,14 @@ namespace Mirror.Weaver
 
             bool didWork = false;
             foreach (TypeDefinition behaviour in behaviourClasses)
-            {
                 didWork |= ProcessNetworkBehaviourType(behaviour);
-            }
+
             return didWork;
         }
 
         static bool CheckMessageBase(TypeDefinition td)
         {
-            if (!td.IsClass)
-                return false;
+            if (!td.IsClass) return false;
 
             bool didWork = false;
 
@@ -401,17 +392,14 @@ namespace Mirror.Weaver
 
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
-            {
                 didWork |= CheckMessageBase(embedded);
-            }
 
             return didWork;
         }
 
         static bool CheckSyncList(TypeDefinition td)
         {
-            if (!td.IsClass)
-                return false;
+            if (!td.IsClass) return false;
 
             bool didWork = false;
 
@@ -451,9 +439,7 @@ namespace Mirror.Weaver
 
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
-            {
                 didWork |= CheckSyncList(embedded);
-            }
 
             return didWork;
         }
@@ -468,12 +454,8 @@ namespace Mirror.Weaver
                 asmResolver.AddSearchDirectory(Path.GetDirectoryName(unityEngineDLLPath));
                 asmResolver.AddSearchDirectory(Path.GetDirectoryName(mirrorNetDLLPath));
                 if (dependencies != null)
-                {
                     foreach (string path in dependencies)
-                    {
                         asmResolver.AddSearchDirectory(path);
-                    }
-                }
 
                 SetupTargetTypes();
                 System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -494,13 +476,10 @@ namespace Mirror.Weaver
                     foreach (TypeDefinition td in moduleDefinition.Types)
                     {
                         if (td.IsClass && td.BaseType.CanBeResolved())
-                        {
                             try
                             {
                                 if (pass == 0)
-                                {
                                     didWork |= CheckSyncList(td);
-                                }
                                 else
                                 {
                                     didWork |= CheckNetworkBehaviour(td);
@@ -512,12 +491,8 @@ namespace Mirror.Weaver
                                 Error(ex.ToString());
                                 throw ex;
                             }
-                        }
 
-                        if (WeavingFailed)
-                        {
-                            return false;
-                        }
+                        if (WeavingFailed) return false;
                     }
                     watch.Stop();
                     Console.WriteLine("Pass: " + pass + " took " + watch.ElapsedMilliseconds + " milliseconds");
@@ -545,13 +520,9 @@ namespace Mirror.Weaver
                     // write to outputDir if specified, otherwise perform in-place write
                     WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
                     if (outputDir != null)
-                    {
                         CurrentAssembly.Write(Helpers.DestinationFileFor(outputDir, assName), writeParams);
-                    }
                     else
-                    {
                         CurrentAssembly.Write(writeParams);
-                    }
                 }
             }
 
@@ -571,12 +542,8 @@ namespace Mirror.Weaver
                 try
                 {
                     foreach (string ass in assemblies)
-                    {
                         if (!Weave(ass, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
-                        {
                             return false;
-                        }
-                    }
                 }
                 catch (Exception e)
                 {
