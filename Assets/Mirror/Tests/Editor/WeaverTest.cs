@@ -10,6 +10,7 @@ namespace Mirror.Tests
     public class WeaverTest
     {
         #region Private
+
         List<string> weaverErrors = new List<string>();
         void HandleWeaverError(string msg)
         {
@@ -36,13 +37,13 @@ namespace Mirror.Tests
 
             Assert.That(WeaverAssembler.CompilerErrors, Is.False);
             if (weaverErrors.Count > 0)
-            {
                 Assert.That(weaverErrors[0], Does.StartWith("Mirror.Weaver error: "));
-            }
         }
+
         #endregion
 
         #region Setup and Teardown
+
         [OneTimeSetUp]
         public void FixtureSetup()
         {
@@ -75,9 +76,11 @@ namespace Mirror.Tests
             weaverWarnings.Clear();
             weaverErrors.Clear();
         }
+
         #endregion
 
         #region General tests
+
         [Test]
         public void InvalidType()
         {
@@ -122,9 +125,11 @@ namespace Mirror.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Int32[][] is an unsupported type. Jagged and multidimensional arrays are not supported"));
         }
+
         #endregion
 
         #region SyncVar tests
+
         [Test]
         public void SyncVarsValid()
         {
@@ -217,9 +222,11 @@ namespace Mirror.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer has too many SyncVars. Consider refactoring your class into multiple components"));
         }
+
         #endregion
 
         #region SyncList tests
+
         [Test]
         public void SyncListValid()
         {
@@ -244,6 +251,7 @@ namespace Mirror.Tests
         #endregion
 
         #region SyncListStruct tests
+
         [Test]
         public void SyncListStructValid()
         {
@@ -278,9 +286,11 @@ namespace Mirror.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyStructClass cannot have item of type MirrorTest.MirrorTestPlayer/MyStruct.  Use a type supported by mirror instead"));
         }
+
         #endregion
 
         #region NetworkBehaviour tests
+
         [Test]
         public void NetworkBehaviourValid()
         {
@@ -511,9 +521,11 @@ namespace Mirror.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Duplicate Command name [MirrorTest.MirrorTestPlayer:CmdCantHaveSameName]"));
         }
+
         #endregion
 
         #region Command tests
+
         [Test]
         public void CommandValid()
         {
@@ -534,9 +546,11 @@ namespace Mirror.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantBeStatic() cannot be static"));
         }
+
         #endregion
 
         #region ClientRpc tests
+
         [Test]
         public void ClientRpcValid()
         {
@@ -557,9 +571,11 @@ namespace Mirror.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantBeStatic() must not be static"));
         }
+
         #endregion
 
         #region TargetRpc tests
+
         [Test]
         public void TargetRpcValid()
         {
@@ -580,9 +596,11 @@ namespace Mirror.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetCantBeStatic(Mirror.NetworkConnection) must not be static"));
         }
+
         #endregion
 
         #region TargetRpc tests
+
         [Test]
         public void SyncEventValid()
         {
@@ -603,9 +621,11 @@ namespace Mirror.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncEventDelegate`1<System.Int32> MirrorTest.MirrorTestPlayer::EventDoCoolThingsWithExcitingPeople must not have generic parameters.  Consider creating a new class that inherits from MirrorTest.MirrorTestPlayer/MySyncEventDelegate`1<System.Int32> instead"));
         }
+
         #endregion
 
         #region MonoBehaviour tests
+
         [Test]
         public void MonoBehaviourValid()
         {
@@ -675,9 +695,11 @@ namespace Mirror.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [ClientCallback] System.Void MirrorTest.MirrorTestPlayer::ThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
         }
+
         #endregion
 
         #region Message tests
+
         [Test]
         public void MessageValid()
         {
@@ -720,12 +742,13 @@ namespace Mirror.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for interface MirrorTest.SuperCoolInterface. Use a concrete type or provide a custom writer"));
         }
+
         #endregion
 
-         [Test]
+        [Test]
         public void TestingScriptableObjectArraySerialization()
         {
-            UnityEngine.Debug.Log(string.Join("\n",weaverErrors));
+            UnityEngine.Debug.Log(string.Join("\n", weaverErrors));
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
         }
     }
