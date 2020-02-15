@@ -19,9 +19,8 @@ namespace Mirror
         public void Awake()
         {
             if (transports == null || transports.Length == 0)
-            {
                 Debug.LogError("Multiplex transport requires at least 1 underlying transport");
-            }
+
             InitClient();
             InitServer();
         }
@@ -30,12 +29,9 @@ namespace Mirror
         {
             // available if any of the transports is available
             foreach (Transport transport in transports)
-            {
                 if (transport.Available())
-                {
                     return true;
-                }
-            }
+
             return false;
         }
 
@@ -56,23 +52,20 @@ namespace Mirror
         public override void ClientConnect(string address)
         {
             foreach (Transport transport in transports)
-            {
                 if (transport.Available())
                 {
                     available = transport;
                     transport.ClientConnect(address);
                     return;
                 }
-            }
+
             throw new Exception("No transport suitable for this platform");
         }
 
         public override void ClientConnect(Uri uri)
         {
             foreach (Transport transport in transports)
-            {
                 if (transport.Available())
-                {
                     try
                     {
                         transport.ClientConnect(uri);
@@ -83,8 +76,7 @@ namespace Mirror
                     {
                         // transport does not support the schema, just move on to the next one
                     }
-                }
-            }
+
             throw new Exception("No transport suitable for this platform");
         }
 
@@ -155,6 +147,7 @@ namespace Mirror
                 {
                     OnServerError.Invoke(FromBaseId(locali, baseConnectionId), error);
                 });
+
                 transport.OnServerDisconnected.AddListener(baseConnectionId =>
                 {
                     OnServerDisconnected.Invoke(FromBaseId(locali, baseConnectionId));
@@ -169,17 +162,13 @@ namespace Mirror
             return transports[0].ServerUri();
         }
 
-
         public override bool ServerActive()
         {
             // avoid Linq.All allocations
             foreach (Transport transport in transports)
-            {
                 if (!transport.ServerActive())
-                {
                     return false;
-                }
-            }
+
             return true;
         }
 
@@ -202,9 +191,7 @@ namespace Mirror
             // the message may be for different transports,
             // partition the recipients by transport
             foreach (List<int> list in recipientsCache)
-            {
                 list.Clear();
-            }
 
             foreach (int connectionId in connectionIds)
             {
@@ -218,9 +205,7 @@ namespace Mirror
             {
                 List<int> baseRecipients = recipientsCache[i];
                 if (baseRecipients.Count > 0)
-                {
                     result &= transports[i].ServerSend(baseRecipients, channelId, segment);
-                }
             }
             return result;
         }
@@ -228,17 +213,13 @@ namespace Mirror
         public override void ServerStart()
         {
             foreach (Transport transport in transports)
-            {
                 transport.ServerStart();
-            }
         }
 
         public override void ServerStop()
         {
             foreach (Transport transport in transports)
-            {
                 transport.ServerStop();
-            }
         }
         #endregion
 
@@ -267,18 +248,15 @@ namespace Mirror
         public override void Shutdown()
         {
             foreach (Transport transport in transports)
-            {
                 transport.Shutdown();
-            }
         }
 
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
             foreach (Transport transport in transports)
-            {
                 builder.AppendLine(transport.ToString());
-            }
+
             return builder.ToString().Trim();
         }
     }
