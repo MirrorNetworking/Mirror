@@ -27,6 +27,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 30000 / 4; ++i)
                 writer.WriteInt32(i);
+
             Assert.That(writer.Position, Is.EqualTo(30000));
         }
 
@@ -37,6 +38,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 40000 / 4; ++i)
                 writer.WriteInt32(i);
+
             Assert.That(writer.Position, Is.EqualTo(40000));
         }
 
@@ -943,9 +945,8 @@ namespace Mirror.Tests
             };
             NetworkWriter writer = new NetworkWriter();
             foreach (float weird in weirdFloats)
-            {
                 writer.WriteSingle(weird);
-            }
+
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
@@ -962,9 +963,8 @@ namespace Mirror.Tests
             };
             NetworkWriter writer = new NetworkWriter();
             foreach (double weird in weirdDoubles)
-            {
                 writer.WriteDouble(weird);
-            }
+
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
@@ -983,9 +983,8 @@ namespace Mirror.Tests
             };
             NetworkWriter writer = new NetworkWriter();
             foreach (decimal weird in weirdDecimals)
-            {
                 writer.WriteDecimal(weird);
-            }
+
             //Debug.Log(BitConverter.ToString(writer.ToArray()));
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -997,9 +996,8 @@ namespace Mirror.Tests
             byte[] expected = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
             NetworkWriter writer = new NetworkWriter();
             foreach (byte value in values)
-            {
                 writer.WriteByte(value);
-            }
+
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
@@ -1010,9 +1008,8 @@ namespace Mirror.Tests
             byte[] expected = { 0x00, 0x00, 0x34, 0x12, 0xcd, 0xab, 0x0F, 0xF0, 0xF0, 0x0F, 0xef, 0xbe };
             NetworkWriter writer = new NetworkWriter();
             foreach (ushort value in values)
-            {
                 writer.WriteUInt16(value);
-            }
+
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
@@ -1023,9 +1020,8 @@ namespace Mirror.Tests
             byte[] expected = { 0x78, 0x56, 0x34, 0x12, 0x09, 0xef, 0xcd, 0xab, 0xef, 0xbe, 0xad, 0xde };
             NetworkWriter writer = new NetworkWriter();
             foreach (uint value in values)
-            {
                 writer.WriteUInt32(value);
-            }
+
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
@@ -1036,9 +1032,8 @@ namespace Mirror.Tests
             byte[] expected = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0xee, 0xff, 0xc0, 0xef, 0xbe, 0xed, 0xad, 0xde };
             NetworkWriter writer = new NetworkWriter();
             foreach (ulong value in values)
-            {
                 writer.WriteUInt64(value);
-            }
+
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
@@ -1049,9 +1044,8 @@ namespace Mirror.Tests
             byte[] expected = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
             NetworkWriter writer = new NetworkWriter();
             foreach (byte value in values)
-            {
                 writer.WriteSByte((sbyte)value);
-            }
+
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
@@ -1062,9 +1056,8 @@ namespace Mirror.Tests
             byte[] expected = { 0x00, 0x00, 0x34, 0x12, 0xcd, 0xab, 0x0F, 0xF0, 0xF0, 0x0F, 0xef, 0xbe };
             NetworkWriter writer = new NetworkWriter();
             foreach (ushort value in values)
-            {
                 writer.WriteInt16((short)value);
-            }
+
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
@@ -1075,9 +1068,8 @@ namespace Mirror.Tests
             byte[] expected = { 0x78, 0x56, 0x34, 0x12, 0x09, 0xef, 0xcd, 0xab, 0xef, 0xbe, 0xad, 0xde };
             NetworkWriter writer = new NetworkWriter();
             foreach (uint value in values)
-            {
                 writer.WriteInt32((int)value);
-            }
+
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
@@ -1088,9 +1080,8 @@ namespace Mirror.Tests
             byte[] expected = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0xee, 0xff, 0xc0, 0xef, 0xbe, 0xed, 0xad, 0xde };
             NetworkWriter writer = new NetworkWriter();
             foreach (ulong value in values)
-            {
                 writer.WriteInt64((long)value);
-            }
+
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
@@ -1155,7 +1146,6 @@ namespace Mirror.Tests
         [Test]
         public void TestWritingUri()
         {
-
             Uri testUri = new Uri("https://www.mirror-networking.com?somthing=other");
 
             NetworkWriter writer = new NetworkWriter();
