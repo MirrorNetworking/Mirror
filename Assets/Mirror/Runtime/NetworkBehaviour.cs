@@ -127,13 +127,11 @@ namespace Mirror
             get
             {
                 if (netIdentityCache == null)
-                {
                     netIdentityCache = GetComponent<NetworkIdentity>();
-                }
+
                 if (netIdentityCache == null)
-                {
                     Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
-                }
+
                 return netIdentityCache;
             }
         }
@@ -192,6 +190,7 @@ namespace Mirror
                 Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
                 return;
             }
+
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
             {
@@ -240,6 +239,7 @@ namespace Mirror
                 Debug.LogError("RPC Function " + rpcName + " called on Client.");
                 return;
             }
+
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
@@ -268,17 +268,18 @@ namespace Mirror
                 Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
                 return;
             }
+
             // connection parameter is optional. assign if null.
             if (conn == null)
-            {
                 conn = connectionToClient;
-            }
+
             // this was in Weaver before
             if (conn is NetworkConnectionToServer)
             {
                 Debug.LogError("TargetRPC Function " + rpcName + " called on connection to server");
                 return;
             }
+
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
@@ -411,29 +412,26 @@ namespace Mirror
 
         static bool GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType, out Invoker invoker)
         {
-            if (cmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
-                invoker != null &&
-                invoker.invokeType == invokeType)
-            {
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out invoker) && invoker != null && invoker.invokeType == invokeType)
                 return true;
-            }
 
             // debug message if not found, or null, or mismatched type
             // (no need to throw an error, an attacker might just be trying to
             //  call an cmd with an rpc's hash)
             if (LogFilter.Debug) Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found");
+
             return false;
         }
 
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
         internal bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader)
         {
-            if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) &&
-                invoker.invokeClass.IsInstanceOfType(this))
+            if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(this))
             {
                 invoker.invokeFunction(this, reader);
                 return true;
             }
+
             return false;
         }
 
@@ -446,9 +444,8 @@ namespace Mirror
         public static CmdDelegate GetRpcHandler(int cmdHash)
         {
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
-            {
                 return invoker.invokeFunction;
-            }
+
             return null;
         }
 
@@ -468,9 +465,7 @@ namespace Mirror
                 {
                     newNetId = identity.netId;
                     if (newNetId == 0)
-                    {
                         Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
-                    }
                 }
             }
 
@@ -492,13 +487,12 @@ namespace Mirror
                 {
                     newNetId = identity.netId;
                     if (newNetId == 0)
-                    {
                         Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
-                    }
                 }
             }
 
             if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
+          
             SetDirtyBit(dirtyBit);
             gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
             netIdField = newNetId;
@@ -511,14 +505,13 @@ namespace Mirror
         {
             // server always uses the field
             if (isServer)
-            {
                 return gameObjectField;
-            }
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
                 return gameObjectField = identity.gameObject;
+
             return null;
         }
 
@@ -531,9 +524,7 @@ namespace Mirror
             {
                 newNetId = newIdentity.netId;
                 if (newNetId == 0)
-                {
                     Debug.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
-                }
             }
 
             // netId changed?
@@ -552,9 +543,7 @@ namespace Mirror
             {
                 newNetId = newIdentity.netId;
                 if (newNetId == 0)
-                {
                     Debug.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
-                }
             }
 
             if (LogFilter.Debug) Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
@@ -569,10 +558,7 @@ namespace Mirror
         protected NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
         {
             // server always uses the field
-            if (isServer)
-            {
-                return identityField;
-            }
+            if (isServer) return identityField;
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
@@ -620,9 +606,7 @@ namespace Mirror
             //   List.ForEach: 432b/frame
             //   for: 231b/frame
             for (int i = 0; i < syncObjects.Count; ++i)
-            {
                 syncObjects[i].Flush();
-            }
         }
 
         bool AnySyncObjectDirty()
@@ -631,21 +615,17 @@ namespace Mirror
             //   Linq: 187KB GC/frame;, 2.66ms time
             //   for: 8KB GC/frame; 1.28ms time
             for (int i = 0; i < syncObjects.Count; ++i)
-            {
                 if (syncObjects[i].IsDirty)
-                {
                     return true;
-                }
-            }
+
             return false;
         }
 
         internal bool IsDirty()
         {
             if (Time.time - lastSyncTime >= syncInterval)
-            {
                 return syncVarDirtyBits != 0L || AnySyncObjectDirty();
-            }
+
             return false;
         }
 
@@ -663,9 +643,8 @@ namespace Mirror
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             if (initialState)
-            {
                 return SerializeObjectsAll(writer);
-            }
+
             return SerializeObjectsDelta(writer);
         }
 
@@ -677,13 +656,9 @@ namespace Mirror
         public virtual void OnDeserialize(NetworkReader reader, bool initialState)
         {
             if (initialState)
-            {
                 DeSerializeObjectsAll(reader);
-            }
             else
-            {
                 DeSerializeObjectsDelta(reader);
-            }
         }
 
         ulong DirtyObjectBits()
@@ -693,9 +668,7 @@ namespace Mirror
             {
                 SyncObject syncObject = syncObjects[i];
                 if (syncObject.IsDirty)
-                {
                     dirtyObjects |= 1UL << i;
-                }
             }
             return dirtyObjects;
         }
@@ -746,9 +719,7 @@ namespace Mirror
             {
                 SyncObject syncObject = syncObjects[i];
                 if ((dirty & (1UL << i)) != 0)
-                {
                     syncObject.OnDeserializeDelta(reader);
-                }
             }
         }
 
