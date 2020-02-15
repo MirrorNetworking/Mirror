@@ -64,9 +64,7 @@ namespace Mirror.Discovery
         {
             // headless mode? then start advertising
             if (NetworkManager.isHeadless)
-            {
                 AdvertiseServer();
-            }
         }
 
         // Ensure the ports are cleared no matter when Game/Unity UI exits
@@ -187,8 +185,7 @@ namespace Mirror.Discovery
         {
             Response info = ProcessRequest(request, endpoint);
 
-            if (info == null)
-                return;
+            if (info == null) return;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
@@ -338,8 +335,7 @@ namespace Mirror.Discovery
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer))
             {
-                if (networkReader.ReadInt64() != secretHandshake)
-                    return;
+                if (networkReader.ReadInt64() != secretHandshake) return;
 
                 Response response = new Response();
                 response.Deserialize(networkReader);
