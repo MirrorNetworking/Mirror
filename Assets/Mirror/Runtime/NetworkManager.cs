@@ -252,9 +252,7 @@ namespace Mirror
             //
             // (tick rate is applied in StartServer!)
             if (isHeadless && startOnHeadless)
-            {
                 StartServer();
-            }
         }
 
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
@@ -349,14 +347,10 @@ namespace Mirror
 
             // scene change needed? then change scene and spawn afterwards.
             if (IsServerOnlineSceneChangeNeeded())
-            {
                 ServerChangeScene(onlineScene);
-            }
             // otherwise spawn directly
             else
-            {
                 NetworkServer.SpawnObjects();
-            }
         }
 
         /// <summary>
@@ -387,6 +381,7 @@ namespace Mirror
                 Debug.LogError("Must set the Network Address field in the manager");
                 return;
             }
+
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + networkAddress);
 
             NetworkClient.Connect(networkAddress);
@@ -544,9 +539,7 @@ namespace Mirror
             }
             // otherwise call FinishStartHost directly
             else
-            {
                 FinishStartHost();
-            }
         }
 
         /// <summary>
@@ -586,9 +579,8 @@ namespace Mirror
             mode = NetworkManagerMode.Offline;
 
             if (!string.IsNullOrEmpty(offlineScene))
-            {
                 ServerChangeScene(offlineScene);
-            }
+
             CleanupNetworkIdentities();
 
             startPositionIndex = 0;
@@ -618,9 +610,7 @@ namespace Mirror
             // If this is the host player, StopServer will already be changing scenes.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
             if (!string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene && loadingSceneAsync == null)
-            {
                 ClientChangeScene(offlineScene, SceneOperation.Normal);
-            }
 
             CleanupNetworkIdentities();
         }
@@ -668,10 +658,7 @@ namespace Mirror
 
         void InitializeSingleton()
         {
-            if (singleton != null && singleton == this)
-            {
-                return;
-            }
+            if (singleton != null && singleton == this) return;
 
             // do this early
             LogFilter.Debug = showDebugMessages;
@@ -684,9 +671,13 @@ namespace Mirror
                     Destroy(gameObject);
                     return;
                 }
+
                 if (LogFilter.Debug) Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)");
+
                 singleton = this;
-                if (Application.isPlaying) DontDestroyOnLoad(gameObject);
+
+                if (Application.isPlaying)
+                    DontDestroyOnLoad(gameObject);
             }
             else
             {
@@ -718,25 +709,20 @@ namespace Mirror
             NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
 
             if (playerPrefab != null)
-            {
                 ClientScene.RegisterPrefab(playerPrefab);
-            }
+
             for (int i = 0; i < spawnPrefabs.Count; i++)
             {
                 GameObject prefab = spawnPrefabs[i];
                 if (prefab != null)
-                {
                     ClientScene.RegisterPrefab(prefab);
-                }
             }
         }
 
         void CleanupNetworkIdentities()
         {
             foreach (NetworkIdentity identity in Resources.FindObjectsOfTypeAll<NetworkIdentity>())
-            {
                 identity.MarkForReset();
-            }
         }
 
         /// <summary>
@@ -831,6 +817,7 @@ namespace Mirror
             // the state as soon as the load is finishing, causing all kinds of bugs because of missing state.
             // (client may be null after StopClient etc.)
             if (LogFilter.Debug) Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
+
             Transport.activeTransport.enabled = false;
 
             // Let client prepare for scene change
@@ -892,6 +879,7 @@ namespace Mirror
                     NetworkServer.SpawnObjects();
                     Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
                 }
+
                 if (NetworkClient.active)
                 {
                     ClientScene.PrepareToSpawnSceneObjects();
@@ -921,19 +909,13 @@ namespace Mirror
 
             // host mode?
             if (mode == NetworkManagerMode.Host)
-            {
                 FinishLoadSceneHost();
-            }
             // server-only mode?
             else if (mode == NetworkManagerMode.ServerOnly)
-            {
                 FinishLoadSceneServerOnly();
-            }
             // client-only mode?
             else if (mode == NetworkManagerMode.ClientOnly)
-            {
                 FinishLoadSceneClientOnly();
-            }
             // otherwise we called it after stopping when loading offline scene.
             // do nothing then.
         }
@@ -1067,6 +1049,7 @@ namespace Mirror
         public static void UnRegisterStartPosition(Transform start)
         {
             if (LogFilter.Debug) Debug.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
+
             startPositions.Remove(start);
         }
 
@@ -1079,15 +1062,11 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerConnectInternal");
 
             if (authenticator != null)
-            {
                 // we have an authenticator - let it handle authentication
                 authenticator.OnServerAuthenticateInternal(conn);
-            }
             else
-            {
                 // authenticate immediately
                 OnServerAuthenticated(conn);
-            }
         }
 
         // called after successful authentication
@@ -1173,15 +1152,11 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientConnectInternal");
 
             if (authenticator != null)
-            {
                 // we have an authenticator - let it handle authentication
                 authenticator.OnClientAuthenticateInternal(conn);
-            }
             else
-            {
                 // authenticate immediately
                 OnClientAuthenticated(conn);
-            }
         }
 
         // called after successful authentication
@@ -1210,6 +1185,7 @@ namespace Mirror
         void OnClientDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientDisconnectInternal");
+
             OnClientDisconnect(conn);
         }
 
@@ -1234,9 +1210,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
             if (NetworkClient.isConnected && !NetworkServer.active)
-            {
                 ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
-            }
         }
 
         #endregion
@@ -1269,10 +1243,9 @@ namespace Mirror
         public virtual void OnServerReady(NetworkConnection conn)
         {
             if (conn.identity == null)
-            {
                 // this is now allowed (was not for a while)
                 if (LogFilter.Debug) Debug.Log("Ready with no player object");
-            }
+
             NetworkServer.SetClientReady(conn);
         }
 
@@ -1316,9 +1289,7 @@ namespace Mirror
                 return null;
 
             if (playerSpawnMethod == PlayerSpawnMethod.Random)
-            {
                 return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
-            }
             else
             {
                 Transform startPosition = startPositions[startPositionIndex];
@@ -1336,9 +1307,7 @@ namespace Mirror
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
         {
             if (player.gameObject != null)
-            {
                 NetworkServer.Destroy(player.gameObject);
-            }
         }
 
         /// <summary>
@@ -1379,10 +1348,9 @@ namespace Mirror
             {
                 // Ready/AddPlayer is usually triggered by a scene load completing. if no scene was loaded, then Ready/AddPlayer it here instead.
                 if (!ClientScene.ready) ClientScene.Ready(conn);
+
                 if (autoCreatePlayer)
-                {
                     ClientScene.AddPlayer();
-                }
             }
         }
 
@@ -1447,14 +1415,13 @@ namespace Mirror
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
             // always become ready.
-            if (!ClientScene.ready) ClientScene.Ready(conn);
+            if (!ClientScene.ready) 
+                ClientScene.Ready(conn);
 
             // Only call AddPlayer for normal scene changes, not additive load/unload
             if (clientSceneOperation == SceneOperation.Normal && autoCreatePlayer && ClientScene.localPlayer == null)
-            {
                 // add player if existing one is null
                 ClientScene.AddPlayer();
-            }
         }
 
         #endregion
