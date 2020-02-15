@@ -3,7 +3,6 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-
     class MockPlayer : NetworkBehaviour
     {
         public struct Guild
@@ -13,16 +12,13 @@ namespace Mirror.Tests
 
         [SyncVar]
         public Guild guild;
-
     }
 
     public class SyncVarTest
     {
-
         [Test]
         public void TestSettingStruct()
         {
-
             GameObject gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
@@ -51,7 +47,6 @@ namespace Mirror.Tests
         [Test]
         public void TestSyncIntervalAndClearDirtyComponents()
         {
-
             GameObject gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
@@ -80,7 +75,6 @@ namespace Mirror.Tests
         [Test]
         public void TestSyncIntervalAndClearAllComponents()
         {
-
             GameObject gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
