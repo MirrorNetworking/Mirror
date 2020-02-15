@@ -18,9 +18,8 @@ namespace Mirror
         public void Awake()
         {
             if (transports == null || transports.Length == 0)
-            {
                 throw new Exception("FallbackTransport requires at least 1 underlying transport");
-            }
+
             InitClient();
             InitServer();
             available = GetAvailableTransport();
@@ -31,12 +30,9 @@ namespace Mirror
         Transport GetAvailableTransport()
         {
             foreach (Transport transport in transports)
-            {
                 if (transport.Available())
-                {
                     return transport;
-                }
-            }
+
             throw new Exception("No transport suitable for this platform");
         }
 
@@ -66,9 +62,7 @@ namespace Mirror
         public override void ClientConnect(Uri uri)
         {
             foreach (Transport transport in transports)
-            {
                 if (transport.Available())
-                {
                     try
                     {
                         transport.ClientConnect(uri);
@@ -78,8 +72,7 @@ namespace Mirror
                     {
                         // transport does not support the schema, just move on to the next one
                     }
-                }
-            }
+
             throw new Exception("No transport suitable for this platform");
         }
 
