@@ -5,7 +5,6 @@ namespace Mirror.Tests
 {
     public class LocalConnectionTest
     {
-
         class MyMessage : MessageBase
         {
             public int id;
@@ -90,6 +89,5 @@ namespace Mirror.Tests
 
             Assert.True(invoked, "handler should have been invoked");
         }
-
     }
 }
