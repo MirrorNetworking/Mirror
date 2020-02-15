@@ -33,9 +33,7 @@ namespace Mirror
                 // if we had a [ConflictComponent] attribute that would be better than this check.
                 // also there is no context about which scene this is in.
                 if (identity.GetComponent<NetworkManager>() != null)
-                {
                     Debug.LogError("NetworkManager has a NetworkIdentity component. This will cause the NetworkManager object to be disabled, so it is not recommended.");
-                }
 
                 // not spawned before?
                 //  OnPostProcessScene is called after additive scene loads too,
@@ -72,17 +70,14 @@ namespace Mirror
                             GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
 #endif
                             if (prefabRootGO)
-                            {
                                 if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
-                                {
                                     Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
-                                }
-                            }
                         }
                     }
                     // throwing an exception would only show it for one object
                     // because this function would return afterwards.
-                    else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
+                    else
+                        Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
                 }
             }
         }
