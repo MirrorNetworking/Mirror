@@ -17,17 +17,11 @@ namespace Mirror.Weaver
             foreach (FieldDefinition fd in td.Fields)
             {
                 foreach (CustomAttribute ca in fd.CustomAttributes)
-                {
                     if (ca.AttributeType.FullName == Weaver.SyncVarType.FullName)
-                    {
                         Weaver.Error($"[SyncVar] {fd} must be inside a NetworkBehaviour.  {td} is not a NetworkBehaviour");
-                    }
-                }
 
                 if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
-                {
                     Weaver.Error($"{fd} is a SyncObject and must be inside a NetworkBehaviour.  {td} is not a NetworkBehaviour");
-                }
             }
         }
 
@@ -35,23 +29,16 @@ namespace Mirror.Weaver
         {
             // find command and RPC functions
             foreach (MethodDefinition md in td.Methods)
-            {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
                     if (ca.AttributeType.FullName == Weaver.CommandType.FullName)
-                    {
                         Weaver.Error($"[Command] {md} must be declared inside a NetworkBehaviour");
-                    }
 
                     if (ca.AttributeType.FullName == Weaver.ClientRpcType.FullName)
-                    {
                         Weaver.Error($"[ClienRpc] {md} must be declared inside a NetworkBehaviour");
-                    }
 
                     if (ca.AttributeType.FullName == Weaver.TargetRpcType.FullName)
-                    {
                         Weaver.Error($"[TargetRpc] {md} must be declared inside a NetworkBehaviour");
-                    }
 
                     string attributeName = ca.Constructor.DeclaringType.ToString();
 
@@ -71,7 +58,6 @@ namespace Mirror.Weaver
                             break;
                     }
                 }
-            }
         }
     }
 }
