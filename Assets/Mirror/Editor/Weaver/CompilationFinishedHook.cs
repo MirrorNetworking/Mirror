@@ -66,12 +66,8 @@ namespace Mirror.Weaver
         public static void WeaveExistingAssemblies()
         {
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
-            {
                 if (File.Exists(assembly.outputPath))
-                {
                     OnCompilationFinished(assembly.outputPath, new CompilerMessage[0]);
-                }
-            }
 
 #if UNITY_2019_3_OR_NEWER
             EditorUtility.RequestScriptReload();
@@ -83,12 +79,9 @@ namespace Mirror.Weaver
         static string FindMirrorRuntime()
         {
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
-            {
                 if (assembly.name == MirrorRuntimeAssemblyName)
-                {
                     return assembly.outputPath;
-                }
-            }
+
             return "";
         }
 
@@ -107,17 +100,11 @@ namespace Mirror.Weaver
             }
 
             // Should not run on the editor only assemblies
-            if (assemblyPath.Contains("-Editor") || assemblyPath.Contains(".Editor"))
-            {
-                return;
-            }
+            if (assemblyPath.Contains("-Editor") || assemblyPath.Contains(".Editor")) return;
 
             // don't weave mirror files
             string assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
-            if (assemblyName == MirrorRuntimeAssemblyName || assemblyName == MirrorWeaverAssemblyName)
-            {
-                return;
-            }
+            if (assemblyName == MirrorRuntimeAssemblyName || assemblyName == MirrorWeaverAssemblyName) return;
 
             // find Mirror.dll
             string mirrorRuntimeDll = FindMirrorRuntime();
@@ -151,9 +138,7 @@ namespace Mirror.Weaver
                 if (unityAsm.outputPath != assemblyPath) continue;
 
                 foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
-                {
                     dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
-                }
             }
 
             // passing null in the outputDirectory param will do an in-place update of the assembly
