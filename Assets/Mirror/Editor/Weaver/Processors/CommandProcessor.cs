@@ -39,9 +39,7 @@ namespace Mirror.Weaver
 
             // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
-            {
                 cmd.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
-            }
 
             // move the old body to the new function
             MethodBody newBody = cmd.Body;
@@ -68,9 +66,7 @@ namespace Mirror.Weaver
             string cmdName = md.Name;
             int index = cmdName.IndexOf(CmdPrefix);
             if (index > -1)
-            {
                 cmdName = cmdName.Substring(CmdPrefix.Length);
-            }
 
             // invoke internal send and return
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0)); // load 'base.' to call the SendCommand function with
