@@ -46,8 +46,7 @@ namespace Mirror
             {
                 if (isServer)
                 {
-                    if (!clientAuthority)
-                        return true;
+                    if (!clientAuthority) return true;
 
                     // This is a special case where we have client authority but we have not assigned the client who has
                     // authority over it, no animator data will be sent over the network by the server.
@@ -77,8 +76,7 @@ namespace Mirror
 
         void FixedUpdate()
         {
-            if (!sendMessagesAllowed)
-                return;
+            if (!sendMessagesAllowed) return;
 
             CheckSendRate();
 
@@ -86,10 +84,7 @@ namespace Mirror
             {
                 int stateHash;
                 float normalizedTime;
-                if (!CheckAnimStateChanged(out stateHash, out normalizedTime, i))
-                {
-                    continue;
-                }
+                if (!CheckAnimStateChanged(out stateHash, out normalizedTime, i)) continue;
 
                 using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                 {
@@ -151,47 +146,35 @@ namespace Mirror
         void SendAnimationMessage(int stateHash, float normalizedTime, int layerId, byte[] parameters)
         {
             if (isServer)
-            {
                 RpcOnAnimationClientMessage(stateHash, normalizedTime, layerId, parameters);
-            }
             else if (ClientScene.readyConnection != null)
-            {
                 CmdOnAnimationServerMessage(stateHash, normalizedTime, layerId, parameters);
-            }
         }
 
         void SendAnimationParametersMessage(byte[] parameters)
         {
             if (isServer)
-            {
                 RpcOnAnimationParametersClientMessage(parameters);
-            }
             else if (ClientScene.readyConnection != null)
-            {
                 CmdOnAnimationParametersServerMessage(parameters);
-            }
         }
 
         void HandleAnimMsg(int stateHash, float normalizedTime, int layerId, NetworkReader reader)
         {
-            if (hasAuthority && clientAuthority)
-                return;
+            if (hasAuthority && clientAuthority) return;
 
             // usually transitions will be triggered by parameters, if not, play anims directly.
             // NOTE: this plays "animations", not transitions, so any transitions will be skipped.
             // NOTE: there is no API to play a transition(?)
             if (stateHash != 0)
-            {
                 animator.Play(stateHash, layerId, normalizedTime);
-            }
 
             ReadParameters(reader);
         }
 
         void HandleAnimParamsMsg(NetworkReader reader)
         {
-            if (hasAuthority && clientAuthority)
-                return;
+            if (hasAuthority && clientAuthority) return;
 
             ReadParameters(reader);
         }
@@ -218,32 +201,25 @@ namespace Mirror
                     int newIntValue = animator.GetInteger(par.nameHash);
                     changed = newIntValue != lastIntParameters[i];
                     if (changed)
-                    {
                         lastIntParameters[i] = newIntValue;
-                    }
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = animator.GetFloat(par.nameHash);
                     changed = Mathf.Abs(newFloatValue - lastFloatParameters[i]) > 0.001f;
                     if (changed)
-                    {
                         lastFloatParameters[i] = newFloatValue;
-                    }
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = animator.GetBool(par.nameHash);
                     changed = newBoolValue != lastBoolParameters[i];
                     if (changed)
-                    {
                         lastBoolParameters[i] = newBoolValue;
-                    }
                 }
+
                 if (changed)
-                {
                     dirtyBits |= 1ul << i;
-                }
             }
             return dirtyBits;
         }
@@ -254,8 +230,7 @@ namespace Mirror
             writer.WritePackedUInt64(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((dirtyBits & (1ul << i)) == 0)
-                    continue;
+                if ((dirtyBits & (1ul << i)) == 0) continue;
 
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
@@ -282,8 +257,7 @@ namespace Mirror
             ulong dirtyBits = reader.ReadPackedUInt64();
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((dirtyBits & (1ul << i)) == 0)
-                    continue;
+                if ((dirtyBits & (1ul << i)) == 0) continue;
 
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
