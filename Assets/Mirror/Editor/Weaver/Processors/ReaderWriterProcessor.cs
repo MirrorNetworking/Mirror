@@ -13,9 +13,7 @@ namespace Mirror.Weaver
             Writers.Init();
 
             foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())
-            {
                 if (unityAsm.name != CurrentAssembly.Name.Name)
-                {
                     try
                     {
                         using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
@@ -29,8 +27,6 @@ namespace Mirror.Weaver
                         // During first import,  this gets called before some assemblies
                         // are built,  just skip them
                     }
-                }
-            }
 
             ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly);
         }
@@ -38,7 +34,6 @@ namespace Mirror.Weaver
         static void ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly)
         {
             foreach (TypeDefinition klass in assembly.MainModule.Types)
-            {
                 // extension methods only live in static classes
                 // static classes are represented as sealed and abstract
                 if (klass.IsAbstract && klass.IsSealed)
@@ -46,7 +41,6 @@ namespace Mirror.Weaver
                     LoadWriters(CurrentAssembly, klass);
                     LoadReaders(CurrentAssembly, klass);
                 }
-            }
         }
 
         static void LoadWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
