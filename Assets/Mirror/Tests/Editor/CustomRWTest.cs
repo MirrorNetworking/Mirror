@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
@@ -26,6 +23,7 @@ namespace Mirror.Tests
         {
             writer.WritePackedInt32(quest.Id);
         }
+
         public static MockQuest WriteQuest(this NetworkReader reader)
         {
             return new MockQuest(reader.ReadPackedInt32());
@@ -35,7 +33,6 @@ namespace Mirror.Tests
     [TestFixture]
     public class CustomRWTest
     {
-
         class QuestMessage : MessageBase
         {
             public MockQuest quest;
