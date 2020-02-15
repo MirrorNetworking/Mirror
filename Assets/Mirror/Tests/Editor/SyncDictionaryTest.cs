@@ -217,7 +217,6 @@ namespace Mirror.Tests
                 new KeyValuePair<int, string>(0, "Hello"),
                 new KeyValuePair<int, string>(1, "World"),
                 new KeyValuePair<int, string>(2, "!"),
-
             }));
         }
 
@@ -254,7 +253,6 @@ namespace Mirror.Tests
             {
                 new KeyValuePair<int, string>(1, "World"),
                 new KeyValuePair<int, string>(2, "!"),
-
             }));
         }
 
