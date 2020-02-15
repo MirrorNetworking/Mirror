@@ -14,23 +14,18 @@ namespace Mirror.Weaver
         {
             foundMethod = null;
             foreach (CustomAttribute ca in syncVar.CustomAttributes)
-            {
                 if (ca.AttributeType.FullName == Weaver.SyncVarType.FullName)
-                {
                     foreach (CustomAttributeNamedArgument customField in ca.Fields)
-                    {
                         if (customField.Name == "hook")
                         {
                             string hookFunctionName = customField.Argument.Value as string;
 
                             foreach (MethodDefinition m in td.Methods)
-                            {
                                 if (m.Name == hookFunctionName)
                                 {
                                     if (m.Parameters.Count == 2)
                                     {
-                                        if (m.Parameters[0].ParameterType != syncVar.FieldType ||
-                                            m.Parameters[1].ParameterType != syncVar.FieldType)
+                                        if (m.Parameters[0].ParameterType != syncVar.FieldType || m.Parameters[1].ParameterType != syncVar.FieldType)
                                         {
                                             Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
                                             return false;
@@ -41,13 +36,11 @@ namespace Mirror.Weaver
                                     Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
                                     return false;
                                 }
-                            }
+
                             Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
                             return false;
                         }
-                    }
-                }
-            }
+
             return true;
         }
 
@@ -246,8 +239,7 @@ namespace Mirror.Weaver
 
             // GameObject/NetworkIdentity SyncVars have a new field for netId
             FieldDefinition netIdField = null;
-            if (fd.FieldType.FullName == Weaver.gameObjectType.FullName ||
-                fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
+            if (fd.FieldType.FullName == Weaver.gameObjectType.FullName || fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
                 netIdField = new FieldDefinition("___" + fd.Name + "NetId",
                     FieldAttributes.Private,
@@ -277,11 +269,8 @@ namespace Mirror.Weaver
             // netId instead
             // -> only for GameObjects, otherwise an int syncvar's getter would
             //    end up in recursion.
-            if (fd.FieldType.FullName == Weaver.gameObjectType.FullName ||
-                fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
-            {
+            if (fd.FieldType.FullName == Weaver.gameObjectType.FullName || fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
                 Weaver.WeaveLists.replacementGetterProperties[fd] = get;
-            }
         }
 
         public static void ProcessSyncVars(TypeDefinition td, List<FieldDefinition> syncVars, List<FieldDefinition> syncObjects, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds)
@@ -298,7 +287,6 @@ namespace Mirror.Weaver
             foreach (FieldDefinition fd in td.Fields)
             {
                 foreach (CustomAttribute ca in fd.CustomAttributes)
-                {
                     if (ca.AttributeType.FullName == Weaver.SyncVarType.FullName)
                     {
                         TypeDefinition resolvedField = fd.FieldType.Resolve();
@@ -334,7 +322,6 @@ namespace Mirror.Weaver
                         }
                         break;
                     }
-                }
 
                 if (fd.FieldType.Resolve().ImplementsInterface(Weaver.SyncObjectType))
                 {
@@ -350,9 +337,7 @@ namespace Mirror.Weaver
 
             // add all the new SyncVar __netId fields
             foreach (FieldDefinition fd in syncVarNetIds.Values)
-            {
                 td.Fields.Add(fd);
-            }
 
             Weaver.SetNumSyncVars(td.FullName, numSyncVars);
         }
