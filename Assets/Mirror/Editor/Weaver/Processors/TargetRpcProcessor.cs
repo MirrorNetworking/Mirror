@@ -11,8 +11,7 @@ namespace Mirror.Weaver
         // helper functions to check if the method has a NetworkConnection parameter
         public static bool HasNetworkConnectionParameter(MethodDefinition md)
         {
-            return md.Parameters.Count > 0 &&
-                   md.Parameters[0].ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
+            return md.Parameters.Count > 0 && md.Parameters[0].ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
         }
 
         public static MethodDefinition ProcessTargetRpcInvoke(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
@@ -34,10 +33,8 @@ namespace Mirror.Weaver
             // NetworkConnection parameter is optional
             bool hasNetworkConnection = HasNetworkConnectionParameter(md);
             if (hasNetworkConnection)
-            {
                 //ClientScene.readyconnection
                 rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.ReadyConnectionReference));
-            }
 
             // process reader parameters and skip first one if first one is NetworkConnection
             if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, rpcWorker, hasNetworkConnection))
@@ -93,9 +90,7 @@ namespace Mirror.Weaver
 
             // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
-            {
                 rpc.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
-            }
 
             // move the old body to the new function
             MethodBody newBody = rpc.Body;
@@ -119,20 +114,16 @@ namespace Mirror.Weaver
             string rpcName = md.Name;
             int index = rpcName.IndexOf(TargetRpcPrefix);
             if (index > -1)
-            {
                 rpcName = rpcName.Substring(TargetRpcPrefix.Length);
-            }
 
             // invoke SendInternal and return
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
+
             if (HasNetworkConnectionParameter(md))
-            {
                 rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_1)); // connection
-            }
             else
-            {
                 rpcWorker.Append(rpcWorker.Create(OpCodes.Ldnull)); // null
-            }
+
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldtoken, td));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference)); // invokerClass
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
@@ -161,10 +152,7 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md))
-            {
-                return false;
-            }
+            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md)) return false;
 
             // validate
             return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);
