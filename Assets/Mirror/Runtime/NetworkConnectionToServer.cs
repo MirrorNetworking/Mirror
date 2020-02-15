@@ -13,9 +13,8 @@ namespace Mirror
 
             // validate packet size first.
             if (ValidatePacketSize(segment, channelId))
-            {
                 return Transport.activeTransport.ClientSend(channelId, segment);
-            }
+
             return false;
         }
 
