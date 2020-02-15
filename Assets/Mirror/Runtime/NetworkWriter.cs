@@ -39,9 +39,8 @@ namespace Mirror
         {
             stream.Flush();
             if (stream.TryGetBuffer(out ArraySegment<byte> data))
-            {
                 return data;
-            }
+
             throw new Exception("Cannot expose contents of memory stream. Make sure that MemoryStream buffer is publicly visible (see MemoryStream source code).");
         }
 
@@ -245,19 +244,13 @@ namespace Mirror
 
         public static void WriteSingle(this NetworkWriter writer, float value)
         {
-            UIntFloat converter = new UIntFloat
-            {
-                floatValue = value
-            };
+            UIntFloat converter = new UIntFloat { floatValue = value };
             writer.WriteUInt32(converter.intValue);
         }
 
         public static void WriteDouble(this NetworkWriter writer, double value)
         {
-            UIntDouble converter = new UIntDouble
-            {
-                doubleValue = value
-            };
+            UIntDouble converter = new UIntDouble { doubleValue = value };
             writer.WriteUInt64(converter.longValue);
         }
 
@@ -266,10 +259,7 @@ namespace Mirror
             // the only way to read it without allocations is to both read and
             // write it with the FloatConverter (which is not binary compatible
             // to writer.Write(decimal), hence why we use it here too)
-            UIntDecimal converter = new UIntDecimal
-            {
-                decimalValue = value
-            };
+            UIntDecimal converter = new UIntDecimal { decimalValue = value };
             writer.WriteUInt64(converter.longValue1);
             writer.WriteUInt64(converter.longValue2);
         }
@@ -292,9 +282,7 @@ namespace Mirror
 
             // check if within max size
             if (size >= NetworkWriter.MaxStringLength)
-            {
                 throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + NetworkWriter.MaxStringLength);
-            }
 
             // write size and bytes
             writer.WriteUInt16(checked((ushort)(size + 1)));
@@ -560,9 +548,7 @@ namespace Mirror
             }
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
-            {
                 writer.WritePackedUInt32(identity.netId);
-            }
             else
             {
                 Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
@@ -579,9 +565,7 @@ namespace Mirror
             }
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
-            {
                 writer.WritePackedUInt32(identity.netId);
-            }
             else
             {
                 Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
