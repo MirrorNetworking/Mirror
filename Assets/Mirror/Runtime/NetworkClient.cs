@@ -166,10 +166,9 @@ namespace Mirror
         internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
         {
             if (connection != null)
-            {
                 connection.TransportReceive(data, channelId);
-            }
-            else Debug.LogError("Skipped Data message handling because connection is null.");
+            else 
+                Debug.LogError("Skipped Data message handling because connection is null.");
         }
 
         static void OnConnected()
@@ -185,7 +184,8 @@ namespace Mirror
                 NetworkTime.UpdateClient();
                 connection.InvokeHandler(new ConnectMessage(), -1);
             }
-            else Debug.LogError("Skipped Connect message handling because connection is null.");
+            else 
+                Debug.LogError("Skipped Connect message handling because connection is null.");
         }
 
         /// <summary>
@@ -201,9 +201,8 @@ namespace Mirror
             if (isLocalClient)
             {
                 if (isConnected)
-                {
                     NetworkServer.localConnection.Send(new DisconnectMessage());
-                }
+
                 NetworkServer.RemoveLocalConnection();
             }
             else
@@ -275,17 +274,13 @@ namespace Mirror
         {
             // local connection?
             if (connection is ULocalConnectionToServer localConnection)
-            {
                 localConnection.Update();
-            }
             // remote connection?
             else
             {
                 // only update things while connected
                 if (active && connectState == ConnectState.Connected)
-                {
                     NetworkTime.UpdateClient();
-                }
             }
         }
 
@@ -382,9 +377,8 @@ namespace Mirror
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
-            {
                 if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler + " - " + msgType);
-            }
+
             handlers[msgType] = handler;
         }
 
@@ -409,9 +403,8 @@ namespace Mirror
         {
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
-            {
                 if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler + " - " + msgType);
-            }
+
             handlers[msgType] = MessagePacker.MessageHandler<T>(handler, requireAuthentication);
         }
 
