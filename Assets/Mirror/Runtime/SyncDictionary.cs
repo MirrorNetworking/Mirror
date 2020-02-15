@@ -65,9 +65,7 @@ namespace Mirror
         void AddOperation(Operation op, TKey key, TValue item)
         {
             if (IsReadOnly)
-            {
-                throw new System.InvalidOperationException("SyncDictionaries can only be modified by the server");
-            }
+                throw new InvalidOperationException("SyncDictionaries can only be modified by the server");
 
             Change change = new Change
             {
@@ -194,14 +192,10 @@ namespace Mirror
                 }
 
                 if (apply)
-                {
                     Callback?.Invoke(operation, key, item);
-                }
                 // we just skipped this change
                 else
-                {
                     changesAhead--;
-                }
             }
         }
 
@@ -259,13 +253,10 @@ namespace Mirror
         public void CopyTo([NotNull] KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
             if (arrayIndex < 0 || arrayIndex > array.Length)
-            {
-                throw new System.ArgumentOutOfRangeException(nameof(arrayIndex), "Array Index Out of Range");
-            }
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex), "Array Index Out of Range");
+
             if (array.Length - arrayIndex < Count)
-            {
-                throw new System.ArgumentException("The number of items in the SyncDictionary is greater than the available space from arrayIndex to the end of the destination array");
-            }
+                throw new ArgumentException("The number of items in the SyncDictionary is greater than the available space from arrayIndex to the end of the destination array");
 
             int i = arrayIndex;
             foreach (KeyValuePair<TKey, TValue> item in objects)
@@ -279,9 +270,8 @@ namespace Mirror
         {
             bool result = objects.Remove(item.Key);
             if (result)
-            {
                 AddOperation(Operation.OP_REMOVE, item.Key, item.Value);
-            }
+
             return result;
         }
 
@@ -292,13 +282,9 @@ namespace Mirror
 
     public abstract class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
     {
-        protected SyncDictionary() : base(new Dictionary<TKey, TValue>())
-        {
-        }
+        protected SyncDictionary() : base(new Dictionary<TKey, TValue>()) { }
 
-        protected SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq))
-        {
-        }
+        protected SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq)) { }
 
         public new Dictionary<TKey, TValue>.ValueCollection Values => ((Dictionary<TKey, TValue>)objects).Values;
 
