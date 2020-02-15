@@ -269,9 +269,8 @@ namespace Mirror
                 // send to all
                 bool result = true;
                 foreach (int connectionId in connectionIds)
-                {
                     result &= NetworkTransport.Send(serverHostId, connectionId, channelId, serverSendBuffer, segment.Count, out error);
-                }
+
                 return result;
             }
             Debug.LogError("LLAPI.ServerSend: buffer( " + serverSendBuffer.Length + ") too small for: " + segment.Count);
@@ -374,14 +373,13 @@ namespace Mirror
         public override string ToString()
         {
             if (ServerActive())
-            {
                 return "LLAPI Server port: " + port;
-            }
             else if (ClientConnected())
             {
                 string ip = ClientGetAddress();
                 return "LLAPI Client ip: " + ip + " port: " + port;
             }
+
             return "LLAPI (inactive/disconnected)";
         }
         #endregion
