@@ -75,9 +75,8 @@ namespace Mirror
         public override GUIContent GetPreviewTitle()
         {
             if (title == null)
-            {
                 title = new GUIContent("Network Information");
-            }
+
             return title;
         }
 
@@ -139,10 +138,8 @@ namespace Mirror
                 foreach (NetworkBehaviourInfo info in behavioursInfo)
                 {
                     if (info.behaviour == null)
-                    {
                         // could be the case in the editor after existing play mode.
                         continue;
-                    }
 
                     GUI.Label(behaviourRect, info.name, info.behaviour.enabled ? styles.componentName : styles.disabledName);
                     behaviourRect.y += behaviourRect.height;
@@ -181,13 +178,10 @@ namespace Mirror
             {
                 Vector2 labelSize = styles.labelStyle.CalcSize(info.value);
                 if (maxLabelSize.x < labelSize.x)
-                {
                     maxLabelSize.x = labelSize.x;
-                }
+
                 if (maxLabelSize.y < labelSize.y)
-                {
                     maxLabelSize.y = labelSize.y;
-                }
             }
             return maxLabelSize;
         }
@@ -199,13 +193,10 @@ namespace Mirror
             {
                 Vector2 labelSize = styles.labelStyle.CalcSize(behaviour.name);
                 if (maxLabelSize.x < labelSize.x)
-                {
                     maxLabelSize.x = labelSize.x;
-                }
+
                 if (maxLabelSize.y < labelSize.y)
-                {
                     maxLabelSize.y = labelSize.y;
-                }
             }
             return maxLabelSize;
         }
@@ -221,10 +212,7 @@ namespace Mirror
                     GetString("Scene ID", identity.sceneId.ToString("X"))
                 };
 
-                if (!Application.isPlaying)
-                {
-                    return;
-                }
+                if (!Application.isPlaying) return;
 
                 info.Add(GetString("Network ID", identity.netId.ToString()));
 
@@ -254,9 +242,8 @@ namespace Mirror
         {
             string assetId = identity.assetId.ToString();
             if (string.IsNullOrEmpty(assetId))
-            {
                 assetId = "<object has no prefab>";
-            }
+
             return GetString("Asset ID", assetId);
         }
 
