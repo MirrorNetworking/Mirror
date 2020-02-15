@@ -26,10 +26,7 @@ namespace Mirror.Weaver
             Weaver.DLog(td, "SyncObjectProcessor Start item:" + itemType.FullName);
 
             MethodReference writeItemFunc = GenerateSerialization(serializeMethod, td, itemType);
-            if (Weaver.WeavingFailed)
-            {
-                return;
-            }
+            if (Weaver.WeavingFailed) return;
 
             MethodReference readItemFunc = GenerateDeserialization(deserializeMethod, td, itemType);
 
@@ -44,10 +41,7 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(td, "  GenerateSerialization");
             foreach (MethodDefinition m in td.Methods)
-            {
-                if (m.Name == methodName)
-                    return m;
-            }
+                if (m.Name == methodName) return m;
 
             MethodDefinition serializeFunc = new MethodDefinition(methodName, MethodAttributes.Public |
                     MethodAttributes.Virtual |
@@ -87,10 +81,7 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(td, "  GenerateDeserialization");
             foreach (MethodDefinition m in td.Methods)
-            {
-                if (m.Name == methodName)
-                    return m;
-            }
+                if (m.Name == methodName) return m;
 
             MethodDefinition deserializeFunction = new MethodDefinition(methodName, MethodAttributes.Public |
                     MethodAttributes.Virtual |
