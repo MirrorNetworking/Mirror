@@ -20,7 +20,6 @@ namespace Telepathy.Tests
         {
             server = new Server();
             server.Start(port);
-
         }
 
         [TearDown]
@@ -96,9 +95,7 @@ namespace Telepathy.Tests
 
             byte[] data = new byte[99999];
             for (int i = 0; i < 1000; i++)
-            {
                 client.Send(data);
-            }
 
             client.Disconnect();
             Assert.That(client.Connected, Is.False);
@@ -415,9 +412,7 @@ namespace Telepathy.Tests
                 Thread.Sleep(100);
 
                 if (count >= 100)
-                {
                     Assert.Fail("The message did not get to the server");
-                }
             }
 
             return message;
@@ -434,9 +429,7 @@ namespace Telepathy.Tests
                 Thread.Sleep(100);
 
                 if (count >= 100)
-                {
                     Assert.Fail("The message did not get to the client");
-                }
             }
 
             return message;
