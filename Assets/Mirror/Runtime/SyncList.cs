@@ -264,14 +264,10 @@ namespace Mirror
                 }
 
                 if (apply)
-                {
                     Callback?.Invoke(operation, index, oldItem, newItem);
-                }
                 // we just skipped this change
                 else
-                {
                     changesAhead--;
-                }
             }
         }
 
@@ -296,6 +292,7 @@ namespace Mirror
             for (int i = 0; i < objects.Count; ++i)
                 if (comparer.Equals(item, objects[i]))
                     return i;
+
             return -1;
         }
 
@@ -304,6 +301,7 @@ namespace Mirror
             for (int i = 0; i < objects.Count; ++i)
                 if (match(objects[i]))
                     return i;
+
             return -1;
         }
 
@@ -318,9 +316,8 @@ namespace Mirror
             int index = IndexOf(item);
             bool result = index >= 0;
             if (result)
-            {
                 RemoveAt(index);
-            }
+
             return result;
         }
 
@@ -377,9 +374,8 @@ namespace Mirror
             public bool MoveNext()
             {
                 if (++index >= list.Count)
-                {
                     return false;
-                }
+
                 Current = list[index];
                 return true;
             }
