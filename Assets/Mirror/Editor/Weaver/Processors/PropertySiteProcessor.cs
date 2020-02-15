@@ -12,26 +12,19 @@ namespace Mirror.Weaver
 
             //Search through the types
             foreach (TypeDefinition td in moduleDef.Types)
-            {
                 if (td.IsClass)
-                {
                     ProcessSiteClass(td);
-                }
-            }
+
             if (Weaver.WeaveLists.generateContainerClass != null)
             {
                 moduleDef.Types.Add(Weaver.WeaveLists.generateContainerClass);
                 Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.WeaveLists.generateContainerClass);
 
                 foreach (MethodDefinition f in Weaver.WeaveLists.generatedReadFunctions)
-                {
                     Weaver.CurrentAssembly.MainModule.ImportReference(f);
-                }
 
                 foreach (MethodDefinition f in Weaver.WeaveLists.generatedWriteFunctions)
-                {
                     Weaver.CurrentAssembly.MainModule.ImportReference(f);
-                }
             }
             Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
         }
@@ -40,14 +33,10 @@ namespace Mirror.Weaver
         {
             //Console.WriteLine("    ProcessSiteClass " + td);
             foreach (MethodDefinition md in td.Methods)
-            {
                 ProcessSiteMethod(td, md);
-            }
 
             foreach (TypeDefinition nested in td.NestedTypes)
-            {
                 ProcessSiteClass(nested);
-            }
         }
 
         static void ProcessSiteMethod(TypeDefinition td, MethodDefinition md)
@@ -139,8 +128,7 @@ namespace Mirror.Weaver
         static void ProcessInstructionSetterField(MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // dont replace property call sites in constructors
-            if (md.Name == ".ctor")
-                return;
+            if (md.Name == ".ctor") return;
 
             // does it set a field that we replaced?
             if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
@@ -157,8 +145,7 @@ namespace Mirror.Weaver
         static void ProcessInstructionGetterField(MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // dont replace property call sites in constructors
-            if (md.Name == ".ctor")
-                return;
+            if (md.Name == ".ctor") return;
 
             // does it set a field that we replaced?
             if (Weaver.WeaveLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacement))
@@ -174,41 +161,25 @@ namespace Mirror.Weaver
         static int ProcessInstruction(MethodDefinition md, Instruction instr, int iCount)
         {
             if (instr.OpCode == OpCodes.Call || instr.OpCode == OpCodes.Callvirt)
-            {
                 if (instr.Operand is MethodReference opMethod)
-                {
                     ProcessInstructionMethod(md, instr, opMethod, iCount);
-                }
-            }
 
             if (instr.OpCode == OpCodes.Stfld)
-            {
                 // this instruction sets the value of a field. cache the field reference.
                 if (instr.Operand is FieldDefinition opField)
-                {
                     ProcessInstructionSetterField(md, instr, opField);
-                }
-            }
 
             if (instr.OpCode == OpCodes.Ldfld)
-            {
                 // this instruction gets the value of a field. cache the field reference.
                 if (instr.Operand is FieldDefinition opField)
-                {
                     ProcessInstructionGetterField(md, instr, opField);
-                }
-            }
 
             if (instr.OpCode == OpCodes.Ldflda)
-            {
                 // loading a field by reference,  watch out for initobj instruction
                 // see https://github.com/vis2k/Mirror/issues/696
 
                 if (instr.Operand is FieldDefinition opField)
-                {
                     return ProcessInstructionLoadAddress(md, instr, opField, iCount);
-                }
-            }
 
             return 1;
         }
@@ -216,8 +187,7 @@ namespace Mirror.Weaver
         static int ProcessInstructionLoadAddress(MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
         {
             // dont replace property call sites in constructors
-            if (md.Name == ".ctor")
-                return 1;
+            if (md.Name == ".ctor") return 1;
 
             // does it set a field that we replaced?
             if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
@@ -322,9 +292,7 @@ namespace Mirror.Weaver
             if (md.ReturnType.FullName != Weaver.voidType.FullName)
             {
                 if (md.ReturnType.IsPrimitive)
-                {
                     worker.InsertBefore(top, worker.Create(OpCodes.Ldc_I4_0));
-                }
                 else
                 {
                     md.Body.Variables.Add(new VariableDefinition(md.ReturnType));
