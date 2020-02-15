@@ -19,14 +19,11 @@ namespace Mirror.Weaver
                 // strip generic parameters
                 int index = parentName.IndexOf('<');
                 if (index != -1)
-                {
                     parentName = parentName.Substring(0, index);
-                }
 
                 if (parentName == baseClass.FullName)
-                {
                     return true;
-                }
+
                 try
                 {
                     parent = parent.Resolve().BaseType;
@@ -44,10 +41,9 @@ namespace Mirror.Weaver
         public static TypeReference GetEnumUnderlyingType(this TypeDefinition td)
         {
             foreach (FieldDefinition field in td.Fields)
-            {
                 if (!field.IsStatic)
                     return field.FieldType;
-            }
+
             throw new ArgumentException($"Invalid enum {td.FullName}");
         }
 
@@ -57,10 +53,8 @@ namespace Mirror.Weaver
             while (typedef != null)
             {
                 foreach (InterfaceImplementation iface in typedef.Interfaces)
-                {
                     if (iface.InterfaceType.FullName == baseInterface.FullName)
                         return true;
-                }
 
                 try
                 {
@@ -83,6 +77,7 @@ namespace Mirror.Weaver
             if ((tr.IsArray && ((ArrayType)tr).ElementType.IsArray) || // jagged array
                 (tr.IsArray && ((ArrayType)tr).Rank > 1)) // multidimensional array
                 return false;
+
             return true;
         }
 
@@ -91,9 +86,7 @@ namespace Mirror.Weaver
             while (parent != null)
             {
                 if (parent.Scope.Name == "Windows")
-                {
                     return false;
-                }
 
                 if (parent.Scope.Name == "mscorlib")
                 {
@@ -140,12 +133,9 @@ namespace Mirror.Weaver
         public static CustomAttribute GetCustomAttribute(this MethodDefinition method, string attributeName)
         {
             foreach (CustomAttribute ca in method.CustomAttributes)
-            {
-                if (ca.AttributeType.FullName == attributeName)
-                    return ca;
-            }
+                if (ca.AttributeType.FullName == attributeName) return ca;
+
             return null;
         }
-
     }
 }
