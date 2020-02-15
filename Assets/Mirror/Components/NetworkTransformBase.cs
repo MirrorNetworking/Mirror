@@ -367,9 +367,8 @@ namespace Mirror
             // local position/rotation for VR support
             targetComponent.transform.localPosition = position;
             if (Compression.NoRotation != compressRotation)
-            {
                 targetComponent.transform.localRotation = rotation;
-            }
+
             targetComponent.transform.localScale = scale;
         }
 
