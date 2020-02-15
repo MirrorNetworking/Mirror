@@ -190,9 +190,7 @@ namespace Mirror
             OnRoomClientEnter();
             foreach (NetworkRoomPlayer player in roomSlots)
                 if (player != null)
-                {
                     player.OnClientEnterRoom();
-                }
         }
 
         void CallOnClientExitRoom()
@@ -200,9 +198,7 @@ namespace Mirror
             OnRoomClientExit();
             foreach (NetworkRoomPlayer player in roomSlots)
                 if (player != null)
-                {
                     player.OnClientExitRoom();
-                }
         }
 
         #region server handlers
@@ -249,10 +245,8 @@ namespace Mirror
             allPlayersReady = false;
 
             foreach (NetworkRoomPlayer player in roomSlots)
-            {
                 if (player != null)
                     player.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
-            }
 
             if (SceneManager.GetActiveScene().name == RoomScene)
                 RecalculateRoomPlayerIndices();
@@ -289,12 +283,8 @@ namespace Mirror
         public void RecalculateRoomPlayerIndices()
         {
             if (roomSlots.Count > 0)
-            {
                 for (int i = 0; i < roomSlots.Count; i++)
-                {
                     roomSlots[i].index = i;
-                }
-            }
         }
 
         /// <summary>
