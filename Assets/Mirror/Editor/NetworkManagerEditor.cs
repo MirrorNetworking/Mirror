@@ -43,9 +43,7 @@ namespace Mirror
             EditorGUI.BeginChangeCheck();
             spawnList.DoLayoutList();
             if (EditorGUI.EndChangeCheck())
-            {
                 serializedObject.ApplyModifiedProperties();
-            }
         }
 
         static void DrawHeader(Rect headerRect)
@@ -60,9 +58,7 @@ namespace Mirror
 
             GUIContent label;
             if (go == null)
-            {
                 label = new GUIContent("Empty", "Drag a prefab with a NetworkIdentity here");
-            }
             else
             {
                 NetworkIdentity identity = go.GetComponent<NetworkIdentity>();
@@ -104,9 +100,7 @@ namespace Mirror
         {
             spawnListProperty.DeleteArrayElementAtIndex(spawnList.index);
             if (list.index >= spawnListProperty.arraySize)
-            {
                 list.index = spawnListProperty.arraySize - 1;
-            }
         }
     }
 }
