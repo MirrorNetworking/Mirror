@@ -4,7 +4,6 @@ using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
-
     public static class Writers
     {
         const int MaxRecursionCount = 128;
@@ -24,9 +23,7 @@ namespace Mirror.Weaver
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
         {
             if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
-            {
                 return foundFunc;
-            }
 
             MethodDefinition newWriterFunc;
 
@@ -70,22 +67,14 @@ namespace Mirror.Weaver
             }
 
             if (variable.Resolve().IsEnum)
-            {
                 return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType(), recursionCount);
-            }
             else if (variable.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
-            {
                 newWriterFunc = GenerateArraySegmentWriteFunc(variable, recursionCount);
-            }
             else
-            {
                 newWriterFunc = GenerateClassOrStructWriterFunction(variable, recursionCount);
-            }
 
             if (newWriterFunc == null)
-            {
                 return null;
-            }
 
             RegisterWriteFunc(variable.FullName, newWriterFunc);
             return newWriterFunc;
@@ -109,19 +98,14 @@ namespace Mirror.Weaver
             }
 
             if (!Weaver.IsValidTypeToGenerate(variable.Resolve()))
-            {
                 return null;
-            }
 
             string functionName = "_Write" + variable.Name + "_";
             if (variable.DeclaringType != null)
-            {
                 functionName += variable.DeclaringType.Name;
-            }
             else
-            {
                 functionName += "None";
-            }
+
             // create new writer for this type
             MethodDefinition writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
@@ -137,8 +121,7 @@ namespace Mirror.Weaver
             uint fields = 0;
             foreach (FieldDefinition field in variable.Resolve().Fields)
             {
-                if (field.IsStatic || field.IsPrivate)
-                    continue;
+                if (field.IsStatic || field.IsPrivate) continue;
 
                 MethodReference writeFunc = GetWriteFunc(field.FieldType, recursionCount + 1);
                 if (writeFunc != null)
@@ -155,10 +138,10 @@ namespace Mirror.Weaver
                     return null;
                 }
             }
+
             if (fields == 0)
-            {
                 Log.Warning($" {variable} has no no public or non-static fields to serialize");
-            }
+
             worker.Append(worker.Create(OpCodes.Ret));
             return writerFunc;
         }
@@ -174,20 +157,14 @@ namespace Mirror.Weaver
 
             TypeReference elementType = variable.GetElementType();
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
-            if (elementWriteFunc == null)
-            {
-                return null;
-            }
+
+            if (elementWriteFunc == null) return null;
 
             string functionName = "_WriteArray" + variable.GetElementType().Name + "_";
             if (variable.DeclaringType != null)
-            {
                 functionName += variable.DeclaringType.Name;
-            }
             else
-            {
                 functionName += "None";
-            }
 
             // create new writer for this type
             MethodDefinition writerFunc = new MethodDefinition(functionName,
@@ -271,20 +248,13 @@ namespace Mirror.Weaver
             TypeReference elementType = genericInstance.GenericArguments[0];
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
 
-            if (elementWriteFunc == null)
-            {
-                return null;
-            }
+            if (elementWriteFunc == null) return null;
 
             string functionName = "_WriteArraySegment_" + elementType.Name + "_";
             if (variable.DeclaringType != null)
-            {
                 functionName += variable.DeclaringType.Name;
-            }
             else
-            {
                 functionName += "None";
-            }
 
             // create new writer for this type
             MethodDefinition writerFunc = new MethodDefinition(functionName,
@@ -358,6 +328,5 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
             return writerFunc;
         }
-
     }
 }
