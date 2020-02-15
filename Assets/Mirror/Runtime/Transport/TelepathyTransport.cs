@@ -144,6 +144,7 @@ namespace Mirror
             bool result = true;
             foreach (int connectionId in connectionIds)
                 result &= server.Send(connectionId, data);
+
             return result;
         }
         public bool ProcessServerMessage()
@@ -170,7 +171,9 @@ namespace Mirror
             }
             return false;
         }
+
         public override bool ServerDisconnect(int connectionId) => server.Disconnect(connectionId);
+
         public override string ServerGetClientAddress(int connectionId)
         {
             try
@@ -220,9 +223,8 @@ namespace Mirror
                 return "Telepathy Server port: " + port;
             }
             else if (client.Connecting || client.Connected)
-            {
                 return "Telepathy Client ip: " + client.client.Client.RemoteEndPoint;
-            }
+
             return "Telepathy (inactive/disconnected)";
         }
     }
