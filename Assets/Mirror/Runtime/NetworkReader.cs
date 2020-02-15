@@ -76,9 +76,7 @@ namespace Mirror
         {
             // check if passed byte array is big enough
             if (count > bytes.Length)
-            {
                 throw new EndOfStreamException("ReadBytes can't read " + count + " + bytes because the passed byte[] only has length " + bytes.Length);
-            }
 
             ArraySegment<byte> data = ReadBytesSegment(count);
             Array.Copy(data.Array, data.Offset, bytes, 0, count);
@@ -90,9 +88,7 @@ namespace Mirror
         {
             // check if within buffer limits
             if (Position + count > buffer.Count)
-            {
                 throw new EndOfStreamException("ReadBytesSegment can't read " + count + " bytes because it would read past the end of the stream. " + ToString());
-            }
 
             // return the segment
             ArraySegment<byte> result = new ArraySegment<byte>(buffer.Array, buffer.Offset + Position, count);
@@ -178,16 +174,13 @@ namespace Mirror
             // read number of bytes
             ushort size = reader.ReadUInt16();
 
-            if (size == 0)
-                return null;
+            if (size == 0) return null;
 
             int realSize = size - 1;
 
             // make sure it's within limits to avoid allocation attacks etc.
             if (realSize >= NetworkWriter.MaxStringLength)
-            {
                 throw new EndOfStreamException("ReadString too long: " + realSize + ". Limit is: " + NetworkWriter.MaxStringLength);
-            }
 
             ArraySegment<byte> data = reader.ReadBytesSegment(realSize);
 
@@ -236,57 +229,39 @@ namespace Mirror
         {
             byte a0 = reader.ReadByte();
             if (a0 < 241)
-            {
                 return a0;
-            }
 
             byte a1 = reader.ReadByte();
             if (a0 >= 241 && a0 <= 248)
-            {
                 return 240 + ((a0 - (ulong)241) << 8) + a1;
-            }
 
             byte a2 = reader.ReadByte();
             if (a0 == 249)
-            {
                 return 2288 + ((ulong)a1 << 8) + a2;
-            }
 
             byte a3 = reader.ReadByte();
             if (a0 == 250)
-            {
                 return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16);
-            }
 
             byte a4 = reader.ReadByte();
             if (a0 == 251)
-            {
                 return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24);
-            }
 
             byte a5 = reader.ReadByte();
             if (a0 == 252)
-            {
                 return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32);
-            }
 
             byte a6 = reader.ReadByte();
             if (a0 == 253)
-            {
                 return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40);
-            }
 
             byte a7 = reader.ReadByte();
             if (a0 == 254)
-            {
                 return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40) + (((ulong)a7) << 48);
-            }
 
             byte a8 = reader.ReadByte();
             if (a0 == 255)
-            {
                 return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40) + (((ulong)a7) << 48) + (((ulong)a8) << 56);
-            }
 
             throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
         }
@@ -343,11 +318,10 @@ namespace Mirror
             if (netId == 0) return null;
 
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
                 return identity;
-            }
 
             if (LogFilter.Debug) Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
+
             return null;
         }
 
