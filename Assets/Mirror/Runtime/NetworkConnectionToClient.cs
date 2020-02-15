@@ -38,9 +38,7 @@ namespace Mirror
                 // only the server sends to many, we don't have that function on
                 // a client.
                 if (Transport.activeTransport.ServerActive())
-                {
                     return Transport.activeTransport.ServerSend(connectionIds, channelId, segment);
-                }
             }
             return false;
         }
