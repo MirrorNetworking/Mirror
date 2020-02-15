@@ -22,7 +22,6 @@ namespace Mirror.Weaver
         {
             // check the ctor's instructions for an Stfld op-code for this specific sync list field.
             foreach (Instruction ins in ctorWorker.Body.Instructions)
-            {
                 if (ins.OpCode.Code == Code.Stfld)
                 {
                     FieldDefinition field = (FieldDefinition)ins.Operand;
@@ -33,7 +32,6 @@ namespace Mirror.Weaver
                         return;
                     }
                 }
-            }
 
             // Not initialized by the user in the field definition, e.g:
             // public SyncListInt Foo;
@@ -58,10 +56,7 @@ namespace Mirror.Weaver
             try
             {
                 // value types cant inherit from SyncObject
-                if (typeRef.IsValueType)
-                {
-                    return false;
-                }
+                if (typeRef.IsValueType) return false;
 
                 return typeRef.Resolve().ImplementsInterface(Weaver.SyncObjectType);
             }
