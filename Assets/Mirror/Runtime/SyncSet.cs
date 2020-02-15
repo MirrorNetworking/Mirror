@@ -54,9 +54,7 @@ namespace Mirror
         void AddOperation(Operation op, T item)
         {
             if (IsReadOnly)
-            {
                 throw new InvalidOperationException("SyncSets can only be modified at the server");
-            }
 
             Change change = new Change
             {
@@ -77,9 +75,7 @@ namespace Mirror
             writer.WritePackedUInt32((uint)objects.Count);
 
             foreach (T obj in objects)
-            {
                 SerializeItem(writer, obj);
-            }
 
             // all changes have been applied already
             // thus the client will need to skip all the pending changes
@@ -180,14 +176,10 @@ namespace Mirror
                 }
 
                 if (apply)
-                {
                     Callback?.Invoke(operation, item);
-                }
                 // we just skipped this change
                 else
-                {
                     changesAhead--;
-                }
             }
         }
 
@@ -204,9 +196,7 @@ namespace Mirror
         void ICollection<T>.Add(T item)
         {
             if (objects.Add(item))
-            {
                 AddOperation(Operation.OP_ADD, item);
-            }
         }
 
         public void Clear()
@@ -243,17 +233,13 @@ namespace Mirror
 
             // remove every element in other from this
             foreach (T element in other)
-            {
                 Remove(element);
-            }
         }
 
         public void IntersectWith(IEnumerable<T> other)
         {
             if (other is ISet<T> otherSet)
-            {
                 IntersectWithSet(otherSet);
-            }
             else
             {
                 HashSet<T> otherAsSet = new HashSet<T>(other);
@@ -266,12 +252,8 @@ namespace Mirror
             List<T> elements = new List<T>(objects);
 
             foreach (T element in elements)
-            {
                 if (!otherSet.Contains(element))
-                {
                     Remove(element);
-                }
-            }
         }
 
         public bool IsProperSubsetOf(IEnumerable<T> other) => objects.IsProperSubsetOf(other);
@@ -289,30 +271,18 @@ namespace Mirror
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
             if (other == this)
-            {
                 Clear();
-            }
             else
-            {
                 foreach (T element in other)
-                {
                     if (!Remove(element))
-                    {
                         Add(element);
-                    }
-                }
-            }
         }
 
         public void UnionWith(IEnumerable<T> other)
         {
             if (other != this)
-            {
                 foreach (T element in other)
-                {
                     Add(element);
-                }
-            }
         }
     }
 
