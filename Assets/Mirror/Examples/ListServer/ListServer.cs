@@ -114,11 +114,10 @@ namespace Mirror.Examples.ListServer
 
             // list server only allows up to 128 bytes per message
             if (writer.BaseStream.Position <= 128)
-            {
                 // send it
                 gameServerToListenConnection.Send(((MemoryStream)writer.BaseStream).ToArray());
-            }
-            else Debug.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
+            else
+                Debug.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
         }
 
         void TickGameServer()
@@ -128,9 +127,7 @@ namespace Mirror.Examples.ListServer
             {
                 // connected yet?
                 if (gameServerToListenConnection.Connected)
-                {
                     SendStatus();
-                }
                 // otherwise try to connect
                 // (we may have just started the game)
                 else if (!gameServerToListenConnection.Connecting)
@@ -141,9 +138,7 @@ namespace Mirror.Examples.ListServer
             }
             // shouldn't use game server, but still using it?
             else if (gameServerToListenConnection.Connected)
-            {
                 gameServerToListenConnection.Disconnect();
-            }
         }
 
         void ParseMessage(byte[] bytes)
@@ -173,10 +168,8 @@ namespace Mirror.Examples.ListServer
                 server.capacity = capacity;
             }
             else
-            {
                 // create
                 server = new ServerStatus(ip, /*port,*/ title, players, capacity);
-            }
 
             // save
             list[key] = server;
@@ -207,13 +200,11 @@ namespace Mirror.Examples.ListServer
 #if !UNITY_WEBGL // Ping isn't known in WebGL builds
                     // ping again if previous ping finished
                     foreach (ServerStatus server in list.Values)
-                    {
                         if (server.ping.isDone)
                         {
                             server.lastLatency = server.ping.time;
                             server.ping = new Ping(server.ip);
                         }
-                    }
 #endif
                 }
                 // otherwise try to connect
@@ -240,9 +231,7 @@ namespace Mirror.Examples.ListServer
         {
             // instantiate until amount
             for (int i = parent.childCount; i < amount; ++i)
-            {
                 Instantiate(prefab, parent, false);
-            }
 
             // delete everything that's too much
             // (backwards loop because Destroy changes childCount)
@@ -259,20 +248,14 @@ namespace Mirror.Examples.ListServer
 
                 // status text
                 if (clientToListenConnection.Connecting)
-                {
                     //statusText.color = Color.yellow;
                     statusText.text = "Connecting...";
-                }
                 else if (clientToListenConnection.Connected)
-                {
                     //statusText.color = Color.green;
                     statusText.text = "Connected!";
-                }
                 else
-                {
                     //statusText.color = Color.gray;
                     statusText.text = "Disconnected";
-                }
 
                 // instantiate/destroy enough slots
                 BalancePrefabs(slotPrefab.gameObject, list.Count, content);
@@ -299,19 +282,14 @@ namespace Mirror.Examples.ListServer
                 // server buttons
                 serverAndPlayButton.interactable = !IsConnecting();
                 serverAndPlayButton.onClick.RemoveAllListeners();
-                serverAndPlayButton.onClick.AddListener(() =>
-                {
-                    NetworkManager.singleton.StartHost();
-                });
+                serverAndPlayButton.onClick.AddListener(() => { NetworkManager.singleton.StartHost(); });
 
                 serverOnlyButton.interactable = !IsConnecting();
                 serverOnlyButton.onClick.RemoveAllListeners();
-                serverOnlyButton.onClick.AddListener(() =>
-                {
-                    NetworkManager.singleton.StartServer();
-                });
+                serverOnlyButton.onClick.AddListener(() => { NetworkManager.singleton.StartServer(); });
             }
-            else mainPanel.SetActive(false);
+            else
+                mainPanel.SetActive(false);
 
             // show connecting panel while connecting
             if (IsConnecting())
@@ -326,7 +304,8 @@ namespace Mirror.Examples.ListServer
                 connectingCancelButton.onClick.RemoveAllListeners();
                 connectingCancelButton.onClick.AddListener(NetworkManager.singleton.StopClient);
             }
-            else connectingPanel.SetActive(false);
+            else
+                connectingPanel.SetActive(false);
         }
 
         // disconnect everything when pressing Stop in the Editor
@@ -334,6 +313,7 @@ namespace Mirror.Examples.ListServer
         {
             if (gameServerToListenConnection.Connected)
                 gameServerToListenConnection.Disconnect();
+
             if (clientToListenConnection.Connected)
                 clientToListenConnection.Disconnect();
         }
