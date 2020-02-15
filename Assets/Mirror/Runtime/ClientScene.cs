@@ -79,13 +79,9 @@ namespace Mirror
             // localPlayer.isClient = true;
 
             if (readyConnection != null)
-            {
                 readyConnection.identity = identity;
-            }
             else
-            {
                 Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
-            }
         }
 
         /// <summary>
@@ -270,9 +266,7 @@ namespace Mirror
                 prefabs[identity.assetId] = prefab;
             }
             else
-            {
                 Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
-            }
         }
 
         /// <summary>
@@ -292,15 +286,10 @@ namespace Mirror
 
                 NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
                 if (identities.Length > 1)
-                {
-                    Debug.LogWarning("The prefab '" + prefab.name +
-                                     "' has multiple NetworkIdentity components. There can only be one NetworkIdentity on a prefab, and it must be on the root object.");
-                }
+                    Debug.LogWarning("The prefab '" + prefab.name + "' has multiple NetworkIdentity components. There can only be one NetworkIdentity on a prefab, and it must be on the root object.");
             }
             else
-            {
                 Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
-            }
         }
 
         /// <summary>
@@ -439,23 +428,16 @@ namespace Mirror
         public static void DestroyAllClientObjects()
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
                 if (identity != null && identity.gameObject != null)
-                {
                     if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
-                    {
                         if (identity.sceneId == 0)
-                        {
                             Object.Destroy(identity.gameObject);
-                        }
                         else
                         {
                             identity.MarkForReset();
                             identity.gameObject.SetActive(false);
                         }
-                    }
-                }
-            }
+
             NetworkIdentity.spawned.Clear();
         }
 
@@ -467,9 +449,8 @@ namespace Mirror
         public static GameObject FindLocalObject(uint netId)
         {
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
                 return identity.gameObject;
-            }
+
             return null;
         }
 
@@ -481,9 +462,7 @@ namespace Mirror
                 identity.assetId = msg.assetId;
 
             if (!identity.gameObject.activeSelf)
-            {
                 identity.gameObject.SetActive(true);
-            }
 
             // apply local values for VR support
             identity.transform.localPosition = msg.position;
@@ -498,12 +477,10 @@ namespace Mirror
             // deserialize components if any payload
             // (Count is 0 if there were no components)
             if (msg.payload.Count > 0)
-            {
                 using (PooledNetworkReader payloadReader = NetworkReaderPool.GetReader(msg.payload))
                 {
                     identity.OnUpdateVars(payloadReader, true);
                 }
-            }
 
             NetworkIdentity.spawned[msg.netId] = identity;
 
@@ -529,9 +506,7 @@ namespace Mirror
             NetworkIdentity identity = GetExistingObject(msg.netId);
 
             if (identity == null)
-            {
                 identity = msg.sceneId == 0 ? SpawnPrefab(msg) : SpawnSceneObject(msg);
-            }
 
             if (identity == null)
             {
@@ -553,10 +528,7 @@ namespace Mirror
             if (GetPrefab(msg.assetId, out GameObject prefab))
             {
                 GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
-                if (LogFilter.Debug)
-                {
-                    Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
-                }
+                if (LogFilter.Debug) Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
 
                 return obj.GetComponent<NetworkIdentity>();
             }
@@ -583,10 +555,8 @@ namespace Mirror
 
                 // dump the whole spawnable objects dict for easier debugging
                 if (LogFilter.Debug)
-                {
                     foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
                         Debug.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
-                }
             }
 
             if (LogFilter.Debug) Debug.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId);
@@ -636,26 +606,21 @@ namespace Mirror
                 localObject.OnNetworkDestroy();
 
                 if (!InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
-                {
                     // default handling
                     if (localObject.sceneId == 0)
-                    {
                         Object.Destroy(localObject.gameObject);
-                    }
                     else
                     {
                         // scene object.. disable it in scene instead of destroying
                         localObject.gameObject.SetActive(false);
                         spawnableObjects[localObject.sceneId] = localObject;
                     }
-                }
+
                 NetworkIdentity.spawned.Remove(netId);
                 localObject.MarkForReset();
             }
             else
-            {
                 if (LogFilter.Debug) Debug.LogWarning("Did not find target for destroy message for " + netId);
-            }
         }
 
         internal static void OnHostClientObjectDestroy(ObjectDestroyMessage msg)
@@ -670,9 +635,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
-            {
                 localObject.OnSetHostVisibility(false);
-            }
         }
 
         internal static void OnHostClientSpawn(SpawnMessage msg)
@@ -695,14 +658,10 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId);
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
-            {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
                     localObject.OnUpdateVars(networkReader, false);
-            }
             else
-            {
                 Debug.LogWarning("Did not find target for sync message for " + msg.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
-            }
         }
 
         internal static void OnRPCMessage(RpcMessage msg)
@@ -710,10 +669,8 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId);
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
-            {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
                     identity.HandleRPC(msg.componentIndex, msg.functionHash, networkReader);
-            }
         }
 
         internal static void OnSyncEventMessage(SyncEventMessage msg)
@@ -721,14 +678,10 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ClientScene.OnSyncEventMessage " + msg.netId);
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
-            {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
                     identity.HandleSyncEvent(msg.componentIndex, msg.functionHash, networkReader);
-            }
             else
-            {
                 Debug.LogWarning("Did not find target for SyncEvent message for " + msg.netId);
-            }
         }
 
         static void CheckForLocalPlayer(NetworkIdentity identity)
