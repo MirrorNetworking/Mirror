@@ -38,9 +38,7 @@ namespace Mirror.Tests
             int[] array = new int[length];
 
             for (int i = 0; i < length; i++)
-            {
                 array[i] = reader.ReadPackedInt32();
-            }
 
             return new ArraySegment<int>(array);
         }
