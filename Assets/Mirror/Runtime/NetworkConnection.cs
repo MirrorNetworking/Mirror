@@ -117,9 +117,7 @@ namespace Mirror
         /// <summary>
         /// Creates a new NetworkConnection with the specified address
         /// </summary>
-        internal NetworkConnection()
-        {
-        }
+        internal NetworkConnection() { }
 
         /// <summary>
         /// Creates a new NetworkConnection with the specified address and connectionId
@@ -174,9 +172,8 @@ namespace Mirror
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
             if (messageHandlers.ContainsKey(msgType))
-            {
                 if (LogFilter.Debug) Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType);
-            }
+
             messageHandlers[msgType] = handler;
         }
 
@@ -277,9 +274,8 @@ namespace Mirror
         internal void RemoveObservers()
         {
             foreach (NetworkIdentity identity in visList)
-            {
                 identity.RemoveObserverInternal(this);
-            }
+
             visList.Clear();
         }
 
@@ -386,12 +382,8 @@ namespace Mirror
             // create a copy because the list might be modified when destroying
             HashSet<NetworkIdentity> tmp = new HashSet<NetworkIdentity>(clientOwnedObjects);
             foreach (NetworkIdentity netIdentity in tmp)
-            {
                 if (netIdentity != null)
-                {
                     NetworkServer.Destroy(netIdentity.gameObject);
-                }
-            }
 
             // clear the hashset because we destroyed them all
             clientOwnedObjects.Clear();
