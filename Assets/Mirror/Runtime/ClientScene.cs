@@ -182,10 +182,15 @@ namespace Mirror
 
             if (conn != null)
             {
-                conn.Send(new ReadyMessage());
+                // Set these before sending the ReadyMessage, otherwise host client
+                // will fail in InternalAddPlayer with null readyConnection.
                 ready = true;
                 readyConnection = conn;
                 readyConnection.isReady = true;
+
+                // Tell server we're ready to have a player object spawned
+                conn.Send(new ReadyMessage());
+
                 return true;
             }
             Debug.LogError("Ready() called with invalid connection object: conn=null");
