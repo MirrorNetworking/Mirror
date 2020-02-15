@@ -54,9 +54,7 @@ namespace Mirror.Weaver
         static void CheckOutputDirectory(string outputDir)
         {
             if (outputDir != null && !Directory.Exists(outputDir))
-            {
                 Directory.CreateDirectory(outputDir);
-            }
         }
     }
 }
