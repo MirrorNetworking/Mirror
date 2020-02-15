@@ -38,9 +38,7 @@ namespace Mirror.Examples.NetworkRoom
         {
             // Null check is required, otherwise close timing of multiple claims could throw a null ref.
             if (hitObject != null)
-            {
                 hitObject.GetComponent<Reward>().ClaimPrize(gameObject);
-            }
         }
 
         void OnGUI()
