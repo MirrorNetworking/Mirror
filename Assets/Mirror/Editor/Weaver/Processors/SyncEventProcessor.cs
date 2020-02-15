@@ -12,13 +12,12 @@ namespace Mirror.Weaver
             // find the field that matches the event
             FieldDefinition eventField = null;
             foreach (FieldDefinition fd in td.Fields)
-            {
                 if (fd.FullName == ed.FullName)
                 {
                     eventField = fd;
                     break;
                 }
-            }
+
             if (eventField == null)
             {
                 Weaver.Error($"{td} not found. Did you declare the event?");
@@ -51,8 +50,7 @@ namespace Mirror.Weaver
 
             // read the event arguments
             MethodReference invoke = Resolvers.ResolveMethod(eventField.FieldType, Weaver.CurrentAssembly, "Invoke");
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(invoke.Resolve(), cmdWorker, false))
-                return null;
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(invoke.Resolve(), cmdWorker, false)) return null;
 
             // invoke actual event delegate function
             cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, invoke));
@@ -71,9 +69,7 @@ namespace Mirror.Weaver
                     Weaver.voidType);
             // add paramters
             foreach (ParameterDefinition pd in invoke.Parameters)
-            {
                 evt.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
-            }
 
             ILProcessor evtWorker = evt.Body.GetILProcessor();
             Instruction label = evtWorker.Create(OpCodes.Nop);
@@ -85,8 +81,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(evtWorker);
 
             // write all the arguments that the user passed to the syncevent
-            if (!NetworkBehaviourProcessor.WriteArguments(evtWorker, invoke.Resolve(), false))
-                return null;
+            if (!NetworkBehaviourProcessor.WriteArguments(evtWorker, invoke.Resolve(), false)) return null;
 
             // invoke interal send and return
             evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
@@ -108,9 +103,7 @@ namespace Mirror.Weaver
         {
             // find events
             foreach (EventDefinition ed in td.Events)
-            {
                 foreach (CustomAttribute ca in ed.CustomAttributes)
-                {
                     if (ca.AttributeType.FullName == Weaver.SyncEventType.FullName)
                     {
                         if (!ed.Name.StartsWith("Event"))
@@ -127,10 +120,7 @@ namespace Mirror.Weaver
 
                         events.Add(ed);
                         MethodDefinition eventFunc = ProcessEventInvoke(td, ed);
-                        if (eventFunc == null)
-                        {
-                            return;
-                        }
+                        if (eventFunc == null) return;
 
                         td.Methods.Add(eventFunc);
                         eventInvocationFuncs.Add(eventFunc);
@@ -145,8 +135,6 @@ namespace Mirror.Weaver
                         Weaver.DLog(td, "  Event: " + ed.Name);
                         break;
                     }
-                }
-            }
         }
     }
 }
