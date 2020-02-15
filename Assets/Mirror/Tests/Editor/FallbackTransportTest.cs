@@ -10,7 +10,6 @@ namespace Mirror.Tests
 {
     public class FallbackTransportTest
     {
-
         Transport transport1;
         Transport transport2;
         FallbackTransport transport;
@@ -47,7 +46,6 @@ namespace Mirror.Tests
             transport2.Available().Returns(false);
 
             Assert.Throws<Exception>(() => transport.Awake());
-
         }
 
         // A Test behaves as an ordinary method
@@ -163,8 +161,6 @@ namespace Mirror.Tests
                 segment);
         }
 
-
         #endregion
-
     }
 }
