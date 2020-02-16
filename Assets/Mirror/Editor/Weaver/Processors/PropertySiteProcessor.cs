@@ -128,7 +128,8 @@ namespace Mirror.Weaver
         static void ProcessInstructionSetterField(MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // dont replace property call sites in constructors
-            if (md.Name == ".ctor") return;
+            if (md.Name == ".ctor")
+                return;
 
             // does it set a field that we replaced?
             if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
@@ -145,7 +146,8 @@ namespace Mirror.Weaver
         static void ProcessInstructionGetterField(MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // dont replace property call sites in constructors
-            if (md.Name == ".ctor") return;
+            if (md.Name == ".ctor")
+                return;
 
             // does it set a field that we replaced?
             if (Weaver.WeaveLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacement))
@@ -187,7 +189,8 @@ namespace Mirror.Weaver
         static int ProcessInstructionLoadAddress(MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
         {
             // dont replace property call sites in constructors
-            if (md.Name == ".ctor") return 1;
+            if (md.Name == ".ctor")
+                return 1;
 
             // does it set a field that we replaced?
             if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))

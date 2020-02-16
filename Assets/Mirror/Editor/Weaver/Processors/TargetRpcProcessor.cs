@@ -152,7 +152,8 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md)) return false;
+            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md))
+                return false;
 
             // validate
             return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);

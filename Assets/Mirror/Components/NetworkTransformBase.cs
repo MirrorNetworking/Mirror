@@ -253,7 +253,8 @@ namespace Mirror
         void CmdClientToServerSync(byte[] payload)
         {
             // Ignore messages from client if not in client authority mode
-            if (!clientAuthority) return;
+            if (!clientAuthority)
+                return;
 
             // deserialize payload
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(payload))

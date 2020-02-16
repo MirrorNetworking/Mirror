@@ -105,7 +105,8 @@ namespace Mirror
 
         static void Initialize()
         {
-            if (initialized) return;
+            if (initialized)
+                return;
 
             initialized = true;
             if (LogFilter.Debug) Debug.Log("NetworkServer Created version " + Version.Current);
@@ -447,7 +448,8 @@ namespace Mirror
         // The user should never need to pump the update loop manually
         internal static void Update()
         {
-            if (!active) return;
+            if (!active)
+                return;
 
             // update all server objects
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
@@ -1018,7 +1020,8 @@ namespace Mirror
 
         internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
         {
-            if (identity.serverOnly) return;
+            if (identity.serverOnly)
+                return;
 
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 

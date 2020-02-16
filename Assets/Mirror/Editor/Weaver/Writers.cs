@@ -121,7 +121,8 @@ namespace Mirror.Weaver
             uint fields = 0;
             foreach (FieldDefinition field in variable.Resolve().Fields)
             {
-                if (field.IsStatic || field.IsPrivate) continue;
+                if (field.IsStatic || field.IsPrivate)
+                    continue;
 
                 MethodReference writeFunc = GetWriteFunc(field.FieldType, recursionCount + 1);
                 if (writeFunc != null)
@@ -158,7 +159,8 @@ namespace Mirror.Weaver
             TypeReference elementType = variable.GetElementType();
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
 
-            if (elementWriteFunc == null) return null;
+            if (elementWriteFunc == null)
+                return null;
 
             string functionName = "_WriteArray" + variable.GetElementType().Name + "_";
             if (variable.DeclaringType != null)
@@ -248,7 +250,8 @@ namespace Mirror.Weaver
             TypeReference elementType = genericInstance.GenericArguments[0];
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
 
-            if (elementWriteFunc == null) return null;
+            if (elementWriteFunc == null)
+                return null;
 
             string functionName = "_WriteArraySegment_" + elementType.Name + "_";
             if (variable.DeclaringType != null)

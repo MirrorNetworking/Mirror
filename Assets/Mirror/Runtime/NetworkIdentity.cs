@@ -180,7 +180,7 @@ namespace Mirror
                 string newAssetIdString = value.ToString("N");
                 if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
                     m_AssetId = newAssetIdString;
-                else 
+                else
                     Debug.LogWarning($"SetDynamicAssetId object {this.name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
             }
         }
@@ -356,7 +356,8 @@ namespace Mirror
             // by definition, only the original scene objects should get one.
             // -> if we assign at runtime then server and client would generate
             //    different random numbers!
-            if (Application.isPlaying) return;
+            if (Application.isPlaying)
+                return;
 
             // no valid sceneId yet, or duplicate?
             bool duplicate = sceneIds.TryGetValue(sceneId, out NetworkIdentity existing) && existing != null && existing != this;
@@ -528,7 +529,8 @@ namespace Mirror
         bool clientStarted;
         internal void OnStartClient()
         {
-            if (clientStarted) return;
+            if (clientStarted)
+                return;
 
             clientStarted = true;
             isClient = true;
@@ -945,7 +947,8 @@ namespace Mirror
             // apply changes from rebuild
             foreach (NetworkConnection conn in newObservers)
             {
-                if (conn == null) continue;
+                if (conn == null)
+                    continue;
 
                 if (!conn.isReady)
                 {
@@ -1105,7 +1108,8 @@ namespace Mirror
         // if we have marked an identity for reset we do the actual reset.
         internal void Reset()
         {
-            if (!reset) return;
+            if (!reset)
+                return;
 
             clientStarted = false;
             isClient = false;

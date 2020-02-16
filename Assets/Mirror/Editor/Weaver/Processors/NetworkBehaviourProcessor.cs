@@ -46,12 +46,14 @@ namespace Mirror.Weaver
             ProcessMethods();
 
             SyncEventProcessor.ProcessEvents(netBehaviourSubclass, eventRpcs, eventRpcInvocationFuncs);
-            if (Weaver.WeavingFailed) return;
+            if (Weaver.WeavingFailed)
+                return;
 
             GenerateConstants();
 
             GenerateSerialization();
-            if (Weaver.WeavingFailed) return;
+            if (Weaver.WeavingFailed)
+                return;
 
             GenerateDeSerialization();
             Weaver.DLog(netBehaviourSubclass, "Process Done");
@@ -416,7 +418,8 @@ namespace Mirror.Weaver
         void DeserializeField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize)
         {
             // check for Hook function
-            if (!SyncVarProcessor.CheckForHookFunction(netBehaviourSubclass, syncVar, out MethodDefinition foundMethod)) return;
+            if (!SyncVarProcessor.CheckForHookFunction(netBehaviourSubclass, syncVar, out MethodDefinition foundMethod))
+                return;
 
             // [SyncVar] GameObject/NetworkIdentity?
             /*
@@ -678,7 +681,8 @@ namespace Mirror.Weaver
             // read cmd args from NetworkReader
             foreach (ParameterDefinition arg in md.Parameters)
             {
-                if (count++ == 0 && skipFirst) continue;
+                if (count++ == 0 && skipFirst)
+                    continue;
 
                 MethodReference readFunc = Readers.GetReadFunc(arg.ParameterType); //?
 
@@ -806,7 +810,8 @@ namespace Mirror.Weaver
 
         void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
-            if (!RpcProcessor.ProcessMethodsValidateRpc(md, ca)) return;
+            if (!RpcProcessor.ProcessMethodsValidateRpc(md, ca))
+                return;
 
             if (names.Contains(md.Name))
             {
@@ -828,7 +833,8 @@ namespace Mirror.Weaver
 
         void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
-            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md, ca)) return;
+            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md, ca))
+                return;
 
             if (names.Contains(md.Name))
             {
@@ -850,7 +856,8 @@ namespace Mirror.Weaver
 
         void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
-            if (!CommandProcessor.ProcessMethodsValidateCommand(md, ca)) return;
+            if (!CommandProcessor.ProcessMethodsValidateCommand(md, ca))
+                return;
 
             if (names.Contains(md.Name))
             {

@@ -134,7 +134,8 @@ namespace Mirror.Weaver
 
         public static void DLog(TypeDefinition td, string fmt, params object[] args)
         {
-            if (!DebugLogEnabled) return;
+            if (!DebugLogEnabled)
+                return;
 
             Console.WriteLine("[" + td.Name + "] " + string.Format(fmt, args));
         }
@@ -380,7 +381,8 @@ namespace Mirror.Weaver
 
         static bool CheckMessageBase(TypeDefinition td)
         {
-            if (!td.IsClass) return false;
+            if (!td.IsClass)
+                return false;
 
             bool didWork = false;
 
@@ -399,7 +401,8 @@ namespace Mirror.Weaver
 
         static bool CheckSyncList(TypeDefinition td)
         {
-            if (!td.IsClass) return false;
+            if (!td.IsClass)
+                return false;
 
             bool didWork = false;
 
@@ -492,7 +495,8 @@ namespace Mirror.Weaver
                                 throw ex;
                             }
 
-                        if (WeavingFailed) return false;
+                        if (WeavingFailed)
+                            return false;
                     }
                     watch.Stop();
                     Console.WriteLine("Pass: " + pass + " took " + watch.ElapsedMilliseconds + " milliseconds");

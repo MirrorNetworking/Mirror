@@ -133,7 +133,8 @@ namespace Mirror.Weaver
         public static CustomAttribute GetCustomAttribute(this MethodDefinition method, string attributeName)
         {
             foreach (CustomAttribute ca in method.CustomAttributes)
-                if (ca.AttributeType.FullName == attributeName) return ca;
+                if (ca.AttributeType.FullName == attributeName)
+                    return ca;
 
             return null;
         }

@@ -100,11 +100,13 @@ namespace Mirror.Weaver
             }
 
             // Should not run on the editor only assemblies
-            if (assemblyPath.Contains("-Editor") || assemblyPath.Contains(".Editor")) return;
+            if (assemblyPath.Contains("-Editor") || assemblyPath.Contains(".Editor"))
+                return;
 
             // don't weave mirror files
             string assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
-            if (assemblyName == MirrorRuntimeAssemblyName || assemblyName == MirrorWeaverAssemblyName) return;
+            if (assemblyName == MirrorRuntimeAssemblyName || assemblyName == MirrorWeaverAssemblyName)
+                return;
 
             // find Mirror.dll
             string mirrorRuntimeDll = FindMirrorRuntime();
@@ -135,7 +137,8 @@ namespace Mirror.Weaver
             dependencyPaths.Add(Path.GetDirectoryName(assemblyPath));
             foreach (UnityAssembly unityAsm in CompilationPipeline.GetAssemblies())
             {
-                if (unityAsm.outputPath != assemblyPath) continue;
+                if (unityAsm.outputPath != assemblyPath)
+                    continue;
 
                 foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
                     dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));

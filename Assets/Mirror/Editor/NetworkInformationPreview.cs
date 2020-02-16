@@ -212,7 +212,8 @@ namespace Mirror
                     GetString("Scene ID", identity.sceneId.ToString("X"))
                 };
 
-                if (!Application.isPlaying) return;
+                if (!Application.isPlaying)
+                    return;
 
                 info.Add(GetString("Network ID", identity.netId.ToString()));
 

@@ -190,7 +190,8 @@ namespace Mirror.Weaver
             TypeReference elementType = genericInstance.GenericArguments[0];
 
             MethodReference elementReadFunc = GetReadFunc(elementType, recursionCount + 1);
-            if (elementReadFunc == null) return null;
+            if (elementReadFunc == null)
+                return null;
 
             string functionName = "_ReadArraySegment_" + variable.GetElementType().Name + "_";
             if (variable.DeclaringType != null)
@@ -277,7 +278,8 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (!Weaver.IsValidTypeToGenerate(variable.Resolve())) return null;
+            if (!Weaver.IsValidTypeToGenerate(variable.Resolve()))
+                return null;
 
             string functionName = "_Read" + variable.Name + "_";
             if (variable.DeclaringType != null)
@@ -333,7 +335,8 @@ namespace Mirror.Weaver
             uint fields = 0;
             foreach (FieldDefinition field in variable.Resolve().Fields)
             {
-                if (field.IsStatic || field.IsPrivate) continue;
+                if (field.IsStatic || field.IsPrivate)
+                    continue;
 
                 // mismatched ldloca/ldloc for struct/class combinations is invalid IL, which causes crash at runtime
                 OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;

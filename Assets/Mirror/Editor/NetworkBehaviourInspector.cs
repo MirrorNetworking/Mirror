@@ -76,7 +76,8 @@ namespace Mirror
             {
                 serializedObject.Update();
                 SerializedProperty scriptProperty = serializedObject.FindProperty("m_Script");
-                if (scriptProperty == null) return;
+                if (scriptProperty == null)
+                    return;
 
                 MonoScript targetScript = scriptProperty.objectReferenceValue as MonoScript;
                 Init(targetScript);
@@ -94,7 +95,8 @@ namespace Mirror
 
                 if (property.name == "m_Script")
                 {
-                    if (HideScriptField) continue;
+                    if (HideScriptField)
+                        continue;
 
                     EditorGUI.BeginDisabledGroup(true);
                 }

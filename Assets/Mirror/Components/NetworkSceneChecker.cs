@@ -84,7 +84,8 @@ namespace Mirror
         /// <returns>True if object is in the same scene</returns>
         public override bool OnCheckObserver(NetworkConnection conn)
         {
-            if (forceHidden) return false;
+            if (forceHidden)
+                return false;
 
             return conn.identity.gameObject.scene == gameObject.scene;
         }
@@ -94,7 +95,8 @@ namespace Mirror
         public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
             // If forceHidden then return true without adding any observers.
-            if (forceHidden) return true;
+            if (forceHidden)
+                return true;
 
             // Add everything in the hashset for this object's current scene
             foreach (NetworkIdentity networkIdentity in sceneCheckerObjects[currentScene])

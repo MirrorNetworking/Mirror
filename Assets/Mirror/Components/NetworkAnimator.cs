@@ -46,7 +46,8 @@ namespace Mirror
             {
                 if (isServer)
                 {
-                    if (!clientAuthority) return true;
+                    if (!clientAuthority)
+                        return true;
 
                     // This is a special case where we have client authority but we have not assigned the client who has
                     // authority over it, no animator data will be sent over the network by the server.
@@ -76,7 +77,8 @@ namespace Mirror
 
         void FixedUpdate()
         {
-            if (!sendMessagesAllowed) return;
+            if (!sendMessagesAllowed)
+                return;
 
             CheckSendRate();
 
@@ -84,7 +86,8 @@ namespace Mirror
             {
                 int stateHash;
                 float normalizedTime;
-                if (!CheckAnimStateChanged(out stateHash, out normalizedTime, i)) continue;
+                if (!CheckAnimStateChanged(out stateHash, out normalizedTime, i))
+                    continue;
 
                 using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                 {
@@ -161,7 +164,8 @@ namespace Mirror
 
         void HandleAnimMsg(int stateHash, float normalizedTime, int layerId, NetworkReader reader)
         {
-            if (hasAuthority && clientAuthority) return;
+            if (hasAuthority && clientAuthority)
+                return;
 
             // usually transitions will be triggered by parameters, if not, play anims directly.
             // NOTE: this plays "animations", not transitions, so any transitions will be skipped.
@@ -174,7 +178,8 @@ namespace Mirror
 
         void HandleAnimParamsMsg(NetworkReader reader)
         {
-            if (hasAuthority && clientAuthority) return;
+            if (hasAuthority && clientAuthority)
+                return;
 
             ReadParameters(reader);
         }
@@ -230,7 +235,8 @@ namespace Mirror
             writer.WritePackedUInt64(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((dirtyBits & (1ul << i)) == 0) continue;
+                if ((dirtyBits & (1ul << i)) == 0)
+                    continue;
 
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
@@ -257,7 +263,8 @@ namespace Mirror
             ulong dirtyBits = reader.ReadPackedUInt64();
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((dirtyBits & (1ul << i)) == 0) continue;
+                if ((dirtyBits & (1ul << i)) == 0)
+                    continue;
 
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
@@ -425,7 +432,8 @@ namespace Mirror
         void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, int layerId, byte[] parameters)
         {
             // Ignore messages from client if not in client authority mode
-            if (!clientAuthority) return;
+            if (!clientAuthority)
+                return;
 
             if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
 
@@ -441,7 +449,8 @@ namespace Mirror
         void CmdOnAnimationParametersServerMessage(byte[] parameters)
         {
             // Ignore messages from client if not in client authority mode
-            if (!clientAuthority) return;
+            if (!clientAuthority)
+                return;
 
             // handle and broadcast
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(parameters))
@@ -455,7 +464,8 @@ namespace Mirror
         void CmdOnAnimationTriggerServerMessage(int hash)
         {
             // Ignore messages from client if not in client authority mode
-            if (!clientAuthority) return;
+            if (!clientAuthority)
+                return;
 
             // handle and broadcast
             HandleAnimTriggerMsg(hash);
@@ -466,7 +476,8 @@ namespace Mirror
         void CmdOnAnimationResetTriggerServerMessage(int hash)
         {
             // Ignore messages from client if not in client authority mode
-            if (!clientAuthority) return;
+            if (!clientAuthority)
+                return;
 
             // handle and broadcast
             HandleAnimResetTriggerMsg(hash);

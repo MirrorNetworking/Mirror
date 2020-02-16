@@ -74,7 +74,8 @@ namespace Mirror.Tests
         // Delete output dll / pdb / mdb
         public static void DeleteOutput()
         {
-            if (OutputFile.Length < 5) return; // "x.dll" shortest possible dll name
+            if (OutputFile.Length < 5)
+                return; // "x.dll" shortest possible dll name
 
             string projPathFile = OutputDirectory + OutputFile;
 

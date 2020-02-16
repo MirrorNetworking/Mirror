@@ -18,7 +18,8 @@ namespace Mirror.Weaver
             Weaver.DLog(td, "MessageClassProcessor Start");
 
             GenerateSerialization(td);
-            if (Weaver.WeavingFailed) return;
+            if (Weaver.WeavingFailed)
+                return;
 
             GenerateDeSerialization(td);
             Weaver.DLog(td, "MessageClassProcessor Done");
@@ -28,9 +29,11 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(td, "  GenerateSerialization");
             MethodDefinition existingMethod = td.Methods.FirstOrDefault(md => md.Name == "Serialize");
-            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault()) return;
+            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
+                return;
 
-            if (td.Fields.Count == 0) return;
+            if (td.Fields.Count == 0)
+                return;
 
             // check for self-referencing types
             foreach (FieldDefinition field in td.Fields)
@@ -65,7 +68,8 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition field in td.Fields)
             {
-                if (field.IsStatic || field.IsPrivate || field.IsSpecialName) continue;
+                if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
+                    continue;
 
                 MethodReference writeFunc = Writers.GetWriteFunc(field.FieldType);
                 if (writeFunc != null)
@@ -91,9 +95,11 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(td, "  GenerateDeserialization");
             MethodDefinition existingMethod = td.Methods.FirstOrDefault(md => md.Name == "Deserialize");
-            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault()) return;
+            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
+                return;
 
-            if (td.Fields.Count == 0) return;
+            if (td.Fields.Count == 0)
+                return;
 
             MethodDefinition serializeFunc = existingMethod ?? new MethodDefinition("Deserialize",
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,

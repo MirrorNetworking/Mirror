@@ -174,7 +174,8 @@ namespace Mirror
             // read number of bytes
             ushort size = reader.ReadUInt16();
 
-            if (size == 0) return null;
+            if (size == 0)
+                return null;
 
             int realSize = size - 1;
 
@@ -315,7 +316,8 @@ namespace Mirror
         public static NetworkIdentity ReadNetworkIdentity(this NetworkReader reader)
         {
             uint netId = reader.ReadPackedUInt32();
-            if (netId == 0) return null;
+            if (netId == 0)
+                return null;
 
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
                 return identity;

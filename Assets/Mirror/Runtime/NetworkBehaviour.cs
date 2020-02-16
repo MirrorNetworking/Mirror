@@ -492,7 +492,7 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
-          
+
             SetDirtyBit(dirtyBit);
             gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
             netIdField = newNetId;
@@ -504,7 +504,8 @@ namespace Mirror
         protected GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
         {
             // server always uses the field
-            if (isServer) return gameObjectField;
+            if (isServer)
+                return gameObjectField;
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
@@ -557,7 +558,8 @@ namespace Mirror
         protected NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
         {
             // server always uses the field
-            if (isServer) return identityField;
+            if (isServer)
+                return identityField;
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever

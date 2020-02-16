@@ -658,7 +658,8 @@ namespace Mirror
 
         void InitializeSingleton()
         {
-            if (singleton != null && singleton == this) return;
+            if (singleton != null && singleton == this)
+                return;
 
             // do this early
             LogFilter.Debug = showDebugMessages;
@@ -1415,7 +1416,7 @@ namespace Mirror
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
             // always become ready.
-            if (!ClientScene.ready) 
+            if (!ClientScene.ready)
                 ClientScene.Ready(conn);
 
             // Only call AddPlayer for normal scene changes, not additive load/unload

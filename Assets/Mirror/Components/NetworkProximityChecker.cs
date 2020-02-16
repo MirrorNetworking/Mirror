@@ -68,7 +68,8 @@ namespace Mirror
 
         void Update()
         {
-            if (!NetworkServer.active) return;
+            if (!NetworkServer.active)
+                return;
 
             if (Time.time - lastUpdateTime > visUpdateInterval)
             {
@@ -84,7 +85,8 @@ namespace Mirror
         /// <returns>True if object is within visible range</returns>
         public override bool OnCheckObserver(NetworkConnection newObserver)
         {
-            if (forceHidden) return false;
+            if (forceHidden)
+                return false;
 
             return Vector3.Distance(newObserver.identity.transform.position, transform.position) < visRange;
         }
@@ -110,7 +112,7 @@ namespace Mirror
                     {
                         // cast without allocating GC for maximum performance
                         int hitCount = Physics.OverlapSphereNonAlloc(transform.position, visRange, hitsBuffer3D, castLayers);
-                        if (hitCount == hitsBuffer3D.Length) 
+                        if (hitCount == hitsBuffer3D.Length)
                             Debug.LogWarning("NetworkProximityChecker's OverlapSphere test for " + name + " has filled the whole buffer(" + hitsBuffer3D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
 
                         for (int i = 0; i < hitCount; i++)
