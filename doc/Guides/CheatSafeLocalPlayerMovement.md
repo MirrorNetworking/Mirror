@@ -1,3 +1,5 @@
+# Cheat Safe local player Movement (by vis2k)
+
 **NetworkTransform** has two modes, either server authoritative (by default), or client authoritative (where players can cheat).
 
 For server authoritative it's meant to be used like this:
