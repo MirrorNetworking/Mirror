@@ -112,7 +112,8 @@ namespace Telepathy
         public void Connect(string ip, int port)
         {
             // not if already started
-            if (Connecting || Connected) return;
+            if (Connecting || Connected)
+                return;
 
             // We are connecting from now until Connect succeeds or fails
             _Connecting = true;

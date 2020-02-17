@@ -172,7 +172,8 @@ namespace Mirror
         /// </summary>
         public void CheckReadyToBegin()
         {
-            if (SceneManager.GetActiveScene().name != RoomScene) return;
+            if (SceneManager.GetActiveScene().name != RoomScene)
+                return;
 
             if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
             {
@@ -270,7 +271,8 @@ namespace Mirror
         {
             if (SceneManager.GetActiveScene().name == RoomScene)
             {
-                if (roomSlots.Count == maxConnections) return;
+                if (roomSlots.Count == maxConnections)
+                    return;
 
                 allPlayersReady = false;
 
@@ -308,7 +310,8 @@ namespace Mirror
             {
                 foreach (NetworkRoomPlayer roomPlayer in roomSlots)
                 {
-                    if (roomPlayer == null) continue;
+                    if (roomPlayer == null)
+                        continue;
 
                     // find the game-player object for this connection, and destroy it
                     NetworkIdentity identity = roomPlayer.GetComponent<NetworkIdentity>();
