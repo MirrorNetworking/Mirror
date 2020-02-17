@@ -36,6 +36,9 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 -   Network [Proximity Checker](Components/NetworkProximityChecker.md)
 -   [SyncVar](Guides/Sync/SyncVars.md), [SyncList](Guides/Sync/SyncLists.md), [SyncEvent](Guides/Sync/SyncEvent.md), [SyncDictionary](Guides/Sync/SyncDictionary.md), and [SyncHashSet](Guides/Sync/SyncHashSet.md)
 
+**Guides**
+-   [Cheat safe, local player movement beyond NetworkTransform](Guides/CheatSafeLocalPlayerMovement.md)
+
 **Integrations**
 -   [Dissonance Voice Chat](https://assetstore.unity.com/packages/tools/audio/dissonance-voice-chat-70078)
 -   [Network Sync Transform](https://github.com/emotitron/NetworkSyncTransform)
