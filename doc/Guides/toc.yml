@@ -8,8 +8,6 @@
   href: Authentication.md
 - name: Network Discovery
   href: NetworkDiscovery.md
-- name: Player Movement
-  href: CheatSafeLocalPlayerMovement.md
 - name: Network Profiler
   href: Profiler.md
 - name: Attributes
