@@ -13,7 +13,7 @@
 - name: Attributes
   href: Attributes.md
 - name: Network Behaviour
-  href: Network Behaviour.md
+  href: NetworkBehaviour.md
 - name: Clock Synchronization
   href: ClockSync.md
 - name: Data Types
