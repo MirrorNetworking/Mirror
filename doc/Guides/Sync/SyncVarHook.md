@@ -16,7 +16,6 @@ using Mirror;
 
 public class PlayerController : NetworkBehaviour
 {
-
     [SyncVar(hook = nameof(SetColor))]
     Color playerColor = Color.black;
 
