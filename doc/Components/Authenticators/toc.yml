@@ -2,9 +2,3 @@
   href: index.md
 - name: Basic Authenticator
   href: Basic.md
-- name: PlayFab Authenticator
-  href: PlayFab.md
-- name: Facebook Authenticator
-  href: Facebook.md
-- name: Google Authenticator
-  href: Google.md

@@ -12,7 +12,7 @@ Mirror is a high level Networking Library that can use several different low lev
 
 -   [Fallback](Fallback.md) Fallback is a compatibility transport for transports that don't run on all platforms and need fallback options to cover all other platforms.
 
--   [Discord](DiscordMirror.md) Discord-Mirror is a networking transport that enables sending networking packets via [Discord's Game SDK](https://discordapp.com/developers/docs/game-sdk/sdk-starter-guide).
+-   [Discord](Discord.md) Discord Transport is a networking transport that enables sending networking packets via [Discord's Game SDK](https://discordapp.com/developers/docs/game-sdk/sdk-starter-guide).
 
 -   [UDP - Ignorance](Ignorance.md) Ignorance implements a reliable and unreliable sequenced UDP transport based on ENet.
 

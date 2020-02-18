@@ -1,4 +1,4 @@
-# NetworkManager
+# Network Manager
 
 The Network Manager is a component for managing the networking aspects of a multiplayer game.
 

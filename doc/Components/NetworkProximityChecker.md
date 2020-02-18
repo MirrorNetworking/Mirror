@@ -1,4 +1,4 @@
-# NetworkProximityChecker
+# Network Proximity Checker
 
 The Network Proximity Checker component controls the visibility of game objects for network clients, based on proximity to players.
 

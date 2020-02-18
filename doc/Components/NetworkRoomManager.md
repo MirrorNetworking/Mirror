@@ -1,4 +1,4 @@
-# NetworkRoomManager
+# Network Room Manager
 
 \*\*Please see the Room example in the Examples folder in your Mirror folder
 

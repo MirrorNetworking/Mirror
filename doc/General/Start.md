@@ -1,6 +1,6 @@
 # Getting Started
 
-This document describes steps to converting a single player game to a multiplayer game, using the new Unity Multiplayer networking system. The process described here is a simplified, higher level version of the actual process for a real game; it doesn’t always work exactly like this, but it provides a basic recipe for the process.
+This document describes steps to creating a multiplayer game with Mirror. The process described here is a simplified, higher level version of the actual process for a real game; it doesn’t always work exactly like this, but it provides a basic recipe for the process.
 
 ## Video tutorials
 
@@ -21,7 +21,6 @@ See [Using the NetworkManager](../Components/NetworkManager.md).
 ## Player Prefab
 -   Find the Prefab for the player game object in the game, or create a Prefab from the player game object
 -   Add the NetworkIdentity component to the player Prefab
--   Check the LocalPlayerAuthority box on the NetworkIdentity
 -   Set the `playerPrefab` in the NetworkManager’s Spawn Info section to the player Prefab
 -   Remove the player game object instance from the Scene if it exists in the Scene
 
@@ -29,8 +28,9 @@ See [Player Objects](../Guides/GameObjects/SpawnPlayer.md) for more information.
 
 ## Player movement
 -   Add a NetworkTransform component to the player Prefab
+-   Check the Client Authority checkbox on the component.
 -   Update input and control scripts to respect `isLocalPlayer`
--   Fix Camera to use spawned player and `isLocalPlayer`
+-   Override OnStartLocalPlayer to take control of the Main Camera in the scene for the player.
 
 For example, this script only processes input for the local player:
 

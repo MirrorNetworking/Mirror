@@ -1,4 +1,4 @@
-# NetworkTransform
+# Network Transform
 
 [![Network transform video tutorial](../images/video_tutorial.png)](https://www.youtube.com/watch?v=Z0th49NERl4&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=3)
 

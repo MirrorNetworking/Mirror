@@ -1,4 +1,4 @@
-# NetworkStartPosition
+# Network Start Position
 
 To control where players are spawned, you can use the Network Start Position component.
 
