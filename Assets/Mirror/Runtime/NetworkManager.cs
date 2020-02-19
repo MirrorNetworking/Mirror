@@ -428,12 +428,7 @@ namespace Mirror
             OnStartClient();
         }
 
-        // FinishStartHost is guaranteed to be called after the host server was
-        // fully started and all the asynchronous StartHost magic is finished
-        // (= scene loading), or immediately if there was no asynchronous magic.
-        //
-        // note: we don't really need FinishStartClient/FinishStartServer. the
-        //       host version is enough.
+        // This may be set true in StartHost and is evaluated in FinishStartHost
         bool finishStartHostPending;
 
         /// <summary>
@@ -490,6 +485,12 @@ namespace Mirror
             }
         }
 
+        // FinishStartHost is guaranteed to be called after the host server was
+        // fully started and all the asynchronous StartHost magic is finished
+        // (= scene loading), or immediately if there was no asynchronous magic.
+        //
+        // note: we don't really need FinishStartClient/FinishStartServer. the
+        //       host version is enough.
         void FinishStartHost()
         {
             // ConnectHost needs to be called BEFORE SpawnObjects:
