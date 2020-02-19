@@ -428,9 +428,6 @@ namespace Mirror
             OnStartClient();
         }
 
-        // This may be set true in StartHost and is evaluated in FinishStartHost
-        bool finishStartHostPending;
-
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
@@ -484,6 +481,9 @@ namespace Mirror
                 FinishStartHost();
             }
         }
+
+        // This may be set true in StartHost and is evaluated in FinishStartHost
+        bool finishStartHostPending;
 
         // FinishStartHost is guaranteed to be called after the host server was
         // fully started and all the asynchronous StartHost magic is finished
