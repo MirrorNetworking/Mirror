@@ -363,7 +363,8 @@ namespace Mirror
         /// This starts a network client. It uses the networkAddress and networkPort properties as the address to connect to.
         /// <para>This makes the newly created client connect to the server immediately.</para>
         /// </summary>
-        public void StartClient()
+        /// <param name="uri">Optional connection Uri. Network Address is used if null.</param>
+        public void StartClient(Uri uri = null)
         {
             mode = NetworkManagerMode.ClientOnly;
 
@@ -381,47 +382,28 @@ namespace Mirror
             isNetworkActive = true;
 
             RegisterClientMessages();
+
+            if (uri != null)
+            {
+                this.networkAddress = uri.Host;
+            }
 
             if (string.IsNullOrEmpty(networkAddress))
             {
-                Debug.LogError("Must set the Network Address field in the manager");
+                Debug.LogError("Must set the Network Address field in the Network Manager");
                 return;
             }
+
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + networkAddress);
 
-            NetworkClient.Connect(networkAddress);
-
-            OnStartClient();
-        }
-
-        /// <summary>
-        /// This starts a network client. It uses the networkAddress and networkPort properties as the address to connect to.
-        /// <para>This makes the newly created client connect to the server immediately.</para>
-        /// </summary>
-        /// <param name="uri">location of the server to connect to</param>
-        public void StartClient(Uri uri)
-        {
-            mode = NetworkManagerMode.ClientOnly;
-
-            InitializeSingleton();
-
-            if (authenticator != null)
+            if (uri != null)
             {
-                authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
+                NetworkClient.Connect(uri);
             }
-
-            if (runInBackground)
-                Application.runInBackground = true;
-
-            isNetworkActive = true;
-
-            RegisterClientMessages();
-
-            if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + uri);
-            this.networkAddress = uri.Host;
-
-            NetworkClient.Connect(uri);
+            else
+            {
+                NetworkClient.Connect(networkAddress);
+            }
 
             OnStartClient();
         }
