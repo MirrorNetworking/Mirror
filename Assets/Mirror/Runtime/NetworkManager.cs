@@ -377,7 +377,9 @@ namespace Mirror
             }
 
             if (runInBackground)
+            {
                 Application.runInBackground = true;
+            }
 
             isNetworkActive = true;
 
