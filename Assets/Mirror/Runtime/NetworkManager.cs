@@ -559,7 +559,6 @@ namespace Mirror
         public void StopHost()
         {
             OnStopHost();
-
             StopServer();
             StopClient();
         }
