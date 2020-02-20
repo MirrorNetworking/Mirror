@@ -246,7 +246,10 @@ namespace Mirror
 
                     // send to all internet connections at once
                     if (connectionIdsCache.Count > 0)
+                    {
                         result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                    }
+
                     NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
 
                     return result;
@@ -312,7 +315,10 @@ namespace Mirror
 
                 // send to all internet connections at once
                 if (connectionIdsCache.Count > 0)
+                {
                     result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                }
+
                 NetworkDiagnostics.OnSend(msg, channelId, segment.Count, connections.Count);
 
                 return result;
@@ -394,7 +400,10 @@ namespace Mirror
 
                     // send to all internet connections at once
                     if (connectionIdsCache.Count > 0)
+                    {
                         result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                    }
+
                     NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
 
                     return result;
