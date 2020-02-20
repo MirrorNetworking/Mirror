@@ -559,11 +559,6 @@ namespace Mirror
         public void StopHost()
         {
             OnStopHost();
-
-            // set offline mode BEFORE changing scene so that FinishStartScene
-            // doesn't think we need initialize anything.
-            mode = NetworkManagerMode.Offline;
-
             StopServer();
             StopClient();
         }
