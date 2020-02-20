@@ -216,7 +216,7 @@ namespace Mirror
 
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
-        static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T : IMessageBase
+        static bool SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + typeof(T));
 
@@ -246,7 +246,10 @@ namespace Mirror
 
                     // send to all internet connections at once
                     if (connectionIdsCache.Count > 0)
-                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
+                    {
+                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                    }
+
                     NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
 
                     return result;
@@ -312,7 +315,10 @@ namespace Mirror
 
                 // send to all internet connections at once
                 if (connectionIdsCache.Count > 0)
-                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
+                {
+                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                }
+
                 NetworkDiagnostics.OnSend(msg, channelId, segment.Count, connections.Count);
 
                 return result;
@@ -394,7 +400,10 @@ namespace Mirror
 
                     // send to all internet connections at once
                     if (connectionIdsCache.Count > 0)
-                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
+                    {
+                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                    }
+
                     NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
 
                     return result;
@@ -698,11 +707,11 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity"></param>
         /// <param name="msg"></param>
-        public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg) where T : IMessageBase
+        public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (identity != null)
             {
-                identity.connectionToClient.Send(msg);
+                identity.connectionToClient.Send(msg, channelId);
             }
             else
             {
