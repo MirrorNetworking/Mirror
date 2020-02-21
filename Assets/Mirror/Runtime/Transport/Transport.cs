@@ -32,6 +32,7 @@ namespace Mirror
         public abstract bool Available();
 
         #region Client
+
         /// <summary>
         /// Notify subscribers when when this client establish a successful connection to the server
         /// </summary>
@@ -94,7 +95,6 @@ namespace Mirror
 
         #region Server
 
-
         /// <summary>
         /// Retrieves the address of this server.
         /// Useful for network discovery
@@ -153,18 +153,6 @@ namespace Mirror
         /// <param name="connectionId">the id of the client to disconnect</param>
         /// <returns>true if the client was kicked</returns>
         public abstract bool ServerDisconnect(int connectionId);
-
-        /// <summary>
-        /// Obsolete: Use <see cref="ServerGetClientAddress(int)"/> instead
-        /// </summary>
-        // Removed 2/17/2019 and restored 3/2/2019
-        // Deprecated 03/02/2019
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
-        public virtual bool GetConnectionInfo(int connectionId, out string address)
-        {
-            address = ServerGetClientAddress(connectionId);
-            return true;
-        }
 
         /// <summary>
         /// Get the client address
@@ -227,5 +215,21 @@ namespace Mirror
             //  really want them to end now and not after next start)
             Shutdown();
         }
+
+        #region Obsolete Methods
+
+        // Deprecated 03/02/2019
+        // Removed 2/17/2019 and restored 3/2/2019
+        /// <summary>
+        /// Obsolete: Use <see cref="ServerGetClientAddress(int)"/> instead
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
+        public virtual bool GetConnectionInfo(int connectionId, out string address)
+        {
+            address = ServerGetClientAddress(connectionId);
+            return true;
+        }
+
+        #endregion
     }
 }
