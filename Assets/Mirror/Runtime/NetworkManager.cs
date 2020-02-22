@@ -12,12 +12,11 @@ namespace Mirror
     /// <summary>
     /// Enumeration of methods of where to spawn player objects in multiplayer games.
     /// </summary>
-    public enum PlayerSpawnMethod
-    {
-        Random,
-        RoundRobin
-    }
+    public enum PlayerSpawnMethod { Random, RoundRobin }
 
+    /// <summary>
+    /// Enumeration of methods of current Network Manager state at runtime.
+    /// </summary>
     public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
 
     [AddComponentMenu("Network/NetworkManager")]
@@ -30,6 +29,7 @@ namespace Mirror
         /// </summary>
         [Header("Configuration")]
         [FormerlySerializedAs("m_DontDestroyOnLoad")]
+        [Tooltip("Should the Network Manager object be persisted through scene changes?")]
         public bool dontDestroyOnLoad = true;
 
         /// <summary>
@@ -37,13 +37,22 @@ namespace Mirror
         /// <para>This is required when multiple instances of a program using networking are running on the same machine, such as when testing using localhost. But this is not recommended when deploying to mobile platforms.</para>
         /// </summary>
         [FormerlySerializedAs("m_RunInBackground")]
+        [Tooltip("Should the server or client keep running in the background?")]
         public bool runInBackground = true;
 
         /// <summary>
         /// Automatically invoke StartServer()
         /// <para>If the application is a Server Build or run with the -batchMode command line arguement, StartServer is automatically invoked.</para>
         /// </summary>
+        [Tooltip("Should the server auto-start when the game is started in a headless build?")]
         public bool startOnHeadless = true;
+
+        /// <summary>
+        /// Enables verbose debug messages in the console
+        /// </summary>
+        [FormerlySerializedAs("m_ShowDebugMessages")]
+        [Tooltip("This will enable verbose debug messages in the Unity Editor console")]
+        public bool showDebugMessages;
 
         /// <summary>
         /// Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.
@@ -52,17 +61,13 @@ namespace Mirror
         public int serverTickRate = 30;
 
         /// <summary>
-        /// Enables verbose debug messages in the console
-        /// </summary>
-        [FormerlySerializedAs("m_ShowDebugMessages")]
-        public bool showDebugMessages;
-
-        /// <summary>
         /// The scene to switch to when offline.
         /// <para>Setting this makes the NetworkManager do scene management. This scene will be switched to when a network session is completed - such as a client disconnect, or a server shutdown.</para>
         /// </summary>
+        [Header("Scene Management")]
         [Scene]
         [FormerlySerializedAs("m_OfflineScene")]
+        [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
         public string offlineScene = "";
 
         /// <summary>
@@ -71,11 +76,12 @@ namespace Mirror
         /// </summary>
         [Scene]
         [FormerlySerializedAs("m_OnlineScene")]
+        [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
         public string onlineScene = "";
 
-        [Header("Network Info")]
-
         // transport layer
+        [Header("Network Info")]
+        [Tooltip("Transport component attached to this object that server and client will use to connect")]
         [SerializeField]
         protected Transport transport;
 
@@ -84,6 +90,7 @@ namespace Mirror
         /// <para>For clients, this is the address of the server that is connected to. For servers, this is the local address.</para>
         /// </summary>
         [FormerlySerializedAs("m_NetworkAddress")]
+        [Tooltip("Network Address where the client should connect to the server. Server does not use this for anything.")]
         public string networkAddress = "localhost";
 
         /// <summary>
@@ -91,36 +98,36 @@ namespace Mirror
         /// <para>This effects the memory usage of the network layer.</para>
         /// </summary>
         [FormerlySerializedAs("m_MaxConnections")]
+        [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 4;
 
-        /// <summary>
-        /// Number of active player objects across all connections on the server.
-        /// <para>This is only valid on the host / server.</para>
-        /// </summary>
-        public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
-
         [Header("Authentication")]
+        [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
 
         /// <summary>
         /// The default prefab to be used to create player objects on the server.
         /// <para>Player objects are created in the default handler for AddPlayer() on the server. Implementing OnServerAddPlayer overrides this behaviour.</para>
         /// </summary>
-        [Header("Spawn Info")]
+        [Header("Player Object")]
         [FormerlySerializedAs("m_PlayerPrefab")]
+        [Tooltip("Prefab of the player object. Prefab must have a Network Identity component. May be an empty game object or a full avatar.")]
         public GameObject playerPrefab;
 
         /// <summary>
         /// A flag to control whether or not player objects are automatically created on connect, and on scene change.
         /// </summary>
         [FormerlySerializedAs("m_AutoCreatePlayer")]
+        [Tooltip("Should Mirror automatically spawn the player after scene change?")]
         public bool autoCreatePlayer = true;
 
         /// <summary>
         /// The current method of spawning players used by the NetworkManager.
         /// </summary>
         [FormerlySerializedAs("m_PlayerSpawnMethod")]
+        [Tooltip("Round Robin or Random order of Start Position selection")]
         public PlayerSpawnMethod playerSpawnMethod;
+
 
         /// <summary>
         /// List of prefabs that will be registered with the spawning system.
@@ -133,6 +140,12 @@ namespace Mirror
         /// NetworkManager singleton
         /// </summary>
         public static NetworkManager singleton;
+
+        /// <summary>
+        /// Number of active player objects across all connections on the server.
+        /// <para>This is only valid on the host / server.</para>
+        /// </summary>
+        public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
 
         /// <summary>
         /// True if the server or client is started and running
