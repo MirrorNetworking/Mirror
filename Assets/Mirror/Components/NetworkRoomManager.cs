@@ -159,7 +159,7 @@ namespace Mirror
                 gamePlayer.name = playerPrefab.name;
             }
 
-            if (!OnRoomServerSceneLoadedForPlayer(roomPlayer, gamePlayer))
+            if (!OnRoomServerSceneLoadedForPlayer(conn, roomPlayer, gamePlayer))
                 return;
 
             // replace room player with game player
@@ -520,6 +520,18 @@ namespace Mirror
             return null;
         }
 
+        // Deprecated 12/17/2019
+        /// <summary>
+        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)"/> instead.
+        /// </summary>
+        /// <param name="conn">The connection the player object is for.</param>
+        /// <returns>A new GamePlayer object.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer) instead")]
+        public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
+        {
+            return null;
+        }
+
         /// <summary>
         /// This allows customization of the creation of the GamePlayer object on the server.
         /// <para>By default the gamePlayerPrefab is used to create the game-player, but this function allows that behaviour to be customized. The object returned from the function will be used to replace the room-player on the connection.</para>
@@ -543,16 +555,14 @@ namespace Mirror
             base.OnServerAddPlayer(conn);
         }
 
-        // Deprecated 12/17/2019
+        // Deprecated 02/22/2020
         /// <summary>
-        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)"/> instead.
+        /// Obsolete: Use <see cref="OnRoomServerSceneLoadedForPlayer(NetworkConnection, GameObject, GameObject)"/> instead.
         /// </summary>
-        /// <param name="conn">The connection the player object is for.</param>
-        /// <returns>A new GamePlayer object.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerCreateGamePlayer<NetworkConnection, GameObject> instead")]
-        public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer) instead")]
+        public virtual bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)
         {
-            return null;
+            return true;
         }
 
         // for users to apply settings from their room player object to their in-game player object
@@ -560,10 +570,11 @@ namespace Mirror
         /// This is called on the server when it is told that a client has finished switching from the room scene to a game player scene.
         /// <para>When switching from the room, the room-player is replaced with a game-player object. This callback function gives an opportunity to apply state from the room-player to the game-player object.</para>
         /// </summary>
+        /// <param name="conn">The connection of the player</param>
         /// <param name="roomPlayer">The room player object.</param>
         /// <param name="gamePlayer">The game player object.</param>
         /// <returns>False to not allow this player to replace the room player.</returns>
-        public virtual bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)
+        public virtual bool OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer)
         {
             return true;
         }

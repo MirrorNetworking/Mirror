@@ -91,12 +91,13 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// This is called on the server when it is told that a client has finished switching from the room scene to a game player scene.
     /// <para>When switching from the room, the room-player is replaced with a game-player object. This callback function gives an opportunity to apply state from the room-player to the game-player object.</para>
     /// </summary>
+    /// <param name="conn">The connection of the player</param>
     /// <param name="roomPlayer">The room player object.</param>
     /// <param name="gamePlayer">The game player object.</param>
     /// <returns>False to not allow this player to replace the room player.</returns>
-    public override bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)
+    public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer)
     {
-        return base.OnRoomServerSceneLoadedForPlayer(roomPlayer, gamePlayer);
+        return base.OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, roomPlayer, gamePlayer);
     }
 
     /// <summary>
