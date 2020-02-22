@@ -128,7 +128,6 @@ namespace Mirror
         [Tooltip("Round Robin or Random order of Start Position selection")]
         public PlayerSpawnMethod playerSpawnMethod;
 
-
         /// <summary>
         /// List of prefabs that will be registered with the spawning system.
         /// <para>For each of these prefabs, ClientManager.RegisterPrefab() will be automatically invoke.</para>
