@@ -12,20 +12,17 @@ namespace Mirror
     /// <summary>
     /// Enumeration of methods of where to spawn player objects in multiplayer games.
     /// </summary>
-    public enum PlayerSpawnMethod
-    {
-        Random,
-        RoundRobin
-    }
+    public enum PlayerSpawnMethod { Random, RoundRobin }
 
+    /// <summary>
+    /// Enumeration of methods of current Network Manager state at runtime.
+    /// </summary>
     public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
 
     [AddComponentMenu("Network/NetworkManager")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
     public class NetworkManager : MonoBehaviour
     {
-        #region Inspector Fields
-
         /// <summary>
         /// A flag to control whether the NetworkManager object is destroyed when the scene changes.
         /// <para>This should be set if your game has a single NetworkManager that exists for the lifetime of the process. If there is a NetworkManager in each scene, then this should not be set.</para>
@@ -138,8 +135,6 @@ namespace Mirror
         /// </summary>
         [FormerlySerializedAs("m_SpawnPrefabs"), HideInInspector]
         public List<GameObject> spawnPrefabs = new List<GameObject>();
-
-#endregion
 
         /// <summary>
         /// NetworkManager singleton
