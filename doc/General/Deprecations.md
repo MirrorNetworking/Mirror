@@ -28,7 +28,7 @@ The `MsgType` enumeration was removed. All message types are generated dynamical
 
 ## SyncVar Hook Parameters
 
-[SyncVar](../Guides/Sync/SyncVars.md)) property values are now updated before the hook is called, and hooks now require two parameters of the same type as the property: `oldValue` and `newValue`
+[SyncVar](../Guides/Sync/SyncVars.md) property values are now updated before the hook is called, and hooks now require two parameters of the same type as the property: `oldValue` and `newValue`
 
 ## SyncListSTRUCT
 
