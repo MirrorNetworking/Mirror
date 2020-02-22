@@ -45,9 +45,9 @@ Use `SyncList<YourSpecialStruct>` instead.
 
 ## Quality of Service Flags
 
-In classic UNET, QoS Flags were used to determine how packets got to the remote end. For example, if you needed a packet to be prioritized in the queue, you would specify a high priority flag which the Unity LLAPI would then receive and deal with appropriately. Unfortunately, this caused a lot of extra work for the transport layer and some of the QoS flags did not work as intended due to buggy code that relied on too much magic.
+In classic UNet, QoS Flags were used to determine how packets got to the remote end. For example, if you needed a packet to be prioritized in the queue, you would specify a high priority flag which the Unity LLAPI would then receive and deal with appropriately. Unfortunately, this caused a lot of extra work for the transport layer and some of the QoS flags did not work as intended due to buggy code that relied on too much magic.
 
-In Mirror, QoS flags were replaced with a "Channels" system. This system paves the way for future Mirror improvements, so you can send data on different channels - for example, you could have all game activity on channel 0, while in-game text chat is sent on channel 1 and voice chat is sent on channel 2. In the future, it may be possible to assign a transport system per channel, allowing one to have a TCP transport for critical game network data on channel 0, while in-game text and voice chat is running on a UDP transport in parallel on channel 1. Some transports (such as Ignorance.md) also provide legacy compatibility for those attached to QoS flags.
+In Mirror, QoS flags were replaced with a "Channels" system. This system paves the way for future Mirror improvements, so you can send data on different channels - for example, you could have all game activity on channel 0, while in-game text chat is sent on channel 1 and voice chat is sent on channel 2. In the future, it may be possible to assign a transport system per channel, allowing one to have a TCP transport for critical game network data on channel 0, while in-game text and voice chat is running on a UDP transport in parallel on channel 1. Some transports, such as [Ignorance](../Transports/Ignorance.md), also provide legacy compatibility for those attached to QoS flags.
 
 The currently defined channels are:
 
@@ -96,7 +96,7 @@ Currently, Mirror using it's default TCP transport will always send everything o
     Use connectionToClient instead
 
 -   `GetSceneIdenity`  
-    Use GetSceneIdentity instead (typo in original name)
+    Use `GetSceneIdentity` instead (typo in original name)
 
 -   `RemoveClientAuthority(NetworkConnection conn)`  
     NetworkConnection parameter is no longer needed and nothing is returned
@@ -118,13 +118,13 @@ Currently, Mirror using it's default TCP transport will always send everything o
 ### NetworkConnection
 
 -   `hostId`  
-    removed because it's not needed ever since we removed LLAPI as default. It's always 0 for regular connections and -1 for local connections. Use `connection.GetType() == typeof(NetworkConnection)` to check if it's a regular or local connection.
+    Removed because it's not needed ever since we removed LLAPI as default. It's always 0 for regular connections and -1 for local connections. Use `connection.GetType() == typeof(NetworkConnection)` to check if it's a regular or local connection.
 
 -   `isConnected`  
-    Rewmoved because it's pointless. A NetworkConnection is always connected.
+    Removed because it's pointless. A NetworkConnection is always connected.
 
 -   `InvokeHandlerNoData(int msgType)`  
-    Use InvokeHandler<T> instead.
+    Use `InvokeHandler<T>` instead.
 
 -   `playerController`  
     renamed to `identity` since that's what it is: the `NetworkIdentity` for the connection. If you need to convert a project after this change, Visual Studio / VS Code can help...read more [here](PlayerControllerToIdentity.md).
@@ -171,7 +171,7 @@ Currently, Mirror using it's default TCP transport will always send everything o
     Use `SendToReady<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable)` instead.
 
 -   `SpawnWithClientAuthority(GameObject obj, GameObject player)`  
-    Use Spawn(GameObject, GameObject) instead.
+    Use `Spawn(GameObject, GameObject)` instead.
 
 -   `SpawnWithClientAuthority(GameObject obj, NetworkConnection ownerConnection)`  
     Use `Spawn(obj, connection)` instead.
@@ -323,9 +323,9 @@ Basic messages of simple types were all removed as unnecessary bloat. You can cr
 ### Transport
 
 -   `GetConnectionInfo(int connectionId, out string address)`  
-    Use ServerGetClientAddress(int connectionId) instead.
+    Use `ServerGetClientAddress(int connectionId)` instead.
 
 ### TelepathyTransport
 
 -   `MaxMessageSize`  
-    Use MaxMessageSizeFromClient or MaxMessageSizeFromServer instead.
+    Use `MaxMessageSizeFromClient` or `MaxMessageSizeFromServer` instead.
