@@ -165,7 +165,6 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
         }
 
-
         [Test]
         public void ShutdownCleanupTest()
         {
