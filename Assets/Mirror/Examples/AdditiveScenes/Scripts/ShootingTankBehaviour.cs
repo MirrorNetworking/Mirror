@@ -41,6 +41,9 @@ namespace Mirror.Examples.Additive
             foreach (NetworkConnection networkConnection in netIdentity.observers.Values)
             {
                 GameObject tempTarget = networkConnection.identity.gameObject;
+
+                // SqrMagnitude is faster than Distance per Unity docs
+                // https://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
                 float tempDistance = Vector3.SqrMagnitude(tempTarget.transform.position - transform.position);
 
                 // distance is already squared, don't square again here
