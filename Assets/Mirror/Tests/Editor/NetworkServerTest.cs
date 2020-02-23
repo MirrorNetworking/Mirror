@@ -140,7 +140,6 @@ namespace Mirror.Tests
         {
             // listen
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.active, Is.True);
 
             // set local connection
             ULocalConnectionToClient localConnection = new ULocalConnectionToClient();
