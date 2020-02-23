@@ -74,5 +74,30 @@ namespace Mirror.Tests
             // shutdown
             NetworkServer.Shutdown();
         }
+
+        [Test]
+        public void DisconnectMessageHandlerTest()
+        {
+            // message handlers
+            bool disconnectCalled = false;
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { disconnectCalled = true; }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(disconnectCalled, Is.False);
+
+            // connect
+            Transport.activeTransport.OnServerConnected.Invoke(42);
+            Assert.That(disconnectCalled, Is.False);
+
+            // disconnect
+            Transport.activeTransport.OnServerDisconnected.Invoke(42);
+            Assert.That(disconnectCalled, Is.True);
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
     }
 }
