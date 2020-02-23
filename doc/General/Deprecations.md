@@ -2,6 +2,8 @@
 
 Certain features of Unity Networking (UNet) were removed from Mirror or modified for various reasons. This page will identify all changed and removed features, properties, and methods, the reason for change or removal, and possible alternatives.
 
+>   Note: Some changes in this document may apply to an upcoming release to the Asset Store.
+
 ## Match Namespace
 
 As part of the Unity Services, this entire namespace was removed. It didn't work well to begin with, and was incredibly complex to be part of the core networking package. We expect this, along with other back-end services, will be provided through standalone apps that have integration to Mirror.
