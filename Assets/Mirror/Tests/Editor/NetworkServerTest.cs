@@ -179,6 +179,7 @@ namespace Mirror.Tests
 
             // set local connection
             NetworkServer.SetLocalConnection(new ULocalConnectionToClient());
+            Assert.That(NetworkServer.localClientActive, Is.True);
 
             // connect
             Transport.activeTransport.OnServerConnected.Invoke(42);
@@ -191,6 +192,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.active, Is.False);
             Assert.That(NetworkServer.localConnection, Is.Null);
+            Assert.That(NetworkServer.localClientActive, Is.False);
         }
     }
 }
