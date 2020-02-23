@@ -210,6 +210,35 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void RemoveConnectionTest()
+        {
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // add connection
+            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
+            bool result42 = NetworkServer.AddConnection(conn42);
+            Assert.That(result42, Is.True);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
+            Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
+
+            // remove connection
+            bool resultRemove = NetworkServer.RemoveConnection(42);
+            Assert.That(resultRemove, Is.True);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
