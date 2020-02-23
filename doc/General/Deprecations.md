@@ -90,6 +90,9 @@ Currently, Mirror using it's default TCP transport will always send everything o
 -   `OnRoomServerCreateGamePlayer(NetworkConnection conn)`  
     Use `OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer)` instead.
 
+-   `OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)`  
+    Use `OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer)` instead.
+
 ### NetworkIdentity
 
 -   `clientAuthorityOwner`  

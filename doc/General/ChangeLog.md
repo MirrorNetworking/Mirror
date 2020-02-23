@@ -16,6 +16,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: NetworkAnimator and NetworkTransform now correctly check for client authority in their respective Command methods.
 - Fixed: Network Room Manager Script Template had a virtual method instead of an override.
 - Fixed: NetworkServer's calls to NetworkConnectionToClient.Send now includes the channelId parameter that was missing.
+- Changed: NetworkRoomManager's OnRoomServerSceneLoadedForPlayer now includes NetworkConnection parameter
 - Changed: NetworkSceneChecker now works from OnEnable instead of Awake, and uses Scene instead of scene name.
 - Changed: Renamed NeworkWriter.Write to WriteMessage for consistency.
 
