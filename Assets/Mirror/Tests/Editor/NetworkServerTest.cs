@@ -262,6 +262,31 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void DisconnectAllConnectionsTest()
+        {
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // add connection
+            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
+            NetworkServer.AddConnection(conn42);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+
+            // disconnect all
+            NetworkServer.DisconnectAllConnections();
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
