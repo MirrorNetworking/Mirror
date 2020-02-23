@@ -195,6 +195,16 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.ContainsKey(43), Is.True);
             Assert.That(NetworkServer.connections[43], Is.EqualTo(conn43));
 
+            // add duplicate connectionId
+            NetworkConnectionToClient connDup = new NetworkConnectionToClient(42);
+            bool resultDup = NetworkServer.AddConnection(connDup);
+            Assert.That(resultDup, Is.False);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
+            Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
+            Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
+            Assert.That(NetworkServer.connections.ContainsKey(43), Is.True);
+            Assert.That(NetworkServer.connections[43], Is.EqualTo(conn43));
+
             // shutdown
             NetworkServer.Shutdown();
         }
