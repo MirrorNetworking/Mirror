@@ -134,5 +134,33 @@ namespace Mirror.Tests
             // shutdown
             NetworkServer.Shutdown();
         }
+
+        [Test]
+        public void ShutdownCleanupTest()
+        {
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.active, Is.True);
+
+            // set local connection
+            NetworkServer.SetLocalConnection(new ULocalConnectionToClient());
+
+            // connect
+            Transport.activeTransport.OnServerConnected.Invoke(42);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+
+            // shutdown
+            NetworkServer.Shutdown();
+
+            // state cleared?
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+            Assert.That(NetworkServer.active, Is.False);
+            Assert.That(NetworkServer.localConnection, Is.Null);
+        }
     }
 }
