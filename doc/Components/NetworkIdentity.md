@@ -6,7 +6,7 @@ The Network Identity component is at the heart of the Unity networking high-leve
 -   **Server Only**  
     Tick this checkbox to ensure that Unity only spawns the game object on the server, and not on clients.
 
-![Inspector](NetworkIdentity.jpg)
+![Inspector](NetworkIdentity.PNG)
 
 ## Instantiated Network Game Objects
 
