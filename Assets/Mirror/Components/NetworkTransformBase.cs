@@ -221,16 +221,18 @@ namespace Mirror
             //
             else
             {
-                float oldDistance = Vector3.Distance(start.localPosition, goal.localPosition);
-                float newDistance = Vector3.Distance(goal.localPosition, temp.localPosition);
+                // SqrMagnitude is faster than Distance per Unity docs
+                // https://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
+                float oldDistance = Vector3.SqrMagnitude(start.localPosition - goal.localPosition);
+                float newDistance = Vector3.SqrMagnitude(goal.localPosition - temp.localPosition);
 
                 start = goal;
 
                 // teleport / lag / obstacle detection: only continue at current
                 // position if we aren't too far away
-                //
-                // // local position/rotation for VR support
-                if (Vector3.Distance(targetComponent.transform.localPosition, start.localPosition) < oldDistance + newDistance)
+                // local position/rotation for VR support
+                // oldDistance and newDistance are already squared above...don't square them again here
+                if (Vector3.SqrMagnitude(targetComponent.transform.localPosition - start.localPosition) < oldDistance + newDistance)
                 {
                     start.localPosition = targetComponent.transform.localPosition;
                     start.localRotation = targetComponent.transform.localRotation;

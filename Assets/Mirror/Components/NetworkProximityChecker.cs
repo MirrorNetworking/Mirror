@@ -88,7 +88,9 @@ namespace Mirror
             if (forceHidden)
                 return false;
 
-            return Vector3.Distance(newObserver.identity.transform.position, transform.position) < visRange;
+            // SqrMagnitude is faster than Distance per Unity docs
+            // https://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
+            return Vector3.SqrMagnitude(newObserver.identity.transform.position - transform.position) < visRange * visRange;
         }
 
         /// <summary>

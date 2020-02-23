@@ -34,14 +34,17 @@ namespace Mirror.Examples.Additive
         void ShootNearestPlayer()
         {
             GameObject target = null;
-            float distance = 100f;
+
+            // squared distance of 100f for SqrMagnitude comparison
+            float distance = 10000f;
 
             foreach (NetworkConnection networkConnection in netIdentity.observers.Values)
             {
                 GameObject tempTarget = networkConnection.identity.gameObject;
-                float tempDistance = Vector3.Distance(tempTarget.transform.position, transform.position);
+                float tempDistance = Vector3.SqrMagnitude(tempTarget.transform.position - transform.position);
 
-                if (target == null || distance > tempDistance)
+                // distance is already squared, don't square again here
+                if (target == null || tempDistance < distance)
                 {
                     target = tempTarget;
                     distance = tempDistance;
