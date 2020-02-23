@@ -151,6 +151,22 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void LocalClientActiveTest()
+        {
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.localClientActive, Is.False);
+
+            // set local connection
+            NetworkServer.SetLocalConnection(new ULocalConnectionToClient());
+            Assert.That(NetworkServer.localClientActive, Is.True);
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
+
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
