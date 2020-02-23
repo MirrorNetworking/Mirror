@@ -166,6 +166,40 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void AddConnectionTest()
+        {
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // add first connection
+            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
+            bool result42 = NetworkServer.AddConnection(conn42);
+            Assert.That(result42, Is.True);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
+            Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
+
+            // add second connection
+            NetworkConnectionToClient conn43 = new NetworkConnectionToClient(43);
+            bool result43 = NetworkServer.AddConnection(conn43);
+            Assert.That(result43, Is.True);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
+            Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
+            Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
+            Assert.That(NetworkServer.connections.ContainsKey(43), Is.True);
+            Assert.That(NetworkServer.connections[43], Is.EqualTo(conn43));
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
