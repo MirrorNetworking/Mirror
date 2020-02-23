@@ -151,6 +151,29 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void RemoveLocalConnectionTest()
+        {
+            // listen
+            NetworkServer.Listen(1);
+
+            // set local connection
+            ULocalConnectionToClient localConnection = new ULocalConnectionToClient();
+            NetworkServer.SetLocalConnection(localConnection);
+            Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
+
+            // local connection needs a server connection because
+            // RemoveLocalConnection calls localConnection.Disconnect
+            localConnection.connectionToServer = new ULocalConnectionToServer();
+
+            // remove local connection
+            NetworkServer.RemoveLocalConnection();
+            Assert.That(NetworkServer.localConnection, Is.Null);
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
+
+        [Test]
         public void LocalClientActiveTest()
         {
             // listen
