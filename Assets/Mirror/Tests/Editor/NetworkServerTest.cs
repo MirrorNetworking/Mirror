@@ -99,5 +99,40 @@ namespace Mirror.Tests
             // shutdown
             NetworkServer.Shutdown();
         }
+
+        [Test]
+        public void ConnectionsDictTest()
+        {
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(2);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // connect first
+            Transport.activeTransport.OnServerConnected.Invoke(42);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
+
+            // connect second
+            Transport.activeTransport.OnServerConnected.Invoke(43);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
+            Assert.That(NetworkServer.connections.ContainsKey(43), Is.True);
+
+            // disconnect second
+            Transport.activeTransport.OnServerDisconnected.Invoke(43);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
+
+            // disconnect first
+            Transport.activeTransport.OnServerDisconnected.Invoke(42);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
     }
 }
