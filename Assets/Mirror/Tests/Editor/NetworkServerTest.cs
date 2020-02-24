@@ -137,6 +137,37 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void OnConnectedOnlyAllowsGreaterZeroConnectionIdsTest()
+        {
+            // OnConnected should only allow connectionIds >= 0
+            // 0 is for local player
+            // <0 is never used
+
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(2);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // connect 0
+            // (it will show an error message, which is expected)
+            LogAssert.ignoreFailingMessages = true;
+            Transport.activeTransport.OnServerConnected.Invoke(0);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // connect <0
+            Transport.activeTransport.OnServerConnected.Invoke(-1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+            LogAssert.ignoreFailingMessages = false;
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
+
+        [Test]
         public void SetLocalConnectionTest()
         {
             // listen
