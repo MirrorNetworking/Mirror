@@ -384,6 +384,54 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void OnDataReceivedTest()
+        {
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // add one custom message handler
+            bool wasReceived = false;
+            NetworkConnection connectionReceived = null;
+            TestMessage messageReceived = new TestMessage();
+            NetworkServer.RegisterHandler<TestMessage>((conn, msg) => {
+                wasReceived = true;
+                connectionReceived = conn;
+                messageReceived = msg;
+            }, false);
+
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // add a connection
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
+            NetworkServer.AddConnection(connection);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+
+            // serialize a test message into an arraysegment
+            TestMessage testMessage = new TestMessage{IntValue = 13, DoubleValue = 14, StringValue = "15"};
+            NetworkWriter writer = new NetworkWriter();
+            MessagePacker.Pack(testMessage, writer);
+            ArraySegment<byte> segment = writer.ToArraySegment();
+
+            // call transport.OnDataReceived
+            // -> should call NetworkServer.OnDataReceived
+            //    -> conn.TransportReceive
+            //       -> Handler(CommandMessage)
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, segment, 0);
+
+            // was our message handler called now?
+            Assert.That(wasReceived, Is.True);
+            Assert.That(connectionReceived, Is.EqualTo(connection));
+            Assert.That(messageReceived, Is.EqualTo(testMessage));
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
