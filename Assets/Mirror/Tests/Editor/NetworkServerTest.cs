@@ -552,6 +552,8 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
         }
 
+        // this runs a command all the way:
+        //   byte[]->transport->server->identity->component
         [Test]
         public void CommandMessageCallsCommandTest()
         {
