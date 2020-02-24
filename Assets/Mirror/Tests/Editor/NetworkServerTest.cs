@@ -11,7 +11,10 @@ namespace Mirror.Tests
         public bool commandCalled;
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public void CommandGenerated(NetworkBehaviour comp, NetworkReader reader) { commandCalled = true; }
+        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader)
+        {
+            ((CommandTestNetworkBehaviour)comp).commandCalled = true;
+        }
     }
 
     [TestFixture]
@@ -579,7 +582,7 @@ namespace Mirror.Tests
             connection.identity = identity;
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), comp.CommandGenerated);
+            NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), CommandTestNetworkBehaviour.CommandGenerated);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
