@@ -8,7 +8,7 @@ A game object with a Network Room Player component must also have a Network Iden
 -   **Show Room GUI**  
     Enable this to show the developer GUI for players in the room. This UI is only intended to be used for ease of development. This is enabled by default.
 -   **Ready To Begin**  
-    Enable this to have room players automatically be set to Ready.
+    This is a flag that can be used to check if a player is ready for the game to begin. You should call CmdChangeReadyState method on the client instead of setting this flag directly.
 -   **Index**  
     Sequential index of the player, e.g. Player 1, Player 2, etc.
 -   **Network Sync Interval**  
