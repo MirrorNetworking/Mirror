@@ -572,13 +572,15 @@ namespace Mirror.Tests
             // set as authenticated, otherwise removeplayer is rejected
             connection.isAuthenticated = true;
 
-            // add an identity with a behaviour
+            // add an identity with two networkbehaviour components
             GameObject go = new GameObject();
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
             identity.netId = 42;
             identity.connectionToClient = connection; // for authority check
-            CommandTestNetworkBehaviour comp = go.AddComponent<CommandTestNetworkBehaviour>();
-            Assert.That(comp.commandCalled, Is.False);
+            CommandTestNetworkBehaviour comp0 = go.AddComponent<CommandTestNetworkBehaviour>();
+            Assert.That(comp0.commandCalled, Is.False);
+            CommandTestNetworkBehaviour comp1 = go.AddComponent<CommandTestNetworkBehaviour>();
+            Assert.That(comp1.commandCalled, Is.False);
             connection.identity = identity;
 
             // register the command delegate, otherwise it's not found
@@ -604,8 +606,21 @@ namespace Mirror.Tests
             //    -> destroys conn.identity and sets it to null
             Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
 
-            // was the command called?
-            Assert.That(comp.commandCalled, Is.True);
+            // was the command called in the first component, not in the second one?
+            Assert.That(comp0.commandCalled, Is.True);
+            Assert.That(comp1.commandCalled, Is.False);
+
+            // reset, then send another command for the second component
+            comp0.commandCalled = false;
+            message.componentIndex = 1;
+            writer = new NetworkWriter();
+            MessagePacker.Pack(message, writer);
+            segment = writer.ToArraySegment();
+            Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
+
+            // was the command called in the second component, not in the first one?
+            Assert.That(comp0.commandCalled, Is.False);
+            Assert.That(comp1.commandCalled, Is.True);
 
             // clean up
             NetworkIdentity.spawned.Clear();
