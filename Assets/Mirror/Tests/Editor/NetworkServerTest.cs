@@ -19,6 +19,9 @@ namespace Mirror.Tests
         public void TearDown()
         {
             Transport.activeTransport = null;
+
+            // reset all state
+            NetworkServer.Shutdown();
         }
 
         [Test]
