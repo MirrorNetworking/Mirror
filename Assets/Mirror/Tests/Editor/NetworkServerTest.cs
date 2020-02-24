@@ -512,6 +512,39 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void ReadyMessageSetsClientReadyTest()
+        {
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // add connection
+            ULocalConnectionToClient connection = new ULocalConnectionToClient();
+            connection.connectionToServer = new ULocalConnectionToServer();
+            NetworkServer.AddConnection(connection);
+
+            // set as authenticated, otherwise readymessage is rejected
+            connection.isAuthenticated = true;
+
+            // serialize a ready message into an arraysegment
+            ReadyMessage message = new ReadyMessage();
+            NetworkWriter writer = new NetworkWriter();
+            MessagePacker.Pack(message, writer);
+            ArraySegment<byte> segment = writer.ToArraySegment();
+
+            // call transport.OnDataReceived with the message
+            // -> calls NetworkServer.OnClientReadyMessage
+            //    -> calls SetClientReady(conn)
+            Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
+
+            // ready?
+            Assert.That(connection.isReady, Is.True);
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
