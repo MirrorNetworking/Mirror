@@ -63,6 +63,7 @@ namespace Mirror
         /// <summary>
         /// Reset the NetworkServer singleton.
         /// </summary>
+        [Obsolete("NetworkServer.Reset was used to reset the singleton, but all it does is set active to false ever since we made NetworkServer static. Use StopServer to stop the server, or Shutdown to fully reset the server.")]
         public static void Reset()
         {
             active = false;

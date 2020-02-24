@@ -36,7 +36,7 @@ namespace Mirror
         [Header("Sensitivity")]
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float localPositionSensitivity = .01f;
-        [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
+        [Tooltip("If rotation exceeds this angle, it will be transmitted on the network")]
         public float localRotationSensitivity = .01f;
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float localScaleSensitivity = .01f;
@@ -348,8 +348,8 @@ namespace Mirror
             // SqrMagnitude is faster than Distance per Unity docs
             // https://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
             bool moved = Vector3.SqrMagnitude(lastPosition - targetComponent.transform.localPosition) > localPositionSensitivity * localPositionSensitivity;
-            bool rotated = Vector3.SqrMagnitude(lastRotation.eulerAngles - targetComponent.transform.localRotation.eulerAngles) > localRotationSensitivity * localRotationSensitivity;
             bool scaled = Vector3.SqrMagnitude(lastScale - targetComponent.transform.localScale) > localScaleSensitivity * localScaleSensitivity;
+            bool rotated = Quaternion.Angle(lastRotation, targetComponent.transform.localRotation) > localRotationSensitivity;
 
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might
