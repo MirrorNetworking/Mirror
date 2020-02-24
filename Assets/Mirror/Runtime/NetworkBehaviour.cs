@@ -409,6 +409,13 @@ namespace Mirror
             RegisterDelegate(invokeClass, eventName, MirrorInvokeType.SyncEvent, func);
         }
 
+        // we need a way to clean up delegates after tests
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal static void ClearDelegates()
+        {
+            cmdHandlerDelegates.Clear();
+        }
+
         static bool GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType, out Invoker invoker)
         {
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
