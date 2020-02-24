@@ -170,7 +170,7 @@ namespace Mirror
 
         #region Commands
 
-        static int GetMethodHash(Type invokeClass, string methodName)
+        internal static int GetMethodHash(Type invokeClass, string methodName)
         {
             // (invokeClass + ":" + cmdName).GetStableHashCode() would cause allocations.
             // so hash1 + hash2 is better.
