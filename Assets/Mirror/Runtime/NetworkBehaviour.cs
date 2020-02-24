@@ -392,19 +392,19 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
+        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
         {
             RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
+        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
         {
             RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
+        public static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
         {
             RegisterDelegate(invokeClass, eventName, MirrorInvokeType.SyncEvent, func);
         }
