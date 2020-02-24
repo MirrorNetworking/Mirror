@@ -488,6 +488,27 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SetAllClientsNotReadyTest()
+        {
+            // add first ready client
+            ULocalConnectionToClient first = new ULocalConnectionToClient();
+            first.connectionToServer = new ULocalConnectionToServer();
+            first.isReady = true;
+            NetworkServer.connections[42] = first;
+
+            // add second ready client
+            ULocalConnectionToClient second = new ULocalConnectionToClient();
+            second.connectionToServer = new ULocalConnectionToServer();
+            second.isReady = true;
+            NetworkServer.connections[43] = second;
+
+            // set all not ready
+            NetworkServer.SetAllClientsNotReady();
+            Assert.That(first.isReady, Is.False);
+            Assert.That(second.isReady, Is.False);
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
