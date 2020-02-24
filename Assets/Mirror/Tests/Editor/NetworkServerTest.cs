@@ -6,6 +6,14 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
+    public class CommandTestNetworkBehaviour : NetworkBehaviour
+    {
+        public bool commandCalled;
+        // weaver generates this from [Command]
+        // but for tests we need to add it manually
+        public void CommandGenerated(NetworkBehaviour comp, NetworkReader reader) { commandCalled = true; }
+    }
+
     [TestFixture]
     public class NetworkServerTest
     {
@@ -542,6 +550,67 @@ namespace Mirror.Tests
 
             // shutdown
             NetworkServer.Shutdown();
+        }
+
+        [Test]
+        public void CommandMessageCallsCommandTest()
+        {
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // add connection
+            ULocalConnectionToClient connection = new ULocalConnectionToClient();
+            connection.connectionToServer = new ULocalConnectionToServer();
+            NetworkServer.AddConnection(connection);
+
+            // set as authenticated, otherwise removeplayer is rejected
+            connection.isAuthenticated = true;
+
+            // add an identity with a behaviour
+            GameObject go = new GameObject();
+            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            identity.netId = 42;
+            identity.connectionToClient = connection; // for authority check
+            CommandTestNetworkBehaviour comp = go.AddComponent<CommandTestNetworkBehaviour>();
+            Assert.That(comp.commandCalled, Is.False);
+            connection.identity = identity;
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), comp.CommandGenerated);
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // serialize a removeplayer message into an arraysegment
+            CommandMessage message = new CommandMessage {
+                componentIndex = 0, // TODO
+                functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)), // TODO
+                netId = identity.netId,
+                payload = new ArraySegment<byte>(new byte[0])
+            };
+            NetworkWriter writer = new NetworkWriter();
+            MessagePacker.Pack(message, writer);
+            ArraySegment<byte> segment = writer.ToArraySegment();
+
+            // call transport.OnDataReceived with the message
+            // -> calls NetworkServer.OnRemovePlayerMessage
+            //    -> destroys conn.identity and sets it to null
+            Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
+
+            // was the command called?
+            Assert.That(comp.commandCalled, Is.True);
+
+            // clean up
+            NetworkIdentity.spawned.Clear();
+            NetworkBehaviour.ClearDelegates();
+            NetworkServer.Shutdown();
+            // destroy the test gameobject AFTER server was stopped.
+            // otherwise isServer is true in OnDestroy, which means it would try
+            // to call Destroy(go). but we need to use DestroyImmediate in
+            // Editor
+            GameObject.DestroyImmediate(go);
         }
 
         [Test]
