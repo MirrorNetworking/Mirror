@@ -588,7 +588,7 @@ namespace Mirror.Tests
             // serialize a removeplayer message into an arraysegment
             CommandMessage message = new CommandMessage {
                 componentIndex = 0, // TODO
-                functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)), // TODO
+                functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
                 netId = identity.netId,
                 payload = new ArraySegment<byte>(new byte[0])
             };
