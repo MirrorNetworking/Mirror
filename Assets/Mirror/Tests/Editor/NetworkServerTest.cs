@@ -2,6 +2,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -145,6 +146,14 @@ namespace Mirror.Tests
             ULocalConnectionToClient localConnection = new ULocalConnectionToClient();
             NetworkServer.SetLocalConnection(localConnection);
             Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
+
+            // try to overwrite it, which should not work
+            // (it will show an error message, which is expected)
+            LogAssert.ignoreFailingMessages = true;
+            ULocalConnectionToClient overwrite = new ULocalConnectionToClient();
+            NetworkServer.SetLocalConnection(overwrite);
+            Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
+            LogAssert.ignoreFailingMessages = false;
 
             // shutdown
             NetworkServer.Shutdown();
