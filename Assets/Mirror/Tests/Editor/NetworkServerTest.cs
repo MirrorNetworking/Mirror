@@ -168,6 +168,32 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void ConnectDuplicateConnectionIdsTest()
+        {
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(2);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // connect first
+            Transport.activeTransport.OnServerConnected.Invoke(42);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            NetworkConnectionToClient original = NetworkServer.connections[42];
+
+            // connect duplicate - shouldn't overwrite first one
+            Transport.activeTransport.OnServerConnected.Invoke(42);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            Assert.That(NetworkServer.connections[42], Is.EqualTo(original));
+
+            // shutdown
+            NetworkServer.Shutdown();
+        }
+
+        [Test]
         public void SetLocalConnectionTest()
         {
             // listen
