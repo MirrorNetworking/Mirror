@@ -474,6 +474,20 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SetClientReadyAndNotReadyTest()
+        {
+            ULocalConnectionToClient connection = new ULocalConnectionToClient();
+            connection.connectionToServer = new ULocalConnectionToServer();
+            Assert.That(connection.isReady, Is.False);
+
+            NetworkServer.SetClientReady(connection);
+            Assert.That(connection.isReady, Is.True);
+
+            NetworkServer.SetClientNotReady(connection);
+            Assert.That(connection.isReady, Is.False);
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
