@@ -17,6 +17,12 @@ namespace Mirror.Tests
         }
     }
 
+    public class OnStartClientTestNetworkBehaviour : NetworkBehaviour
+    {
+        public bool onStartClientCalled;
+        public override void OnStartClient() { onStartClientCalled = true; }
+    }
+
     [TestFixture]
     public class NetworkServerTest
     {
@@ -625,6 +631,35 @@ namespace Mirror.Tests
             // clean up
             NetworkIdentity.spawned.Clear();
             NetworkBehaviour.ClearDelegates();
+            NetworkServer.Shutdown();
+            // destroy the test gameobject AFTER server was stopped.
+            // otherwise isServer is true in OnDestroy, which means it would try
+            // to call Destroy(go). but we need to use DestroyImmediate in
+            // Editor
+            GameObject.DestroyImmediate(go);
+        }
+
+        [Test]
+        public void ActivateHostSceneCallsOnStartClient()
+        {
+            // add an identity with a networkbehaviour to .spawned
+            GameObject go = new GameObject();
+            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            identity.netId = 42;
+            //identity.connectionToClient = connection; // for authority check
+            OnStartClientTestNetworkBehaviour comp = go.AddComponent<OnStartClientTestNetworkBehaviour>();
+            Assert.That(comp.onStartClientCalled, Is.False);
+            //connection.identity = identity;
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // ActivateHostScene
+            NetworkServer.ActivateHostScene();
+
+            // was OnStartClient called for all .spawned networkidentities?
+            Assert.That(comp.onStartClientCalled, Is.True);
+
+            // clean up
+            NetworkIdentity.spawned.Clear();
             NetworkServer.Shutdown();
             // destroy the test gameobject AFTER server was stopped.
             // otherwise isServer is true in OnDestroy, which means it would try
