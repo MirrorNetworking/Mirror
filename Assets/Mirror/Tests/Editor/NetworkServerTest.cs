@@ -776,6 +776,52 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SendToClientOfPlayer()
+        {
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // add connection
+            ULocalConnectionToClient connection = new ULocalConnectionToClient();
+            connection.connectionToServer = new ULocalConnectionToServer();
+            // set a client handler
+            int called = 0;
+            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
+            {
+                { MessagePacker.GetId<TestMessage>(), (msg => ++called) }
+            });
+            NetworkServer.AddConnection(connection);
+
+            // create a message
+            TestMessage message = new TestMessage{ IntValue = 1, DoubleValue = 2, StringValue = "3" };
+
+            // create a gameobject and networkidentity
+            NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
+            identity.connectionToClient = connection;
+
+            // send it to that player
+            NetworkServer.SendToClientOfPlayer(identity, message);
+
+            // update local connection once so that the incoming queue is processed
+            connection.connectionToServer.Update();
+
+            // was it send to and handled by the connection?
+            Assert.That(called, Is.EqualTo(1));
+
+            // clean up
+            NetworkServer.Shutdown();
+            // destroy GO after shutdown, otherwise isServer is true in OnDestroy and it tries to call
+            // GameObject.Destroy (but we need DestroyImmediate in Editor)
+            GameObject.DestroyImmediate(identity.gameObject);
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
