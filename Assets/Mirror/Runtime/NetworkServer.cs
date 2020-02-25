@@ -308,7 +308,7 @@ namespace Mirror
                 {
                     // use local connection directly because it doesn't send via transport
                     if (kvp.Value is ULocalConnectionToClient)
-                        result &= localConnection.Send(segment);
+                        result &= kvp.Value.Send(segment);
                     // gather all internet connections
                     else
                         connectionIdsCache.Add(kvp.Key);
