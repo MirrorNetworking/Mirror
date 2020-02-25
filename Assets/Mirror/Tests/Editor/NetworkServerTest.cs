@@ -8,19 +8,21 @@ namespace Mirror.Tests
 {
     public class CommandTestNetworkBehaviour : NetworkBehaviour
     {
-        public bool commandCalled;
+        // counter to make sure that it's called exactly once
+        public int called;
         // weaver generates this from [Command]
         // but for tests we need to add it manually
         public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader)
         {
-            ((CommandTestNetworkBehaviour)comp).commandCalled = true;
+            ++((CommandTestNetworkBehaviour)comp).called;
         }
     }
 
     public class OnStartClientTestNetworkBehaviour : NetworkBehaviour
     {
-        public bool onStartClientCalled;
-        public override void OnStartClient() { onStartClientCalled = true; }
+        // counter to make sure that it's called exactly once
+        public int called;
+        public override void OnStartClient() { ++called; }
     }
 
     [TestFixture]
@@ -584,9 +586,9 @@ namespace Mirror.Tests
             identity.netId = 42;
             identity.connectionToClient = connection; // for authority check
             CommandTestNetworkBehaviour comp0 = go.AddComponent<CommandTestNetworkBehaviour>();
-            Assert.That(comp0.commandCalled, Is.False);
+            Assert.That(comp0.called, Is.EqualTo(0));
             CommandTestNetworkBehaviour comp1 = go.AddComponent<CommandTestNetworkBehaviour>();
-            Assert.That(comp1.commandCalled, Is.False);
+            Assert.That(comp1.called, Is.EqualTo(0));
             connection.identity = identity;
 
             // register the command delegate, otherwise it's not found
@@ -613,11 +615,11 @@ namespace Mirror.Tests
             Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
 
             // was the command called in the first component, not in the second one?
-            Assert.That(comp0.commandCalled, Is.True);
-            Assert.That(comp1.commandCalled, Is.False);
+            Assert.That(comp0.called, Is.EqualTo(1));
+            Assert.That(comp1.called, Is.EqualTo(0));
 
-            // reset, then send another command for the second component
-            comp0.commandCalled = false;
+            //  send another command for the second component
+            comp0.called = 0;
             message.componentIndex = 1;
             writer = new NetworkWriter();
             MessagePacker.Pack(message, writer);
@@ -625,8 +627,8 @@ namespace Mirror.Tests
             Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
 
             // was the command called in the second component, not in the first one?
-            Assert.That(comp0.commandCalled, Is.False);
-            Assert.That(comp1.commandCalled, Is.True);
+            Assert.That(comp0.called, Is.EqualTo(0));
+            Assert.That(comp1.called, Is.EqualTo(1));
 
             // clean up
             NetworkIdentity.spawned.Clear();
@@ -648,7 +650,7 @@ namespace Mirror.Tests
             identity.netId = 42;
             //identity.connectionToClient = connection; // for authority check
             OnStartClientTestNetworkBehaviour comp = go.AddComponent<OnStartClientTestNetworkBehaviour>();
-            Assert.That(comp.onStartClientCalled, Is.False);
+            Assert.That(comp.called, Is.EqualTo(0));
             //connection.identity = identity;
             NetworkIdentity.spawned[identity.netId] = identity;
 
@@ -656,7 +658,7 @@ namespace Mirror.Tests
             NetworkServer.ActivateHostScene();
 
             // was OnStartClient called for all .spawned networkidentities?
-            Assert.That(comp.onStartClientCalled, Is.True);
+            Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
             NetworkIdentity.spawned.Clear();
