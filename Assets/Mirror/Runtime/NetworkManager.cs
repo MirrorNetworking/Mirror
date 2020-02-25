@@ -555,7 +555,7 @@ namespace Mirror
             }
 
             networkAddress = "localhost";
-            NetworkServer.ActivateLocalClientScene();
+            NetworkServer.ActivateHostScene();
             RegisterClientMessages();
 
             // ConnectLocalServer needs to be called AFTER RegisterClientMessages

@@ -202,13 +202,13 @@ namespace Mirror
             RemoveConnection(0);
         }
 
-        internal static void ActivateLocalClientScene()
+        internal static void ActivateHostScene()
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
                 if (!identity.isClient)
                 {
-                    if (LogFilter.Debug) Debug.Log("ActivateClientScene " + identity.netId + " " + identity);
+                    if (LogFilter.Debug) Debug.Log("ActivateHostScene " + identity.netId + " " + identity);
 
                     identity.OnStartClient();
                 }
