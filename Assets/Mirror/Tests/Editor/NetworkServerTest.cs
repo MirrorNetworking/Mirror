@@ -822,6 +822,34 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void GetNetworkIdentity()
+        {
+            // create a GameObject with NetworkIdentity
+            GameObject go = new GameObject();
+            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+
+            // GetNetworkIdentity
+            bool result = NetworkServer.GetNetworkIdentity(go, out NetworkIdentity value);
+            Assert.That(result, Is.True);
+            Assert.That(value, Is.EqualTo(identity));
+
+            // create a GameObject without NetworkIdentity
+            GameObject goWithout = new GameObject();
+
+            // GetNetworkIdentity for GO without identity
+            // (error log is expected)
+            LogAssert.ignoreFailingMessages = true;
+            result = NetworkServer.GetNetworkIdentity(goWithout, out NetworkIdentity valueNull);
+            Assert.That(result, Is.False);
+            Assert.That(valueNull, Is.Null);
+            LogAssert.ignoreFailingMessages = false;
+
+            // clean up
+            GameObject.DestroyImmediate(go);
+            GameObject.DestroyImmediate(goWithout);
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
