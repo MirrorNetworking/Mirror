@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -668,6 +669,47 @@ namespace Mirror.Tests
             // to call Destroy(go). but we need to use DestroyImmediate in
             // Editor
             GameObject.DestroyImmediate(go);
+        }
+
+        [Test]
+        public void SendToAllTest()
+        {
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // add connection
+            ULocalConnectionToClient connection = new ULocalConnectionToClient();
+            connection.connectionToServer = new ULocalConnectionToServer();
+            // set a client handler
+            int called = 0;
+            TestMessage received = new TestMessage();
+            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
+            {
+                { MessagePacker.GetId<TestMessage>(), (msg => ++called) }
+            });
+            NetworkServer.AddConnection(connection);
+
+            // create a message
+            TestMessage message = new TestMessage{ IntValue = 1, DoubleValue = 2, StringValue = "3" };
+
+            // send it to all
+            bool result = NetworkServer.SendToAll(message);
+            Assert.That(result, Is.True);
+
+            // update local connection once so that the incoming queue is processed
+            connection.connectionToServer.Update();
+
+            // was it send to and handled by the connection?
+            Assert.That(called, Is.EqualTo(1));
+
+            // clean up
+            NetworkServer.Shutdown();
         }
 
         [Test]
