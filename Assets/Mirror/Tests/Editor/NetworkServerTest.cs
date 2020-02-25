@@ -688,7 +688,6 @@ namespace Mirror.Tests
             connection.connectionToServer = new ULocalConnectionToServer();
             // set a client handler
             int called = 0;
-            TestMessage received = new TestMessage();
             connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
             {
                 { MessagePacker.GetId<TestMessage>(), (msg => ++called) }
