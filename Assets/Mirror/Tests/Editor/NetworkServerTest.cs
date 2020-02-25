@@ -712,7 +712,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterHandlerTest()
+        public void RegisterUnregisterClearHandlerTest()
         {
             // message handlers that are needed for the test
             NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
@@ -759,8 +759,10 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = false;
             Assert.That(variant1Called, Is.EqualTo(1)); // still 1, not 2
 
-            // unregister second handler, send, should fail
-            NetworkServer.UnregisterHandler<WovenTestMessage>();
+            // unregister second handler via ClearHandlers to test that one too. send, should fail
+            NetworkServer.ClearHandlers();
+            // (only add this one to avoid disconnect error)
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             writer = new NetworkWriter();
             MessagePacker.Pack(new TestMessage(), writer);
             // log error messages are expected
