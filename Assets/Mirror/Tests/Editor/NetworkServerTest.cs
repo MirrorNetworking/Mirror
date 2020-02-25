@@ -712,6 +712,68 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void RegisterHandlerTest()
+        {
+            // message handlers that are needed for the test
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+
+            // RegisterHandler(conn, msg) variant
+            int variant1Called = 0;
+            NetworkServer.RegisterHandler<TestMessage>((conn, msg) => { ++variant1Called; }, false);
+
+            // RegisterHandler(msg) variant
+            int variant2Called = 0;
+            NetworkServer.RegisterHandler<WovenTestMessage>(msg => { ++variant2Called; }, false);
+
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // add a connection
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
+            NetworkServer.AddConnection(connection);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+
+            // serialize first message, send it to server, check if it was handled
+            NetworkWriter writer = new NetworkWriter();
+            MessagePacker.Pack(new TestMessage(), writer);
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            Assert.That(variant1Called, Is.EqualTo(1));
+
+            // serialize second message, send it to server, check if it was handled
+            writer = new NetworkWriter();
+            MessagePacker.Pack(new WovenTestMessage(), writer);
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            Assert.That(variant2Called, Is.EqualTo(1));
+
+            // unregister first handler, send, should fail
+            NetworkServer.UnregisterHandler<TestMessage>();
+            writer = new NetworkWriter();
+            MessagePacker.Pack(new TestMessage(), writer);
+            // log error messages are expected
+            LogAssert.ignoreFailingMessages = true;
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(variant1Called, Is.EqualTo(1)); // still 1, not 2
+
+            // unregister second handler, send, should fail
+            NetworkServer.UnregisterHandler<WovenTestMessage>();
+            writer = new NetworkWriter();
+            MessagePacker.Pack(new TestMessage(), writer);
+            // log error messages are expected
+            LogAssert.ignoreFailingMessages = true;
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(variant2Called, Is.EqualTo(1)); // still 1, not 2
+
+            // clean up
+            NetworkServer.Shutdown();
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
