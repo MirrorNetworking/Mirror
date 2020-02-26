@@ -330,5 +330,48 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        // OnStartServer in host mode should set isClient=true
+        [Test]
+        public void OnStartServerInHostModeSetsIsClientTrue()
+        {
+            // setup a transport so that Connect doesn't get NullRefException
+            // -> needs to be on a GameObject because Connect calls .enabled=true,
+            //    which only works if it's on a gameobject
+            GameObject transportGO = new GameObject();
+            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
+
+            // call client connect so that internals are set up
+            // (it won't actually successfully connect)
+            // -> also set up connectmessage handler to avoid unhandled msg error
+            NetworkClient.RegisterHandler<ConnectMessage>(msg => {}, false);
+            NetworkClient.Connect("localhost");
+
+            // manually invoke transport.OnConnected so that NetworkClient.active is set to true
+            Transport.activeTransport.OnClientConnected.Invoke();
+            Assert.That(NetworkClient.active, Is.True);
+
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // isClient needs to be true in OnStartServer if in host mode.
+            // this is a test for a bug that we fixed, where isClient was false
+            // in OnStartServer if in host mode because in host mode, we only
+            // connect the client after starting the server, hence isClient would
+            // be false in OnStartServer until way later.
+            // -> we have the workaround in OnStartServer, so let's also test to
+            //    make sure that nobody ever breaks it again
+            Assert.That(identity.isClient, Is.False);
+            identity.OnStartServer();
+            Assert.That(identity.isClient, Is.True);
+
+            // clean up
+            NetworkClient.Disconnect();
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+            GameObject.DestroyImmediate(gameObject);
+            GameObject.DestroyImmediate(transportGO);
+        }
     }
 }
