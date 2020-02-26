@@ -255,5 +255,37 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        [Test]
+        public void SetSceneIdSceneHashPartInternal()
+        {
+            // create a networkidentity
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // Awake will have assigned a random sceneId of format 0x00000000FFFFFFFF
+            // -> make sure that one was assigned, and that the left part was
+            //    left empty for scene hash
+            Assert.That(identity.sceneId, !Is.Zero);
+            Assert.That(identity.sceneId & 0xFFFFFFFF00000000, Is.EqualTo(0x0000000000000000));
+            ulong rightPart = identity.sceneId;
+
+            // set scene hash
+            identity.SetSceneIdSceneHashPartInternal();
+
+            // make sure that the right part is still the random sceneid
+            Assert.That(identity.sceneId & 0x00000000FFFFFFFF, Is.EqualTo(rightPart));
+
+            // make sure that the left part is a scene hash now
+            Assert.That(identity.sceneId & 0xFFFFFFFF00000000, !Is.Zero);
+            ulong finished = identity.sceneId;
+
+            // calling it again should said the exact same hash again
+            identity.SetSceneIdSceneHashPartInternal();
+            Assert.That(identity.sceneId, Is.EqualTo(finished));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
