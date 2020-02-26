@@ -186,5 +186,28 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        [Test]
+        public void SetClientOwner()
+        {
+            // create a networkidentity
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // SetClientOwner
+            ULocalConnectionToClient original = new ULocalConnectionToClient();
+            identity.SetClientOwner(original);
+            Assert.That(identity.connectionToClient, Is.EqualTo(original));
+
+            // setting it when it's already set shouldn't overwrite the original
+            ULocalConnectionToClient overwrite = new ULocalConnectionToClient();
+            LogAssert.ignoreFailingMessages = true; // will log a warning
+            identity.SetClientOwner(overwrite);
+            Assert.That(identity.connectionToClient, Is.EqualTo(original));
+            LogAssert.ignoreFailingMessages = false;
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
