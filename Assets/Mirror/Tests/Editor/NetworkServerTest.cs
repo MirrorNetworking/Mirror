@@ -850,6 +850,56 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void ShowForConnection()
+        {
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+
+            // listen
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+
+            // add connection
+            ULocalConnectionToClient connection = new ULocalConnectionToClient();
+            connection.isReady = true; // required for ShowForConnection
+            connection.connectionToServer = new ULocalConnectionToServer();
+            // set a client handler
+            int called = 0;
+            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
+            {
+                { MessagePacker.GetId<SpawnMessage>(), (msg => ++called) }
+            });
+            NetworkServer.AddConnection(connection);
+
+            // create a gameobject and networkidentity and some unique values
+            NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
+            identity.connectionToClient = connection;
+
+            // call ShowForConnection
+            NetworkServer.ShowForConnection(identity, connection);
+
+            // update local connection once so that the incoming queue is processed
+            connection.connectionToServer.Update();
+
+            // was it sent to and handled by the connection?
+            Assert.That(called, Is.EqualTo(1));
+
+            // it shouldn't send it if connection isn't ready, so try that too
+            connection.isReady = false;
+            NetworkServer.ShowForConnection(identity, connection);
+            connection.connectionToServer.Update();
+            Assert.That(called, Is.EqualTo(1)); // not 2 but 1 like before?
+
+            // clean up
+            NetworkServer.Shutdown();
+            // destroy GO after shutdown, otherwise isServer is true in OnDestroy and it tries to call
+            // GameObject.Destroy (but we need DestroyImmediate in Editor)
+            GameObject.DestroyImmediate(identity.gameObject);
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
