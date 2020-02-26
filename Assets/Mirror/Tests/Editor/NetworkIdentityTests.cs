@@ -287,5 +287,20 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        [Test]
+        public void OnValidateSetupIDsSetsEmptyAssetIDForSceneObject()
+        {
+            // create a networkidentity
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // OnValidate will have been called. make sure that assetId was set
+            // to 0 empty and not anything else, because this is a scene object
+            Assert.That(identity.assetId, Is.EqualTo(Guid.Empty));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
