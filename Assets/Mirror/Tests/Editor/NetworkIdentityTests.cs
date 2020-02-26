@@ -121,6 +121,9 @@ namespace Mirror.Tests
             // stop the server
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
         }
 
         // check isClient/isServer/isLocalPlayer in host mode
@@ -158,6 +161,9 @@ namespace Mirror.Tests
             // stop the server
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
         }
     }
 }
