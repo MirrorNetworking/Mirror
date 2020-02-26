@@ -991,6 +991,35 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SpawnObjects()
+        {
+            // create a gameobject and networkidentity
+            GameObject go = new GameObject("Test");
+            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            identity.sceneId = 42;
+
+            // unspawned scene objects are set to inactive before spawning
+            go.SetActive(false);
+            Assert.That(go.activeSelf, Is.False);
+
+            // calling SpawnObjects while server isn't active should do nothing
+            Assert.That(NetworkServer.SpawnObjects(), Is.False);
+
+            // start server
+            NetworkServer.Listen(1);
+
+            // calling SpawnObjects while server is active should succeed
+            Assert.That(NetworkServer.SpawnObjects(), Is.True);
+
+            // is the gameobject active now?
+            Assert.That(go.activeSelf, Is.True);
+
+            // clean up
+            NetworkServer.Shutdown();
+            GameObject.DestroyImmediate(go);
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
