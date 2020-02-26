@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Mirror;
 using NSubstitute;
@@ -161,6 +162,24 @@ namespace Mirror.Tests
             // stop the server
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void GetSetAssetId()
+        {
+            // create a networkidentity
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // assign a guid
+            Guid guid = new Guid(0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B);
+            identity.assetId = guid;
+
+            // did it work?
+            Assert.That(identity.assetId, Is.EqualTo(guid));
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
