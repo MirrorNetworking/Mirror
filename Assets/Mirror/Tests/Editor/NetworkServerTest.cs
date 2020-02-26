@@ -993,14 +993,17 @@ namespace Mirror.Tests
         [Test]
         public void SpawnObjects()
         {
-            // create a gameobject and networkidentity
+            // create a gameobject and networkidentity that lives in the scene(=has sceneid)
             GameObject go = new GameObject("Test");
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
-            identity.sceneId = 42;
+            identity.sceneId = 42; // lives in the scene from the start
+            go.SetActive(false); // unspawned scene objects are set to inactive before spawning
 
-            // unspawned scene objects are set to inactive before spawning
-            go.SetActive(false);
-            Assert.That(go.activeSelf, Is.False);
+            // create a gameobject that looks like it was instantiated and doesn't live in the scene
+            GameObject go2 = new GameObject("Test2");
+            NetworkIdentity identity2 = go2.AddComponent<NetworkIdentity>();
+            identity2.sceneId = 0; // not a scene object
+            go2.SetActive(false); // unspawned scene objects are set to inactive before spawning
 
             // calling SpawnObjects while server isn't active should do nothing
             Assert.That(NetworkServer.SpawnObjects(), Is.False);
@@ -1011,12 +1014,14 @@ namespace Mirror.Tests
             // calling SpawnObjects while server is active should succeed
             Assert.That(NetworkServer.SpawnObjects(), Is.True);
 
-            // is the gameobject active now?
+            // was the scene object activated, and the runtime one wasn't?
             Assert.That(go.activeSelf, Is.True);
+            Assert.That(go2.activeSelf, Is.False);
 
             // clean up
             NetworkServer.Shutdown();
             GameObject.DestroyImmediate(go);
+            GameObject.DestroyImmediate(go2);
         }
 
         [Test]
