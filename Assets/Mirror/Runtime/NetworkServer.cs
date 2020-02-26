@@ -1338,8 +1338,9 @@ namespace Mirror
         /// <returns>Success if objects where spawned.</returns>
         public static bool SpawnObjects()
         {
+            // only if server active
             if (!active)
-                return true;
+                return false;
 
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
             foreach (NetworkIdentity identity in identities)
