@@ -235,5 +235,22 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        [Test]
+        public void AssignSceneID()
+        {
+            // create a networkidentity
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // Awake will have assigned a random sceneId of format 0x00000000FFFFFFFF
+            // -> make sure that one was assigned, and that the left part was
+            //    left empty for scene hash
+            Assert.That(identity.sceneId, !Is.Zero);
+            Assert.That(identity.sceneId & 0xFFFFFFFF00000000, Is.EqualTo(0x0000000000000000));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
