@@ -221,21 +221,10 @@ namespace Mirror
             //
             else
             {
-                float oldDistance = Vector3.Distance(start.localPosition, goal.localPosition);
-                float newDistance = Vector3.Distance(goal.localPosition, temp.localPosition);
-
                 start = goal;
-
-                // teleport / lag / obstacle detection: only continue at current
-                // position if we aren't too far away
-                //
-                // // local position/rotation for VR support
-                if (Vector3.Distance(targetComponent.transform.localPosition, start.localPosition) < oldDistance + newDistance)
-                {
-                    start.localPosition = targetComponent.transform.localPosition;
-                    start.localRotation = targetComponent.transform.localRotation;
-                    start.localScale = targetComponent.transform.localScale;
-                }
+                start.localPosition = targetComponent.transform.localPosition;
+                start.localRotation = targetComponent.transform.localRotation;
+                start.localScale = targetComponent.transform.localScale;
             }
 
             // set new destination in any case. new data is best data.
