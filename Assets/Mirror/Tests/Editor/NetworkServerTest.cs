@@ -631,6 +631,27 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp1.called, Is.EqualTo(1));
 
+            // sending a command without authority should fail
+            // (= if connectionToClient is not what we received the data on)
+            identity.connectionToClient = new ULocalConnectionToClient(); // set wrong authority
+            comp0.called = 0;
+            comp1.called = 0;
+            Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
+            Assert.That(comp0.called, Is.EqualTo(0));
+            Assert.That(comp1.called, Is.EqualTo(0));
+            identity.connectionToClient = connection; // restore authority
+
+            // sending a component with wrong netId should fail
+            message.netId += 1; // wrong netid
+            writer = new NetworkWriter();
+            MessagePacker.Pack(message, writer); // need to serialize the message again with wrong netid
+            ArraySegment<byte> segmentWrongNetId = writer.ToArraySegment();
+            comp0.called = 0;
+            comp1.called = 0;
+            Transport.activeTransport.OnServerDataReceived.Invoke(0, segmentWrongNetId, 0);
+            Assert.That(comp0.called, Is.EqualTo(0));
+            Assert.That(comp1.called, Is.EqualTo(0));
+
             // clean up
             NetworkIdentity.spawned.Clear();
             NetworkBehaviour.ClearDelegates();
