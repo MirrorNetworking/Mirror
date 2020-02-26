@@ -26,6 +26,13 @@ namespace Mirror.Tests
         public override void OnStartClient() { ++called; }
     }
 
+    public class OnNetworkDestroyTestNetworkBehaviour : NetworkBehaviour
+    {
+        // counter to make sure that it's called exactly once
+        public int called;
+        public override void OnNetworkDestroy() { ++called; }
+    }
+
     [TestFixture]
     public class NetworkServerTest
     {
@@ -1022,6 +1029,27 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
             GameObject.DestroyImmediate(go);
             GameObject.DestroyImmediate(go2);
+        }
+
+        [Test]
+        public void UnSpawn()
+        {
+            // create a gameobject and networkidentity that lives in the scene(=has sceneid)
+            GameObject go = new GameObject("Test");
+            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            OnNetworkDestroyTestNetworkBehaviour comp = go.AddComponent<OnNetworkDestroyTestNetworkBehaviour>();
+            identity.sceneId = 42; // lives in the scene from the start
+            go.SetActive(true); // spawned objects are active
+            Assert.That(identity.IsMarkedForReset(), Is.False);
+
+            // unspawn
+            NetworkServer.UnSpawn(go);
+
+            // it should have been marked for reset now
+            Assert.That(identity.IsMarkedForReset(), Is.True);
+
+            // clean up
+            GameObject.DestroyImmediate(go);
         }
 
         [Test]
