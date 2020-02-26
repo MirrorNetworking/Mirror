@@ -530,6 +530,9 @@ namespace Mirror
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
+                // an exception in OnStartServer should be caught, so that one
+                // component's exception doesn't stop all other components from
+                // being initialized
                 try
                 {
                     comp.OnStartServer();
