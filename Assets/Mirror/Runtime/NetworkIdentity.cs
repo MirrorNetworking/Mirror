@@ -206,10 +206,14 @@ namespace Mirror
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
         {
+            // do nothing if it already has an owner
             if (connectionToClient != null && conn != connectionToClient)
             {
                 Debug.LogError($"Object {this} netId={netId} already has an owner. Use RemoveClientAuthority() first", this);
+                return;
             }
+
+            // otherwise set the owner connection
             connectionToClient = (NetworkConnectionToClient)conn;
         }
 
