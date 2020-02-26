@@ -250,8 +250,8 @@ namespace Mirror.Weaver
             ArraySegmentOffsetReference = Resolvers.ResolveProperty(ArraySegmentType, CurrentAssembly, "Offset");
             ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, CurrentAssembly, ".ctor");
 
-            NetworkReaderType = NetAssembly.MainModule.GetType("Mirror.NetworkReader");
-            NetworkWriterType = NetAssembly.MainModule.GetType("Mirror.NetworkWriter");
+            NetworkReaderType = NetAssembly.MainModule.GetType("Mirror.PooledNetworkReader");
+            NetworkWriterType = NetAssembly.MainModule.GetType("Mirror.PooledNetworkWriter");
 
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_localClientActive");
