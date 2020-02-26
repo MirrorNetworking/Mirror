@@ -22,6 +22,14 @@ namespace Mirror.Tests
             }
         }
 
+        class StartServerExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public override void OnStartServer()
+            {
+                throw new Exception("some exception");
+            }
+        }
+
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
@@ -298,6 +306,26 @@ namespace Mirror.Tests
             // OnValidate will have been called. make sure that assetId was set
             // to 0 empty and not anything else, because this is a scene object
             Assert.That(identity.assetId, Is.EqualTo(Guid.Empty));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnStartServerComponentExceptionIsCaught()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            gameObject.AddComponent<StartServerExceptionNetworkBehaviour>();
+
+            // an exception in OnStartServer should be caught, so that one
+            // component's exception doesn't stop all other components from
+            // being initialized
+            // (an error log is expected though)
+            LogAssert.ignoreFailingMessages = true;
+            identity.OnStartServer(); // should catch the exception internally and not throw it
+            LogAssert.ignoreFailingMessages = false;
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
