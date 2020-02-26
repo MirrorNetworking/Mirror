@@ -1146,6 +1146,9 @@ namespace Mirror
         // of invoking reset after OnDestroy is called.
         internal void MarkForReset() => reset = true;
 
+        // check if it was marked for reset
+        internal bool IsMarkedForReset() => reset;
+
         // if we have marked an identity for reset we do the actual reset.
         internal void Reset()
         {
