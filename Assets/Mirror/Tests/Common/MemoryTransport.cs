@@ -1,0 +1,176 @@
+﻿// memory transport for easier testing
+// note: file needs to be outside of Editor folder, otherwise AddComponent
+//       can't be called with MemoryTransport
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Mirror.Tests
+{
+    public class MemoryTransport : Transport
+    {
+        public enum EventType { Connected, Data, Disconnected }
+        public struct Message
+        {
+            public int connectionId;
+            public EventType eventType;
+            public byte[] data;
+            public Message(int connectionId, EventType eventType, byte[] data)
+            {
+                this.connectionId = connectionId;
+                this.eventType = eventType;
+                this.data = data;
+            }
+        }
+
+        bool clientConnected;
+        Queue<Message> clientIncoming = new Queue<Message>();
+        bool serverActive;
+        Queue<Message> serverIncoming = new Queue<Message>();
+
+        public override bool Available() => true;
+        public override int GetMaxPacketSize(int channelId) => int.MaxValue;
+        public override void Shutdown() {}
+        public override bool ClientConnected() => clientConnected;
+        public override void ClientConnect(string address)
+        {
+            // only if server is running
+            if (serverActive)
+            {
+                // add server connected message
+                serverIncoming.Enqueue(new Message(0, EventType.Connected, null));
+
+                // add client connected message
+                clientIncoming.Enqueue(new Message(0, EventType.Connected, null));
+
+                clientConnected = true;
+            }
+        }
+        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
+        {
+            // only  if client connected
+            if (clientConnected)
+            {
+                // copy segment data because it's only valid until return
+                byte[] data = new byte[segment.Count];
+                Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+
+                // add server data message
+                serverIncoming.Enqueue(new Message(0, EventType.Data, data));
+                return true;
+            }
+            return false;
+        }
+        public override void ClientDisconnect()
+        {
+            // only  if client connected
+            if (clientConnected)
+            {
+                // clear all pending messages that we may have received.
+                // over the wire, we wouldn't receive any more pending messages
+                // ether after calling disconnect.
+                clientIncoming.Clear();
+
+                // add server disconnected message
+                serverIncoming.Enqueue(new Message(0, EventType.Disconnected, null));
+
+                // add client disconnected message
+                clientIncoming.Enqueue(new Message(0, EventType.Disconnected, null));
+
+                // not connected anymore
+                clientConnected = false;
+            }
+        }
+        void ProcessClientMessages()
+        {
+            // note: process even if not connected because when calling
+            // Disconnect, we add a Disconnected event which still needs to be
+            // processed here.
+            while (clientIncoming.Count > 0)
+            {
+                Message message = clientIncoming.Dequeue();
+                switch (message.eventType)
+                {
+                    case EventType.Connected:
+                        Debug.Log("MemoryTransport Client Message: Connected");
+                        OnClientConnected.Invoke();
+                        break;
+                    case EventType.Data:
+                        Debug.Log("MemoryTransport Client Message: Data: " + BitConverter.ToString(message.data));
+                        OnClientDataReceived.Invoke(new ArraySegment<byte>(message.data), 0);
+                        break;
+                    case EventType.Disconnected:
+                        Debug.Log("MemoryTransport Client Message: Disconnected");
+                        OnClientDisconnected.Invoke();
+                        break;
+                }
+            }
+        }
+
+        public override bool ServerActive() => serverActive;
+        public override Uri ServerUri() => throw new NotImplementedException();
+        public override void ServerStart() { serverActive = true; }
+        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
+        {
+            // only if server is running and client is connected
+            if (serverActive && clientConnected)
+            {
+                // copy segment data because it's only valid until return
+                byte[] data = new byte[segment.Count];
+                Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+
+                // add client data message
+                clientIncoming.Enqueue(new Message(0, EventType.Data, data));
+                return true;
+            }
+            return false;
+        }
+        public override bool ServerDisconnect(int connectionId) => false;
+        public override string ServerGetClientAddress(int connectionId) => string.Empty;
+        public override void ServerStop()
+        {
+            // clear all pending messages that we may have received.
+            // over the wire, we wouldn't receive any more pending messages
+            // ether after calling stop.
+            serverIncoming.Clear();
+
+            // add client disconnected message
+            clientIncoming.Enqueue(new Message(0, EventType.Disconnected, null));
+
+            // add server disconnected message
+            serverIncoming.Enqueue(new Message(0, EventType.Disconnected, null));
+
+            // not active anymore
+            serverActive = false;
+        }
+        void ProcessServerMessages()
+        {
+            while (serverIncoming.Count > 0)
+            {
+                Message message = serverIncoming.Dequeue();
+                switch (message.eventType)
+                {
+                    case EventType.Connected:
+                        Debug.Log("MemoryTransport Server Message: Connected");
+                        OnServerConnected.Invoke(message.connectionId);
+                        break;
+                    case EventType.Data:
+                        Debug.Log("MemoryTransport Server Message: Data: " + BitConverter.ToString(message.data));
+                        OnServerDataReceived.Invoke(message.connectionId, new ArraySegment<byte>(message.data), 0);
+                        break;
+                    case EventType.Disconnected:
+                        Debug.Log("MemoryTransport Server Message: Disconnected");
+                        OnServerDisconnected.Invoke(message.connectionId);
+                        break;
+                }
+            }
+        }
+
+        // processing
+        /*public void Update()
+        {
+            ProcessClientMessages();
+            ProcessServerMessages();
+        }*/
+    }
+}
