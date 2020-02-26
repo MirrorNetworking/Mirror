@@ -249,6 +249,9 @@ namespace Mirror.Tests
             Assert.That(identity.sceneId, !Is.Zero);
             Assert.That(identity.sceneId & 0xFFFFFFFF00000000, Is.EqualTo(0x0000000000000000));
 
+            // make sure that Awake added it to sceneIds dict
+            Assert.That(NetworkIdentity.GetSceneIdentity(identity.sceneId), !Is.Null);
+
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
