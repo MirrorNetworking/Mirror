@@ -1316,7 +1316,7 @@ namespace Mirror
             return null;
         }
 
-        static bool ValidateSceneObject(NetworkIdentity identity)
+        internal static bool ValidateSceneObject(NetworkIdentity identity)
         {
             if (identity.gameObject.hideFlags == HideFlags.NotEditable ||
                 identity.gameObject.hideFlags == HideFlags.HideAndDontSave)
