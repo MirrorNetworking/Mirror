@@ -944,7 +944,7 @@ namespace Mirror.Tests
             });
             NetworkServer.AddConnection(connection);
 
-            // create a gameobject and networkidentity and some unique values
+            // create a gameobject and networkidentity
             NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
             identity.connectionToClient = connection;
 
