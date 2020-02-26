@@ -209,5 +209,31 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        [Test]
+        public void RemoveObserverInternal()
+        {
+            // create a networkidentity
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // add an observer connection
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
+            identity.observers[connection.connectionId] = connection;
+
+            // RemoveObserverInternal with invalid connection should do nothing
+            identity.RemoveObserverInternal(new NetworkConnectionToClient(43));
+            Assert.That(identity.observers.Count, Is.EqualTo(1));
+
+            // RemoveObserverInternal with existing connection should remove it
+            identity.RemoveObserverInternal(connection);
+            Assert.That(identity.observers.Count, Is.EqualTo(0));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
