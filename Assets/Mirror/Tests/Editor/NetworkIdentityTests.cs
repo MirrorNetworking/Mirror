@@ -124,6 +124,7 @@ namespace Mirror.Tests
             Transport.activeTransport = null;
 
             // clean up
+            NetworkIdentity.spawned.Clear();
             GameObject.DestroyImmediate(gameObject);
         }
 
@@ -164,6 +165,7 @@ namespace Mirror.Tests
             Transport.activeTransport = null;
 
             // clean up
+            NetworkIdentity.spawned.Clear();
             GameObject.DestroyImmediate(gameObject);
         }
 
