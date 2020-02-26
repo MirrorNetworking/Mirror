@@ -965,6 +965,32 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void ValidateSceneObject()
+        {
+            // create a gameobject and networkidentity
+            GameObject go = new GameObject();
+            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            identity.sceneId = 42;
+
+            // should be valid as long as it has a sceneId
+            Assert.That(NetworkServer.ValidateSceneObject(identity), Is.True);
+
+            // shouldn't be valid with 0 sceneID
+            identity.sceneId = 0;
+            Assert.That(NetworkServer.ValidateSceneObject(identity), Is.False);
+            identity.sceneId = 42;
+
+            // shouldn't be valid for certain hide flags
+            go.hideFlags = HideFlags.NotEditable;
+            Assert.That(NetworkServer.ValidateSceneObject(identity), Is.False);
+            go.hideFlags = HideFlags.HideAndDontSave;
+            Assert.That(NetworkServer.ValidateSceneObject(identity), Is.False);
+
+            // clean up
+            GameObject.DestroyImmediate(go);
+        }
+
+        [Test]
         public void ShutdownCleanupTest()
         {
             // message handlers
