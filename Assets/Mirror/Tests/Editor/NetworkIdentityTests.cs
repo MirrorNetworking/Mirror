@@ -30,6 +30,14 @@ namespace Mirror.Tests
             }
         }
 
+        class StartClientExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public override void OnStartClient()
+            {
+                throw new Exception("some exception");
+            }
+        }
+
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
@@ -325,6 +333,26 @@ namespace Mirror.Tests
             // (an error log is expected though)
             LogAssert.ignoreFailingMessages = true;
             identity.OnStartServer(); // should catch the exception internally and not throw it
+            LogAssert.ignoreFailingMessages = false;
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnStartClientComponentExceptionIsCaught()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            gameObject.AddComponent<StartClientExceptionNetworkBehaviour>();
+
+            // an exception in OnStartClient should be caught, so that one
+            // component's exception doesn't stop all other components from
+            // being initialized
+            // (an error log is expected though)
+            LogAssert.ignoreFailingMessages = true;
+            identity.OnStartClient(); // should catch the exception internally and not throw it
             LogAssert.ignoreFailingMessages = false;
 
             // clean up
