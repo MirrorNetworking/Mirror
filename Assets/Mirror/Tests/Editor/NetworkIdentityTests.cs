@@ -52,6 +52,16 @@ namespace Mirror.Tests
             }
         }
 
+        class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStopAuthority()
+            {
+                ++called;
+                throw new Exception("some exception");
+            }
+        }
+
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
@@ -386,16 +396,39 @@ namespace Mirror.Tests
             // create a networkidentity with our test component
             GameObject gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-            StartClientExceptionNetworkBehaviour comp = gameObject.AddComponent<StartClientExceptionNetworkBehaviour>();
+            StartAuthorityExceptionNetworkBehaviour comp = gameObject.AddComponent<StartAuthorityExceptionNetworkBehaviour>();
 
-            // make sure that comp.OnStartClient was called and make sure that
+            // make sure that comp.OnStartAuthority was called and make sure that
             // the exception was caught and not thrown in here.
-            // an exception in OnStartClient should be caught, so that one
+            // an exception in OnStartAuthority should be caught, so that one
             // component's exception doesn't stop all other components from
             // being initialized
             // (an error log is expected though)
             LogAssert.ignoreFailingMessages = true;
-            identity.OnStartClient(); // should catch the exception internally and not throw it
+            identity.OnStartAuthority(); // should catch the exception internally and not throw it
+            Assert.That(comp.called, Is.EqualTo(1));
+            LogAssert.ignoreFailingMessages = false;
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnStopAuthorityComponentExceptionIsCaught()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            StopAuthorityExceptionNetworkBehaviour comp = gameObject.AddComponent<StopAuthorityExceptionNetworkBehaviour>();
+
+            // make sure that comp.OnStopAuthority was called and make sure that
+            // the exception was caught and not thrown in here.
+            // an exception in OnStopAuthority should be caught, so that one
+            // component's exception doesn't stop all other components from
+            // being initialized
+            // (an error log is expected though)
+            LogAssert.ignoreFailingMessages = true;
+            identity.OnStopAuthority(); // should catch the exception internally and not throw it
             Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
 
