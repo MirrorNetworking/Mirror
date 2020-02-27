@@ -74,6 +74,18 @@ namespace Mirror.Tests
             public override void OnStopAuthority() { ++called; }
         }
 
+        class SetHostVisibilityExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public bool valuePassed;
+            public override void OnSetHostVisibility(bool visible)
+            {
+                ++called;
+                valuePassed = visible;
+                throw new Exception("some exception");
+            }
+        }
+
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
@@ -484,6 +496,36 @@ namespace Mirror.Tests
             Assert.That(identity.hasAuthority, Is.False); // shouldn't be touched
             Assert.That(compStart.called, Is.EqualTo(1)); // same as before
             Assert.That(compStop.called, Is.EqualTo(1)); // same as before
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnSetHostVisibilityCallsComponentsAndCatchesExceptions()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            SetHostVisibilityExceptionNetworkBehaviour comp = gameObject.AddComponent<SetHostVisibilityExceptionNetworkBehaviour>();
+
+            // make sure that comp.OnSetHostVisibility was called and make sure that
+            // the exception was caught and not thrown in here.
+            // an exception in OnSetHostVisibility should be caught, so that one
+            // component's exception doesn't stop all other components from
+            // being initialized
+            // (an error log is expected though)
+            LogAssert.ignoreFailingMessages = true;
+
+            identity.OnSetHostVisibility(true); // should catch the exception internally and not throw it
+            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.valuePassed, Is.True);
+
+            identity.OnSetHostVisibility(false); // should catch the exception internally and not throw it
+            Assert.That(comp.called, Is.EqualTo(2));
+            Assert.That(comp.valuePassed, Is.False);
+
+            LogAssert.ignoreFailingMessages = false;
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
