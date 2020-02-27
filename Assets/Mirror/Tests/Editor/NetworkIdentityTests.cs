@@ -52,6 +52,12 @@ namespace Mirror.Tests
             }
         }
 
+        class StartAuthorityCalledNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStartAuthority() { ++called; }
+        }
+
         class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -60,6 +66,12 @@ namespace Mirror.Tests
                 ++called;
                 throw new Exception("some exception");
             }
+        }
+
+        class StopAuthorityCalledNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStopAuthority() { ++called; }
         }
 
         // A Test behaves as an ordinary method
@@ -431,6 +443,47 @@ namespace Mirror.Tests
             identity.OnStopAuthority(); // should catch the exception internally and not throw it
             Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void NotifyAuthorityCallsOnStartStopAuthority()
+        {
+            // create a networkidentity with our test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            StartAuthorityCalledNetworkBehaviour compStart = gameObject.AddComponent<StartAuthorityCalledNetworkBehaviour>();
+            StopAuthorityCalledNetworkBehaviour compStop = gameObject.AddComponent<StopAuthorityCalledNetworkBehaviour>();
+
+            // set authority from false to true, which should call OnStartAuthority
+            identity.hasAuthority = true;
+            identity.NotifyAuthority();
+            Assert.That(identity.hasAuthority, Is.True); // shouldn't be touched
+            Assert.That(compStart.called, Is.EqualTo(1)); // start should be called
+            Assert.That(compStop.called, Is.EqualTo(0)); // stop shouldn't
+
+            // set it to true again, should do nothing because already true
+            identity.hasAuthority = true;
+            identity.NotifyAuthority();
+            Assert.That(identity.hasAuthority, Is.True); // shouldn't be touched
+            Assert.That(compStart.called, Is.EqualTo(1)); // same as before
+            Assert.That(compStop.called, Is.EqualTo(0)); // same as before
+
+            // set it to false, should call OnStopAuthority
+            identity.hasAuthority = false;
+            identity.NotifyAuthority();
+            Assert.That(identity.hasAuthority, Is.False); // shouldn't be touched
+            Assert.That(compStart.called, Is.EqualTo(1)); // same as before
+            Assert.That(compStop.called, Is.EqualTo(1)); // stop should be called
+
+            // set it to false again, should do nothing because already false
+            identity.hasAuthority = false;
+            identity.NotifyAuthority();
+            Assert.That(identity.hasAuthority, Is.False); // shouldn't be touched
+            Assert.That(compStart.called, Is.EqualTo(1)); // same as before
+            Assert.That(compStop.called, Is.EqualTo(1)); // same as before
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
