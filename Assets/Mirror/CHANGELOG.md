@@ -1,3 +1,31 @@
+# [11.1.0](https://github.com/MirrorNG/MirrorNG/compare/11.0.0-master...11.1.0-master) (2020-02-27)
+
+
+### Bug Fixes
+
+* Add missing channelId to NetworkConnectionToClient.Send calls ([#1509](https://github.com/MirrorNG/MirrorNG/issues/1509)) ([b8bcd9a](https://github.com/MirrorNG/MirrorNG/commit/b8bcd9ad25895eee940a3daaf6fe7ed82eaf76ac))
+* build in IL2CPP ([#1524](https://github.com/MirrorNG/MirrorNG/issues/1524)) ([59faa81](https://github.com/MirrorNG/MirrorNG/commit/59faa819262a166024b16d854e410c7e51763e6a)), closes [#1519](https://github.com/MirrorNG/MirrorNG/issues/1519) [#1520](https://github.com/MirrorNG/MirrorNG/issues/1520)
+* Fixed NetworkRoomManager Template ([1662c5a](https://github.com/MirrorNG/MirrorNG/commit/1662c5a139363dbe61784bb90ae6544ec74478c3))
+* Fixed toc link ([3a0c7fb](https://github.com/MirrorNG/MirrorNG/commit/3a0c7fb1ecd9d8715e797a7665ab9a6a7cb19e2a))
+* Host Player Ready Race Condition ([#1498](https://github.com/MirrorNG/MirrorNG/issues/1498)) ([4c4a52b](https://github.com/MirrorNG/MirrorNG/commit/4c4a52bff95e7c56f065409b1399955813f3e145))
+* NetworkIdentity.SetClientOwner: overwriting the owner was still possible even though it shouldn't be. all caller functions double check and return early if it already has an owner, so we should do the same here. ([548db52](https://github.com/MirrorNG/MirrorNG/commit/548db52fdf224f06ba9d8b2d75460d31181b7066))
+* NetworkServer.SpawnObjects: return false if server isn't running ([d4d524d](https://github.com/MirrorNG/MirrorNG/commit/d4d524dad2a0a9d89538e6212dceda6bea71d2b7))
+* properly detect NT rotation ([#1516](https://github.com/MirrorNG/MirrorNG/issues/1516)) ([f0a993c](https://github.com/MirrorNG/MirrorNG/commit/f0a993c1064384e0b3bd690d4d66be38875ed50e))
+* return & continue on separate line ([#1504](https://github.com/MirrorNG/MirrorNG/issues/1504)) ([61fdd89](https://github.com/MirrorNG/MirrorNG/commit/61fdd892d9e6882e1e51094a2ceddfadc8fd1ebc))
+* Room example to use new override ([e1d1d41](https://github.com/MirrorNG/MirrorNG/commit/e1d1d41ed69f192b5fb91f92dcdeae1ee057d38f))
+* SendToAll sends to that exact connection if it is detected as local connection, instead of falling back to the .localConnection field which might be something completely different. ([4b90aaf](https://github.com/MirrorNG/MirrorNG/commit/4b90aafe12970e00949ee43b07b9edd5213745da))
+* SendToObservers sends to that exact connection if it is detected as local connection, instead of falling back to the .localConnection field which might be something completely different. ([4267983](https://github.com/MirrorNG/MirrorNG/commit/426798313920d23548048aa1c678167fd9b45cbd))
+* SendToReady sends to that exact connection if it is detected as local connection, instead of falling back to the .localConnection field which might be something completely different. ([4596b19](https://github.com/MirrorNG/MirrorNG/commit/4596b19dd959722d5dc659552206fe90c015fb01))
+
+
+### Features
+
+* Added NetworkConnection to OnRoomServerSceneLoadedForPlayer ([b5dfcf4](https://github.com/MirrorNG/MirrorNG/commit/b5dfcf45bc9838e89dc37b00cf3653688083bdd8))
+* Check for client authority in CmdClientToServerSync ([#1500](https://github.com/MirrorNG/MirrorNG/issues/1500)) ([8b359ff](https://github.com/MirrorNG/MirrorNG/commit/8b359ff6d07352a751f200768dcde6febd8e9303))
+* Check for client authority in NetworkAnimator Cmd's ([#1501](https://github.com/MirrorNG/MirrorNG/issues/1501)) ([ecc0659](https://github.com/MirrorNG/MirrorNG/commit/ecc0659b87f3d910dc2370f4861ec70244a25622))
+* Cosmetic Enhancement of Network Manager ([#1512](https://github.com/MirrorNG/MirrorNG/issues/1512)) ([f53b12b](https://github.com/MirrorNG/MirrorNG/commit/f53b12b2f7523574d7ceffa2a833dbd7fac755c9))
+* NetworkSceneChecker use Scene instead of string name ([#1496](https://github.com/MirrorNG/MirrorNG/issues/1496)) ([7bb80e3](https://github.com/MirrorNG/MirrorNG/commit/7bb80e3b796f2c69d0958519cf1b4a9f4373268b))
+
 # [11.0.0](https://github.com/MirrorNG/MirrorNG/compare/10.0.0-master...11.0.0-master) (2020-02-13)
 
 
