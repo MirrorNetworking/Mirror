@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-    if: true
+    if: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
   testRunnerInAllModes:
     name: Unity test
     runs-on: ubuntu-latest
-    if: false
+    if: true
     steps:
   
       # Checkout repository (required to test local actions)
@@ -75,6 +75,7 @@ jobs:
           args: -buildTarget StandaloneWindows64 -customBuildName MirrorNG -customBuildPath ./build/StandaloneWindows64 -projectPath . -executeMethod  UnityEditor.SyncVS.SyncSolution -quit
   
       - name: SonarQube analysis
+        if: false
         uses: MirrorNG/unity-sonarscanner@master
         with:
           buildCommand: /opt/Unity/Editor/Data/NetCore/Sdk-2.2.107/dotnet build workspace.sln
