@@ -24,8 +24,10 @@ namespace Mirror.Tests
 
         class StartServerExceptionNetworkBehaviour : NetworkBehaviour
         {
+            public int called;
             public override void OnStartServer()
             {
+                ++called;
                 throw new Exception("some exception");
             }
         }
@@ -325,15 +327,19 @@ namespace Mirror.Tests
             // create a networkidentity with our test component
             GameObject gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-            gameObject.AddComponent<StartServerExceptionNetworkBehaviour>();
+            StartServerExceptionNetworkBehaviour comp = gameObject.AddComponent<StartServerExceptionNetworkBehaviour>();
 
+            // make sure that comp.OnStartServer was called and make sure that
+            // the exception was caught and not thrown in here.
             // an exception in OnStartServer should be caught, so that one
             // component's exception doesn't stop all other components from
             // being initialized
             // (an error log is expected though)
             LogAssert.ignoreFailingMessages = true;
             identity.OnStartServer(); // should catch the exception internally and not throw it
+            Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
+
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
