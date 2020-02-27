@@ -598,7 +598,7 @@ namespace Mirror
             }
         }
 
-        void OnStopAuthority()
+        internal void OnStopAuthority()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
