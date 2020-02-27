@@ -344,7 +344,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnStartServerComponentExceptionIsCaught()
+        public void OnStartServerCallsComponentsAndCatchesExceptions()
         {
             // create a networkidentity with our test component
             GameObject gameObject = new GameObject();
@@ -368,7 +368,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnStartClientComponentExceptionIsCaught()
+        public void OnStartClientCallsComponentsAndCatchesExceptions()
         {
             // create a networkidentity with our test component
             GameObject gameObject = new GameObject();
@@ -391,7 +391,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnStartAuthorityComponentExceptionIsCaught()
+        public void OnStartAuthorityCallsComponentsAndCatchesExceptions()
         {
             // create a networkidentity with our test component
             GameObject gameObject = new GameObject();
@@ -414,7 +414,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnStopAuthorityComponentExceptionIsCaught()
+        public void OnStopAuthorityCallsComponentsAndCatchesExceptions()
         {
             // create a networkidentity with our test component
             GameObject gameObject = new GameObject();
