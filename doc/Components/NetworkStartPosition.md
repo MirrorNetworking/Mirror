@@ -1,4 +1,4 @@
-# NetworkStartPosition
+# Network Start Position
 
 To control where players are spawned, you can use the Network Start Position component.
 
@@ -8,4 +8,4 @@ The Network Manager will spawn players at (0, 0, 0) by default. Adding this comp
 
 Depending on the Network Manager Player Spawn Method setting the spawning is either Random (possible that the same spawn position will be used by two or more players) or Round Robin (use every available position, until there are more clients than spawn points).
 
-![Inspector](NetworkStartPosition.jpg)
+![Inspector](NetworkStartPosition.PNG)

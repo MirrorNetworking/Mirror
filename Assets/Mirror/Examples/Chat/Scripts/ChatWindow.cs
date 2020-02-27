@@ -28,7 +28,8 @@ namespace Mirror.Examples.Chat
 
         public void OnSend()
         {
-            if (chatMessage.text.Trim() == "") return;
+            if (chatMessage.text.Trim() == "")
+                return;
 
             // get our player
             Player player = manager.client.connection.identity.GetComponent<Player>();

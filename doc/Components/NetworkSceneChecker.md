@@ -1,4 +1,4 @@
-# NetworkSceneChecker
+# Network Scene Checker
 
 The Network Scene Checker component controls the visibility of game objects for network clients, based on which scene they're in.
 

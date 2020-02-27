@@ -1,19 +1,21 @@
+using Mirror.Tcp;
 using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class NetworkServerTests : NetworkBehaviour
+    public class NetworkServerTests 
     {
         NetworkServer testServer;
+        GameObject serverGO;
 
         [SetUp]
         public void SetupNetworkServer()
         {
-            var gameObject = new GameObject();
-            testServer = gameObject.AddComponent<NetworkServer>();
-            gameObject.AddComponent<NetworkClient>();
-            Transport transport = gameObject.AddComponent<TelepathyTransport>();
+            serverGO = new GameObject();
+            testServer = serverGO.AddComponent<NetworkServer>();
+            serverGO.AddComponent<NetworkClient>();
+            Transport transport = serverGO.AddComponent<TcpTransport>();
 
             Transport.activeTransport = transport;
             testServer.Listen(1);
@@ -22,9 +24,9 @@ namespace Mirror.Tests
         [Test]
         public void InitializeTest()
         {
-            Assert.That(testServer.localClient != null);
             Assert.That(testServer.connections.Count == 0);
             Assert.That(testServer.active);
+            Assert.That(testServer.LocalClientActive, Is.False);
         }
 
         [Test]
@@ -53,6 +55,10 @@ namespace Mirror.Tests
             NetworkIdentity networkIdentity = gameObject.GetComponent<NetworkIdentity>();
             Assert.That(networkIdentity.server == testServer);
             Assert.That(networkIdentity.connectionToClient == connToClient);
+
+            GameObject.DestroyImmediate(gameObject);
+            GameObject.DestroyImmediate(player);
+
         }
 
         [Test]
@@ -66,6 +72,7 @@ namespace Mirror.Tests
         public void ShutdownNetworkServer()
         {
             testServer.Shutdown();
+            GameObject.DestroyImmediate(serverGO);
         }
     }
 }

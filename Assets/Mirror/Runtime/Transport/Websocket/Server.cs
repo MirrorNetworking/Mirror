@@ -253,7 +253,8 @@ namespace Mirror.Websocket
         public void Stop()
         {
             // only if started
-            if (!Active) return;
+            if (!Active)
+                return;
 
             Debug.Log("Server: stopping...");
             cancellation.Cancel();

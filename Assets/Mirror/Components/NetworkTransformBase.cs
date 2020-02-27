@@ -36,8 +36,7 @@ namespace Mirror
         [Header("Sensitivity")]
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float LocalPositionSensitivity = .01f;
-        [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
-
+        [Tooltip("If rotation exceeds this angle, it will be transmitted on the network")]
         public float LocalRotationSensitivity = .01f;
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float LocalScaleSensitivity = .01f;
@@ -253,6 +252,10 @@ namespace Mirror
         [Command]
         void CmdClientToServerSync(byte[] payload)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!ClientAuthority)
+                return;
+
             // deserialize payload
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(payload))
                 DeserializeFromReader(networkReader);
@@ -341,8 +344,8 @@ namespace Mirror
             // moved or rotated or scaled?
             // local position/rotation/scale for VR support
             bool moved = Vector3.Distance(lastPosition, TargetComponent.transform.localPosition) > LocalPositionSensitivity;
-            bool rotated = Vector3.Distance(lastRotation.eulerAngles, TargetComponent.transform.localRotation.eulerAngles) > LocalRotationSensitivity;
             bool scaled = Vector3.Distance(lastScale, TargetComponent.transform.localScale) > LocalScaleSensitivity;
+            bool rotated = Quaternion.Angle(lastRotation, TargetComponent.transform.localRotation) > LocalRotationSensitivity;
 
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might

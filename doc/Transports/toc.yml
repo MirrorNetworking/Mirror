@@ -9,7 +9,7 @@
 - name: Fallback
   href: Fallback.md
 - name: Discord
-  href: DiscordMirror.md
+  href: Discord.md
 - name: UDP - Ignorance
   href: Ignorance.md
 - name: UDP - LiteNetLib4Mirror

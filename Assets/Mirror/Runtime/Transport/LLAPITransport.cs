@@ -187,7 +187,8 @@ namespace Mirror
 
         public bool ProcessClientMessage()
         {
-            if (clientId == -1) return false;
+            if (clientId == -1)
+                return false;
 
             NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out int connectionId, out int channel, clientReceiveBuffer, clientReceiveBuffer.Length, out int receivedSize, out byte error);
 
@@ -296,7 +297,8 @@ namespace Mirror
 
         public bool ProcessServerMessage()
         {
-            if (serverHostId == -1) return false;
+            if (serverHostId == -1)
+                return false;
 
             NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out int connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out byte error);
 

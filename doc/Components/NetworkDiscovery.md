@@ -1,4 +1,4 @@
-# NetworkDiscovery
+# Network Discovery
 
 Network Discovery uses a UDP broadcast on the LAN enabling clients to find the running server and connect to it.
 

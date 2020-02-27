@@ -5,6 +5,7 @@
 The hook attribute can be used to specify a function to be called when the SyncVar changes value on the client.  This ensures that all clients receive the proper variables from other clients.
 -   The Hook method must have a two parameters of the same type as the SyncVar property. One for the old value, one for the new value.
 -   The Hook is always called after the value was set. You don't need to set it yourself.
+-   The Hook only fires for changed values, and changing a value in the inspector will not trigger an update.
 
 Below is a simple example of assigning a random color to each player when they're spawned on the server.  All clients will see all players in the correct colors, even if they join later.
 
@@ -12,11 +13,10 @@ Below is a simple example of assigning a random color to each player when they'r
 
 ```cs
 using UnityEngine;
-using UnityEngine.Networking;
+using Mirror;
 
 public class PlayerController : NetworkBehaviour
 {
-
     [SyncVar(hook = nameof(SetColor))]
     Color playerColor = Color.black;
 

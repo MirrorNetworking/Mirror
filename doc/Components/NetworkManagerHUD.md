@@ -1,4 +1,4 @@
-# NetworkManagerHUD
+# Network Manager HUD
 
 The Network Manager HUD (“heads-up display”) is a quick-start tool to help you start building your multiplayer game straight away, without first having to build a user interface for game creation/connection/joining. It allows you to jump straight into your game play programming, and means you can build your own version of these controls later in your development schedule.
 

@@ -1,13 +1,24 @@
 # Change Log
 
+**Mirror is published to the Asset Store at the start of every month, unless some critical issue causes a delay.**
+
+Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
+
 ## Version 10.x.x - In Progress
 - Added: Weaver will now block play mode and builds if there are weaver errors and show them in the console again.
 - Added: PooledNetworkReader and PooledNetworkWriter, both Disposable.
 - Added: NetworkReader.ReadMessage<T>.
 - Added: NetworkDiscovery now handles headless server mode.
 - Added: SyncVar, Cmd's and Rpc's now support Scriptable Objects via CreateInstance on the receiving side.
+- Added: [Discord Transport](../Transports/Discord.md)
 - Fixed: `isClient` now returns true on clients in OnDestroy for networked objects.
-- Changed: NetworkSceneChecker now works from OnEnable instead of Awake.
+- Fixed: Host Player race condition for Ready message.
+- Fixed: NetworkAnimator and NetworkTransform now correctly check for client authority in their respective Command methods.
+- Fixed: Network Room Manager Script Template had a virtual method instead of an override.
+- Fixed: NetworkServer's calls to NetworkConnectionToClient.Send now includes the channelId parameter that was missing.
+- Changed: StartHost in Network Manager is no longer a virtual method (and shoudn't have been). Override OnStartHost instead.
+- Changed: NetworkRoomManager's OnRoomServerSceneLoadedForPlayer now includes NetworkConnection parameter
+- Changed: NetworkSceneChecker now works from OnEnable instead of Awake, and uses Scene instead of scene name.
 - Changed: Renamed NeworkWriter.Write to WriteMessage for consistency.
 
 ## Version 9.0.2 - 2020-Feb-04

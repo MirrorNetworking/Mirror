@@ -202,10 +202,14 @@ namespace Mirror
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
         {
+            // do nothing if it already has an owner
             if (connectionToClient != null && conn != connectionToClient)
             {
-                Debug.LogError($"Object {this} netId={netId} already has an owner", this);
+                Debug.LogError($"Object {this} netId={netId} already has an owner. Use RemoveClientAuthority() first", this);
+                return;
             }
+
+            // otherwise set the owner connection
             connectionToClient = (NetworkConnectionToClient)conn;
         }
 
@@ -515,6 +519,9 @@ namespace Mirror
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
+                // an exception in OnStartServer should be caught, so that one
+                // component's exception doesn't stop all other components from
+                // being initialized
                 try
                 {
                     comp.OnStartServer();
@@ -1099,6 +1106,9 @@ namespace Mirror
         // as people might want to be able to read the members inside OnDestroy(), and we have no way
         // of invoking reset after OnDestroy is called.
         internal void MarkForReset() => reset = true;
+
+        // check if it was marked for reset
+        internal bool IsMarkedForReset() => reset;
 
         // if we have marked an identity for reset we do the actual reset.
         internal void Reset()

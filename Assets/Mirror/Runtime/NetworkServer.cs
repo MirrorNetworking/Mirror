@@ -63,14 +63,6 @@ namespace Mirror
         readonly List<int> connectionIdsCache = new List<int>();
 
         /// <summary>
-        /// Reset the NetworkServer component.
-        /// </summary>
-        public void Reset()
-        {
-            active = false;
-        }
-
-        /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
         public void Shutdown()
@@ -110,9 +102,6 @@ namespace Mirror
         {
             if (initialized)
                 return;
-
-            if (localClient == null)
-                localClient = GetComponent<NetworkClient>();
 
             initialized = true;
             if (LogFilter.Debug) Debug.Log("NetworkServer Created version " + Version.Current);
@@ -186,7 +175,7 @@ namespace Mirror
         }
 
         // called by LocalClient to add itself. dont call directly.
-        internal void SetLocalConnection(ULocalConnectionToClient conn)
+        internal void SetLocalConnection(NetworkClient client, ULocalConnectionToClient conn)
         {
             if (localConnection != null)
             {
@@ -195,6 +184,7 @@ namespace Mirror
             }
 
             localConnection = conn;
+            localClient = client;
         }
 
         internal void RemoveLocalConnection()
@@ -206,15 +196,16 @@ namespace Mirror
                 localConnection = null;
             }
             RemoveConnection(0);
+            this.localClient = null;
         }
 
-        internal void ActivateLocalClientScene()
+        internal void ActivateHostScene()
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
                 if (!identity.isClient)
                 {
-                    if (LogFilter.Debug) Debug.Log("ActivateClientScene " + identity.netId + " " + identity);
+                    if (LogFilter.Debug) Debug.Log("ActivateHostScene " + identity.netId + " " + identity);
 
                     identity.OnStartClient();
                 }
@@ -223,7 +214,7 @@ namespace Mirror
 
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
-        bool SendToObservers<T>(NetworkIdentity identity, T msg) where T : IMessageBase
+        bool SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + typeof(T));
 
@@ -245,7 +236,7 @@ namespace Mirror
                     {
                         // use local connection directly because it doesn't send via transport
                         if (kvp.Value is ULocalConnectionToClient)
-                            result &= localConnection.Send(segment);
+                            result &= kvp.Value.Send(segment);
                         // gather all internet connections
                         else
                             connectionIdsCache.Add(kvp.Key);
@@ -253,7 +244,10 @@ namespace Mirror
 
                     // send to all internet connections at once
                     if (connectionIdsCache.Count > 0)
-                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
+                    {
+                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                    }
+
                     NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
 
                     return result;
@@ -291,7 +285,7 @@ namespace Mirror
                 {
                     // use local connection directly because it doesn't send via transport
                     if (kvp.Value is ULocalConnectionToClient)
-                        result &= localConnection.Send(segment);
+                        result &= kvp.Value.Send(segment);
                     // gather all internet connections
                     else
                         connectionIdsCache.Add(kvp.Key);
@@ -299,7 +293,10 @@ namespace Mirror
 
                 // send to all internet connections at once
                 if (connectionIdsCache.Count > 0)
-                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
+                {
+                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                }
+
                 NetworkDiagnostics.OnSend(msg, channelId, segment.Count, connections.Count);
 
                 return result;
@@ -345,7 +342,7 @@ namespace Mirror
 
                             // use local connection directly because it doesn't send via transport
                             if (kvp.Value is ULocalConnectionToClient)
-                                result &= localConnection.Send(segment);
+                                result &= kvp.Value.Send(segment);
                             // gather all internet connections
                             else
                                 connectionIdsCache.Add(kvp.Key);
@@ -354,7 +351,10 @@ namespace Mirror
 
                     // send to all internet connections at once
                     if (connectionIdsCache.Count > 0)
-                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
+                    {
+                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                    }
+
                     NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
 
                     return result;
@@ -385,8 +385,9 @@ namespace Mirror
         {
             DisconnectAllConnections();
             localConnection = null;
-
+            localClient = null;
             active = false;
+
         }
 
         /// <summary>
@@ -570,11 +571,11 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity"></param>
         /// <param name="msg"></param>
-        public void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg) where T : IMessageBase
+        public void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (identity != null)
             {
-                identity.connectionToClient.Send(msg);
+                identity.connectionToClient.Send(msg, channelId);
             }
             else
             {
@@ -788,7 +789,7 @@ namespace Mirror
             return true;
         }
 
-        bool GetNetworkIdentity(GameObject go, out NetworkIdentity identity)
+        internal bool GetNetworkIdentity(GameObject go, out NetworkIdentity identity)
         {
             identity = go.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -1144,9 +1145,10 @@ namespace Mirror
             }
         }
 
-        bool ValidateSceneObject(NetworkIdentity identity)
+        internal bool ValidateSceneObject(NetworkIdentity identity)
         {
-            if (identity.gameObject.hideFlags == HideFlags.NotEditable || identity.gameObject.hideFlags == HideFlags.HideAndDontSave)
+            if (identity.gameObject.hideFlags == HideFlags.NotEditable ||
+                identity.gameObject.hideFlags == HideFlags.HideAndDontSave)
                 return false;
 
 #if UNITY_EDITOR
@@ -1166,8 +1168,9 @@ namespace Mirror
         /// <returns>Success if objects where spawned.</returns>
         public bool SpawnObjects()
         {
+            // only if server active
             if (!active)
-                return true;
+                return false;
 
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
             foreach (NetworkIdentity identity in identities)

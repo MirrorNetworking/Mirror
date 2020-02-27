@@ -1,4 +1,4 @@
-# NetworkTransformChild
+# Network Transform Child
 
 [![Network transform child video tutorial](../images/video_tutorial.png)](https://www.youtube.com/watch?v=5EgN8IqFfUI&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=2)
 

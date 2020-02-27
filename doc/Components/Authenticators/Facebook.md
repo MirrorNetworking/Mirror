@@ -1,3 +1,0 @@
-# Facebook Authenticator
-
-Coming Soon

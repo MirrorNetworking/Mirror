@@ -448,6 +448,10 @@ namespace Mirror
         [Command]
         void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, int layerId, byte[] parameters)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!ClientAuthority)
+                return;
+
             if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
 
             // handle and broadcast
@@ -461,6 +465,10 @@ namespace Mirror
         [Command]
         void CmdOnAnimationParametersServerMessage(byte[] parameters)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!ClientAuthority)
+                return;
+
             // handle and broadcast
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(parameters))
             {
@@ -472,6 +480,10 @@ namespace Mirror
         [Command]
         void CmdOnAnimationTriggerServerMessage(int hash)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!ClientAuthority)
+                return;
+
             // handle and broadcast
             HandleAnimTriggerMsg(hash);
             RpcOnAnimationTriggerClientMessage(hash);
@@ -480,6 +492,10 @@ namespace Mirror
         [Command]
         void CmdOnAnimationResetTriggerServerMessage(int hash)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!ClientAuthority)
+                return;
+
             // handle and broadcast
             HandleAnimResetTriggerMsg(hash);
             RpcOnAnimationResetTriggerClientMessage(hash);

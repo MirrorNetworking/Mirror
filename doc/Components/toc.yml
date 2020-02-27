@@ -1,28 +1,28 @@
 - name: Overview
   href: index.md
-- name: NetworkAnimator
+- name: Network Animator
   href: NetworkAnimator.md
-- name: NetworkIdentity
+- name: Network Identity
   href: NetworkIdentity.md
-- name: NetworkManager
+- name: Network Manager
   href: NetworkManager.md
-- name: NetworkManagerHUD
+- name: Network ManagerHUD
   href: NetworkManagerHUD.md
-- name: NetworkDiscovery
+- name: Network Discovery
   href: NetworkDiscovery.md
-- name: NetworkProximityChecker
+- name: Network ProximityChecker
   href: NetworkProximityChecker.md
-- name: NetworkSceneChecker
+- name: Network SceneChecker
   href: NetworkSceneChecker.md
-- name: NetworkRoomManager
+- name: Network RoomManager
   href: NetworkRoomManager.md
-- name: NetworkRoomPlayer
+- name: Network RoomPlayer
   href: NetworkRoomPlayer.md
-- name: NetworkStartPosition
+- name: Network StartPosition
   href: NetworkStartPosition.md
-- name: NetworkTransform
+- name: Network Transform
   href: NetworkTransform.md
-- name: NetworkTransformChild
+- name: Network TransformChild
   href: NetworkTransformChild.md
 - name: Authenticators
   href: Authenticators/toc.yml

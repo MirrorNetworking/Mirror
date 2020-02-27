@@ -28,12 +28,14 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 -   Additive Scene Loading
 -   Single and separated Unity projects supported
 -   Network [Authenticators](Guides/Authentication.md) to protect your game
+-   Network [Discovery](Guides/NetworkDiscovery.md) to easily connect LAN players to a LAN Host
 -   Network [Manager](Components/NetworkManager.md) and [HUD](Components/NetworkManagerHUD.md)
 -   Network [Room Manager](Components/NetworkRoomManager.md) and [Room Player](Components/NetworkRoomPlayer.md)
 -   Network [Identity](Components/NetworkIdentity.md)
--   Network [Transform](Components/NetworkTransform.md)
+-   Network [Transform](Components/NetworkTransform.md) to sync position, rotation, and scale with interpolation
 -   Network [Animator](Components/NetworkAnimator.md) with 64 parameters
--   Network [Proximity Checker](Components/NetworkProximityChecker.md)
+-   Network [Proximity Checker](Components/NetworkProximityChecker.md) to help with Area of Interest
+-   Network [Scene Checker](Components/NetworkSceneChecker.md) to islolate players and networked objects to Additive scene instances
 -   [SyncVar](Guides/Sync/SyncVars.md), [SyncList](Guides/Sync/SyncLists.md), [SyncEvent](Guides/Sync/SyncEvent.md), [SyncDictionary](Guides/Sync/SyncDictionary.md), and [SyncHashSet](Guides/Sync/SyncHashSet.md)
 
 **Integrations**
@@ -44,3 +46,5 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 -   [RTS Engine](https://assetstore.unity.com/packages/templates/packs/rts-engine-79732)
 -   [Smooth Sync](https://assetstore.unity.com/packages/tools/network/smooth-sync-96925)
 -   [Weather Maker](https://assetstore.unity.com/packages/tools/particles-effects/weather-maker-unity-weather-system-sky-water-volumetric-clouds-a-60955)
+-   [Steamworks Networking](https://assetstore.unity.com/packages/tools/integration/steamworks-networking-151300)
+-   [Master Audio Multiplayer](https://assetstore.unity.com/packages/tools/audio/master-audio-multiplayer-69547)

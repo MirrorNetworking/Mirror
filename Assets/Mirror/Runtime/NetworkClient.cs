@@ -53,9 +53,14 @@ namespace Mirror
         public bool isConnected => connectState == ConnectState.Connected;
 
         /// <summary>
+        /// The host server
+        /// </summary>
+        private NetworkServer hostServer;
+
+        /// <summary>
         /// NetworkClient can connect to local server in host mode too
         /// </summary>
-        public bool isLocalClient => connection is ULocalConnectionToServer;
+        public bool isLocalClient => hostServer != null;
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
@@ -117,8 +122,10 @@ namespace Mirror
             connection.SetHandlers(handlers);
 
             // create server connection to local client
-            server.SetLocalConnection(connectionToClient);
+            server.SetLocalConnection(this, connectionToClient);
+            hostServer = server;
         }
+
         /// <summary>
         /// connect host mode
         /// </summary>
@@ -174,7 +181,7 @@ namespace Mirror
         /// Disconnect from server.
         /// <para>The disconnect message will be invoked.</para>
         /// </summary>
-        public void Disconnect(NetworkServer server)
+        public void Disconnect()
         {
             connectState = ConnectState.Disconnected;
             ClientScene.HandleClientDisconnect(connection);
@@ -184,9 +191,9 @@ namespace Mirror
             {
                 if (isConnected)
                 {
-                    server.localConnection.Send(new DisconnectMessage());
+                    hostServer.localConnection.Send(new DisconnectMessage());
                 }
-                server.RemoveLocalConnection();
+                hostServer.RemoveLocalConnection();
             }
             else
             {

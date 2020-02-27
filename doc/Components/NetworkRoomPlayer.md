@@ -1,4 +1,4 @@
-# NetworkRoomPlayer
+# Network Room Player
 
 The Network Room Player stores per-player state for the [Network Room Manager](NetworkRoomManager.md) while in the room. When using this component, you need to write a script which allows players to indicate they are ready to begin playing, which sets the ReadyToBegin property.
 

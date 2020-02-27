@@ -1,25 +1,20 @@
 {
-    "name": "Mirror.Tests",
+    "name": "Mirror.Tests.Play",
     "references": [
-        "Mirror",
-        "Mirror.Weaver",
-        "Mirror.Components",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "MirrorNG",
-        "Mirror.Tests.Common"
+        "Mirror"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
+        "nunit.framework.dll",
         "NSubstitute.dll",
         "Castle.Core.dll",
-        "System.Threading.Tasks.Extensions.dll",
-        "nunit.framework.dll"
+        "System.Threading.Tasks.Extensions.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [
