@@ -556,6 +556,9 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
+                // an exception in OnStartClient should be caught, so that one
+                // component's exception doesn't stop all other components from
+                // being initialized
                 try
                 {
                     comp.OnStartClient(); // user implemented startup
