@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-    if: env.UNITY_LICENSE == ""
+    if: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
   testRunnerInAllModes:
     name: Unity test
     runs-on: ubuntu-latest
-    if: env.UNITY_LICENSE != ""
+    if: false
     steps:
   
       # Checkout repository (required to test local actions)
