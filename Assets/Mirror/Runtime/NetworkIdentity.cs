@@ -594,7 +594,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Exception in OnStartClient:" + e.Message + " " + e.StackTrace);
+                    Debug.LogError("Exception in OnStartLocalPlayer:" + e.Message + " " + e.StackTrace);
                 }
             }
         }
