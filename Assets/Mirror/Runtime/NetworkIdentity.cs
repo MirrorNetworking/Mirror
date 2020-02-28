@@ -885,11 +885,6 @@ namespace Mirror
             HandleRemoteCall(componentIndex, rpcHash, MirrorInvokeType.ClientRpc, reader);
         }
 
-        internal void OnUpdateVars(NetworkReader reader, bool initialState)
-        {
-            OnDeserializeAllSafely(reader, initialState);
-        }
-
         private static NetworkIdentity previousLocalPlayer = null;
         internal void OnStartLocalPlayer()
         {
