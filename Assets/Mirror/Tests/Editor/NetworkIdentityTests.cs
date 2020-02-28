@@ -74,6 +74,12 @@ namespace Mirror.Tests
             public override void OnStopAuthority() { ++called; }
         }
 
+        class StartLocalPlayerCalledNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStartLocalPlayer() { ++called; }
+        }
+
         class SetHostVisibilityExceptionNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -838,6 +844,28 @@ namespace Mirror.Tests
             // should still work fine. that's the whole point.
             Assert.That(comp1.value, Is.EqualTo(12345));
             Assert.That(comp2.value, Is.EqualTo("67890"));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnStartLocalPlayer()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            StartLocalPlayerCalledNetworkBehaviour comp = gameObject.AddComponent<StartLocalPlayerCalledNetworkBehaviour>();
+
+            // call OnStartLocalPlayer on identity should call it in comp
+            Assert.That(comp.called, Is.EqualTo(0));
+            identity.OnStartLocalPlayer();
+            Assert.That(comp.called, Is.EqualTo(1));
+
+            // we have checks to make sure that it's only called once.
+            // let's see if they work.
+            identity.OnStartLocalPlayer();
+            Assert.That(comp.called, Is.EqualTo(1)); // same as before?
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
