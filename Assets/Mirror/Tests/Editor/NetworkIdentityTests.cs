@@ -118,6 +118,46 @@ namespace Mirror.Tests
             }
         }
 
+        class SerializeTest1NetworkBehaviour : NetworkBehaviour
+        {
+            public int value;
+            public override bool OnSerialize(NetworkWriter writer, bool initialState)
+            {
+                writer.WriteInt32(value);
+                return true;
+            }
+            public override void OnDeserialize(NetworkReader reader, bool initialState)
+            {
+                value = reader.ReadInt32();
+            }
+        }
+
+        class SerializeTest2NetworkBehaviour : NetworkBehaviour
+        {
+            public string value;
+            public override bool OnSerialize(NetworkWriter writer, bool initialState)
+            {
+                writer.WriteString(value);
+                return true;
+            }
+            public override void OnDeserialize(NetworkReader reader, bool initialState)
+            {
+                value = reader.ReadString();
+            }
+        }
+
+        class SerializeExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public override bool OnSerialize(NetworkWriter writer, bool initialState)
+            {
+                throw new Exception("some exception");
+            }
+            public override void OnDeserialize(NetworkReader reader, bool initialState)
+            {
+                throw new Exception("some exception");
+            }
+        }
+
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
@@ -654,6 +694,64 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObjectFalse);
             GameObject.DestroyImmediate(gameObjectTrue);
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnSerializeAndDeserializeAllSafely()
+        {
+            // create a networkidentity with our test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            SerializeTest1NetworkBehaviour comp1 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            SerializeExceptionNetworkBehaviour compExc = gameObject.AddComponent<SerializeExceptionNetworkBehaviour>();
+            SerializeTest2NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+
+            // set some unique values to serialize
+            comp1.value = 12345;
+            comp1.syncMode = SyncMode.Observers;
+            compExc.syncMode = SyncMode.Observers;
+            comp2.value = "67890";
+            comp2.syncMode = SyncMode.Owner;
+
+            // serialize all - should work even if compExc throws an exception
+            NetworkWriter ownerWriter = new NetworkWriter();
+            NetworkWriter observersWriter = new NetworkWriter();
+            LogAssert.ignoreFailingMessages = true; // error log because of the exception is expected
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            LogAssert.ignoreFailingMessages = false;
+
+            // owner should have written all components
+            Assert.That(ownerWritten, Is.EqualTo(3));
+
+            // observers should have written only the observers components
+            Assert.That(observersWritten, Is.EqualTo(2));
+
+            // reset component values
+            comp1.value = 0;
+            comp2.value = null;
+
+            // deserialize all for owner - should work even if compExc throws an exception
+            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            LogAssert.ignoreFailingMessages = true; // error log because of the exception is expected
+            identity.OnDeserializeAllSafely(reader, true);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp1.value, Is.EqualTo(12345));
+            Assert.That(comp2.value, Is.EqualTo("67890"));
+
+            // reset component values
+            comp1.value = 0;
+            comp2.value = null;
+
+            // deserialize all for observers - should work even if compExc throws an exception
+            reader = new NetworkReader(observersWriter.ToArray());
+            LogAssert.ignoreFailingMessages = true; // error log because of the exception is expected
+            identity.OnDeserializeAllSafely(reader, true);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp1.value, Is.EqualTo(12345)); // observers mode, should be in data
+            Assert.That(comp2.value, Is.EqualTo(null)); // owner mode, should not be in data
+
+            // clean up
             GameObject.DestroyImmediate(gameObject);
         }
     }
