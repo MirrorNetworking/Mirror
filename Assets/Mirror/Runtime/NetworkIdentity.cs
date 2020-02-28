@@ -570,6 +570,19 @@ namespace Mirror
             }
         }
 
+        private static NetworkIdentity previousLocalPlayer = null;
+        internal void OnStartLocalPlayer()
+        {
+            if (previousLocalPlayer == this)
+                return;
+            previousLocalPlayer = this;
+
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                comp.OnStartLocalPlayer();
+            }
+        }
+
         bool hadAuthority;
         internal void NotifyAuthority()
         {
@@ -883,19 +896,6 @@ namespace Mirror
         internal void HandleRPC(int componentIndex, int rpcHash, NetworkReader reader)
         {
             HandleRemoteCall(componentIndex, rpcHash, MirrorInvokeType.ClientRpc, reader);
-        }
-
-        private static NetworkIdentity previousLocalPlayer = null;
-        internal void OnStartLocalPlayer()
-        {
-            if (previousLocalPlayer == this)
-                return;
-            previousLocalPlayer = this;
-
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                comp.OnStartLocalPlayer();
-            }
         }
 
         internal void OnNetworkDestroy()
