@@ -86,6 +86,38 @@ namespace Mirror.Tests
             }
         }
 
+        class CheckObserverExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public NetworkConnection valuePassed;
+            public override bool OnCheckObserver(NetworkConnection conn)
+            {
+                ++called;
+                valuePassed = conn;
+                throw new Exception("some exception");
+            }
+        }
+
+        class CheckObserverTrueNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override bool OnCheckObserver(NetworkConnection conn)
+            {
+                ++called;
+                return true;
+            }
+        }
+
+        class CheckObserverFalseNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override bool OnCheckObserver(NetworkConnection conn)
+            {
+                ++called;
+                return false;
+            }
+        }
+
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
@@ -572,6 +604,57 @@ namespace Mirror.Tests
             Transport.activeTransport = null;
             GameObject.DestroyImmediate(gameObject);
             GameObject.DestroyImmediate(transportGO);
+        }
+
+        [Test]
+        public void OnCheckObserver()
+        {
+            // create a networkidentity with our test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            CheckObserverExceptionNetworkBehaviour compExc = gameObject.AddComponent<CheckObserverExceptionNetworkBehaviour>();
+
+            NetworkConnection connection = new NetworkConnectionToClient(42);
+
+            // an exception in OnCheckObserver should be caught, so that one
+            // component's exception doesn't stop all other components from
+            // being checked
+            // (an error log is expected though)
+            LogAssert.ignoreFailingMessages = true;
+            bool result = identity.OnCheckObserver(connection); // should catch the exception internally and not throw it
+            Assert.That(result, Is.True);
+            Assert.That(compExc.called, Is.EqualTo(1));
+            LogAssert.ignoreFailingMessages = false;
+
+            // let's also make sure that the correct connection was passed, just
+            // to be sure
+            Assert.That(compExc.valuePassed, Is.EqualTo(connection));
+
+            // create a networkidentity with a component that returns true
+            // result should still be true.
+            GameObject gameObjectTrue = new GameObject();
+            NetworkIdentity identityTrue = gameObjectTrue.AddComponent<NetworkIdentity>();
+            CheckObserverTrueNetworkBehaviour compTrue = gameObjectTrue.AddComponent<CheckObserverTrueNetworkBehaviour>();
+            result = identityTrue.OnCheckObserver(connection);
+            Assert.That(result, Is.True);
+            Assert.That(compTrue.called, Is.EqualTo(1));
+
+            // create a networkidentity with a component that returns true and
+            // one component that returns false.
+            // result should still be false if any one returns false.
+            GameObject gameObjectFalse = new GameObject();
+            NetworkIdentity identityFalse = gameObjectFalse.AddComponent<NetworkIdentity>();
+            compTrue = gameObjectFalse.AddComponent<CheckObserverTrueNetworkBehaviour>();
+            CheckObserverFalseNetworkBehaviour compFalse = gameObjectFalse.AddComponent<CheckObserverFalseNetworkBehaviour>();
+            result = identityFalse.OnCheckObserver(connection);
+            Assert.That(result, Is.False);
+            Assert.That(compTrue.called, Is.EqualTo(1));
+            Assert.That(compFalse.called, Is.EqualTo(1));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObjectFalse);
+            GameObject.DestroyImmediate(gameObjectTrue);
+            GameObject.DestroyImmediate(gameObject);
         }
     }
 }
