@@ -90,6 +90,22 @@ namespace Mirror.Tests
             public override void OnStartLocalPlayer() { ++called; }
         }
 
+        class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnNetworkDestroy()
+            {
+                ++called;
+                throw new Exception("some exception");
+            }
+        }
+
+        class NetworkDestroyCalledNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStartLocalPlayer() { ++called; }
+        }
+
         class SetHostVisibilityExceptionNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -862,7 +878,7 @@ namespace Mirror.Tests
         [Test]
         public void OnStartLocalPlayer()
         {
-            // create a networkidentity with our test component
+            // create a networkidentity with our test components
             GameObject gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             StartLocalPlayerExceptionNetworkBehaviour compEx = gameObject.AddComponent<StartLocalPlayerExceptionNetworkBehaviour>();
@@ -886,6 +902,32 @@ namespace Mirror.Tests
             identity.OnStartLocalPlayer();
             Assert.That(compEx.called, Is.EqualTo(1)); // same as before?
             Assert.That(comp.called, Is.EqualTo(1)); // same as before?
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnNetworkDestroy()
+        {
+            // create a networkidentity with our test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            NetworkDestroyExceptionNetworkBehaviour compEx = gameObject.AddComponent<NetworkDestroyExceptionNetworkBehaviour>();
+            NetworkDestroyCalledNetworkBehaviour comp = gameObject.AddComponent<NetworkDestroyCalledNetworkBehaviour>();
+
+            // make sure our test values are set to 0
+            Assert.That(compEx.called, Is.EqualTo(0));
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            // call OnNetworkDestroy in identity
+            // one component will throw an exception, but that shouldn't stop
+            // OnNetworkDestroy from being called in the second one
+            LogAssert.ignoreFailingMessages = true; // exception will log an error
+            identity.OnNetworkDestroy();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(compEx.called, Is.EqualTo(1));
+            Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
