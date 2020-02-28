@@ -77,7 +77,7 @@ namespace Mirror.Tests
             Assert.Throws<EndOfStreamException>(() =>
             {
                 NetworkReader reader2 = new NetworkReader(new byte[0]);
-                int msgType2 = MessagePacker.UnpackId(reader2);
+                _ = MessagePacker.UnpackId(reader2);
             });
         }
     }
