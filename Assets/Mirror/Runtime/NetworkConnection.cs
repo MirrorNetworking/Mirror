@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace Mirror
@@ -265,8 +266,9 @@ namespace Mirror
             // unpack message
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(buffer))
             {
-                if (MessagePacker.UnpackMessage(networkReader, out int msgType))
+                try
                 {
+                    int msgType = MessagePacker.UnpackId(networkReader);
                     // logging
                     if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
@@ -276,9 +278,9 @@ namespace Mirror
                         lastMessageTime = Time.time;
                     }
                 }
-                else
+                catch (IOException ex)
                 {
-                    Debug.LogError("Closed connection: " + this + ". Invalid message header.");
+                    Debug.LogError("Closed connection: " + this + ". Invalid message " + ex);
                     Disconnect();
                 }
             }

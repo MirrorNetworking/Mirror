@@ -82,19 +82,9 @@ namespace Mirror
         // -> pass NetworkReader so it's less strange if we create it in here
         //    and pass it upwards.
         // -> NetworkReader will point at content afterwards!
-        public static bool UnpackMessage(NetworkReader messageReader, out int msgType)
+        public static int UnpackId(NetworkReader messageReader)
         {
-            // read message type (varint)
-            try
-            {
-                msgType = messageReader.ReadUInt16();
-                return true;
-            }
-            catch (System.IO.EndOfStreamException)
-            {
-                msgType = 0;
-                return false;
-            }
+            return messageReader.ReadUInt16();
         }
 
         internal static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
