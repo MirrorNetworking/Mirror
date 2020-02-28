@@ -103,10 +103,7 @@ namespace Mirror
             }
         }
 
-        // unpack message after receiving
-        // -> pass NetworkReader so it's less strange if we create it in here
-        //    and pass it upwards.
-        // -> NetworkReader will point at content afterwards!
+        [Obsolete("use UnpackId instead")]
         public static bool UnpackMessage(NetworkReader messageReader, out int msgType)
         {
             // read message type (varint)
@@ -120,6 +117,15 @@ namespace Mirror
                 msgType = 0;
                 return false;
             }
+        }
+
+        // unpack message after receiving
+        // -> pass NetworkReader so it's less strange if we create it in here
+        //    and pass it upwards.
+        // -> NetworkReader will point at content afterwards!
+        public static int UnpackId(NetworkReader messageReader)
+        {
+            return messageReader.ReadUInt16();
         }
 
         internal static NetworkMessageDelegate MessageHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthenication) where T : IMessageBase, new() => networkMessage =>
