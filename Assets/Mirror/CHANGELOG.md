@@ -1,3 +1,13 @@
+# [12.0.0](https://github.com/MirrorNG/MirrorNG/compare/11.1.0-master...12.0.0-master) (2020-02-28)
+
+
+* Simplify unpacking messages (#65) ([c369da8](https://github.com/MirrorNG/MirrorNG/commit/c369da84dc34dbbde68a7b30758a6a14bc2573b1)), closes [#65](https://github.com/MirrorNG/MirrorNG/issues/65)
+
+
+### BREAKING CHANGES
+
+* MessagePacker.UnpackMessage replaced by UnpackId
+
 # [11.1.0](https://github.com/MirrorNG/MirrorNG/compare/11.0.0-master...11.1.0-master) (2020-02-27)
 
 
