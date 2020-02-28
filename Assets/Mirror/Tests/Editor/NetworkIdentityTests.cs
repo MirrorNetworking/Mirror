@@ -754,5 +754,33 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        // OnSerializeAllSafely supports at max 64 components, because our
+        // dirty mask is ulong and can only handle so many bits.
+        [Test]
+        public void OnSerializeAllSafelyShouldDetectTooManyComponents()
+        {
+            // create a networkidentity with our 65
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            for (int i = 0; i < 65; ++i)
+            {
+                gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            }
+
+            // try to serialize
+            NetworkWriter ownerWriter = new NetworkWriter();
+            NetworkWriter observersWriter = new NetworkWriter();
+            LogAssert.ignoreFailingMessages = true; // error log is expected because of too many components
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            LogAssert.ignoreFailingMessages = false;
+
+            // shouldn't have written anything because too many components
+            Assert.That(ownerWriter.Position, Is.EqualTo(0));
+            Assert.That(observersWriter.Position, Is.EqualTo(0));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
