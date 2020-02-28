@@ -583,7 +583,19 @@ namespace Mirror
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                comp.OnStartLocalPlayer();
+                // an exception in OnStartLocalPlayer should be caught, so that
+                // one component's exception doesn't stop all other components
+                // from being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
+                try
+                {
+                    comp.OnStartLocalPlayer();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Exception in OnStartClient:" + e.Message + " " + e.StackTrace);
+                }
             }
         }
 

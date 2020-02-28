@@ -74,6 +74,16 @@ namespace Mirror.Tests
             public override void OnStopAuthority() { ++called; }
         }
 
+        class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStartLocalPlayer()
+            {
+                ++called;
+                throw new Exception("some exception");
+            }
+        }
+
         class StartLocalPlayerCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -855,16 +865,26 @@ namespace Mirror.Tests
             // create a networkidentity with our test component
             GameObject gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            StartLocalPlayerExceptionNetworkBehaviour compEx = gameObject.AddComponent<StartLocalPlayerExceptionNetworkBehaviour>();
             StartLocalPlayerCalledNetworkBehaviour comp = gameObject.AddComponent<StartLocalPlayerCalledNetworkBehaviour>();
 
-            // call OnStartLocalPlayer on identity should call it in comp
+            // make sure our test values are set to 0
+            Assert.That(compEx.called, Is.EqualTo(0));
             Assert.That(comp.called, Is.EqualTo(0));
+
+            // call OnStartLocalPlayer in identity
+            // one component will throw an exception, but that shouldn't stop
+            // OnStartLocalPlayer from being called in the second one
+            LogAssert.ignoreFailingMessages = true; // exception will log an error
             identity.OnStartLocalPlayer();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(compEx.called, Is.EqualTo(1));
             Assert.That(comp.called, Is.EqualTo(1));
 
             // we have checks to make sure that it's only called once.
             // let's see if they work.
             identity.OnStartLocalPlayer();
+            Assert.That(compEx.called, Is.EqualTo(1)); // same as before?
             Assert.That(comp.called, Is.EqualTo(1)); // same as before?
 
             // clean up
