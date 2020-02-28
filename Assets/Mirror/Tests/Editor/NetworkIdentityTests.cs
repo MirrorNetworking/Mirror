@@ -103,7 +103,7 @@ namespace Mirror.Tests
         class NetworkDestroyCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override void OnStartLocalPlayer() { ++called; }
+            public override void OnNetworkDestroy() { ++called; }
         }
 
         class SetHostVisibilityExceptionNetworkBehaviour : NetworkBehaviour
