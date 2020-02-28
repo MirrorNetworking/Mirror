@@ -533,6 +533,8 @@ namespace Mirror
                 // an exception in OnStartServer should be caught, so that one
                 // component's exception doesn't stop all other components from
                 // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
                 try
                 {
                     comp.OnStartServer();
@@ -559,6 +561,8 @@ namespace Mirror
                 // an exception in OnStartClient should be caught, so that one
                 // component's exception doesn't stop all other components from
                 // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
                 try
                 {
                     comp.OnStartClient(); // user implemented startup
@@ -600,6 +604,8 @@ namespace Mirror
                 // an exception in OnStartAuthority should be caught, so that one
                 // component's exception doesn't stop all other components from
                 // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
                 try
                 {
                     comp.OnStartAuthority();
@@ -618,6 +624,8 @@ namespace Mirror
                 // an exception in OnStopAuthority should be caught, so that one
                 // component's exception doesn't stop all other components from
                 // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
                 try
                 {
                     comp.OnStopAuthority();
