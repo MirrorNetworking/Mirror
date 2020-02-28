@@ -778,6 +778,8 @@ namespace Mirror.Tests
             // shouldn't have written anything because too many components
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
             Assert.That(observersWriter.Position, Is.EqualTo(0));
+            Assert.That(ownerWritten, Is.EqualTo(0));
+            Assert.That(observersWritten, Is.EqualTo(0));
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
