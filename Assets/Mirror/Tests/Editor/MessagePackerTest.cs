@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using NUnit.Framework;
 namespace Mirror.Tests
 {
@@ -66,12 +67,18 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(data);
 
             int msgType = MessagePacker.UnpackId(reader);
-            Assert.That(msgType, Is.EqualTo(BitConverter.ToUInt16(data, 0)));
+            Assert.That(msgType, Is.EqualTo(MessagePacker.GetId<SceneMessage>()));
+        }
 
+        [Test]
+        public void TestUnpackInvalidMessage()
+        {
             // try an invalid message
-            NetworkReader reader2 = new NetworkReader(new byte[0]);
-            int msgType2 = MessagePacker.UnpackId(reader2);
-            Assert.That(msgType2, Is.EqualTo(0));
+            Assert.Throws<EndOfStreamException>(() =>
+            {
+                NetworkReader reader2 = new NetworkReader(new byte[0]);
+                int msgType2 = MessagePacker.UnpackId(reader2);
+            });
         }
     }
 }
