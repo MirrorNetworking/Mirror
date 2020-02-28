@@ -158,6 +158,21 @@ namespace Mirror.Tests
             }
         }
 
+        class SerializeMismatchNetworkBehaviour : NetworkBehaviour
+        {
+            public int value;
+            public override bool OnSerialize(NetworkWriter writer, bool initialState)
+            {
+                writer.WriteInt32(value);
+                writer.WriteInt32(value); // one too many
+                return true;
+            }
+            public override void OnDeserialize(NetworkReader reader, bool initialState)
+            {
+                value = reader.ReadInt32();
+            }
+        }
+
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
@@ -780,6 +795,49 @@ namespace Mirror.Tests
             Assert.That(observersWriter.Position, Is.EqualTo(0));
             Assert.That(ownerWritten, Is.EqualTo(0));
             Assert.That(observersWritten, Is.EqualTo(0));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        // OnDeserializeSafely should be able to detect and handle serialization
+        // mismatches (= if compA writes 10 bytes but only reads 8 or 12, it
+        // shouldn't break compB's serialization. otherwise we end up with
+        // insane runtime errors like monsters that look like npcs. that's what
+        // happened back in the day with UNET).
+        [Test]
+        public void OnDeserializeSafelyShouldDetectAndHandleDeSerializationMismatch()
+        {
+            // create a networkidentity with our test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            SerializeTest1NetworkBehaviour comp1 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            SerializeMismatchNetworkBehaviour compMiss = gameObject.AddComponent<SerializeMismatchNetworkBehaviour>();
+            SerializeTest2NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+
+            // set some unique values to serialize
+            comp1.value = 12345;
+            comp2.value = "67890";
+
+            // serialize
+            NetworkWriter ownerWriter = new NetworkWriter();
+            NetworkWriter observersWriter = new NetworkWriter();
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+
+            // reset component values
+            comp1.value = 0;
+            comp2.value = null;
+
+            // deserialize all
+            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            LogAssert.ignoreFailingMessages = true; // warning log because of serialization mismatch
+            identity.OnDeserializeAllSafely(reader, true);
+            LogAssert.ignoreFailingMessages = false;
+
+            // the mismatch component will fail, but the one before and after
+            // should still work fine. that's the whole point.
+            Assert.That(comp1.value, Is.EqualTo(12345));
+            Assert.That(comp2.value, Is.EqualTo("67890"));
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
