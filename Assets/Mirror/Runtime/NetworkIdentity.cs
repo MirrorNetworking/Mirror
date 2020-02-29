@@ -522,6 +522,8 @@ namespace Mirror
                 // an exception in OnStartServer should be caught, so that one
                 // component's exception doesn't stop all other components from
                 // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
                 try
                 {
                     comp.OnStartServer();
@@ -543,6 +545,11 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
+                // an exception in OnStartClient should be caught, so that one
+                // component's exception doesn't stop all other components from
+                // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
                 try
                 {
                     comp.OnStartClient(); // user implemented startup
@@ -550,6 +557,31 @@ namespace Mirror
                 catch (Exception e)
                 {
                     Debug.LogError("Exception in OnStartClient:" + e.Message + " " + e.StackTrace);
+                }
+            }
+        }
+
+        private static NetworkIdentity previousLocalPlayer = null;
+        internal void OnStartLocalPlayer()
+        {
+            if (previousLocalPlayer == this)
+                return;
+            previousLocalPlayer = this;
+
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnStartLocalPlayer should be caught, so that
+                // one component's exception doesn't stop all other components
+                // from being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
+                try
+                {
+                    comp.OnStartLocalPlayer();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Exception in OnStartLocalPlayer:" + e.Message + " " + e.StackTrace);
                 }
             }
         }
@@ -564,10 +596,15 @@ namespace Mirror
             hadAuthority = hasAuthority;
         }
 
-        void OnStartAuthority()
+        internal void OnStartAuthority()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
+                // an exception in OnStartAuthority should be caught, so that one
+                // component's exception doesn't stop all other components from
+                // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
                 try
                 {
                     comp.OnStartAuthority();
@@ -579,10 +616,15 @@ namespace Mirror
             }
         }
 
-        void OnStopAuthority()
+        internal void OnStopAuthority()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
+                // an exception in OnStopAuthority should be caught, so that one
+                // component's exception doesn't stop all other components from
+                // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
                 try
                 {
                     comp.OnStopAuthority();
@@ -626,6 +668,26 @@ namespace Mirror
             return true;
         }
 
+        internal void OnNetworkDestroy()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnNetworkDestroy should be caught, so that
+                // one component's exception doesn't stop all other components
+                // from being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
+                try
+                {
+                    comp.OnNetworkDestroy();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Exception in OnNetworkDestroy:" + e.Message + " " + e.StackTrace);
+                }
+            }
+        }
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // random number that is unlikely to appear in a regular data stream
         const byte Barrier = 171;
@@ -637,16 +699,7 @@ namespace Mirror
         //    -> we can properly track down errors
         bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
-            bool result = false;
-            try
-            {
-                result = comp.OnSerialize(writer, initialState);
-            }
-            catch (Exception e)
-            {
-                // show a detailed error and let the user know what went wrong
-                Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + "\n\n" + e);
-            }
+            bool result = comp.OnSerialize(writer, initialState);
             if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId); }
 
             // serialize a barrier to be checked by the deserializer
@@ -663,9 +716,9 @@ namespace Mirror
 
             if (NetworkBehaviours.Length > 64)
             {
-                Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
-                return;
+                throw new InvalidOperationException("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
             }
+
             ulong dirtyComponentsMask = GetDirtyMask(initialState);
 
             if (dirtyComponentsMask == 0L)
@@ -765,20 +818,13 @@ namespace Mirror
             // original one can't be messed with. we also wrap it in a
             // try-catch block so there's no way to mess up another
             // component's deserialization
-            try
-            {
-                comp.OnDeserialize(reader, initialState);
 
-                byte barrierData = reader.ReadByte();
-                if (barrierData != Barrier)
-                {
-                    Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + sceneId + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n");
-                }
-            }
-            catch (Exception e)
+            comp.OnDeserialize(reader, initialState);
+
+            byte barrierData = reader.ReadByte();
+            if (barrierData != Barrier)
             {
-                // show a detailed error and let the user know what went wrong
-                Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + sceneId + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" + e.ToString());
+                throw new InvalidMessageException("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + sceneId + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n");
             }
         }
 
@@ -840,32 +886,6 @@ namespace Mirror
         internal void HandleRPC(int componentIndex, int rpcHash, NetworkReader reader)
         {
             HandleRemoteCall(componentIndex, rpcHash, MirrorInvokeType.ClientRpc, reader);
-        }
-
-        internal void OnUpdateVars(NetworkReader reader, bool initialState)
-        {
-            OnDeserializeAllSafely(reader, initialState);
-        }
-
-        private static NetworkIdentity previousLocalPlayer = null;
-        internal void OnStartLocalPlayer()
-        {
-            if (previousLocalPlayer == this)
-                return;
-            previousLocalPlayer = this;
-
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                comp.OnStartLocalPlayer();
-            }
-        }
-
-        internal void OnNetworkDestroy()
-        {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                comp.OnNetworkDestroy();
-            }
         }
 
         internal void ClearObservers()

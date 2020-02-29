@@ -27,9 +27,184 @@ namespace Mirror.Tests
 
         class StartServerExceptionNetworkBehaviour : NetworkBehaviour
         {
+            public int called;
             public override void OnStartServer()
             {
+                ++called;
                 throw new Exception("some exception");
+            }
+        }
+
+        class StartClientExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStartClient()
+            {
+                ++called;
+                throw new Exception("some exception");
+            }
+        }
+
+        class StartAuthorityExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStartAuthority()
+            {
+                ++called;
+                throw new Exception("some exception");
+            }
+        }
+
+        class StartAuthorityCalledNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStartAuthority() { ++called; }
+        }
+
+        class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStopAuthority()
+            {
+                ++called;
+                throw new Exception("some exception");
+            }
+        }
+
+        class StopAuthorityCalledNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStopAuthority() { ++called; }
+        }
+
+        class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStartLocalPlayer()
+            {
+                ++called;
+                throw new Exception("some exception");
+            }
+        }
+
+        class StartLocalPlayerCalledNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStartLocalPlayer() { ++called; }
+        }
+
+        class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnNetworkDestroy()
+            {
+                ++called;
+                throw new Exception("some exception");
+            }
+        }
+
+        class NetworkDestroyCalledNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnNetworkDestroy() { ++called; }
+        }
+
+        class SetHostVisibilityExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public bool valuePassed;
+            public override void OnSetHostVisibility(bool visible)
+            {
+                ++called;
+                valuePassed = visible;
+                throw new Exception("some exception");
+            }
+        }
+
+        class CheckObserverExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public NetworkConnection valuePassed;
+            public override bool OnCheckObserver(NetworkConnection conn)
+            {
+                ++called;
+                valuePassed = conn;
+                throw new Exception("some exception");
+            }
+        }
+
+        class CheckObserverTrueNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override bool OnCheckObserver(NetworkConnection conn)
+            {
+                ++called;
+                return true;
+            }
+        }
+
+        class CheckObserverFalseNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override bool OnCheckObserver(NetworkConnection conn)
+            {
+                ++called;
+                return false;
+            }
+        }
+
+        class SerializeTest1NetworkBehaviour : NetworkBehaviour
+        {
+            public int value;
+            public override bool OnSerialize(NetworkWriter writer, bool initialState)
+            {
+                writer.WriteInt32(value);
+                return true;
+            }
+            public override void OnDeserialize(NetworkReader reader, bool initialState)
+            {
+                value = reader.ReadInt32();
+            }
+        }
+
+        class SerializeTest2NetworkBehaviour : NetworkBehaviour
+        {
+            public string value;
+            public override bool OnSerialize(NetworkWriter writer, bool initialState)
+            {
+                writer.WriteString(value);
+                return true;
+            }
+            public override void OnDeserialize(NetworkReader reader, bool initialState)
+            {
+                value = reader.ReadString();
+            }
+        }
+
+        class SerializeExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public override bool OnSerialize(NetworkWriter writer, bool initialState)
+            {
+                throw new Exception("some exception");
+            }
+            public override void OnDeserialize(NetworkReader reader, bool initialState)
+            {
+                throw new Exception("some exception");
+            }
+        }
+
+        class SerializeMismatchNetworkBehaviour : NetworkBehaviour
+        {
+            public int value;
+            public override bool OnSerialize(NetworkWriter writer, bool initialState)
+            {
+                writer.WriteInt32(value);
+                writer.WriteInt32(value); // one too many
+                return true;
+            }
+            public override void OnDeserialize(NetworkReader reader, bool initialState)
+            {
+                value = reader.ReadInt32();
             }
         }
 
@@ -330,24 +505,406 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnStartServerComponentExceptionIsCaught()
+        public void OnStartServerCallsComponentsAndCatchesExceptions()
         {
             // create a networkidentity with our test component
             GameObject gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-            gameObject.AddComponent<StartServerExceptionNetworkBehaviour>();
+            StartServerExceptionNetworkBehaviour comp = gameObject.AddComponent<StartServerExceptionNetworkBehaviour>();
 
+            // make sure that comp.OnStartServer was called and make sure that
+            // the exception was caught and not thrown in here.
             // an exception in OnStartServer should be caught, so that one
             // component's exception doesn't stop all other components from
             // being initialized
             // (an error log is expected though)
             LogAssert.ignoreFailingMessages = true;
             identity.OnStartServer(); // should catch the exception internally and not throw it
+            Assert.That(comp.called, Is.EqualTo(1));
+            LogAssert.ignoreFailingMessages = false;
+
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnStartClientCallsComponentsAndCatchesExceptions()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            StartClientExceptionNetworkBehaviour comp = gameObject.AddComponent<StartClientExceptionNetworkBehaviour>();
+
+            // make sure that comp.OnStartClient was called and make sure that
+            // the exception was caught and not thrown in here.
+            // an exception in OnStartClient should be caught, so that one
+            // component's exception doesn't stop all other components from
+            // being initialized
+            // (an error log is expected though)
+            LogAssert.ignoreFailingMessages = true;
+            identity.OnStartClient(); // should catch the exception internally and not throw it
+            Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
 
+        [Test]
+        public void OnStartAuthorityCallsComponentsAndCatchesExceptions()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            StartAuthorityExceptionNetworkBehaviour comp = gameObject.AddComponent<StartAuthorityExceptionNetworkBehaviour>();
+
+            // make sure that comp.OnStartAuthority was called and make sure that
+            // the exception was caught and not thrown in here.
+            // an exception in OnStartAuthority should be caught, so that one
+            // component's exception doesn't stop all other components from
+            // being initialized
+            // (an error log is expected though)
+            LogAssert.ignoreFailingMessages = true;
+            identity.OnStartAuthority(); // should catch the exception internally and not throw it
+            Assert.That(comp.called, Is.EqualTo(1));
+            LogAssert.ignoreFailingMessages = false;
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnStopAuthorityCallsComponentsAndCatchesExceptions()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            StopAuthorityExceptionNetworkBehaviour comp = gameObject.AddComponent<StopAuthorityExceptionNetworkBehaviour>();
+
+            // make sure that comp.OnStopAuthority was called and make sure that
+            // the exception was caught and not thrown in here.
+            // an exception in OnStopAuthority should be caught, so that one
+            // component's exception doesn't stop all other components from
+            // being initialized
+            // (an error log is expected though)
+            LogAssert.ignoreFailingMessages = true;
+            identity.OnStopAuthority(); // should catch the exception internally and not throw it
+            Assert.That(comp.called, Is.EqualTo(1));
+            LogAssert.ignoreFailingMessages = false;
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void NotifyAuthorityCallsOnStartStopAuthority()
+        {
+            // create a networkidentity with our test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            StartAuthorityCalledNetworkBehaviour compStart = gameObject.AddComponent<StartAuthorityCalledNetworkBehaviour>();
+            StopAuthorityCalledNetworkBehaviour compStop = gameObject.AddComponent<StopAuthorityCalledNetworkBehaviour>();
+
+            // set authority from false to true, which should call OnStartAuthority
+            identity.hasAuthority = true;
+            identity.NotifyAuthority();
+            Assert.That(identity.hasAuthority, Is.True); // shouldn't be touched
+            Assert.That(compStart.called, Is.EqualTo(1)); // start should be called
+            Assert.That(compStop.called, Is.EqualTo(0)); // stop shouldn't
+
+            // set it to true again, should do nothing because already true
+            identity.hasAuthority = true;
+            identity.NotifyAuthority();
+            Assert.That(identity.hasAuthority, Is.True); // shouldn't be touched
+            Assert.That(compStart.called, Is.EqualTo(1)); // same as before
+            Assert.That(compStop.called, Is.EqualTo(0)); // same as before
+
+            // set it to false, should call OnStopAuthority
+            identity.hasAuthority = false;
+            identity.NotifyAuthority();
+            Assert.That(identity.hasAuthority, Is.False); // shouldn't be touched
+            Assert.That(compStart.called, Is.EqualTo(1)); // same as before
+            Assert.That(compStop.called, Is.EqualTo(1)); // stop should be called
+
+            // set it to false again, should do nothing because already false
+            identity.hasAuthority = false;
+            identity.NotifyAuthority();
+            Assert.That(identity.hasAuthority, Is.False); // shouldn't be touched
+            Assert.That(compStart.called, Is.EqualTo(1)); // same as before
+            Assert.That(compStop.called, Is.EqualTo(1)); // same as before
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnSetHostVisibilityCallsComponentsAndCatchesExceptions()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            SetHostVisibilityExceptionNetworkBehaviour comp = gameObject.AddComponent<SetHostVisibilityExceptionNetworkBehaviour>();
+
+            // make sure that comp.OnSetHostVisibility was called and make sure that
+            // the exception was caught and not thrown in here.
+            // an exception in OnSetHostVisibility should be caught, so that one
+            // component's exception doesn't stop all other components from
+            // being initialized
+            // (an error log is expected though)
+            LogAssert.ignoreFailingMessages = true;
+
+            identity.OnSetHostVisibility(true); // should catch the exception internally and not throw it
+            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(comp.valuePassed, Is.True);
+
+            identity.OnSetHostVisibility(false); // should catch the exception internally and not throw it
+            Assert.That(comp.called, Is.EqualTo(2));
+            Assert.That(comp.valuePassed, Is.False);
+
+            LogAssert.ignoreFailingMessages = false;
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnCheckObserver()
+        {
+            // create a networkidentity with our test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            CheckObserverExceptionNetworkBehaviour compExc = gameObject.AddComponent<CheckObserverExceptionNetworkBehaviour>();
+
+            NetworkConnection connection = new NetworkConnectionToClient(42);
+
+            // an exception in OnCheckObserver should be caught, so that one
+            // component's exception doesn't stop all other components from
+            // being checked
+            // (an error log is expected though)
+            LogAssert.ignoreFailingMessages = true;
+            bool result = identity.OnCheckObserver(connection); // should catch the exception internally and not throw it
+            Assert.That(result, Is.True);
+            Assert.That(compExc.called, Is.EqualTo(1));
+            LogAssert.ignoreFailingMessages = false;
+
+            // let's also make sure that the correct connection was passed, just
+            // to be sure
+            Assert.That(compExc.valuePassed, Is.EqualTo(connection));
+
+            // create a networkidentity with a component that returns true
+            // result should still be true.
+            GameObject gameObjectTrue = new GameObject();
+            NetworkIdentity identityTrue = gameObjectTrue.AddComponent<NetworkIdentity>();
+            CheckObserverTrueNetworkBehaviour compTrue = gameObjectTrue.AddComponent<CheckObserverTrueNetworkBehaviour>();
+            result = identityTrue.OnCheckObserver(connection);
+            Assert.That(result, Is.True);
+            Assert.That(compTrue.called, Is.EqualTo(1));
+
+            // create a networkidentity with a component that returns true and
+            // one component that returns false.
+            // result should still be false if any one returns false.
+            GameObject gameObjectFalse = new GameObject();
+            NetworkIdentity identityFalse = gameObjectFalse.AddComponent<NetworkIdentity>();
+            compTrue = gameObjectFalse.AddComponent<CheckObserverTrueNetworkBehaviour>();
+            CheckObserverFalseNetworkBehaviour compFalse = gameObjectFalse.AddComponent<CheckObserverFalseNetworkBehaviour>();
+            result = identityFalse.OnCheckObserver(connection);
+            Assert.That(result, Is.False);
+            Assert.That(compTrue.called, Is.EqualTo(1));
+            Assert.That(compFalse.called, Is.EqualTo(1));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObjectFalse);
+            GameObject.DestroyImmediate(gameObjectTrue);
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnSerializeAndDeserializeAllSafely()
+        {
+            // create a networkidentity with our test components
+            var gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            SerializeTest1NetworkBehaviour comp1 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            SerializeExceptionNetworkBehaviour compExc = gameObject.AddComponent<SerializeExceptionNetworkBehaviour>();
+            SerializeTest2NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+
+            // set some unique values to serialize
+            comp1.value = 12345;
+            comp1.syncMode = SyncMode.Observers;
+            compExc.syncMode = SyncMode.Observers;
+            comp2.value = "67890";
+            comp2.syncMode = SyncMode.Owner;
+
+            // serialize all
+            var ownerWriter = new NetworkWriter();
+            var observersWriter = new NetworkWriter();
+
+            // serialize should propagate exceptions
+            Assert.Throws<Exception>(() =>
+            {
+                identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                // owner should have written all components
+                Assert.That(ownerWritten, Is.EqualTo(3));
+                // observers should have written only the observers components
+                Assert.That(observersWritten, Is.EqualTo(2));
+            });
+
+
+
+            // reset component values
+            comp1.value = 0;
+            comp2.value = null;
+
+            // deserialize all for owner - should work even if compExc throws an exception
+            var reader = new NetworkReader(ownerWriter.ToArray());
+
+            Assert.Throws<Exception>(() =>
+            {
+                identity.OnDeserializeAllSafely(reader, true);
+            });
+
+            // reset component values
+            comp1.value = 0;
+            comp2.value = null;
+
+            // deserialize all for observers - should propagate exceptions
+            reader = new NetworkReader(observersWriter.ToArray());
+            Assert.Throws<Exception>(() =>
+            {
+                identity.OnDeserializeAllSafely(reader, true);
+            });
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        // OnSerializeAllSafely supports at max 64 components, because our
+        // dirty mask is ulong and can only handle so many bits.
+        [Test]
+        public void OnSerializeAllSafelyShouldDetectTooManyComponents()
+        {
+            // create a networkidentity with our 65
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            for (int i = 0; i < 65; ++i)
+            {
+                gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            }
+
+            // try to serialize
+            NetworkWriter ownerWriter = new NetworkWriter();
+            NetworkWriter observersWriter = new NetworkWriter();
+            LogAssert.ignoreFailingMessages = true; // error log is expected because of too many components
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            LogAssert.ignoreFailingMessages = false;
+
+            // shouldn't have written anything because too many components
+            Assert.That(ownerWriter.Position, Is.EqualTo(0));
+            Assert.That(observersWriter.Position, Is.EqualTo(0));
+            Assert.That(ownerWritten, Is.EqualTo(0));
+            Assert.That(observersWritten, Is.EqualTo(0));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        // OnDeserializeSafely should be able to detect and handle serialization
+        // mismatches (= if compA writes 10 bytes but only reads 8 or 12, it
+        // shouldn't break compB's serialization. otherwise we end up with
+        // insane runtime errors like monsters that look like npcs. that's what
+        // happened back in the day with UNET).
+        [Test]
+        public void OnDeserializeSafelyShouldDetectAndHandleDeSerializationMismatch()
+        {
+            // create a networkidentity with our test components
+            var gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            SerializeTest1NetworkBehaviour comp1 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            SerializeMismatchNetworkBehaviour compMiss = gameObject.AddComponent<SerializeMismatchNetworkBehaviour>();
+            SerializeTest2NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+
+            // set some unique values to serialize
+            comp1.value = 12345;
+            comp2.value = "67890";
+
+            // serialize
+            var ownerWriter = new NetworkWriter();
+            var observersWriter = new NetworkWriter();
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+
+            // reset component values
+            comp1.value = 0;
+            comp2.value = null;
+
+            // deserialize all
+            var reader = new NetworkReader(ownerWriter.ToArray());
+            Assert.Throws<InvalidMessageException>(() =>
+            {
+                identity.OnDeserializeAllSafely(reader, true);
+            });
+
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnStartLocalPlayer()
+        {
+            // create a networkidentity with our test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            StartLocalPlayerExceptionNetworkBehaviour compEx = gameObject.AddComponent<StartLocalPlayerExceptionNetworkBehaviour>();
+            StartLocalPlayerCalledNetworkBehaviour comp = gameObject.AddComponent<StartLocalPlayerCalledNetworkBehaviour>();
+
+            // make sure our test values are set to 0
+            Assert.That(compEx.called, Is.EqualTo(0));
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            // call OnStartLocalPlayer in identity
+            // one component will throw an exception, but that shouldn't stop
+            // OnStartLocalPlayer from being called in the second one
+            LogAssert.ignoreFailingMessages = true; // exception will log an error
+            identity.OnStartLocalPlayer();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(compEx.called, Is.EqualTo(1));
+            Assert.That(comp.called, Is.EqualTo(1));
+
+            // we have checks to make sure that it's only called once.
+            // let's see if they work.
+            identity.OnStartLocalPlayer();
+            Assert.That(compEx.called, Is.EqualTo(1)); // same as before?
+            Assert.That(comp.called, Is.EqualTo(1)); // same as before?
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void OnNetworkDestroy()
+        {
+            // create a networkidentity with our test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            NetworkDestroyExceptionNetworkBehaviour compEx = gameObject.AddComponent<NetworkDestroyExceptionNetworkBehaviour>();
+            NetworkDestroyCalledNetworkBehaviour comp = gameObject.AddComponent<NetworkDestroyCalledNetworkBehaviour>();
+
+            // make sure our test values are set to 0
+            Assert.That(compEx.called, Is.EqualTo(0));
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            // call OnNetworkDestroy in identity
+            // one component will throw an exception, but that shouldn't stop
+            // OnNetworkDestroy from being called in the second one
+            LogAssert.ignoreFailingMessages = true; // exception will log an error
+            identity.OnNetworkDestroy();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(compEx.called, Is.EqualTo(1));
+            Assert.That(comp.called, Is.EqualTo(1));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
