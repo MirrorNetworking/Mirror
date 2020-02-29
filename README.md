@@ -36,7 +36,7 @@ However, the project is not moving forward as fast as I would like. There is a b
 
 Mirror relies heavily on manual testing.  Manual testing does not scale. I can cover so much more code with automated tests, and have much more confidence on my changes. This will require large breaking changes that will be hard to swallow for many people,  but at the end of the day I should be able to reduce the amount of defects significantly.
 
-Mirror makes heavy use of singletons, which I consider to be an [anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons.
+Mirror makes heavy use of singletons, which is considered an [anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons.
 
 Mirror has very poor error handling. Many methods return true/false to indicate success/failure and use Debug.LogError to report errors.  Since day 1, C# has had a much better mechanism to handle abnormal conditions: Exceptions. Methods in MirrorNG should either succeed throw exceptions if something is wrong. This lets the developer catch the exception with a full explanation of what is wrong and take action:  display an error message to the user, report it to a telemetry system, etc.
 
