@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Mirror.Tcp;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
@@ -191,7 +192,7 @@ namespace Mirror
                 transport = GetComponent<Transport>();
                 if (transport == null)
                 {
-                    transport = gameObject.AddComponent<TelepathyTransport>();
+                    transport = gameObject.AddComponent<TcpTransport>();
                     Debug.Log("NetworkManager: added default Transport because there was none yet.");
                 }
 #if UNITY_EDITOR
