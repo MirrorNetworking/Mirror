@@ -40,6 +40,8 @@ Mirror makes heavy use of singletons, which is considered an [anti-pattern](http
 
 Mirror has very poor error handling. Many methods return true/false to indicate success/failure and use Debug.LogError to report errors.  Since day 1, C# has had a much better mechanism to handle abnormal conditions: Exceptions. Methods in MirrorNG should either succeed or throw exceptions if something is wrong with full explanation. This lets the developer catch the exception and take action:  display an error message to the user, report it to your servers, report it to google play, etc...
 
+Mirror is distributed in the unity asset store and github. Both of these are majorly inconvenient to work with when you want to stay up to date.  I am developing a game,  and I spent significant amount of time just updating Mirror in my game. Fortunately Unity has a new mechanism that eliminates most of the pain:  Unity Package Manager.  There has been resistance in Mirror to distribute it using UPM.
+
 I want to adhere as much as possible to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID). Many things in Mirror do not.
 
 Mirror has it's own code conventions based on one person's preference.  I would rather follow official [C# code conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).  Anybody that speaks C# should feel right at home with this code.
