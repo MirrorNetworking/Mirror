@@ -1,3 +1,10 @@
+## [12.0.1](https://github.com/MirrorNG/MirrorNG/compare/12.0.0-master...12.0.1-master) (2020-02-29)
+
+
+### Bug Fixes
+
+* disconnect properly from the server ([c89bb51](https://github.com/MirrorNG/MirrorNG/commit/c89bb513e536f256e55862b723487bb21281572e))
+
 # [12.0.0](https://github.com/MirrorNG/MirrorNG/compare/11.1.0-master...12.0.0-master) (2020-02-28)
 
 
