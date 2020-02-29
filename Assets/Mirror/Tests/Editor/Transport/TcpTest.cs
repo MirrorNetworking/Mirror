@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests.Tcp
+namespace Mirror.Tests
 {
     [TestFixture]
     public class TcpTest
