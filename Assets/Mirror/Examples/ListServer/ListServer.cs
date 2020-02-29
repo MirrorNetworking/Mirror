@@ -44,7 +44,7 @@ namespace Mirror.Examples.ListServer
         public ushort clientToListenPort = 8888;
         public string gameServerTitle = "Deathmatch";
 
-        Telepathy.Client gameServerToListenConnection = new Telepathy.Client();
+        Tcp.Client gameServerToListenConnection = new Tcp.Client();
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
 
         [Header("UI")]
@@ -116,8 +116,9 @@ namespace Mirror.Examples.ListServer
             // list server only allows up to 128 bytes per message
             if (writer.BaseStream.Position <= 128)
             {
+                byte[] data = ((MemoryStream)writer.BaseStream).ToArray();
                 // send it
-                gameServerToListenConnection.Send(((MemoryStream)writer.BaseStream).ToArray());
+                _ = gameServerToListenConnection.SendAsync(new System.ArraySegment<byte>(data));
             }
             else Debug.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
         }
@@ -137,7 +138,7 @@ namespace Mirror.Examples.ListServer
                 else if (!gameServerToListenConnection.Connecting)
                 {
                     Debug.Log("[List Server] GameServer connecting......");
-                    gameServerToListenConnection.ConnectAsync(listServerIp, gameServerToListenPort);
+                    _ = gameServerToListenConnection.ConnectAsync(listServerIp, gameServerToListenPort);
                 }
             }
             // shouldn't use game server, but still using it?
@@ -219,7 +220,7 @@ namespace Mirror.Examples.ListServer
                 else if (!clientToListenConnection.Connecting)
                 {
                     Debug.Log("[List Server] Client connecting...");
-                    clientToListenConnection.ConnectAsync(listServerIp, clientToListenPort);
+                    _ = clientToListenConnection.ConnectAsync(listServerIp, clientToListenPort);
                 }
             }
             // shouldn't use client, but still using it? (e.g. after joining)
