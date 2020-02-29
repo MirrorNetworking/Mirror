@@ -795,15 +795,14 @@ namespace Mirror.Tests
             // try to serialize
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            LogAssert.ignoreFailingMessages = true; // error log is expected because of too many components
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
-            LogAssert.ignoreFailingMessages = false;
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            });
 
             // shouldn't have written anything because too many components
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
             Assert.That(observersWriter.Position, Is.EqualTo(0));
-            Assert.That(ownerWritten, Is.EqualTo(0));
-            Assert.That(observersWritten, Is.EqualTo(0));
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
