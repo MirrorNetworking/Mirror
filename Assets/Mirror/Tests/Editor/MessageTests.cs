@@ -228,6 +228,22 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void AddPlayerMessageTest()
+        {
+            // try setting value with constructor
+            AddPlayerMessage message = new AddPlayerMessage();
+
+            // serialize
+            NetworkWriter writer = new NetworkWriter();
+            message.Serialize(writer);
+            byte[] writerData = writer.ToArray();
+
+            // deserialize the same data - do we get the same result?
+            AddPlayerMessage fresh = new AddPlayerMessage();
+            fresh.Deserialize(new NetworkReader(writerData));
+        }
+
+        [Test]
         public void RemovePlayerMessageTest()
         {
             // try setting value with constructor
