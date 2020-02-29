@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Telepathy
 {
+    [Obsolete("Use Tcp.Client instead")]
     public class Client : Common
     {
         public TcpClient client;

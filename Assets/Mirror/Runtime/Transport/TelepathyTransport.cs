@@ -10,6 +10,7 @@ using UnityEngine.Serialization;
 
 namespace Mirror
 {
+    [Obsolete("Use TcpTransport instead")]
     [HelpURL("https://github.com/vis2k/Telepathy/blob/master/README.md")]
     public class TelepathyTransport : Transport
     {

@@ -7,6 +7,7 @@ using System.Threading;
 
 namespace Telepathy
 {
+    [Obsolete("Use Tcp.Server instead")]
     public class Server : Common
     {
         // listener
