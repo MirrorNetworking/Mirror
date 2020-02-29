@@ -1,3 +1,10 @@
+## [12.0.2](https://github.com/MirrorNG/MirrorNG/compare/12.0.1-master...12.0.2-master) (2020-02-29)
+
+
+### Bug Fixes
+
+* NetworkIdentity.OnStartLocalPlayer catches exceptions now too. fixes a potential bug where an exception in PlayerInventory.OnStartLocalPlayer would cause PlayerEquipment.OnStartLocalPlayer to not be called ([5ed5f84](https://github.com/MirrorNG/MirrorNG/commit/5ed5f844090442e16e78f466f7a785881283fbd4))
+
 ## [12.0.1](https://github.com/MirrorNG/MirrorNG/compare/12.0.0-master...12.0.1-master) (2020-02-29)
 
 
