@@ -43,9 +43,8 @@ namespace Mirror.Examples.ListServer
         public ushort gameServerToListenPort = 8887;
         public ushort clientToListenPort = 8888;
         public string gameServerTitle = "Deathmatch";
-
-        Tcp.Client gameServerToListenConnection = new Tcp.Client();
-        Telepathy.Client clientToListenConnection = new Telepathy.Client();
+        readonly Tcp.Client gameServerToListenConnection = new Tcp.Client();
+        readonly Tcp.Client clientToListenConnection = new Tcp.Client();
 
         [Header("UI")]
         public GameObject mainPanel;
@@ -62,7 +61,7 @@ namespace Mirror.Examples.ListServer
         // all the servers, stored as dict with unique ip key so we can
         // update them more easily
         // (use "ip:port" if port is needed)
-        Dictionary<string, ServerStatus> list = new Dictionary<string, ServerStatus>();
+        readonly Dictionary<string, ServerStatus> list = new Dictionary<string, ServerStatus>();
 
         void Start()
         {
@@ -72,6 +71,8 @@ namespace Mirror.Examples.ListServer
             //list["172.217.22.3"] = new ServerStatus("172.217.22.3", "5vs5", 10, 10);
             //list["172.217.16.142"] = new ServerStatus("172.217.16.142", "Hide & Seek Mod", 0, 10);
 
+
+            clientToListenConnection.ReceivedData += ParseMessage;
             // Update once a second. no need to try to reconnect or read data
             // in each Update call
             // -> calling it more than 1/second would also cause significantly
@@ -192,17 +193,6 @@ namespace Mirror.Examples.ListServer
                 // connected yet?
                 if (clientToListenConnection.Connected)
                 {
-                    // receive latest game server info
-                    while (clientToListenConnection.GetNextMessage(out Telepathy.Message message))
-                    {
-                        // connected?
-                        if (message.eventType == Telepathy.EventType.Data)
-                            ParseMessage(message.data);
-                        // disconnected?
-                        else if (message.eventType == Telepathy.EventType.Disconnected)
-                            Debug.Log("[List Server] Client disconnected.");
-                    }
-
 #if !UNITY_WEBGL // Ping isn't known in WebGL builds
                     // ping again if previous ping finished
                     foreach (ServerStatus server in list.Values)
