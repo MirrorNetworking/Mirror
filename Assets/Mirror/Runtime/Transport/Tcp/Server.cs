@@ -94,9 +94,12 @@ namespace Mirror.Tcp
                     // wait for a tcp client;
                     TcpClient tcpClient = await listener.AcceptTcpClientAsync();
 
-                    // non blocking receive loop
-                    // must be on main thread
-                    _ = ReceiveLoop(tcpClient);
+                    if (tcpClient.Connected)
+                    {
+                        // non blocking receive loop
+                        // must be on main thread
+                        _ = ReceiveLoop(tcpClient);
+                    }
                 }
             }
             catch (ObjectDisposedException)
