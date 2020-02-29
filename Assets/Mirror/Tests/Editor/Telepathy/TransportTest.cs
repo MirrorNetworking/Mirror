@@ -10,6 +10,7 @@ namespace Telepathy.Tests
 {
     [TestFixture]
     [Ignore("Flaky telepathy tests")]
+    [Obsolete("Use TcpTransport instead")]
     public class TransportTest
     {
         // just a random port that will hopefully not be taken
