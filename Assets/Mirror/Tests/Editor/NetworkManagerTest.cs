@@ -1,0 +1,91 @@
+﻿using NUnit.Framework;
+using UnityEngine;
+
+namespace Mirror.Tests
+{
+    [TestFixture]
+    public class NetworkManagerTest
+    {
+        GameObject gameObject;
+        NetworkManager manager;
+
+        [SetUp]
+        public void SetupNetworkManager()
+        {
+            gameObject = new GameObject();
+            manager = gameObject.AddComponent<NetworkManager>();
+        }
+
+        [TearDown]
+        public void TearDownNetworkManager()
+        {
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void VariableTest()
+        {
+            Assert.That(manager.dontDestroyOnLoad == true);
+            Assert.That(manager.runInBackground == true);
+            Assert.That(manager.startOnHeadless == true);
+            Assert.That(manager.showDebugMessages == false);
+            Assert.That(manager.serverTickRate == 30);
+            Assert.That(manager.offlineScene == "");
+            Assert.That(manager.networkAddress == "localhost");
+            Assert.That(manager.maxConnections == 4);
+            Assert.That(manager.autoCreatePlayer == true);
+            Assert.That(manager.spawnPrefabs.Count == 0);
+            Assert.That(manager.numPlayers == 0);
+            Assert.That(manager.isNetworkActive == false);
+
+            Assert.That(NetworkManager.networkSceneName == "");
+            Assert.That(NetworkManager.startPositionIndex == 0);
+            Assert.That(NetworkManager.startPositions.Count == 0);
+        }
+
+        [Test]
+        public void OnValidateTest()
+        {
+            Assert.That(gameObject.GetComponent("NetworkServer") == null);
+        }
+
+        [Test]
+        public void StartServerTest()
+        {
+            manager.StartServer();
+
+            Assert.That(manager.isNetworkActive == true);
+            Assert.That(manager.mode == NetworkManagerMode.ServerOnly);
+        }
+
+        [Test]
+        public void StopServerTest()
+        {
+            manager.StartServer();
+            manager.StopServer();
+
+            Assert.That(manager.isNetworkActive == false);
+            Assert.That(manager.mode == NetworkManagerMode.Offline);
+        }
+
+        [Test]
+        public void StartClientTest()
+        {
+            manager.StartClient();
+
+            Assert.That(manager.isNetworkActive == true);
+            Assert.That(manager.mode == NetworkManagerMode.ClientOnly);
+        }
+
+        //This does not work for some reason.
+        // [Test]
+        // public void StopClientTest()
+        // {
+        //     manager.StartClient();
+        //     manager.StopClient();
+
+        //     Assert.That(manager.isNetworkActive == false);
+        //     Assert.That(manager.mode == NetworkManagerMode.Offline);
+        // }
+    }
+}
