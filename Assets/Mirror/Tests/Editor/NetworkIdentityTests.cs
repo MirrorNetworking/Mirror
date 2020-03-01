@@ -939,6 +939,50 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void AddObserver()
+        {
+            // create a networkidentity
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // create some connections
+            NetworkConnectionToClient connection1 = new NetworkConnectionToClient(42);
+            NetworkConnectionToClient connection2 = new NetworkConnectionToClient(43);
+
+            // AddObserver should return early if called before .observers was
+            // created
+            Assert.That(identity.observers, Is.Null);
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            identity.AddObserver(connection1);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(identity.observers, Is.Null);
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // call AddObservers
+            identity.AddObserver(connection1);
+            identity.AddObserver(connection2);
+            Assert.That(identity.observers.Count, Is.EqualTo(2));
+            Assert.That(identity.observers.ContainsKey(connection1.connectionId));
+            Assert.That(identity.observers[connection1.connectionId], Is.EqualTo(connection1));
+            Assert.That(identity.observers.ContainsKey(connection2.connectionId));
+            Assert.That(identity.observers[connection2.connectionId], Is.EqualTo(connection2));
+
+            // adding a duplicate connectionId shouldn't overwrite the original
+            NetworkConnectionToClient duplicate = new NetworkConnectionToClient(connection1.connectionId);
+            identity.AddObserver(duplicate);
+            Assert.That(identity.observers.Count, Is.EqualTo(2));
+            Assert.That(identity.observers.ContainsKey(connection1.connectionId));
+            Assert.That(identity.observers[connection1.connectionId], Is.EqualTo(connection1));
+            Assert.That(identity.observers.ContainsKey(connection2.connectionId));
+            Assert.That(identity.observers[connection2.connectionId], Is.EqualTo(connection2));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
         public void ClearObservers()
         {
             // create a networkidentity
