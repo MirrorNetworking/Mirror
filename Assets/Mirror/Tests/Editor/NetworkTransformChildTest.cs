@@ -6,11 +6,11 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkTransformChildTest
     {
-        NetworkTransformChild  networkTransformChild;
-
         [Test]
         public void TargetComponentTest()
         {
+            NetworkTransformChild  networkTransformChild;
+            
             GameObject gameObject = new GameObject();
             networkTransformChild = gameObject.AddComponent<NetworkTransformChild>();
 
