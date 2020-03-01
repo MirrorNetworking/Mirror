@@ -44,6 +44,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Add Coverage Plugin
+        uses: canastro/copy-action@0.0.2
+        with:
+          source: Packages/manifest-coverage.json
+          target: Packages/manifest.json
+
       - name: Activate license
         uses: MirrorNG/unity-runner@master
         with:
