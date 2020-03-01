@@ -932,5 +932,27 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        [Test]
+        public void ClearObservers()
+        {
+            // create a networkidentity
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // add some observers
+            identity.observers[42] = new NetworkConnectionToClient(42);
+            identity.observers[43] = new NetworkConnectionToClient(43);
+
+            // call ClearObservers
+            identity.ClearObservers();
+            Assert.That(identity.observers.Count, Is.EqualTo(0));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
