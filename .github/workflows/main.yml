@@ -13,8 +13,6 @@ jobs:
 
   requestActivationFile:
     runs-on: ubuntu-latest
-    env:
-      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
     if: false
     steps:
       - name: Checkout repository
@@ -35,6 +33,8 @@ jobs:
   testRunnerInAllModes:
     name: Unity test
     runs-on: ubuntu-latest
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
     if: true
     steps:
   
