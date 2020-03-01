@@ -21,47 +21,47 @@ namespace Mirror.Tests
         {
             CommandAttribute attrib = new CommandAttribute();
 
-            Assert.That(attrib.channel == 0);
+            Assert.That(attrib.channel == Channels.DefaultReliable);
 
-            attrib.channel = 1;
+            attrib.channel = Channels.DefaultUnreliable;
 
-            Assert.That(attrib.channel == 1);
+            Assert.That(attrib.channel == Channels.DefaultUnreliable);
         }
-        
+
         [Test]
         public void ClientRPCAttributeTest()
         {
             ClientRpcAttribute attrib = new ClientRpcAttribute();
 
-            Assert.That(attrib.channel == 0);
+            Assert.That(attrib.channel == Channels.DefaultReliable);
 
-            attrib.channel = 1;
+            attrib.channel = Channels.DefaultUnreliable;
 
-            Assert.That(attrib.channel == 1);
+            Assert.That(attrib.channel == Channels.DefaultUnreliable);
         }
-        
+
         [Test]
         public void TargetRPCAttributeTest()
         {
             TargetRpcAttribute attrib = new TargetRpcAttribute();
 
-            Assert.That(attrib.channel == 0);
+            Assert.That(attrib.channel == Channels.DefaultReliable);
 
-            attrib.channel = 1;
+            attrib.channel = Channels.DefaultUnreliable;
 
             Assert.That(attrib.channel == 1);
         }
-        
+
         [Test]
         public void SyncEventAttributeTest()
         {
             SyncEventAttribute attrib = new SyncEventAttribute();
 
-            Assert.That(attrib.channel == 0);
+            Assert.That(attrib.channel == Channels.DefaultReliable);
 
-            attrib.channel = 1;
+            attrib.channel = Channels.DefaultUnreliable;
 
-            Assert.That(attrib.channel == 1);
+            Assert.That(attrib.channel == Channels.DefaultUnreliable);
         }
     }
 }
