@@ -1,0 +1,89 @@
+name: CI
+#on:
+#  pull_request: {}
+#  push: { branches: [master] }
+
+on: 
+  push:
+    paths-ignore:
+      - 'doc/**'
+      - '*.md'
+  
+jobs:
+
+  requestActivationFile:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Request manual activation file
+        uses: MirrorNG/unity-runner@master
+        id: getManualLicenseFile
+        with:
+            entrypoint: /request_activation.sh
+
+      - name: Expose as artifact
+        uses: actions/upload-artifact@v1
+        with:
+            name: Manual Activation File
+            path: ${{ steps.getManualLicenseFile.outputs.filePath }}
+    
+  testRunnerInAllModes:
+    name: Unity test
+    runs-on: ubuntu-latest
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+    if: true
+    steps:
+  
+      # Checkout repository (required to test local actions)
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Activate license
+        uses: MirrorNG/unity-runner@master
+        with:
+          entrypoint: /activate.sh
+          
+      - name: Generate Solution
+        uses: MirrorNG/unity-runner@master
+        with:
+          # Arguments to pass to unity
+          args: -buildTarget StandaloneWindows64 -customBuildName MirrorNG -customBuildPath ./build/StandaloneWindows64 -projectPath . -executeMethod  UnityEditor.SyncVS.SyncSolution -quit
+  
+      # Configure test runner
+      - name: Run editor Tests
+        uses: MirrorNG/unity-runner@master
+        with:
+          args: -runTests -testPlatform editmode -testResults Tests/editmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
+
+      - name: Run play Tests
+        uses: MirrorNG/unity-runner@master
+        with:
+          args: -runTests -testPlatform playmode -testResults Tests/playmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
+          
+      # Upload artifacts
+      - name: Publish test results
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: Test results (editor mode)
+          path: Tests
+  
+      - name: SonarQube analysis
+        if: always()
+        uses: MirrorNG/unity-sonarscanner@master
+        with:
+          buildCommand: /opt/Unity/Editor/Data/NetCore/Sdk-2.2.107/dotnet build workspace.sln
+          projectKey: vis2k_Mirror
+          projectName: Mirror
+          sonarOrganisation: vis2k
+          beginArguments: /d:sonar.verbose="true" /d:sonar.cs.nunit.reportsPaths=Tests/editmode-results.xml,Tests/playimode-results.xml /d:sonar.cs.opencover.reportsPaths=Tests/workspace-opencov/EditMode/TestCoverageResults_0000.xml,Tests/workspace-opencov/PlayMode/TestCoverageResults_0000.xml
+        env:
+          FrameworkPathOverride: /opt/Unity/Editor/Data/MonoBleedingEdge/
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
