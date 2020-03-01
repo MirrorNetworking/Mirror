@@ -64,6 +64,7 @@ jobs:
   
       - name: SonarQube analysis
         uses: MirrorNG/unity-sonarscanner@master
+        if: always()
         with:
           buildCommand: /opt/Unity/Editor/Data/NetCore/Sdk-2.2.107/dotnet build workspace.sln
           projectKey: MirrorNG_MirrorNG
