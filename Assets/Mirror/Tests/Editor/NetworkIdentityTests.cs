@@ -529,6 +529,11 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
 
+            // we have checks to make sure that it's only called once.
+            // let's see if they work.
+            identity.OnStartClient();
+            Assert.That(comp.called, Is.EqualTo(1)); // same as before?
+
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
