@@ -231,9 +231,9 @@ namespace Mirror.Tests
         public void AddPlayerMessageTest()
         {
             // try setting value with constructor
-            AddPlayerMessage message = new AddPlayerMessage() 
+            AddPlayerMessage message = new AddPlayerMessage
             {
-                value = new byte[2] {1,2}
+                value = new byte[]{1,2}
             };
 
             // serialize
