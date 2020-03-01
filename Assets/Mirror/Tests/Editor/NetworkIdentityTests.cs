@@ -914,13 +914,19 @@ namespace Mirror.Tests
         [Test]
         public void AddObserver()
         {
+            var networkManagerGameObject = new GameObject();
+            NetworkServer server = networkManagerGameObject.AddComponent<NetworkServer>();
+
+
             // create a networkidentity
-            GameObject gameObject = new GameObject();
+            var gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
 
+            identity.server = server;
+
             // create some connections
-            NetworkConnectionToClient connection1 = new NetworkConnectionToClient(42);
-            NetworkConnectionToClient connection2 = new NetworkConnectionToClient(43);
+            var connection1 = new NetworkConnectionToClient(42);
+            var connection2 = new NetworkConnectionToClient(43);
 
             // AddObserver should return early if called before .observers was
             // created
@@ -953,6 +959,7 @@ namespace Mirror.Tests
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
+            GameObject.DestroyImmediate(networkManagerGameObject);
         }
 
         [Test]
