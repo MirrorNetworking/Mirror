@@ -65,6 +65,9 @@
             "default",
             "templates/material"
         ],
+        "xref": [
+            "../src/nuspec/msdn.4.5.2/content/msdn.4.5.2.zip"
+          ],
         "postProcessors": [],
         "markdownEngineName": "markdig",
         "noLangKeyword": false,

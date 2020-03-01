@@ -1046,44 +1046,6 @@ namespace Mirror
             }
         }
 
-        // Deprecated 09/25/2019
-        /// <summary>
-        /// Removes ownership for an object.
-        /// <para>This applies to objects that had authority set by AssignClientAuthority, or <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included.</para>
-        /// <para>Authority cannot be removed for player objects.</para>
-        /// </summary>
-        public void RemoveClientAuthority()
-        {
-            if (!isServer)
-            {
-                Debug.LogError("RemoveClientAuthority can only be call on the server for spawned objects.");
-                return;
-            }
-
-            if (connectionToClient?.identity == this)
-            {
-                Debug.LogError("RemoveClientAuthority cannot remove authority for a player object");
-                return;
-            }
-
-            if (connectionToClient != null)
-            {
-                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
-
-                NetworkConnectionToClient previousOwner = connectionToClient;
-
-                connectionToClient = null;
-
-                // we need to resynchronize the entire object
-                // so just spawn it again,
-                // the client will not create a new instance,  it will simply
-                // reset all variables and remove authority
-                server.SendSpawnMessage(this, previousOwner);
-
-                connectionToClient = null;
-            }
-        }
-
         /// <summary>
         /// Assign control of an object to a client via the client's <see cref="NetworkConnection">NetworkConnection.</see>
         /// <para>This causes hasAuthority to be set on the client that owns the object, and NetworkBehaviour.OnStartAuthority will be called on that client. This object then will be in the NetworkConnection.clientOwnedObjects list for the connection.</para>
@@ -1120,6 +1082,44 @@ namespace Mirror
             clientAuthorityCallback?.Invoke(conn, this, true);
 
             return true;
+        }
+
+        // Deprecated 09/25/2019
+        /// <summary>
+        /// Removes ownership for an object.
+        /// <para>This applies to objects that had authority set by AssignClientAuthority, or <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included.</para>
+        /// <para>Authority cannot be removed for player objects.</para>
+        /// </summary>
+        public void RemoveClientAuthority()
+        {
+            if (!isServer)
+            {
+                Debug.LogError("RemoveClientAuthority can only be call on the server for spawned objects.");
+                return;
+            }
+
+            if (connectionToClient?.identity == this)
+            {
+                Debug.LogError("RemoveClientAuthority cannot remove authority for a player object");
+                return;
+            }
+
+            if (connectionToClient != null)
+            {
+                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
+
+                NetworkConnectionToClient previousOwner = connectionToClient;
+
+                connectionToClient = null;
+
+                // we need to resynchronize the entire object
+                // so just spawn it again,
+                // the client will not create a new instance,  it will simply
+                // reset all variables and remove authority
+                server.SendSpawnMessage(this, previousOwner);
+
+                connectionToClient = null;
+            }
         }
 
         // marks the identity for future reset, this is because we cant reset the identity during destroy
