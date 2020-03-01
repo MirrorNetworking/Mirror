@@ -231,7 +231,10 @@ namespace Mirror.Tests
         public void AddPlayerMessageTest()
         {
             // try setting value with constructor
-            AddPlayerMessage message = new AddPlayerMessage();
+            AddPlayerMessage message = new AddPlayerMessage() 
+            {
+                value = new byte[2] {1,2}
+            };
 
             // serialize
             NetworkWriter writer = new NetworkWriter();
@@ -241,6 +244,7 @@ namespace Mirror.Tests
             // deserialize the same data - do we get the same result?
             AddPlayerMessage fresh = new AddPlayerMessage();
             fresh.Deserialize(new NetworkReader(writerData));
+            Assert.That(fresh.value, Is.EqualTo(message.value));
         }
 
         [Test]
