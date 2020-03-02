@@ -75,17 +75,18 @@ namespace Mirror.Tests
 
             Assert.That(manager.isNetworkActive == true);
             Assert.That(manager.mode == NetworkManagerMode.ClientOnly);
+
+            manager.StopClient();
         }
 
-        //This does not work for some reason.
-        // [Test]
-        // public void StopClientTest()
-        // {
-        //     manager.StartClient();
-        //     manager.StopClient();
+        [Test]
+        public void StopClientTest()
+        {
+            manager.StartClient();
+            manager.StopClient();
 
-        //     Assert.That(manager.isNetworkActive == false);
-        //     Assert.That(manager.mode == NetworkManagerMode.Offline);
-        // }
+            Assert.That(manager.isNetworkActive == false);
+            Assert.That(manager.mode == NetworkManagerMode.Offline);
+        }
     }
 }
