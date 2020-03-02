@@ -1103,5 +1103,79 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        [Test]
+        public void ServerUpdate()
+        {
+            // create a server networkidentity with some test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            SerializeTest1NetworkBehaviour compA = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            compA.value = 1337; // test value
+            compA.syncInterval = 0; // set syncInterval so IsDirty passes the interval check
+            compA.syncMode = SyncMode.Owner; // one needs to sync to owner
+            SerializeTest2NetworkBehaviour compB = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+            compB.value = "test"; // test value
+            compB.syncInterval = 0; // set syncInterval so IsDirty passes the interval check
+            compB.syncMode = SyncMode.Observers; // one needs to sync to owner
+
+            // call OnStartServer once so observers are created
+            identity.OnStartServer();
+
+            // set it dirty
+            compA.SetDirtyBit(ulong.MaxValue);
+            compB.SetDirtyBit(ulong.MaxValue);
+            Assert.That(compA.IsDirty(), Is.True);
+            Assert.That(compB.IsDirty(), Is.True);
+
+            // calling update without observers should clear all dirty bits.
+            // it would be spawned on new observers anyway.
+            identity.ServerUpdate();
+            Assert.That(compA.IsDirty(), Is.False);
+            Assert.That(compB.IsDirty(), Is.False);
+
+            // add an owner connection that will receive the updates
+            ULocalConnectionToClient owner = new ULocalConnectionToClient();
+            owner.isReady = true; // for syncing
+            // add a client to server connection + handler to receive syncs
+            owner.connectionToServer = new ULocalConnectionToServer();
+            int ownerCalled = 0;
+            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
+            {
+                { MessagePacker.GetId<UpdateVarsMessage>(), (msg => ++ownerCalled) }
+            });
+            identity.connectionToClient = owner;
+
+            // add an observer connection that will receive the updates
+            ULocalConnectionToClient observer = new ULocalConnectionToClient();
+            observer.isReady = true; // we only sync to ready observers
+            // add a client to server connection + handler to receive syncs
+            observer.connectionToServer = new ULocalConnectionToServer();
+            int observerCalled = 0;
+            observer.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
+            {
+                { MessagePacker.GetId<UpdateVarsMessage>(), (msg => ++observerCalled) }
+            });
+            identity.observers[observer.connectionId] = observer;
+
+            // set components dirty again
+            compA.SetDirtyBit(ulong.MaxValue);
+            compB.SetDirtyBit(ulong.MaxValue);
+
+            // calling update should serialize all components and send them to
+            // owner/observers
+            identity.ServerUpdate();
+
+            // update connections once so that messages are processed
+            owner.connectionToServer.Update();
+            observer.connectionToServer.Update();
+
+            // was it received on the clients?
+            Assert.That(ownerCalled, Is.EqualTo(1));
+            Assert.That(observerCalled, Is.EqualTo(1));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
