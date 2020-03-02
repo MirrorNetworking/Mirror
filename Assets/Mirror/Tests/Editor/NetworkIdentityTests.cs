@@ -585,6 +585,113 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void AssignAndRemoveClientAuthority()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            identity.netId = 42; // needed for isServer to be true
+
+            // test the callback too
+            int callbackCalled = 0;
+            NetworkConnection callbackConnection = null;
+            NetworkIdentity callbackIdentity = null;
+            bool callbackState = false;
+            NetworkIdentity.clientAuthorityCallback += (conn, networkIdentity, state) => {
+                ++callbackCalled;
+                callbackConnection = conn;
+                callbackIdentity = identity;
+                callbackState = state;
+            };
+
+            // create a connection
+            ULocalConnectionToClient owner = new ULocalConnectionToClient();
+            owner.isReady = true;
+            // add client handlers
+            owner.connectionToServer = new ULocalConnectionToServer();
+            int spawnCalled = 0;
+            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>{
+                { MessagePacker.GetId<SpawnMessage>(), (msg => ++spawnCalled) }
+            });
+
+            // assigning authority should only work on server.
+            // if isServer is false because server isn't running yet then it
+            // should fail.
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            bool result = identity.AssignClientAuthority(owner);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(result, Is.False);
+
+            // we can only handle authority on the server.
+            // start the server so that isServer is true.
+            Transport.activeTransport = Substitute.For<Transport>(); // needed in .Listen
+            NetworkServer.Listen(1);
+            Assert.That(identity.isServer, Is.True);
+
+            // assign authority
+            result = identity.AssignClientAuthority(owner);
+            Assert.That(result, Is.True);
+            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
+            Assert.That(callbackCalled, Is.EqualTo(1));
+            Assert.That(callbackConnection, Is.EqualTo(owner));
+            Assert.That(callbackIdentity, Is.EqualTo(identity));
+            Assert.That(callbackState, Is.EqualTo(true));
+
+            // assigning authority should respawn the object with proper authority
+            // on the client. that's the best way to sync the new state right now.
+            owner.connectionToServer.Update(); // process pending messages
+            Assert.That(spawnCalled, Is.EqualTo(1));
+
+            // shouldn't be able to assign authority while already owned by
+            // another connection
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            result = identity.AssignClientAuthority(new NetworkConnectionToClient(43));
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(result, Is.False);
+            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
+            Assert.That(callbackCalled, Is.EqualTo(1));
+
+            // someone might try to remove authority by assigning null.
+            // make sure this fails.
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            result = identity.AssignClientAuthority(null);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(result, Is.False);
+
+            // removing authority while not isServer shouldn't work.
+            // only allow it on server.
+            NetworkServer.Shutdown();
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            identity.RemoveClientAuthority();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
+            Assert.That(callbackCalled, Is.EqualTo(1));
+            NetworkServer.Listen(1); // restart it gain
+
+            // removing authority for the main player object shouldn't work
+            owner.identity = identity; // set connection's player object
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            identity.RemoveClientAuthority();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
+            Assert.That(callbackCalled, Is.EqualTo(1));
+
+            // removing authority for a non-main-player object should work
+            owner.identity = null;
+            identity.RemoveClientAuthority();
+            Assert.That(identity.connectionToClient, Is.Null);
+            Assert.That(callbackCalled, Is.EqualTo(2));
+            Assert.That(callbackConnection, Is.EqualTo(owner)); // the one that was removed
+            Assert.That(callbackIdentity, Is.EqualTo(identity));
+            Assert.That(callbackState, Is.EqualTo(false));
+
+            // clean up
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
         public void NotifyAuthorityCallsOnStartStopAuthority()
         {
             // create a networkidentity with our test components
@@ -999,6 +1106,180 @@ namespace Mirror.Tests
             // call ClearObservers
             identity.ClearObservers();
             Assert.That(identity.observers.Count, Is.EqualTo(0));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void ClearDirtyComponentsDirtyBits()
+        {
+            // create a networkidentity and add some components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            OnStartClientTestNetworkBehaviour compA = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
+            OnStartClientTestNetworkBehaviour compB = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
+
+            // set syncintervals so one is always dirty, one is never dirty
+            compA.syncInterval = 0;
+            compB.syncInterval = Mathf.Infinity;
+
+            // set components dirty bits
+            compA.SetDirtyBit(0x0001);
+            compB.SetDirtyBit(0x1001);
+            Assert.That(compA.IsDirty(), Is.True); // dirty because interval reached and mask != 0
+            Assert.That(compB.IsDirty(), Is.False); // not dirty because syncinterval not reached
+
+            // call identity.ClearDirtyComponentsDirtyBits
+            identity.ClearDirtyComponentsDirtyBits();
+            Assert.That(compA.IsDirty(), Is.False); // should be cleared now
+            Assert.That(compB.IsDirty(), Is.False); // should be untouched
+
+            // set compB syncinterval to 0 to check if the masks were untouched
+            // (if they weren't, then it should be dirty now)
+            compB.syncInterval = 0;
+            Assert.That(compB.IsDirty(), Is.True);
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void ClearAllComponentsDirtyBits()
+        {
+            // create a networkidentity and add some components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            OnStartClientTestNetworkBehaviour compA = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
+            OnStartClientTestNetworkBehaviour compB = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
+
+            // set syncintervals so one is always dirty, one is never dirty
+            compA.syncInterval = 0;
+            compB.syncInterval = Mathf.Infinity;
+
+            // set components dirty bits
+            compA.SetDirtyBit(0x0001);
+            compB.SetDirtyBit(0x1001);
+            Assert.That(compA.IsDirty(), Is.True); // dirty because interval reached and mask != 0
+            Assert.That(compB.IsDirty(), Is.False); // not dirty because syncinterval not reached
+
+            // call identity.ClearAllComponentsDirtyBits
+            identity.ClearAllComponentsDirtyBits();
+            Assert.That(compA.IsDirty(), Is.False); // should be cleared now
+            Assert.That(compB.IsDirty(), Is.False); // should be cleared now
+
+            // set compB syncinterval to 0 to check if the masks were cleared
+            // (if they weren't, then it would still be dirty now)
+            compB.syncInterval = 0;
+            Assert.That(compB.IsDirty(), Is.False);
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void Reset()
+        {
+            // create a networkidentity
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // modify it a bit
+            identity.isClient = true;
+            identity.OnStartServer(); // creates .observers and generates a netId
+            uint netId = identity.netId;
+            identity.connectionToClient = new NetworkConnectionToClient(1);
+            identity.connectionToServer = new NetworkConnectionToServer();
+            identity.observers[43] = new NetworkConnectionToClient(2);
+
+            // calling reset shouldn't do anything unless it was marked for reset
+            identity.Reset();
+            Assert.That(identity.isClient, Is.True);
+            Assert.That(identity.netId, Is.EqualTo(netId));
+            Assert.That(identity.connectionToClient, !Is.Null);
+            Assert.That(identity.connectionToServer, !Is.Null);
+
+            // mark for reset and reset
+            identity.MarkForReset();
+            identity.Reset();
+            Assert.That(identity.isClient, Is.False);
+            Assert.That(identity.netId, Is.EqualTo(0));
+            Assert.That(identity.connectionToClient, Is.Null);
+            Assert.That(identity.connectionToServer, Is.Null);
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void ServerUpdate()
+        {
+            // create a server networkidentity with some test components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            SerializeTest1NetworkBehaviour compA = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            compA.value = 1337; // test value
+            compA.syncInterval = 0; // set syncInterval so IsDirty passes the interval check
+            compA.syncMode = SyncMode.Owner; // one needs to sync to owner
+            SerializeTest2NetworkBehaviour compB = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+            compB.value = "test"; // test value
+            compB.syncInterval = 0; // set syncInterval so IsDirty passes the interval check
+            compB.syncMode = SyncMode.Observers; // one needs to sync to owner
+
+            // call OnStartServer once so observers are created
+            identity.OnStartServer();
+
+            // set it dirty
+            compA.SetDirtyBit(ulong.MaxValue);
+            compB.SetDirtyBit(ulong.MaxValue);
+            Assert.That(compA.IsDirty(), Is.True);
+            Assert.That(compB.IsDirty(), Is.True);
+
+            // calling update without observers should clear all dirty bits.
+            // it would be spawned on new observers anyway.
+            identity.ServerUpdate();
+            Assert.That(compA.IsDirty(), Is.False);
+            Assert.That(compB.IsDirty(), Is.False);
+
+            // add an owner connection that will receive the updates
+            ULocalConnectionToClient owner = new ULocalConnectionToClient();
+            owner.isReady = true; // for syncing
+            // add a client to server connection + handler to receive syncs
+            owner.connectionToServer = new ULocalConnectionToServer();
+            int ownerCalled = 0;
+            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
+            {
+                { MessagePacker.GetId<UpdateVarsMessage>(), (msg => ++ownerCalled) }
+            });
+            identity.connectionToClient = owner;
+
+            // add an observer connection that will receive the updates
+            ULocalConnectionToClient observer = new ULocalConnectionToClient();
+            observer.isReady = true; // we only sync to ready observers
+            // add a client to server connection + handler to receive syncs
+            observer.connectionToServer = new ULocalConnectionToServer();
+            int observerCalled = 0;
+            observer.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
+            {
+                { MessagePacker.GetId<UpdateVarsMessage>(), (msg => ++observerCalled) }
+            });
+            identity.observers[observer.connectionId] = observer;
+
+            // set components dirty again
+            compA.SetDirtyBit(ulong.MaxValue);
+            compB.SetDirtyBit(ulong.MaxValue);
+
+            // calling update should serialize all components and send them to
+            // owner/observers
+            identity.ServerUpdate();
+
+            // update connections once so that messages are processed
+            owner.connectionToServer.Update();
+            observer.connectionToServer.Update();
+
+            // was it received on the clients?
+            Assert.That(ownerCalled, Is.EqualTo(1));
+            Assert.That(observerCalled, Is.EqualTo(1));
 
             // clean up
             GameObject.DestroyImmediate(gameObject);

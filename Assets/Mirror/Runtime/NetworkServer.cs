@@ -467,7 +467,7 @@ namespace Mirror
             {
                 if (kvp.Value != null && kvp.Value.gameObject != null)
                 {
-                    kvp.Value.MirrorUpdate();
+                    kvp.Value.ServerUpdate();
                 }
                 else
                 {
