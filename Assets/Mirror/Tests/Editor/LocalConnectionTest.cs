@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -34,6 +36,8 @@ namespace Mirror.Tests
         [Test]
         public void ServerToClientTest()
         {
+            Assert.That(connectionToClient.address, Is.EqualTo("localhost"));
+
             MyMessage myMessage = new MyMessage()
             {
                 id = 3,
@@ -64,6 +68,8 @@ namespace Mirror.Tests
         [Test]
         public void ClientToServerTest()
         {
+            Assert.That(connectionToServer.address, Is.EqualTo("localhost"));
+
             MyMessage myMessage = new MyMessage()
             {
                 id = 3,
@@ -91,5 +97,14 @@ namespace Mirror.Tests
             Assert.True(invoked, "handler should have been invoked");
         }
 
+        [Test]
+        public void ClientToServerFailTest()
+        {
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            bool result = connectionToServer.Send(new ArraySegment<byte>(new byte[0]));
+            LogAssert.ignoreFailingMessages = false;
+
+            Assert.That(result, Is.False);
+        }
     }
 }
