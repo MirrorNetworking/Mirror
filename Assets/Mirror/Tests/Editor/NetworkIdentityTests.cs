@@ -1069,5 +1069,39 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        [Test]
+        public void Reset()
+        {
+            // create a networkidentity
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // modify it a bit
+            identity.isClient = true;
+            identity.OnStartServer(); // creates .observers and generates a netId
+            uint netId = identity.netId;
+            identity.connectionToClient = new NetworkConnectionToClient(1);
+            identity.connectionToServer = new NetworkConnectionToServer();
+            identity.observers[43] = new NetworkConnectionToClient(2);
+
+            // calling reset shouldn't do anything unless it was marked for reset
+            identity.Reset();
+            Assert.That(identity.isClient, Is.True);
+            Assert.That(identity.netId, Is.EqualTo(netId));
+            Assert.That(identity.connectionToClient, !Is.Null);
+            Assert.That(identity.connectionToServer, !Is.Null);
+
+            // mark for reset and reset
+            identity.MarkForReset();
+            identity.Reset();
+            Assert.That(identity.isClient, Is.False);
+            Assert.That(identity.netId, Is.EqualTo(0));
+            Assert.That(identity.connectionToClient, Is.Null);
+            Assert.That(identity.connectionToServer, Is.Null);
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
