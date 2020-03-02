@@ -604,12 +604,6 @@ namespace Mirror.Tests
                 callbackState = state;
             };
 
-            // we can only handle authority on the server.
-            // start the server so that isServer is true.
-            Transport.activeTransport = Substitute.For<Transport>(); // needed in .Listen
-            NetworkServer.Listen(1);
-            Assert.That(identity.isServer, Is.True);
-
             // create a connection
             ULocalConnectionToClient owner = new ULocalConnectionToClient();
             owner.isReady = true;
@@ -620,8 +614,22 @@ namespace Mirror.Tests
                 { MessagePacker.GetId<SpawnMessage>(), (msg => ++spawnCalled) }
             });
 
-            // assign authority
+            // assigning authority should only work on server.
+            // if isServer is false because server isn't running yet then it
+            // should fail.
+            LogAssert.ignoreFailingMessages = true; // error log is expected
             bool result = identity.AssignClientAuthority(owner);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(result, Is.False);
+
+            // we can only handle authority on the server.
+            // start the server so that isServer is true.
+            Transport.activeTransport = Substitute.For<Transport>(); // needed in .Listen
+            NetworkServer.Listen(1);
+            Assert.That(identity.isServer, Is.True);
+
+            // assign authority
+            result = identity.AssignClientAuthority(owner);
             Assert.That(result, Is.True);
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
             Assert.That(callbackCalled, Is.EqualTo(1));
@@ -642,6 +650,13 @@ namespace Mirror.Tests
             Assert.That(result, Is.False);
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
             Assert.That(callbackCalled, Is.EqualTo(1));
+
+            // someone might try to remove authority by assigning null.
+            // make sure this fails.
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            result = identity.AssignClientAuthority(null);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(result, Is.False);
 
             // removing authority for the main player object shouldn't work
             owner.identity = identity; // set connection's player object
