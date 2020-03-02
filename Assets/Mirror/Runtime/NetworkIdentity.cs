@@ -1156,7 +1156,7 @@ namespace Mirror
         {
             if (!isServer)
             {
-                Debug.LogError("RemoveClientAuthority can only be call on the server for spawned objects.");
+                Debug.LogError("RemoveClientAuthority can only be called on the server for spawned objects.");
                 return;
             }
 
