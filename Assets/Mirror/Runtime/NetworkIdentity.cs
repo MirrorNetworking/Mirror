@@ -1262,7 +1262,8 @@ namespace Mirror
             }
             else
             {
-                // clear all component's dirty bits
+                // clear all component's dirty bits.
+                // it would be spawned on new observers anyway.
                 ClearAllComponentsDirtyBits();
             }
         }
