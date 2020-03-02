@@ -658,6 +658,16 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = false;
             Assert.That(result, Is.False);
 
+            // removing authority while not isServer shouldn't work.
+            // only allow it on server.
+            NetworkServer.Shutdown();
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            identity.RemoveClientAuthority();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
+            Assert.That(callbackCalled, Is.EqualTo(1));
+            NetworkServer.Listen(1); // restart it gain
+
             // removing authority for the main player object shouldn't work
             owner.identity = identity; // set connection's player object
             LogAssert.ignoreFailingMessages = true; // error log is expected
