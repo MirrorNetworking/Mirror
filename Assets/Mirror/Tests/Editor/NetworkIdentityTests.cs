@@ -1036,5 +1036,38 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        [Test]
+        public void ClearAllComponentsDirtyBits()
+        {
+            // create a networkidentity and add some components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            OnStartClientTestNetworkBehaviour compA = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
+            OnStartClientTestNetworkBehaviour compB = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
+
+            // set syncintervals so one is always dirty, one is never dirty
+            compA.syncInterval = 0;
+            compB.syncInterval = Mathf.Infinity;
+
+            // set components dirty bits
+            compA.SetDirtyBit(0x0001);
+            compB.SetDirtyBit(0x1001);
+            Assert.That(compA.IsDirty(), Is.True); // dirty because interval reached and mask != 0
+            Assert.That(compB.IsDirty(), Is.False); // not dirty because syncinterval not reached
+
+            // call identity.ClearAllComponentsDirtyBits
+            identity.ClearAllComponentsDirtyBits();
+            Assert.That(compA.IsDirty(), Is.False); // should be cleared now
+            Assert.That(compB.IsDirty(), Is.False); // should be cleared now
+
+            // set compB syncinterval to 0 to check if the masks were cleared
+            // (if they weren't, then it would still be dirty now)
+            compB.syncInterval = 0;
+            Assert.That(compB.IsDirty(), Is.False);
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
