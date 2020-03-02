@@ -1028,6 +1028,11 @@ namespace Mirror.Tests
             Assert.That(compA.IsDirty(), Is.False); // should be cleared now
             Assert.That(compB.IsDirty(), Is.False); // should be untouched
 
+            // set compB syncinterval to 0 to check if the masks were untouched
+            // (if they weren't, then it should be dirty now)
+            compB.syncInterval = 0;
+            Assert.That(compB.IsDirty(), Is.True);
+
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
