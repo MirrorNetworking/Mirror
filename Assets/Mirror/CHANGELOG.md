@@ -1,3 +1,13 @@
+# [13.0.0](https://github.com/MirrorNG/MirrorNG/compare/12.0.2-master...13.0.0-master) (2020-03-02)
+
+
+* Removed LLAPI ([b0c936c](https://github.com/MirrorNG/MirrorNG/commit/b0c936cb7d1a803b7096806a905a4c121e45bcdf))
+
+
+### BREAKING CHANGES
+
+* Removed LLAPITransport
+
 ## [12.0.2](https://github.com/MirrorNG/MirrorNG/compare/12.0.1-master...12.0.2-master) (2020-02-29)
 
 
