@@ -585,6 +585,88 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void AssignAndRemoveClientAuthority()
+        {
+            // create a networkidentity with our test component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            identity.netId = 42; // needed for isServer to be true
+
+            // test the callback too
+            int callbackCalled = 0;
+            NetworkConnection callbackConnection = null;
+            NetworkIdentity callbackIdentity = null;
+            bool callbackState = false;
+            NetworkIdentity.clientAuthorityCallback += (conn, networkIdentity, state) => {
+                ++callbackCalled;
+                callbackConnection = conn;
+                callbackIdentity = identity;
+                callbackState = state;
+            };
+
+            // we can only handle authority on the server.
+            // start the server so that isServer is true.
+            Transport.activeTransport = Substitute.For<Transport>(); // needed in .Listen
+            NetworkServer.Listen(1);
+            Assert.That(identity.isServer, Is.True);
+
+            // create a connection
+            ULocalConnectionToClient owner = new ULocalConnectionToClient();
+            owner.isReady = true;
+            // add client handlers
+            owner.connectionToServer = new ULocalConnectionToServer();
+            int spawnCalled = 0;
+            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>{
+                { MessagePacker.GetId<SpawnMessage>(), (msg => ++spawnCalled) }
+            });
+
+            // assign authority
+            bool result = identity.AssignClientAuthority(owner);
+            Assert.That(result, Is.True);
+            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
+            Assert.That(callbackCalled, Is.EqualTo(1));
+            Assert.That(callbackConnection, Is.EqualTo(owner));
+            Assert.That(callbackIdentity, Is.EqualTo(identity));
+            Assert.That(callbackState, Is.EqualTo(true));
+
+            // assigning authority should respawn the object with proper authority
+            // on the client. that's the best way to sync the new state right now.
+            owner.connectionToServer.Update(); // process pending messages
+            Assert.That(spawnCalled, Is.EqualTo(1));
+
+            // shouldn't be able to assign authority while already owned by
+            // another connection
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            result = identity.AssignClientAuthority(new NetworkConnectionToClient(43));
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(result, Is.False);
+            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
+            Assert.That(callbackCalled, Is.EqualTo(1));
+
+            // removing authority for the main player object shouldn't work
+            owner.identity = identity; // set connection's player object
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            identity.RemoveClientAuthority();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
+            Assert.That(callbackCalled, Is.EqualTo(1));
+
+            // removing authority for a non-main-player object should work
+            owner.identity = null;
+            identity.RemoveClientAuthority();
+            Assert.That(identity.connectionToClient, Is.Null);
+            Assert.That(callbackCalled, Is.EqualTo(2));
+            Assert.That(callbackConnection, Is.EqualTo(owner)); // the one that was removed
+            Assert.That(callbackIdentity, Is.EqualTo(identity));
+            Assert.That(callbackState, Is.EqualTo(false));
+
+            // clean up
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
         public void NotifyAuthorityCallsOnStartStopAuthority()
         {
             // create a networkidentity with our test components
