@@ -1215,7 +1215,7 @@ namespace Mirror
         static UpdateVarsMessage varsMessage = new UpdateVarsMessage();
 
         // invoked by NetworkServer during Update()
-        internal void MirrorUpdate()
+        internal void ServerUpdate()
         {
             if (observers != null && observers.Count > 0)
             {
