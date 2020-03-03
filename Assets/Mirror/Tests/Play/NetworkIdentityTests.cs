@@ -1,10 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Mirror;
-using NSubstitute;
+﻿using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 using InvalidOperationException = System.InvalidOperationException;
 
 namespace Mirror.Tests
@@ -43,8 +39,8 @@ namespace Mirror.Tests
             Object.DestroyImmediate(gameObject);
             // reset all state
             server.Shutdown();
-            GameObject.DestroyImmediate(serverGO);
-            GameObject.DestroyImmediate(clientGO);
+            Object.DestroyImmediate(serverGO);
+            Object.DestroyImmediate(clientGO);
             Transport.activeTransport = null;
             server.Shutdown();
         }
@@ -103,7 +99,6 @@ namespace Mirror.Tests
         {
             // create a networkidentity with our test component
             server.Spawn(gameObject);
-
             Assert.That(identity.connectionToClient, Is.Null);
         }
 
@@ -112,9 +107,15 @@ namespace Mirror.Tests
         {
             // create a networkidentity with our test component
             server.Spawn(gameObject);
-
             identity.AssignClientAuthority(server.localConnection);
 
+            Assert.That(identity.connectionToClient, Is.SameAs(server.localConnection));
+        }
+
+        [Test]
+        public void SpawnWithAuthority()
+        {
+            server.Spawn(gameObject, server.localConnection);
             Assert.That(identity.connectionToClient, Is.SameAs(server.localConnection));
         }
 
@@ -184,11 +185,5 @@ namespace Mirror.Tests
             Assert.That(identity.connectionToClient, Is.Null);
         }
 
-        [Test]
-        public void SpawnWithAuthority()
-        {
-            server.Spawn(gameObject, server.localConnection);
-            Assert.That(identity.connectionToClient, Is.SameAs(server.localConnection));
-        }
     }
 }
