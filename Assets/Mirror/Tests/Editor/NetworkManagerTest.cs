@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -85,6 +85,18 @@ namespace Mirror.Tests
 
             Assert.That(manager.isNetworkActive == false);
             Assert.That(manager.mode == NetworkManagerMode.Offline);
+        }
+
+        [Test]
+        public void ShutdownTest()
+        {
+            manager.StartClient();
+            NetworkManager.Shutdown();
+
+            Assert.That(NetworkManager.startPositions.Count == 0);
+            Assert.That(NetworkManager.startPositionIndex == 0);
+            Assert.That(NetworkManager.startPositionIndex == 0);
+            Assert.That(NetworkManager.singleton == null);
         }
     }
 }
