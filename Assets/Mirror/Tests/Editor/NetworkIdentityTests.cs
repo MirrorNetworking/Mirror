@@ -216,13 +216,15 @@ namespace Mirror.Tests
         {
             networkServerGameObject = new GameObject();
             server = networkServerGameObject.AddComponent<NetworkServer>();
+            Transport.activeTransport = Substitute.For<Transport>();
+
         }
 
         [TearDown]
         public void TearDown()
         {
             Object.DestroyImmediate(networkServerGameObject);
-
+            Transport.activeTransport = null;
         }
 
         // A Test behaves as an ordinary method
@@ -317,7 +319,6 @@ namespace Mirror.Tests
         public void ServerMode_IsFlags_Test()
         {
             // start the server
-            Transport.activeTransport = Substitute.For<Transport>();
             var networkManagerGameObject = new GameObject();
             NetworkServer server = networkManagerGameObject.AddComponent<NetworkServer>();
 
@@ -338,7 +339,6 @@ namespace Mirror.Tests
 
             // stop the server
             server.Shutdown();
-            Transport.activeTransport = null;
             NetworkIdentity.spawned.Clear();
             Object.DestroyImmediate(gameObject);
             Object.DestroyImmediate(networkManagerGameObject);
@@ -349,7 +349,6 @@ namespace Mirror.Tests
         public void HostMode_IsFlags_Test()
         {
             // start the server
-            Transport.activeTransport = Substitute.For<Transport>();
             var networkManagerGameObject = new GameObject();
             NetworkServer server = networkManagerGameObject.AddComponent<NetworkServer>();
             NetworkClient client = networkManagerGameObject.AddComponent<NetworkClient>();
@@ -381,7 +380,6 @@ namespace Mirror.Tests
 
             // stop the server
             server.Shutdown();
-            Transport.activeTransport = null;
             NetworkIdentity.spawned.Clear();
             Object.DestroyImmediate(gameObject);
             Object.DestroyImmediate(networkManagerGameObject);
@@ -619,123 +617,6 @@ namespace Mirror.Tests
             Object.DestroyImmediate(gameObject);
         }
 
-        [Test]
-        public void AssignAndRemoveClientAuthority()
-        {
-            // create a networkidentity with our test component
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-            identity.server = server;
-            identity.netId = 42; // needed for isServer to be true
-
-            // test the callback too
-            int callbackCalled = 0;
-            NetworkConnection callbackConnection = null;
-            NetworkIdentity callbackIdentity = null;
-            bool callbackState = false;
-            NetworkIdentity.clientAuthorityCallback += (conn, networkIdentity, state) =>
-            {
-                ++callbackCalled;
-                callbackConnection = conn;
-                callbackIdentity = identity;
-                callbackState = state;
-            };
-
-            // create a connection
-            var owner = new ULocalConnectionToClient
-            {
-                isReady = true,
-                // add client handlers
-                connectionToServer = new ULocalConnectionToServer()
-            };
-            int spawnCalled = 0;
-            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
-            {
-                { MessagePacker.GetId<SpawnMessage>(), (conn, msg, channel) => ++spawnCalled }
-            });
-
-            // assigning authority should only work on server.
-            // if isServer is false because server isn't running yet then it
-            // should fail.
-            Assert.Throws<InvalidOperationException>(() =>
-           {
-               identity.AssignClientAuthority(owner);
-           });
-
-            // we can only handle authority on the server.
-            // start the server so that isServer is true.
-            Transport.activeTransport = Substitute.For<Transport>(); // needed in .Listen
-            server.Listen(1);
-            Assert.That(identity.isServer, Is.True);
-
-            // assign authority
-            identity.AssignClientAuthority(owner);
-            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
-            Assert.That(callbackCalled, Is.EqualTo(1));
-            Assert.That(callbackConnection, Is.EqualTo(owner));
-            Assert.That(callbackIdentity, Is.EqualTo(identity));
-            Assert.That(callbackState, Is.EqualTo(true));
-
-            // assigning authority should respawn the object with proper authority
-            // on the client. that's the best way to sync the new state right now.
-            owner.connectionToServer.Update(); // process pending messages
-            Assert.That(spawnCalled, Is.EqualTo(1));
-
-            // shouldn't be able to assign authority while already owned by
-            // another connection
-            Assert.Throws<InvalidOperationException>(() =>
-           {
-               identity.AssignClientAuthority(new NetworkConnectionToClient(43));
-           });
-
-            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
-            Assert.That(callbackCalled, Is.EqualTo(1));
-
-            // someone might try to remove authority by assigning null.
-            // make sure this fails.
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                identity.AssignClientAuthority(null);
-            });
-
-            // removing authority while not isServer shouldn't work.
-            // only allow it on server.
-            server.Shutdown();
-
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                // shoud fail because the server is not active
-                identity.RemoveClientAuthority();
-            });
-            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
-            Assert.That(callbackCalled, Is.EqualTo(1));
-            server.Listen(1); // restart it gain
-
-            // removing authority for the main player object shouldn't work
-            owner.identity = identity; // set connection's player object
-            Assert.Throws<InvalidOperationException>(() =>
-           {
-               identity.RemoveClientAuthority();
-
-           });
-
-            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
-            Assert.That(callbackCalled, Is.EqualTo(1));
-
-            // removing authority for a non-main-player object should work
-            owner.identity = null;
-            identity.RemoveClientAuthority();
-            Assert.That(identity.connectionToClient, Is.Null);
-            Assert.That(callbackCalled, Is.EqualTo(2));
-            Assert.That(callbackConnection, Is.EqualTo(owner)); // the one that was removed
-            Assert.That(callbackIdentity, Is.EqualTo(identity));
-            Assert.That(callbackState, Is.EqualTo(false));
-
-            // clean up
-            server.Shutdown();
-            Transport.activeTransport = null;
-            Object.DestroyImmediate(gameObject);
-        }
 
         [Test]
         public void NotifyAuthorityCallsOnStartStopAuthority()

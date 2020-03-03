@@ -234,7 +234,7 @@ namespace Mirror
         /// <para>Whenever an object is spawned using SpawnWithClientAuthority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
         /// <para>This callback is only invoked on the server.</para>
         /// </summary>
-        public static ClientAuthorityCallback clientAuthorityCallback;
+        public static event ClientAuthorityCallback clientAuthorityCallback;
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
@@ -1056,17 +1056,17 @@ namespace Mirror
         {
             if (!isServer)
             {
-                throw new InvalidOperationException("AssignClientAuthority can only be called on the server for spawned objects.");
+                throw new InvalidOperationException("AssignClientAuthority can only be called on the server for spawned objects");
             }
 
             if (conn == null)
             {
-                throw new InvalidOperationException("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead.");
+                throw new InvalidOperationException("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead");
             }
 
             if (connectionToClient != null && conn != connectionToClient)
             {
-                throw new InvalidOperationException("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first.");
+                throw new InvalidOperationException("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first");
             }
 
             SetClientOwner(conn);
@@ -1088,7 +1088,7 @@ namespace Mirror
         {
             if (!isServer)
             {
-                throw new InvalidOperationException("RemoveClientAuthority can only be called on the server for spawned objects.");
+                throw new InvalidOperationException("RemoveClientAuthority can only be called on the server for spawned objects");
             }
 
             if (connectionToClient?.identity == this)
