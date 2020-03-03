@@ -1227,21 +1227,11 @@ namespace Mirror.Tests
             // won't find it
             NetworkIdentity.spawned[identity.netId] = identity;
 
-            // serialize a CommandMessage message into an arraysegment
-            CommandMessage message = new CommandMessage {
-                componentIndex = 0,
-                functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
-                netId = identity.netId,
-                payload = new ArraySegment<byte>(new byte[0])
-            };
-            NetworkWriter writer = new NetworkWriter();
-            MessagePacker.Pack(message, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
-
-            // call HandleCommand
-            identity.HandleCommand(message.componentIndex, message.functionHash, new NetworkReader(segment));
-
-            // was the command called in the component?
+            // call HandleCommand and check if the command was called in the component
+            int componentIndex = 0;
+            int functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated));
+            NetworkReader payload = new NetworkReader(new byte[0]);
+            identity.HandleCommand(componentIndex, functionHash, payload);
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // clean up
@@ -1266,21 +1256,11 @@ namespace Mirror.Tests
             // won't find it
             NetworkIdentity.spawned[identity.netId] = identity;
 
-            // serialize an RpcMessage message into an arraysegment
-            RpcMessage message = new RpcMessage {
-                componentIndex = 0,
-                functionHash = NetworkBehaviour.GetMethodHash(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated)),
-                netId = identity.netId,
-                payload = new ArraySegment<byte>(new byte[0])
-            };
-            NetworkWriter writer = new NetworkWriter();
-            MessagePacker.Pack(message, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
-
-            // call HandleRpc
-            identity.HandleRPC(message.componentIndex, message.functionHash, new NetworkReader(segment));
-
-            // was the rpc called in the component?
+            // call HandleRpc and check if the rpc was called in the component
+            int componentIndex = 0;
+            int functionHash = NetworkBehaviour.GetMethodHash(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated));
+            NetworkReader payload = new NetworkReader(new byte[0]);
+            identity.HandleRPC(componentIndex, functionHash, payload);
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // clean up
@@ -1305,21 +1285,11 @@ namespace Mirror.Tests
             // won't find it
             NetworkIdentity.spawned[identity.netId] = identity;
 
-            // serialize an SyncEventMessage message into an arraysegment
-            SyncEventMessage message = new SyncEventMessage {
-                componentIndex = 0,
-                functionHash = NetworkBehaviour.GetMethodHash(typeof(SyncEventTestNetworkBehaviour), nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated)),
-                netId = identity.netId,
-                payload = new ArraySegment<byte>(new byte[0])
-            };
-            NetworkWriter writer = new NetworkWriter();
-            MessagePacker.Pack(message, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
-
-            // call HandleSyncEvent
-            identity.HandleSyncEvent(message.componentIndex, message.functionHash, new NetworkReader(segment));
-
-            // was the rpc called in the component?
+            // call HandleSyncEvent and check if the event was called in the component
+            int componentIndex = 0;
+            int functionHash = NetworkBehaviour.GetMethodHash(typeof(SyncEventTestNetworkBehaviour), nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated));
+            NetworkReader payload = new NetworkReader(new byte[0]);
+            identity.HandleSyncEvent(componentIndex, functionHash, payload);
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // clean up
