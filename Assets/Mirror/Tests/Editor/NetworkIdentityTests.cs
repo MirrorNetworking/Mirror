@@ -205,6 +205,16 @@ namespace Mirror.Tests
             }
         }
 
+        class RebuildObserversNetworkBehaviour : NetworkBehaviour
+        {
+            public NetworkConnection observer;
+            public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+            {
+                observers.Add(observer);
+                return true;
+            }
+        }
+
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
@@ -1401,6 +1411,29 @@ namespace Mirror.Tests
             // was it received on the clients?
             Assert.That(ownerCalled, Is.EqualTo(1));
             Assert.That(observerCalled, Is.EqualTo(1));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
+        public void GetNewObservers()
+        {
+            // create a server networkidentity with test observer components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            RebuildObserversNetworkBehaviour compA = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            compA.observer = new NetworkConnectionToClient(12);
+            RebuildObserversNetworkBehaviour compB = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            compB.observer = new NetworkConnectionToClient(13);
+
+            // get new observers
+            HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
+            bool result = identity.GetNewObservers(observers, true);
+            Assert.That(result, Is.True);
+            Assert.That(observers.Count, Is.EqualTo(2));
+            Assert.That(observers.Contains(compA.observer), Is.True);
+            Assert.That(observers.Contains(compB.observer), Is.True);
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
