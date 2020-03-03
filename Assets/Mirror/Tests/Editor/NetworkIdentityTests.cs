@@ -1251,6 +1251,45 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void HandleRpc()
+        {
+            // create a networkidentity with an rpc component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            RpcTestNetworkBehaviour comp0 = gameObject.AddComponent<RpcTestNetworkBehaviour>();
+            Assert.That(comp0.called, Is.EqualTo(0));
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterRpcDelegate(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated), RpcTestNetworkBehaviour.RpcGenerated);
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // serialize an RpcMessage message into an arraysegment
+            RpcMessage message = new RpcMessage {
+                componentIndex = 0,
+                functionHash = NetworkBehaviour.GetMethodHash(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated)),
+                netId = identity.netId,
+                payload = new ArraySegment<byte>(new byte[0])
+            };
+            NetworkWriter writer = new NetworkWriter();
+            MessagePacker.Pack(message, writer);
+            ArraySegment<byte> segment = writer.ToArraySegment();
+
+            // call HandleRpc
+            identity.HandleRPC(message.componentIndex, message.functionHash, new NetworkReader(segment));
+
+            // was the rpc called in the component?
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // clean up
+            NetworkIdentity.spawned.Clear();
+            NetworkBehaviour.ClearDelegates();
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
         public void ServerUpdate()
         {
             // create a server networkidentity with some test components

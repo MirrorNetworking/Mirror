@@ -19,6 +19,18 @@ namespace Mirror.Tests
         }
     }
 
+    public class RpcTestNetworkBehaviour : NetworkBehaviour
+    {
+        // counter to make sure that it's called exactly once
+        public int called;
+        // weaver generates this from [Rpc]
+        // but for tests we need to add it manually
+        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader)
+        {
+            ++((RpcTestNetworkBehaviour)comp).called;
+        }
+    }
+
     public class OnStartClientTestNetworkBehaviour : NetworkBehaviour
     {
         // counter to make sure that it's called exactly once
