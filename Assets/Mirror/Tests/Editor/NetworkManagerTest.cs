@@ -25,35 +25,35 @@ namespace Mirror.Tests
         [Test]
         public void VariableTest()
         {
-            Assert.That(manager.dontDestroyOnLoad == true);
-            Assert.That(manager.runInBackground == true);
-            Assert.That(manager.startOnHeadless == true);
-            Assert.That(manager.showDebugMessages == false);
-            Assert.That(manager.serverTickRate == 30);
-            Assert.That(manager.offlineScene == "");
-            Assert.That(manager.networkAddress == "localhost");
-            Assert.That(manager.maxConnections == 4);
-            Assert.That(manager.autoCreatePlayer == true);
-            Assert.That(manager.spawnPrefabs.Count == 0);
-            Assert.That(manager.numPlayers == 0);
-            Assert.That(manager.isNetworkActive == false);
+            Assert.That(manager.dontDestroyOnLoad, Is.True);
+            Assert.That(manager.runInBackground, Is.True);
+            Assert.That(manager.startOnHeadless, Is.True);
+            Assert.That(manager.showDebugMessages, Is.False);
+            Assert.That(manager.serverTickRate, Is.EqualTo(30));
+            Assert.That(manager.offlineScene, Is.Empty);
+            Assert.That(manager.networkAddress, Is.EqualTo("localhost"));
+            Assert.That(manager.maxConnections, Is.EqualTo(4));
+            Assert.That(manager.autoCreatePlayer, Is.True);
+            Assert.That(manager.spawnPrefabs, Is.Empty);
+            Assert.That(manager.numPlayers, Is.Zero);
+            Assert.That(manager.isNetworkActive, Is.False);
 
-            Assert.That(NetworkManager.networkSceneName == "");
-            Assert.That(NetworkManager.startPositionIndex == 0);
-            Assert.That(NetworkManager.startPositions.Count == 0);
-            Assert.That(NetworkManager.isHeadless == false);
+            Assert.That(NetworkManager.networkSceneName, Is.Empty);
+            Assert.That(NetworkManager.startPositionIndex, Is.Zero);
+            Assert.That(NetworkManager.startPositions, Is.Empty);
+            Assert.That(NetworkManager.isHeadless, Is.False);
         }
 
         [Test]
         public void StartServerTest()
         {
-            Assert.That(NetworkServer.active == false);
+            Assert.That(NetworkServer.active , Is.False);
 
             manager.StartServer();
 
-            Assert.That(manager.isNetworkActive == true);
+            Assert.That(manager.isNetworkActive , Is.True);
             Assert.That(manager.mode == NetworkManagerMode.ServerOnly);
-            Assert.That(NetworkServer.active == true);
+            Assert.That(NetworkServer.active , Is.True);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Mirror.Tests
             manager.StartServer();
             manager.StopServer();
 
-            Assert.That(manager.isNetworkActive == false);
+            Assert.That(manager.isNetworkActive , Is.False);
             Assert.That(manager.mode == NetworkManagerMode.Offline);
         }
 
@@ -71,7 +71,7 @@ namespace Mirror.Tests
         {
             manager.StartClient();
 
-            Assert.That(manager.isNetworkActive == true);
+            Assert.That(manager.isNetworkActive , Is.True);
             Assert.That(manager.mode == NetworkManagerMode.ClientOnly);
 
             manager.StopClient();
@@ -83,7 +83,7 @@ namespace Mirror.Tests
             manager.StartClient();
             manager.StopClient();
 
-            Assert.That(manager.isNetworkActive == false);
+            Assert.That(manager.isNetworkActive , Is.False);
             Assert.That(manager.mode == NetworkManagerMode.Offline);
         }
 
@@ -93,20 +93,20 @@ namespace Mirror.Tests
             manager.StartClient();
             NetworkManager.Shutdown();
 
-            Assert.That(NetworkManager.startPositions.Count == 0);
-            Assert.That(NetworkManager.startPositionIndex == 0);
-            Assert.That(NetworkManager.startPositionIndex == 0);
-            Assert.That(NetworkManager.singleton == null);
+            Assert.That(NetworkManager.startPositions.Count , Is.Zero);
+            Assert.That(NetworkManager.startPositionIndex , Is.Zero);
+            Assert.That(NetworkManager.startPositionIndex , Is.Zero);
+            Assert.That(NetworkManager.singleton , Is.Null);
         }
 
         [Test]
         public void RegisterStartPositionTest()
         {
-            Assert.That(NetworkManager.startPositions.Count == 0);
+            Assert.That(NetworkManager.startPositions.Count , Is.Zero);
 
             NetworkManager.RegisterStartPosition(gameObject.transform);
-            Assert.That(NetworkManager.startPositions.Count == 1);
-            Assert.That(NetworkManager.startPositions.Contains(gameObject.transform));
+            Assert.That(NetworkManager.startPositions.Count , Is.EqualTo(1));
+            Assert.That(NetworkManager.startPositions, Has.Member(gameObject.transform));
 
             NetworkManager.UnRegisterStartPosition(gameObject.transform);
         }
@@ -114,26 +114,26 @@ namespace Mirror.Tests
         [Test]
         public void UnRegisterStartPositionTest()
         {
-            Assert.That(NetworkManager.startPositions.Count == 0);
+            Assert.That(NetworkManager.startPositions.Count , Is.Zero);
             
             NetworkManager.RegisterStartPosition(gameObject.transform);
-            Assert.That(NetworkManager.startPositions.Count == 1);
-            Assert.That(NetworkManager.startPositions.Contains(gameObject.transform));
+            Assert.That(NetworkManager.startPositions.Count , Is.EqualTo(1));
+            Assert.That(NetworkManager.startPositions, Has.Member(gameObject.transform));
 
             NetworkManager.UnRegisterStartPosition(gameObject.transform);
-            Assert.That(NetworkManager.startPositions.Count == 0);
+            Assert.That(NetworkManager.startPositions.Count , Is.Zero);
         }
 
         [Test]
         public void GetStartPositionTest()
         {
-            Assert.That(NetworkManager.startPositions.Count == 0);
+            Assert.That(NetworkManager.startPositions.Count , Is.Zero);
             
             NetworkManager.RegisterStartPosition(gameObject.transform);
-            Assert.That(NetworkManager.startPositions.Count == 1);
-            Assert.That(NetworkManager.startPositions.Contains(gameObject.transform));
+            Assert.That(NetworkManager.startPositions.Count , Is.EqualTo(1));
+            Assert.That(NetworkManager.startPositions, Has.Member(gameObject.transform));
 
-            Assert.That(manager.GetStartPosition() == gameObject.transform);
+            Assert.That(manager.GetStartPosition(), Is.SameAs(gameObject.transform));
 
             NetworkManager.UnRegisterStartPosition(gameObject.transform);
         }
