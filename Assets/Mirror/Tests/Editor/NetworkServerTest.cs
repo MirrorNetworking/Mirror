@@ -31,6 +31,18 @@ namespace Mirror.Tests
         }
     }
 
+    public class SyncEventTestNetworkBehaviour : NetworkBehaviour
+    {
+        // counter to make sure that it's called exactly once
+        public int called;
+        // weaver generates this from [SyncEvent]
+        // but for tests we need to add it manually
+        public static void SyncEventGenerated(NetworkBehaviour comp, NetworkReader reader)
+        {
+            ++((SyncEventTestNetworkBehaviour)comp).called;
+        }
+    }
+
     public class OnStartClientTestNetworkBehaviour : NetworkBehaviour
     {
         // counter to make sure that it's called exactly once

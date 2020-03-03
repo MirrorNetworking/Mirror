@@ -1290,6 +1290,45 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void HandleSyncEvent()
+        {
+            // create a networkidentity with an rpc component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            SyncEventTestNetworkBehaviour comp0 = gameObject.AddComponent<SyncEventTestNetworkBehaviour>();
+            Assert.That(comp0.called, Is.EqualTo(0));
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterEventDelegate(typeof(SyncEventTestNetworkBehaviour), nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated), SyncEventTestNetworkBehaviour.SyncEventGenerated);
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // serialize an SyncEventMessage message into an arraysegment
+            SyncEventMessage message = new SyncEventMessage {
+                componentIndex = 0,
+                functionHash = NetworkBehaviour.GetMethodHash(typeof(SyncEventTestNetworkBehaviour), nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated)),
+                netId = identity.netId,
+                payload = new ArraySegment<byte>(new byte[0])
+            };
+            NetworkWriter writer = new NetworkWriter();
+            MessagePacker.Pack(message, writer);
+            ArraySegment<byte> segment = writer.ToArraySegment();
+
+            // call HandleSyncEvent
+            identity.HandleSyncEvent(message.componentIndex, message.functionHash, new NetworkReader(segment));
+
+            // was the rpc called in the component?
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // clean up
+            NetworkIdentity.spawned.Clear();
+            NetworkBehaviour.ClearDelegates();
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
         public void ServerUpdate()
         {
             // create a server networkidentity with some test components
