@@ -299,7 +299,6 @@ namespace Mirror
             }
         }
 
-        // Deprecated 03/03/2019
         /// <summary>
         /// Send a message structure with the given type number to only clients which are ready.
         /// <para>See Networking.NetworkClient.Ready.</para>
