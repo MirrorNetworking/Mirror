@@ -41,7 +41,6 @@ namespace Mirror.Tests
             Assert.That(NetworkManager.networkSceneName, Is.Empty);
             Assert.That(NetworkManager.startPositionIndex, Is.Zero);
             Assert.That(NetworkManager.startPositions, Is.Empty);
-            Assert.That(NetworkManager.isHeadless, Is.False);
         }
 
         [Test]
