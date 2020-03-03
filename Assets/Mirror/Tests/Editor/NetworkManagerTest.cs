@@ -98,5 +98,44 @@ namespace Mirror.Tests
             Assert.That(NetworkManager.startPositionIndex == 0);
             Assert.That(NetworkManager.singleton == null);
         }
+
+        [Test]
+        public void RegisterStartPositionTest()
+        {
+            Assert.That(NetworkManager.startPositions.Count == 0);
+
+            NetworkManager.RegisterStartPosition(gameObject.transform);
+            Assert.That(NetworkManager.startPositions.Count == 1);
+            Assert.That(NetworkManager.startPositions.Contains(gameObject.transform));
+
+            NetworkManager.UnRegisterStartPosition(gameObject.transform);
+        }
+
+        [Test]
+        public void UnRegisterStartPositionTest()
+        {
+            Assert.That(NetworkManager.startPositions.Count == 0);
+            
+            NetworkManager.RegisterStartPosition(gameObject.transform);
+            Assert.That(NetworkManager.startPositions.Count == 1);
+            Assert.That(NetworkManager.startPositions.Contains(gameObject.transform));
+
+            NetworkManager.UnRegisterStartPosition(gameObject.transform);
+            Assert.That(NetworkManager.startPositions.Count == 0);
+        }
+
+        [Test]
+        public void GetStartPositionTest()
+        {
+            Assert.That(NetworkManager.startPositions.Count == 0);
+            
+            NetworkManager.RegisterStartPosition(gameObject.transform);
+            Assert.That(NetworkManager.startPositions.Count == 1);
+            Assert.That(NetworkManager.startPositions.Contains(gameObject.transform));
+
+            Assert.That(manager.GetStartPosition() == gameObject.transform);
+
+            NetworkManager.UnRegisterStartPosition(gameObject.transform);
+        }
     }
 }
