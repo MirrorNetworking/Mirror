@@ -44,12 +44,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnValidateTest()
-        {
-            Assert.That(gameObject.GetComponent("NetworkServer") == null);
-        }
-
-        [Test]
         public void StartServerTest()
         {
             manager.StartServer();
