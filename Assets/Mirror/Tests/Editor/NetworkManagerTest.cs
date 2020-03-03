@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -41,15 +41,19 @@ namespace Mirror.Tests
             Assert.That(NetworkManager.networkSceneName == "");
             Assert.That(NetworkManager.startPositionIndex == 0);
             Assert.That(NetworkManager.startPositions.Count == 0);
+            Assert.That(NetworkManager.isHeadless == false);
         }
 
         [Test]
         public void StartServerTest()
         {
+            Assert.That(NetworkServer.active == false);
+
             manager.StartServer();
 
             Assert.That(manager.isNetworkActive == true);
             Assert.That(manager.mode == NetworkManagerMode.ServerOnly);
+            Assert.That(NetworkServer.active == true);
         }
 
         [Test]
