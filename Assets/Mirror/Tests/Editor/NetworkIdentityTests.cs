@@ -1438,5 +1438,23 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObject);
         }
+
+        [Test]
+        public void GetNewObserversClearsHashSet()
+        {
+            // create a server networkidentity with test observer components
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // get new observers. no observer components so it should just clear
+            // it and not do anything else
+            HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
+            observers.Add(new NetworkConnectionToClient(42));
+            identity.GetNewObservers(observers, true);
+            Assert.That(observers.Count, Is.EqualTo(0));
+
+            // clean up
+            GameObject.DestroyImmediate(gameObject);
+        }
     }
 }
