@@ -1212,6 +1212,45 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void HandleCommand()
+        {
+            // create a networkidentity with a command component
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            CommandTestNetworkBehaviour comp0 = gameObject.AddComponent<CommandTestNetworkBehaviour>();
+            Assert.That(comp0.called, Is.EqualTo(0));
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), CommandTestNetworkBehaviour.CommandGenerated);
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // serialize a removeplayer message into an arraysegment
+            CommandMessage message = new CommandMessage {
+                componentIndex = 0,
+                functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
+                netId = identity.netId,
+                payload = new ArraySegment<byte>(new byte[0])
+            };
+            NetworkWriter writer = new NetworkWriter();
+            MessagePacker.Pack(message, writer);
+            ArraySegment<byte> segment = writer.ToArraySegment();
+
+            // call HandleCommand
+            identity.HandleCommand(message.componentIndex, message.functionHash, new NetworkReader(segment));
+
+            // was the command called in the component?
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // clean up
+            NetworkIdentity.spawned.Clear();
+            NetworkBehaviour.ClearDelegates();
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [Test]
         public void ServerUpdate()
         {
             // create a server networkidentity with some test components
