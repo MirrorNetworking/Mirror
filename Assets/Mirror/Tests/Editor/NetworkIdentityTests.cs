@@ -1316,6 +1316,38 @@ namespace Mirror.Tests
             Assert.That(result, Is.False);
         }
 
+        [Test]
+        public void AddAllReadyServerConnectionsToObservers()
+        {
+            // AddObserver will call transport.send and validpacketsize, so we
+            // actually need a transport
+            Transport.activeTransport = new MemoryTransport();
+
+            // add some server connections
+            NetworkServer.connections[12] = new NetworkConnectionToClient(12){isReady = true};
+            NetworkServer.connections[13] = new NetworkConnectionToClient(13){isReady = false};
+
+            // add a host connection
+            ULocalConnectionToClient localConnection = new ULocalConnectionToClient();
+            localConnection.connectionToServer = new ULocalConnectionToServer();
+            localConnection.isReady = true;
+            NetworkServer.SetLocalConnection(localConnection);
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // add all to observers. should have the two ready connections then.
+            identity.AddAllReadyServerConnectionsToObservers();
+            Assert.That(identity.observers.Count, Is.EqualTo(2));
+            Assert.That(identity.observers.ContainsKey(12));
+            Assert.That(identity.observers.ContainsKey(NetworkServer.localConnection.connectionId));
+
+            // clean up
+            NetworkServer.RemoveLocalConnection();
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+        }
+
         // RebuildObservers should always add the own ready connection
         // (if any). fixes https://github.com/vis2k/Mirror/issues/692
         [Test]
