@@ -1338,5 +1338,27 @@ namespace Mirror.Tests
             identity.RebuildObservers(true);
             Assert.That(identity.observers.ContainsKey(identity.connectionToClient.connectionId));
         }
+
+        // RebuildObservers should always add the own ready connection
+        // (if any). fixes https://github.com/vis2k/Mirror/issues/692
+        [Test]
+        public void RebuildObserversOnlyAddsOwnPlayerIfReady()
+        {
+            // add at least one observers component, otherwise it will just add
+            // all server connections
+            gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
+
+            // add own player connection that isn't ready
+            ULocalConnectionToClient connection = new ULocalConnectionToClient();
+            connection.connectionToServer = new ULocalConnectionToServer();
+            identity.connectionToClient = connection;
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // rebuild shouldn't add own player because conn wasn't set ready
+            identity.RebuildObservers(true);
+            Assert.That(!identity.observers.ContainsKey(identity.connectionToClient.connectionId));
+        }
     }
 }
