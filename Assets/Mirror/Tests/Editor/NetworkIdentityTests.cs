@@ -208,6 +208,24 @@ namespace Mirror.Tests
             }
         }
 
+        private NetworkServer server;
+        private GameObject networkServerGameObject;
+
+
+        [SetUp]
+        public void Setup()
+        {
+            networkServerGameObject = new GameObject();
+            server = networkServerGameObject.AddComponent<NetworkServer>();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            GameObject.DestroyImmediate(networkServerGameObject);
+
+        }
+
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
@@ -629,7 +647,7 @@ namespace Mirror.Tests
             owner.connectionToServer = new ULocalConnectionToServer();
             int spawnCalled = 0;
             owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>{
-                { MessagePacker.GetId<SpawnMessage>(), (msg => ++spawnCalled) }
+                { MessagePacker.GetId<SpawnMessage>(), (conn, msg, channel) => ++spawnCalled }
             });
 
             // assigning authority should only work on server.
@@ -643,7 +661,7 @@ namespace Mirror.Tests
             // we can only handle authority on the server.
             // start the server so that isServer is true.
             Transport.activeTransport = Substitute.For<Transport>(); // needed in .Listen
-            NetworkServer.Listen(1);
+            server.Listen(1);
             Assert.That(identity.isServer, Is.True);
 
             // assign authority
@@ -678,13 +696,13 @@ namespace Mirror.Tests
 
             // removing authority while not isServer shouldn't work.
             // only allow it on server.
-            NetworkServer.Shutdown();
+            server.Shutdown();
             LogAssert.ignoreFailingMessages = true; // error log is expected
             identity.RemoveClientAuthority();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
             Assert.That(callbackCalled, Is.EqualTo(1));
-            NetworkServer.Listen(1); // restart it gain
+            server.Listen(1); // restart it gain
 
             // removing authority for the main player object shouldn't work
             owner.identity = identity; // set connection's player object
@@ -704,7 +722,7 @@ namespace Mirror.Tests
             Assert.That(callbackState, Is.EqualTo(false));
 
             // clean up
-            NetworkServer.Shutdown();
+            server.Shutdown();
             Transport.activeTransport = null;
             GameObject.DestroyImmediate(gameObject);
         }
@@ -1021,8 +1039,6 @@ namespace Mirror.Tests
         [Test]
         public void AddObserver()
         {
-            var networkManagerGameObject = new GameObject();
-            NetworkServer server = networkManagerGameObject.AddComponent<NetworkServer>();
 
 
             // create a networkidentity
@@ -1066,7 +1082,6 @@ namespace Mirror.Tests
 
             // clean up
             GameObject.DestroyImmediate(gameObject);
-            GameObject.DestroyImmediate(networkManagerGameObject);
         }
 
         [Test]
@@ -1091,71 +1106,7 @@ namespace Mirror.Tests
             GameObject.DestroyImmediate(gameObject);
         }
 
-        [Test]
-        public void ClearDirtyComponentsDirtyBits()
-        {
-            // create a networkidentity and add some components
-            GameObject gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-            OnStartClientTestNetworkBehaviour compA = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
-            OnStartClientTestNetworkBehaviour compB = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
 
-            // set syncintervals so one is always dirty, one is never dirty
-            compA.syncInterval = 0;
-            compB.syncInterval = Mathf.Infinity;
-
-            // set components dirty bits
-            compA.SetDirtyBit(0x0001);
-            compB.SetDirtyBit(0x1001);
-            Assert.That(compA.IsDirty(), Is.True); // dirty because interval reached and mask != 0
-            Assert.That(compB.IsDirty(), Is.False); // not dirty because syncinterval not reached
-
-            // call identity.ClearDirtyComponentsDirtyBits
-            identity.ClearDirtyComponentsDirtyBits();
-            Assert.That(compA.IsDirty(), Is.False); // should be cleared now
-            Assert.That(compB.IsDirty(), Is.False); // should be untouched
-
-            // set compB syncinterval to 0 to check if the masks were untouched
-            // (if they weren't, then it should be dirty now)
-            compB.syncInterval = 0;
-            Assert.That(compB.IsDirty(), Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(gameObject);
-        }
-
-        [Test]
-        public void ClearAllComponentsDirtyBits()
-        {
-            // create a networkidentity and add some components
-            GameObject gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-            OnStartClientTestNetworkBehaviour compA = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
-            OnStartClientTestNetworkBehaviour compB = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
-
-            // set syncintervals so one is always dirty, one is never dirty
-            compA.syncInterval = 0;
-            compB.syncInterval = Mathf.Infinity;
-
-            // set components dirty bits
-            compA.SetDirtyBit(0x0001);
-            compB.SetDirtyBit(0x1001);
-            Assert.That(compA.IsDirty(), Is.True); // dirty because interval reached and mask != 0
-            Assert.That(compB.IsDirty(), Is.False); // not dirty because syncinterval not reached
-
-            // call identity.ClearAllComponentsDirtyBits
-            identity.ClearAllComponentsDirtyBits();
-            Assert.That(compA.IsDirty(), Is.False); // should be cleared now
-            Assert.That(compB.IsDirty(), Is.False); // should be cleared now
-
-            // set compB syncinterval to 0 to check if the masks were cleared
-            // (if they weren't, then it would still be dirty now)
-            compB.syncInterval = 0;
-            Assert.That(compB.IsDirty(), Is.False);
-
-            // clean up
-            GameObject.DestroyImmediate(gameObject);
-        }
 
         [Test]
         public void Reset()
@@ -1165,7 +1116,6 @@ namespace Mirror.Tests
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
 
             // modify it a bit
-            identity.isClient = true;
             identity.OnStartServer(); // creates .observers and generates a netId
             uint netId = identity.netId;
             identity.connectionToClient = new NetworkConnectionToClient(1);
@@ -1174,7 +1124,6 @@ namespace Mirror.Tests
 
             // calling reset shouldn't do anything unless it was marked for reset
             identity.Reset();
-            Assert.That(identity.isClient, Is.True);
             Assert.That(identity.netId, Is.EqualTo(netId));
             Assert.That(identity.connectionToClient, !Is.Null);
             Assert.That(identity.connectionToServer, !Is.Null);
@@ -1182,7 +1131,6 @@ namespace Mirror.Tests
             // mark for reset and reset
             identity.MarkForReset();
             identity.Reset();
-            Assert.That(identity.isClient, Is.False);
             Assert.That(identity.netId, Is.EqualTo(0));
             Assert.That(identity.connectionToClient, Is.Null);
             Assert.That(identity.connectionToServer, Is.Null);
@@ -1197,6 +1145,7 @@ namespace Mirror.Tests
             // create a server networkidentity with some test components
             GameObject gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            identity.server = server;
             SerializeTest1NetworkBehaviour compA = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             compA.value = 1337; // test value
             compA.syncInterval = 0; // set syncInterval so IsDirty passes the interval check
@@ -1229,7 +1178,7 @@ namespace Mirror.Tests
             int ownerCalled = 0;
             owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
             {
-                { MessagePacker.GetId<UpdateVarsMessage>(), (msg => ++ownerCalled) }
+                { MessagePacker.GetId<UpdateVarsMessage>(), (conn, msg, channel) => ++ownerCalled }
             });
             identity.connectionToClient = owner;
 
@@ -1241,7 +1190,7 @@ namespace Mirror.Tests
             int observerCalled = 0;
             observer.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
             {
-                { MessagePacker.GetId<UpdateVarsMessage>(), (msg => ++observerCalled) }
+                { MessagePacker.GetId<UpdateVarsMessage>(), (conn, msg, channel) => ++observerCalled }
             });
             identity.observers[observer.connectionId] = observer;
 
