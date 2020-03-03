@@ -1314,6 +1314,18 @@ namespace Mirror.Tests
             identity.HandleSyncEvent(componentIndex, functionHash, payload);
             Assert.That(comp0.called, Is.EqualTo(1));
 
+            // try wrong component index. syncevent shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleSyncEvent(1, functionHash, payload);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong function hash. syncevent shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleSyncEvent(0, functionHash+1, payload);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp0.called, Is.EqualTo(1));
+
             // clean up
             NetworkIdentity.spawned.Clear();
             NetworkBehaviour.ClearDelegates();
