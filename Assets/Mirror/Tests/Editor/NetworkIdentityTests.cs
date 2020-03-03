@@ -1268,10 +1268,21 @@ namespace Mirror.Tests
             NetworkIdentity.spawned[identity.netId] = identity;
 
             // call HandleRpc and check if the rpc was called in the component
-            int componentIndex = 0;
             int functionHash = NetworkBehaviour.GetMethodHash(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated));
             NetworkReader payload = new NetworkReader(new byte[0]);
-            identity.HandleRPC(componentIndex, functionHash, payload);
+            identity.HandleRPC(0, functionHash, payload);
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong component index. rpc shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleRPC(1, functionHash, payload);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong function hash. rpc shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleRPC(0, functionHash+1, payload);
+            LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // clean up
