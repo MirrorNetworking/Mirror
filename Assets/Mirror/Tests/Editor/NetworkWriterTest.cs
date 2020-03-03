@@ -7,6 +7,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkWriterTest
     {
+        /* uncomment if needed. commented for faster test workflow. this takes >3s.
         [Test]
         public void Benchmark()
         {
@@ -19,6 +20,7 @@ namespace Mirror.Tests
                 writer.WriteVector3(new Vector3(1, 2, 3));
             }
         }
+        */
 
         [Test]
         public void TestWritingSmallMessage()

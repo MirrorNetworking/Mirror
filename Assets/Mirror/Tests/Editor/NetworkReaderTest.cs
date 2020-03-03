@@ -12,6 +12,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkReaderTest
     {
+        /* uncomment if needed. commented for faster test workflow. this takes >3s.
         [Test]
         public void Benchmark()
         {
@@ -25,6 +26,7 @@ namespace Mirror.Tests
                 Vector3 value = reader.ReadVector3();
             }
         }
+        */
 
         [Test]
         public void ReadBytesCountTooBigTest()

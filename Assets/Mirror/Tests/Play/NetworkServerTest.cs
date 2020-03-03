@@ -57,6 +57,30 @@ namespace Mirror.Tests
         }
     }
 
+    public class RpcTestNetworkBehaviour : NetworkBehaviour
+    {
+        // counter to make sure that it's called exactly once
+        public int called;
+        // weaver generates this from [Rpc]
+        // but for tests we need to add it manually
+        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader)
+        {
+            ++((RpcTestNetworkBehaviour)comp).called;
+        }
+    }
+
+    public class SyncEventTestNetworkBehaviour : NetworkBehaviour
+    {
+        // counter to make sure that it's called exactly once
+        public int called;
+        // weaver generates this from [SyncEvent]
+        // but for tests we need to add it manually
+        public static void SyncEventGenerated(NetworkBehaviour comp, NetworkReader reader)
+        {
+            ++((SyncEventTestNetworkBehaviour)comp).called;
+        }
+    }
+
     public class OnStartClientTestNetworkBehaviour : NetworkBehaviour
     {
         // counter to make sure that it's called exactly once
@@ -79,6 +103,9 @@ namespace Mirror.Tests
         NetworkClient client;
         GameObject clientGO;
 
+        GameObject gameObject;
+        NetworkIdentity identity;
+
         [SetUp]
         public void SetUp()
         {
@@ -88,16 +115,24 @@ namespace Mirror.Tests
 
             clientGO = new GameObject();
             client = clientGO.AddComponent<NetworkClient>();
+
+            gameObject = new GameObject();
+            identity = gameObject.AddComponent<NetworkIdentity>();
+
         }
 
         [TearDown]
         public void TearDown()
         {
+            GameObject.DestroyImmediate(gameObject);
+
             // reset all state
             server.Shutdown();
             GameObject.DestroyImmediate(serverGO);
             GameObject.DestroyImmediate(clientGO);
             Transport.activeTransport = null;
+
+
         }
 
         [Test]
@@ -1004,8 +1039,6 @@ namespace Mirror.Tests
         public void ClearDirtyComponentsDirtyBits()
         {
             // create a networkidentity and add some components
-            GameObject gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             OnStartClientTestNetworkBehaviour compA = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
             OnStartClientTestNetworkBehaviour compB = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
 
@@ -1028,17 +1061,12 @@ namespace Mirror.Tests
             // (if they weren't, then it should be dirty now)
             compB.syncInterval = 0;
             Assert.That(compB.IsDirty(), Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void ClearAllComponentsDirtyBits()
         {
             // create a networkidentity and add some components
-            GameObject gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             OnStartClientTestNetworkBehaviour compA = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
             OnStartClientTestNetworkBehaviour compB = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
 
@@ -1061,9 +1089,6 @@ namespace Mirror.Tests
             // (if they weren't, then it would still be dirty now)
             compB.syncInterval = 0;
             Assert.That(compB.IsDirty(), Is.False);
-
-            // clean up
-            GameObject.DestroyImmediate(gameObject);
         }
 
         [Test]
@@ -1096,5 +1121,119 @@ namespace Mirror.Tests
             Assert.That(server.localConnection, Is.Null);
             Assert.That(server.LocalClientActive, Is.False);
         }
+
+
+        [Test]
+        public void HandleCommand()
+        {
+            // add component
+            CommandTestNetworkBehaviour comp0 = gameObject.AddComponent<CommandTestNetworkBehaviour>();
+            Assert.That(comp0.called, Is.EqualTo(0));
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), CommandTestNetworkBehaviour.CommandGenerated);
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // call HandleCommand and check if the command was called in the component
+            int functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated));
+            NetworkReader payload = new NetworkReader(new byte[0]);
+            identity.HandleCommand(0, functionHash, payload);
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong component index. command shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleCommand(1, functionHash, payload);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong function hash. command shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleCommand(0, functionHash + 1, payload);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // clean up
+            NetworkIdentity.spawned.Clear();
+            NetworkBehaviour.ClearDelegates();
+        }
+
+        [Test]
+        public void HandleRpc()
+        {
+            // add rpc component
+            RpcTestNetworkBehaviour comp0 = gameObject.AddComponent<RpcTestNetworkBehaviour>();
+            Assert.That(comp0.called, Is.EqualTo(0));
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterRpcDelegate(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated), RpcTestNetworkBehaviour.RpcGenerated);
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // call HandleRpc and check if the rpc was called in the component
+            int functionHash = NetworkBehaviour.GetMethodHash(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated));
+            NetworkReader payload = new NetworkReader(new byte[0]);
+            identity.HandleRPC(0, functionHash, payload);
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong component index. rpc shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleRPC(1, functionHash, payload);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong function hash. rpc shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleRPC(0, functionHash + 1, payload);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // clean up
+            NetworkIdentity.spawned.Clear();
+            NetworkBehaviour.ClearDelegates();
+        }
+
+        [Test]
+        public void HandleSyncEvent()
+        {
+            // add syncevent component
+            SyncEventTestNetworkBehaviour comp0 = gameObject.AddComponent<SyncEventTestNetworkBehaviour>();
+            Assert.That(comp0.called, Is.EqualTo(0));
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterEventDelegate(typeof(SyncEventTestNetworkBehaviour), nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated), SyncEventTestNetworkBehaviour.SyncEventGenerated);
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // call HandleSyncEvent and check if the event was called in the component
+            int componentIndex = 0;
+            int functionHash = NetworkBehaviour.GetMethodHash(typeof(SyncEventTestNetworkBehaviour), nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated));
+            NetworkReader payload = new NetworkReader(new byte[0]);
+            identity.HandleSyncEvent(componentIndex, functionHash, payload);
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong component index. syncevent shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleSyncEvent(1, functionHash, payload);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong function hash. syncevent shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleSyncEvent(0, functionHash + 1, payload);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // clean up
+            NetworkIdentity.spawned.Clear();
+            NetworkBehaviour.ClearDelegates();
+        }
+
     }
 }

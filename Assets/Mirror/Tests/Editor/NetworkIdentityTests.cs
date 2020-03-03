@@ -207,42 +207,14 @@ namespace Mirror.Tests
             }
         }
 
-        private NetworkServer server;
-        private GameObject networkServerGameObject;
-
-
-        [SetUp]
-        public void Setup()
+        class RebuildObserversNetworkBehaviour : NetworkBehaviour
         {
-            networkServerGameObject = new GameObject();
-            server = networkServerGameObject.AddComponent<NetworkServer>();
-            Transport.activeTransport = Substitute.For<Transport>();
-
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            Object.DestroyImmediate(networkServerGameObject);
-            Transport.activeTransport = null;
-        }
-
-        // A Test behaves as an ordinary method
-        [Test]
-        public void OnStartServerTest()
-        {
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
-            // lets add a component to check OnStartserver
-
-            MyTestComponent component1 = gameObject.AddComponent<MyTestComponent>();
-            MyTestComponent component2 = gameObject.AddComponent<MyTestComponent>();
-
-            identity.OnStartServer();
-
-            Assert.That(component1.onStartServerInvoked);
-            Assert.That(component2.onStartServerInvoked);
+            public NetworkConnection observer;
+            public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+            {
+                observers.Add(observer);
+                return true;
+            }
         }
 
         class IsClientServerCheckComponent : NetworkBehaviour
@@ -314,6 +286,45 @@ namespace Mirror.Tests
             if (task.IsFaulted) { throw task.Exception; }
         }
 
+        GameObject gameObject;
+        NetworkIdentity identity;
+        private NetworkServer server;
+        private GameObject networkServerGameObject;
+
+        [SetUp]
+        public void SetUp()
+        {
+            networkServerGameObject = new GameObject();
+            server = networkServerGameObject.AddComponent<NetworkServer>();
+            Transport.activeTransport = Substitute.For<Transport>();
+
+            gameObject = new GameObject();
+            identity = gameObject.AddComponent<NetworkIdentity>();
+            identity.server = server;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            GameObject.DestroyImmediate(gameObject);
+            Object.DestroyImmediate(networkServerGameObject);
+            Transport.activeTransport = null;
+        }
+
+        // A Test behaves as an ordinary method
+        [Test]
+        public void OnStartServerTest()
+        {
+            // lets add a component to check OnStartserver
+            MyTestComponent component1 = gameObject.AddComponent<MyTestComponent>();
+            MyTestComponent component2 = gameObject.AddComponent<MyTestComponent>();
+
+            identity.OnStartServer();
+
+            Assert.That(component1.onStartServerInvoked);
+            Assert.That(component2.onStartServerInvoked);
+        }
+
         // check isClient/isServer/isLocalPlayer in server-only mode
         [Test]
         public void ServerMode_IsFlags_Test()
@@ -324,9 +335,7 @@ namespace Mirror.Tests
 
             server.Listen(1000);
 
-            // create a networkidentity+component
-            var gameObject = new GameObject();
-            _ = gameObject.AddComponent<NetworkIdentity>();
+            // add component
             IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
 
             // spawn it
@@ -340,8 +349,6 @@ namespace Mirror.Tests
             // stop the server
             server.Shutdown();
             NetworkIdentity.spawned.Clear();
-            Object.DestroyImmediate(gameObject);
-            Object.DestroyImmediate(networkManagerGameObject);
         }
 
         // check isClient/isServer/isLocalPlayer in host mode
@@ -357,9 +364,7 @@ namespace Mirror.Tests
             // start the client
             client.ConnectHost(server);
 
-            // create a networkidentity+component
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add component
             IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
 
             // set is as local player
@@ -381,35 +386,22 @@ namespace Mirror.Tests
             // stop the server
             server.Shutdown();
             NetworkIdentity.spawned.Clear();
-            Object.DestroyImmediate(gameObject);
-            Object.DestroyImmediate(networkManagerGameObject);
         }
 
         [Test]
         public void GetSetAssetId()
         {
-            // create a networkidentity
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
             // assign a guid
             var guid = new Guid(0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B);
             identity.assetId = guid;
 
             // did it work?
             Assert.That(identity.assetId, Is.EqualTo(guid));
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void SetClientOwner()
         {
-            // create a networkidentity
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
             // SetClientOwner
             var original = new ULocalConnectionToClient();
             identity.SetClientOwner(original);
@@ -421,18 +413,11 @@ namespace Mirror.Tests
             identity.SetClientOwner(overwrite);
             Assert.That(identity.connectionToClient, Is.EqualTo(original));
             LogAssert.ignoreFailingMessages = false;
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void RemoveObserverInternal()
         {
-            // create a networkidentity
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
             // call OnStartServer so that observers dict is created
             identity.OnStartServer();
 
@@ -447,18 +432,11 @@ namespace Mirror.Tests
             // RemoveObserverInternal with existing connection should remove it
             identity.RemoveObserverInternal(connection);
             Assert.That(identity.observers.Count, Is.EqualTo(0));
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void AssignSceneID()
         {
-            // create a networkidentity
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
             // Awake will have assigned a random sceneId of format 0x00000000FFFFFFFF
             // -> make sure that one was assigned, and that the left part was
             //    left empty for scene hash
@@ -467,18 +445,11 @@ namespace Mirror.Tests
 
             // make sure that Awake added it to sceneIds dict
             Assert.That(NetworkIdentity.GetSceneIdentity(identity.sceneId), !Is.Null);
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void SetSceneIdSceneHashPartInternal()
         {
-            // create a networkidentity
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
             // Awake will have assigned a random sceneId of format 0x00000000FFFFFFFF
             // -> make sure that one was assigned, and that the left part was
             //    left empty for scene hash
@@ -499,32 +470,20 @@ namespace Mirror.Tests
             // calling it again should said the exact same hash again
             identity.SetSceneIdSceneHashPartInternal();
             Assert.That(identity.sceneId, Is.EqualTo(finished));
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void OnValidateSetupIDsSetsEmptyAssetIDForSceneObject()
         {
-            // create a networkidentity
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
             // OnValidate will have been called. make sure that assetId was set
             // to 0 empty and not anything else, because this is a scene object
             Assert.That(identity.assetId, Is.EqualTo(Guid.Empty));
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void OnStartServerCallsComponentsAndCatchesExceptions()
         {
-            // create a networkidentity with our test component
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add component
             StartServerExceptionNetworkBehaviour comp = gameObject.AddComponent<StartServerExceptionNetworkBehaviour>();
 
             // make sure that comp.OnStartServer was called and make sure that
@@ -537,18 +496,12 @@ namespace Mirror.Tests
             identity.OnStartServer(); // should catch the exception internally and not throw it
             Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
-
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void OnStartClientCallsComponentsAndCatchesExceptions()
         {
-            // create a networkidentity with our test component
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add component
             StartClientExceptionNetworkBehaviour comp = gameObject.AddComponent<StartClientExceptionNetworkBehaviour>();
 
             // make sure that comp.OnStartClient was called and make sure that
@@ -566,17 +519,12 @@ namespace Mirror.Tests
             // let's see if they work.
             identity.OnStartClient();
             Assert.That(comp.called, Is.EqualTo(1)); // same as before?
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void OnStartAuthorityCallsComponentsAndCatchesExceptions()
         {
-            // create a networkidentity with our test component
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add component
             StartAuthorityExceptionNetworkBehaviour comp = gameObject.AddComponent<StartAuthorityExceptionNetworkBehaviour>();
 
             // make sure that comp.OnStartAuthority was called and make sure that
@@ -589,17 +537,12 @@ namespace Mirror.Tests
             identity.OnStartAuthority(); // should catch the exception internally and not throw it
             Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void OnStopAuthorityCallsComponentsAndCatchesExceptions()
         {
-            // create a networkidentity with our test component
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add component
             StopAuthorityExceptionNetworkBehaviour comp = gameObject.AddComponent<StopAuthorityExceptionNetworkBehaviour>();
 
             // make sure that comp.OnStopAuthority was called and make sure that
@@ -612,18 +555,13 @@ namespace Mirror.Tests
             identity.OnStopAuthority(); // should catch the exception internally and not throw it
             Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
 
         [Test]
         public void NotifyAuthorityCallsOnStartStopAuthority()
         {
-            // create a networkidentity with our test components
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add components
             StartAuthorityCalledNetworkBehaviour compStart = gameObject.AddComponent<StartAuthorityCalledNetworkBehaviour>();
             StopAuthorityCalledNetworkBehaviour compStop = gameObject.AddComponent<StopAuthorityCalledNetworkBehaviour>();
 
@@ -654,17 +592,12 @@ namespace Mirror.Tests
             Assert.That(identity.hasAuthority, Is.False); // shouldn't be touched
             Assert.That(compStart.called, Is.EqualTo(1)); // same as before
             Assert.That(compStop.called, Is.EqualTo(1)); // same as before
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void OnSetHostVisibilityCallsComponentsAndCatchesExceptions()
         {
-            // create a networkidentity with our test component
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add component
             SetHostVisibilityExceptionNetworkBehaviour comp = gameObject.AddComponent<SetHostVisibilityExceptionNetworkBehaviour>();
 
             // make sure that comp.OnSetHostVisibility was called and make sure that
@@ -684,17 +617,12 @@ namespace Mirror.Tests
             Assert.That(comp.valuePassed, Is.False);
 
             LogAssert.ignoreFailingMessages = false;
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void OnCheckObserver()
         {
-            // create a networkidentity with our test components
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add component
             CheckObserverExceptionNetworkBehaviour compExc = gameObject.AddComponent<CheckObserverExceptionNetworkBehaviour>();
 
             NetworkConnection connection = new NetworkConnectionToClient(42);
@@ -735,17 +663,14 @@ namespace Mirror.Tests
             Assert.That(compFalse.called, Is.EqualTo(1));
 
             // clean up
-            Object.DestroyImmediate(gameObjectFalse);
-            Object.DestroyImmediate(gameObjectTrue);
-            Object.DestroyImmediate(gameObject);
+            GameObject.DestroyImmediate(gameObjectFalse);
+            GameObject.DestroyImmediate(gameObjectTrue);
         }
 
         [Test]
         public void OnSerializeAndDeserializeAllSafely()
         {
             // create a networkidentity with our test components
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             SerializeTest1NetworkBehaviour comp1 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             SerializeExceptionNetworkBehaviour compExc = gameObject.AddComponent<SerializeExceptionNetworkBehaviour>();
             SerializeTest2NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
@@ -795,9 +720,6 @@ namespace Mirror.Tests
             {
                 identity.OnDeserializeAllSafely(reader, true);
             });
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         // OnSerializeAllSafely supports at max 64 components, because our
@@ -805,9 +727,7 @@ namespace Mirror.Tests
         [Test]
         public void OnSerializeAllSafelyShouldDetectTooManyComponents()
         {
-            // create a networkidentity with our 65
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add 65 components
             for (int i = 0; i < 65; ++i)
             {
                 gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
@@ -824,9 +744,6 @@ namespace Mirror.Tests
             // shouldn't have written anything because too many components
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
             Assert.That(observersWriter.Position, Is.EqualTo(0));
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         // OnDeserializeSafely should be able to detect and handle serialization
@@ -837,9 +754,7 @@ namespace Mirror.Tests
         [Test]
         public void OnDeserializeSafelyShouldDetectAndHandleDeSerializationMismatch()
         {
-            // create a networkidentity with our test components
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add components
             SerializeTest1NetworkBehaviour comp1 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             SerializeMismatchNetworkBehaviour compMiss = gameObject.AddComponent<SerializeMismatchNetworkBehaviour>();
             SerializeTest2NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
@@ -863,18 +778,12 @@ namespace Mirror.Tests
             {
                 identity.OnDeserializeAllSafely(reader, true);
             });
-
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void OnStartLocalPlayer()
         {
-            // create a networkidentity with our test components
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add components
             StartLocalPlayerExceptionNetworkBehaviour compEx = gameObject.AddComponent<StartLocalPlayerExceptionNetworkBehaviour>();
             StartLocalPlayerCalledNetworkBehaviour comp = gameObject.AddComponent<StartLocalPlayerCalledNetworkBehaviour>();
 
@@ -896,17 +805,12 @@ namespace Mirror.Tests
             identity.OnStartLocalPlayer();
             Assert.That(compEx.called, Is.EqualTo(1)); // same as before?
             Assert.That(comp.called, Is.EqualTo(1)); // same as before?
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void OnNetworkDestroy()
         {
-            // create a networkidentity with our test components
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            // add components
             NetworkDestroyExceptionNetworkBehaviour compEx = gameObject.AddComponent<NetworkDestroyExceptionNetworkBehaviour>();
             NetworkDestroyCalledNetworkBehaviour comp = gameObject.AddComponent<NetworkDestroyCalledNetworkBehaviour>();
 
@@ -922,22 +826,13 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = false;
             Assert.That(compEx.called, Is.EqualTo(1));
             Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void AddObserver()
         {
 
-
-            // create a networkidentity
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
             identity.server = server;
-
             // create some connections
             var connection1 = new NetworkConnectionToClient(42);
             var connection2 = new NetworkConnectionToClient(43);
@@ -970,18 +865,11 @@ namespace Mirror.Tests
             Assert.That(identity.observers[connection1.connectionId], Is.EqualTo(connection1));
             Assert.That(identity.observers.ContainsKey(connection2.connectionId));
             Assert.That(identity.observers[connection2.connectionId], Is.EqualTo(connection2));
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void ClearObservers()
         {
-            // create a networkidentity
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
             // call OnStartServer so that observers dict is created
             identity.OnStartServer();
 
@@ -992,20 +880,12 @@ namespace Mirror.Tests
             // call ClearObservers
             identity.ClearObservers();
             Assert.That(identity.observers.Count, Is.EqualTo(0));
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
-
 
 
         [Test]
         public void Reset()
         {
-            // create a networkidentity
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
             // modify it a bit
             identity.OnStartServer(); // creates .observers and generates a netId
             uint netId = identity.netId;
@@ -1025,18 +905,13 @@ namespace Mirror.Tests
             Assert.That(identity.netId, Is.EqualTo(0));
             Assert.That(identity.connectionToClient, Is.Null);
             Assert.That(identity.connectionToServer, Is.Null);
-
-            // clean up
-            Object.DestroyImmediate(gameObject);
         }
+
 
         [Test]
         public void ServerUpdate()
         {
-            // create a server networkidentity with some test components
-            var gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-            identity.server = server;
+            // add components
             SerializeTest1NetworkBehaviour compA = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             compA.value = 1337; // test value
             compA.syncInterval = 0; // set syncInterval so IsDirty passes the interval check
@@ -1104,9 +979,44 @@ namespace Mirror.Tests
             // was it received on the clients?
             Assert.That(ownerCalled, Is.EqualTo(1));
             Assert.That(observerCalled, Is.EqualTo(1));
+        }
 
-            // clean up
-            Object.DestroyImmediate(gameObject);
+        [Test]
+        public void GetNewObservers()
+        {
+            // add components
+            RebuildObserversNetworkBehaviour compA = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            compA.observer = new NetworkConnectionToClient(12);
+            RebuildObserversNetworkBehaviour compB = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            compB.observer = new NetworkConnectionToClient(13);
+
+            // get new observers
+            HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
+            bool result = identity.GetNewObservers(observers, true);
+            Assert.That(result, Is.True);
+            Assert.That(observers.Count, Is.EqualTo(2));
+            Assert.That(observers.Contains(compA.observer), Is.True);
+            Assert.That(observers.Contains(compB.observer), Is.True);
+        }
+
+        [Test]
+        public void GetNewObserversClearsHashSet()
+        {
+            // get new observers. no observer components so it should just clear
+            // it and not do anything else
+            HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
+            observers.Add(new NetworkConnectionToClient(42));
+            identity.GetNewObservers(observers, true);
+            Assert.That(observers.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void GetNewObserversFalseIfNoComponents()
+        {
+            // get new observers. no observer components so it should be false
+            HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
+            bool result = identity.GetNewObservers(observers, true);
+            Assert.That(result, Is.False);
         }
     }
 }
