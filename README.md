@@ -39,13 +39,15 @@ Mirror relies heavily on manual testing.  Manual testing does not scale. I can c
 
 Mirror makes heavy use of singletons, which is considered an [anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons.
 
-Mirror has very poor error handling. Many methods return true/false to indicate success/failure and use Debug.LogError to report errors.  Since day 1, C# has had a much better mechanism to handle abnormal conditions: Exceptions. Methods in MirrorNG should either succeed or throw exceptions if something is wrong with full explanation. This lets the developer catch the exception and take action:  display an error message to the user, report it to your servers, report it to google play, etc...
+Mirror has very poor error handling. Many methods return true/false to indicate success/failure and use Debug.LogError to report errors. Debug.LogError is not testable,  there is no way to write a test to make sure errors are detected. Since day 1, C# has had a much better mechanism to handle abnormal conditions: Exceptions. Methods in MirrorNG should either succeed or throw exceptions if something is wrong with full explanation. This lets the developer catch the exception and take action:  display an error message to the user, report it to your servers, report it to google play, etc...
 
 Mirror is distributed in the unity asset store and github. Both of these are majorly inconvenient to work with when you want to stay up to date.  I am developing a game,  and I spent significant amount of time just updating Mirror in my game. Fortunately Unity has a new mechanism that eliminates most of the pain:  Unity Package Manager.  There has been resistance in Mirror to distribute it using UPM.
 
+There is not a whole lot of innovation in Mirror anymore.  Just bug fixes. I have a very difficult time getting any new feature merged.  I have tons of ideas of things we can add to make things easier and better, most of them get shut down.
+
 I want to adhere as much as possible to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID). Many things in Mirror do not.
 
-Mirror has it's own code conventions based on one person's preference.  I would rather follow official [C# code conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).  Anybody that speaks C# should feel right at home with this code.
+Mirror has it's own code conventions based on personal preferences.  I would rather follow official [C# code conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).  Anybody that speaks C# should feel right at home with this code.
 
 Code review takes too long in Mirror.  I think code reviews are top priority.
 
