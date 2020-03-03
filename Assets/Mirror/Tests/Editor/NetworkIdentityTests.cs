@@ -626,6 +626,7 @@ namespace Mirror.Tests
             // create a networkidentity with our test component
             GameObject gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            identity.server = server;
             identity.netId = 42; // needed for isServer to be true
 
             // test the callback too
@@ -633,7 +634,8 @@ namespace Mirror.Tests
             NetworkConnection callbackConnection = null;
             NetworkIdentity callbackIdentity = null;
             bool callbackState = false;
-            NetworkIdentity.clientAuthorityCallback += (conn, networkIdentity, state) => {
+            NetworkIdentity.clientAuthorityCallback += (conn, networkIdentity, state) =>
+            {
                 ++callbackCalled;
                 callbackConnection = conn;
                 callbackIdentity = identity;
@@ -646,17 +648,18 @@ namespace Mirror.Tests
             // add client handlers
             owner.connectionToServer = new ULocalConnectionToServer();
             int spawnCalled = 0;
-            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>{
+            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
+            {
                 { MessagePacker.GetId<SpawnMessage>(), (conn, msg, channel) => ++spawnCalled }
             });
 
             // assigning authority should only work on server.
             // if isServer is false because server isn't running yet then it
             // should fail.
-            LogAssert.ignoreFailingMessages = true; // error log is expected
-            bool result = identity.AssignClientAuthority(owner);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(result, Is.False);
+            Assert.Throws<InvalidOperationException>(() =>
+           {
+               identity.AssignClientAuthority(owner);
+           });
 
             // we can only handle authority on the server.
             // start the server so that isServer is true.
@@ -665,8 +668,7 @@ namespace Mirror.Tests
             Assert.That(identity.isServer, Is.True);
 
             // assign authority
-            result = identity.AssignClientAuthority(owner);
-            Assert.That(result, Is.True);
+            identity.AssignClientAuthority(owner);
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
             Assert.That(callbackCalled, Is.EqualTo(1));
             Assert.That(callbackConnection, Is.EqualTo(owner));
@@ -680,35 +682,42 @@ namespace Mirror.Tests
 
             // shouldn't be able to assign authority while already owned by
             // another connection
-            LogAssert.ignoreFailingMessages = true; // error log is expected
-            result = identity.AssignClientAuthority(new NetworkConnectionToClient(43));
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(result, Is.False);
+            Assert.Throws<InvalidOperationException>(() =>
+           {
+               identity.AssignClientAuthority(new NetworkConnectionToClient(43));
+           });
+
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
             Assert.That(callbackCalled, Is.EqualTo(1));
 
             // someone might try to remove authority by assigning null.
             // make sure this fails.
-            LogAssert.ignoreFailingMessages = true; // error log is expected
-            result = identity.AssignClientAuthority(null);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(result, Is.False);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                identity.AssignClientAuthority(null);
+            });
 
             // removing authority while not isServer shouldn't work.
             // only allow it on server.
             server.Shutdown();
-            LogAssert.ignoreFailingMessages = true; // error log is expected
-            identity.RemoveClientAuthority();
-            LogAssert.ignoreFailingMessages = false;
+
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                // shoud fail because the server is not active
+                identity.RemoveClientAuthority();
+            });
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
             Assert.That(callbackCalled, Is.EqualTo(1));
             server.Listen(1); // restart it gain
 
             // removing authority for the main player object shouldn't work
             owner.identity = identity; // set connection's player object
-            LogAssert.ignoreFailingMessages = true; // error log is expected
-            identity.RemoveClientAuthority();
-            LogAssert.ignoreFailingMessages = false;
+            Assert.Throws<InvalidOperationException>(() =>
+           {
+               identity.RemoveClientAuthority();
+
+           });
+
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
             Assert.That(callbackCalled, Is.EqualTo(1));
 

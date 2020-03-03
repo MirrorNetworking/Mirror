@@ -1052,25 +1052,21 @@ namespace Mirror
         /// <para>Authority can be removed with RemoveClientAuthority. Only one client can own an object at any time. This does not need to be called for player objects, as their authority is setup automatically.</para>
         /// </summary>
         /// <param name="conn">	The connection of the client to assign authority to.</param>
-        /// <returns>True if authority was assigned.</returns>
-        public bool AssignClientAuthority(NetworkConnection conn)
+        public void AssignClientAuthority(NetworkConnection conn)
         {
             if (!isServer)
             {
-                Debug.LogError("AssignClientAuthority can only be called on the server for spawned objects.");
-                return false;
+                throw new InvalidOperationException("AssignClientAuthority can only be called on the server for spawned objects.");
             }
 
             if (conn == null)
             {
-                Debug.LogError("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead.");
-                return false;
+                throw new InvalidOperationException("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead.");
             }
 
             if (connectionToClient != null && conn != connectionToClient)
             {
-                Debug.LogError("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first.");
-                return false;
+                throw new InvalidOperationException("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first.");
             }
 
             SetClientOwner(conn);
@@ -1080,8 +1076,6 @@ namespace Mirror
             server.SendSpawnMessage(this, conn);
 
             clientAuthorityCallback?.Invoke(conn, this, true);
-
-            return true;
         }
 
         // Deprecated 09/25/2019
@@ -1094,14 +1088,12 @@ namespace Mirror
         {
             if (!isServer)
             {
-                Debug.LogError("RemoveClientAuthority can only be called on the server for spawned objects.");
-                return;
+                throw new InvalidOperationException("RemoveClientAuthority can only be called on the server for spawned objects.");
             }
 
             if (connectionToClient?.identity == this)
             {
-                Debug.LogError("RemoveClientAuthority cannot remove authority for a player object");
-                return;
+                throw new InvalidOperationException("RemoveClientAuthority cannot remove authority for a player object");
             }
 
             if (connectionToClient != null)
