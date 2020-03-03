@@ -217,6 +217,16 @@ namespace Mirror.Tests
             }
         }
 
+        class RebuildEmptyObserversNetworkBehaviour : NetworkBehaviour
+        {
+            public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+            {
+                // return true so that caller knows we implemented
+                // OnRebuildObservers, but return no observers
+                return true;
+            }
+        }
+
         class IsClientServerCheckComponent : NetworkBehaviour
         {
             // OnStartClient
@@ -289,6 +299,7 @@ namespace Mirror.Tests
         GameObject gameObject;
         NetworkIdentity identity;
         private NetworkServer server;
+        private NetworkClient client;
         private GameObject networkServerGameObject;
 
         [SetUp]
@@ -296,7 +307,10 @@ namespace Mirror.Tests
         {
             networkServerGameObject = new GameObject();
             server = networkServerGameObject.AddComponent<NetworkServer>();
+            client = networkServerGameObject.AddComponent<NetworkClient>();
             Transport.activeTransport = Substitute.For<Transport>();
+
+            Transport.activeTransport.GetMaxPacketSize().ReturnsForAnyArgs(1000);
 
             gameObject = new GameObject();
             identity = gameObject.AddComponent<NetworkIdentity>();
@@ -991,7 +1005,7 @@ namespace Mirror.Tests
             compB.observer = new NetworkConnectionToClient(13);
 
             // get new observers
-            HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
+            var observers = new HashSet<NetworkConnection>();
             bool result = identity.GetNewObservers(observers, true);
             Assert.That(result, Is.True);
             Assert.That(observers.Count, Is.EqualTo(2));
@@ -1004,7 +1018,7 @@ namespace Mirror.Tests
         {
             // get new observers. no observer components so it should just clear
             // it and not do anything else
-            HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
+            var observers = new HashSet<NetworkConnection>();
             observers.Add(new NetworkConnectionToClient(42));
             identity.GetNewObservers(observers, true);
             Assert.That(observers.Count, Is.EqualTo(0));
@@ -1014,9 +1028,83 @@ namespace Mirror.Tests
         public void GetNewObserversFalseIfNoComponents()
         {
             // get new observers. no observer components so it should be false
-            HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
+            var observers = new HashSet<NetworkConnection>();
             bool result = identity.GetNewObservers(observers, true);
             Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void AddAllReadyServerConnectionsToObservers()
+        {
+            // add some server connections
+            server.connections[12] = new NetworkConnectionToClient(12){isReady = true};
+            server.connections[13] = new NetworkConnectionToClient(13){isReady = false};
+
+            // add a host connection
+            var localConnection = new ULocalConnectionToClient
+            {
+                connectionToServer = new ULocalConnectionToServer(),
+                isReady = true
+            };
+            server.SetLocalConnection(client, localConnection);
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // add all to observers. should have the two ready connections then.
+            identity.AddAllReadyServerConnectionsToObservers();
+            Assert.That(identity.observers.Count, Is.EqualTo(2));
+            Assert.That(identity.observers.ContainsKey(12));
+            Assert.That(identity.observers.ContainsKey(server.localConnection.connectionId));
+
+            // clean up
+            server.RemoveLocalConnection();
+            server.Shutdown();
+        }
+
+        // RebuildObservers should always add the own ready connection
+        // (if any). fixes https://github.com/vis2k/Mirror/issues/692
+        [Test]
+        public void RebuildObserversAddsOwnReadyPlayer()
+        {
+            // add at least one observers component, otherwise it will just add
+            // all server connections
+            gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
+
+            // add own player connection
+            var connection = new ULocalConnectionToClient();
+            connection.connectionToServer = new ULocalConnectionToServer();
+            connection.isReady = true;
+            identity.connectionToClient = connection;
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // rebuild should at least add own ready player
+            identity.RebuildObservers(true);
+            Assert.That(identity.observers.ContainsKey(identity.connectionToClient.connectionId));
+        }
+
+        // RebuildObservers should always add the own ready connection
+        // (if any). fixes https://github.com/vis2k/Mirror/issues/692
+        [Test]
+        public void RebuildObserversOnlyAddsOwnPlayerIfReady()
+        {
+            // add at least one observers component, otherwise it will just add
+            // all server connections
+            gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
+
+            // add own player connection that isn't ready
+            var connection = new ULocalConnectionToClient();
+            connection.connectionToServer = new ULocalConnectionToServer();
+            identity.connectionToClient = connection;
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // rebuild shouldn't add own player because conn wasn't set ready
+            identity.RebuildObservers(true);
+            Assert.That(!identity.observers.ContainsKey(identity.connectionToClient.connectionId));
         }
     }
 }

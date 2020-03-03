@@ -923,17 +923,39 @@ namespace Mirror
 
         // helper function to call OnRebuildObservers in all components
         // -> HashSet is passed in so we can cache it!
+        // -> returns true if any of the components implemented
+        //    OnRebuildObservers, false otherwise
+        // -> initialize is true on first rebuild, false on consecutive rebuilds
         internal bool GetNewObservers(HashSet<NetworkConnection> observersSet, bool initialize)
         {
-            bool result = false;
+            bool rebuildOverwritten = false;
             observersSet.Clear();
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                result |= comp.OnRebuildObservers(observersSet, initialize);
+                rebuildOverwritten |= comp.OnRebuildObservers(observersSet, initialize);
             }
 
-            return result;
+            return rebuildOverwritten;
+        }
+
+        // helper function to add all server connections as observers.
+        // this is used if none of the components provides their own
+        // OnRebuildObservers function.
+        internal void AddAllReadyServerConnectionsToObservers()
+        {
+            // add all server connections
+            foreach (NetworkConnection conn in server.connections.Values)
+            {
+                if (conn.isReady)
+                    AddObserver(conn);
+            }
+
+            // add local host connection (if any)
+            if (server.localConnection != null && server.localConnection.isReady)
+            {
+                AddObserver(server.localConnection);
+            }
         }
 
         static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
@@ -950,7 +972,7 @@ namespace Mirror
             bool changed = false;
 
             // call OnRebuildObservers function in all components
-            bool result = GetNewObservers(newObservers, initialize);
+            bool rebuildOverwritten = GetNewObservers(newObservers, initialize);
 
             // if player connection: ensure player always see himself no matter what.
             // -> fixes https://github.com/vis2k/Mirror/issues/692 where a
@@ -962,21 +984,14 @@ namespace Mirror
             }
 
             // if no component implemented OnRebuildObservers, then add all
-            // connections.
-            if (!result)
+            // server connections.
+            if (!rebuildOverwritten)
             {
+                // only add all connections when rebuilding the first time.
+                // second time we just keep them without rebuilding anything.
                 if (initialize)
                 {
-                    foreach (NetworkConnection conn in server.connections.Values)
-                    {
-                        if (conn.isReady)
-                            AddObserver(conn);
-                    }
-
-                    if (server.localConnection != null && server.localConnection.isReady)
-                    {
-                        AddObserver(server.localConnection);
-                    }
+                    AddAllReadyServerConnectionsToObservers();
                 }
                 return;
             }

@@ -12,11 +12,9 @@ namespace Mirror
             if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
             // validate packet size first.
-            if (ValidatePacketSize(segment, channelId))
-            {
-                return Transport.activeTransport.ClientSend(channelId, segment);
-            }
-            return false;
+            ValidatePacketSize(segment, channelId);
+
+            return Transport.activeTransport.ClientSend(channelId, segment);
         }
 
         /// <summary>
