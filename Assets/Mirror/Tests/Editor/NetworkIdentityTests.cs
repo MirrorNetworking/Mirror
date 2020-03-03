@@ -215,24 +215,6 @@ namespace Mirror.Tests
             }
         }
 
-        // A Test behaves as an ordinary method
-        [Test]
-        public void OnStartServerTest()
-        {
-            GameObject gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-
-            // lets add a component to check OnStartserver
-
-            MyTestComponent component1 = gameObject.AddComponent<MyTestComponent>();
-            MyTestComponent component2 = gameObject.AddComponent<MyTestComponent>();
-
-            identity.OnStartServer();
-
-            Assert.That(component1.onStartServerInvoked);
-            Assert.That(component2.onStartServerInvoked);
-        }
-
         class IsClientServerCheckComponent : NetworkBehaviour
         {
             // OnStartClient
@@ -289,6 +271,24 @@ namespace Mirror.Tests
                 OnDestroy_isServer = isServer;
                 OnDestroy_isLocalPlayer = isLocalPlayer;
             }
+        }
+
+        // A Test behaves as an ordinary method
+        [Test]
+        public void OnStartServerTest()
+        {
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // lets add a component to check OnStartserver
+
+            MyTestComponent component1 = gameObject.AddComponent<MyTestComponent>();
+            MyTestComponent component2 = gameObject.AddComponent<MyTestComponent>();
+
+            identity.OnStartServer();
+
+            Assert.That(component1.onStartServerInvoked);
+            Assert.That(component2.onStartServerInvoked);
         }
 
         // check isClient/isServer/isLocalPlayer in server-only mode
