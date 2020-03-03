@@ -992,7 +992,7 @@ namespace Mirror
         // helper function to add all server connections as observers.
         // this is used if none of the components provides their own
         // OnRebuildObservers function.
-        internal void AddAllServerConnectionsToObservers()
+        internal void AddAllReadyServerConnectionsToObservers()
         {
             // add all server connections
             foreach (NetworkConnection conn in NetworkServer.connections.Values)
@@ -1041,7 +1041,7 @@ namespace Mirror
                 // second time we just keep them without rebuilding anything.
                 if (initialize)
                 {
-                    AddAllServerConnectionsToObservers();
+                    AddAllReadyServerConnectionsToObservers();
                 }
                 return;
             }
