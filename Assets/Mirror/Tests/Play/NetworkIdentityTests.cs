@@ -99,12 +99,19 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void AssignAuthority()
+        public void DefaultAuthority()
         {
             // create a networkidentity with our test component
             server.Spawn(gameObject);
 
             Assert.That(identity.connectionToClient, Is.Null);
+        }
+
+        [Test]
+        public void AssignAuthority()
+        {
+            // create a networkidentity with our test component
+            server.Spawn(gameObject);
 
             identity.AssignClientAuthority(server.localConnection);
 
