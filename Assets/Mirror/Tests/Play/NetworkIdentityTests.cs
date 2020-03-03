@@ -93,10 +93,22 @@ namespace Mirror.Tests
             // assign authority
             identity.AssignClientAuthority(server.localConnection);
 
-            Assert.That(identity.connectionToClient, Is.EqualTo(server.localConnection));
             Assert.That(callbackCalled, Is.EqualTo(1));
 
             NetworkIdentity.clientAuthorityCallback -= callback;
+        }
+
+        [Test]
+        public void AssignAuthority()
+        {
+            // create a networkidentity with our test component
+            server.Spawn(gameObject);
+
+            Assert.That(identity.connectionToClient, Is.Null);
+
+            identity.AssignClientAuthority(server.localConnection);
+
+            Assert.That(identity.connectionToClient, Is.SameAs(server.localConnection));
         }
 
         [Test]
@@ -156,5 +168,20 @@ namespace Mirror.Tests
             Assert.That(ex.Message, Is.EqualTo("RemoveClientAuthority cannot remove authority for a player object"));
         }
 
+        [Test]
+        public void RemoveClientAuthority()
+        {
+            server.Spawn(gameObject);
+            identity.AssignClientAuthority(server.localConnection);
+            identity.RemoveClientAuthority();
+            Assert.That(identity.connectionToClient, Is.Null);
+        }
+
+        [Test]
+        public void SpawnWithAuthority()
+        {
+            server.Spawn(gameObject, server.localConnection);
+            Assert.That(identity.connectionToClient, Is.SameAs(server.localConnection));
+        }
     }
 }
