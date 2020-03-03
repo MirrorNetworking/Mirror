@@ -1227,7 +1227,7 @@ namespace Mirror.Tests
             // won't find it
             NetworkIdentity.spawned[identity.netId] = identity;
 
-            // serialize a removeplayer message into an arraysegment
+            // serialize a CommandMessage message into an arraysegment
             CommandMessage message = new CommandMessage {
                 componentIndex = 0,
                 functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
