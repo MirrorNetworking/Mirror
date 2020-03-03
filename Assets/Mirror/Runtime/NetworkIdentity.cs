@@ -1002,7 +1002,7 @@ namespace Mirror
             bool changed = false;
 
             // call OnRebuildObservers function in all components
-            bool result = GetNewObservers(newObservers, initialize);
+            bool rebuildOverwritten = GetNewObservers(newObservers, initialize);
 
             // if player connection: ensure player always see himself no matter what.
             // -> fixes https://github.com/vis2k/Mirror/issues/692 where a
@@ -1015,7 +1015,7 @@ namespace Mirror
 
             // if no component implemented OnRebuildObservers, then add all
             // connections.
-            if (!result)
+            if (!rebuildOverwritten)
             {
                 if (initialize)
                 {
