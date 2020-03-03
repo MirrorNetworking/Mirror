@@ -1228,10 +1228,21 @@ namespace Mirror.Tests
             NetworkIdentity.spawned[identity.netId] = identity;
 
             // call HandleCommand and check if the command was called in the component
-            int componentIndex = 0;
             int functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated));
             NetworkReader payload = new NetworkReader(new byte[0]);
-            identity.HandleCommand(componentIndex, functionHash, payload);
+            identity.HandleCommand(0, functionHash, payload);
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong component index. command shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleCommand(1, functionHash, payload);
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp0.called, Is.EqualTo(1));
+
+            // try wrong function hash. command shouldn't be called again.
+            LogAssert.ignoreFailingMessages = true; // warning is expected
+            identity.HandleCommand(0, functionHash+1, payload);
+            LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // clean up
