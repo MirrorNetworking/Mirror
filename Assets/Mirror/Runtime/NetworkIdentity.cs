@@ -973,17 +973,19 @@ namespace Mirror
 
         // helper function to call OnRebuildObservers in all components
         // -> HashSet is passed in so we can cache it!
+        // -> returns true if any of the components implemented
+        //    OnRebuildObservers, false otherwise
         internal bool GetNewObservers(HashSet<NetworkConnection> observersSet, bool initialize)
         {
-            bool result = false;
+            bool rebuildOverwritten = false;
             observersSet.Clear();
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                result |= comp.OnRebuildObservers(observersSet, initialize);
+                rebuildOverwritten |= comp.OnRebuildObservers(observersSet, initialize);
             }
 
-            return result;
+            return rebuildOverwritten;
         }
 
         static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
