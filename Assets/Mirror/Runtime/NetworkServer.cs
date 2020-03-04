@@ -247,7 +247,7 @@ namespace Mirror
                     // send to all internet connections at once
                     if (connectionIdsCache.Count > 0)
                     {
-                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                        NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
                     }
 
                     NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
