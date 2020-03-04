@@ -1076,6 +1076,16 @@ namespace Mirror
                 }
             }
 
+            if (changed)
+            {
+                observers.Clear();
+                foreach (NetworkConnection conn in newObservers)
+                {
+                    if (conn != null && conn.isReady)
+                        observers.Add(conn.connectionId, conn);
+                }
+            }
+
             // special case for host mode: we use SetHostVisibility to hide
             // NetworkIdentities that aren't in observer range from host.
             // this is what games like Dota/Counter-Strike do too, where a host
@@ -1102,16 +1112,6 @@ namespace Mirror
                 if (!newObservers.Contains(NetworkServer.localConnection))
                 {
                     OnSetHostVisibility(false);
-                }
-            }
-
-            if (changed)
-            {
-                observers.Clear();
-                foreach (NetworkConnection conn in newObservers)
-                {
-                    if (conn != null && conn.isReady)
-                        observers.Add(conn.connectionId, conn);
                 }
             }
         }
