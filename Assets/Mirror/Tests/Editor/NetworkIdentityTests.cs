@@ -1392,5 +1392,30 @@ namespace Mirror.Tests
             identity.RebuildObservers(true);
             Assert.That(!identity.observers.ContainsKey(identity.connectionToClient.connectionId));
         }
+
+        [Test]
+        public void RebuildObserversAddsReadyServerConnectionsIfNotImplemented()
+        {
+            // AddObserver will call transport.send and validpacketsize, so we
+            // actually need a transport
+            Transport.activeTransport = new MemoryTransport();
+
+            // add some server connections
+            NetworkServer.connections[12] = new NetworkConnectionToClient(12){isReady = true};
+            NetworkServer.connections[13] = new NetworkConnectionToClient(13){isReady = false};
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // rebuild observers should add all ready server connections
+            // because no component implements OnRebuildObservers
+            identity.RebuildObservers(true);
+            Assert.That(identity.observers.Count, Is.EqualTo(1));
+            Assert.That(identity.observers.ContainsKey(12));
+
+            // clean up
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+        }
     }
 }
