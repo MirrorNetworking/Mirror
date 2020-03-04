@@ -1402,6 +1402,35 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void RebuildObserversAddsReadyComponentConnectionsIfImplemented()
+        {
+            // AddObserver will call transport.send and validpacketsize, so we
+            // actually need a transport
+            Transport.activeTransport = new MemoryTransport();
+
+            // add three observers components
+            // one with a ready connection, one with no ready connection, one with null connection
+            RebuildObserversNetworkBehaviour compA = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            compA.observer = null;
+            RebuildObserversNetworkBehaviour compB = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            compB.observer = new NetworkConnectionToClient(42){ isReady = false };
+            RebuildObserversNetworkBehaviour compC = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            compC.observer = new NetworkConnectionToClient(43){ isReady = true };
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // rebuild observers should add all component's ready observers
+            identity.RebuildObservers(true);
+            Assert.That(identity.observers.Count, Is.EqualTo(1));
+            Assert.That(identity.observers.ContainsKey(43));
+
+            // clean up
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+        }
+
+        [Test]
         public void RebuildObserversAddsReadyServerConnectionsIfNotImplemented()
         {
             // AddObserver will call transport.send and validpacketsize, so we
