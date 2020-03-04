@@ -304,7 +304,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c102f62d739545269250f48327d4429, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 0}
+  client: {fileID: 1783103027}
   chatMessage: {fileID: 1231350851}
   chatHistory: {fileID: 827598817}
   scrollbar: {fileID: 423302021}
