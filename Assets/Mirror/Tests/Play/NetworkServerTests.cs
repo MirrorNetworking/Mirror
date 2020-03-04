@@ -39,28 +39,7 @@ namespace Mirror.Tests
             Assert.That(gameObject.GetComponent<NetworkIdentity>().server == testServer);
         }
 
-        [Test]
-        public void SpawnWithAuthorityTest()
-        {
-            var player = new GameObject();
-            player.AddComponent<NetworkIdentity>();
-            var connToClient = new NetworkConnectionToClient(0);
-            player.GetComponent<NetworkIdentity>().connectionToClient = connToClient;
-
-            var gameObject = new GameObject();
-            gameObject.AddComponent<NetworkIdentity>();
-
-            testServer.Spawn(gameObject, player);
-
-            NetworkIdentity networkIdentity = gameObject.GetComponent<NetworkIdentity>();
-            Assert.That(networkIdentity.server == testServer);
-            Assert.That(networkIdentity.connectionToClient == connToClient);
-
-            GameObject.DestroyImmediate(gameObject);
-            GameObject.DestroyImmediate(player);
-
-        }
-
+       
         [Test]
         public void ShutdownTest()
         {
