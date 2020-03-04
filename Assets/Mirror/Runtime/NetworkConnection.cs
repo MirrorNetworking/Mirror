@@ -17,7 +17,8 @@ namespace Mirror
     /// </remarks>
     public abstract class NetworkConnection : IDisposable
     {
-        readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
+        // internal so it can be tested
+        internal readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
