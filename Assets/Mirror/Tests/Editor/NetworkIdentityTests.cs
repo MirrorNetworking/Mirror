@@ -1443,7 +1443,5 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
         }
-
-        //TODO: // rebuild observers does NOT add a honeypot server conn if any comp implements it?
     }
 }
