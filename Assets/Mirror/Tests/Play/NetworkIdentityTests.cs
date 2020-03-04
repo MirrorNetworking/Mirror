@@ -29,6 +29,7 @@ namespace Mirror.Tests
             server.Listen(2);
             client.ConnectHost(server);
 
+
             gameObject = new GameObject();
             identity = gameObject.AddComponent<NetworkIdentity>();
         }

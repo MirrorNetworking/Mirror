@@ -39,7 +39,7 @@ namespace Mirror
         /// <summary>
         /// A list of local connections on the server.
         /// </summary>
-        public Dictionary<int, NetworkConnectionToClient> connections = new Dictionary<int, NetworkConnectionToClient>();
+        public readonly Dictionary<int, NetworkConnectionToClient> connections = new Dictionary<int, NetworkConnectionToClient>();
 
         /// <summary>
         /// <para>Dictionary of the message handlers registered with the server.</para>

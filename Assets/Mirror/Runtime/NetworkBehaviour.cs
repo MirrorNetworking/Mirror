@@ -199,17 +199,16 @@ namespace Mirror
                 Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
                 return;
             }
+
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
             {
-                Debug.LogWarning($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
-                return;
+                throw new UnauthorizedAccessException($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
             }
 
             if (ClientScene.readyConnection == null)
             {
-                Debug.LogError("Send command attempted with no client running [client=" + connectionToServer + "].");
-                return;
+                throw new InvalidOperationException("Send command attempted with no client running [client=" + connectionToServer + "].");
             }
 
             // construct the message
