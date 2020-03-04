@@ -1046,7 +1046,7 @@ namespace Mirror
                 return;
             }
 
-            // apply changes from rebuild
+            // add all newObservers that aren't in .observers yet
             foreach (NetworkConnection conn in newObservers)
             {
                 if (conn != null)
@@ -1068,6 +1068,7 @@ namespace Mirror
                 }
             }
 
+            // remove all old .observers that aren't in newObservers anymore
             foreach (NetworkConnection conn in observers.Values)
             {
                 if (!newObservers.Contains(conn))
