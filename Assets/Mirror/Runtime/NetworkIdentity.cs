@@ -1016,6 +1016,7 @@ namespace Mirror
         /// <param name="initialize">True if this is the first time.</param>
         public void RebuildObservers(bool initialize)
         {
+            // observers are null until OnStartServer creates them
             if (observers == null)
                 return;
 
