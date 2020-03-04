@@ -1555,5 +1555,17 @@ namespace Mirror.Tests
             NetworkServer.RemoveLocalConnection();
             NetworkServer.Shutdown();
         }
+
+        [Test]
+        public void RebuildObserversReturnsIfNull()
+        {
+            // add a server connection
+            NetworkServer.connections[12] = new NetworkConnectionToClient(12){isReady = true};
+
+            // call RebuildObservers without calling OnStartServer first.
+            // .observers will be null and it should simply return early.
+            identity.RebuildObservers(true);
+            Assert.That(identity.observers, Is.Null);
+        }
     }
 }
