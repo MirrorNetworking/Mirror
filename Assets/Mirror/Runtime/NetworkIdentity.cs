@@ -1049,23 +1049,22 @@ namespace Mirror
             // apply changes from rebuild
             foreach (NetworkConnection conn in newObservers)
             {
-                if (conn == null)
+                if (conn != null)
                 {
-                    continue;
-                }
-
-                if (!conn.isReady)
-                {
-                    if (LogFilter.Debug) Debug.Log("Observer is not ready for " + gameObject + " " + conn);
-                    continue;
-                }
-
-                if (initialize || !observers.ContainsKey(conn.connectionId))
-                {
-                    // new observer
-                    conn.AddToVisList(this);
-                    if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
-                    changed = true;
+                    if (conn.isReady)
+                    {
+                        if (initialize || !observers.ContainsKey(conn.connectionId))
+                        {
+                            // new observer
+                            conn.AddToVisList(this);
+                            if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
+                            changed = true;
+                        }
+                    }
+                    else
+                    {
+                        if (LogFilter.Debug) Debug.Log("Observer is not ready for " + gameObject + " " + conn);
+                    }
                 }
             }
 
