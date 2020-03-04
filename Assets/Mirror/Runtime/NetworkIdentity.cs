@@ -1049,21 +1049,16 @@ namespace Mirror
             // add all newObservers that aren't in .observers yet
             foreach (NetworkConnection conn in newObservers)
             {
-                if (conn != null)
+                // only add ready connections.
+                // otherwise the player might not be in the world yet or anymore
+                if (conn != null && conn.isReady)
                 {
-                    if (conn.isReady)
+                    if (initialize || !observers.ContainsKey(conn.connectionId))
                     {
-                        if (initialize || !observers.ContainsKey(conn.connectionId))
-                        {
-                            // new observer
-                            conn.AddToVisList(this);
-                            if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
-                            changed = true;
-                        }
-                    }
-                    else
-                    {
-                        if (LogFilter.Debug) Debug.Log("Observer is not ready for " + gameObject + " " + conn);
+                        // new observer
+                        conn.AddToVisList(this);
+                        if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
+                        changed = true;
                     }
                 }
             }
