@@ -1110,7 +1110,7 @@ namespace Mirror
                 observers.Clear();
                 foreach (NetworkConnection conn in newObservers)
                 {
-                    if (conn.isReady)
+                    if (conn != null && conn.isReady)
                         observers.Add(conn.connectionId, conn);
                 }
             }
