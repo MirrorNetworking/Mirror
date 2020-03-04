@@ -75,10 +75,31 @@ namespace Mirror.Tests
         [TearDown]
         public void ShutdownNetworkServer()
         {
-
             GameObject.DestroyImmediate(gameObject);
             manager.StopHost();
             GameObject.DestroyImmediate(networkManagerGo);
+        }
+
+
+        [Test]
+        public void CommandWithoutAuthority()
+        {
+            var gameObject2 = new GameObject();
+            var identity2 = gameObject2.AddComponent<NetworkIdentity>();
+            var rpcComponent2 = gameObject2.AddComponent<RpcComponent>();
+
+            // spawn it without client authority
+            manager.server.Spawn(gameObject2);
+
+            // process spawn message from server
+            manager.client.Update();
+
+            // only authorized clients can call command
+            Assert.Throws<UnauthorizedAccessException>(() =>
+           {
+               rpcComponent2.CmdTest(1, "hello");
+           });
+
         }
 
         [Test]
