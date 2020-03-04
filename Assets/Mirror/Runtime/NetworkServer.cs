@@ -217,7 +217,7 @@ namespace Mirror
 
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
-        static bool SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        static void SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + typeof(T));
 
@@ -234,12 +234,11 @@ namespace Mirror
                     // -> makes code more complicated, but is HIGHLY worth it to
                     //    avoid allocations, allow for multicast, etc.
                     connectionIdsCache.Clear();
-                    bool result = true;
                     foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                     {
                         // use local connection directly because it doesn't send via transport
                         if (kvp.Value is ULocalConnectionToClient)
-                            result &= kvp.Value.Send(segment);
+                            kvp.Value.Send(segment);
                         // gather all internet connections
                         else
                             connectionIdsCache.Add(kvp.Key);
@@ -252,11 +251,8 @@ namespace Mirror
                     }
 
                     NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
-
-                    return result;
                 }
             }
-            return false;
         }
 
         // Deprecated 03/03/2019
