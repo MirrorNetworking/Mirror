@@ -1,3 +1,10 @@
+## [14.0.1](https://github.com/MirrorNG/MirrorNG/compare/14.0.0-master...14.0.1-master) (2020-03-04)
+
+
+### Bug Fixes
+
+* Avoid FindObjectOfType when not needed ([#66](https://github.com/MirrorNG/MirrorNG/issues/66)) ([e2a4afd](https://github.com/MirrorNG/MirrorNG/commit/e2a4afd0b9ca8dea720acb9c558efca210bd8e71))
+
 # [14.0.0](https://github.com/MirrorNG/MirrorNG/compare/13.0.0-master...14.0.0-master) (2020-03-03)
 
 
