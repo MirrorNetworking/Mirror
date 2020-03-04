@@ -1417,5 +1417,33 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
         }
+
+        [Test]
+        public void RebuildObserversDoesNotAddServerConnectionsIfImplemented()
+        {
+            // AddObserver will call transport.send and validpacketsize, so we
+            // actually need a transport
+            Transport.activeTransport = new MemoryTransport();
+
+            // add a server connection
+            NetworkServer.connections[12] = new NetworkConnectionToClient(12){isReady = true};
+
+            // add at least one observers component, otherwise it will just add
+            // all server connections
+            gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
+
+            // call OnStartServer so that observers dict is created
+            identity.OnStartServer();
+
+            // rebuild observers should NOT add all server connections now
+            identity.RebuildObservers(true);
+            Assert.That(identity.observers.Count, Is.EqualTo(0));
+
+            // clean up
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+        }
+
+        //TODO: // rebuild observers does NOT add a honeypot server conn if any comp implements it?
     }
 }
