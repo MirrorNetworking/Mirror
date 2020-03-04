@@ -15,7 +15,9 @@ namespace Mirror
 
         public void Awake()
         {
-            manager = FindObjectOfType<NetworkManager>();
+            if (manager == null)
+                manager = FindObjectOfType<NetworkManager>();
+
             manager.RegisterStartPosition(transform);
         }
 
