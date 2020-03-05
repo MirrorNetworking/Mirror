@@ -69,5 +69,12 @@ namespace Mirror.Tests
             // no authority by default
             Assert.That(emptyBehaviour.hasAuthority, Is.False);
         }
+
+        [Test]
+        public void HasIdentitysNetId()
+        {
+            identity.netId = 42;
+            Assert.That(emptyBehaviour.netId, Is.EqualTo(42));
+        }
     }
 }
