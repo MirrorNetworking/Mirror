@@ -62,5 +62,12 @@ namespace Mirror.Tests
             Assert.That(emptyBehaviour.isClient, Is.True);
             Assert.That(emptyBehaviour.isClientOnly, Is.True);
         }
+
+        [Test]
+        public void HasNoAuthorityByDefault()
+        {
+            // no authority by default
+            Assert.That(emptyBehaviour.hasAuthority, Is.False);
+        }
     }
 }
