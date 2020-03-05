@@ -83,5 +83,12 @@ namespace Mirror.Tests
             identity.connectionToServer = new ULocalConnectionToServer();
             Assert.That(emptyBehaviour.connectionToServer, Is.EqualTo(identity.connectionToServer));
         }
+
+        [Test]
+        public void HasIdentitysConnectionToClient()
+        {
+            identity.connectionToClient = new ULocalConnectionToClient();
+            Assert.That(emptyBehaviour.connectionToClient, Is.EqualTo(identity.connectionToClient));
+        }
     }
 }
