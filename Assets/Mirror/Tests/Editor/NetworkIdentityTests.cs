@@ -1138,6 +1138,7 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // clean up
+            NetworkBehaviour.ClearDelegates();
             NetworkIdentity.spawned.Clear();
             NetworkBehaviour.ClearDelegates();
         }
