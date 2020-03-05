@@ -17,12 +17,16 @@ namespace Mirror.Tests
     {
         GameObject gameObject;
         NetworkIdentity identity;
+        EmptyBehaviour emptyBehaviour; // useful in most tests, but not necessarily all tests
 
         [SetUp]
         public void SetUp()
         {
             gameObject = new GameObject();
             identity = gameObject.AddComponent<NetworkIdentity>();
+
+            // add a behaviour for testing
+            emptyBehaviour = gameObject.AddComponent<EmptyBehaviour>();
         }
 
         [TearDown]
@@ -34,18 +38,15 @@ namespace Mirror.Tests
         [Test]
         public void IsServerOnly()
         {
-            // add a behaviour
-            EmptyBehaviour comp = gameObject.AddComponent<EmptyBehaviour>();
-
             // start server and assign netId so that isServer is true
             Transport.activeTransport = Substitute.For<Transport>();
             NetworkServer.Listen(1);
             identity.netId = 42;
 
             // isServerOnly should be true when isServer = true && isClient = false
-            Assert.That(comp.isServer, Is.True);
-            Assert.That(comp.isClient, Is.False);
-            Assert.That(comp.isServerOnly, Is.True);
+            Assert.That(emptyBehaviour.isServer, Is.True);
+            Assert.That(emptyBehaviour.isClient, Is.False);
+            Assert.That(emptyBehaviour.isServerOnly, Is.True);
 
             // clean up
             NetworkServer.Shutdown();
@@ -55,14 +56,11 @@ namespace Mirror.Tests
         [Test]
         public void IsClientOnly()
         {
-            // add a behaviour
-            EmptyBehaviour comp = gameObject.AddComponent<EmptyBehaviour>();
-
             // isClientOnly should be true when isServer = false && isClient = true
             identity.isClient = true;
-            Assert.That(comp.isServer, Is.False);
-            Assert.That(comp.isClient, Is.True);
-            Assert.That(comp.isClientOnly, Is.True);
+            Assert.That(emptyBehaviour.isServer, Is.False);
+            Assert.That(emptyBehaviour.isClient, Is.True);
+            Assert.That(emptyBehaviour.isClientOnly, Is.True);
         }
     }
 }
