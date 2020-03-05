@@ -216,6 +216,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
+            NetworkBehaviour.ClearDelegates();
             ClientScene.Shutdown(); // clear clientscene.readyconnection
             NetworkClient.Shutdown();
             NetworkServer.Shutdown();
