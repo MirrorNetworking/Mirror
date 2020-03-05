@@ -1,3 +1,16 @@
+# [15.0.0](https://github.com/MirrorNG/MirrorNG/compare/14.0.1-master...15.0.0-master) (2020-03-05)
+
+
+### Code Refactoring
+
+* Remove networkAddress from NetworkManager ([#67](https://github.com/MirrorNG/MirrorNG/issues/67)) ([e89c32d](https://github.com/MirrorNG/MirrorNG/commit/e89c32dc16b3d9b9cdcb38f0d7d170da94dbf874))
+
+
+### BREAKING CHANGES
+
+* StartClient now receives the server ip
+* NetworkManager no longer has NetworkAddress
+
 ## [14.0.1](https://github.com/MirrorNG/MirrorNG/compare/14.0.0-master...14.0.1-master) (2020-03-04)
 
 
