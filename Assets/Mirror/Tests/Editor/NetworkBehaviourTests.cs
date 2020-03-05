@@ -137,4 +137,17 @@ namespace Mirror.Tests
             }
         }
     }
+
+    // we need to inherit from networkbehaviour to test protected functions
+    public class NetworkBehaviourInitSyncObjectTester : NetworkBehaviour
+    {
+        [Test]
+        public void InitSyncObject()
+        {
+            SyncObject syncObject = new SyncListBool();
+            InitSyncObject(syncObject);
+            Assert.That(syncObjects.Count, Is.EqualTo(1));
+            Assert.That(syncObjects[0], Is.EqualTo(syncObject));
+        }
+    }
 }
