@@ -76,5 +76,12 @@ namespace Mirror.Tests
             identity.netId = 42;
             Assert.That(emptyBehaviour.netId, Is.EqualTo(42));
         }
+
+        [Test]
+        public void HasIdentitysConnectionToServer()
+        {
+            identity.connectionToServer = new ULocalConnectionToServer();
+            Assert.That(emptyBehaviour.connectionToServer, Is.EqualTo(identity.connectionToServer));
+        }
     }
 }
