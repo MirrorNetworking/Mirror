@@ -13,6 +13,26 @@ namespace Mirror.Tests
     {
     }
 
+    // we need to inherit from networkbehaviour to test protected functions
+    public class NetworkBehaviourSendCommandInternalComponent : NetworkBehaviour
+    {
+        // counter to make sure that it's called exactly once
+        public int called;
+
+        // weaver generates this from [Command]
+        // but for tests we need to add it manually
+        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader)
+        {
+            ++((NetworkBehaviourSendCommandInternalComponent)comp).called;
+        }
+
+        // SendCommandInternal is protected. let's expose it so we can test it.
+        public void CallSendCommandInternal()
+        {
+            SendCommandInternal(GetType(), nameof(CommandGenerated), new NetworkWriter(), 0);
+        }
+    }
+
     public class NetworkBehaviourTests
     {
         GameObject gameObject;
@@ -108,6 +128,81 @@ namespace Mirror.Tests
         public void OnCheckObserverTrueByDefault()
         {
             Assert.That(emptyBehaviour.OnCheckObserver(null), Is.True);
+        }
+
+        [Test]
+        public void SendCommandInternal()
+        {
+            // transport is needed by server and client.
+            // it needs to be on a gameobject because client.connect enables it,
+            // which throws a NRE if not on a gameobject
+            GameObject transportGO = new GameObject();
+            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
+
+            // we need to start a server and connect a client in order to be
+            // able to send commands
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            NetworkServer.Listen(1);
+            NetworkClient.Connect("localhost");
+
+            // setup worked?
+            Assert.That(NetworkServer.active, Is.True);
+            Assert.That(NetworkClient.active, Is.True);
+
+            // add command component
+            NetworkBehaviourSendCommandInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendCommandInternalComponent>();
+
+            // create a connection from client to server and from server to client
+            ULocalConnectionToClient connection = new ULocalConnectionToClient {
+                isReady = true,
+                isAuthenticated = true // commands require authentication
+            };
+            connection.connectionToServer = new ULocalConnectionToServer {
+                isReady = true,
+                isAuthenticated = true // commands require authentication
+            };
+            connection.connectionToServer.connectionToClient = connection;
+            identity.connectionToClient = connection;
+
+            // give authority so we can call commands
+            identity.netId = 42;
+            identity.hasAuthority = true;
+            Assert.That(identity.hasAuthority, Is.True);
+
+            // isClient needs to be true, otherwise we can't call commands
+            identity.isClient = true;
+
+            // register our connection at the server so that it sets up the
+            // connection's handlers
+            NetworkServer.AddConnection(connection);
+
+            // clientscene.readyconnection needs to be set for commands
+            ClientScene.Ready(connection.connectionToServer);
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
+                nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
+                NetworkBehaviourSendCommandInternalComponent.CommandGenerated);
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // call command
+            Assert.That(comp.called, Is.EqualTo(0));
+            comp.CallSendCommandInternal();
+            Assert.That(comp.called, Is.EqualTo(1));
+
+            // clean up
+            ClientScene.Shutdown(); // clear clientscene.readyconnection
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+            GameObject.DestroyImmediate(transportGO);
         }
     }
 
