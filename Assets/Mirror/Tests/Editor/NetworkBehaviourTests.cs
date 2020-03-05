@@ -90,5 +90,18 @@ namespace Mirror.Tests
             identity.connectionToClient = new ULocalConnectionToClient();
             Assert.That(emptyBehaviour.connectionToClient, Is.EqualTo(identity.connectionToClient));
         }
+
+        [Test]
+        public void ComponentIndex()
+        {
+            // add one extra component
+            EmptyBehaviour extra = gameObject.AddComponent<EmptyBehaviour>();
+
+            // original one is first networkbehaviour, so index is 0
+            Assert.That(emptyBehaviour.ComponentIndex, Is.EqualTo(0));
+
+            // extra one is second networkbehaviour, so index is 1
+            Assert.That(extra.ComponentIndex, Is.EqualTo(1));
+        }
     }
 }
