@@ -103,5 +103,11 @@ namespace Mirror.Tests
             // extra one is second networkbehaviour, so index is 1
             Assert.That(extra.ComponentIndex, Is.EqualTo(1));
         }
+
+        [Test]
+        public void OnCheckObserverTrueByDefault()
+        {
+            Assert.That(emptyBehaviour.OnCheckObserver(null), Is.True);
+        }
     }
 }
