@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -34,7 +34,6 @@ namespace Mirror.Tests
             Assert.That(manager.showDebugMessages, Is.False);
             Assert.That(manager.serverTickRate, Is.EqualTo(30));
             Assert.That(manager.offlineScene, Is.Empty);
-            Assert.That(manager.networkAddress, Is.EqualTo("localhost"));
             Assert.That(manager.maxConnections, Is.EqualTo(4));
             Assert.That(manager.autoCreatePlayer, Is.True);
             Assert.That(manager.spawnPrefabs, Is.Empty);
@@ -73,7 +72,7 @@ namespace Mirror.Tests
         [Test]
         public void StartClientTest()
         {
-            manager.StartClient();
+            manager.StartClient("localhost");
 
             Assert.That(manager.isNetworkActive , Is.True);
             Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.ClientOnly));
@@ -84,7 +83,7 @@ namespace Mirror.Tests
         [Test]
         public void StopClientTest()
         {
-            manager.StartClient();
+            manager.StartClient("localhost");
             manager.StopClient();
 
             Assert.That(manager.isNetworkActive , Is.False);
@@ -94,7 +93,7 @@ namespace Mirror.Tests
         [Test]
         public void ShutdownTest()
         {
-            manager.StartClient();
+            manager.StartClient("localhost");
             manager.StopClient();
 
             Assert.That(manager.startPositions , Is.Empty);

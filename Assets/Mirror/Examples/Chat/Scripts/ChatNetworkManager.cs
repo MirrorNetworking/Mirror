@@ -7,11 +7,6 @@ namespace Mirror.Examples.Chat
     {
         public string playerName { get; set; }
 
-        public void SetHostname(string hostname)
-        {
-            networkAddress = hostname;
-        }
-
         public ChatWindow chatWindow;
 
         public class CreatePlayerMessage : MessageBase

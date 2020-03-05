@@ -36,12 +36,6 @@ namespace Mirror
         internal ConnectState connectState = ConnectState.None;
 
         /// <summary>
-        /// The IP address of the server that this client is connected to.
-        /// <para>This will be empty if the client has not connected yet.</para>
-        /// </summary>
-        public string serverIp => connection.address;
-
-        /// <summary>
         /// active is true while a client is connecting/connected
         /// (= while the network is active)
         /// </summary>
@@ -66,16 +60,16 @@ namespace Mirror
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="address"></param>
-        public async Task ConnectAsync(string address)
+        public async Task ConnectAsync(string serverIp)
         {
-            if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
+            if (LogFilter.Debug) Debug.Log("Client Connect: " + serverIp);
 
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
 
             connectState = ConnectState.Connecting;
-            await Transport.activeTransport.ClientConnectAsync(address);
+            await Transport.activeTransport.ClientConnectAsync(serverIp);
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();

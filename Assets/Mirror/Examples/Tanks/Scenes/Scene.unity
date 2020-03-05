@@ -443,6 +443,7 @@ MonoBehaviour:
   showGUI: 1
   offsetX: 0
   offsetY: 0
+  serverIp: localhost
 --- !u!114 &1282001520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -465,7 +466,6 @@ MonoBehaviour:
   server: {fileID: 1282001523}
   client: {fileID: 1282001522}
   transport: {fileID: 1282001524}
-  networkAddress: localhost
   maxConnections: 4
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 1916082411674582, guid: 6f43bf5488a7443d19ab2a83c6b91f35,
