@@ -147,14 +147,11 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
             NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
             NetworkServer.Listen(1);
-            NetworkClient.Connect("localhost");
-
-            // setup worked?
             Assert.That(NetworkServer.active, Is.True);
-            Assert.That(NetworkClient.active, Is.True);
 
             // add command component
             NetworkBehaviourSendCommandInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendCommandInternalComponent>();
+            Assert.That(comp.called, Is.EqualTo(0));
 
             // create a connection from client to server and from server to client
             ULocalConnectionToClient connection = new ULocalConnectionToClient {
@@ -168,6 +165,22 @@ namespace Mirror.Tests
             connection.connectionToServer.connectionToClient = connection;
             identity.connectionToClient = connection;
 
+            // calling command before client is connected shouldn't work
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            comp.CallSendCommandInternal();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            // connect client
+            NetworkClient.Connect("localhost");
+            Assert.That(NetworkClient.active, Is.True);
+
+            // calling command before we have authority should fail
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            comp.CallSendCommandInternal();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(comp.called, Is.EqualTo(0));
+
             // give authority so we can call commands
             identity.netId = 42;
             identity.hasAuthority = true;
@@ -180,9 +193,6 @@ namespace Mirror.Tests
             // connection's handlers
             NetworkServer.AddConnection(connection);
 
-            // clientscene.readyconnection needs to be set for commands
-            ClientScene.Ready(connection.connectionToServer);
-
             // register the command delegate, otherwise it's not found
             NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
                 nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
@@ -192,8 +202,16 @@ namespace Mirror.Tests
             // won't find it
             NetworkIdentity.spawned[identity.netId] = identity;
 
-            // call command
+            // calling command before clientscene has ready connection shouldn't work
+            LogAssert.ignoreFailingMessages = true; // error log is expected
+            comp.CallSendCommandInternal();
+            LogAssert.ignoreFailingMessages = false;
             Assert.That(comp.called, Is.EqualTo(0));
+
+            // clientscene.readyconnection needs to be set for commands
+            ClientScene.Ready(connection.connectionToServer);
+
+            // call command
             comp.CallSendCommandInternal();
             Assert.That(comp.called, Is.EqualTo(1));
 
