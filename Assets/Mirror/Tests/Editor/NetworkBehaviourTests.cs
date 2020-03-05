@@ -13,7 +13,9 @@ namespace Mirror.Tests
     {
     }
 
-    public class NetworkBehaviourTests
+    // test class inherits from NetworkBehaviour so that we can tested protected
+    // methods too
+    public class NetworkBehaviourTests : NetworkBehaviour
     {
         GameObject gameObject;
         NetworkIdentity identity;
@@ -108,6 +110,31 @@ namespace Mirror.Tests
         public void OnCheckObserverTrueByDefault()
         {
             Assert.That(emptyBehaviour.OnCheckObserver(null), Is.True);
+        }
+    }
+
+    // we need to inherit from networkbehaviour to test protected functions
+    public class NetworkBehaviourHookGuardTester : NetworkBehaviour
+    {
+        [Test]
+        public void HookGuard()
+        {
+            // set hook guard for some bits
+            for (int i = 0; i < 10; ++i)
+            {
+                ulong bit = 1ul << i;
+
+                // should be false by default
+                Assert.That(getSyncVarHookGuard(bit), Is.False);
+
+                // set true
+                setSyncVarHookGuard(bit, true);
+                Assert.That(getSyncVarHookGuard(bit), Is.True);
+
+                // set false again
+                setSyncVarHookGuard(bit, false);
+                Assert.That(getSyncVarHookGuard(bit), Is.False);
+            }
         }
     }
 }
