@@ -13,9 +13,7 @@ namespace Mirror.Tests
     {
     }
 
-    // test class inherits from NetworkBehaviour so that we can tested protected
-    // methods too
-    public class NetworkBehaviourTests : NetworkBehaviour
+    public class NetworkBehaviourTests
     {
         GameObject gameObject;
         NetworkIdentity identity;
