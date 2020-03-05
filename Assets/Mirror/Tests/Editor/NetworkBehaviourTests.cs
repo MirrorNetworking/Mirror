@@ -51,5 +51,18 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
         }
+
+        [Test]
+        public void IsClientOnly()
+        {
+            // add a behaviour
+            EmptyBehaviour comp = gameObject.AddComponent<EmptyBehaviour>();
+
+            // isClientOnly should be true when isServer = false && isClient = true
+            identity.isClient = true;
+            Assert.That(comp.isServer, Is.False);
+            Assert.That(comp.isClient, Is.True);
+            Assert.That(comp.isClientOnly, Is.True);
+        }
     }
 }
