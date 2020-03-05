@@ -222,6 +222,77 @@ namespace Mirror.Tests
             Transport.activeTransport = null;
             GameObject.DestroyImmediate(transportGO);
         }
+
+        [Test]
+        public void InvokeCommand()
+        {
+            // transport is needed by server and client.
+            // it needs to be on a gameobject because client.connect enables it,
+            // which throws a NRE if not on a gameobject
+            GameObject transportGO = new GameObject();
+            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
+
+            // we need to start a server and connect a client in order to be
+            // able to send commands
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.active, Is.True);
+
+            // add command component
+            NetworkBehaviourSendCommandInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendCommandInternalComponent>();
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            // create a connection from client to server and from server to client
+            ULocalConnectionToClient connection = new ULocalConnectionToClient {
+                isReady = true,
+                isAuthenticated = true // commands require authentication
+            };
+            connection.connectionToServer = new ULocalConnectionToServer {
+                isReady = true,
+                isAuthenticated = true // commands require authentication
+            };
+            connection.connectionToServer.connectionToClient = connection;
+            identity.connectionToClient = connection;
+
+            // connect client
+            NetworkClient.Connect("localhost");
+            Assert.That(NetworkClient.active, Is.True);
+
+            // give authority so we can call commands
+            identity.netId = 42;
+            identity.hasAuthority = true;
+            Assert.That(identity.hasAuthority, Is.True);
+
+            // isClient needs to be true, otherwise we can't call commands
+            identity.isClient = true;
+
+            // register our connection at the server so that it sets up the
+            // connection's handlers
+            NetworkServer.AddConnection(connection);
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
+                nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
+                NetworkBehaviourSendCommandInternalComponent.CommandGenerated);
+
+            // invoke command
+            int cmdHash = NetworkBehaviour.GetMethodHash(
+                typeof(NetworkBehaviourSendCommandInternalComponent),
+                nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated));
+            comp.InvokeCommand(cmdHash, new NetworkReader(new byte[0]));
+            Assert.That(comp.called, Is.EqualTo(1));
+
+            // clean up
+            ClientScene.Shutdown(); // clear clientscene.readyconnection
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+            GameObject.DestroyImmediate(transportGO);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
