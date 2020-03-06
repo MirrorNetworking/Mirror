@@ -1,3 +1,11 @@
+## [15.0.1](https://github.com/MirrorNG/MirrorNG/compare/15.0.0-master...15.0.1-master) (2020-03-06)
+
+
+### Bug Fixes
+
+* chat example works ([0609d50](https://github.com/MirrorNG/MirrorNG/commit/0609d50d9b93afd3b42d97ddcd00d32e8aaa0db5))
+* there is no lobby example ([b1e05ef](https://github.com/MirrorNG/MirrorNG/commit/b1e05efb19984ce615d20a16a6c4b09a8897da6a))
+
 # [15.0.0](https://github.com/MirrorNG/MirrorNG/compare/14.0.1-master...15.0.0-master) (2020-03-05)
 
 
