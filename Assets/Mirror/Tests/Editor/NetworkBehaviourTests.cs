@@ -588,6 +588,29 @@ namespace Mirror.Tests
             Transport.activeTransport = null;
             GameObject.DestroyImmediate(transportGO);
         }
+
+        [Test]
+        public void InvokeSyncEvent()
+        {
+            // add command component
+            NetworkBehaviourSendEventInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendEventInternalComponent>();
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterEventDelegate(typeof(NetworkBehaviourSendEventInternalComponent),
+                nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated),
+                NetworkBehaviourSendEventInternalComponent.EventGenerated);
+
+            // invoke command
+            int eventHash = NetworkBehaviour.GetMethodHash(
+                typeof(NetworkBehaviourSendEventInternalComponent),
+                nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated));
+            comp.InvokeSyncEvent(eventHash, new NetworkReader(new byte[0]));
+            Assert.That(comp.called, Is.EqualTo(1));
+
+            // clean up
+            NetworkBehaviour.ClearDelegates();
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
