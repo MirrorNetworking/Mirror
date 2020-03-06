@@ -1,3 +1,10 @@
+## [15.0.2](https://github.com/MirrorNG/MirrorNG/compare/15.0.1-master...15.0.2-master) (2020-03-06)
+
+
+### Bug Fixes
+
+* rooms demo ([44598e5](https://github.com/MirrorNG/MirrorNG/commit/44598e58325c877bd6b53ee5a77dd95e421ec404))
+
 ## [15.0.1](https://github.com/MirrorNG/MirrorNG/compare/15.0.0-master...15.0.1-master) (2020-03-06)
 
 
