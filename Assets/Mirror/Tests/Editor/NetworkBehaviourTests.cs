@@ -73,6 +73,26 @@ namespace Mirror.Tests
         }
     }
 
+    // we need to inherit from networkbehaviour to test protected functions
+    public class NetworkBehaviourSendEventInternalComponent : NetworkBehaviour
+    {
+        // counter to make sure that it's called exactly once
+        public int called;
+
+        // weaver generates this from [Command]
+        // but for tests we need to add it manually
+        public static void EventGenerated(NetworkBehaviour comp, NetworkReader reader)
+        {
+            ++((NetworkBehaviourSendEventInternalComponent)comp).called;
+        }
+
+        // SendCommandInternal is protected. let's expose it so we can test it.
+        public void CallSendEventInternal()
+        {
+            SendEventInternal(GetType(), nameof(EventGenerated), new NetworkWriter(), 0);
+        }
+    }
+
     public class NetworkBehaviourTests
     {
         GameObject gameObject;
@@ -421,10 +441,6 @@ namespace Mirror.Tests
             comp.CallSendTargetRPCInternal(null);
             Assert.That(comp.called, Is.EqualTo(0));
 
-            // we need an observer because sendrpc sends to ready observers
-            identity.OnStartServer(); // creates observers
-            identity.observers[connectionToServer.connectionToClient.connectionId] = connectionToServer.connectionToClient;
-
             identity.netId = 42;
 
             // calling rpc on connectionToServer shouldn't work
@@ -487,6 +503,90 @@ namespace Mirror.Tests
 
             // clean up
             NetworkBehaviour.ClearDelegates();
+        }
+
+        [Test]
+        public void SendEventInternal()
+        {
+            // add rpc component
+            NetworkBehaviourSendEventInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendEventInternalComponent>();
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            // transport is needed by server and client.
+            // it needs to be on a gameobject because client.connect enables it,
+            // which throws a NRE if not on a gameobject
+            GameObject transportGO = new GameObject();
+            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
+
+            // calling event before server is active shouldn't work
+            LogAssert.Expect(LogType.Warning, "SendEvent no server?");
+            comp.CallSendEventInternal();
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            // we need to start a server and connect a client in order to be
+            // able to send events
+            // message handlers
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.active, Is.True);
+
+            // connect host client
+            NetworkClient.ConnectHost();
+            Assert.That(NetworkClient.active, Is.True);
+
+            // get the host connection which already has client->server and
+            // server->client set up
+            ULocalConnectionToServer connectionToServer = (ULocalConnectionToServer)NetworkClient.connection;
+
+            // set host connection as ready and authenticated
+            connectionToServer.isReady = true;
+            connectionToServer.isAuthenticated = true;
+            connectionToServer.connectionToClient.isReady = true;
+            connectionToServer.connectionToClient.isAuthenticated = true;
+            connectionToServer.connectionToClient.identity = identity;
+
+            // we need an observer because sendevent sends to ready observers
+            identity.OnStartServer(); // creates observers
+            identity.observers[connectionToServer.connectionToClient.connectionId] = connectionToServer.connectionToClient;
+
+            identity.netId = 42;
+
+            // set proper connection to client
+            identity.connectionToClient = connectionToServer.connectionToClient;
+
+            // isServer needs to be true, otherwise we can't call rpcs
+            Assert.That(comp.isServer, Is.True);
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterEventDelegate(
+                typeof(NetworkBehaviourSendEventInternalComponent),
+                nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated),
+                NetworkBehaviourSendEventInternalComponent.EventGenerated);
+
+            // identity needs to be in spawned dict, otherwise event handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // call event
+            comp.CallSendEventInternal();
+
+            // update client's connection so that pending messages are processed
+            connectionToServer.Update();
+
+            // rpc should have been called now
+            Assert.That(comp.called, Is.EqualTo(1));
+
+            // clean up
+            NetworkBehaviour.ClearDelegates();
+            ClientScene.Shutdown(); // clear clientscene.readyconnection
+            NetworkServer.RemoveLocalConnection();
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+            GameObject.DestroyImmediate(transportGO);
         }
     }
 
