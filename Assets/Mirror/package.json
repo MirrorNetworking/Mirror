@@ -9,36 +9,41 @@
       "type": "git",
       "url": "https://github.com/MirrorNG/MirrorNG.git#upm"
    },
-   "samples": [
-      {
-         "displayName": "Basic",
-         "description": "Basic",
-         "path": "Samples~/Basic"
-      },
-      {
-         "displayName": "Pong",
-         "description": "Pong",
-         "path": "Samples~/Pong"
-      },
-      {
-         "displayName": "Tanks",
-         "description": "Tanks",
-         "path": "Samples~/Tanks"
-      },
-      {
-         "displayName": "Chat",
-         "description": "Chat",
-         "path": "Samples~/Chat"
-      },
-      {
-         "displayName": "ListServer",
-         "description": "ListServer",
-         "path": "Samples~/ListServer"
-      },
-      {
-         "displayName": "AdditiveScenes",
-         "description": "AdditiveScenes",
-         "path": "Samples~/AdditiveScenes"
-      }
-   ]
+    "samples": [
+        {
+            "displayName": "Basic",
+            "description": "Demonstrate simple setup and synchronizing data",
+            "path": "Samples~/Basic"
+        },
+        {
+            "displayName": "Pong",
+            "description": "Classic multiplayer game",
+            "path": "Samples~/Pong"
+        },
+        {
+            "displayName": "Tanks",
+            "description": "Shoot each other with tanks",
+            "path": "Samples~/Tanks"
+        },
+        {
+            "displayName": "Room",
+            "description": "Room system",
+            "path": "Samples~/Room"
+        },
+        {
+            "displayName": "Chat",
+            "description": "Simple chat and custom UI demo",
+            "path": "Samples~/Chat"
+        },
+        {
+            "displayName": "ListServer",
+            "description": "Demo that connects to your list server",
+            "path": "Samples~/ListServer"
+        },
+        {
+            "displayName": "AdditiveScenes",
+            "description": "Adding and removing scenes in multiplayer games",
+            "path": "Samples~/AdditiveScenes"
+        }
+    ]
 }
