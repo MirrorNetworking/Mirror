@@ -1,0 +1,24 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Mirror.Examples.Chat
+{
+
+    public class ServerWindow : MonoBehaviour
+    {
+        public string serverIp = "localhost";
+
+        public NetworkManager NetworkManager;
+
+        public void StartClient()
+        {
+            NetworkManager.StartClient(serverIp);
+        }
+
+        public void SetServerIp(string serverIp)
+        {
+            this.serverIp = serverIp;
+        }
+    }
+}

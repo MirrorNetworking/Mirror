@@ -1444,7 +1444,7 @@ GameObject:
   - component: {fileID: 1027272350}
   - component: {fileID: 1027272349}
   m_Layer: 5
-  m_Name: UsernameInput
+  m_Name: ServerNameInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1527,8 +1527,8 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1783103025}
-        m_MethodName: set_playerName
+      - m_Target: {fileID: 1499096253}
+        m_MethodName: SetServerIp
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1674,7 +1674,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1783103025}
+      - m_Target: {fileID: 1499096253}
         m_MethodName: StartClient
         m_Mode: 1
         m_Arguments:
@@ -2484,6 +2484,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1499096249}
+  - component: {fileID: 1499096253}
   - component: {fileID: 1499096252}
   - component: {fileID: 1499096251}
   - component: {fileID: 1499096250}
@@ -2569,6 +2570,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1499096248}
   m_CullTransparentMesh: 0
+--- !u!114 &1499096253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1499096248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51e3ac2a7300947ae8f0f80bff47f770, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serverIp: localhost
+  NetworkManager: {fileID: 1783103025}
 --- !u!1 &1523854169
 GameObject:
   m_ObjectHideFlags: 0
@@ -3027,7 +3042,6 @@ MonoBehaviour:
   server: {fileID: 1783103028}
   client: {fileID: 1783103027}
   transport: {fileID: 1783103023}
-  networkAddress: localhost
   maxConnections: 4
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 5075528875289742095, guid: e5905ffa27de84009b346b49d518ba03,
