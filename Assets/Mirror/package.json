@@ -26,11 +26,6 @@
          "path": "Samples~/Tanks"
       },
       {
-         "displayName": "Lobby",
-         "description": "Lobby",
-         "path": "Samples~/Lobby"
-      },
-      {
          "displayName": "Chat",
          "description": "Chat",
          "path": "Samples~/Chat"
