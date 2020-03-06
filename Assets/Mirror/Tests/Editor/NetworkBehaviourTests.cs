@@ -465,6 +465,29 @@ namespace Mirror.Tests
             Transport.activeTransport = null;
             GameObject.DestroyImmediate(transportGO);
         }
+
+        [Test]
+        public void InvokeRPC()
+        {
+            // add command component
+            NetworkBehaviourSendRPCInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendRPCInternalComponent>();
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            // register the command delegate, otherwise it's not found
+            NetworkBehaviour.RegisterRpcDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
+                nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
+                NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
+
+            // invoke command
+            int rpcHash = NetworkBehaviour.GetMethodHash(
+                typeof(NetworkBehaviourSendRPCInternalComponent),
+                nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated));
+            comp.InvokeRPC(rpcHash, new NetworkReader(new byte[0]));
+            Assert.That(comp.called, Is.EqualTo(1));
+
+            // clean up
+            NetworkBehaviour.ClearDelegates();
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
