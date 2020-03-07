@@ -1329,6 +1329,43 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
         }
+
+        [Test]
+        public void GetSyncVarNetworkIdentityOnClient()
+        {
+            // are we on client and not on server?
+            identity.isClient = true;
+            Assert.That(identity.isServer, Is.False);
+
+            // add test component
+            NetworkBehaviourGetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarNetworkIdentityComponent>();
+            comp.syncInterval = 0; // for isDirty check
+
+            // create a syncable GameObject
+            GameObject go = new GameObject();
+            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            ni.netId = 43;
+
+            // register in spawned dict because clients should look it up via
+            // netId
+            NetworkIdentity.spawned[ni.netId] = ni;
+
+            // assign ONLY netId in the component. assume that GameObject was
+            // assigned earlier but client walked so far out of range that it
+            // was despawned on the client. so it's forced to do the netId look-
+            // up.
+            Assert.That(comp.test, Is.Null);
+            comp.testNetId = ni.netId;
+
+            // get it on the client. should look up netId in spawned
+            NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();
+            Assert.That(result, Is.EqualTo(ni));
+
+            // clean up
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+            GameObject.DestroyImmediate(go);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
