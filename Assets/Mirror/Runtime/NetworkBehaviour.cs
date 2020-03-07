@@ -536,7 +536,7 @@ namespace Mirror
 
         // helper function for [SyncVar] NetworkIdentities.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
+        internal bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
         {
             uint newNetId = 0;
             if (newIdentity != null)
