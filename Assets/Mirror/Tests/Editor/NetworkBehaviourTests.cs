@@ -643,6 +643,9 @@ namespace Mirror.Tests
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
                 NetworkBehaviourDelegateComponent.Delegate2);
+
+            // clean up
+            NetworkBehaviour.ClearDelegates();
         }
     }
 
