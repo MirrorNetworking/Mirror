@@ -811,6 +811,18 @@ namespace Mirror.Tests
             bool result = emptyBehaviour.SyncVarNetworkIdentityEqual(null, identity.netId);
             Assert.That(result, Is.True);
         }
+
+        // NOTE: SyncVarNetworkIdentityEqual should be static later
+        [Test]
+        public void SyncVarNetworkIdentityEqualNull()
+        {
+            // our identity should have a netid for comparing
+            identity.netId = 42;
+
+            // null should return false
+            bool result = emptyBehaviour.SyncVarNetworkIdentityEqual(null, identity.netId);
+            Assert.That(result, Is.False);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
