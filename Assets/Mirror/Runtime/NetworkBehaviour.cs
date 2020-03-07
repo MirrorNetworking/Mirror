@@ -470,7 +470,7 @@ namespace Mirror
 
         // helper function for [SyncVar] GameObjects.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
+        internal bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
         {
             uint newNetId = 0;
             if (newGameObject != null)
