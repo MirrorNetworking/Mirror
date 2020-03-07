@@ -746,6 +746,24 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(go);
         }
+
+        // NOTE: SyncVarGameObjectEqual should be static later
+        [Test]
+        public void SyncVarGameObjectEqualValidGOWithSameNetId()
+        {
+            // our identity should have a netid for comparing
+            identity.netId = 42;
+
+            // gameobject with valid networkidentity and netid that is different
+            GameObject go = new GameObject();
+            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            ni.netId = 42;
+            bool result = emptyBehaviour.SyncVarGameObjectEqual(go, identity.netId);
+            Assert.That(result, Is.True);
+
+            // clean up
+            GameObject.DestroyImmediate(go);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
