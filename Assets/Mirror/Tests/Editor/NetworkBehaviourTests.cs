@@ -93,6 +93,13 @@ namespace Mirror.Tests
         }
     }
 
+    // we need to inherit from networkbehaviour to test protected functions
+    public class NetworkBehaviourDelegateComponent : NetworkBehaviour
+    {
+        public static void Delegate(NetworkBehaviour comp, NetworkReader reader) {}
+        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) {}
+    }
+
     public class NetworkBehaviourTests
     {
         GameObject gameObject;
@@ -610,6 +617,25 @@ namespace Mirror.Tests
 
             // clean up
             NetworkBehaviour.ClearDelegates();
+        }
+
+        [Test]
+        public void RegisterDelegateDoesntOverwrite()
+        {
+            // registerdelegate is protected, but we can use
+            // RegisterCommandDelegate which calls RegisterDelegate
+            NetworkBehaviour.RegisterCommandDelegate(
+                typeof(NetworkBehaviourDelegateComponent),
+                nameof(NetworkBehaviourDelegateComponent.Delegate),
+                NetworkBehaviourDelegateComponent.Delegate);
+
+            // registering the same name with a different callback shouldn't
+            // work
+            LogAssert.Expect(LogType.Error, "Function " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate) + " and " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate2) + " have the same hash.  Please rename one of them");
+            NetworkBehaviour.RegisterCommandDelegate(
+                typeof(NetworkBehaviourDelegateComponent),
+                nameof(NetworkBehaviourDelegateComponent.Delegate),
+                NetworkBehaviourDelegateComponent.Delegate2);
         }
     }
 
