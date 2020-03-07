@@ -664,6 +664,10 @@ namespace Mirror.Tests
             NetworkBehaviour.CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
             Assert.That(func, Is.EqualTo(expected));
 
+            // invalid hash should return null handler
+            NetworkBehaviour.CmdDelegate funcNull = NetworkBehaviour.GetRpcHandler(1234);
+            Assert.That(funcNull, Is.Null);
+
             // clean up
             NetworkBehaviour.ClearDelegates();
         }
