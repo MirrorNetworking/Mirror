@@ -373,7 +373,9 @@ namespace Mirror
             {
                 // something already registered this hash
                 Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
-                if (oldInvoker.invokeClass == invokeClass && oldInvoker.invokeType == invokerType && oldInvoker.invokeFunction == func)
+                if (oldInvoker.invokeClass == invokeClass &&
+                    oldInvoker.invokeType == invokerType &&
+                    oldInvoker.invokeFunction == func)
                 {
                     // it's all right,  it was the same function
                     return;
