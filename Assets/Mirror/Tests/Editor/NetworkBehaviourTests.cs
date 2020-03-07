@@ -647,6 +647,26 @@ namespace Mirror.Tests
             // clean up
             NetworkBehaviour.ClearDelegates();
         }
+
+        [Test]
+        public void GetRpcHandler()
+        {
+            // registerdelegate is protected, but we can use
+            // RegisterCommandDelegate which calls RegisterDelegate
+            NetworkBehaviour.RegisterCommandDelegate(
+                typeof(NetworkBehaviourDelegateComponent),
+                nameof(NetworkBehaviourDelegateComponent.Delegate),
+                NetworkBehaviourDelegateComponent.Delegate);
+
+            // get handler
+            int cmdHash = NetworkBehaviour.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
+            NetworkBehaviour.CmdDelegate func = NetworkBehaviour.GetRpcHandler(cmdHash);
+            NetworkBehaviour.CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
+            Assert.That(func, Is.EqualTo(expected));
+
+            // clean up
+            NetworkBehaviour.ClearDelegates();
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
