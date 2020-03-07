@@ -877,6 +877,21 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(go);
         }
+
+        // NOTE: SyncVarNetworkIdentityEqual should be static later
+        [Test]
+        public void SyncVarNetworkIdentityEqualUnspawnedIdentityZeroNetIdIsTrue()
+        {
+            // unspawned go and identity.netid==0 returns true (=equal)
+            GameObject go = new GameObject();
+            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            LogAssert.Expect(LogType.Warning, "SetSyncVarNetworkIdentity NetworkIdentity " + ni + " has a zero netId. Maybe it is not spawned yet?");
+            bool result = emptyBehaviour.SyncVarNetworkIdentityEqual(ni, identity.netId);
+            Assert.That(result, Is.True);
+
+            // clean up
+            GameObject.DestroyImmediate(go);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
