@@ -742,7 +742,7 @@ namespace Mirror
             return dirty;
         }
 
-        void DeSerializeObjectsAll(NetworkReader reader)
+        internal void DeSerializeObjectsAll(NetworkReader reader)
         {
             for (int i = 0; i < syncObjects.Count; i++)
             {
