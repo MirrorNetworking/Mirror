@@ -797,6 +797,20 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(go);
         }
+
+        // NOTE: SyncVarNetworkIdentityEqual should be static later
+        [Test]
+        public void SyncVarNetworkIdentityEqualZeroNetIdNullIsTrue()
+        {
+            // null and identity.netid==0 returns true (=equal)
+            //
+            // later we should reevaluate if this is so smart or not. might be
+            // better to return false here.
+            // => we possibly return false so that resync doesn't happen when
+            //    GO disappears? or not?
+            bool result = emptyBehaviour.SyncVarNetworkIdentityEqual(null, identity.netId);
+            Assert.That(result, Is.True);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
