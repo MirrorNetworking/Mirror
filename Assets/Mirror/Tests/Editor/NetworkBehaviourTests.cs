@@ -671,6 +671,18 @@ namespace Mirror.Tests
             // clean up
             NetworkBehaviour.ClearDelegates();
         }
+
+        // NOTE: SyncVarGameObjectEqual should be static later
+        [Test]
+        public void SyncVarGameObjectEqualNull()
+        {
+            // our identity should have a netid for comparing
+            identity.netId = 42;
+
+            // null should return false
+            bool result = emptyBehaviour.SyncVarGameObjectEqual(null, identity.netId);
+            Assert.That(result, Is.False);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
