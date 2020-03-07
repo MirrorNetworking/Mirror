@@ -446,13 +446,16 @@ namespace Mirror
             return false;
         }
 
+        [Obsolete("Use NetworkBehaviour.GetDelegate instead.")]
+        public static CmdDelegate GetRpcHandler(int cmdHash) => GetDelegate(cmdHash);
+
         /// <summary>
         /// Gets the handler function for a given hash
         /// Can be used by profilers and debuggers
         /// </summary>
         /// <param name="cmdHash">rpc function hash</param>
         /// <returns>The function delegate that will handle the command</returns>
-        public static CmdDelegate GetRpcHandler(int cmdHash)
+        public static CmdDelegate GetDelegate(int cmdHash)
         {
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
             {

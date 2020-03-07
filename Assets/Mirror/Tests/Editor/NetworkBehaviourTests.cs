@@ -649,7 +649,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void GetRpcHandler()
+        public void GetDelegate()
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
@@ -660,12 +660,12 @@ namespace Mirror.Tests
 
             // get handler
             int cmdHash = NetworkBehaviour.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
-            NetworkBehaviour.CmdDelegate func = NetworkBehaviour.GetRpcHandler(cmdHash);
+            NetworkBehaviour.CmdDelegate func = NetworkBehaviour.GetDelegate(cmdHash);
             NetworkBehaviour.CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
             Assert.That(func, Is.EqualTo(expected));
 
             // invalid hash should return null handler
-            NetworkBehaviour.CmdDelegate funcNull = NetworkBehaviour.GetRpcHandler(1234);
+            NetworkBehaviour.CmdDelegate funcNull = NetworkBehaviour.GetDelegate(1234);
             Assert.That(funcNull, Is.Null);
 
             // clean up
