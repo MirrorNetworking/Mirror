@@ -751,7 +751,7 @@ namespace Mirror
             }
         }
 
-        void DeSerializeObjectsDelta(NetworkReader reader)
+        internal void DeSerializeObjectsDelta(NetworkReader reader)
         {
             ulong dirty = reader.ReadPackedUInt64();
             for (int i = 0; i < syncObjects.Count; i++)
