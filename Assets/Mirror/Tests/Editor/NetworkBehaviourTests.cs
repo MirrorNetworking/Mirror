@@ -1386,6 +1386,22 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
         }
+
+        [Test]
+        public void ClearAllDirtyBitsClearsSyncVarDirtyBits()
+        {
+             // set syncinterval so dirtybit works fine
+            emptyBehaviour.syncInterval = 0;
+            Assert.That(emptyBehaviour.IsDirty(), Is.False);
+
+            // set one syncvar dirty bit
+            emptyBehaviour.SetDirtyBit(1);
+            Assert.That(emptyBehaviour.IsDirty(), Is.True);
+
+            // clear it
+            emptyBehaviour.ClearAllDirtyBits();
+            Assert.That(emptyBehaviour.IsDirty(), Is.False);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
