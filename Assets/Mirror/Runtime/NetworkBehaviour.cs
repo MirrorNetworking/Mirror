@@ -698,7 +698,7 @@ namespace Mirror
             }
         }
 
-        ulong DirtyObjectBits()
+        internal ulong DirtyObjectBits()
         {
             ulong dirtyObjects = 0;
             for (int i = 0; i < syncObjects.Count; i++)
