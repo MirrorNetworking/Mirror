@@ -925,6 +925,9 @@ namespace Mirror.Tests
             Assert.That(comp.test, Is.EqualTo(go));
             Assert.That(comp.testNetId, Is.EqualTo(ni.netId));
             Assert.That(comp.IsDirty(), Is.True);
+
+            // clean up
+            GameObject.DestroyImmediate(go);
         }
     }
 
