@@ -1495,6 +1495,35 @@ namespace Mirror.Tests
             Assert.That(list[0], Is.EqualTo(42));
             Assert.That(list[1], Is.EqualTo(43));
         }
+
+        [Test]
+        public void SerializeAndDeserializeObjectsDelta()
+        {
+            // we need a component that exposes InitSyncObject so we can add some
+            NetworkBehaviourInitSyncObjectExposed comp = gameObject.AddComponent<NetworkBehaviourInitSyncObjectExposed>();
+
+            // add a synclist
+            SyncListInt list = new SyncListInt();
+            list.Add(42);
+            list.Add(43);
+            Assert.That(list.IsDirty, Is.True);
+            comp.InitSyncObjectExposed(list);
+
+            // serialize it
+            NetworkWriter writer = new NetworkWriter();
+            comp.SerializeObjectsDelta(writer);
+
+            // clear original list
+            list.Clear();
+            Assert.That(list.Count, Is.EqualTo(0));
+
+            // deserialize it
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            comp.DeSerializeObjectsDelta(reader);
+            Assert.That(list.Count, Is.EqualTo(2));
+            Assert.That(list[0], Is.EqualTo(42));
+            Assert.That(list[1], Is.EqualTo(43));
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
