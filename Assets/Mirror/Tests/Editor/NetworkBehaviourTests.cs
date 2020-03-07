@@ -189,6 +189,16 @@ namespace Mirror.Tests
         }
     }
 
+    // we need to inherit from networkbehaviour to test protected functions
+    public class OnStartLocalPlayerComponent : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStartLocalPlayer()
+        {
+            ++called;
+        }
+    }
+
     public class NetworkBehaviourTests
     {
         GameObject gameObject;
@@ -1568,6 +1578,20 @@ namespace Mirror.Tests
 
             // call identity OnNetworkDestroy
             identity.OnStartClient();
+
+            // should have been forwarded to behaviours
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void OnStartLocalPlayer()
+        {
+            // add test component
+            OnStartLocalPlayerComponent comp = gameObject.AddComponent<OnStartLocalPlayerComponent>();
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            // call identity OnNetworkDestroy
+            identity.OnStartLocalPlayer();
 
             // should have been forwarded to behaviours
             Assert.That(comp.called, Is.EqualTo(1));
