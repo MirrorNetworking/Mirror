@@ -1136,6 +1136,26 @@ namespace Mirror.Tests
             Transport.activeTransport = null;
             GameObject.DestroyImmediate(go);
         }
+
+        [Test]
+        public void GetSyncVarGameObjectOnClientNull()
+        {
+            // are we on client and not on server?
+            identity.isClient = true;
+            Assert.That(identity.isServer, Is.False);
+
+            // add test component
+            NetworkBehaviourGetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarGameObjectComponent>();
+            comp.syncInterval = 0; // for isDirty check
+
+            // get it on the client. null should be supported.
+            GameObject result = comp.GetSyncVarGameObjectExposed();
+            Assert.That(result, Is.Null);
+
+            // clean up
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
