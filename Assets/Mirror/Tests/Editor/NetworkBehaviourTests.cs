@@ -913,6 +913,7 @@ namespace Mirror.Tests
         {
             // add test component
             NetworkBehaviourSetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarGameObjectComponent>();
+            comp.syncInterval = 0; // for isDirty check
 
             // create a valid GameObject with networkidentity and netid
             GameObject go = new GameObject();
