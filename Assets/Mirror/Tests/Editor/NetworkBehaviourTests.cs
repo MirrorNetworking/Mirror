@@ -700,6 +700,21 @@ namespace Mirror.Tests
 
         // NOTE: SyncVarGameObjectEqual should be static later
         [Test]
+        public void SyncVarGameObjectEqualZeroNetIdAndGOWithoutIdentityComponentIsTrue()
+        {
+            // null and identity.netid==0 returns true (=equal)
+            //
+            // later we should reevaluate if this is so smart or not. might be
+            // better to return false here.
+            // => we possibly return false so that resync doesn't happen when
+            //    GO disappears? or not?
+            GameObject go = new GameObject();
+            bool result = emptyBehaviour.SyncVarGameObjectEqual(go, identity.netId);
+            Assert.That(result, Is.True);
+        }
+
+        // NOTE: SyncVarGameObjectEqual should be static later
+        [Test]
         public void SyncVarGameObjectEqualWithoutIdentityComponent()
         {
             // our identity should have a netid for comparing
