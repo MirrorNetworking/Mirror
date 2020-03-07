@@ -954,6 +954,42 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(go);
         }
+
+        [Test]
+        public void SetSyncVarGameObjectWithoutNetworkIdentity()
+        {
+            // add test component
+            NetworkBehaviourSetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarGameObjectComponent>();
+            comp.syncInterval = 0; // for isDirty check
+
+            // set some existing GO+netId first to check if it is going to be
+            // overwritten
+            GameObject go = new GameObject();
+            comp.test = go;
+            comp.testNetId = 43;
+
+            // create test GO with no networkidentity
+            GameObject test = new GameObject();
+
+            // set the GameObject SyncVar to go without netidentity.
+            // -> the way it currently works is that it sets netId to 0, but
+            //    it DOES set gameObjectField to the GameObject without the
+            //    NetworkIdentity, instead of setting it to null because it's
+            //    seemingly invalid.
+            // -> there might be a deeper reason why UNET did that. perhaps for
+            //    cases where we assign a GameObject before the network was
+            //    fully started and has no netId or networkidentity yet etc.
+            // => it works, so let's keep it for now
+            Assert.That(comp.IsDirty(), Is.False);
+            comp.SetSyncVarGameObjectExposed(test, 1ul);
+            Assert.That(comp.test, Is.EqualTo(test));
+            Assert.That(comp.testNetId, Is.EqualTo(0));
+            Assert.That(comp.IsDirty(), Is.True);
+
+            // clean up
+            GameObject.DestroyImmediate(test);
+            GameObject.DestroyImmediate(go);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
