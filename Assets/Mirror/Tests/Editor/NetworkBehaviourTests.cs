@@ -1194,6 +1194,31 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(go);
         }
+
+        [Test]
+        public void SetSyncVarNetworkIdentityNull()
+        {
+            // add test component
+            NetworkBehaviourSetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarNetworkIdentityComponent>();
+            comp.syncInterval = 0; // for isDirty check
+
+            // set some existing NI+netId first to check if it is going to be
+            // overwritten
+            GameObject go = new GameObject();
+            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            comp.test = ni;
+            comp.testNetId = 43;
+
+            // set the NetworkIdentity SyncVar to null
+            Assert.That(comp.IsDirty(), Is.False);
+            comp.SetSyncVarNetworkIdentityExposed(null, 1ul);
+            Assert.That(comp.test, Is.EqualTo(null));
+            Assert.That(comp.testNetId, Is.EqualTo(0));
+            Assert.That(comp.IsDirty(), Is.True);
+
+            // clean up
+            GameObject.DestroyImmediate(go);
+        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
