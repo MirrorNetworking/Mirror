@@ -629,6 +629,13 @@ namespace Mirror.Tests
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
                 NetworkBehaviourDelegateComponent.Delegate);
 
+            // registering the exact same one should be fine. it should simply
+            // do nothing.
+            NetworkBehaviour.RegisterCommandDelegate(
+                typeof(NetworkBehaviourDelegateComponent),
+                nameof(NetworkBehaviourDelegateComponent.Delegate),
+                NetworkBehaviourDelegateComponent.Delegate);
+
             // registering the same name with a different callback shouldn't
             // work
             LogAssert.Expect(LogType.Error, "Function " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate) + " and " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate2) + " have the same hash.  Please rename one of them");
