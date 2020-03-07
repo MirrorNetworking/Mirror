@@ -160,6 +160,15 @@ namespace Mirror.Tests
         }
     }
 
+    // we need to inherit from networkbehaviour to test protected functions
+    public class NetworkBehaviourInitSyncObjectExposed : NetworkBehaviour
+    {
+        public void InitSyncObjectExposed(SyncObject obj)
+        {
+            InitSyncObject(obj);
+        }
+    }
+
     public class NetworkBehaviourTests
     {
         GameObject gameObject;
@@ -1401,6 +1410,32 @@ namespace Mirror.Tests
             // clear it
             emptyBehaviour.ClearAllDirtyBits();
             Assert.That(emptyBehaviour.IsDirty(), Is.False);
+        }
+
+        [Test]
+        public void ClearAllDirtyBitsClearsSyncObjectsDirtyBits()
+        {
+            // we need a component that exposes InitSyncObject so we can set
+            // sync objects dirty
+            NetworkBehaviourInitSyncObjectExposed comp = gameObject.AddComponent<NetworkBehaviourInitSyncObjectExposed>();
+
+            // set syncinterval so dirtybit works fine
+            comp.syncInterval = 0;
+            Assert.That(comp.IsDirty(), Is.False);
+
+            // create a synclist and dirty it
+            SyncListInt obj = new SyncListInt();
+            obj.Add(42);
+            Assert.That(obj.IsDirty, Is.True);
+
+            // add it
+            comp.InitSyncObjectExposed(obj);
+            Assert.That(comp.IsDirty, Is.True);
+
+            // clear bits should clear synclist bits too
+            comp.ClearAllDirtyBits();
+            Assert.That(comp.IsDirty, Is.False);
+            Assert.That(obj.IsDirty, Is.False);
         }
     }
 
