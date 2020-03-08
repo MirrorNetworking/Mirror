@@ -1,3 +1,11 @@
+## [15.0.5](https://github.com/MirrorNG/MirrorNG/compare/15.0.4-master...15.0.5-master) (2020-03-08)
+
+
+### Bug Fixes
+
+* don't crash when stopping the client ([f584388](https://github.com/MirrorNG/MirrorNG/commit/f584388a16e746ac5c3000123a02a5c77387765e))
+* race condition closing tcp connections ([717f1f5](https://github.com/MirrorNG/MirrorNG/commit/717f1f5ad783e13a6d55920e454cb91f380cd621))
+
 ## [15.0.4](https://github.com/MirrorNG/MirrorNG/compare/15.0.3-master...15.0.4-master) (2020-03-08)
 
 
