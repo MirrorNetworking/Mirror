@@ -40,12 +40,12 @@ namespace Mirror
         /// <summary>
         /// The current NetworkServer used to set NetworkIdentity.server when applying the spawn payload.
         /// </summary>
-        public static NetworkServer server { get; internal set; }
+        public static NetworkServer server { get; set; }
 
         /// <summary>
         /// The current NetworkClient used to set NetworkIdentity.client when applying the spawn payload.
         /// </summary>
-        public static NetworkClient client { get; internal set; }
+        public static NetworkClient client { get; set; }
 
         /// <summary>
         /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
