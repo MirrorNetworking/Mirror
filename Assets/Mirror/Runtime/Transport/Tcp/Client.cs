@@ -86,7 +86,6 @@ namespace Mirror.Tcp
             // only if started
             if (client != null)
             {
-                Disconnected?.Invoke();
                 // close client
                 client.Close();
                 client = null;
