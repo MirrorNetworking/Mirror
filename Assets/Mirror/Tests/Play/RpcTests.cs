@@ -42,11 +42,10 @@ namespace Mirror.Tests
         }
     }
 
-    public class RpcTests
+    public class RpcTests : HostTests
     {
-        GameObject networkManagerGo;
-        NetworkManager manager;
-        GameObject gameObject;
+        #region Setup
+        GameObject playerGO;
 
         RpcComponent rpcComponent;
         NetworkIdentity identity;
@@ -54,32 +53,26 @@ namespace Mirror.Tests
         [SetUp]
         public void SetupNetworkServer()
         {
-            networkManagerGo = new GameObject();
-            manager = networkManagerGo.AddComponent<NetworkManager>();
-            manager.client = networkManagerGo.GetComponent<NetworkClient>();
-            manager.server = networkManagerGo.GetComponent<NetworkServer>();
-            Transport transport = networkManagerGo.AddComponent<TcpTransport>();
-            Transport.activeTransport = transport;
+            SetupHost();
 
-            manager.autoCreatePlayer = false;
+            playerGO = new GameObject();
+            identity = playerGO.AddComponent<NetworkIdentity>();
+            rpcComponent = playerGO.AddComponent<RpcComponent>();
 
-            manager.StartHost();
+            server.AddPlayerForConnection(manager.server.localConnection, playerGO);
 
-            gameObject = new GameObject();
-            identity = gameObject.AddComponent<NetworkIdentity>();
-            rpcComponent = gameObject.AddComponent<RpcComponent>();
-
-            manager.server.AddPlayerForConnection(manager.server.localConnection, gameObject);
+            client.Update();
         }
 
         [TearDown]
         public void ShutdownNetworkServer()
         {
-            GameObject.DestroyImmediate(gameObject);
-            manager.StopHost();
-            GameObject.DestroyImmediate(networkManagerGo);
+            GameObject.DestroyImmediate(playerGO);
+
+            ShutdownHost();
         }
 
+        #endregion
 
         [Test]
         public void CommandWithoutAuthority()
@@ -89,10 +82,10 @@ namespace Mirror.Tests
             var rpcComponent2 = gameObject2.AddComponent<RpcComponent>();
 
             // spawn it without client authority
-            manager.server.Spawn(gameObject2);
+            server.Spawn(gameObject2);
 
             // process spawn message from server
-            manager.client.Update();
+            client.Update();
 
             // only authorized clients can call command
             Assert.Throws<UnauthorizedAccessException>(() =>
@@ -105,9 +98,6 @@ namespace Mirror.Tests
         [Test]
         public void Command()
         {
-            // process spawn message from server
-            manager.client.Update();
-
             rpcComponent.CmdTest(1, "hello");
 
             Assert.That(rpcComponent.cmdArg1, Is.EqualTo(1));
@@ -120,7 +110,7 @@ namespace Mirror.Tests
 
             rpcComponent.RpcTest(1, "hello");
             // process spawn message from server
-            manager.client.Update();
+            client.Update();
 
             Assert.That(rpcComponent.rpcArg1, Is.EqualTo(1));
             Assert.That(rpcComponent.rpcArg2, Is.EqualTo("hello"));
@@ -132,7 +122,7 @@ namespace Mirror.Tests
 
             rpcComponent.TargetRpcTest(manager.server.localConnection, 1, "hello");
             // process spawn message from server
-            manager.client.Update();
+            client.Update();
 
             Assert.That(rpcComponent.targetRpcArg1, Is.EqualTo(1));
             Assert.That(rpcComponent.targetRpcArg2, Is.EqualTo("hello"));

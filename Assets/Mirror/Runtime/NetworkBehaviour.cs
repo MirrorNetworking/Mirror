@@ -379,13 +379,15 @@ namespace Mirror
             {
                 // something already registered this hash
                 Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
-                if (oldInvoker.invokeClass == invokeClass && oldInvoker.invokeType == invokerType && oldInvoker.invokeFunction == func)
+                if (oldInvoker.invokeClass == invokeClass &&
+                    oldInvoker.invokeType == invokerType &&
+                    oldInvoker.invokeFunction == func)
                 {
                     // it's all right,  it was the same function
                     return;
                 }
 
-                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} have the same hash.  Please rename one of them");
+                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
             }
             var invoker = new Invoker
             {
@@ -450,13 +452,16 @@ namespace Mirror
             return false;
         }
 
+        [Obsolete("Use NetworkBehaviour.GetDelegate instead.")]
+        public static CmdDelegate GetRpcHandler(int cmdHash) => GetDelegate(cmdHash);
+
         /// <summary>
         /// Gets the handler function for a given hash
         /// Can be used by profilers and debuggers
         /// </summary>
         /// <param name="cmdHash">rpc function hash</param>
         /// <returns>The function delegate that will handle the command</returns>
-        public static CmdDelegate GetRpcHandler(int cmdHash)
+        public static CmdDelegate GetDelegate(int cmdHash)
         {
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
             {
@@ -471,7 +476,7 @@ namespace Mirror
 
         // helper function for [SyncVar] GameObjects.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
+        internal bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
         {
             uint newNetId = 0;
             if (newGameObject != null)
@@ -537,7 +542,7 @@ namespace Mirror
 
         // helper function for [SyncVar] NetworkIdentities.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
+        internal bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
         {
             uint newNetId = 0;
             if (newIdentity != null)

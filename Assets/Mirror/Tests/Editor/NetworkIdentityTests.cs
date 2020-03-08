@@ -225,6 +225,14 @@ namespace Mirror.Tests
                 // OnRebuildObservers, but return no observers
                 return true;
             }
+
+            public int hostVisibilityCalled;
+            public bool hostVisibilityValue;
+            public override void OnSetHostVisibility(bool visible)
+            {
+                ++hostVisibilityCalled;
+                hostVisibilityValue = visible;
+            }
         }
 
         class IsClientServerCheckComponent : NetworkBehaviour
@@ -1106,5 +1114,6 @@ namespace Mirror.Tests
             identity.RebuildObservers(true);
             Assert.That(!identity.observers.ContainsKey(identity.connectionToClient.connectionId));
         }
+
     }
 }

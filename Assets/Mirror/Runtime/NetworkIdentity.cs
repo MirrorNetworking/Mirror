@@ -966,6 +966,7 @@ namespace Mirror
         /// <param name="initialize">True if this is the first time.</param>
         public void RebuildObservers(bool initialize)
         {
+            // observers are null until OnStartServer creates them
             if (observers == null)
                 return;
 
@@ -996,29 +997,24 @@ namespace Mirror
                 return;
             }
 
-            // apply changes from rebuild
+            // add all newObservers that aren't in .observers yet
             foreach (NetworkConnection conn in newObservers)
             {
-                if (conn == null)
+                // only add ready connections.
+                // otherwise the player might not be in the world yet or anymore
+                if (conn != null && conn.isReady)
                 {
-                    continue;
-                }
-
-                if (!conn.isReady)
-                {
-                    if (LogFilter.Debug) Debug.Log("Observer is not ready for " + gameObject + " " + conn);
-                    continue;
-                }
-
-                if (initialize || !observers.ContainsKey(conn.connectionId))
-                {
-                    // new observer
-                    conn.AddToVisList(this);
-                    if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
-                    changed = true;
+                    if (initialize || !observers.ContainsKey(conn.connectionId))
+                    {
+                        // new observer
+                        conn.AddToVisList(this);
+                        if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
+                        changed = true;
+                    }
                 }
             }
 
+            // remove all old .observers that aren't in newObservers anymore
             foreach (NetworkConnection conn in observers.Values)
             {
                 if (!newObservers.Contains(conn))
@@ -1027,6 +1023,16 @@ namespace Mirror
                     conn.RemoveFromVisList(this, false);
                     if (LogFilter.Debug) Debug.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                observers.Clear();
+                foreach (NetworkConnection conn in newObservers)
+                {
+                    if (conn != null && conn.isReady)
+                        observers.Add(conn.connectionId, conn);
                 }
             }
 
@@ -1056,16 +1062,6 @@ namespace Mirror
                 if (!newObservers.Contains(server.localConnection))
                 {
                     OnSetHostVisibility(false);
-                }
-            }
-
-            if (changed)
-            {
-                observers.Clear();
-                foreach (NetworkConnection conn in newObservers)
-                {
-                    if (conn.isReady)
-                        observers.Add(conn.connectionId, conn);
                 }
             }
         }
