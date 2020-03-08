@@ -27,9 +27,6 @@ namespace Mirror.Tests
             server = manager.server;
             client = manager.client;
 
-            Transport transport = networkManagerGo.AddComponent<TcpTransport>();
-            Transport.activeTransport = transport;
-
             manager.autoCreatePlayer = false;
 
             manager.StartHost();
