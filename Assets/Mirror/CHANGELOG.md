@@ -1,3 +1,10 @@
+## [15.0.4](https://github.com/MirrorNG/MirrorNG/compare/15.0.3-master...15.0.4-master) (2020-03-08)
+
+
+### Bug Fixes
+
+* attributes causing a NRE ([#69](https://github.com/MirrorNG/MirrorNG/issues/69)) ([fc99c67](https://github.com/MirrorNG/MirrorNG/commit/fc99c67712564e2d983674b37858591903294f1a))
+
 ## [15.0.3](https://github.com/MirrorNG/MirrorNG/compare/15.0.2-master...15.0.3-master) (2020-03-08)
 
 
