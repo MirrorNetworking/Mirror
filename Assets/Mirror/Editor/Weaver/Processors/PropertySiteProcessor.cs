@@ -99,9 +99,7 @@ namespace Mirror.Weaver
             Instruction top = md.Body.Instructions[0];
 
             worker.InsertBefore(top, worker.Create(OpCodes.Ldarg_0));
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkBehaviourGetIdentity));
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkIdentityGetServer));
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkServerGetActive));
+            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkBehaviourIsServer));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {
@@ -124,9 +122,7 @@ namespace Mirror.Weaver
             Instruction top = md.Body.Instructions[0];
 
             worker.InsertBefore(top, worker.Create(OpCodes.Ldarg_0));
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkBehaviourGetIdentity));
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkIdentityGetClient));
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkClientGetActive));
+            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkBehaviourIsClient));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {

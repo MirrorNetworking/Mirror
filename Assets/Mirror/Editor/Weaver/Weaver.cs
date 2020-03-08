@@ -85,6 +85,9 @@ namespace Mirror.Weaver
         public static MethodReference NetworkIdentityGetServer;
         public static MethodReference NetworkIdentityGetClient;
 
+        public static MethodReference NetworkBehaviourIsServer;
+        public static MethodReference NetworkBehaviourIsClient;
+
         // custom attribute types
         public static TypeReference SyncVarType;
         public static TypeReference CommandType;
@@ -279,6 +282,9 @@ namespace Mirror.Weaver
             NetworkBehaviourGetIdentity = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_netIdentity");
             NetworkIdentityGetServer = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_server");
             NetworkIdentityGetClient = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_client");
+
+            NetworkBehaviourIsServer = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "isServer");
+            NetworkBehaviourIsClient = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "isClient");
 
             MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = UnityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");
