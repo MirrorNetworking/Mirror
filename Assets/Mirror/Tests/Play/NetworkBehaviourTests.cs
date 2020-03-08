@@ -37,6 +37,12 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void IsClientOnly()
+        {
+            Assert.That(component.isClientOnly, Is.False);
+        }
+
+        [Test]
         public void PlayerHasAuthorityByDefault()
         {
             // no authority by default
