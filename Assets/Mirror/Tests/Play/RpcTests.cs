@@ -42,38 +42,8 @@ namespace Mirror.Tests
         }
     }
 
-    public class RpcTests : HostTests
+    public class RpcTests : HostTests<RpcComponent>
     {
-        #region Setup
-        GameObject playerGO;
-
-        RpcComponent rpcComponent;
-        NetworkIdentity identity;
-
-        [SetUp]
-        public void SetupNetworkServer()
-        {
-            SetupHost();
-
-            playerGO = new GameObject();
-            identity = playerGO.AddComponent<NetworkIdentity>();
-            rpcComponent = playerGO.AddComponent<RpcComponent>();
-
-            server.AddPlayerForConnection(manager.server.localConnection, playerGO);
-
-            client.Update();
-        }
-
-        [TearDown]
-        public void ShutdownNetworkServer()
-        {
-            GameObject.DestroyImmediate(playerGO);
-
-            ShutdownHost();
-        }
-
-        #endregion
-
         [Test]
         public void CommandWithoutAuthority()
         {
@@ -98,34 +68,34 @@ namespace Mirror.Tests
         [Test]
         public void Command()
         {
-            rpcComponent.CmdTest(1, "hello");
+            component.CmdTest(1, "hello");
 
-            Assert.That(rpcComponent.cmdArg1, Is.EqualTo(1));
-            Assert.That(rpcComponent.cmdArg2, Is.EqualTo("hello"));
+            Assert.That(component.cmdArg1, Is.EqualTo(1));
+            Assert.That(component.cmdArg2, Is.EqualTo("hello"));
         }
 
         [Test]
         public void ClientRpc()
         {
 
-            rpcComponent.RpcTest(1, "hello");
+            component.RpcTest(1, "hello");
             // process spawn message from server
             client.Update();
 
-            Assert.That(rpcComponent.rpcArg1, Is.EqualTo(1));
-            Assert.That(rpcComponent.rpcArg2, Is.EqualTo("hello"));
+            Assert.That(component.rpcArg1, Is.EqualTo(1));
+            Assert.That(component.rpcArg2, Is.EqualTo("hello"));
         }
 
         [Test]
         public void TargetRpc()
         {
 
-            rpcComponent.TargetRpcTest(manager.server.localConnection, 1, "hello");
+            component.TargetRpcTest(manager.server.localConnection, 1, "hello");
             // process spawn message from server
             client.Update();
 
-            Assert.That(rpcComponent.targetRpcArg1, Is.EqualTo(1));
-            Assert.That(rpcComponent.targetRpcArg2, Is.EqualTo("hello"));
+            Assert.That(component.targetRpcArg1, Is.EqualTo(1));
+            Assert.That(component.targetRpcArg2, Is.EqualTo("hello"));
         }
     }
 }

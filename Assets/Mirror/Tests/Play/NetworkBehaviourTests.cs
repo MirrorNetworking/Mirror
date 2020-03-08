@@ -10,7 +10,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    class EmptyBehaviour : NetworkBehaviour
+    public class EmptyBehaviour : NetworkBehaviour
     {
     }
 
@@ -21,55 +21,26 @@ namespace Mirror.Tests
         public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) {}
     }
 
-    public class NetworkBehaviourTests : HostTests
+    public class NetworkBehaviourTests : HostTests<EmptyBehaviour>
     {
-        #region Setup
-        GameObject playerGO;
-
-        EmptyBehaviour behavior;
-        NetworkIdentity identity;
-
-        [SetUp]
-        public void SetupNetworkServer()
-        {
-            SetupHost();
-
-            playerGO = new GameObject();
-            identity = playerGO.AddComponent<NetworkIdentity>();
-            behavior = playerGO.AddComponent<EmptyBehaviour>();
-
-            manager.server.AddPlayerForConnection(manager.server.localConnection, playerGO);
-
-        }
-
-        [TearDown]
-        public void ShutdownNetworkServer()
-        {
-            GameObject.DestroyImmediate(playerGO);
-
-            ShutdownHost();
-        }
-
-        #endregion
-
         [Test]
         public void IsServerOnly()
         {
-            Assert.That(behavior.isServer, Is.True);
-            Assert.That(behavior.isServerOnly, Is.False);
+            Assert.That(component.isServer, Is.True);
+            Assert.That(component.isServerOnly, Is.False);
        }
 
         [Test]
         public void IsClient()
         {
-            Assert.That(behavior.isClient, Is.True);
+            Assert.That(component.isClient, Is.True);
         }
 
         [Test]
         public void PlayerHasAuthorityByDefault()
         {
             // no authority by default
-            Assert.That(behavior.hasAuthority, Is.True);
+            Assert.That(component.hasAuthority, Is.True);
         }
 
         [Test]
@@ -91,21 +62,21 @@ namespace Mirror.Tests
         public void HasIdentitysNetId()
         {
             identity.netId = 42;
-            Assert.That(behavior.netId, Is.EqualTo(42));
+            Assert.That(component.netId, Is.EqualTo(42));
         }
 
         [Test]
         public void HasIdentitysConnectionToServer()
         {
             identity.connectionToServer = new ULocalConnectionToServer();
-            Assert.That(behavior.connectionToServer, Is.EqualTo(identity.connectionToServer));
+            Assert.That(component.connectionToServer, Is.EqualTo(identity.connectionToServer));
         }
 
         [Test]
         public void HasIdentitysConnectionToClient()
         {
             identity.connectionToClient = new ULocalConnectionToClient();
-            Assert.That(behavior.connectionToClient, Is.EqualTo(identity.connectionToClient));
+            Assert.That(component.connectionToClient, Is.EqualTo(identity.connectionToClient));
         }
 
         [Test]
@@ -129,7 +100,7 @@ namespace Mirror.Tests
         [Test]
         public void OnCheckObserverTrueByDefault()
         {
-            Assert.That(behavior.OnCheckObserver(null), Is.True);
+            Assert.That(component.OnCheckObserver(null), Is.True);
         }
 
         [Test]
@@ -195,7 +166,7 @@ namespace Mirror.Tests
             // better to return false here.
             // => we possibly return false so that resync doesn't happen when
             //    GO disappears? or not?
-            bool result = behavior.SyncVarGameObjectEqual(null, 0);
+            bool result = component.SyncVarGameObjectEqual(null, 0);
             Assert.That(result, Is.True);
         }
 
@@ -207,7 +178,7 @@ namespace Mirror.Tests
             identity.netId = 42;
 
             // null should return false
-            bool result = behavior.SyncVarGameObjectEqual(null, identity.netId);
+            bool result = component.SyncVarGameObjectEqual(null, identity.netId);
             Assert.That(result, Is.False);
         }
 
@@ -222,7 +193,7 @@ namespace Mirror.Tests
             // => we possibly return false so that resync doesn't happen when
             //    GO disappears? or not?
             GameObject go = new GameObject();
-            bool result = behavior.SyncVarGameObjectEqual(go, 0);
+            bool result = component.SyncVarGameObjectEqual(go, 0);
             Assert.That(result, Is.True);
         }
 
@@ -235,7 +206,7 @@ namespace Mirror.Tests
 
             // gameobject without networkidentity component should return false
             GameObject go = new GameObject();
-            bool result = behavior.SyncVarGameObjectEqual(go, identity.netId);
+            bool result = component.SyncVarGameObjectEqual(go, identity.netId);
             Assert.That(result, Is.False);
 
             // clean up
@@ -253,7 +224,7 @@ namespace Mirror.Tests
             GameObject go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             ni.netId = 43;
-            bool result = behavior.SyncVarGameObjectEqual(go, identity.netId);
+            bool result = component.SyncVarGameObjectEqual(go, identity.netId);
             Assert.That(result, Is.False);
 
             // clean up
@@ -271,7 +242,7 @@ namespace Mirror.Tests
             GameObject go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             ni.netId = 42;
-            bool result = behavior.SyncVarGameObjectEqual(go, identity.netId);
+            bool result = component.SyncVarGameObjectEqual(go, identity.netId);
             Assert.That(result, Is.True);
 
             // clean up
@@ -289,7 +260,7 @@ namespace Mirror.Tests
             var go = new GameObject();
             go.AddComponent<NetworkIdentity>();
             LogAssert.Expect(LogType.Warning, "SetSyncVarGameObject GameObject " + go + " has a zero netId. Maybe it is not spawned yet?");
-            bool result = behavior.SyncVarGameObjectEqual(go, identity.netId);
+            bool result = component.SyncVarGameObjectEqual(go, identity.netId);
             Assert.That(result, Is.False);
 
             // clean up
@@ -304,7 +275,7 @@ namespace Mirror.Tests
             var go = new GameObject();
             go.AddComponent<NetworkIdentity>();
             LogAssert.Expect(LogType.Warning, "SetSyncVarGameObject GameObject " + go + " has a zero netId. Maybe it is not spawned yet?");
-            bool result = behavior.SyncVarGameObjectEqual(go, 0);
+            bool result = component.SyncVarGameObjectEqual(go, 0);
             Assert.That(result, Is.True);
 
             // clean up
@@ -321,7 +292,7 @@ namespace Mirror.Tests
             // better to return false here.
             // => we possibly return false so that resync doesn't happen when
             //    GO disappears? or not?
-            bool result = behavior.SyncVarNetworkIdentityEqual(null, 0);
+            bool result = component.SyncVarNetworkIdentityEqual(null, 0);
             Assert.That(result, Is.True);
         }
 
@@ -333,7 +304,7 @@ namespace Mirror.Tests
             identity.netId = 42;
 
             // null should return false
-            bool result = behavior.SyncVarNetworkIdentityEqual(null, identity.netId);
+            bool result = component.SyncVarNetworkIdentityEqual(null, identity.netId);
             Assert.That(result, Is.False);
         }
 
@@ -348,7 +319,7 @@ namespace Mirror.Tests
             GameObject go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             ni.netId = 43;
-            bool result = behavior.SyncVarNetworkIdentityEqual(ni, identity.netId);
+            bool result = component.SyncVarNetworkIdentityEqual(ni, identity.netId);
             Assert.That(result, Is.False);
 
             // clean up
@@ -366,7 +337,7 @@ namespace Mirror.Tests
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             ni.netId = 42;
-            bool result = behavior.SyncVarNetworkIdentityEqual(ni, identity.netId);
+            bool result = component.SyncVarNetworkIdentityEqual(ni, identity.netId);
             Assert.That(result, Is.True);
 
             // clean up
@@ -384,7 +355,7 @@ namespace Mirror.Tests
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             LogAssert.Expect(LogType.Warning, "SetSyncVarNetworkIdentity NetworkIdentity " + ni + " has a zero netId. Maybe it is not spawned yet?");
-            bool result = behavior.SyncVarNetworkIdentityEqual(ni, identity.netId);
+            bool result = component.SyncVarNetworkIdentityEqual(ni, identity.netId);
             Assert.That(result, Is.False);
 
             // clean up
@@ -399,7 +370,7 @@ namespace Mirror.Tests
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             LogAssert.Expect(LogType.Warning, "SetSyncVarNetworkIdentity NetworkIdentity " + ni + " has a zero netId. Maybe it is not spawned yet?");
-            bool result = behavior.SyncVarNetworkIdentityEqual(ni, 0);
+            bool result = component.SyncVarNetworkIdentityEqual(ni, 0);
             Assert.That(result, Is.True);
 
             // clean up
