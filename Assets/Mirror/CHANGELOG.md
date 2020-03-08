@@ -1,3 +1,11 @@
+## [15.0.3](https://github.com/MirrorNG/MirrorNG/compare/15.0.2-master...15.0.3-master) (2020-03-08)
+
+
+### Bug Fixes
+
+* NetworkIdentity.RebuildObservers: added missing null check for observers coming from components that implement OnRebuildObservers. Previously this caused a NullReferenceException. ([a5f495a](https://github.com/MirrorNG/MirrorNG/commit/a5f495a77485b972cf39f8a42bae6d7d852be38c))
+* SendToObservers missing result variable ([9c09c26](https://github.com/MirrorNG/MirrorNG/commit/9c09c26a5cd28cadae4049fea71cddc38c00cf79))
+
 ## [15.0.2](https://github.com/MirrorNG/MirrorNG/compare/15.0.1-master...15.0.2-master) (2020-03-06)
 
 
