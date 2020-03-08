@@ -72,8 +72,8 @@ namespace Mirror.Tests
             Assert.That(behavior.hasAuthority, Is.True);
         }
 
-        [UnityTest]
-        public IEnumerator SpawnedObjectNoAuthority()
+        [Test]
+        public void SpawnedObjectNoAuthority()
         {
             var gameObject2 = new GameObject();
             gameObject2.AddComponent<NetworkIdentity>();
@@ -81,7 +81,7 @@ namespace Mirror.Tests
 
             server.Spawn(gameObject2);
 
-            yield return null;
+            client.Update();
 
             // no authority by default
             Assert.That(behaviour2.hasAuthority, Is.False);
