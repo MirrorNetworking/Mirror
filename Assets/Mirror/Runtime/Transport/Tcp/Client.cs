@@ -58,25 +58,36 @@ namespace Mirror.Tcp
 
         private async Task ReceiveLoop(TcpClient client)
         {
-            using (Stream networkStream = client.GetStream())
+            try
             {
-                while (true)
+                using (Stream networkStream = client.GetStream())
                 {
-                    byte[] data = await ReadMessageAsync(networkStream);
-                    if (data == null)
-                        break;
+                    while (true)
+                    {
+                        byte[] data = await ReadMessageAsync(networkStream);
+                        if (data == null)
+                            break;
 
-                    try
-                    {
-                        // we received some data,  raise event
-                        ReceivedData?.Invoke(data);
+                        try
+                        {
+                            // we received some data,  raise event
+                            ReceivedData?.Invoke(data);
+                        }
+                        catch (Exception exception)
+                        {
+                            ReceivedError?.Invoke(exception);
+                        }
                     }
-                    catch (Exception exception)
-                    {
-                        ReceivedError?.Invoke(exception);
-                    }
+                    
                 }
-
+            }
+            catch (ObjectDisposedException ex)
+            {
+                // client got closed while reading message async
+            }
+            finally
+            {
+                Disconnected?.Invoke();
                 Disconnect();
             }
         }
