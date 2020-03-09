@@ -78,21 +78,21 @@ namespace Mirror.Tests
             // test the callback too
             int callbackCalled = 0;
 
-            void callback(NetworkConnection conn, NetworkIdentity networkIdentity, bool state)
+            void Callback(NetworkConnection conn, NetworkIdentity networkIdentity, bool state)
             {
                 ++callbackCalled;
                 Assert.That(networkIdentity, Is.EqualTo(identity));
                 Assert.That(state, Is.True);
             }
 
-            NetworkIdentity.clientAuthorityCallback += callback;
+            NetworkIdentity.clientAuthorityCallback += Callback;
 
             // assign authority
             identity.AssignClientAuthority(server.localConnection);
 
             Assert.That(callbackCalled, Is.EqualTo(1));
 
-            NetworkIdentity.clientAuthorityCallback -= callback;
+            NetworkIdentity.clientAuthorityCallback -= Callback;
         }
 
         [Test]
