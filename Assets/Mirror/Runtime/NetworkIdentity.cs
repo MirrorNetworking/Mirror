@@ -121,8 +121,8 @@ namespace Mirror
         /// </summary>
         public NetworkConnection connectionToServer { get; internal set; }
 
+        NetworkConnectionToClient _connectionToClient;
 
-        private NetworkConnectionToClient _connectionToClient;
         /// <summary>
         /// The NetworkConnection associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is valid for player and other owned objects in the server.
         /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
@@ -574,7 +574,7 @@ namespace Mirror
             }
         }
 
-        private static NetworkIdentity previousLocalPlayer = null;
+        static NetworkIdentity previousLocalPlayer = null;
         internal void OnStartLocalPlayer()
         {
             if (previousLocalPlayer == this)
