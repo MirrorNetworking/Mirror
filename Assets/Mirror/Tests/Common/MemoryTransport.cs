@@ -167,10 +167,10 @@ namespace Mirror.Tests
         }
 
         // processing
-        /*public void Update()
+        public void LateUpdate()
         {
             ProcessClientMessages();
             ProcessServerMessages();
-        }*/
+        }
     }
 }
