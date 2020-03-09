@@ -61,15 +61,6 @@ namespace Mirror
         static readonly List<int> connectionIdsCache = new List<int>();
 
         /// <summary>
-        /// Reset the NetworkServer singleton.
-        /// </summary>
-        [Obsolete("NetworkServer.Reset was used to reset the singleton, but all it does is set active to false ever since we made NetworkServer static. Use StopServer to stop the server, or Shutdown to fully reset the server.")]
-        public static void Reset()
-        {
-            active = false;
-        }
-
-        /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
         public static void Shutdown()
@@ -255,27 +246,6 @@ namespace Mirror
             }
         }
 
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="SendToAll{T}(T, int)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToAll<T> instead.")]
-        public static bool SendToAll(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
-        {
-            if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + msgType);
-
-            // pack message into byte[] once
-            byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
-
-            // send to all
-            bool result = true;
-            foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
-            {
-                result &= kvp.Value.Send(new ArraySegment<byte>(bytes), channelId);
-            }
-            return result;
-        }
-
         /// <summary>
         /// Send a message structure with the given type number to all connected clients.
         /// <para>This applies to clients that are ready and not-ready.</para>
@@ -320,34 +290,6 @@ namespace Mirror
 
                 return result;
             }
-        }
-
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="SendToReady{T}(NetworkIdentity, T, int)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToReady<T> instead.")]
-        public static bool SendToReady(NetworkIdentity identity, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
-        {
-            if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + msgType);
-
-            if (identity != null && identity.observers != null)
-            {
-                // pack message into byte[] once
-                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
-
-                // send to all ready observers
-                bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
-                {
-                    if (kvp.Value.isReady)
-                    {
-                        result &= kvp.Value.Send(new ArraySegment<byte>(bytes), channelId);
-                    }
-                }
-                return result;
-            }
-            return false;
         }
 
         /// <summary>
@@ -560,30 +502,6 @@ namespace Mirror
             Debug.LogException(exception);
         }
 
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T>(Action<NetworkConnection, T>, bool) instead.")]
-        public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
-        {
-            if (handlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkServer.RegisterHandler replacing " + msgType);
-            }
-            handlers[msgType] = handler;
-        }
-
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T>(Action<NetworkConnection, T>, bool) instead.")]
-        public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
-        {
-            RegisterHandler((int)msgType, handler);
-        }
-
         /// <summary>
         /// Register a handler for a particular message type.
         /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
@@ -613,26 +531,6 @@ namespace Mirror
             RegisterHandler<T>((_, value) => { handler(value); }, requireAuthentication);
         }
 
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead.")]
-        public static void UnregisterHandler(int msgType)
-        {
-            handlers.Remove(msgType);
-        }
-
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead.")]
-        public static void UnregisterHandler(MsgType msgType)
-        {
-            UnregisterHandler((int)msgType);
-        }
-
         /// <summary>
         /// Unregisters a handler for a particular message type.
         /// </summary>
@@ -649,21 +547,6 @@ namespace Mirror
         public static void ClearHandlers()
         {
             handlers.Clear();
-        }
-
-        // Deprecated 10/22/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="NetworkConnection.Send{T}(T msg, int channelId = Channels.DefaultReliable)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use connection.Send(msg) instead")]
-        public static void SendToClient<T>(int connectionId, T msg) where T : IMessageBase
-        {
-            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
-            {
-                conn.Send(msg);
-                return;
-            }
-            Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
         }
 
         /// <summary>
@@ -1125,17 +1008,6 @@ namespace Mirror
 
         // Deprecated 11/23/2019
         /// <summary>
-        /// Obsolete: Use <see cref="Spawn(GameObject, GameObject)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Spawn(GameObject, GameObject) instead.")]
-        public static bool SpawnWithClientAuthority(GameObject obj, GameObject player)
-        {
-            Spawn(obj, player);
-            return true;
-        }
-
-        // Deprecated 11/23/2019
-        /// <summary>
         /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
         /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
         /// </summary>
@@ -1157,28 +1029,6 @@ namespace Mirror
             }
 
             Spawn(obj, identity.connectionToClient);
-        }
-
-        // Deprecated 11/23/2019
-        /// <summary>
-        /// Use <see cref="Spawn(GameObject, NetworkConnection)"/> instead
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Spawn(obj, connection) instead")]
-        public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection ownerConnection)
-        {
-            Spawn(obj, ownerConnection);
-            return true;
-        }
-
-        // Deprecated 11/23/2019
-        /// <summary>
-        /// Use <see cref="Spawn(GameObject, Guid, NetworkConnection)"/> instead
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Spawn(obj, assetId, connection) instead")]
-        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection ownerConnection)
-        {
-            Spawn(obj, assetId, ownerConnection);
-            return true;
         }
 
         /// <summary>
@@ -1264,20 +1114,6 @@ namespace Mirror
             {
                 DestroyObject(identity, false);
             }
-        }
-
-        // Deprecated 01/15/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="NetworkIdentity.spawned"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
-        public static GameObject FindLocalObject(uint netId)
-        {
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity.gameObject;
-            }
-            return null;
         }
 
         internal static bool ValidateSceneObject(NetworkIdentity identity)
