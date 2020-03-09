@@ -61,5 +61,17 @@ namespace  Mirror.Tests
             ((MemoryTransport)Transport.activeTransport).LateUpdate();
             Assert.That(NetworkClient.isConnected, Is.True);
         }
+
+        [Test]
+        public void DisconnectInHostMode()
+        {
+            NetworkClient.ConnectHost();
+            Assert.That(NetworkClient.isConnected, Is.True);
+            Assert.That(NetworkServer.localConnection, !Is.Null);
+
+            NetworkClient.Disconnect();
+            Assert.That(NetworkClient.isConnected, Is.False);
+            Assert.That(NetworkServer.localConnection, Is.Null);
+        }
     }
 }
