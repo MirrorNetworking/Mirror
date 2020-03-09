@@ -469,12 +469,5 @@ namespace Mirror
         {
             msg.Serialize(writer);
         }
-
-        // Deprecated 02/06/2020
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use WriteMessage<T> instead")]
-        public static void Write<T>(this NetworkWriter writer, T msg) where T : IMessageBase
-        {
-            WriteMessage(writer, msg);
-        }
     }
 }

@@ -33,30 +33,6 @@ namespace Mirror
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
         //    and do an allocation free send before recycling it.
-        // Deprecated 03/03/2019
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
-        public static byte[] PackMessage(int msgType, MessageBase msg)
-        {
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                try
-                {
-                    // write message type
-                    writer.WriteInt16((short)msgType);
-
-                    // serialize message into writer
-                    msg.Serialize(writer);
-
-                    // return byte[]
-                    return writer.ToArray();
-                }
-                finally { }
-            }
-        }
-
-        // pack message before sending
-        // -> NetworkWriter passed as arg so that we can use .ToArraySegment
-        //    and do an allocation free send before recycling it.
         public static void Pack<T>(T message, NetworkWriter writer) where T : IMessageBase
         {
             // if it is a value type,  just use typeof(T) to avoid boxing
