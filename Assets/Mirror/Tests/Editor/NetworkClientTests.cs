@@ -37,5 +37,13 @@ namespace  Mirror.Tests
             NetworkClient.ConnectHost();
             Assert.That(NetworkClient.serverIp, Is.EqualTo("localhost"));
         }
+
+        [Test]
+        public void isConnected()
+        {
+            Assert.That(NetworkClient.isConnected, Is.False);
+            NetworkClient.ConnectHost();
+            Assert.That(NetworkClient.isConnected, Is.True);
+        }
     }
 }
