@@ -5,7 +5,7 @@ namespace Mirror
 {
 
     [Serializable]
-    internal class InvalidMessageException : Exception
+    public class InvalidMessageException : Exception
     {
         public InvalidMessageException()
         {
