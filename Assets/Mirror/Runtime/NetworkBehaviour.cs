@@ -469,8 +469,10 @@ namespace Mirror
         #region Helpers
 
         // helper function for [SyncVar] GameObjects.
+        // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver
+        //            can't resolve it
         [EditorBrowsable(EditorBrowsableState.Never)]
-        internal bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
+        protected bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
         {
             uint newNetId = 0;
             if (newGameObject != null)
