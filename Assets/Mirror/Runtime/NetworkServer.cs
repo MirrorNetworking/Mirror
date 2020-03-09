@@ -651,21 +651,6 @@ namespace Mirror
             handlers.Clear();
         }
 
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="NetworkConnection.Send{T}(T msg, int channelId = Channels.DefaultReliable)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkConnection.Send<T>(msg) instead.")]
-        public static void SendToClient(int connectionId, int msgType, MessageBase msg)
-        {
-            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
-            {
-                conn.Send(msgType, msg);
-                return;
-            }
-            Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
-        }
-
         // Deprecated 10/22/2019
         /// <summary>
         /// Obsolete: Use <see cref="NetworkConnection.Send{T}(T msg, int channelId = Channels.DefaultReliable)"/> instead.
@@ -679,23 +664,6 @@ namespace Mirror
                 return;
             }
             Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
-        }
-
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="SendToClientOfPlayer{T}(NetworkIdentity, T)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToClientOfPlayer<T> instead.")]
-        public static void SendToClientOfPlayer(NetworkIdentity identity, int msgType, MessageBase msg)
-        {
-            if (identity != null)
-            {
-                identity.connectionToClient.Send(msgType, msg);
-            }
-            else
-            {
-                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + identity.name);
-            }
         }
 
         /// <summary>
