@@ -37,8 +37,8 @@ namespace Mirror.Tests
             // only if server is running
             if (serverActive)
             {
-                // add server connected message
-                serverIncoming.Enqueue(new Message(0, EventType.Connected, null));
+                // add server connected message with connId=1 because 0 is reserved
+                serverIncoming.Enqueue(new Message(1, EventType.Connected, null));
 
                 // add client connected message
                 clientIncoming.Enqueue(new Message(0, EventType.Connected, null));
@@ -55,8 +55,8 @@ namespace Mirror.Tests
                 byte[] data = new byte[segment.Count];
                 Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
 
-                // add server data message
-                serverIncoming.Enqueue(new Message(0, EventType.Data, data));
+                // add server data message with connId=1 because 0 is reserved
+                serverIncoming.Enqueue(new Message(1, EventType.Data, data));
                 return true;
             }
             return false;
@@ -71,8 +71,8 @@ namespace Mirror.Tests
                 // ether after calling disconnect.
                 clientIncoming.Clear();
 
-                // add server disconnected message
-                serverIncoming.Enqueue(new Message(0, EventType.Disconnected, null));
+                // add server disconnected message with connId=1 because 0 is reserved
+                serverIncoming.Enqueue(new Message(1, EventType.Disconnected, null));
 
                 // add client disconnected message
                 clientIncoming.Enqueue(new Message(0, EventType.Disconnected, null));
@@ -137,8 +137,8 @@ namespace Mirror.Tests
             // add client disconnected message
             clientIncoming.Enqueue(new Message(0, EventType.Disconnected, null));
 
-            // add server disconnected message
-            serverIncoming.Enqueue(new Message(0, EventType.Disconnected, null));
+            // add server disconnected message with connId=1 because 0 is reserved
+            serverIncoming.Enqueue(new Message(1, EventType.Disconnected, null));
 
             // not active anymore
             serverActive = false;
