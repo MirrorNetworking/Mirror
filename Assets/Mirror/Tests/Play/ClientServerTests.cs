@@ -29,7 +29,7 @@ namespace Mirror.Tests
             manager.StartServer();
         }
 
-        public void SetupClient()
+        public void SetupClient(string hostname = "localhost")
         {
             clientNetworkManagerGo = new GameObject();
             clientManager = clientNetworkManagerGo.AddComponent<NetworkManager>();
@@ -38,7 +38,19 @@ namespace Mirror.Tests
             server2 = clientManager.server;
             client2 = clientManager.client;
 
-            clientManager.StartClient("localhost");
+            clientManager.StartClient(hostname);
+        }
+
+        public void SetupClient(System.Uri uri)
+        {
+            clientNetworkManagerGo = new GameObject();
+            clientManager = clientNetworkManagerGo.AddComponent<NetworkManager>();
+            clientManager.client = clientNetworkManagerGo.GetComponent<NetworkClient>();
+            clientManager.server = clientNetworkManagerGo.GetComponent<NetworkServer>();
+            server2 = clientManager.server;
+            client2 = clientManager.client;
+
+            clientManager.StartClient(uri);
         }
 
         public void ShutdownServer()
