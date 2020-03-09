@@ -120,7 +120,6 @@ namespace Mirror.Weaver
         // Note that calling ArraySegment<T>.get_Count directly gives an invalid IL error
         public static MethodReference MakeHostInstanceGeneric(this MethodReference self, GenericInstanceType instanceType)
         {
-
             MethodReference reference = new MethodReference(self.Name, self.ReturnType, instanceType)
             {
                 CallingConvention = self.CallingConvention,
