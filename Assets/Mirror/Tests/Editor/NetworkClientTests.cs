@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Mirror;
 using Mirror.Tests;
 using NSubstitute;
@@ -72,6 +73,30 @@ namespace  Mirror.Tests
             NetworkClient.Disconnect();
             Assert.That(NetworkClient.isConnected, Is.False);
             Assert.That(NetworkServer.localConnection, Is.Null);
+        }
+
+        [Test]
+        public void Send()
+        {
+            // register server handler
+            int called = 0;
+            NetworkServer.RegisterHandler<AddPlayerMessage>((conn, msg) => { ++called; }, false);
+
+            // connect a regular connection. not host, because host would use
+            // connId=0 but memorytransport uses connId=1
+            NetworkClient.Connect("localhost");
+            // update transport so connect event is processed
+            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+
+            // send it
+            AddPlayerMessage message = new AddPlayerMessage();
+            NetworkClient.Send(message);
+
+            // update transport so data event is processed
+            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+
+            // received it on server?
+            Assert.That(called, Is.EqualTo(1));
         }
     }
 }
