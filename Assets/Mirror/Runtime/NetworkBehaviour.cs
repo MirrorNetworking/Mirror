@@ -475,8 +475,10 @@ namespace Mirror
         #region Helpers
 
         // helper function for [SyncVar] GameObjects.
+        // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver
+        //            can't resolve it
         [EditorBrowsable(EditorBrowsableState.Never)]
-        internal bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
+        protected bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
         {
             uint newNetId = 0;
             if (newGameObject != null)
@@ -541,8 +543,10 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] NetworkIdentities.
+        // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver
+        //            can't resolve it
         [EditorBrowsable(EditorBrowsableState.Never)]
-        internal bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
+        protected bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
         {
             uint newNetId = 0;
             if (newIdentity != null)
@@ -704,7 +708,7 @@ namespace Mirror
             }
         }
 
-        ulong DirtyObjectBits()
+        internal ulong DirtyObjectBits()
         {
             ulong dirtyObjects = 0;
             for (int i = 0; i < syncObjects.Count; i++)
@@ -748,7 +752,7 @@ namespace Mirror
             return dirty;
         }
 
-        void DeSerializeObjectsAll(NetworkReader reader)
+        internal void DeSerializeObjectsAll(NetworkReader reader)
         {
             for (int i = 0; i < syncObjects.Count; i++)
             {
@@ -757,7 +761,7 @@ namespace Mirror
             }
         }
 
-        void DeSerializeObjectsDelta(NetworkReader reader)
+        internal void DeSerializeObjectsDelta(NetworkReader reader)
         {
             ulong dirty = reader.ReadPackedUInt64();
             for (int i = 0; i < syncObjects.Count; i++)

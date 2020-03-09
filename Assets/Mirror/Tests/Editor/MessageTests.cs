@@ -227,6 +227,7 @@ namespace Mirror.Tests
             fresh.Deserialize(new NetworkReader(writerData));
         }
 
+        [Obsolete("The field we are testing will go away")]
         [Test]
         public void AddPlayerMessageTest()
         {
