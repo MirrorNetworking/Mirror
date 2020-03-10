@@ -81,7 +81,7 @@ namespace Mirror.Tcp
                     
                 }
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
                 // client got closed while reading message async
             }
