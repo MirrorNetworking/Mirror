@@ -253,6 +253,8 @@ namespace Mirror.Tests
                 Assert.That(client.Connected, Is.False);
                 Assert.That(client.Connecting, Is.False);
 
+                await WaitForClientDisconnect();
+
                 // connecting should flush message queue  right?
                 await client.ConnectAsync("127.0.0.1", Port);
                 client.Disconnect();
