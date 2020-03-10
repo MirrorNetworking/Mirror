@@ -1,3 +1,16 @@
+# [16.0.0](https://github.com/MirrorNG/MirrorNG/compare/15.0.7-master...16.0.0-master) (2020-03-10)
+
+
+### Code Refactoring
+
+*  Client and server keep their own spawned list ([#71](https://github.com/MirrorNG/MirrorNG/issues/71)) ([c2599e2](https://github.com/MirrorNG/MirrorNG/commit/c2599e2c6157dd7539b560cd4645c10713a39276))
+
+
+### BREAKING CHANGES
+
+* cannot pass GameObjects and NetworkIdentities anymore.
+Will be restored in the future.
+
 ## [15.0.7](https://github.com/MirrorNG/MirrorNG/compare/15.0.6-master...15.0.7-master) (2020-03-10)
 
 
