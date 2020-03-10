@@ -51,10 +51,10 @@ namespace Mirror.Tcp
 
         public static void WriteInt(this Stream stream, int length)
         {
-            stream.WriteByte((byte)length);
-            stream.WriteByte((byte)(length >> 8));
-            stream.WriteByte((byte)(length >> 16));
             stream.WriteByte((byte)(length >> 24));
+            stream.WriteByte((byte)(length >> 16));
+            stream.WriteByte((byte)(length >> 8));
+            stream.WriteByte((byte)length);
         }
 
         public static void WritePrefixedData(this Stream stream, ArraySegment<byte> data)

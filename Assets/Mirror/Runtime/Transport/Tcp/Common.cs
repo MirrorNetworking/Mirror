@@ -22,19 +22,19 @@ namespace Mirror.Tcp
         protected static int BytesToInt(byte[] bytes)
         {
             return
-                bytes[0] |
-                (bytes[1] << 8) |
-                (bytes[2] << 16) |
-                (bytes[3] << 24);
+                bytes[3] |
+                (bytes[2] << 8) |
+                (bytes[1] << 16) |
+                (bytes[0] << 24);
 
         }
 
         protected static void WriteSize(int length, byte[] bytes)
         {
-            bytes[0] = (byte)length;
-            bytes[1] = (byte)(length >> 8);
-            bytes[2] = (byte)(length >> 16);
-            bytes[3] = (byte)(length >> 24);
+            bytes[3] = (byte)length;
+            bytes[2] = (byte)(length >> 8);
+            bytes[1] = (byte)(length >> 16);
+            bytes[0] = (byte)(length >> 24);
         }
 
         // send message (via stream) with the <size,content> message structure
