@@ -1,3 +1,10 @@
+## [15.0.7](https://github.com/MirrorNG/MirrorNG/compare/15.0.6-master...15.0.7-master) (2020-03-10)
+
+
+### Bug Fixes
+
+* Use big endian for packet size ([1ddcbec](https://github.com/MirrorNG/MirrorNG/commit/1ddcbec93509e14169bddbb2a38a7cf0d53776e4))
+
 ## [15.0.6](https://github.com/MirrorNG/MirrorNG/compare/15.0.5-master...15.0.6-master) (2020-03-09)
 
 
