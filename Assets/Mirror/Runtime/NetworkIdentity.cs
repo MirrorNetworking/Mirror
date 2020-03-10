@@ -138,11 +138,6 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// All spawned NetworkIdentities by netId. Available on server and client.
-        /// </summary>
-        public static readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
-
         public NetworkBehaviour[] NetworkBehaviours => networkBehavioursCache = networkBehavioursCache ?? GetComponents<NetworkBehaviour>();
 
         [SerializeField, HideInInspector] string m_AssetId;
@@ -516,7 +511,7 @@ namespace Mirror
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
-            spawned[netId] = this;
+            server.spawned[netId] = this;
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {

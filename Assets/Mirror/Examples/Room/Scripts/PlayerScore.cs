@@ -29,13 +29,15 @@ namespace Mirror.Examples.NetworkRoom
                 // OnControllerColliderHit will fire many times as the player slides against the object.
                 controllerColliderHitObject.SetActive(false);
 
-                CmdClaimPrize(controllerColliderHitObject);
+                CmdClaimPrize(controllerColliderHitObject.GetComponent<NetworkIdentity>().netId);
             }
         }
 
         [Command]
-        void CmdClaimPrize(GameObject hitObject)
+        void CmdClaimPrize(uint hitId)
         {
+            NetworkIdentity hitObject = server.spawned[hitId];
+
             // Null check is required, otherwise close timing of multiple claims could throw a null ref.
             if (hitObject != null)
             {

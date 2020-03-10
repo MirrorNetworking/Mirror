@@ -46,6 +46,23 @@ namespace Mirror
         /// </summary>
         public bool isConnected => connectState == ConnectState.Connected;
 
+        private readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
+
+        /// <summary>
+        /// List of all objects spawned in this client
+        /// </summary>
+        public Dictionary<uint, NetworkIdentity> Spawned
+        {
+            get
+            {
+                // if we are in host mode,  the list of spawned object is the same as the server list
+                if (hostServer != null)
+                    return hostServer.spawned;
+                else
+                    return spawned;
+            }
+        }
+
         /// <summary>
         /// The host server
         /// </summary>

@@ -62,6 +62,9 @@ namespace Mirror
         // cache the Send(connectionIds) list to avoid allocating each time
         readonly List<int> connectionIdsCache = new List<int>();
 
+
+        public readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
+
         /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
@@ -201,7 +204,7 @@ namespace Mirror
 
         internal void ActivateHostScene()
         {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in spawned.Values)
             {
                 if (!identity.isClient)
                 {
@@ -409,7 +412,7 @@ namespace Mirror
                 return;
 
             // update all server objects
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in spawned)
             {
                 if (kvp.Value != null && kvp.Value.gameObject != null)
                 {
@@ -631,7 +634,7 @@ namespace Mirror
 
         void SpawnObserversForConnection(NetworkConnection conn)
         {
-            if (LogFilter.Debug) Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn);
+            if (LogFilter.Debug) Debug.Log("Spawning " + spawned.Count + " objects for conn " + conn);
 
             if (!conn.isReady)
             {
@@ -645,7 +648,7 @@ namespace Mirror
 
             // add connection to each nearby NetworkIdentity's observers, which
             // internally sends a spawn message for each one to the connection.
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in spawned.Values)
             {
                 if (identity.gameObject.activeSelf) //TODO this is different // try with far away ones in ummorpg!
                 {
@@ -880,7 +883,7 @@ namespace Mirror
         // Handle command from specific player, this could be one of multiple players on a single client
         void OnCommandMessage(NetworkConnection conn, CommandMessage msg)
         {
-            if (!NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
                 Debug.LogWarning("Spawned object not found when handling Command message [netId=" + msg.netId + "]");
                 return;
@@ -1077,7 +1080,7 @@ namespace Mirror
         void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
         {
             if (LogFilter.Debug) Debug.Log("DestroyObject instance:" + identity.netId);
-            NetworkIdentity.spawned.Remove(identity.netId);
+            spawned.Remove(identity.netId);
 
             identity.connectionToClient?.RemoveOwnedObject(identity);
 

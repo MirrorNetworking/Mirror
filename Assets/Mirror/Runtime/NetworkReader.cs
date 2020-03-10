@@ -339,6 +339,7 @@ namespace Mirror
         }
 
         public static Guid ReadGuid(this NetworkReader reader) => new Guid(reader.ReadBytes(16));
+/*
         public static Transform ReadTransform(this NetworkReader reader) => reader.ReadNetworkIdentity()?.transform;
         public static GameObject ReadGameObject(this NetworkReader reader) => reader.ReadNetworkIdentity()?.gameObject;
 
@@ -356,6 +357,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
             return null;
         }
+        */
 
         public static Uri ReadUri(this NetworkReader reader)
         {
