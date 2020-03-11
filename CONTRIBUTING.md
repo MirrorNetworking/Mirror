@@ -79,7 +79,7 @@ Please send a [GitHub Pull Request](https://github.com/vis2k/Mirror/compare) wit
 When you send a pull request, we will love you forever if you include unit tests. 
 We can always use more test coverage. 
 
-* **Keep pull requests small** Never combine multiple things in the same pull request. It is an order of magnitude easier to review 10 small pull requests than 1 large pull request that combines all changes. A large pull request has almost 0% chance of getting merged even if it is the best code in the world.
+* **Keep pull requests small** Never combine multiple things in the same pull request. It is an order of magnitude easier to review 10 small pull requests than 1 large pull request that combines all changes. A pull request with 300+ changed lines has almost 0% chance of getting merged even if it is the best code in the world.
 * **Use a clear and descriptive title** for the pull request to state the improvement you made to the code or the bug you solved.
 * **Provide a link to the related issue** if the pull request is a follow up of an existing bug report or enhancement suggestion.
 * **Comment why this pull request represents an enhancement** and give a rationale explaining why you did it that way and not another way.
