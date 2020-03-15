@@ -1,3 +1,10 @@
+## [17.0.1](https://github.com/MirrorNG/MirrorNG/compare/17.0.0-master...17.0.1-master) (2020-03-15)
+
+
+### Bug Fixes
+
+* Report correct channel to profiler in SendToObservers ([0b84d4c](https://github.com/MirrorNG/MirrorNG/commit/0b84d4c5e1b8455e32eeb4d4c00b60bbc1301436))
+
 # [17.0.0](https://github.com/MirrorNG/MirrorNG/compare/16.0.0-master...17.0.0-master) (2020-03-15)
 
 
