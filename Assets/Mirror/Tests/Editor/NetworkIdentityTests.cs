@@ -235,52 +235,6 @@ namespace Mirror.Tests
             }
         }
 
-        class IsClientServerCheckComponent : NetworkBehaviour
-        {
-            // OnStartClient
-            internal bool OnStartClient_isClient;
-            internal bool OnStartClient_isServer;
-            internal bool OnStartClient_isLocalPlayer;
-            public override void OnStartClient()
-            {
-                OnStartClient_isClient = isClient;
-                OnStartClient_isServer = isServer;
-                OnStartClient_isLocalPlayer = isLocalPlayer;
-            }
-
-            // OnStartLocalPlayer
-            internal bool OnStartLocalPlayer_isClient;
-            internal bool OnStartLocalPlayer_isServer;
-            internal bool OnStartLocalPlayer_isLocalPlayer;
-            public override void OnStartLocalPlayer()
-            {
-                OnStartLocalPlayer_isClient = isClient;
-                OnStartLocalPlayer_isServer = isServer;
-                OnStartLocalPlayer_isLocalPlayer = isLocalPlayer;
-            }
-
-            // Start
-            internal bool Start_isClient;
-            internal bool Start_isServer;
-            internal bool Start_isLocalPlayer;
-            public void Start()
-            {
-                Start_isClient = isClient;
-                Start_isServer = isServer;
-                Start_isLocalPlayer = isLocalPlayer;
-            }
-
-            // OnDestroy
-            internal bool OnDestroy_isClient;
-            internal bool OnDestroy_isServer;
-            internal bool OnDestroy_isLocalPlayer;
-            public void OnDestroy()
-            {
-                OnDestroy_isClient = isClient;
-                OnDestroy_isServer = isServer;
-                OnDestroy_isLocalPlayer = isLocalPlayer;
-            }
-        }
         #endregion
 
         // Unity's nunit does not support async tests
