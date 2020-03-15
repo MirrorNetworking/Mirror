@@ -41,8 +41,8 @@ namespace Mirror.Tests
         GameObject playerGO;
         GameObject playerGO2;
 
-        EmptyBehaviour behavior;
-        EmptyBehaviour behavior2;
+        SampleBehavior behavior;
+        SampleBehavior behavior2;
         Flags flags;
 
         [SetUp]
@@ -52,7 +52,7 @@ namespace Mirror.Tests
 
             playerGO = new GameObject();
             playerGO.AddComponent<NetworkIdentity>();
-            behavior = playerGO.AddComponent<EmptyBehaviour>();
+            behavior = playerGO.AddComponent<SampleBehavior>();
             flags = playerGO.AddComponent<Flags>();
         }
 
@@ -62,7 +62,7 @@ namespace Mirror.Tests
 
             playerGO2 = new GameObject();
             playerGO2.AddComponent<NetworkIdentity>();
-            behavior2 = playerGO2.AddComponent<EmptyBehaviour>();
+            behavior2 = playerGO2.AddComponent<SampleBehavior>();
             flags = playerGO2.AddComponent<Flags>();
         }
 

@@ -4,7 +4,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    public class EmptyBehaviour : NetworkBehaviour
+    public class SampleBehavior : NetworkBehaviour
     {
         public bool SyncVarGameObjectEqualExposed(GameObject newGameObject, uint netIdField)
         {
@@ -25,14 +25,20 @@ namespace Mirror.Tests
         public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) {}
     }
 
-    public class NetworkBehaviourTests : HostTests<EmptyBehaviour>
+    public class NetworkBehaviourTests : HostTests<SampleBehavior>
     {
+        #region Component flags
         [Test]
         public void IsServerOnly()
         {
-            Assert.That(component.isServer, Is.True);
             Assert.That(component.isServerOnly, Is.False);
-       }
+        }
+
+        [Test]
+        public void IsServer()
+        {
+            Assert.That(component.isServer, Is.True);
+        }
 
         [Test]
         public void IsClient()
@@ -53,12 +59,45 @@ namespace Mirror.Tests
             Assert.That(component.hasAuthority, Is.True);
         }
 
+        #endregion
+
+        class OnStartServerTestComponent : NetworkBehaviour
+        {
+            public bool called = false;
+
+            public override void OnStartServer()
+            {
+                Assert.That(isClient, Is.True);
+                Assert.That(isLocalPlayer, Is.False);
+                Assert.That(isServer, Is.True);
+                called = true;
+            }
+        };
+
+        // check isClient/isServer/isLocalPlayer in server-only mode
+        [Test]
+        public void OnStartServer()
+        {
+            var gameObject = new GameObject();
+            gameObject.AddComponent<NetworkIdentity>();
+            var comp = gameObject.AddComponent<OnStartServerTestComponent>();
+
+            Assert.That(comp.called, Is.False);
+
+            server.Spawn(gameObject);
+
+            Assert.That(comp.called, Is.True);
+
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+
         [Test]
         public void SpawnedObjectNoAuthority()
         {
             var gameObject2 = new GameObject();
             gameObject2.AddComponent<NetworkIdentity>();
-            EmptyBehaviour behaviour2 = gameObject2.AddComponent<EmptyBehaviour>();
+            SampleBehavior behaviour2 = gameObject2.AddComponent<SampleBehavior>();
 
             server.Spawn(gameObject2);
 
@@ -96,8 +135,8 @@ namespace Mirror.Tests
 
             extraObject.AddComponent<NetworkIdentity>();
 
-            EmptyBehaviour behaviour1 = extraObject.AddComponent<EmptyBehaviour>();
-            EmptyBehaviour behaviour2 = extraObject.AddComponent<EmptyBehaviour>();
+            SampleBehavior behaviour1 = extraObject.AddComponent<SampleBehavior>();
+            SampleBehavior behaviour2 = extraObject.AddComponent<SampleBehavior>();
 
             // original one is first networkbehaviour, so index is 0
             Assert.That(behaviour1.ComponentIndex, Is.EqualTo(0));

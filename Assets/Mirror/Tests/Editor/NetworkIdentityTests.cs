@@ -248,17 +248,6 @@ namespace Mirror.Tests
                 OnStartClient_isLocalPlayer = isLocalPlayer;
             }
 
-            // OnStartServer
-            internal bool OnStartServer_isClient;
-            internal bool OnStartServer_isServer;
-            internal bool OnStartServer_isLocalPlayer;
-            public override void OnStartServer()
-            {
-                OnStartServer_isClient = isClient;
-                OnStartServer_isServer = isServer;
-                OnStartServer_isLocalPlayer = isLocalPlayer;
-            }
-
             // OnStartLocalPlayer
             internal bool OnStartLocalPlayer_isClient;
             internal bool OnStartLocalPlayer_isServer;
@@ -347,30 +336,7 @@ namespace Mirror.Tests
             Assert.That(component2.onStartServerInvoked);
         }
 
-        // check isClient/isServer/isLocalPlayer in server-only mode
-        [Test]
-        public void ServerMode_IsFlags_Test()
-        {
-            // start the server
-            var networkManagerGameObject = new GameObject();
-            NetworkServer server = networkManagerGameObject.AddComponent<NetworkServer>();
-
-            server.Listen(1000);
-
-            // add component
-            IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
-
-            // spawn it
-            server.Spawn(gameObject);
-
-            // OnStartServer should have been called. check the flags.
-            Assert.That(component.OnStartServer_isClient, Is.EqualTo(false));
-            Assert.That(component.OnStartServer_isLocalPlayer, Is.EqualTo(false));
-            Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
-
-            // stop the server
-            server.Shutdown();
-        }
+       
 
         [Test]
         public void GetSetAssetId()
