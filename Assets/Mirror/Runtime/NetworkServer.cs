@@ -331,19 +331,19 @@ namespace Mirror
                     connectionIdsCache.Clear();
                     bool result = true;
                     int count = 0;
-                    foreach ( NetworkConnection kvp in identity.observers)
+                    foreach ( NetworkConnection connection in identity.observers)
                     {
-                        bool isOwner = kvp == identity.connectionToClient;
-                        if ((!isOwner || includeOwner) && kvp.isReady)
+                        bool isOwner = connection == identity.connectionToClient;
+                        if ((!isOwner || includeOwner) && connection.isReady)
                         {
                             count++;
 
                             // use local connection directly because it doesn't send via transport
-                            if (kvp is ULocalConnectionToClient)
-                                result &= kvp.Send(segment);
+                            if (connection is ULocalConnectionToClient)
+                                result &= connection.Send(segment);
                             // gather all internet connections
                             else
-                                connectionIdsCache.Add(kvp.connectionId);
+                                connectionIdsCache.Add(connection.connectionId);
                         }
                     }
 
