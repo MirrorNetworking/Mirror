@@ -70,6 +70,26 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void IsClient()
+        {
+            Assert.That(identity.isClient, Is.False);
+            // create a networkidentity with our test component
+            server.Spawn(gameObject);
+
+            Assert.That(identity.isClient, Is.True);
+        }
+
+        [Test]
+        public void IsLocalPlayer()
+        {
+            Assert.That(identity.isLocalPlayer, Is.False);
+            // create a networkidentity with our test component
+            server.Spawn(gameObject);
+
+            Assert.That(identity.isLocalPlayer, Is.False);
+        }
+
+        [Test]
         public void AssignClientAuthorityCallback()
         {
             // create a networkidentity with our test component
