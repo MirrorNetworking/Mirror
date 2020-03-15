@@ -79,6 +79,7 @@ Please send a [GitHub Pull Request](https://github.com/vis2k/Mirror/compare) wit
 When you send a pull request, we will love you forever if you include unit tests. 
 We can always use more test coverage. 
 
+* **Keep pull requests small** Never combine multiple things in the same pull request. It is an order of magnitude easier to review 10 small pull requests than 1 large pull request that combines all changes. A pull request with 300+ changed lines has almost 0% chance of getting merged even if it is the best code in the world.
 * **Use a clear and descriptive title** for the pull request to state the improvement you made to the code or the bug you solved.
 * **Provide a link to the related issue** if the pull request is a follow up of an existing bug report or enhancement suggestion.
 * **Comment why this pull request represents an enhancement** and give a rationale explaining why you did it that way and not another way.
@@ -95,12 +96,10 @@ $ git commit -m "A brief summary of the commit""
 > 
 > A paragraph describing what changed and its impact.
 ```
-
-Submit your pull requests to the right branch:
-* Submit against the 2018 branch when the change **only** applies to Unity 2018.2+
-* Submit against the master branch in all other cases
   
 If your pull request breaks any test,  it has no hope of being merged.
+
+Here are some more [good practices](https://blog.ploeh.dk/2015/01/15/10-tips-for-better-pull-requests/) to follow when submitting pull requests to any project.
 
 #### Optimizations
 
@@ -121,7 +120,7 @@ Macro-optimizations tend to change the **scalability** of mirror,  by changing a
 
 Micro-optimizations tend to change the performance of mirror in a linear way. There are some micro optimizations that make a huge impact on performance such as eliminating allocations in the hot path.
 
-We prefer readable code over optimal code. We do not like any kind of optimization if it makes the code less readable (they generally do).  For that reason,  we require that both micro and macro optimization pull request come with screenshots profiling a real game or at least a synthetic **representative** test. It is not enough to show that one operation is faster than the other,  you must prove that this makes a significant difference in Mirror or in a real game using Mirror.
+We prefer readable code over optimal code. We do not like any kind of optimization if it makes the code less readable (they generally do).  For that reason,  we require that both micro and macro optimization pull requests come with screenshots profiling a real game or at least a synthetic **representative** test. It is not enough to show that one operation is faster than the other,  you must prove that this makes a significant difference in Mirror or in a real game using Mirror.
 
 If your optimization pull request does not come with profiling data showing real gains in a meaningful test is has no hope of getting merged.
 

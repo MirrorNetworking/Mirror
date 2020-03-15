@@ -250,7 +250,7 @@ namespace Mirror
                         NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
                     }
 
-                    NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
+                    NetworkDiagnostics.OnSend(msg, channelId, segment.Count, identity.observers.Count);
                 }
             }
         }
