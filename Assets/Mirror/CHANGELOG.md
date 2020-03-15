@@ -1,3 +1,15 @@
+# [17.0.0](https://github.com/MirrorNG/MirrorNG/compare/16.0.0-master...17.0.0-master) (2020-03-15)
+
+
+### Code Refactoring
+
+* observers is now a set of connections ([#74](https://github.com/MirrorNG/MirrorNG/issues/74)) ([4848920](https://github.com/MirrorNG/MirrorNG/commit/484892058b448012538754c4a1f2eac30a42ceaa))
+
+
+### BREAKING CHANGES
+
+* observers is now a set of connections, not a dictionary
+
 # [16.0.0](https://github.com/MirrorNG/MirrorNG/compare/15.0.7-master...16.0.0-master) (2020-03-10)
 
 
