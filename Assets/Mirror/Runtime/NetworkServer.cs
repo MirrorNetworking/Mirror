@@ -273,7 +273,7 @@ namespace Mirror
             {
                 // pack message only once
                 MessagePacker.Pack(msg, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
+                var segment = writer.ToArraySegment();
 
                 // filter and then send to all internet connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
@@ -323,7 +323,7 @@ namespace Mirror
                 {
                     // pack message only once
                     MessagePacker.Pack(msg, writer);
-                    ArraySegment<byte> segment = writer.ToArraySegment();
+                    var segment = writer.ToArraySegment();
 
                     // filter and then send to all internet connections at once
                     // -> makes code more complicated, but is HIGHLY worth it to
@@ -954,7 +954,7 @@ namespace Mirror
                 ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
                 ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
 
-                SpawnMessage msg = new SpawnMessage
+                var msg = new SpawnMessage
                 {
                     netId = identity.netId,
                     isLocalPlayer = conn?.identity == identity,
