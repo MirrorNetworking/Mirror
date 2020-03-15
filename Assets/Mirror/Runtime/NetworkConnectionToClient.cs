@@ -20,19 +20,13 @@ namespace Mirror
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
-            // validate packet size first.
-            ValidatePacketSize(segment, channelId);
-
             singleConnectionId[0] = connectionId;
             return Transport.activeTransport.ServerSend(singleConnectionId, channelId, segment);
         }
 
         // Send to many. basically Transport.Send(connections) + checks.
         internal static bool Send(List<int> connectionIds, ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
-        {
-            // validate packet size first.
-            ValidatePacketSize(segment, channelId);
-            
+        {            
             // only the server sends to many, we don't have that function on
             // a client.
             if (Transport.activeTransport.ServerActive())
