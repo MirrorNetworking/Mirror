@@ -81,7 +81,7 @@ namespace Mirror
         /// The set of network connections (players) that can see this object.
         /// <para>null until OnStartServer was called. this is necessary for SendTo* to work properly in server-only mode.</para>
         /// </summary>
-        public Dictionary<int, NetworkConnection> observers;
+        public HashSet<NetworkConnection> observers;
 
         /// <summary>
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
@@ -235,7 +235,7 @@ namespace Mirror
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
         {
-            observers?.Remove(conn.connectionId);
+            observers?.Remove(conn);
         }
 
         void Awake()
@@ -505,7 +505,7 @@ namespace Mirror
             }
 
             netId = GetNextNetworkId();
-            observers = new Dictionary<int, NetworkConnection>();
+            observers = new HashSet<NetworkConnection>();
 
             if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
 
@@ -888,7 +888,7 @@ namespace Mirror
         {
             if (observers != null)
             {
-                foreach (NetworkConnection conn in observers.Values)
+                foreach (NetworkConnection conn in observers)
                 {
                     conn.RemoveFromVisList(this, true);
                 }
@@ -904,7 +904,7 @@ namespace Mirror
                 return;
             }
 
-            if (observers.ContainsKey(conn.connectionId))
+            if (observers.Contains(conn))
             {
                 // if we try to add a connectionId that was already added, then
                 // we may have generated one that was already in use.
@@ -912,8 +912,7 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) Debug.Log("Added observer " + conn.address + " added for " + gameObject);
-
-            observers[conn.connectionId] = conn;
+            observers.Add(conn);
             conn.AddToVisList(this);
         }
 
@@ -1000,7 +999,7 @@ namespace Mirror
                 // otherwise the player might not be in the world yet or anymore
                 if (conn != null && conn.isReady)
                 {
-                    if (initialize || !observers.ContainsKey(conn.connectionId))
+                    if (initialize || !observers.Contains(conn))
                     {
                         // new observer
                         conn.AddToVisList(this);
@@ -1011,7 +1010,7 @@ namespace Mirror
             }
 
             // remove all old .observers that aren't in newObservers anymore
-            foreach (NetworkConnection conn in observers.Values)
+            foreach (NetworkConnection conn in observers)
             {
                 if (!newObservers.Contains(conn))
                 {
@@ -1028,7 +1027,7 @@ namespace Mirror
                 foreach (NetworkConnection conn in newObservers)
                 {
                     if (conn != null && conn.isReady)
-                        observers.Add(conn.connectionId, conn);
+                        observers.Add(conn);
                 }
             }
 

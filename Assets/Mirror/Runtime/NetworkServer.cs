@@ -234,14 +234,14 @@ namespace Mirror
                     // -> makes code more complicated, but is HIGHLY worth it to
                     //    avoid allocations, allow for multicast, etc.
                     connectionIdsCache.Clear();
-                    foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                    foreach ( NetworkConnection kvp in identity.observers)
                     {
                         // use local connection directly because it doesn't send via transport
-                        if (kvp.Value is ULocalConnectionToClient)
-                            kvp.Value.Send(segment);
+                        if (kvp is ULocalConnectionToClient)
+                            kvp.Send(segment);
                         // gather all internet connections
                         else
-                            connectionIdsCache.Add(kvp.Key);
+                            connectionIdsCache.Add(kvp.connectionId);
                     }
 
                     // send to all internet connections at once
@@ -331,19 +331,19 @@ namespace Mirror
                     connectionIdsCache.Clear();
                     bool result = true;
                     int count = 0;
-                    foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                    foreach ( NetworkConnection kvp in identity.observers)
                     {
-                        bool isOwner = kvp.Value == identity.connectionToClient;
-                        if ((!isOwner || includeOwner) && kvp.Value.isReady)
+                        bool isOwner = kvp == identity.connectionToClient;
+                        if ((!isOwner || includeOwner) && kvp.isReady)
                         {
                             count++;
 
                             // use local connection directly because it doesn't send via transport
-                            if (kvp.Value is ULocalConnectionToClient)
-                                result &= kvp.Value.Send(segment);
+                            if (kvp is ULocalConnectionToClient)
+                                result &= kvp.Send(segment);
                             // gather all internet connections
                             else
-                                connectionIdsCache.Add(kvp.Key);
+                                connectionIdsCache.Add(kvp.connectionId);
                         }
                     }
 

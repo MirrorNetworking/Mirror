@@ -407,7 +407,7 @@ namespace Mirror.Tests
 
             // add an observer connection
             var connection = new NetworkConnectionToClient(42);
-            identity.observers[connection.connectionId] = connection;
+            identity.observers.Add(connection);
 
             // RemoveObserverInternal with invalid connection should do nothing
             identity.RemoveObserverInternal(new NetworkConnectionToClient(43));
@@ -835,20 +835,11 @@ namespace Mirror.Tests
             // call AddObservers
             identity.AddObserver(connection1);
             identity.AddObserver(connection2);
-            Assert.That(identity.observers.Count, Is.EqualTo(2));
-            Assert.That(identity.observers.ContainsKey(connection1.connectionId));
-            Assert.That(identity.observers[connection1.connectionId], Is.EqualTo(connection1));
-            Assert.That(identity.observers.ContainsKey(connection2.connectionId));
-            Assert.That(identity.observers[connection2.connectionId], Is.EqualTo(connection2));
+            Assert.That(identity.observers, Is.EquivalentTo(new[] { connection1, connection2 }));
 
             // adding a duplicate connectionId shouldn't overwrite the original
-            var duplicate = new NetworkConnectionToClient(connection1.connectionId);
-            identity.AddObserver(duplicate);
-            Assert.That(identity.observers.Count, Is.EqualTo(2));
-            Assert.That(identity.observers.ContainsKey(connection1.connectionId));
-            Assert.That(identity.observers[connection1.connectionId], Is.EqualTo(connection1));
-            Assert.That(identity.observers.ContainsKey(connection2.connectionId));
-            Assert.That(identity.observers[connection2.connectionId], Is.EqualTo(connection2));
+            identity.AddObserver(connection1);
+            Assert.That(identity.observers, Is.EquivalentTo(new[] { connection1, connection2 }));
         }
 
         [Test]
@@ -858,8 +849,8 @@ namespace Mirror.Tests
             identity.OnStartServer();
 
             // add some observers
-            identity.observers[42] = new NetworkConnectionToClient(42);
-            identity.observers[43] = new NetworkConnectionToClient(43);
+            identity.observers.Add(new NetworkConnectionToClient(42));
+            identity.observers.Add(new NetworkConnectionToClient(43));
 
             // call ClearObservers
             identity.ClearObservers();
@@ -875,7 +866,7 @@ namespace Mirror.Tests
             uint netId = identity.netId;
             identity.connectionToClient = new NetworkConnectionToClient(1);
             identity.connectionToServer = new NetworkConnectionToServer();
-            identity.observers[43] = new NetworkConnectionToClient(2);
+            identity.observers.Add( new NetworkConnectionToClient(2));
 
             // calling reset shouldn't do anything unless it was marked for reset
             identity.Reset();
@@ -946,7 +937,7 @@ namespace Mirror.Tests
             {
                 { MessagePacker.GetId<UpdateVarsMessage>(), (conn, msg, channel) => ++observerCalled }
             });
-            identity.observers[observer.connectionId] = observer;
+            identity.observers.Add(observer);
 
             // set components dirty again
             compA.SetDirtyBit(ulong.MaxValue);
@@ -1006,9 +997,11 @@ namespace Mirror.Tests
         [Test]
         public void AddAllReadyServerConnectionsToObservers()
         {
+            var connection1 = new NetworkConnectionToClient(12) { isReady = true };
+            var connection2 = new NetworkConnectionToClient(13) { isReady = false };
             // add some server connections
-            server.connections[12] = new NetworkConnectionToClient(12){isReady = true};
-            server.connections[13] = new NetworkConnectionToClient(13){isReady = false};
+            server.connections[12] = connection1;
+            server.connections[13] = connection2;
 
             // add a host connection
             var localConnection = new ULocalConnectionToClient
@@ -1023,9 +1016,7 @@ namespace Mirror.Tests
 
             // add all to observers. should have the two ready connections then.
             identity.AddAllReadyServerConnectionsToObservers();
-            Assert.That(identity.observers.Count, Is.EqualTo(2));
-            Assert.That(identity.observers.ContainsKey(12));
-            Assert.That(identity.observers.ContainsKey(server.localConnection.connectionId));
+            Assert.That(identity.observers, Is.EquivalentTo(new [] { connection1, localConnection }));
 
             // clean up
             server.RemoveLocalConnection();
@@ -1052,7 +1043,7 @@ namespace Mirror.Tests
 
             // rebuild should at least add own ready player
             identity.RebuildObservers(true);
-            Assert.That(identity.observers.ContainsKey(identity.connectionToClient.connectionId));
+            Assert.That(identity.observers, Does.Contain(identity.connectionToClient));
         }
 
         // RebuildObservers should always add the own ready connection
@@ -1074,7 +1065,7 @@ namespace Mirror.Tests
 
             // rebuild shouldn't add own player because conn wasn't set ready
             identity.RebuildObservers(true);
-            Assert.That(!identity.observers.ContainsKey(identity.connectionToClient.connectionId));
+            Assert.That(identity.observers, Does.Not.Contains(identity.connectionToClient));
         }
 
     }
