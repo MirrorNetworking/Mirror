@@ -234,14 +234,14 @@ namespace Mirror
                     // -> makes code more complicated, but is HIGHLY worth it to
                     //    avoid allocations, allow for multicast, etc.
                     connectionIdsCache.Clear();
-                    foreach ( NetworkConnection kvp in identity.observers)
+                    foreach ( NetworkConnection connection in identity.observers)
                     {
                         // use local connection directly because it doesn't send via transport
-                        if (kvp is ULocalConnectionToClient)
-                            kvp.Send(segment);
+                        if (connection is ULocalConnectionToClient)
+                            connection.Send(segment);
                         // gather all internet connections
                         else
-                            connectionIdsCache.Add(kvp.connectionId);
+                            connectionIdsCache.Add(connection.connectionId);
                     }
 
                     // send to all internet connections at once
