@@ -16,7 +16,7 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         readonly List<int> singleConnectionId = new List<int> { -1 };
 
-        internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        protected override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 

@@ -155,7 +155,49 @@ namespace Mirror
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal abstract bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
+        protected abstract bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
+
+        // cache the Send(connectionIds) list to avoid allocating each time
+        static readonly List<int> connectionIdsCache = new List<int>();
+
+        public static bool Send<T>(IEnumerable<NetworkConnection> connections, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        {
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                // pack message into byte[] once
+                MessagePacker.Pack(msg, writer);
+                var segment = writer.ToArraySegment();
+
+                // filter and then send to all internet connections at once
+                // -> makes code more complicated, but is HIGHLY worth it to
+                //    avoid allocations, allow for multicast, etc.
+                connectionIdsCache.Clear();
+                bool result = true;
+                int count = 0;
+
+                foreach (NetworkConnection connection in connections)
+                {
+                    // use local connection directly because it doesn't send via transport
+                    if (connection is ULocalConnectionToClient)
+                        result &= connection.Send(segment);
+                    // gather all internet connections
+                    else
+                        connectionIdsCache.Add(connection.connectionId);
+
+                    count++;
+                }
+
+                // send to all internet connections at once
+                if (connectionIdsCache.Count > 0)
+                {
+                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                }
+
+                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
+
+                return result;
+            }
+        }
 
         public override string ToString()
         {

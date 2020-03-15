@@ -7,7 +7,7 @@ namespace Mirror
     {
         public override string address => "";
 
-        internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        protected override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 

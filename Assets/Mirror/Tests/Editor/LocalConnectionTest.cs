@@ -104,14 +104,5 @@ namespace Mirror.Tests
             Assert.True(invoked, "handler should have been invoked");
         }
 
-        [Test]
-        public void ClientToServerFailTest()
-        {
-            LogAssert.ignoreFailingMessages = true; // error log is expected
-            bool result = connectionToServer.Send(new ArraySegment<byte>(new byte[0]));
-            LogAssert.ignoreFailingMessages = false;
-
-            Assert.That(result, Is.False);
-        }
     }
 }

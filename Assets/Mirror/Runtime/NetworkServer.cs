@@ -59,11 +59,11 @@ namespace Mirror
         /// </summary>
         public bool active { get; private set; }
 
-        // cache the Send(connectionIds) list to avoid allocating each time
-        readonly List<int> connectionIdsCache = new List<int>();
-
-
         public readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
+
+        // just a cached memory area where we can collect connections
+        // for broadcasting messages
+        private static readonly List<NetworkConnection> connectionsCache = new List<NetworkConnection>();
 
         /// <summary>
         /// This shuts down the server and disconnects all clients.
@@ -221,38 +221,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + typeof(T));
 
-            if (identity != null && identity.observers != null)
-            {
-                // get writer from pool
-                using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-                {
-                    // pack message into byte[] once
-                    MessagePacker.Pack(msg, writer);
-                    var segment = writer.ToArraySegment();
-
-                    // filter and then send to all internet connections at once
-                    // -> makes code more complicated, but is HIGHLY worth it to
-                    //    avoid allocations, allow for multicast, etc.
-                    connectionIdsCache.Clear();
-                    foreach ( NetworkConnection connection in identity.observers)
-                    {
-                        // use local connection directly because it doesn't send via transport
-                        if (connection is ULocalConnectionToClient)
-                            connection.Send(segment);
-                        // gather all internet connections
-                        else
-                            connectionIdsCache.Add(connection.connectionId);
-                    }
-
-                    // send to all internet connections at once
-                    if (connectionIdsCache.Count > 0)
-                    {
-                        NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
-                    }
-
-                    NetworkDiagnostics.OnSend(msg, channelId, segment.Count, identity.observers.Count);
-                }
-            }
+            if (identity.observers != null)
+                NetworkConnection.Send(identity.observers, msg, channelId);
         }
 
         // Deprecated 03/03/2019
@@ -267,39 +237,7 @@ namespace Mirror
         public bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
-
-            // get writer from pool
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                // pack message only once
-                MessagePacker.Pack(msg, writer);
-                var segment = writer.ToArraySegment();
-
-                // filter and then send to all internet connections at once
-                // -> makes code more complicated, but is HIGHLY worth it to
-                //    avoid allocations, allow for multicast, etc.
-                connectionIdsCache.Clear();
-                bool result = true;
-                foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
-                {
-                    // use local connection directly because it doesn't send via transport
-                    if (kvp.Value is ULocalConnectionToClient)
-                        result &= kvp.Value.Send(segment);
-                    // gather all internet connections
-                    else
-                        connectionIdsCache.Add(kvp.Key);
-                }
-
-                // send to all internet connections at once
-                if (connectionIdsCache.Count > 0)
-                {
-                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
-                }
-
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, connections.Count);
-
-                return result;
-            }
+            return NetworkConnection.Send(connections.Values, msg, channelId);
         }
 
         /// <summary>
@@ -316,49 +254,19 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + typeof(T));
 
-            if (identity != null && identity.observers != null)
+            connectionsCache.Clear();
+           
+            foreach (NetworkConnection connection in identity.observers)
             {
-                // get writer from pool
-                using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+                
+                bool isOwner = connection == identity.connectionToClient;
+                if ((!isOwner || includeOwner) && connection.isReady)
                 {
-                    // pack message only once
-                    MessagePacker.Pack(msg, writer);
-                    var segment = writer.ToArraySegment();
-
-                    // filter and then send to all internet connections at once
-                    // -> makes code more complicated, but is HIGHLY worth it to
-                    //    avoid allocations, allow for multicast, etc.
-                    connectionIdsCache.Clear();
-                    bool result = true;
-                    int count = 0;
-                    foreach ( NetworkConnection connection in identity.observers)
-                    {
-                        bool isOwner = connection == identity.connectionToClient;
-                        if ((!isOwner || includeOwner) && connection.isReady)
-                        {
-                            count++;
-
-                            // use local connection directly because it doesn't send via transport
-                            if (connection is ULocalConnectionToClient)
-                                result &= connection.Send(segment);
-                            // gather all internet connections
-                            else
-                                connectionIdsCache.Add(connection.connectionId);
-                        }
-                    }
-
-                    // send to all internet connections at once
-                    if (connectionIdsCache.Count > 0)
-                    {
-                        result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
-                    }
-
-                    NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
-
-                    return result;
+                    connectionsCache.Add(connection);
                 }
             }
-            return false;
+
+            return NetworkConnection.Send(connectionsCache, msg, channelId);
         }
 
         /// <summary>

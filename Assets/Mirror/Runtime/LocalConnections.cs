@@ -16,7 +16,7 @@ namespace Mirror
 
         public override string address => "localhost";
 
-        internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        protected override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             // LocalConnection doesn't support allocation-free sends yet.
             // previously we allocated in Mirror. now we do it here.
@@ -57,7 +57,7 @@ namespace Mirror
 
         public override string address => "localhost";
 
-        internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        protected override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (segment.Count == 0)
             {
