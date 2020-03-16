@@ -59,20 +59,7 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition rpc = new MethodDefinition("Call" + md.Name, MethodAttributes.Public |
-                    MethodAttributes.HideBySig,
-                    Weaver.voidType);
-
-            // add paramters
-            foreach (ParameterDefinition pd in md.Parameters)
-            {
-                rpc.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
-            }
-
-            // move the old body to the new function
-            MethodBody newBody = rpc.Body;
-            rpc.Body = md.Body;
-            md.Body = newBody;
+            MethodDefinition rpc = MethodProcessor.SubstituteMethod(md, "Call" + md.Name);
 
             ILProcessor rpcWorker = md.Body.GetILProcessor();
 
