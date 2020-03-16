@@ -3,7 +3,7 @@ using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
-    public  class MethodProcessor
+    public static class MethodProcessor
     {
 
         // creates a method substitute
