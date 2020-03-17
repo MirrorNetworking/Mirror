@@ -1,3 +1,10 @@
+## [19.0.1](https://github.com/MirrorNG/MirrorNG/compare/19.0.0-master...19.0.1-master) (2020-03-17)
+
+
+### Bug Fixes
+
+* calling syncvar hook when not connected yet ([#77](https://github.com/MirrorNG/MirrorNG/issues/77)) ([e64727b](https://github.com/MirrorNG/MirrorNG/commit/e64727b74bcbb1adfcd8f5efbf96066443254dff))
+
 # [19.0.0](https://github.com/MirrorNG/MirrorNG/compare/18.0.0-master...19.0.0-master) (2020-03-17)
 
 
