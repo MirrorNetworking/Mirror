@@ -1,3 +1,15 @@
+# [18.0.0](https://github.com/MirrorNG/MirrorNG/compare/17.0.2-master...18.0.0-master) (2020-03-17)
+
+
+### Features
+
+* Time sync is now done per NetworkClient ([b24542f](https://github.com/MirrorNG/MirrorNG/commit/b24542f62c6a2d0c43588af005f360ed74c619ca))
+
+
+### BREAKING CHANGES
+
+* NetworkTime.Time is no longer static
+
 ## [17.0.2](https://github.com/MirrorNG/MirrorNG/compare/17.0.1-master...17.0.2-master) (2020-03-17)
 
 
