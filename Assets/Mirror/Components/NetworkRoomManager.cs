@@ -555,6 +555,16 @@ namespace Mirror
             base.OnServerAddPlayer(conn);
         }
 
+        // Deprecated 02/22/2020
+        /// <summary>
+        /// Obsolete: Use <see cref="OnRoomServerSceneLoadedForPlayer(NetworkConnection, GameObject, GameObject)"/> instead.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer) instead")]
+        public virtual bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)
+        {
+            return true;
+        }
+
         // for users to apply settings from their room player object to their in-game player object
         /// <summary>
         /// This is called on the server when it is told that a client has finished switching from the room scene to a game player scene.
