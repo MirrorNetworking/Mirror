@@ -8,11 +8,11 @@ namespace Mirror.Tests
     public class LocalConnectionTest
     {
 
-        class MyMessage : MessageBase
+        /*class MyMessage : MessageBase
         {
             public int id;
             public string name;
-        }
+        }*/
 
         ULocalConnectionToClient connectionToClient;
         ULocalConnectionToServer connectionToServer;
