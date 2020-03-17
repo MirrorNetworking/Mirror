@@ -1101,7 +1101,7 @@ namespace Mirror
             OnServerReady(conn);
         }
 
-        void OnServerAddPlayerInternal(NetworkConnection conn, AddPlayerMessage extraMessage)
+        void OnServerAddPlayerInternal(NetworkConnection conn, AddPlayerMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
 
@@ -1123,9 +1123,7 @@ namespace Mirror
                 return;
             }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            OnServerAddPlayer(conn, extraMessage);
-#pragma warning restore CS0618 // Type or member is obsolete
+            OnServerAddPlayer(conn);
         }
 
         void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
@@ -1255,17 +1253,6 @@ namespace Mirror
                 if (LogFilter.Debug) Debug.Log("Ready with no player object");
             }
             NetworkServer.SetClientReady(conn);
-        }
-
-        // Deprecated 10/02/2019
-        /// <summary>
-        /// Obsolete: Override <see cref="OnServerAddPlayer(NetworkConnection)"/> instead.
-        /// <para>See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a> for details.</para>
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnServerAddPlayer(NetworkConnection conn) instead. See https://mirror-networking.com/docs/Guides/GameObjects/SpawnPlayerCustom.html for details.")]
-        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
-        {
-            OnServerAddPlayer(conn);
         }
 
         /// <summary>
