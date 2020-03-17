@@ -1,3 +1,13 @@
+# [19.0.0](https://github.com/MirrorNG/MirrorNG/compare/18.0.0-master...19.0.0-master) (2020-03-17)
+
+
+* removed obsoletes (#1542) ([4faec29](https://github.com/MirrorNG/MirrorNG/commit/4faec295593b81a709a57aaf374bb5b080a04538)), closes [#1542](https://github.com/MirrorNG/MirrorNG/issues/1542)
+
+
+### BREAKING CHANGES
+
+* removed obsoletes
+
 # [18.0.0](https://github.com/MirrorNG/MirrorNG/compare/17.0.2-master...18.0.0-master) (2020-03-17)
 
 
