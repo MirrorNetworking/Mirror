@@ -520,6 +520,18 @@ namespace Mirror
             return null;
         }
 
+        // Deprecated 12/17/2019
+        /// <summary>
+        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)"/> instead.
+        /// </summary>
+        /// <param name="conn">The connection the player object is for.</param>
+        /// <returns>A new GamePlayer object.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer) instead")]
+        public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
+        {
+            return null;
+        }
+
         /// <summary>
         /// This allows customization of the creation of the GamePlayer object on the server.
         /// <para>By default the gamePlayerPrefab is used to create the game-player, but this function allows that behaviour to be customized. The object returned from the function will be used to replace the room-player on the connection.</para>
