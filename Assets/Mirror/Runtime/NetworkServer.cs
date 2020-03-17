@@ -60,6 +60,7 @@ namespace Mirror
         // cache the Send(connectionIds) list to avoid allocating each time
         static readonly List<int> connectionIdsCache = new List<int>();
 
+        // Deprecated 02/23/2020
         /// <summary>
         /// Reset the NetworkServer singleton.
         /// </summary>
