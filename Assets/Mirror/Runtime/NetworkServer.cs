@@ -60,6 +60,7 @@ namespace Mirror
         // cache the Send(connectionIds) list to avoid allocating each time
         static readonly List<int> connectionIdsCache = new List<int>();
 
+        // Deprecated 02/23/2020
         /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
@@ -241,7 +242,7 @@ namespace Mirror
                         NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
                     }
 
-                    NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
+                    NetworkDiagnostics.OnSend(msg, channelId, segment.Count, identity.observers.Count);
                 }
             }
         }
