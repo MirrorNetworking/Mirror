@@ -78,12 +78,6 @@ namespace Mirror.Tests
         #endregion
 
         #region General tests
-        [Test]
-        public void InvalidType()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.AccessViolationException MirrorTest.MirrorTestPlayer/MyStruct::violatedPotato has unsupported type. Use a type supported by Mirror instead"));
-        }
 
         [Test]
         public void RecursionCount()
@@ -92,36 +86,6 @@ namespace Mirror.Tests
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/Potato1 can't be serialized because it references itself"));
         }
 
-        [Test]
-        public void ClientGuardWrongClass()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [Client] System.Void MirrorTest.MirrorTestPlayer::CantClientGuardInThisClass() must be declared in a NetworkBehaviour"));
-        }
-
-        [Test]
-        public void ServerGuardWrongClass()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [Server] System.Void MirrorTest.MirrorTestPlayer::CantServerGuardInThisClass() must be declared in a NetworkBehaviour"));
-        }
-
-        [Test]
-        public void GuardCmdWrongClass()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [Server] System.Void MirrorTest.MirrorTestPlayer::CantServerGuardInThisClass() must be declared in a NetworkBehaviour"));
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [Server] System.Void MirrorTest.MirrorTestPlayer::CantServerCallbackGuardInThisClass() must be declared in a NetworkBehaviour"));
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [Client] System.Void MirrorTest.MirrorTestPlayer::CantClientGuardInThisClass() must be declared in a NetworkBehaviour"));
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [Client] System.Void MirrorTest.MirrorTestPlayer::CantClientCallbackGuardInThisClass() must be declared in a NetworkBehaviour"));
-        }
-
-        [Test]
-        public void JaggedArray()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Int32[][] is an unsupported type. Jagged and multidimensional arrays are not supported"));
-        }
         #endregion
 
         #region SyncVar tests
@@ -241,43 +205,6 @@ namespace Mirror.Tests
             Assert.That(weaverErrors, Is.Empty);
         }
 
-        #endregion
-
-        #region SyncListStruct tests
-        [Test]
-        public void SyncListStructValid()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
-            Assert.That(weaverErrors, Is.Empty);
-        }
-
-        [Test]
-        public void SyncListStructGenericGeneric()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyStructClass cannot have generic elements MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single>"));
-        }
-
-        [Test]
-        public void SyncListStructMemberGeneric()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for generic type MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single>. Use a concrete type or provide a custom writer"));
-        }
-
-        [Test]
-        public void SyncListStructMemberInterface()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for interface MirrorTest.MirrorTestPlayer/IPotato. Use a concrete type or provide a custom writer"));
-        }
-
-        [Test]
-        public void SyncListStructMemberBasicType()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyStructClass cannot have item of type MirrorTest.MirrorTestPlayer/MyStruct.  Use a type supported by mirror instead"));
-        }
         #endregion
 
         #region NetworkBehaviour tests

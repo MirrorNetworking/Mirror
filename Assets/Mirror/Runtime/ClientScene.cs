@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using Guid = System.Guid;
@@ -132,13 +130,7 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("ClientScene.AddPlayer() called with connection [" + readyConnection + "]");
 
-            AddPlayerMessage message = new AddPlayerMessage
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                value = extraData
-#pragma warning restore CS0618 // Type or member is obsolete
-            };
-            readyConnection.Send(message);
+            readyConnection.Send(new AddPlayerMessage());
             return true;
         }
 
@@ -457,20 +449,6 @@ namespace Mirror
                 }
             }
             NetworkIdentity.spawned.Clear();
-        }
-
-        // Deprecated 01/15/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="NetworkIdentity.spawned"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
-        public static GameObject FindLocalObject(uint netId)
-        {
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity.gameObject;
-            }
-            return null;
         }
 
         static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)

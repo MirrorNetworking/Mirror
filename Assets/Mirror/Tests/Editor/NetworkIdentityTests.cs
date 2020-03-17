@@ -580,7 +580,7 @@ namespace Mirror.Tests
             owner.connectionToServer = new ULocalConnectionToServer();
             int spawnCalled = 0;
             owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>{
-                { MessagePacker.GetId<SpawnMessage>(), (msg => ++spawnCalled) }
+                { MessagePacker.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++spawnCalled) }
             });
 
             // assigning authority should only work on server.
@@ -1254,7 +1254,7 @@ namespace Mirror.Tests
             int ownerCalled = 0;
             owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
             {
-                { MessagePacker.GetId<UpdateVarsMessage>(), (msg => ++ownerCalled) }
+                { MessagePacker.GetId<UpdateVarsMessage>(), ((conn, reader, channelId) => ++ownerCalled) }
             });
             identity.connectionToClient = owner;
 
@@ -1266,7 +1266,7 @@ namespace Mirror.Tests
             int observerCalled = 0;
             observer.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
             {
-                { MessagePacker.GetId<UpdateVarsMessage>(), (msg => ++observerCalled) }
+                { MessagePacker.GetId<UpdateVarsMessage>(), ((conn, reader, channelId) => ++observerCalled) }
             });
             identity.observers[observer.connectionId] = observer;
 

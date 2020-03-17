@@ -110,13 +110,6 @@ namespace Mirror
         public bool serverOnly;
 
         /// <summary>
-        /// Obsolete: Use <see cref="connectionToClient" /> instead
-        /// </summary>
-        // Deprecated 11/03/2019
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use connectionToClient instead")]
-        public NetworkConnectionToClient clientAuthorityOwner => connectionToClient;
-
-        /// <summary>
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
         /// </summary>
         public NetworkConnection connectionToServer { get; internal set; }
@@ -188,13 +181,6 @@ namespace Mirror
 
         // keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
-
-        /// <summary>
-        /// Obsolete: Use <see cref="GetSceneIdentity(ulong)" /> instead
-        /// </summary>
-        // Deprecated 01/23/2020
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use GetSceneIdentity instead")]
-        public static NetworkIdentity GetSceneIdenity(ulong id) => GetSceneIdentity(id);
 
         /// <summary>
         /// Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id
@@ -655,9 +641,6 @@ namespace Mirror
             {
                 try
                 {
-#pragma warning disable 618
-                    comp.OnSetLocalVisibility(visible); // remove later!
-#pragma warning restore 618
                     comp.OnSetHostVisibility(visible);
                 }
                 catch (Exception e)
@@ -1151,19 +1134,6 @@ namespace Mirror
 
             clientAuthorityCallback?.Invoke(conn, this, true);
 
-            return true;
-        }
-
-        // Deprecated 09/25/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="RemoveClientAuthority()"/> instead
-        /// </summary>
-        /// <param name="conn">The connection of the client to remove authority for.</param>
-        /// <returns>True if authority is removed.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("NetworkConnection parameter is no longer needed and nothing is returned")]
-        public bool RemoveClientAuthority(NetworkConnection conn)
-        {
-            RemoveClientAuthority();
             return true;
         }
 
