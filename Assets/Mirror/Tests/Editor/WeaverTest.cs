@@ -243,43 +243,6 @@ namespace Mirror.Tests
 
         #endregion
 
-        #region SyncListStruct tests
-        [Test]
-        public void SyncListStructValid()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
-            Assert.That(weaverErrors, Is.Empty);
-        }
-
-        [Test]
-        public void SyncListStructGenericGeneric()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyStructClass cannot have generic elements MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single>"));
-        }
-
-        [Test]
-        public void SyncListStructMemberGeneric()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for generic type MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single>. Use a concrete type or provide a custom writer"));
-        }
-
-        [Test]
-        public void SyncListStructMemberInterface()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for interface MirrorTest.MirrorTestPlayer/IPotato. Use a concrete type or provide a custom writer"));
-        }
-
-        [Test]
-        public void SyncListStructMemberBasicType()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyStructClass cannot have item of type MirrorTest.MirrorTestPlayer/MyStruct.  Use a type supported by mirror instead"));
-        }
-        #endregion
-
         #region NetworkBehaviour tests
         [Test]
         public void NetworkBehaviourValid()
