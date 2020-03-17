@@ -7,45 +7,42 @@ namespace Mirror
     /// <summary>
     /// Synchronize time between the server and the clients
     /// </summary>
-    public static class NetworkTime
+    public class NetworkTime
     {
         /// <summary>
         /// how often are we sending ping messages
         /// used to calculate network time and RTT
         /// </summary>
-        public static float PingFrequency = 2.0f;
+        public float PingFrequency = 2.0f;
 
         /// <summary>
         /// average out the last few results from Ping
         /// </summary>
-        public static int PingWindowSize = 10;
+        public int PingWindowSize = 10;
 
-        static double lastPingTime;
+        double lastPingTime;
 
         // Date and time when the application started
-        static readonly Stopwatch stopwatch = new Stopwatch();
+        private readonly Stopwatch stopwatch = new Stopwatch();
 
-        static NetworkTime()
+        public NetworkTime()
         {
             stopwatch.Start();
         }
 
-        static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
-        static ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
-        private static double _time;
-        private static int lastFrame;
+        ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
+        ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
+        private double _time;
+        private int lastFrame;
 
         // the true offset guaranteed to be in this range
-        static double offsetMin = double.MinValue;
-        static double offsetMax = double.MaxValue;
+        double offsetMin = double.MinValue;
+        double offsetMax = double.MaxValue;
 
         // returns the clock time _in this system_
-        static double LocalTime()
-        {
-            return stopwatch.Elapsed.TotalSeconds;
-        }
+        double LocalTime() => stopwatch.Elapsed.TotalSeconds;
 
-        public static void Reset()
+        public void Reset()
         {
             _rtt = new ExponentialMovingAverage(PingWindowSize);
             _offset = new ExponentialMovingAverage(PingWindowSize);
@@ -53,20 +50,20 @@ namespace Mirror
             offsetMax = double.MaxValue;
         }
 
-        internal static void UpdateClient(NetworkClient client)
+        internal void UpdateClient(NetworkClient client)
         {
-            if (Time.time - lastPingTime >= PingFrequency)
+            if (UnityEngine.Time.time - lastPingTime >= PingFrequency)
             {
                 var pingMessage = new NetworkPingMessage(LocalTime());
                 client.Send(pingMessage);
-                lastPingTime = Time.time;
+                lastPingTime = UnityEngine.Time.time;
             }
         }
 
         // executed at the server when we receive a ping message
         // reply with a pong containing the time from the client
         // and time from the server
-        internal static void OnServerPing(NetworkConnection conn, NetworkPingMessage msg)
+        internal void OnServerPing(NetworkConnection conn, NetworkPingMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("OnPingServerMessage  conn=" + conn);
 
@@ -82,7 +79,7 @@ namespace Mirror
         // Executed at the client when we receive a Pong message
         // find out how long it took since we sent the Ping
         // and update time offset
-        internal static void OnClientPong(NetworkPongMessage msg)
+        internal void OnClientPong(NetworkPongMessage msg)
         {
             double now = LocalTime();
 
@@ -142,7 +139,7 @@ namespace Mirror
         /// <para>in other words,  if the server is running for 2 months,
         /// and you cast down to float,  then the time will jump in 0.4s intervals.</para>
         /// </remarks>
-        public static double time
+        public double Time
         {
             get
             {
@@ -150,11 +147,11 @@ namespace Mirror
                 // so cache the time for the duration of the frame
                 // if someone asks for .time serveral times in a frame this has significant impact
                 // this also makes it more consistent with Time.time
-                if (lastFrame != Time.frameCount)
+                if (lastFrame != UnityEngine.Time.frameCount)
                 {
                     // Notice _offset is 0 at the server
                     _time = LocalTime() - _offset.Value;
-                    lastFrame = Time.frameCount;
+                    lastFrame = UnityEngine.Time.frameCount;
                 }
                 return _time;
 
@@ -165,13 +162,13 @@ namespace Mirror
         /// Measurement of the variance of time.
         /// <para>The higher the variance, the less accurate the time is</para>
         /// </summary>
-        public static double timeVar => _offset.Var;
+        public double timeVar => _offset.Var;
 
         /// <summary>
         /// standard deviation of time.
         /// <para>The higher the variance, the less accurate the time is</para>
         /// </summary>
-        public static double timeSd => Math.Sqrt(timeVar);
+        public double timeSd => Math.Sqrt(timeVar);
 
         /// <summary>
         /// Clock difference in seconds between the client and the server
@@ -179,24 +176,24 @@ namespace Mirror
         /// <remarks>
         /// Note this value is always 0 at the server
         /// </remarks>
-        public static double offset => _offset.Value;
+        public double offset => _offset.Value;
 
         /// <summary>
         /// how long in seconds does it take for a message to go
         /// to the server and come back
         /// </summary>
-        public static double rtt => _rtt.Value;
+        public double rtt => _rtt.Value;
 
         /// <summary>
         /// measure variance of rtt
         /// the higher the number,  the less accurate rtt is
         /// </summary>
-        public static double rttVar => _rtt.Var;
+        public double rttVar => _rtt.Var;
 
         /// <summary>
         /// Measure the standard deviation of rtt
         /// the higher the number,  the less accurate rtt is
         /// </summary>
-        public static double rttSd => Math.Sqrt(rttVar);
+        public double rttSd => Math.Sqrt(rttVar);
     }
 }

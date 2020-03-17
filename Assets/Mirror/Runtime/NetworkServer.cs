@@ -65,6 +65,9 @@ namespace Mirror
         // for broadcasting messages
         private static readonly List<NetworkConnection> connectionsCache = new List<NetworkConnection>();
 
+        // Time kept in this server
+        public readonly NetworkTime Time = new NetworkTime();
+
         /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
@@ -123,7 +126,7 @@ namespace Mirror
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler<CommandMessage>(OnCommandMessage);
             RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
-            RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
+            RegisterHandler<NetworkPingMessage>(Time.OnServerPing, false);
         }
 
         /// <summary>

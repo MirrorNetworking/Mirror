@@ -48,6 +48,8 @@ namespace Mirror
 
         private readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
+        public readonly NetworkTime Time = new NetworkTime();
+
         /// <summary>
         /// List of all objects spawned in this client
         /// </summary>
@@ -179,12 +181,12 @@ namespace Mirror
         void OnConnected()
         {
             // reset network time stats
-            NetworkTime.Reset();
+            Time.Reset();
 
             // the handler may want to send messages to the client
             // thus we should set the connected state before calling the handler
             connectState = ConnectState.Connected;
-            NetworkTime.UpdateClient(this);
+            Time.UpdateClient(this);
             connection.InvokeHandler(new ConnectMessage(), -1);
         }
 
@@ -264,7 +266,7 @@ namespace Mirror
                 // only update things while connected
                 if (active && connectState == ConnectState.Connected)
                 {
-                    NetworkTime.UpdateClient(this);
+                    Time.UpdateClient(this);
                 }
             }
         }
@@ -288,7 +290,7 @@ namespace Mirror
             {
                 RegisterHandler<ObjectDestroyMessage>(ClientScene.OnObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(ClientScene.OnObjectHide);
-                RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
+                RegisterHandler<NetworkPongMessage>(Time.OnClientPong, false);
                 RegisterHandler<SpawnMessage>(ClientScene.OnSpawn);
                 RegisterHandler<ObjectSpawnStartedMessage>(ClientScene.OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(ClientScene.OnObjectSpawnFinished);
