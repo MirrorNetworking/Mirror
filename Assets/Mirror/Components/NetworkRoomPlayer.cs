@@ -18,15 +18,18 @@ namespace Mirror
         /// </summary>
         public bool showRoomGUI = true;
 
+        [Header("Diagnostics")]
+
         /// <summary>
-        /// This is a flag that control whether this player is ready for the game to begin.
+        /// Diagnostic flag indicating whether this player is ready for the game to begin.
+        /// <para>Invoke CmdChangeReadyState method on the client to set this flag.</para>
         /// <para>When all players are ready to begin, the game will start. This should not be set directly, the SendReadyToBeginMessage function should be called on the client to set it on the server.</para>
         /// </summary>
         [SyncVar(hook = nameof(ReadyStateChanged))]
         public bool readyToBegin;
 
         /// <summary>
-        /// Current index of the player, e.g. Player1, Player2, etc.
+        /// Diagnostic index of the player, e.g. Player1, Player2, etc.
         /// </summary>
         [SyncVar]
         public int index;

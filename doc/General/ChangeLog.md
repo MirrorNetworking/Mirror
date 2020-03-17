@@ -7,6 +7,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 ## Version 11.x.x - In Progress
 - Fixed: Setting breakpoints in an IDE for Command's and Rpc's work correctly now.
 - Fixed: NetworkServer's calls to SendToObservers now reports correct channel to Mirror Profiler.
+- Fixed: NetworkRoomPlayer inspector and documentation updated top be less confusing.
 - Changed: NetworkSceneChecker initializes in Awake again because OnEnable proved to be unreliable in some cases.
 - Changed: **Breaking** Many obsolete methods and properties removed. Use version 10 first if upgrading from UNet or older Mirror. See [Deprecations](Deprecations.md) for complete list.
 
