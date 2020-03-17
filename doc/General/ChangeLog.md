@@ -10,7 +10,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Changed: NetworkSceneChecker initializes in Awake again because OnEnable proved to be unreliable in some cases.
 - Changed: **Breaking** Many obsolete methods and properties removed. Use version 10 first if upgrading from UNet or older Mirror. See [Deprecations](Deprecations.md) for complete list.
 
-## Version 10.4.7
+## Version 10.4.7 - 2020-Mar-03
 - Added: Weaver will now block play mode and builds if there are weaver errors and show them in the console again.
 - Added: PooledNetworkReader and PooledNetworkWriter, both Disposable.
 - Added: NetworkReader.ReadMessage<T>.
