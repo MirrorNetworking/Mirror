@@ -1,17 +1,8 @@
 using System;
-using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
 {
-    // Deprecated 12/31/2018
-    [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkBehaviour.syncInterval field instead. Can be modified in the Inspector too.")]
-    [AttributeUsage(AttributeTargets.Class)]
-    public class NetworkSettingsAttribute : Attribute
-    {
-        public float sendInterval = 0.1f;
-    }
-
     /// <summary>
     /// SyncVars are used to synchronize a variable from the server to all clients automatically.
     /// <para>Value must be changed on server, not directly by clients.  Hook parameter allows you to define a client-side method to be invoked when the client gets an update from the server.</para>

@@ -35,15 +35,6 @@ namespace Mirror
         protected override bool DeserializeItem(NetworkReader reader) => reader.ReadBoolean();
     }
 
-    // Original UNET name is SyncListStruct and original Weaver weavers anything
-    // that contains the name 'SyncListStruct', without considering the namespace.
-    // Deprecated 03/20/2019
-    [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SyncList<MyStruct> instead")]
-    public class SyncListSTRUCT<T> : SyncList<T> where T : struct
-    {
-        public T GetItem(int i) => base[i];
-    }
-
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class SyncList<T> : IList<T>, IReadOnlyList<T>, SyncObject
     {
@@ -61,14 +52,8 @@ namespace Mirror
             OP_ADD,
             OP_CLEAR,
             OP_INSERT,
-            // Deprecated 10/21/2019
-            [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Lists now pass OP_REMOVEAT")]
-            OP_REMOVE,
             OP_REMOVEAT,
-            OP_SET,
-            // Deprecated 12/03/2019
-            [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Lists now use OP_SET instead of OP_DIRTY")]
-            OP_DIRTY
+            OP_SET
         }
 
         struct Change
