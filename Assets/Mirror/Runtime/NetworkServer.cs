@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
@@ -228,7 +227,6 @@ namespace Mirror
                 NetworkConnection.Send(identity.observers, msg, channelId);
         }
 
-        // Deprecated 03/03/2019
         /// <summary>
         /// Send a message structure with the given type number to all connected clients.
         /// <para>This applies to clients that are ready and not-ready.</para>
@@ -424,7 +422,6 @@ namespace Mirror
             Debug.LogException(exception);
         }
 
-        // Deprecated 03/03/2019
         /// <summary>
         /// Register a handler for a particular message type.
         /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
@@ -454,7 +451,6 @@ namespace Mirror
             RegisterHandler<T>((_, value) => { handler(value); }, requireAuthentication);
         }
 
-        // Deprecated 03/03/2019
         /// <summary>
         /// Unregisters a handler for a particular message type.
         /// </summary>
@@ -473,7 +469,6 @@ namespace Mirror
             handlers.Clear();
         }
 
-        // Deprecated 03/03/2019
         /// <summary>
         /// send this message to the player only
         /// </summary>

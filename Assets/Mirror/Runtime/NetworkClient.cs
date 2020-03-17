@@ -228,7 +228,6 @@ namespace Mirror
             Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
-        // Deprecated 03/03/2019
         /// <summary>
         /// This sends a network message with a message Id to the server. This message is sent on channel zero, which by default is the reliable channel.
         /// <para>The message must be an instance of a class derived from MessageBase.</para>
@@ -300,7 +299,6 @@ namespace Mirror
             RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
-        // Deprecated 03/03/2019
         /// <summary>
         /// Register a handler for a particular message type.
         /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>

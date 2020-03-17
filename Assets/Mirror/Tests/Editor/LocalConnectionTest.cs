@@ -8,11 +8,11 @@ namespace Mirror.Tests
     public class LocalConnectionTest
     {
 
-        class MyMessage : MessageBase
+        /*class MyMessage : MessageBase
         {
             public int id;
             public string name;
-        }
+        }*/
 
         ULocalConnectionToClient connectionToClient;
         ULocalConnectionToServer connectionToServer;
@@ -34,7 +34,7 @@ namespace Mirror.Tests
             connectionToServer.Disconnect();
         }
 
-        [Test]
+        /*[Test]
         public void ServerToClientTest()
         {
             Assert.That(connectionToClient.address, Is.EqualTo("localhost"));
@@ -67,9 +67,9 @@ namespace Mirror.Tests
             connectionToServer.Update();
 
             Assert.True(invoked, "handler should have been invoked");
-        }
+        }*/
 
-        [Test]
+        /*[Test]
         public void ClientToServerTest()
         {
             Assert.That(connectionToServer.address, Is.EqualTo("localhost"));
@@ -102,7 +102,7 @@ namespace Mirror.Tests
             connectionToServer.Update();
 
             Assert.True(invoked, "handler should have been invoked");
-        }
+        }*/
 
     }
 }

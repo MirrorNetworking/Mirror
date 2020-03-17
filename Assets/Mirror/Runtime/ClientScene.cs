@@ -129,8 +129,7 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("ClientScene.AddPlayer() called with connection [" + readyConnection + "]");
 
-            AddPlayerMessage message = new AddPlayerMessage();
-            readyConnection.Send(message);
+            readyConnection.Send(new AddPlayerMessage());
             return true;
         }
 

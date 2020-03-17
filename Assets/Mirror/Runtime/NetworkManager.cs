@@ -154,7 +154,6 @@ namespace Mirror
         [NonSerialized]
         public bool clientLoadedScene;
 
-        // Deprecated 03/27/2019
         /// <summary>
         /// headless mode detection
         /// </summary>
@@ -1093,7 +1092,7 @@ namespace Mirror
             OnServerReady(conn);
         }
 
-        void OnServerAddPlayerInternal(NetworkConnection conn, AddPlayerMessage extraMessage)
+        void OnServerAddPlayerInternal(NetworkConnection conn, AddPlayerMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
 
@@ -1373,7 +1372,6 @@ namespace Mirror
         /// <param name="conn">Connection to the server.</param>
         public virtual void OnClientNotReady(NetworkConnection conn) { }
 
-        // Deprecated 09/17/2019
         /// <summary>
         /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
@@ -1421,7 +1419,6 @@ namespace Mirror
         /// </summary>
         public virtual void OnStartServer() { }
 
-        // Deprecated 03/25/2019
         /// <summary>
         /// This is invoked when the client is started.
         /// </summary>

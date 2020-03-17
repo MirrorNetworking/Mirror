@@ -461,7 +461,6 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = false;
         }
 
-
         [Test]
         public void NotifyAuthorityCallsOnStartStopAuthority()
         {
@@ -841,7 +840,7 @@ namespace Mirror.Tests
             int ownerCalled = 0;
             owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
             {
-                { MessagePacker.GetId<UpdateVarsMessage>(), (conn, msg, channel) => ++ownerCalled }
+                { MessagePacker.GetId<UpdateVarsMessage>(), ((conn, reader, channelId) => ++ownerCalled) }
             });
             identity.connectionToClient = owner;
 
@@ -855,7 +854,7 @@ namespace Mirror.Tests
             int observerCalled = 0;
             observer.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
             {
-                { MessagePacker.GetId<UpdateVarsMessage>(), (conn, msg, channel) => ++observerCalled }
+                { MessagePacker.GetId<UpdateVarsMessage>(), ((conn, reader, channelId) => ++observerCalled) }
             });
             identity.observers.Add(observer);
 

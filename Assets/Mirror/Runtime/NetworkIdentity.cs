@@ -182,13 +182,6 @@ namespace Mirror
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
 
         /// <summary>
-        /// Obsolete: Use <see cref="GetSceneIdentity(ulong)" /> instead
-        /// </summary>
-        // Deprecated 01/23/2020
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use GetSceneIdentity instead")]
-        public static NetworkIdentity GetSceneIdenity(ulong id) => GetSceneIdentity(id);
-
-        /// <summary>
         /// Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id
         /// </summary>
         /// <param name="id"></param>
@@ -1093,7 +1086,6 @@ namespace Mirror
             clientAuthorityCallback?.Invoke(conn, this, true);
         }
 
-        // Deprecated 09/25/2019
         /// <summary>
         /// Removes ownership for an object.
         /// <para>This applies to objects that had authority set by AssignClientAuthority, or <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included.</para>
