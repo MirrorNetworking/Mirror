@@ -1,3 +1,10 @@
+## [17.0.2](https://github.com/MirrorNG/MirrorNG/compare/17.0.1-master...17.0.2-master) (2020-03-17)
+
+
+### Bug Fixes
+
+* Command and Rpc debugging information ([#1551](https://github.com/MirrorNG/MirrorNG/issues/1551)) ([658847b](https://github.com/MirrorNG/MirrorNG/commit/658847b096571eb7cf14e824ea76359576121e63)), closes [#1550](https://github.com/MirrorNG/MirrorNG/issues/1550)
+
 ## [17.0.1](https://github.com/MirrorNG/MirrorNG/compare/17.0.0-master...17.0.1-master) (2020-03-15)
 
 
