@@ -49,6 +49,11 @@ namespace Mirror
         public bool isClient => netIdentity.isClient;
 
         /// <summary>
+        /// Returns true if we're on host mode.
+        /// </summary>
+        public bool isLocalClient => netIdentity.isLocalClient;
+
+        /// <summary>
         /// This returns true if this object is the one that represents the player on the local machine.
         /// <para>In multiplayer games, there are multiple instances of the Player object. The client needs to know which one is for "themselves" so that only that player processes input and potentially has a camera attached. The IsLocalPlayer function will return true only for the player instance that belongs to the player on the local machine, so it can be used to filter out input for non-local players.</para>
         /// </summary>

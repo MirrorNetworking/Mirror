@@ -199,12 +199,10 @@ namespace Mirror.Weaver
 
             if (hookFunctionMethod != null)
             {
-                //if (base.netIdentity.server.localClientActive && !getSyncVarHookGuard(dirtyBit))
+                //if (base.isLocalClient && !getSyncVarHookGuard(dirtyBit))
                 Instruction label = setWorker.Create(OpCodes.Nop);
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourGetIdentity));
-                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkIdentityGetServer));
-                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkServerGetLocalClientActive));
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourIsLocalClient));
                 setWorker.Append(setWorker.Create(OpCodes.Brfalse, label));
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
                 setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
