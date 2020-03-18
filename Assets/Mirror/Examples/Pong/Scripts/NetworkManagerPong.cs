@@ -22,7 +22,7 @@ namespace Mirror.Examples.Pong
             // spawn ball if two players
             if (numPlayers == 2)
             {
-                ball = Instantiate(spawnPrefabs.Find(prefab => prefab.name == "Ball"));
+                ball = Instantiate(client.spawnPrefabs.Find(prefab => prefab.name == "Ball"));
                 server.Spawn(ball);
             }
         }

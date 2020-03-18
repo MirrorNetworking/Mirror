@@ -36,7 +36,6 @@ namespace Mirror.Tests
             Assert.That(manager.offlineScene, Is.Empty);
             Assert.That(manager.server.MaxConnections, Is.EqualTo(4));
             Assert.That(manager.autoCreatePlayer, Is.True);
-            Assert.That(manager.spawnPrefabs, Is.Empty);
             Assert.That(manager.numPlayers, Is.Zero);
             Assert.That(manager.isNetworkActive, Is.False);
 
