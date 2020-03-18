@@ -481,8 +481,17 @@ namespace Mirror
             sceneIds.Remove(sceneId);
             sceneIds.Remove(sceneId & 0x00000000FFFFFFFF);
 
-            if (isServer)
+            // Only call NetworkServer.Destroy on server and only if reset is false
+            // reset will be false from incorrect use of Destroy instead of NetworkServer.Destroy
+            // reset will be true if NetworkServer.Destroy was correctly invoked to begin with
+            // Users are supposed to call NetworkServer.Destroy instead of just regular Destroy for networked objects.
+            // This is a safeguard in case users accidentally call regular Destroy instead.
+            // We cover their mistake by calling NetworkServer.Destroy for them.
+            // If, however, they call NetworkServer.Destroy correctly, which leads to NetworkIdentity.MarkForReset,
+            // then we don't need to call it again, so the check for reset is needed to prevent the doubling.
+            if (isServer && !reset)
             {
+                Debug.LogWarning("Incorrect use of Destroy. Use NetworkServer.Destroy instead for networked objects.");
                 NetworkServer.Destroy(gameObject);
             }
         }
