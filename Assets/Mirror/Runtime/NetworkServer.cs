@@ -17,7 +17,14 @@ namespace Mirror
     public class NetworkServer : MonoBehaviour
     {
         bool initialized;
-        int maxConnections;
+
+        /// <summary>
+        /// The maximum number of concurrent network connections to support.
+        /// <para>This effects the memory usage of the network layer.</para>
+        /// </summary>
+        [Tooltip("Maximum number of concurrent connections.")]
+        [Min(1)]
+        public int MaxConnections = 4;
 
         /// <summary>
         /// The connection to the host mode client (if any).
@@ -133,10 +140,9 @@ namespace Mirror
         /// </summary>
         /// <param name="maxConns">Maximum number of allowed connections</param>
         /// <returns></returns>
-        public void Listen(int maxConns)
+        public void Listen()
         {
             Initialize();
-            maxConnections = maxConns;
 
             // only start server if we want to listen
             if (!dontListen)
@@ -361,7 +367,7 @@ namespace Mirror
             //  less code and third party transport might not do that anyway)
             // (this way we could also send a custom 'tooFull' message later,
             //  Transport can't do that)
-            if (connections.Count < maxConnections)
+            if (connections.Count < MaxConnections)
             {
                 // add connection
                 var conn = new NetworkConnectionToClient(connectionId);

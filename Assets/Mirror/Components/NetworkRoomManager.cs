@@ -71,11 +71,9 @@ namespace Mirror
 
         public override void OnValidate()
         {
-            // always >= 0
-            maxConnections = Mathf.Max(maxConnections, 0);
 
             // always <= maxConnections
-            minPlayers = Mathf.Min(minPlayers, maxConnections);
+            minPlayers = Mathf.Min(minPlayers, server.MaxConnections);
 
             // always >= 0
             minPlayers = Mathf.Max(minPlayers, 0);
@@ -215,12 +213,6 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerConnect(NetworkConnection conn)
         {
-            if (numPlayers >= maxConnections)
-            {
-                conn.Disconnect();
-                return;
-            }
-
             // cannot join game in progress
             if (SceneManager.GetActiveScene().name != RoomScene)
             {
@@ -271,7 +263,7 @@ namespace Mirror
         {
             if (SceneManager.GetActiveScene().name == RoomScene)
             {
-                if (RoomSlots.Count == maxConnections)
+                if (RoomSlots.Count == server.MaxConnections)
                     return;
 
                 AllPlayersReady = false;

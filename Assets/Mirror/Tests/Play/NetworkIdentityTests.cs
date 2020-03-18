@@ -26,7 +26,7 @@ namespace Mirror.Tests
 
             clientGO = new GameObject();
             client = clientGO.AddComponent<NetworkClient>();
-            server.Listen(2);
+            server.Listen();
             client.ConnectHost(server);
 
 

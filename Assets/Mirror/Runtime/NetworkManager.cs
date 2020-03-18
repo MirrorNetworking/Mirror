@@ -90,14 +90,6 @@ namespace Mirror
         [SerializeField]
         protected Transport transport;
 
-        /// <summary>
-        /// The maximum number of concurrent network connections to support.
-        /// <para>This effects the memory usage of the network layer.</para>
-        /// </summary>
-        [FormerlySerializedAs("m_MaxConnections")]
-        [Tooltip("Maximum number of concurrent connections.")]
-        public int maxConnections = 4;
-
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
@@ -209,8 +201,6 @@ namespace Mirror
 #endif
             }
 
-            maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
-
             if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
             {
                 Debug.LogError("NetworkManager - playerPrefab must have a NetworkIdentity.");
@@ -296,7 +286,7 @@ namespace Mirror
             ConfigureServerFrameRate();
 
             // start listening to network connections
-            server.Listen(maxConnections);
+            server.Listen();
 
             // call OnStartServer AFTER Listen, so that NetworkServer.active is
             // true and we can call NetworkServer.Spawn in OnStartServer

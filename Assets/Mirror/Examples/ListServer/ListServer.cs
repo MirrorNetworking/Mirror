@@ -108,7 +108,7 @@ namespace Mirror.Examples.ListServer
 
             // create message
             writer.Write((ushort)manager.server.connections.Count);
-            writer.Write((ushort)manager.maxConnections);
+            writer.Write((ushort)manager.server.MaxConnections);
             byte[] titleBytes = Encoding.UTF8.GetBytes(gameServerTitle);
             writer.Write((ushort)titleBytes.Length);
             writer.Write(titleBytes);
