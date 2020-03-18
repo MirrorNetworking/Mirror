@@ -2,7 +2,6 @@
 // note: not all transports need a port, so add it to yours if needed.
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -153,18 +152,6 @@ namespace Mirror
         /// <param name="connectionId">the id of the client to disconnect</param>
         /// <returns>true if the client was kicked</returns>
         public abstract bool ServerDisconnect(int connectionId);
-
-        /// <summary>
-        /// Obsolete: Use <see cref="ServerGetClientAddress(int)"/> instead
-        /// </summary>
-        // Removed 2/17/2019 and restored 3/2/2019
-        // Deprecated 03/02/2019
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
-        public virtual bool GetConnectionInfo(int connectionId, out string address)
-        {
-            address = ServerGetClientAddress(connectionId);
-            return true;
-        }
 
         /// <summary>
         /// Get the client address

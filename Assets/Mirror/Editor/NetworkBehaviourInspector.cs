@@ -17,8 +17,6 @@ namespace Mirror
         bool syncsAnything;
         bool[] showSyncLists;
 
-        static readonly GUIContent syncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
-
         internal virtual bool HideScriptField => false;
 
         // does this type sync anything? otherwise we don't need to show syncInterval
@@ -105,8 +103,6 @@ namespace Mirror
             bool expanded = true;
             while (property.NextVisible(expanded))
             {
-                bool isSyncVar = syncVarNames.Contains(property.name);
-
                 if (property.name == "m_Script")
                 {
                     if (HideScriptField)
@@ -117,20 +113,7 @@ namespace Mirror
                     EditorGUI.BeginDisabledGroup(true);
                 }
 
-                if (isSyncVar)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.BeginVertical();
-                }
-
                 EditorGUILayout.PropertyField(property, true);
-
-                if (isSyncVar)
-                {
-                    EditorGUILayout.EndVertical();
-                    GUILayout.Label(syncVarIndicatorContent, EditorStyles.miniLabel, GUILayout.Width(EditorStyles.miniLabel.CalcSize(syncVarIndicatorContent).x));
-                    EditorGUILayout.EndHorizontal();
-                }
 
                 if (property.name == "m_Script")
                 {

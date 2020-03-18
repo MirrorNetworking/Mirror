@@ -22,10 +22,7 @@ namespace Mirror
             OP_ADD,
             OP_CLEAR,
             OP_REMOVE,
-            OP_SET,
-            // Deprecated 12/03/2019
-            [EditorBrowsable(EditorBrowsableState.Never), Obsolete("SyncDictionaries now use OP_SET instead of OP_DIRTY")]
-            OP_DIRTY
+            OP_SET
         }
 
         struct Change
