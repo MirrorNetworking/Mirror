@@ -35,14 +35,6 @@ namespace Mirror
         public bool dontDestroyOnLoad = true;
 
         /// <summary>
-        /// Controls whether the program runs when it is in the background.
-        /// <para>This is required when multiple instances of a program using networking are running on the same machine, such as when testing using localhost. But this is not recommended when deploying to mobile platforms.</para>
-        /// </summary>
-        [FormerlySerializedAs("m_RunInBackground")]
-        [Tooltip("Should the server or client keep running in the background?")]
-        public bool runInBackground = true;
-
-        /// <summary>
         /// Automatically invoke StartServer()
         /// <para>If the application is a Server Build or run with the -batchMode command line arguement, StartServer is automatically invoked.</para>
         /// </summary>
@@ -267,9 +259,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager SetupServer");
             Initialize();
 
-            if (runInBackground)
-                Application.runInBackground = true;
-
             if (authenticator != null)
             {
                 authenticator.OnStartServer();
@@ -352,9 +341,6 @@ namespace Mirror
                 authenticator.OnClientAuthenticated += OnClientAuthenticated;
             }
 
-            if (runInBackground)
-                Application.runInBackground = true;
-
             isNetworkActive = true;
 
             RegisterClientMessages();
@@ -386,11 +372,6 @@ namespace Mirror
             {
                 authenticator.OnStartClient();
                 authenticator.OnClientAuthenticated += OnClientAuthenticated;
-            }
-
-            if (runInBackground)
-            {
-                Application.runInBackground = true;
             }
 
             isNetworkActive = true;
