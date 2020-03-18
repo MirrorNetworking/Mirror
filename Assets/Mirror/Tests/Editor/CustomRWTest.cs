@@ -23,7 +23,7 @@ namespace Mirror.Tests
         {
             writer.WritePackedInt32(quest.Id);
         }
-        public static MockQuest WriteQuest(this NetworkReader reader)
+        public static MockQuest ReadQuest(this NetworkReader reader)
         {
             return new MockQuest(reader.ReadPackedInt32());
         }
