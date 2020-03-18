@@ -29,7 +29,7 @@ namespace Mirror.Tests
             // Unpack<T> has a id != msgType case that throws a FormatException.
             // let's try to trigger it.
 
-            SceneMessage message = new SceneMessage()
+            var message = new SceneMessage()
             {
                 sceneName = "Hello world",
                 sceneOperation = SceneOperation.LoadAdditive
@@ -41,30 +41,25 @@ namespace Mirror.Tests
             data[0] = 0x01;
             data[1] = 0x02;
 
-            try
+            Assert.Throws<FormatException>(delegate
             {
-                SceneMessage unpacked = MessagePacker.Unpack<SceneMessage>(data);
-                // BAD: IF WE GET HERE THEN NO EXCEPTION WAS THROWN
-                Assert.Fail();
-            }
-            catch (FormatException)
-            {
-                // GOOD
-            }
+               _ = MessagePacker.Unpack<SceneMessage>(data);
+
+            });
         }
 
         [Test]
         public void TestUnpackMessageNonGeneric()
         {
             // try a regular message
-            SceneMessage message = new SceneMessage()
+            var message = new SceneMessage()
             {
                 sceneName = "Hello world",
                 sceneOperation = SceneOperation.LoadAdditive
             };
 
             byte[] data = MessagePacker.Pack(message);
-            NetworkReader reader = new NetworkReader(data);
+            var reader = new NetworkReader(data);
 
             int msgType = MessagePacker.UnpackId(reader);
             Assert.That(msgType, Is.EqualTo(MessagePacker.GetId<SceneMessage>()));
@@ -76,7 +71,7 @@ namespace Mirror.Tests
             // try an invalid message
             Assert.Throws<EndOfStreamException>(() =>
             {
-                NetworkReader reader2 = new NetworkReader(new byte[0]);
+                var reader2 = new NetworkReader(new byte[0]);
                 int msgType2 = MessagePacker.UnpackId(reader2);
             });
         }
