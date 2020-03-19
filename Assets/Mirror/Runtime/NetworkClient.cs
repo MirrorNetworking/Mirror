@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
@@ -13,31 +12,14 @@ namespace Mirror
         Disconnected
     }
 
-    // TODO make fully static after removing obsoleted singleton!
     /// <summary>
     /// This is a network client class used by the networking system. It contains a NetworkConnection that is used to connect to a network server.
     /// <para>The <see cref="NetworkClient">NetworkClient</see> handle connection state, messages handlers, and connection configuration. There can be many <see cref="NetworkClient">NetworkClient</see> instances in a process at a time, but only one that is connected to a game server (<see cref="NetworkServer">NetworkServer</see>) that uses spawned objects.</para>
     /// <para><see cref="NetworkClient">NetworkClient</see> has an internal update function where it handles events from the transport layer. This includes asynchronous connect events, disconnect events and incoming data from a server.</para>
     /// <para>The <see cref="NetworkManager">NetworkManager</see> has a NetworkClient instance that it uses for games that it starts, but the NetworkClient may be used by itself.</para>
     /// </summary>
-    public class NetworkClient
+    public static class NetworkClient
     {
-        // Deprecated 03/25/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="NetworkClient"/> directly.
-        /// <para>Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).</para>
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly. Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).")]
-        public static NetworkClient singleton = new NetworkClient();
-
-        // Deprecated 03/25/2019
-        /// <summary>
-        /// A list of all the active network clients in the current process.
-        /// <para>This is NOT a list of all clients that are connected to the remote server, it is client instances on the local game.</para>
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly instead. There is always exactly one client.")]
-        public static List<NetworkClient> allClients => new List<NetworkClient> { singleton };
-
         /// <summary>
         /// The registered network message handlers.
         /// </summary>
@@ -228,26 +210,6 @@ namespace Mirror
             Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="Send{T}(T, int)"/> instead with no message id instead
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Send<T> instead with no message id instead")]
-        public static bool Send(short msgType, MessageBase msg)
-        {
-            if (connection != null)
-            {
-                if (connectState != ConnectState.Connected)
-                {
-                    Debug.LogError("NetworkClient Send when not connected to a server");
-                    return false;
-                }
-                return connection.Send(msgType, msg);
-            }
-            Debug.LogError("NetworkClient Send with no connection");
-            return false;
-        }
-
         /// <summary>
         /// This sends a network message with a message Id to the server. This message is sent on channel zero, which by default is the reliable channel.
         /// <para>The message must be an instance of a class derived from MessageBase.</para>
@@ -290,62 +252,6 @@ namespace Mirror
             }
         }
 
-        /* TODO use or remove
-        void GenerateConnectError(byte error)
-        {
-            Debug.LogError("Mirror Client Error Connect Error: " + error);
-            GenerateError(error);
-        }
-
-        void GenerateDataError(byte error)
-        {
-            NetworkError dataError = (NetworkError)error;
-            Debug.LogError("Mirror Client Data Error: " + dataError);
-            GenerateError(error);
-        }
-
-        void GenerateDisconnectError(byte error)
-        {
-            NetworkError disconnectError = (NetworkError)error;
-            Debug.LogError("Mirror Client Disconnect Error: " + disconnectError);
-            GenerateError(error);
-        }
-
-        void GenerateError(byte error)
-        {
-            int msgId = MessageBase.GetId<ErrorMessage>();
-            if (handlers.TryGetValue(msgId, out NetworkMessageDelegate msgDelegate))
-            {
-                ErrorMessage msg = new ErrorMessage
-                {
-                    value = error
-                };
-
-                // write the message to a local buffer
-                NetworkWriter writer = new NetworkWriter();
-                msg.Serialize(writer);
-
-                NetworkMessage netMsg = new NetworkMessage
-                {
-                    msgType = msgId,
-                    reader = new NetworkReader(writer.ToArray()),
-                    conn = connection
-                };
-                msgDelegate(netMsg);
-            }
-        }
-        */
-
-        // Deprecated 10/05/2018
-        /// <summary>
-        /// Obsolete: Use <see cref="NetworkTime.rtt"/> instead
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkTime.rtt instead")]
-        public static float GetRTT()
-        {
-            return (float)NetworkTime.rtt;
-        }
-
         internal static void RegisterSystemHandlers(bool hostMode)
         {
             // host mode client / regular client react to some messages differently.
@@ -375,30 +281,6 @@ namespace Mirror
             RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
-        {
-            if (handlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler + " - " + msgType);
-            }
-            handlers[msgType] = handler;
-        }
-
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
-        {
-            RegisterHandler((int)msgType, handler);
-        }
-
         /// <summary>
         /// Register a handler for a particular message type.
         /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
@@ -413,7 +295,7 @@ namespace Mirror
             {
                 if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler + " - " + msgType);
             }
-            handlers[msgType] = MessagePacker.MessageHandler<T>(handler, requireAuthentication);
+            handlers[msgType] = MessagePacker.MessageHandler(handler, requireAuthentication);
         }
 
         /// <summary>
@@ -426,26 +308,6 @@ namespace Mirror
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
             RegisterHandler((NetworkConnection _, T value) => { handler(value); }, requireAuthentication);
-        }
-
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(int msgType)
-        {
-            handlers.Remove(msgType);
-        }
-
-        // Deprecated 03/03/2019
-        /// <summary>
-        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(MsgType msgType)
-        {
-            UnregisterHandler((int)msgType);
         }
 
         /// <summary>
@@ -474,16 +336,6 @@ namespace Mirror
             // NetworkClient.Shutdown. we can't assume that the server is
             // supposed to be shut down too!
             Transport.activeTransport.ClientDisconnect();
-        }
-
-        // Deprecated 03/22/2019
-        /// <summary>
-        /// Obsolete: Call <see cref="Shutdown"/> instead. There is only one client.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Call Shutdown() instead. There is only one client.")]
-        public static void ShutdownAll()
-        {
-            Shutdown();
         }
     }
 }

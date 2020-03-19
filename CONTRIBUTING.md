@@ -8,7 +8,7 @@ Following these guidelines helps to communicate that you respect the time of the
 
 This is an open source project and we love to receive contributions from our community — you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the main project itself.
 
-If you haven't already, come find us in [Discord](https://discord.gg/wvesC6). We want you working on things you're excited about, and we can give you instant feedback.
+If you haven't already, come find us in [Discord](https://discord.gg/yTYe3h). We want you working on things you're excited about, and we can give you instant feedback.
 
 ### I don't want to read this whole thing I just have a question!!
 

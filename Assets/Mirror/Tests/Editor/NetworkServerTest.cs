@@ -743,7 +743,7 @@ namespace Mirror.Tests
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
             {
-                { MessagePacker.GetId<TestMessage>(), (msg => ++called) }
+                { MessagePacker.GetId<TestMessage>(), ((conn, reader, channelId) => ++called) }
             });
             NetworkServer.AddConnection(connection);
 
@@ -847,7 +847,7 @@ namespace Mirror.Tests
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
             {
-                { MessagePacker.GetId<TestMessage>(), (msg => ++called) }
+                { MessagePacker.GetId<TestMessage>(), ((conn, reader, channelId) => ++called) }
             });
             NetworkServer.AddConnection(connection);
 
@@ -922,7 +922,7 @@ namespace Mirror.Tests
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
             {
-                { MessagePacker.GetId<SpawnMessage>(), (msg => ++called) }
+                { MessagePacker.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++called) }
             });
             NetworkServer.AddConnection(connection);
 
@@ -972,7 +972,7 @@ namespace Mirror.Tests
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
             {
-                { MessagePacker.GetId<ObjectHideMessage>(), (msg => ++called) }
+                { MessagePacker.GetId<ObjectHideMessage>(), ((conn, reader, channelId) => ++called) }
             });
             NetworkServer.AddConnection(connection);
 

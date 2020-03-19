@@ -30,14 +30,17 @@ namespace Mirror
 
         [FormerlySerializedAs("m_ShowRoomGUI")]
         [SerializeField]
+        [Tooltip("This flag controls whether the default UI is shown for the room")]
         internal bool showRoomGUI = true;
 
         [FormerlySerializedAs("m_MinPlayers")]
         [SerializeField]
+        [Tooltip("Minimum number of players to auto-start the game")]
         int minPlayers = 1;
 
         [FormerlySerializedAs("m_RoomPlayerPrefab")]
         [SerializeField]
+        [Tooltip("Prefab to use for the Room Player")]
         NetworkRoomPlayer roomPlayerPrefab;
 
         /// <summary>
@@ -58,16 +61,20 @@ namespace Mirror
         [FormerlySerializedAs("m_PendingPlayers")]
         public List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
 
-        /// <summary>
-        /// These slots track players that enter the room.
-        /// <para>The slotId on players is global to the game - across all players.</para>
-        /// </summary>
-        public List<NetworkRoomPlayer> roomSlots = new List<NetworkRoomPlayer>();
+        [Header("Diagnostics")]
 
         /// <summary>
         /// True when all players have submitted a Ready message
         /// </summary>
+        [Tooltip("Diagnostic flag indicating all players are ready to play")]
         public bool allPlayersReady;
+
+        /// <summary>
+        /// These slots track players that enter the room.
+        /// <para>The slotId on players is global to the game - across all players.</para>
+        /// </summary>
+        [Tooltip("List of Room Player objects")]
+        public List<NetworkRoomPlayer> roomSlots = new List<NetworkRoomPlayer>();
 
         public override void OnValidate()
         {
