@@ -35,21 +35,12 @@ namespace Mirror
             // SyncObjects are serialized in NetworkBehaviour.OnSerialize, which
             // is always there even if we don't use SyncObjects. so we need to
             // search for SyncObjects manually.
-            // (look for 'Mirror.Sync'. not '.SyncObject' because we'd have to
-            //  check base type for that again)
-            // => scan both public and non-public fields! SyncVars can be private
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-            foreach (FieldInfo field in scriptClass.GetFields(flags))
-            {
-                if (field.FieldType.BaseType != null &&
-                    field.FieldType.BaseType.FullName != null &&
-                    field.FieldType.BaseType.FullName.Contains("Mirror.Sync"))
-                {
-                    return true;
-                }
-            }
+            // Any SyncObject should be added to syncObjects when unity creates an
+            // object so we can cheeck length of list so see if sync objects exists
+            FieldInfo syncObjectsField = scriptClass.GetField("syncObjects", BindingFlags.NonPublic | BindingFlags.Instance);
+            List<SyncObject> syncObjects = (List<SyncObject>)syncObjectsField.GetValue(serializedObject.targetObject);
 
-            return false;
+            return syncObjects.Count > 0;
         }
 
         void OnEnable()
