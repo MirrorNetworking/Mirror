@@ -13,7 +13,6 @@ namespace Mirror.Tests
 
         [SyncVar]
         public Guild guild;
-
     }
 
     public class SyncVarTest
@@ -23,7 +22,7 @@ namespace Mirror.Tests
         public void TestSettingStruct()
         {
 
-            GameObject gameObject = new GameObject();
+            var gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
 
@@ -32,7 +31,7 @@ namespace Mirror.Tests
 
             Assert.That(player.IsDirty(), Is.False, "First time object should not be dirty");
 
-            MockPlayer.Guild myGuild = new MockPlayer.Guild
+            var myGuild = new MockPlayer.Guild
             {
                 name = "Back street boys"
             };
@@ -52,7 +51,7 @@ namespace Mirror.Tests
         public void TestSyncIntervalAndClearDirtyComponents()
         {
 
-            GameObject gameObject = new GameObject();
+            var gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
             player.lastSyncTime = Time.time;
@@ -80,8 +79,7 @@ namespace Mirror.Tests
         [Test]
         public void TestSyncIntervalAndClearAllComponents()
         {
-
-            GameObject gameObject = new GameObject();
+            var gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
             player.lastSyncTime = Time.time;
@@ -110,27 +108,27 @@ namespace Mirror.Tests
         public void TestSynchronizingObjects()
         {
             // set up a "server" object
-            GameObject gameObject1 = new GameObject();
+            var gameObject1 = new GameObject();
             NetworkIdentity identity1 = gameObject1.AddComponent<NetworkIdentity>();
             MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
-            MockPlayer.Guild myGuild = new MockPlayer.Guild
+            var myGuild = new MockPlayer.Guild
             {
                 name = "Back street boys"
             };
             player1.guild = myGuild;
 
             // serialize all the data as we would for the network
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter(); // not really used in this Test
+            var ownerWriter = new NetworkWriter();
+            var observersWriter = new NetworkWriter(); // not really used in this Test
             identity1.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // set up a "client" object
-            GameObject gameObject2 = new GameObject();
+            var gameObject2 = new GameObject();
             NetworkIdentity identity2 = gameObject2.AddComponent<NetworkIdentity>();
             MockPlayer player2 = gameObject2.AddComponent<MockPlayer>();
 
             // apply all the data from the server object
-            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            var reader = new NetworkReader(ownerWriter.ToArray());
             identity2.OnDeserializeAllSafely(reader, true);
 
             // check that the syncvars got updated
@@ -140,7 +138,7 @@ namespace Mirror.Tests
         [Test]
         public void TestSyncModeObserversMask()
         {
-            GameObject gameObject1 = new GameObject();
+            var gameObject1 = new GameObject();
             NetworkIdentity identity = gameObject1.AddComponent<NetworkIdentity>();
             MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
             player1.syncInterval = 0;
