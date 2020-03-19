@@ -17,6 +17,8 @@ namespace Mirror
         bool syncsAnything;
         bool[] showSyncLists;
 
+        // this might be able to be removed right away as it is internal and has no references
+        [System.Obsolete("Override OnInspectorGUI instead")]
         internal virtual bool HideScriptField => false;
 
         // does this type sync anything? otherwise we don't need to show syncInterval
@@ -95,35 +97,7 @@ namespace Mirror
                 Init(targetScript);
             }
 
-            EditorGUI.BeginChangeCheck();
-            serializedObject.Update();
-
-            // Loop through properties and create one field (including children) for each top level property.
-            SerializedProperty property = serializedObject.GetIterator();
-            bool expanded = true;
-            while (property.NextVisible(expanded))
-            {
-                if (property.name == "m_Script")
-                {
-                    if (HideScriptField)
-                    {
-                        continue;
-                    }
-
-                    EditorGUI.BeginDisabledGroup(true);
-                }
-
-                EditorGUILayout.PropertyField(property, true);
-
-                if (property.name == "m_Script")
-                {
-                    EditorGUI.EndDisabledGroup();
-                }
-
-                expanded = false;
-            }
-            serializedObject.ApplyModifiedProperties();
-            EditorGUI.EndChangeCheck();
+            DrawDefaultInspector();
 
             // find SyncLists.. they are not properties.
             int syncListIndex = 0;
