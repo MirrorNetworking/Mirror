@@ -61,11 +61,10 @@ namespace Mirror
             initialized = true;
             Type scriptClass = script.GetClass();
 
-            // find public SyncVars to show (user doesn't want protected ones to be shown in inspector)
-            foreach (FieldInfo field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            syncVarNames = new List<string>();
+            foreach (FieldInfo field in InspectorHelper.GetAllFields(scriptClass, typeof(NetworkBehaviour)))
             {
-                Attribute[] fieldMarkers = (Attribute[])field.GetCustomAttributes(typeof(SyncVarAttribute), true);
-                if (fieldMarkers.Length > 0)
+                if (field.IsSyncVar() && field.IsVisibleInInspector())
                 {
                     syncVarNames.Add(field.Name);
                 }
