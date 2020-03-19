@@ -7,7 +7,13 @@ namespace Mirror
 {
     public static class InspectorHelper
     {
-        public static IEnumerable<FieldInfo> GetAllFields(Type type, Type deepestBaseType = null)
+        /// <summary>
+        /// Gets all public and private fields for a type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="deepestBaseType">Stops at this base type (exclusive)</param>
+        /// <returns></returns>
+        public static IEnumerable<FieldInfo> GetAllFields(Type type, Type deepestBaseType)
         {
             const BindingFlags publicFields = BindingFlags.Public | BindingFlags.Instance;
             const BindingFlags privateFields = BindingFlags.NonPublic | BindingFlags.Instance;
