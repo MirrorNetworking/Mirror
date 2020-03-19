@@ -1,3 +1,10 @@
+# [19.1.0](https://github.com/MirrorNG/MirrorNG/compare/19.0.1-master...19.1.0-master) (2020-03-19)
+
+
+### Features
+
+* Now you can pass NetworkIdentity and GameObjects ([#83](https://github.com/MirrorNG/MirrorNG/issues/83)) ([dca2d40](https://github.com/MirrorNG/MirrorNG/commit/dca2d4056fe613793480b378d25509284a1fd46a))
+
 ## [19.0.1](https://github.com/MirrorNG/MirrorNG/compare/19.0.0-master...19.0.1-master) (2020-03-17)
 
 
