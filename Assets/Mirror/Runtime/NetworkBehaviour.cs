@@ -533,6 +533,9 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
         {
+            if (!isServer && !isClient)
+                return gameObjectField;
+
             // server always uses the field
             if (isServer)
             {
@@ -543,6 +546,7 @@ namespace Mirror
             // over and over again, which shouldn't null them forever
             if (client.Spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
                 return gameObjectField = identity.gameObject;
+
             return null;
         }
 

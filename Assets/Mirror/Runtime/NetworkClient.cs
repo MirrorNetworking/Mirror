@@ -175,13 +175,21 @@ namespace Mirror
             connection?.InvokeHandler(new DisconnectMessage(), -1);
         }
 
+        /// <summary>
+        /// client that received the message
+        /// </summary>
+        /// <remarks>This is a hack, but it is needed to deserialize
+        /// gameobjects when processing the message</remarks>
+        /// 
+        internal static NetworkClient Current { get; set; }
+
         internal void OnDataReceived(ArraySegment<byte> data, int channelId)
         {
             if (connection != null)
             {
                 connection.TransportReceive(data, channelId);
             }
-            else Debug.LogError("Skipped Data message handling because connection is null.");
+            else throw new InvalidOperationException("Skipped Data message handling because connection is null.");
         }
 
         void OnConnected()

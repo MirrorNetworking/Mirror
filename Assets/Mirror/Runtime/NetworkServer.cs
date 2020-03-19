@@ -410,6 +410,14 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server lost client:" + conn);
         }
 
+        /// <summary>
+        /// server that received the message
+        /// </summary>
+        /// <remarks>This is a hack, but it is needed to deserialize
+        /// gameobjects when processing the message</remarks>
+        /// 
+        internal static NetworkServer Current;
+
         void OnDataReceived(int connectionId, ArraySegment<byte> data, int channelId)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))

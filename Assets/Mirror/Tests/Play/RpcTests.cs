@@ -17,6 +17,14 @@ namespace Mirror.Tests
             this.cmdArg2 = arg2;
         }
 
+        public NetworkIdentity cmdNi;
+
+        [Command]
+        public void CmdNetworkIdentity(NetworkIdentity ni)
+        {
+            this.cmdNi = ni;
+        }
+
         public int rpcArg1;
         public string rpcArg2;
 
@@ -71,6 +79,14 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void CommandWithNetworkIdentity()
+        {
+            component.CmdNetworkIdentity(identity);
+
+            Assert.That(component.cmdNi, Is.SameAs(identity));
+        }
+
+        [Test]
         public void ClientRpc()
         {
 
@@ -93,5 +109,6 @@ namespace Mirror.Tests
             Assert.That(component.targetRpcArg1, Is.EqualTo(1));
             Assert.That(component.targetRpcArg2, Is.EqualTo("hello"));
         }
+
     }
 }

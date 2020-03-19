@@ -824,6 +824,9 @@ namespace Mirror
 
         internal void OnDeserializeAllSafely(NetworkReader reader, bool initialState)
         {
+            // hack needed so that we can deserialize gameobjects and NI
+
+            NetworkClient.Current = client;
             // read component dirty mask
             ulong dirtyComponentsMask = reader.ReadPackedUInt64();
 
@@ -848,6 +851,11 @@ namespace Mirror
                 Debug.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + netId + "]");
                 return;
             }
+
+            // hack sets the current client and server so that we can deserialize
+            // gameobjects and network identities in the reader
+            NetworkClient.Current = client;
+            NetworkServer.Current = server;
 
             // find the right component to invoke the function on
             if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
