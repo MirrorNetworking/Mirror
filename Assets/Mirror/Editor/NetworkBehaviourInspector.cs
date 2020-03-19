@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -13,11 +12,44 @@ namespace Mirror
     public class NetworkBehaviourInspector : Editor
     {
         bool initialized;
-        protected List<string> syncVarNames = new List<string>();
         bool syncsAnything;
-        bool[] showSyncLists;
+        SyncListDrawer syncListDrawer;
+        /// <summary>
+        /// List of all visable syncVars in target class
+        /// </summary>
+        protected List<string> syncVarNames = new List<string>();
 
+        [System.Obsolete("Override OnInspectorGUI instead")]
         internal virtual bool HideScriptField => false;
+
+        void OnEnable()
+        {
+            Init();
+        }
+
+        void Init()
+        {
+            serializedObject.Update();
+            UnityEngine.Object target = serializedObject.targetObject;
+            if (target == null) { Debug.LogWarningFormat("NetworkBehaviourInspector had no target object", serializedObject.context); return; }
+
+            initialized = true;
+            Type targetClass = target.GetType();
+
+            // find visable SyncVars to show (user doesn't want protected ones to be shown in inspector)
+            syncVarNames = new List<string>();
+            foreach (FieldInfo field in InspectorHelper.GetAllFields(targetClass, typeof(NetworkBehaviour)))
+            {
+                if (field.IsSyncVar() && field.IsVisableInInspector())
+                {
+                    syncVarNames.Add(field.Name);
+                }
+            }
+
+            syncListDrawer = new SyncListDrawer(serializedObject.targetObject);
+
+            syncsAnything = SyncsAnything(targetClass);
+        }
 
         // does this type sync anything? otherwise we don't need to show syncInterval
         bool SyncsAnything(Type scriptClass)
@@ -31,153 +63,112 @@ namespace Mirror
                 return true;
             }
 
+
             // SyncObjects are serialized in NetworkBehaviour.OnSerialize, which
             // is always there even if we don't use SyncObjects. so we need to
             // search for SyncObjects manually.
-            // (look for 'Mirror.Sync'. not '.SyncObject' because we'd have to
-            //  check base type for that again)
-            // => scan both public and non-public fields! SyncVars can be private
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-            foreach (FieldInfo field in scriptClass.GetFields(flags))
-            {
-                if (field.FieldType.BaseType != null &&
-                    field.FieldType.BaseType.FullName != null &&
-                    field.FieldType.BaseType.FullName.Contains("Mirror.Sync"))
-                {
-                    return true;
-                }
-            }
+            // Any SyncObject should be added to syncObjects when unity creates an
+            // object so we can cheeck length of list so see if sync objects exists
+            FieldInfo syncObjectsField = scriptClass.GetField("syncObjects", BindingFlags.NonPublic | BindingFlags.Instance);
+            List<SyncObject> syncObjects = (List<SyncObject>)syncObjectsField.GetValue(serializedObject.targetObject);
 
-            return false;
-        }
-
-        void OnEnable()
-        {
-            initialized = false;
-        }
-
-        void Init(MonoScript script)
-        {
-            initialized = true;
-            Type scriptClass = script.GetClass();
-
-            // find public SyncVars to show (user doesn't want protected ones to be shown in inspector)
-            foreach (FieldInfo field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
-            {
-                Attribute[] fieldMarkers = (Attribute[])field.GetCustomAttributes(typeof(SyncVarAttribute), true);
-                if (fieldMarkers.Length > 0)
-                {
-                    syncVarNames.Add(field.Name);
-                }
-            }
-
-            int numSyncLists = scriptClass.GetFields().Count(
-                field => field.FieldType.BaseType != null &&
-                         field.FieldType.BaseType.Name.Contains("SyncList"));
-            if (numSyncLists > 0)
-            {
-                showSyncLists = new bool[numSyncLists];
-            }
-
-            syncsAnything = SyncsAnything(scriptClass);
+            return syncObjects.Count > 0;
         }
 
         public override void OnInspectorGUI()
         {
-            if (!initialized)
-            {
-                serializedObject.Update();
-                SerializedProperty scriptProperty = serializedObject.FindProperty("m_Script");
-                if (scriptProperty == null)
-                    return;
+            DrawDefaultInspector();
 
-                MonoScript targetScript = scriptProperty.objectReferenceValue as MonoScript;
-                Init(targetScript);
-            }
+            DrawDefaultSyncLists();
+            DrawDefaultSyncSettings();
+        }
 
-            EditorGUI.BeginChangeCheck();
-            serializedObject.Update();
-
-            // Loop through properties and create one field (including children) for each top level property.
-            SerializedProperty property = serializedObject.GetIterator();
-            bool expanded = true;
-            while (property.NextVisible(expanded))
-            {
-                if (property.name == "m_Script")
-                {
-                    if (HideScriptField)
-                    {
-                        continue;
-                    }
-
-                    EditorGUI.BeginDisabledGroup(true);
-                }
-
-                EditorGUILayout.PropertyField(property, true);
-
-                if (property.name == "m_Script")
-                {
-                    EditorGUI.EndDisabledGroup();
-                }
-
-                expanded = false;
-            }
-            serializedObject.ApplyModifiedProperties();
-            EditorGUI.EndChangeCheck();
-
-            // find SyncLists.. they are not properties.
-            int syncListIndex = 0;
-            foreach (FieldInfo field in serializedObject.targetObject.GetType().GetFields())
-            {
-                if (field.FieldType.BaseType != null && field.FieldType.BaseType.Name.Contains("SyncList"))
-                {
-                    showSyncLists[syncListIndex] = EditorGUILayout.Foldout(showSyncLists[syncListIndex], "SyncList " + field.Name + "  [" + field.FieldType.Name + "]");
-                    if (showSyncLists[syncListIndex])
-                    {
-                        EditorGUI.indentLevel += 1;
-                        if (field.GetValue(serializedObject.targetObject) is IEnumerable synclist)
-                        {
-                            int index = 0;
-                            IEnumerator enu = synclist.GetEnumerator();
-                            while (enu.MoveNext())
-                            {
-                                if (enu.Current != null)
-                                {
-                                    EditorGUILayout.LabelField("Item:" + index, enu.Current.ToString());
-                                }
-                                index += 1;
-                            }
-                        }
-                        EditorGUI.indentLevel -= 1;
-                    }
-                    syncListIndex += 1;
-                }
-            }
-
+        protected void DrawDefaultSyncLists()
+        {
+            syncListDrawer.Draw();
+        }
+        protected void DrawDefaultSyncSettings()
+        {
             // does it sync anything? then show extra properties
             // (no need to show it if the class only has Cmds/Rpcs and no sync)
-            if (syncsAnything)
+            if (!syncsAnything)
             {
-                NetworkBehaviour networkBehaviour = target as NetworkBehaviour;
-                if (networkBehaviour != null)
+                return;
+            }
+
+            EditorGUILayout.LabelField("Sync Settings", EditorStyles.boldLabel);
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
+
+            // apply
+            serializedObject.ApplyModifiedProperties();
+        }
+    }
+    public class SyncListDrawer
+    {
+        private readonly UnityEngine.Object targetObject;
+        private readonly List<SyncListField> syncListFields;
+
+        public SyncListDrawer(UnityEngine.Object targetObject)
+        {
+            this.targetObject = targetObject;
+            syncListFields = new List<SyncListField>();
+            foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
+            {
+                if (field.IsSyncList() && field.IsVisableInInspector())
                 {
-                    EditorGUILayout.LabelField("Sync Settings", EditorStyles.boldLabel);
-
-                    // syncMode
-                    serializedObject.FindProperty("syncMode").enumValueIndex = (int)(SyncMode)
-                        EditorGUILayout.EnumPopup("Network Sync Mode", networkBehaviour.syncMode);
-
-                    // syncInterval
-                    // [0,2] should be enough. anything >2s is too laggy anyway.
-                    serializedObject.FindProperty("syncInterval").floatValue = EditorGUILayout.Slider(
-                        new GUIContent("Network Sync Interval",
-                                       "Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)"),
-                        networkBehaviour.syncInterval, 0, 2);
-
-                    // apply
-                    serializedObject.ApplyModifiedProperties();
+                    syncListFields.Add(new SyncListField(field));
                 }
             }
         }
+
+        public void Draw()
+        {
+            if (syncListFields.Count == 0) { return; }
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Sync Lists", EditorStyles.boldLabel);
+
+            for (int i = 0; i < syncListFields.Count; i++)
+            {
+                drawSyncList(i);
+            }
+        }
+
+        void drawSyncList(int i)
+        {
+            syncListFields[i].visable = EditorGUILayout.Foldout(syncListFields[i].visable, syncListFields[i].label);
+            if (syncListFields[i].visable)
+            {
+                using (new EditorGUI.IndentLevelScope())
+                {
+                    if (syncListFields[i].field.GetValue(targetObject) is IEnumerable synclist)
+                    {
+                        int index = 0;
+                        foreach (object item in synclist)
+                        {
+                            EditorGUILayout.LabelField("Element " + index, item.ToString());
+
+                            index += 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        class SyncListField
+        {
+            public bool visable;
+            public readonly FieldInfo field;
+            public readonly string label;
+
+            public SyncListField(FieldInfo field)
+            {
+                this.field = field;
+                visable = false;
+                label = field.Name + "  [" + field.FieldType.Name + "]";
+            }
+        }
     }
-} //namespace
+}

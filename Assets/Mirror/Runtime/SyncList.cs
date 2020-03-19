@@ -35,8 +35,12 @@ namespace Mirror
         protected override bool DeserializeItem(NetworkReader reader) => reader.ReadBoolean();
     }
 
+    /// <summary>
+    /// Used to find SyncList for Inspector
+    /// </summary>
+    public interface ISyncList { }
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncList<T> : IList<T>, IReadOnlyList<T>, SyncObject
+    public abstract class SyncList<T> : IList<T>, IReadOnlyList<T>, SyncObject, ISyncList
     {
         public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem);
 

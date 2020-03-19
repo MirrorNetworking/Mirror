@@ -82,4 +82,13 @@ namespace Mirror
     /// Converts a string property into a Scene property in the inspector
     /// </summary>
     public class SceneAttribute : PropertyAttribute { }
+
+
+    /// <summary>
+    /// Used to show private SyncList in the inspector
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class ShowInInspectorAttribute : Attribute
+    {
+    }
 }
