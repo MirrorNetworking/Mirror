@@ -12,6 +12,10 @@ namespace Mirror
     [CanEditMultipleObjects]
     public class NetworkBehaviourInspector : Editor
     {
+        bool initialized;
+        /// <summary>
+        /// List of all visible syncVars in target class
+        /// </summary>
         protected List<string> syncVarNames = new List<string>();
         bool syncsAnything;
         bool[] showSyncLists;
@@ -55,11 +59,10 @@ namespace Mirror
 
             Type scriptClass = targetScript.GetClass();
 
-            // find public SyncVars to show (user doesn't want protected ones to be shown in inspector)
-            foreach (FieldInfo field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            syncVarNames = new List<string>();
+            foreach (FieldInfo field in InspectorHelper.GetAllFields(scriptClass, typeof(NetworkBehaviour)))
             {
-                Attribute[] fieldMarkers = (Attribute[])field.GetCustomAttributes(typeof(SyncVarAttribute), true);
-                if (fieldMarkers.Length > 0)
+                if (field.IsSyncVar() && field.IsVisibleInInspector())
                 {
                     syncVarNames.Add(field.Name);
                 }
