@@ -12,7 +12,6 @@ namespace Mirror
     [CanEditMultipleObjects]
     public class NetworkBehaviourInspector : Editor
     {
-        bool initialized;
         protected List<string> syncVarNames = new List<string>();
         bool syncsAnything;
         bool[] showSyncLists;
@@ -55,13 +54,15 @@ namespace Mirror
 
         void OnEnable()
         {
-            initialized = false;
-        }
+            serializedObject.Update();
+            SerializedProperty scriptProperty = serializedObject.FindProperty("m_Script");
+            if (scriptProperty == null)
+                return;
 
-        void Init(MonoScript script)
-        {
-            initialized = true;
-            Type scriptClass = script.GetClass();
+            MonoScript targetScript = scriptProperty.objectReferenceValue as MonoScript;
+
+
+            Type scriptClass = targetScript.GetClass();
 
             // find public SyncVars to show (user doesn't want protected ones to be shown in inspector)
             foreach (FieldInfo field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
@@ -86,19 +87,7 @@ namespace Mirror
 
         public override void OnInspectorGUI()
         {
-            if (!initialized)
-            {
-                serializedObject.Update();
-                SerializedProperty scriptProperty = serializedObject.FindProperty("m_Script");
-                if (scriptProperty == null)
-                    return;
-
-                MonoScript targetScript = scriptProperty.objectReferenceValue as MonoScript;
-                Init(targetScript);
-            }
-
             DrawDefaultInspector();
-
             // find SyncLists.. they are not properties.
             int syncListIndex = 0;
             foreach (FieldInfo field in serializedObject.targetObject.GetType().GetFields())
