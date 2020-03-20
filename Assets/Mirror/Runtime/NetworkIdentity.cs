@@ -712,10 +712,8 @@ namespace Mirror
 
         // serialize all components (or only dirty ones if not initial state)
         // -> check ownerWritten/observersWritten to know if anything was written
-        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
+        internal (int ownerWritten, int observersWritten) OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
-            // clear 'written' variables
-            ownerWritten = observersWritten = 0;
 
             if (NetworkBehaviours.Length > 64)
             {
@@ -725,7 +723,7 @@ namespace Mirror
             ulong dirtyComponentsMask = GetDirtyMask(initialState);
 
             if (dirtyComponentsMask == 0L)
-                return;
+                return (0,0);
 
             // calculate syncMode mask at runtime. this allows users to change
             // component.syncMode while the game is running, which can be a huge
@@ -737,6 +735,9 @@ namespace Mirror
             //  GetComponents<NetworkBehaviour> before all the test behaviours
             //  were added)
             ulong syncModeObserversMask = GetSyncModeObserversMask();
+
+            int ownerWritten = 0;
+            int observersWritten = 0;
 
             // write regular dirty mask for owner,
             // writer 'dirty mask & syncMode==Everyone' for everyone else
@@ -777,6 +778,8 @@ namespace Mirror
                     }
                 }
             }
+
+            return (ownerWritten, observersWritten);
         }
 
         internal ulong GetDirtyMask(bool initialState)
@@ -1183,7 +1186,7 @@ namespace Mirror
                 using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
                 {
                     // serialize all the dirty components and send (if any were dirty)
-                    OnSerializeAllSafely(false, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                    (int ownerWritten, int observersWritten) = OnSerializeAllSafely(false, ownerWriter, observersWriter);
                     if (ownerWritten > 0 || observersWritten > 0)
                     {
                         // populate cached UpdateVarsMessage and send
