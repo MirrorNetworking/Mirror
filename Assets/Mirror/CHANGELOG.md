@@ -1,3 +1,23 @@
+# [20.0.0](https://github.com/MirrorNG/MirrorNG/compare/19.1.2-master...20.0.0-master) (2020-03-20)
+
+
+### Bug Fixes
+
+* compilation issue after merge from mirror ([daf07be](https://github.com/MirrorNG/MirrorNG/commit/daf07bea83c9925bd780e23de53dd50604e8a999))
+
+
+* merge clientscene and networkclient (#84) ([dee1046](https://github.com/MirrorNG/MirrorNG/commit/dee10460325119337401dc4d237dec8bfb9ddb29)), closes [#84](https://github.com/MirrorNG/MirrorNG/issues/84)
+
+
+### Features
+
+* SyncSet and SyncDictionary now show in inspector ([#1561](https://github.com/MirrorNG/MirrorNG/issues/1561)) ([5510711](https://github.com/MirrorNG/MirrorNG/commit/55107115c66ea38b75edf4a912b5cc48351128f7))
+
+
+### BREAKING CHANGES
+
+* ClientScene is gone
+
 ## [19.1.2](https://github.com/MirrorNG/MirrorNG/compare/19.1.1-master...19.1.2-master) (2020-03-20)
 
 
