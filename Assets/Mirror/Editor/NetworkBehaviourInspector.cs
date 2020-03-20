@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -17,7 +16,7 @@ namespace Mirror
         /// </summary>
         protected List<string> syncVarNames = new List<string>();
         bool syncsAnything;
-        bool[] showSyncLists;
+        SyncListDrawer syncListDrawer;
 
         // does this type sync anything? otherwise we don't need to show syncInterval
         bool SyncsAnything(Type scriptClass)
@@ -58,13 +57,7 @@ namespace Mirror
                 }
             }
 
-            int numSyncLists = InspectorHelper.GetAllFields(serializedObject.targetObject.GetType(), typeof(NetworkBehaviour))
-                .Count(field => field.IsSyncObject() && field.IsVisibleSyncObject());
-
-            if (numSyncLists > 0)
-            {
-                showSyncLists = new bool[numSyncLists];
-            }
+            syncListDrawer = new SyncListDrawer(serializedObject.targetObject);
 
             syncsAnything = SyncsAnything(scriptClass);
         }
@@ -81,40 +74,7 @@ namespace Mirror
         /// </summary>
         protected void DrawDefaultSyncLists()
         {
-            if (showSyncLists.Length > 0)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Sync Lists", EditorStyles.boldLabel);
-            }
-
-            // find SyncLists.. they are not properties.
-            int syncListIndex = 0;
-            foreach (FieldInfo field in InspectorHelper.GetAllFields(serializedObject.targetObject.GetType(), typeof(NetworkBehaviour)))
-            {
-                if (field.IsSyncObject() && field.IsVisibleSyncObject())
-                {
-                    showSyncLists[syncListIndex] = EditorGUILayout.Foldout(showSyncLists[syncListIndex], "SyncList " + field.Name + "  [" + field.FieldType.Name + "]");
-                    if (showSyncLists[syncListIndex])
-                    {
-                        EditorGUI.indentLevel += 1;
-                        if (field.GetValue(serializedObject.targetObject) is IEnumerable synclist)
-                        {
-                            int index = 0;
-                            IEnumerator enu = synclist.GetEnumerator();
-                            while (enu.MoveNext())
-                            {
-                                if (enu.Current != null)
-                                {
-                                    EditorGUILayout.LabelField("Item:" + index, enu.Current.ToString());
-                                }
-                                index += 1;
-                            }
-                        }
-                        EditorGUI.indentLevel -= 1;
-                    }
-                    syncListIndex += 1;
-                }
-            }
+            syncListDrawer.Draw();
         }
 
         /// <summary>
@@ -137,6 +97,75 @@ namespace Mirror
 
             // apply
             serializedObject.ApplyModifiedProperties();
+        }
+    }
+    public class SyncListDrawer
+    {
+        private readonly UnityEngine.Object targetObject;
+        private readonly List<SyncListField> syncListFields;
+
+        public SyncListDrawer(UnityEngine.Object targetObject)
+        {
+            this.targetObject = targetObject;
+            syncListFields = new List<SyncListField>();
+            foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
+            {
+                if (field.IsSyncObject() && field.IsVisibleSyncObject())
+                {
+                    syncListFields.Add(new SyncListField(field));
+                }
+            }
+        }
+
+        public void Draw()
+        {
+            if (syncListFields.Count == 0) { return; }
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Sync Lists", EditorStyles.boldLabel);
+
+            for (int i = 0; i < syncListFields.Count; i++)
+            {
+                drawSyncList(syncListFields[i]);
+            }
+        }
+
+        void drawSyncList(SyncListField syncListField)
+        {
+            syncListField.visible = EditorGUILayout.Foldout(syncListField.visible, syncListField.label);
+            if (syncListField.visible)
+            {
+                using (new EditorGUI.IndentLevelScope())
+                {
+                    object fieldValue = syncListField.field.GetValue(targetObject);
+                    if (fieldValue is IEnumerable synclist)
+                    {
+                        int index = 0;
+                        foreach (object item in synclist)
+                        {
+                            string itemValue = item != null ? item.ToString() : "NULL";
+                            string itemLabel = "Element " + index;
+                            EditorGUILayout.LabelField(itemLabel, itemValue);
+
+                            index++;
+                        }
+                    }
+                }
+            }
+        }
+
+        class SyncListField
+        {
+            public bool visible;
+            public readonly FieldInfo field;
+            public readonly string label;
+
+            public SyncListField(FieldInfo field)
+            {
+                this.field = field;
+                visible = false;
+                label = field.Name + "  [" + field.FieldType.Name + "]";
+            }
         }
     }
 } //namespace
