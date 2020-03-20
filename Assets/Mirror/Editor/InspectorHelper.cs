@@ -54,7 +54,7 @@ namespace Mirror
             object[] fieldMarkers = field.GetCustomAttributes(typeof(SerializeField), true);
             return fieldMarkers.Length > 0;
         }
-        public static bool IsVisibleInInspector(this FieldInfo field)
+        public static bool IsVisibleField(this FieldInfo field)
         {
             return field.IsPublic || IsSerializeField(field);
         }

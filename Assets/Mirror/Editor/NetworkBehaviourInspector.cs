@@ -62,7 +62,7 @@ namespace Mirror
             syncVarNames = new List<string>();
             foreach (FieldInfo field in InspectorHelper.GetAllFields(scriptClass, typeof(NetworkBehaviour)))
             {
-                if (field.IsSyncVar() && field.IsVisibleInInspector())
+                if (field.IsSyncVar() && field.IsVisibleField())
                 {
                     syncVarNames.Add(field.Name);
                 }
