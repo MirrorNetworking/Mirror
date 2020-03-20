@@ -61,7 +61,7 @@ namespace Mirror
 
         public static bool IsSyncObject(this FieldInfo field)
         {
-            return typeof(SyncObject).IsAssignableFrom(field.FieldType);
+            return typeof(ISyncObject).IsAssignableFrom(field.FieldType);
         }
         public static bool HasShowInInspector(this FieldInfo field)
         {
