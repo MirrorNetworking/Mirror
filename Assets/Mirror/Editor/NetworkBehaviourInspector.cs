@@ -80,6 +80,9 @@ namespace Mirror
             DrawDefaultSyncSettings();
         }
 
+        /// <summary>
+        /// Draws Sync Objects that are IEnumerable
+        /// </summary>
         protected void DrawDefaultSyncLists()
         {
             if (showSyncLists.Length > 0)
@@ -118,6 +121,9 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Draws SyncSettings if the NetworkBehaviour has anything to sync
+        /// </summary>
         protected void DrawDefaultSyncSettings()
         {
             // does it sync anything? then show extra properties
