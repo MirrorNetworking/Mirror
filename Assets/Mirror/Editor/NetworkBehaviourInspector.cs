@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -43,15 +44,10 @@ namespace Mirror
 
         void OnEnable()
         {
-            serializedObject.Update();
-            SerializedProperty scriptProperty = serializedObject.FindProperty("m_Script");
-            if (scriptProperty == null)
-                return;
+            UnityEngine.Object target = serializedObject.targetObject;
+            if (target == null) { Debug.LogWarning("NetworkBehaviourInspector had no target object", serializedObject.context); return; }
 
-            MonoScript targetScript = scriptProperty.objectReferenceValue as MonoScript;
-
-
-            Type scriptClass = targetScript.GetClass();
+            Type scriptClass = target.GetType();
 
             syncVarNames = new List<string>();
             foreach (FieldInfo field in InspectorHelper.GetAllFields(scriptClass, typeof(NetworkBehaviour)))
