@@ -1,3 +1,10 @@
+## [20.0.1](https://github.com/MirrorNG/MirrorNG/compare/20.0.0-master...20.0.1-master) (2020-03-20)
+
+
+### Bug Fixes
+
+* NRE when destroying all objects ([#85](https://github.com/MirrorNG/MirrorNG/issues/85)) ([71e78a7](https://github.com/MirrorNG/MirrorNG/commit/71e78a7f5e15f99af89cd15c1ddd8a975e463916))
+
 # [20.0.0](https://github.com/MirrorNG/MirrorNG/compare/19.1.2-master...20.0.0-master) (2020-03-20)
 
 
