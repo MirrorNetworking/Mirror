@@ -77,6 +77,13 @@ namespace Mirror
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
+
+            if (showSyncLists.Length > 0)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Sync Lists", EditorStyles.boldLabel);
+            }
+
             // find SyncLists.. they are not properties.
             int syncListIndex = 0;
             foreach (FieldInfo field in InspectorHelper.GetAllFields(serializedObject.targetObject.GetType(), typeof(NetworkBehaviour)))
@@ -113,6 +120,7 @@ namespace Mirror
                 NetworkBehaviour networkBehaviour = target as NetworkBehaviour;
                 if (networkBehaviour != null)
                 {
+                    EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Sync Settings", EditorStyles.boldLabel);
 
                     // syncMode
