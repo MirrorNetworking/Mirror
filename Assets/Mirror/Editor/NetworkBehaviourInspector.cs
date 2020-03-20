@@ -69,7 +69,7 @@ namespace Mirror
             }
 
             int numSyncLists = InspectorHelper.GetAllFields(serializedObject.targetObject.GetType(), typeof(NetworkBehaviour))
-                .Count(field => field.HasShowSyncObjectInInspector() && field.IsVisibleSyncObject());
+                .Count(field => field.IsSyncObject() && field.IsVisibleSyncObject());
 
             if (numSyncLists > 0)
             {
@@ -86,7 +86,7 @@ namespace Mirror
             int syncListIndex = 0;
             foreach (FieldInfo field in InspectorHelper.GetAllFields(serializedObject.targetObject.GetType(), typeof(NetworkBehaviour)))
             {
-                if (field.HasShowSyncObjectInInspector() && field.IsVisibleSyncObject())
+                if (field.IsSyncObject() && field.IsVisibleSyncObject())
                 {
                     showSyncLists[syncListIndex] = EditorGUILayout.Foldout(showSyncLists[syncListIndex], "SyncList " + field.Name + "  [" + field.FieldType.Name + "]");
                     if (showSyncLists[syncListIndex])
