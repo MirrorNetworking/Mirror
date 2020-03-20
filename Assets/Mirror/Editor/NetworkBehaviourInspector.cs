@@ -43,7 +43,6 @@ namespace Mirror
 
         void OnEnable()
         {
-            UnityEngine.Object target = serializedObject.targetObject;
             if (target == null) { Debug.LogWarning("NetworkBehaviourInspector had no target object", serializedObject.context); return; }
 
             Type scriptClass = target.GetType();
