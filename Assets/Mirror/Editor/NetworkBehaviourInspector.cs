@@ -133,8 +133,6 @@ namespace Mirror
                 return;
             }
 
-            NetworkBehaviour networkBehaviour = (NetworkBehaviour)target;
-
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Sync Settings", EditorStyles.boldLabel);
 
