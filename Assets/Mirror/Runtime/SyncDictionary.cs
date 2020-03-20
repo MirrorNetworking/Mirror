@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,6 +6,7 @@ using JetBrains.Annotations;
 namespace Mirror
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
+    [ShowSyncObjectInInspector]
     public abstract class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject
     {
         public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
