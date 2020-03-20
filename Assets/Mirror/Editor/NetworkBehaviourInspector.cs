@@ -77,7 +77,12 @@ namespace Mirror
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
+            DrawDefaultSyncLists();
+            DrawDefaultSyncSettings();
+        }
 
+        protected void DrawDefaultSyncLists()
+        {
             if (showSyncLists.Length > 0)
             {
                 EditorGUILayout.Space();
@@ -112,7 +117,10 @@ namespace Mirror
                     syncListIndex += 1;
                 }
             }
+        }
 
+        protected void DrawDefaultSyncSettings()
+        {
             // does it sync anything? then show extra properties
             // (no need to show it if the class only has Cmds/Rpcs and no sync)
             if (syncsAnything)
