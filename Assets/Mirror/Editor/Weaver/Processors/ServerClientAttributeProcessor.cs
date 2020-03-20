@@ -5,7 +5,7 @@ using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
-    class ServerClientAttributeProcessor
+    static class ServerClientAttributeProcessor
     {
         public static void ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
         {
@@ -25,9 +25,12 @@ namespace Mirror.Weaver
                     case "Mirror.ClientCallbackAttribute":
                         InjectClientGuard(td, md, false);
                         break;
+                    default:
+                        break;
                 }
             }
         }
+
         static void InjectServerGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
         {
             if (!Weaver.IsNetworkBehaviour(td))
@@ -72,7 +75,6 @@ namespace Mirror.Weaver
             InjectGuardReturnValue(md, worker, top);
             worker.InsertBefore(top, worker.Create(OpCodes.Ret));
         }
-
 
         // this is required to early-out from a function with "ref" or "out" parameters
         static void InjectGuardParameters(MethodDefinition md, ILProcessor worker, Instruction top)
