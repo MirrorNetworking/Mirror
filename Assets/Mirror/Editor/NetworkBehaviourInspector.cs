@@ -43,7 +43,7 @@ namespace Mirror
 
         void OnEnable()
         {
-            if (target == null) { Debug.LogWarning("NetworkBehaviourInspector had no target object", serializedObject.context); return; }
+            if (target == null) { Debug.LogWarning("NetworkBehaviourInspector had no target object"); return; }
 
             Type scriptClass = target.GetType();
 
