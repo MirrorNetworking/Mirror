@@ -68,9 +68,9 @@ namespace Mirror
                 }
             }
 
-            int numSyncLists = scriptClass.GetFields().Count(
-                field => field.FieldType.BaseType != null &&
-                         field.FieldType.BaseType.Name.Contains("SyncList"));
+            int numSyncLists = InspectorHelper.GetAllFields(serializedObject.targetObject.GetType(), typeof(NetworkBehaviour))
+                .Count(field => field.HasShowSyncObjectInInspector() && field.IsVisibleSyncObject());
+
             if (numSyncLists > 0)
             {
                 showSyncLists = new bool[numSyncLists];
@@ -84,9 +84,9 @@ namespace Mirror
             DrawDefaultInspector();
             // find SyncLists.. they are not properties.
             int syncListIndex = 0;
-            foreach (FieldInfo field in serializedObject.targetObject.GetType().GetFields())
+            foreach (FieldInfo field in InspectorHelper.GetAllFields(serializedObject.targetObject.GetType(), typeof(NetworkBehaviour)))
             {
-                if (field.FieldType.BaseType != null && field.FieldType.BaseType.Name.Contains("SyncList"))
+                if (field.HasShowSyncObjectInInspector() && field.IsVisibleSyncObject())
                 {
                     showSyncLists[syncListIndex] = EditorGUILayout.Foldout(showSyncLists[syncListIndex], "SyncList " + field.Name + "  [" + field.FieldType.Name + "]");
                     if (showSyncLists[syncListIndex])
