@@ -18,18 +18,24 @@ namespace Mirror
         /// This flag controls whether the default UI is shown for the room player.
         /// <para>As this UI is rendered using the old GUI system, it is only recommended for testing purposes.</para>
         /// </summary>
+        [Tooltip("This flag controls whether the default UI is shown for the room player")]
         public bool ShowRoomGUI = true;
 
+        [Header("Diagnostics")]
+
         /// <summary>
-        /// This is a flag that control whether this player is ready for the game to begin.
+        /// Diagnostic flag indicating whether this player is ready for the game to begin.
+        /// <para>Invoke CmdChangeReadyState method on the client to set this flag.</para>
         /// <para>When all players are ready to begin, the game will start. This should not be set directly, the SendReadyToBeginMessage function should be called on the client to set it on the server.</para>
         /// </summary>
+        [Tooltip("Diagnostic flag indicating whether this player is ready for the game to begin")]
         [SyncVar(hook = nameof(ReadyStateChanged))]
         public bool ReadyToBegin;
 
         /// <summary>
-        /// Current index of the player, e.g. Player1, Player2, etc.
+        /// Diagnostic index of the player, e.g. Player1, Player2, etc.
         /// </summary>
+        [Tooltip("Diagnostic index of the player, e.g. Player1, Player2, etc.")]
         [SyncVar]
         public int Index;
 
