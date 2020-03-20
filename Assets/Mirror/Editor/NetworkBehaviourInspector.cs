@@ -19,10 +19,6 @@ namespace Mirror
         bool syncsAnything;
         bool[] showSyncLists;
 
-        // this might be able to be removed right away as it is internal and has no references
-        [System.Obsolete("Override OnInspectorGUI instead")]
-        internal virtual bool HideScriptField => false;
-
         // does this type sync anything? otherwise we don't need to show syncInterval
         bool SyncsAnything(Type scriptClass)
         {
