@@ -77,6 +77,13 @@ namespace Mirror
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
+
+            if (showSyncLists.Length > 0)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Sync Lists", EditorStyles.boldLabel);
+            }
+
             // find SyncLists.. they are not properties.
             int syncListIndex = 0;
             foreach (FieldInfo field in serializedObject.targetObject.GetType().GetFields())
