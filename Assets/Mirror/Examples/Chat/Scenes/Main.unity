@@ -3033,7 +3033,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
-  runInBackground: 1
   startOnHeadless: 1
   showDebugMessages: 0
   serverTickRate: 30
@@ -3042,13 +3041,11 @@ MonoBehaviour:
   server: {fileID: 1783103028}
   client: {fileID: 1783103027}
   transport: {fileID: 1783103023}
-  maxConnections: 4
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 5075528875289742095, guid: e5905ffa27de84009b346b49d518ba03,
     type: 3}
   autoCreatePlayer: 0
   playerSpawnMethod: 0
-  spawnPrefabs: []
   networkSceneName: 
   startPositionIndex: 0
   startPositions: []
@@ -3079,6 +3076,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abe6be14204d94224a3e7cd99dd2ea73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnPrefabs:
+  - {fileID: 5075528875289742095, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
 --- !u!114 &1783103028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3091,6 +3090,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5f5ec068f5604c32b160bc49ee97b75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MaxConnections: 4
   localClient: {fileID: 0}
   dontListen: 0
 --- !u!1 &1863915624

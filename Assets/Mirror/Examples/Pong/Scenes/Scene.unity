@@ -874,6 +874,7 @@ MonoBehaviour:
   showGUI: 1
   offsetX: 0
   offsetY: 0
+  serverIp: localhost
 --- !u!114 &1886246552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -887,7 +888,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
-  runInBackground: 1
   startOnHeadless: 1
   showDebugMessages: 0
   serverTickRate: 30
@@ -896,15 +896,11 @@ MonoBehaviour:
   server: {fileID: 1886246555}
   client: {fileID: 1886246554}
   transport: {fileID: 1886246556}
-  networkAddress: localhost
-  maxConnections: 4
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28,
     type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 1
-  spawnPrefabs:
-  - {fileID: 1080679924113744, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
   networkSceneName: 
   startPositionIndex: 0
   startPositions: []
@@ -922,6 +918,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abe6be14204d94224a3e7cd99dd2ea73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnPrefabs:
+  - {fileID: 1080679924113744, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
+  - {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
 --- !u!114 &1886246555
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -934,6 +933,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5f5ec068f5604c32b160bc49ee97b75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MaxConnections: 4
   localClient: {fileID: 0}
   dontListen: 0
 --- !u!114 &1886246556
