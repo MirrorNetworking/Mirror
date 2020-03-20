@@ -877,8 +877,8 @@ namespace Mirror
                 var msg = new SpawnMessage
                 {
                     netId = identity.netId,
-                    isLocalPlayer = conn?.identity == identity,
-                    isOwner = identity.connectionToClient == conn && conn != null,
+                    isLocalPlayer = conn.identity == identity,
+                    isOwner = identity.connectionToClient == conn,
                     sceneId = identity.sceneId,
                     assetId = identity.assetId,
                     // use local values for VR support
