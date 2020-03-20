@@ -97,7 +97,7 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// <returns>False to not allow this player to replace the room player.</returns>
     public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer)
     {
-        return base.OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, roomPlayer, gamePlayer);
+        return base.OnRoomServerSceneLoadedForPlayer(conn, roomPlayer, gamePlayer);
     }
 
     /// <summary>
