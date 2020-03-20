@@ -35,7 +35,8 @@ namespace Mirror.Weaver
             bool hasNetworkConnection = HasNetworkConnectionParameter(md);
             if (hasNetworkConnection)
             {
-                //ClientScene.readyconnection
+                //client.connection
+                rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
                 rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.ReadyConnectionReference));
             }
 

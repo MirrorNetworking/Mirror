@@ -665,7 +665,7 @@ namespace Mirror
 
             if (playerPrefab != null)
             {
-                ClientScene.RegisterPrefab(playerPrefab);
+                client.RegisterPrefab(playerPrefab);
             }
 
             client.RegisterSpawnPrefabs();
@@ -726,10 +726,6 @@ namespace Mirror
             // Suspend the server's transport while changing scenes
             // It will be re-enabled in FinishScene.
             Transport.activeTransport.enabled = false;
-
-            ClientScene.server = server;
-            ClientScene.client = client;
-
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
             // notify all clients about the new scene
@@ -759,10 +755,6 @@ namespace Mirror
             // (client may be null after StopClient etc.)
             if (LogFilter.Debug) Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
             Transport.activeTransport.enabled = false;
-
-            ClientScene.server = server;
-            ClientScene.client = client;
-
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName, sceneOperation, customHandling);
 
@@ -824,7 +816,7 @@ namespace Mirror
                 }
                 if (client.active)
                 {
-                    ClientScene.PrepareToSpawnSceneObjects();
+                    client.PrepareToSpawnSceneObjects();
                     Debug.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
                 }
             }
@@ -1145,7 +1137,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientNotReadyMessageInternal");
 
-            ClientScene.ready = false;
+            client.ready = false;
             OnClientNotReady(conn);
 
             // NOTE: clientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
@@ -1294,14 +1286,11 @@ namespace Mirror
             // clientLoadedScene flag to prevent it.
             if (!clientLoadedScene)
             {
-                ClientScene.server = server;
-                ClientScene.client = client;
-
                 // Ready/AddPlayer is usually triggered by a scene load completing. if no scene was loaded, then Ready/AddPlayer it here instead.
-                if (!ClientScene.ready) ClientScene.Ready(conn);
+                if (!client.ready) client.Ready(conn);
                 if (autoCreatePlayer)
                 {
-                    ClientScene.AddPlayer();
+                    client.AddPlayer();
                 }
             }
         }
@@ -1347,13 +1336,13 @@ namespace Mirror
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
             // always become ready.
-            if (!ClientScene.ready) ClientScene.Ready(conn);
+            if (!client.ready) client.Ready(conn);
 
             // Only call AddPlayer for normal scene changes, not additive load/unload
-            if (clientSceneOperation == SceneOperation.Normal && autoCreatePlayer && ClientScene.localPlayer == null)
+            if (clientSceneOperation == SceneOperation.Normal && autoCreatePlayer && client.localPlayer == null)
             {
                 // add player if existing one is null
-                ClientScene.AddPlayer();
+                client.AddPlayer();
             }
         }
 

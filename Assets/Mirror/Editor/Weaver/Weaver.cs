@@ -69,7 +69,6 @@ namespace Mirror.Weaver
         public static TypeReference NetworkIdentityType;
         public static TypeReference IEnumeratorType;
 
-        public static TypeReference ClientSceneType;
         public static MethodReference ReadyConnectionReference;
 
         public static TypeReference ComponentType;
@@ -310,8 +309,7 @@ namespace Mirror.Weaver
             RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, CurrentAssembly, "Recycle");
 
             ComponentType = UnityAssembly.MainModule.GetType("UnityEngine.Component");
-            ClientSceneType = NetAssembly.MainModule.GetType("Mirror.ClientScene");
-            ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, CurrentAssembly, "get_readyConnection");
+            ReadyConnectionReference = Resolvers.ResolveMethod(NetworkClientType, CurrentAssembly, "get_connection");
 
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarEqual");
             syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarNetworkIdentityEqual");
