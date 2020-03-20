@@ -1,3 +1,13 @@
+## [19.1.1](https://github.com/MirrorNG/MirrorNG/compare/19.1.0-master...19.1.1-master) (2020-03-20)
+
+
+### Bug Fixes
+
+* Fixed ClienRpc typos ([e946c79](https://github.com/MirrorNG/MirrorNG/commit/e946c79194dd9618992a4136daed4b79f60671a2))
+* Prevent Double Call of NetworkServer.Destroy ([#1554](https://github.com/MirrorNG/MirrorNG/issues/1554)) ([2d1b142](https://github.com/MirrorNG/MirrorNG/commit/2d1b142276193be1e93a3a3f6ce482c87a134a2c))
+* show private serializable fields in network behavior inspector ([#1557](https://github.com/MirrorNG/MirrorNG/issues/1557)) ([b8c87d9](https://github.com/MirrorNG/MirrorNG/commit/b8c87d9053e7fd7c3b69bcf1d4179e6e4c9bc4a6))
+* Updated NetworkRoomPlayer inspector and doc and image ([a4ffcbe](https://github.com/MirrorNG/MirrorNG/commit/a4ffcbe280e2e2318d7cd2988379af74f0d32021))
+
 # [19.1.0](https://github.com/MirrorNG/MirrorNG/compare/19.0.1-master...19.1.0-master) (2020-03-19)
 
 
