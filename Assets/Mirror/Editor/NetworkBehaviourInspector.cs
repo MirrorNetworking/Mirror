@@ -120,6 +120,7 @@ namespace Mirror
                 NetworkBehaviour networkBehaviour = target as NetworkBehaviour;
                 if (networkBehaviour != null)
                 {
+                    EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Sync Settings", EditorStyles.boldLabel);
 
                     // syncMode
