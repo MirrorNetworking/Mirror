@@ -12,17 +12,12 @@ namespace Mirror
     [CanEditMultipleObjects]
     public class NetworkBehaviourInspector : Editor
     {
-        bool initialized;
         /// <summary>
         /// List of all visible syncVars in target class
         /// </summary>
         protected List<string> syncVarNames = new List<string>();
         bool syncsAnything;
         bool[] showSyncLists;
-
-        // this might be able to be removed right away as it is internal and has no references
-        [System.Obsolete("Override OnInspectorGUI instead")]
-        internal virtual bool HideScriptField => false;
 
         // does this type sync anything? otherwise we don't need to show syncInterval
         bool SyncsAnything(Type scriptClass)
