@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.43667555, g: 0.48427176, b: 0.5645241, a: 1}
+  m_IndirectSpecularColor: {r: 0.4366757, g: 0.48427194, b: 0.5645252, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -462,6 +462,10 @@ PrefabInstance:
       propertyPath: sceneId
       value: 1521238664
       objectReference: {fileID: 0}
+    - target: {fileID: 160176461, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
+      propertyPath: Animator
+      value: 
+      objectReference: {fileID: 816117415}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
 --- !u!4 &160176456 stripped
@@ -1043,6 +1047,12 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 794922164}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!95 &816117415 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 160176460, guid: ab222ed73ada1ac4ba2f61e843d7627c,
+    type: 3}
+  m_PrefabInstance: {fileID: 160176455}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &856402103
 GameObject:
   m_ObjectHideFlags: 0
