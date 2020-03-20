@@ -54,9 +54,23 @@ namespace Mirror
             object[] fieldMarkers = field.GetCustomAttributes(typeof(SerializeField), true);
             return fieldMarkers.Length > 0;
         }
-        public static bool IsVisibleInInspector(this FieldInfo field)
+        public static bool IsVisibleField(this FieldInfo field)
         {
             return field.IsPublic || IsSerializeField(field);
+        }
+
+        public static bool IsSyncObject(this FieldInfo field)
+        {
+            return typeof(SyncObject).IsAssignableFrom(field.FieldType);
+        }
+        public static bool HasShowInInspector(this FieldInfo field)
+        {
+            object[] fieldMarkers = field.GetCustomAttributes(typeof(ShowInInspectorAttribute), true);
+            return fieldMarkers.Length > 0;
+        }
+        public static bool IsVisibleSyncObject(this FieldInfo field)
+        {
+            return field.IsPublic || HasShowInInspector(field);
         }
     }
 }
