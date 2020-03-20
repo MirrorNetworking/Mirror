@@ -592,14 +592,12 @@ namespace Mirror.Tests
             // serialize should propagate exceptions
             Assert.Throws<Exception>(() =>
             {
-                identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                (int ownerWritten, int observersWritten) = identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
                 // owner should have written all components
                 Assert.That(ownerWritten, Is.EqualTo(3));
                 // observers should have written only the observers components
                 Assert.That(observersWritten, Is.EqualTo(2));
             });
-
-
 
             // reset component values
             comp1.value = 0;
@@ -641,7 +639,7 @@ namespace Mirror.Tests
             var observersWriter = new NetworkWriter();
             Assert.Throws<InvalidOperationException>(() =>
             {
-                identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                _ = identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
             });
 
             // shouldn't have written anything because too many components
@@ -669,7 +667,7 @@ namespace Mirror.Tests
             // serialize
             var ownerWriter = new NetworkWriter();
             var observersWriter = new NetworkWriter();
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            (int ownerWritten, int observersWritten) = identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // reset component values
             comp1.value = 0;
