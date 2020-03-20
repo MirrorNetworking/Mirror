@@ -44,7 +44,6 @@ namespace Mirror
 
         void OnEnable()
         {
-            serializedObject.Update();
             UnityEngine.Object target = serializedObject.targetObject;
             if (target == null) { Debug.LogWarning("NetworkBehaviourInspector had no target object", serializedObject.context); return; }
 
