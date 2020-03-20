@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
-using UnityEngine;
 
 namespace Mirror
 {
@@ -133,16 +132,8 @@ namespace Mirror
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Sync Settings", EditorStyles.boldLabel);
 
-            // syncMode
-            serializedObject.FindProperty("syncMode").enumValueIndex = (int)(SyncMode)
-                EditorGUILayout.EnumPopup("Network Sync Mode", networkBehaviour.syncMode);
-
-            // syncInterval
-            // [0,2] should be enough. anything >2s is too laggy anyway.
-            serializedObject.FindProperty("syncInterval").floatValue = EditorGUILayout.Slider(
-                new GUIContent("Network Sync Interval",
-                                "Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)"),
-                networkBehaviour.syncInterval, 0, 2);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
 
             // apply
             serializedObject.ApplyModifiedProperties();
