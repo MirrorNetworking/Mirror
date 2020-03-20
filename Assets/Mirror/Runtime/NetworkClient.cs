@@ -403,11 +403,11 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
 
             ClearSpawners();
+            DestroyAllClientObjects();
             spawnableObjects = null;
             connection = null;
             ready = false;
             isSpawnFinished = false;
-            DestroyAllClientObjects();
 
             connectState = ConnectState.None;
             handlers.Clear();
@@ -762,7 +762,7 @@ namespace Mirror
         void UnSpawn(NetworkIdentity identity)
         {
             Guid assetId = identity.assetId;
-
+            
             identity.OnNetworkDestroy();
             if (unspawnHandlers.TryGetValue(assetId, out UnSpawnDelegate handler) && handler != null)
             {
