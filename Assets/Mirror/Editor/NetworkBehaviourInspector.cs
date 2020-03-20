@@ -13,10 +13,15 @@ namespace Mirror
     public class NetworkBehaviourInspector : Editor
     {
         bool initialized;
+        /// <summary>
+        /// List of all visible syncVars in target class
+        /// </summary>
         protected List<string> syncVarNames = new List<string>();
         bool syncsAnything;
         bool[] showSyncLists;
 
+        // this might be able to be removed right away as it is internal and has no references
+        [System.Obsolete("Override OnInspectorGUI instead")]
         internal virtual bool HideScriptField => false;
 
         // does this type sync anything? otherwise we don't need to show syncInterval
@@ -34,38 +39,30 @@ namespace Mirror
             // SyncObjects are serialized in NetworkBehaviour.OnSerialize, which
             // is always there even if we don't use SyncObjects. so we need to
             // search for SyncObjects manually.
-            // (look for 'Mirror.Sync'. not '.SyncObject' because we'd have to
-            //  check base type for that again)
-            // => scan both public and non-public fields! SyncVars can be private
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-            foreach (FieldInfo field in scriptClass.GetFields(flags))
-            {
-                if (field.FieldType.BaseType != null &&
-                    field.FieldType.BaseType.FullName != null &&
-                    field.FieldType.BaseType.FullName.Contains("Mirror.Sync"))
-                {
-                    return true;
-                }
-            }
+            // Any SyncObject should be added to syncObjects when unity creates an
+            // object so we can cheeck length of list so see if sync objects exists
+            FieldInfo syncObjectsField = scriptClass.GetField("syncObjects", BindingFlags.NonPublic | BindingFlags.Instance);
+            List<SyncObject> syncObjects = (List<SyncObject>)syncObjectsField.GetValue(serializedObject.targetObject);
 
-            return false;
+            return syncObjects.Count > 0;
         }
 
         void OnEnable()
         {
-            initialized = false;
-        }
+            serializedObject.Update();
+            SerializedProperty scriptProperty = serializedObject.FindProperty("m_Script");
+            if (scriptProperty == null)
+                return;
 
-        void Init(MonoScript script)
-        {
-            initialized = true;
-            Type scriptClass = script.GetClass();
+            MonoScript targetScript = scriptProperty.objectReferenceValue as MonoScript;
 
-            // find public SyncVars to show (user doesn't want protected ones to be shown in inspector)
-            foreach (FieldInfo field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
+
+            Type scriptClass = targetScript.GetClass();
+
+            syncVarNames = new List<string>();
+            foreach (FieldInfo field in InspectorHelper.GetAllFields(scriptClass, typeof(NetworkBehaviour)))
             {
-                Attribute[] fieldMarkers = (Attribute[])field.GetCustomAttributes(typeof(SyncVarAttribute), true);
-                if (fieldMarkers.Length > 0)
+                if (field.IsSyncVar() && field.IsVisibleInInspector())
                 {
                     syncVarNames.Add(field.Name);
                 }
@@ -84,47 +81,7 @@ namespace Mirror
 
         public override void OnInspectorGUI()
         {
-            if (!initialized)
-            {
-                serializedObject.Update();
-                SerializedProperty scriptProperty = serializedObject.FindProperty("m_Script");
-                if (scriptProperty == null)
-                    return;
-
-                MonoScript targetScript = scriptProperty.objectReferenceValue as MonoScript;
-                Init(targetScript);
-            }
-
-            EditorGUI.BeginChangeCheck();
-            serializedObject.Update();
-
-            // Loop through properties and create one field (including children) for each top level property.
-            SerializedProperty property = serializedObject.GetIterator();
-            bool expanded = true;
-            while (property.NextVisible(expanded))
-            {
-                if (property.name == "m_Script")
-                {
-                    if (HideScriptField)
-                    {
-                        continue;
-                    }
-
-                    EditorGUI.BeginDisabledGroup(true);
-                }
-
-                EditorGUILayout.PropertyField(property, true);
-
-                if (property.name == "m_Script")
-                {
-                    EditorGUI.EndDisabledGroup();
-                }
-
-                expanded = false;
-            }
-            serializedObject.ApplyModifiedProperties();
-            EditorGUI.EndChangeCheck();
-
+            DrawDefaultInspector();
             // find SyncLists.. they are not properties.
             int syncListIndex = 0;
             foreach (FieldInfo field in serializedObject.targetObject.GetType().GetFields())
