@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
-using UnityEngine;
 
 namespace Mirror
 {
@@ -77,7 +76,15 @@ namespace Mirror
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
+            DrawDefaultSyncLists();
+            DrawDefaultSyncSettings();
+        }
 
+        /// <summary>
+        /// Draws Sync Objects that are IEnumerable
+        /// </summary>
+        protected void DrawDefaultSyncLists()
+        {
             if (showSyncLists.Length > 0)
             {
                 EditorGUILayout.Space();
@@ -112,32 +119,28 @@ namespace Mirror
                     syncListIndex += 1;
                 }
             }
+        }
 
+        /// <summary>
+        /// Draws SyncSettings if the NetworkBehaviour has anything to sync
+        /// </summary>
+        protected void DrawDefaultSyncSettings()
+        {
             // does it sync anything? then show extra properties
             // (no need to show it if the class only has Cmds/Rpcs and no sync)
-            if (syncsAnything)
+            if (!syncsAnything)
             {
-                NetworkBehaviour networkBehaviour = target as NetworkBehaviour;
-                if (networkBehaviour != null)
-                {
-                    EditorGUILayout.Space();
-                    EditorGUILayout.LabelField("Sync Settings", EditorStyles.boldLabel);
-
-                    // syncMode
-                    serializedObject.FindProperty("syncMode").enumValueIndex = (int)(SyncMode)
-                        EditorGUILayout.EnumPopup("Network Sync Mode", networkBehaviour.syncMode);
-
-                    // syncInterval
-                    // [0,2] should be enough. anything >2s is too laggy anyway.
-                    serializedObject.FindProperty("syncInterval").floatValue = EditorGUILayout.Slider(
-                        new GUIContent("Network Sync Interval",
-                                       "Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)"),
-                        networkBehaviour.syncInterval, 0, 2);
-
-                    // apply
-                    serializedObject.ApplyModifiedProperties();
-                }
+                return;
             }
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Sync Settings", EditorStyles.boldLabel);
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
+
+            // apply
+            serializedObject.ApplyModifiedProperties();
         }
     }
 } //namespace
