@@ -1,3 +1,10 @@
+## [19.1.2](https://github.com/MirrorNG/MirrorNG/compare/19.1.1-master...19.1.2-master) (2020-03-20)
+
+
+### Bug Fixes
+
+* examples now work with prefabs in NC ([df4149b](https://github.com/MirrorNG/MirrorNG/commit/df4149b8fea9f174742d20f600ef5261058e5300))
+
 ## [19.1.1](https://github.com/MirrorNG/MirrorNG/compare/19.1.0-master...19.1.1-master) (2020-03-20)
 
 
