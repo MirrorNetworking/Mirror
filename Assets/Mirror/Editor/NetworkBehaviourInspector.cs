@@ -12,7 +12,6 @@ namespace Mirror
     [CanEditMultipleObjects]
     public class NetworkBehaviourInspector : Editor
     {
-        bool initialized;
         /// <summary>
         /// List of all visible syncVars in target class
         /// </summary>
