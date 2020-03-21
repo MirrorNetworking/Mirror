@@ -21,7 +21,8 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Method)]
     public class CommandAttribute : Attribute
     {
-        public int channel = Channels.DefaultReliable; // this is zero
+        // this is zero
+        public int channel = Channels.DefaultReliable;
     }
 
     /// <summary>
@@ -30,7 +31,8 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Method)]
     public class ClientRpcAttribute : Attribute
     {
-        public int channel = Channels.DefaultReliable; // this is zero
+        // this is zero
+        public int channel = Channels.DefaultReliable;
     }
 
     /// <summary>
@@ -39,7 +41,8 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Method)]
     public class TargetRpcAttribute : Attribute
     {
-        public int channel = Channels.DefaultReliable; // this is zero
+        // this is zero
+        public int channel = Channels.DefaultReliable;
     }
 
     /// <summary>
@@ -48,7 +51,8 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Event)]
     public class SyncEventAttribute : Attribute
     {
-        public int channel = Channels.DefaultReliable; // this is zero
+        // this is zero
+        public int channel = Channels.DefaultReliable;
     }
 
     /// <summary>

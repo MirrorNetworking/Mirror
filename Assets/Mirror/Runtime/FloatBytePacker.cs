@@ -11,7 +11,8 @@ namespace Mirror
         public static byte ScaleFloatToByte(float value, float minValue, float maxValue, byte minTarget, byte maxTarget)
         {
             // note: C# byte - byte => int, hence so many casts
-            int targetRange = maxTarget - minTarget; // max byte - min byte only fits into something bigger
+            // max byte - min byte only fits into something bigger
+            int targetRange = maxTarget - minTarget;
             float valueRange = maxValue - minValue;
             float valueRelative = value - minValue;
             return (byte)(minTarget + (byte)(valueRelative / valueRange * targetRange));
@@ -48,7 +49,8 @@ namespace Mirror
         {
             byte lower = (byte)(combined & 0x1F);
             byte middle = (byte)((combined >> 5) & 0x1F);
-            byte upper = (byte)(combined >> 10); // nothing on the left, no & needed
+            // nothing on the left, no & needed
+            byte upper = (byte)(combined >> 10);
 
             // note: we have to use 4 bits per float, so between 0x00 and 0x0F
             float u = ScaleByteToFloat(lower, 0x00, 0x1F, minTarget, maxTarget);

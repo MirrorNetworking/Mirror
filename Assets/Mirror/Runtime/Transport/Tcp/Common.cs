@@ -9,7 +9,8 @@ namespace Mirror.Tcp
     public abstract class Common
     {
 
-        // static helper functions /////////////////////////////////////////////
+        /////////////////////////////////////////////
+        // static helper functions
         // fast int to byte[] conversion and vice versa
         // -> test with 100k conversions:
         //    BitConverter.GetBytes(ushort): 144ms
@@ -73,7 +74,8 @@ namespace Mirror.Tcp
             byte[] messageSizeBuffer = await stream.ReadExactlyAsync(4);
 
             if (messageSizeBuffer == null)
-                return null; // end of stream,  just disconnect
+                // end of stream,  just disconnect
+                return null;
 
             int messageSize = BytesToInt(messageSizeBuffer);
 

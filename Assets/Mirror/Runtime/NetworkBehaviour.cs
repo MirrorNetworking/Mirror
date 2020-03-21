@@ -36,7 +36,8 @@ namespace Mirror
         /// sync interval for OnSerialize (in seconds)
         /// </summary>
         [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
-        [Range(0, 2)] // [0,2] should be enough. anything >2s is too laggy anyway.
+        // [0,2] should be enough. anything >2s is too laggy anyway.
+        [Range(0, 2)]
         [HideInInspector] public float syncInterval = 0.1f;
 
         /// <summary>
@@ -222,8 +223,10 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = GetMethodHash(invokeClass, cmdName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArraySegment() // segment to avoid reader allocations
+                // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, cmdName),
+                // segment to avoid reader allocations
+                payload = writer.ToArraySegment()
             };
 
             client.connection.Send(message, channelId);
@@ -264,8 +267,10 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = GetMethodHash(invokeClass, rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArraySegment() // segment to avoid reader allocations
+                // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, rpcName),
+                // segment to avoid reader allocations
+                payload = writer.ToArraySegment()
             };
 
             server.SendToReady(netIdentity, message, channelId);
@@ -303,8 +308,10 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = GetMethodHash(invokeClass, rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArraySegment() // segment to avoid reader allocations
+                // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, rpcName),
+                // segment to avoid reader allocations
+                payload = writer.ToArraySegment()
             };
 
             conn.Send(message, channelId);
@@ -338,8 +345,10 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = GetMethodHash(invokeClass, eventName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArraySegment() // segment to avoid reader allocations
+                // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, eventName),
+                // segment to avoid reader allocations
+                payload = writer.ToArraySegment()
             };
 
             server.SendToReady(netIdentity, message, channelId);
@@ -379,7 +388,8 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func)
         {
-            int cmdHash = GetMethodHash(invokeClass, cmdName); // type+func so Inventory.RpcUse != Equipment.RpcUse
+            // type+func so Inventory.RpcUse != Equipment.RpcUse
+            int cmdHash = GetMethodHash(invokeClass, cmdName);
 
             if (cmdHandlerDelegates.ContainsKey(cmdHash))
             {
@@ -526,7 +536,8 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
             SetDirtyBit(dirtyBit);
-            gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
+            // assign new one on the server, and in case we ever need it on client too
+            gameObjectField = newGameObject;
             netIdField = newNetId;
         }
 
@@ -592,7 +603,8 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
             SetDirtyBit(dirtyBit);
             netIdField = newNetId;
-            identityField = newIdentity; // assign new one on the server, and in case we ever need it on client too
+            // assign new one on the server, and in case we ever need it on client too
+            identityField = newIdentity;
         }
 
         // helper function for [SyncVar] NetworkIdentities.

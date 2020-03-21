@@ -53,7 +53,8 @@ namespace Ninja.WebSockets.Internal
             // TODO: make this faster
             for (int i = payloadOffset; i < payloadCount; i++)
             {
-                int payloadIndex = i - payloadOffset; // index should start at zero
+                // index should start at zero
+                int payloadIndex = i - payloadOffset;
                 int maskKeyIndex = maskKeyOffset + (payloadIndex % MaskKeyLength);
                 buffer[i] = (Byte)(buffer[i] ^ maskKeyArray[maskKeyIndex]);
             }

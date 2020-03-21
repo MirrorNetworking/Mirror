@@ -541,7 +541,8 @@ namespace Mirror.Tests
             var go = new GameObject();
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
             identity.netId = 42;
-            //identity.connectionToClient = connection; // for authority check
+            // for authority check
+            //identity.connectionToClient = connection;
             OnStartClientTestNetworkBehaviour comp = go.AddComponent<OnStartClientTestNetworkBehaviour>();
             Assert.That(comp.called, Is.EqualTo(0));
             //connection.identity = identity;
@@ -652,7 +653,8 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = true;
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             LogAssert.ignoreFailingMessages = false;
-            Assert.That(variant1Called, Is.EqualTo(1)); // still 1, not 2
+            // still 1, not 2
+            Assert.That(variant1Called, Is.EqualTo(1));
 
             // unregister second handler via ClearHandlers to test that one too. send, should fail
             server.ClearHandlers();
@@ -664,7 +666,8 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = true;
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             LogAssert.ignoreFailingMessages = false;
-            Assert.That(variant2Called, Is.EqualTo(1)); // still 1, not 2
+            // still 1, not 2
+            Assert.That(variant2Called, Is.EqualTo(1));
         }
 
         [Test]
@@ -753,7 +756,8 @@ namespace Mirror.Tests
             // add connection
             var connection = new ULocalConnectionToClient
             {
-                isReady = true, // required for ShowForConnection
+                // required for ShowForConnection
+                isReady = true,
                 connectionToServer = new ULocalConnectionToServer()
             };
             // set a client handler
@@ -781,7 +785,8 @@ namespace Mirror.Tests
             connection.isReady = false;
             server.ShowForConnection(identity, connection);
             connection.connectionToServer.Update();
-            Assert.That(called, Is.EqualTo(1)); // not 2 but 1 like before?
+            // not 2 but 1 like before?
+            Assert.That(called, Is.EqualTo(1));
             // destroy GO after shutdown, otherwise isServer is true in OnDestroy and it tries to call
             // GameObject.Destroy (but we need DestroyImmediate in Editor)
             Object.DestroyImmediate(identity.gameObject);
@@ -801,7 +806,8 @@ namespace Mirror.Tests
             // add connection
             var connection = new ULocalConnectionToClient
             {
-                isReady = true, // required for ShowForConnection
+                // required for ShowForConnection
+                isReady = true,
                 connectionToServer = new ULocalConnectionToServer()
             };
             // set a client handler
@@ -861,14 +867,18 @@ namespace Mirror.Tests
             // create a gameobject and networkidentity that lives in the scene(=has sceneid)
             var go = new GameObject("Test");
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
-            identity.sceneId = 42; // lives in the scene from the start
-            go.SetActive(false); // unspawned scene objects are set to inactive before spawning
+            // lives in the scene from the start
+            identity.sceneId = 42;
+            // unspawned scene objects are set to inactive before spawning
+            go.SetActive(false);
 
             // create a gameobject that looks like it was instantiated and doesn't live in the scene
             var go2 = new GameObject("Test2");
             NetworkIdentity identity2 = go2.AddComponent<NetworkIdentity>();
-            identity2.sceneId = 0; // not a scene object
-            go2.SetActive(false); // unspawned scene objects are set to inactive before spawning
+            // not a scene object
+            identity2.sceneId = 0;
+            // unspawned scene objects are set to inactive before spawning
+            go2.SetActive(false);
 
             // calling SpawnObjects while server isn't active should do nothing
             Assert.That(server.SpawnObjects(), Is.False);
@@ -893,8 +903,10 @@ namespace Mirror.Tests
             var go = new GameObject("Test");
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
             go.AddComponent<OnNetworkDestroyTestNetworkBehaviour>();
-            identity.sceneId = 42; // lives in the scene from the start
-            go.SetActive(true); // spawned objects are active
+            // lives in the scene from the start
+            identity.sceneId = 42;
+            // spawned objects are active
+            go.SetActive(true);
             Assert.That(identity.IsMarkedForReset(), Is.False);
 
             // unspawn
@@ -921,13 +933,17 @@ namespace Mirror.Tests
             // set components dirty bits
             compA.SetDirtyBit(0x0001);
             compB.SetDirtyBit(0x1001);
-            Assert.That(compA.IsDirty(), Is.True); // dirty because interval reached and mask != 0
-            Assert.That(compB.IsDirty(), Is.False); // not dirty because syncinterval not reached
+            // dirty because interval reached and mask != 0
+            Assert.That(compA.IsDirty(), Is.True);
+            // not dirty because syncinterval not reached
+            Assert.That(compB.IsDirty(), Is.False);
 
             // call identity.ClearDirtyComponentsDirtyBits
             identity.ClearDirtyComponentsDirtyBits();
-            Assert.That(compA.IsDirty(), Is.False); // should be cleared now
-            Assert.That(compB.IsDirty(), Is.False); // should be untouched
+            // should be cleared now
+            Assert.That(compA.IsDirty(), Is.False);
+            // should be untouched
+            Assert.That(compB.IsDirty(), Is.False);
 
             // set compB syncinterval to 0 to check if the masks were untouched
             // (if they weren't, then it should be dirty now)
@@ -949,13 +965,17 @@ namespace Mirror.Tests
             // set components dirty bits
             compA.SetDirtyBit(0x0001);
             compB.SetDirtyBit(0x1001);
-            Assert.That(compA.IsDirty(), Is.True); // dirty because interval reached and mask != 0
-            Assert.That(compB.IsDirty(), Is.False); // not dirty because syncinterval not reached
+            // dirty because interval reached and mask != 0
+            Assert.That(compA.IsDirty(), Is.True);
+            // not dirty because syncinterval not reached
+            Assert.That(compB.IsDirty(), Is.False);
 
             // call identity.ClearAllComponentsDirtyBits
             identity.ClearAllComponentsDirtyBits();
-            Assert.That(compA.IsDirty(), Is.False); // should be cleared now
-            Assert.That(compB.IsDirty(), Is.False); // should be cleared now
+            // should be cleared now
+            Assert.That(compA.IsDirty(), Is.False);
+            // should be cleared now
+            Assert.That(compB.IsDirty(), Is.False);
 
             // set compB syncinterval to 0 to check if the masks were cleared
             // (if they weren't, then it would still be dirty now)

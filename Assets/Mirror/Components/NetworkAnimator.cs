@@ -37,7 +37,8 @@ namespace Mirror
         bool[] lastBoolParameters;
         AnimatorControllerParameter[] parameters;
 
-        int[] animationHash; // multiple layers
+        // multiple layers
+        int[] animationHash;
         int[] transitionHash;
         float sendTimer;
 

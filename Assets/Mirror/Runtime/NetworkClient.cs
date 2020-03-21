@@ -336,8 +336,10 @@ namespace Mirror
                 RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>((conn, msg) => { }, false);
                 RegisterHandler<SpawnMessage>(OnHostClientSpawn);
-                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => { }); // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => { }); // host mode doesn't need spawning
+                // host mode doesn't need spawning
+                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => { });
+                // host mode doesn't need spawning
+                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => { });
                 RegisterHandler<UpdateVarsMessage>((conn, msg) => { });
             }
             else
