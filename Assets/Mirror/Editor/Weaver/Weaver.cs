@@ -27,7 +27,7 @@ namespace Mirror.Weaver
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
     }
 
-    class Weaver
+    internal class Weaver
     {
         public static WeaverLists WeaveLists { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }
