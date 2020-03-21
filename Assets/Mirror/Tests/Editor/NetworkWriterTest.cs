@@ -1122,6 +1122,7 @@ namespace Mirror.Tests
             writer.WriteBytes(new byte[] { 14, 15 }, 0, 2);
             // [SyncVar] struct values can have uninitialized byte arrays, null needs to be supported
             writer.WriteBytesAndSize(null);
+
             // buffer, no-offset, count
             writer.WriteBytesAndSize(new byte[] { 17, 18 }, 0, 2);
             // buffer, offset, count

@@ -12,7 +12,7 @@ namespace Mirror.Examples.ListServer
     public class ServerStatus
     {
         public string ip;
-        // <- not all transports use a port. assume default port. feel free to also send a port if needed.
+        // not all transports use a port. assume default port. feel free to also send a port if needed.
         //public ushort port;
         public string title;
         public ushort players;
