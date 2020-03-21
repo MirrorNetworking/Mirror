@@ -8,6 +8,9 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [Server]
-        void ServerOnlyMethod() {}
+        void ServerOnlyMethod() 
+        {
+            // test method
+        }
     }
 }
