@@ -25,6 +25,11 @@ namespace Mirror
     [DisallowMultipleComponent]
     public class NetworkClient : MonoBehaviour
     {
+
+        [Header("Authentication")]
+        [Tooltip("Authentication component attached to this object")]
+        public NetworkAuthenticator authenticator;
+
         /// <summary>
         /// The registered network message handlers.
         /// </summary>

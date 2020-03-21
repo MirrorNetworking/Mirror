@@ -34,6 +34,11 @@ namespace Mirror
 
         public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
 
+
+        [Header("Authentication")]
+        [Tooltip("Authentication component attached to this object")]
+        public NetworkAuthenticator authenticator;
+
         /// <summary>
         /// The connection to the host mode client (if any).
         /// </summary>
