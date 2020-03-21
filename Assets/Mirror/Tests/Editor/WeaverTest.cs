@@ -669,13 +669,13 @@ namespace Mirror.Tests
             CheckAddedCodeClient();
         }
 
-        void CheckAddedCodeServer()
+        static void CheckAddedCodeServer()
         {
             const string networkServerGetActive = "System.Boolean Mirror.NetworkServer::get_active()";
             CheckAddedCode(networkServerGetActive, "ServerOnlyMethod");
         }
 
-        void CheckAddedCodeClient()
+        static void CheckAddedCodeClient()
         {
             const string networkClientGetActive = "System.Boolean Mirror.NetworkClient::get_active()";
             CheckAddedCode(networkClientGetActive, "ClientOnlyMethod");
@@ -686,7 +686,7 @@ namespace Mirror.Tests
         /// </summary>
         /// <param name="addedString"></param>
         /// <param name="methodName"></param>
-        void CheckAddedCode(string addedString, string methodName)
+        static void CheckAddedCode(string addedString, string methodName)
         {
             string className = "MirrorTest.MirrorTestPlayer";
             
