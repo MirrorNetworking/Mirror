@@ -1,3 +1,12 @@
+## [20.0.5](https://github.com/MirrorNG/MirrorNG/compare/20.0.4-master...20.0.5-master) (2020-03-21)
+
+
+### Bug Fixes
+
+* Added LogFilter.Debug check in a few places ([#1575](https://github.com/MirrorNG/MirrorNG/issues/1575)) ([3156504](https://github.com/MirrorNG/MirrorNG/commit/31565042708ec768fcaafe9986968d095a3a1419))
+* comment punctuation ([4d827cd](https://github.com/MirrorNG/MirrorNG/commit/4d827cd9f60e4fb7cd6524d78ca26ea1d88a1eff))
+* Make SendToReady non-ambiguous ([#1578](https://github.com/MirrorNG/MirrorNG/issues/1578)) ([b627779](https://github.com/MirrorNG/MirrorNG/commit/b627779acd68b2acfcaf5eefc0d3864dcce57fc7))
+
 ## [20.0.4](https://github.com/MirrorNG/MirrorNG/compare/20.0.3-master...20.0.4-master) (2020-03-21)
 
 
