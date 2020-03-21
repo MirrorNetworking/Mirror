@@ -20,7 +20,7 @@ namespace Mirror
                 }
                 if (sceneObject == null && !string.IsNullOrEmpty(property.stringValue))
                 {
-                    Debug.LogWarning($"Could not find scene {property.stringValue} in {property.propertyPath}");
+                    Debug.LogError($"Could not find scene {property.stringValue} in {property.propertyPath}");
                 }
                 SceneAsset scene = (SceneAsset)EditorGUI.ObjectField(position, label, sceneObject, typeof(SceneAsset), true);
 
