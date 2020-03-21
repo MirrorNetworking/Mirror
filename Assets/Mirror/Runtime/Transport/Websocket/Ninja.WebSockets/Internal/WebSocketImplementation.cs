@@ -253,7 +253,8 @@ namespace Ninja.WebSockets.Internal
                 }
 
                 await WriteStreamToNetwork(stream, cancellationToken);
-                _isContinuationFrame = !endOfMessage; // TODO: is this correct??
+                // TODO: is this correct??
+                _isContinuationFrame = !endOfMessage;
             }
         }
 
@@ -318,7 +319,8 @@ namespace Ninja.WebSockets.Internal
         {
             if (_state == WebSocketState.Open)
             {
-                _state = WebSocketState.Closed; // set this before we write to the network because the write may fail
+                // set this before we write to the network because the write may fail
+                _state = WebSocketState.Closed;
 
                 using (MemoryStream stream = _recycledStreamFactory())
                 {
@@ -390,7 +392,8 @@ namespace Ninja.WebSockets.Internal
         ArraySegment<byte> BuildClosePayload(WebSocketCloseStatus closeStatus, string statusDescription)
         {
             byte[] statusBuffer = BitConverter.GetBytes((ushort)closeStatus);
-            Array.Reverse(statusBuffer); // network byte order (big endian)
+            // network byte order (big endian)
+            Array.Reverse(statusBuffer);
 
             if (statusDescription == null)
             {

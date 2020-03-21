@@ -616,7 +616,8 @@ namespace Mirror.Tests
             GameObject go = new GameObject();
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
             identity.netId = 42;
-            identity.connectionToClient = connection; // for authority check
+            // for authority check
+            identity.connectionToClient = connection;
             CommandTestNetworkBehaviour comp0 = go.AddComponent<CommandTestNetworkBehaviour>();
             Assert.That(comp0.called, Is.EqualTo(0));
             CommandTestNetworkBehaviour comp1 = go.AddComponent<CommandTestNetworkBehaviour>();
@@ -664,18 +665,22 @@ namespace Mirror.Tests
 
             // sending a command without authority should fail
             // (= if connectionToClient is not what we received the data on)
-            identity.connectionToClient = new ULocalConnectionToClient(); // set wrong authority
+            // set wrong authority
+            identity.connectionToClient = new ULocalConnectionToClient();
             comp0.called = 0;
             comp1.called = 0;
             Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp1.called, Is.EqualTo(0));
-            identity.connectionToClient = connection; // restore authority
+            // restore authority
+            identity.connectionToClient = connection;
 
             // sending a component with wrong netId should fail
-            message.netId += 1; // wrong netid
+            // wrong netid
+            message.netId += 1;
             writer = new NetworkWriter();
-            MessagePacker.Pack(message, writer); // need to serialize the message again with wrong netid
+            // need to serialize the message again with wrong netid
+            MessagePacker.Pack(message, writer);
             ArraySegment<byte> segmentWrongNetId = writer.ToArraySegment();
             comp0.called = 0;
             comp1.called = 0;
@@ -702,7 +707,8 @@ namespace Mirror.Tests
             GameObject go = new GameObject();
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
             identity.netId = 42;
-            //identity.connectionToClient = connection; // for authority check
+            // for authority check
+            //identity.connectionToClient = connection;
             OnStartClientTestNetworkBehaviour comp = go.AddComponent<OnStartClientTestNetworkBehaviour>();
             Assert.That(comp.called, Is.EqualTo(0));
             //connection.identity = identity;
@@ -810,7 +816,8 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = true;
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             LogAssert.ignoreFailingMessages = false;
-            Assert.That(variant1Called, Is.EqualTo(1)); // still 1, not 2
+            // still 1, not 2
+            Assert.That(variant1Called, Is.EqualTo(1));
 
             // unregister second handler via ClearHandlers to test that one too. send, should fail
             NetworkServer.ClearHandlers();
@@ -822,7 +829,8 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = true;
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             LogAssert.ignoreFailingMessages = false;
-            Assert.That(variant2Called, Is.EqualTo(1)); // still 1, not 2
+            // still 1, not 2
+            Assert.That(variant2Called, Is.EqualTo(1));
 
             // clean up
             NetworkServer.Shutdown();
@@ -916,7 +924,8 @@ namespace Mirror.Tests
 
             // add connection
             ULocalConnectionToClient connection = new ULocalConnectionToClient();
-            connection.isReady = true; // required for ShowForConnection
+            // required for ShowForConnection
+            connection.isReady = true;
             connection.connectionToServer = new ULocalConnectionToServer();
             // set a client handler
             int called = 0;
@@ -943,7 +952,8 @@ namespace Mirror.Tests
             connection.isReady = false;
             NetworkServer.ShowForConnection(identity, connection);
             connection.connectionToServer.Update();
-            Assert.That(called, Is.EqualTo(1)); // not 2 but 1 like before?
+            // not 2 but 1 like before?
+            Assert.That(called, Is.EqualTo(1));
 
             // clean up
             NetworkServer.Shutdown();
@@ -966,7 +976,8 @@ namespace Mirror.Tests
 
             // add connection
             ULocalConnectionToClient connection = new ULocalConnectionToClient();
-            connection.isReady = true; // required for ShowForConnection
+            // required for ShowForConnection
+            connection.isReady = true;
             connection.connectionToServer = new ULocalConnectionToServer();
             // set a client handler
             int called = 0;
@@ -1028,14 +1039,18 @@ namespace Mirror.Tests
             // create a gameobject and networkidentity that lives in the scene(=has sceneid)
             GameObject go = new GameObject("Test");
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
-            identity.sceneId = 42; // lives in the scene from the start
-            go.SetActive(false); // unspawned scene objects are set to inactive before spawning
+            // lives in the scene from the start
+            identity.sceneId = 42;
+            // unspawned scene objects are set to inactive before spawning
+            go.SetActive(false);
 
             // create a gameobject that looks like it was instantiated and doesn't live in the scene
             GameObject go2 = new GameObject("Test2");
             NetworkIdentity identity2 = go2.AddComponent<NetworkIdentity>();
-            identity2.sceneId = 0; // not a scene object
-            go2.SetActive(false); // unspawned scene objects are set to inactive before spawning
+            // not a scene object
+            identity2.sceneId = 0;
+            // unspawned scene objects are set to inactive before spawning
+            go2.SetActive(false);
 
             // calling SpawnObjects while server isn't active should do nothing
             Assert.That(NetworkServer.SpawnObjects(), Is.False);
@@ -1063,8 +1078,10 @@ namespace Mirror.Tests
             GameObject go = new GameObject("Test");
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
             OnNetworkDestroyTestNetworkBehaviour comp = go.AddComponent<OnNetworkDestroyTestNetworkBehaviour>();
-            identity.sceneId = 42; // lives in the scene from the start
-            go.SetActive(true); // spawned objects are active
+            // lives in the scene from the start
+            identity.sceneId = 42;
+            // spawned objects are active
+            go.SetActive(true);
             Assert.That(identity.IsMarkedForReset(), Is.False);
 
             // unspawn

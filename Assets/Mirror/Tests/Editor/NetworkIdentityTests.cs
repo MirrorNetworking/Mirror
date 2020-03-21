@@ -196,7 +196,8 @@ namespace Mirror.Tests
             public override bool OnSerialize(NetworkWriter writer, bool initialState)
             {
                 writer.WriteInt32(value);
-                writer.WriteInt32(value); // one too many
+                // one too many
+                writer.WriteInt32(value);
                 return true;
             }
             public override void OnDeserialize(NetworkReader reader, bool initialState)
@@ -407,7 +408,8 @@ namespace Mirror.Tests
 
             // setting it when it's already set shouldn't overwrite the original
             ULocalConnectionToClient overwrite = new ULocalConnectionToClient();
-            LogAssert.ignoreFailingMessages = true; // will log a warning
+            // will log a warning
+            LogAssert.ignoreFailingMessages = true;
             identity.SetClientOwner(overwrite);
             Assert.That(identity.connectionToClient, Is.EqualTo(original));
             LogAssert.ignoreFailingMessages = false;
@@ -491,7 +493,8 @@ namespace Mirror.Tests
             // being initialized
             // (an error log is expected though)
             LogAssert.ignoreFailingMessages = true;
-            identity.OnStartServer(); // should catch the exception internally and not throw it
+            // should catch the exception internally and not throw it
+            identity.OnStartServer();
             Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
         }
@@ -509,14 +512,16 @@ namespace Mirror.Tests
             // being initialized
             // (an error log is expected though)
             LogAssert.ignoreFailingMessages = true;
-            identity.OnStartClient(); // should catch the exception internally and not throw it
+            // should catch the exception internally and not throw it
+            identity.OnStartClient();
             Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
 
             // we have checks to make sure that it's only called once.
             // let's see if they work.
             identity.OnStartClient();
-            Assert.That(comp.called, Is.EqualTo(1)); // same as before?
+            // same as before?
+            Assert.That(comp.called, Is.EqualTo(1));
         }
 
         [Test]
@@ -532,7 +537,8 @@ namespace Mirror.Tests
             // being initialized
             // (an error log is expected though)
             LogAssert.ignoreFailingMessages = true;
-            identity.OnStartAuthority(); // should catch the exception internally and not throw it
+            // should catch the exception internally and not throw it
+            identity.OnStartAuthority();
             Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
         }
@@ -550,7 +556,8 @@ namespace Mirror.Tests
             // being initialized
             // (an error log is expected though)
             LogAssert.ignoreFailingMessages = true;
-            identity.OnStopAuthority(); // should catch the exception internally and not throw it
+            // should catch the exception internally and not throw it
+            identity.OnStopAuthority();
             Assert.That(comp.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
         }
@@ -586,14 +593,16 @@ namespace Mirror.Tests
             // assigning authority should only work on server.
             // if isServer is false because server isn't running yet then it
             // should fail.
-            LogAssert.ignoreFailingMessages = true; // error log is expected
+            // error log is expected
+            LogAssert.ignoreFailingMessages = true;
             bool result = identity.AssignClientAuthority(owner);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(result, Is.False);
 
             // we can only handle authority on the server.
             // start the server so that isServer is true.
-            Transport.activeTransport = Substitute.For<Transport>(); // needed in .Listen
+            // needed in .Listen
+            Transport.activeTransport = Substitute.For<Transport>();
             NetworkServer.Listen(1);
             Assert.That(identity.isServer, Is.True);
 
@@ -608,12 +617,14 @@ namespace Mirror.Tests
 
             // assigning authority should respawn the object with proper authority
             // on the client. that's the best way to sync the new state right now.
-            owner.connectionToServer.Update(); // process pending messages
+            // process pending messages
+            owner.connectionToServer.Update();
             Assert.That(spawnCalled, Is.EqualTo(1));
 
             // shouldn't be able to assign authority while already owned by
             // another connection
-            LogAssert.ignoreFailingMessages = true; // error log is expected
+            // error log is expected
+            LogAssert.ignoreFailingMessages = true;
             result = identity.AssignClientAuthority(new NetworkConnectionToClient(43));
             LogAssert.ignoreFailingMessages = false;
             Assert.That(result, Is.False);
@@ -622,7 +633,8 @@ namespace Mirror.Tests
 
             // someone might try to remove authority by assigning null.
             // make sure this fails.
-            LogAssert.ignoreFailingMessages = true; // error log is expected
+            // error log is expected
+            LogAssert.ignoreFailingMessages = true;
             result = identity.AssignClientAuthority(null);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(result, Is.False);
@@ -630,16 +642,20 @@ namespace Mirror.Tests
             // removing authority while not isServer shouldn't work.
             // only allow it on server.
             NetworkServer.Shutdown();
-            LogAssert.ignoreFailingMessages = true; // error log is expected
+            // error log is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.RemoveClientAuthority();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
             Assert.That(callbackCalled, Is.EqualTo(1));
-            NetworkServer.Listen(1); // restart it gain
+            // restart it gain
+            NetworkServer.Listen(1);
 
             // removing authority for the main player object shouldn't work
-            owner.identity = identity; // set connection's player object
-            LogAssert.ignoreFailingMessages = true; // error log is expected
+            // set connection's player object
+            owner.identity = identity;
+            // error log is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.RemoveClientAuthority();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
@@ -650,7 +666,8 @@ namespace Mirror.Tests
             identity.RemoveClientAuthority();
             Assert.That(identity.connectionToClient, Is.Null);
             Assert.That(callbackCalled, Is.EqualTo(2));
-            Assert.That(callbackConnection, Is.EqualTo(owner)); // the one that was removed
+            // the one that was removed
+            Assert.That(callbackConnection, Is.EqualTo(owner));
             Assert.That(callbackIdentity, Is.EqualTo(identity));
             Assert.That(callbackState, Is.EqualTo(false));
 
@@ -669,30 +686,42 @@ namespace Mirror.Tests
             // set authority from false to true, which should call OnStartAuthority
             identity.hasAuthority = true;
             identity.NotifyAuthority();
-            Assert.That(identity.hasAuthority, Is.True); // shouldn't be touched
-            Assert.That(compStart.called, Is.EqualTo(1)); // start should be called
-            Assert.That(compStop.called, Is.EqualTo(0)); // stop shouldn't
+            // shouldn't be touched
+            Assert.That(identity.hasAuthority, Is.True);
+            // start should be called
+            Assert.That(compStart.called, Is.EqualTo(1));
+            // stop shouldn't
+            Assert.That(compStop.called, Is.EqualTo(0));
 
             // set it to true again, should do nothing because already true
             identity.hasAuthority = true;
             identity.NotifyAuthority();
-            Assert.That(identity.hasAuthority, Is.True); // shouldn't be touched
-            Assert.That(compStart.called, Is.EqualTo(1)); // same as before
-            Assert.That(compStop.called, Is.EqualTo(0)); // same as before
+            // shouldn't be touched
+            Assert.That(identity.hasAuthority, Is.True);
+            // same as before
+            Assert.That(compStart.called, Is.EqualTo(1));
+            // same as before
+            Assert.That(compStop.called, Is.EqualTo(0));
 
             // set it to false, should call OnStopAuthority
             identity.hasAuthority = false;
             identity.NotifyAuthority();
-            Assert.That(identity.hasAuthority, Is.False); // shouldn't be touched
-            Assert.That(compStart.called, Is.EqualTo(1)); // same as before
-            Assert.That(compStop.called, Is.EqualTo(1)); // stop should be called
+            // shouldn't be touched
+            Assert.That(identity.hasAuthority, Is.False);
+            // same as before
+            Assert.That(compStart.called, Is.EqualTo(1));
+            // stop should be called
+            Assert.That(compStop.called, Is.EqualTo(1));
 
             // set it to false again, should do nothing because already false
             identity.hasAuthority = false;
             identity.NotifyAuthority();
-            Assert.That(identity.hasAuthority, Is.False); // shouldn't be touched
-            Assert.That(compStart.called, Is.EqualTo(1)); // same as before
-            Assert.That(compStop.called, Is.EqualTo(1)); // same as before
+            // shouldn't be touched
+            Assert.That(identity.hasAuthority, Is.False);
+            // same as before
+            Assert.That(compStart.called, Is.EqualTo(1));
+            // same as before
+            Assert.That(compStop.called, Is.EqualTo(1));
         }
 
         [Test]
@@ -709,11 +738,13 @@ namespace Mirror.Tests
             // (an error log is expected though)
             LogAssert.ignoreFailingMessages = true;
 
-            identity.OnSetHostVisibility(true); // should catch the exception internally and not throw it
+            // should catch the exception internally and not throw it
+            identity.OnSetHostVisibility(true);
             Assert.That(comp.called, Is.EqualTo(1));
             Assert.That(comp.valuePassed, Is.True);
 
-            identity.OnSetHostVisibility(false); // should catch the exception internally and not throw it
+            // should catch the exception internally and not throw it
+            identity.OnSetHostVisibility(false);
             Assert.That(comp.called, Is.EqualTo(2));
             Assert.That(comp.valuePassed, Is.False);
 
@@ -771,7 +802,8 @@ namespace Mirror.Tests
             // being checked
             // (an error log is expected though)
             LogAssert.ignoreFailingMessages = true;
-            bool result = identity.OnCheckObserver(connection); // should catch the exception internally and not throw it
+            // should catch the exception internally and not throw it
+            bool result = identity.OnCheckObserver(connection);
             Assert.That(result, Is.True);
             Assert.That(compExc.called, Is.EqualTo(1));
             LogAssert.ignoreFailingMessages = false;
@@ -824,7 +856,8 @@ namespace Mirror.Tests
             // serialize all - should work even if compExc throws an exception
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            LogAssert.ignoreFailingMessages = true; // error log because of the exception is expected
+            // error log because of the exception is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
             LogAssert.ignoreFailingMessages = false;
 
@@ -840,7 +873,8 @@ namespace Mirror.Tests
 
             // deserialize all for owner - should work even if compExc throws an exception
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
-            LogAssert.ignoreFailingMessages = true; // error log because of the exception is expected
+            // error log because of the exception is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.OnDeserializeAllSafely(reader, true);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp1.value, Is.EqualTo(12345));
@@ -852,11 +886,14 @@ namespace Mirror.Tests
 
             // deserialize all for observers - should work even if compExc throws an exception
             reader = new NetworkReader(observersWriter.ToArray());
-            LogAssert.ignoreFailingMessages = true; // error log because of the exception is expected
+            // error log because of the exception is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.OnDeserializeAllSafely(reader, true);
             LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp1.value, Is.EqualTo(12345)); // observers mode, should be in data
-            Assert.That(comp2.value, Is.EqualTo(null)); // owner mode, should not be in data
+            // observers mode, should be in data
+            Assert.That(comp1.value, Is.EqualTo(12345));
+            // owner mode, should not be in data
+            Assert.That(comp2.value, Is.EqualTo(null));
         }
 
         // OnSerializeAllSafely supports at max 64 components, because our
@@ -873,7 +910,8 @@ namespace Mirror.Tests
             // try to serialize
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            LogAssert.ignoreFailingMessages = true; // error log is expected because of too many components
+            // error log is expected because of too many components
+            LogAssert.ignoreFailingMessages = true;
             identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
             LogAssert.ignoreFailingMessages = false;
 
@@ -912,7 +950,8 @@ namespace Mirror.Tests
 
             // deserialize all
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
-            LogAssert.ignoreFailingMessages = true; // warning log because of serialization mismatch
+            // warning log because of serialization mismatch
+            LogAssert.ignoreFailingMessages = true;
             identity.OnDeserializeAllSafely(reader, true);
             LogAssert.ignoreFailingMessages = false;
 
@@ -936,7 +975,8 @@ namespace Mirror.Tests
             // call OnStartLocalPlayer in identity
             // one component will throw an exception, but that shouldn't stop
             // OnStartLocalPlayer from being called in the second one
-            LogAssert.ignoreFailingMessages = true; // exception will log an error
+            // exception will log an error
+            LogAssert.ignoreFailingMessages = true;
             identity.OnStartLocalPlayer();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(compEx.called, Is.EqualTo(1));
@@ -945,8 +985,10 @@ namespace Mirror.Tests
             // we have checks to make sure that it's only called once.
             // let's see if they work.
             identity.OnStartLocalPlayer();
-            Assert.That(compEx.called, Is.EqualTo(1)); // same as before?
-            Assert.That(comp.called, Is.EqualTo(1)); // same as before?
+            // same as before?
+            Assert.That(compEx.called, Is.EqualTo(1));
+            // same as before?
+            Assert.That(comp.called, Is.EqualTo(1));
         }
 
         [Test]
@@ -963,7 +1005,8 @@ namespace Mirror.Tests
             // call OnNetworkDestroy in identity
             // one component will throw an exception, but that shouldn't stop
             // OnNetworkDestroy from being called in the second one
-            LogAssert.ignoreFailingMessages = true; // exception will log an error
+            // exception will log an error
+            LogAssert.ignoreFailingMessages = true;
             identity.OnNetworkDestroy();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(compEx.called, Is.EqualTo(1));
@@ -980,7 +1023,8 @@ namespace Mirror.Tests
             // AddObserver should return early if called before .observers was
             // created
             Assert.That(identity.observers, Is.Null);
-            LogAssert.ignoreFailingMessages = true; // error log is expected
+            // error log is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.AddObserver(connection1);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(identity.observers, Is.Null);
@@ -1036,13 +1080,17 @@ namespace Mirror.Tests
             // set components dirty bits
             compA.SetDirtyBit(0x0001);
             compB.SetDirtyBit(0x1001);
-            Assert.That(compA.IsDirty(), Is.True); // dirty because interval reached and mask != 0
-            Assert.That(compB.IsDirty(), Is.False); // not dirty because syncinterval not reached
+            // dirty because interval reached and mask != 0
+            Assert.That(compA.IsDirty(), Is.True);
+            // not dirty because syncinterval not reached
+            Assert.That(compB.IsDirty(), Is.False);
 
             // call identity.ClearDirtyComponentsDirtyBits
             identity.ClearDirtyComponentsDirtyBits();
-            Assert.That(compA.IsDirty(), Is.False); // should be cleared now
-            Assert.That(compB.IsDirty(), Is.False); // should be untouched
+            // should be cleared now
+            Assert.That(compA.IsDirty(), Is.False);
+            // should be untouched
+            Assert.That(compB.IsDirty(), Is.False);
 
             // set compB syncinterval to 0 to check if the masks were untouched
             // (if they weren't, then it should be dirty now)
@@ -1064,13 +1112,17 @@ namespace Mirror.Tests
             // set components dirty bits
             compA.SetDirtyBit(0x0001);
             compB.SetDirtyBit(0x1001);
-            Assert.That(compA.IsDirty(), Is.True); // dirty because interval reached and mask != 0
-            Assert.That(compB.IsDirty(), Is.False); // not dirty because syncinterval not reached
+            // dirty because interval reached and mask != 0
+            Assert.That(compA.IsDirty(), Is.True);
+            // not dirty because syncinterval not reached
+            Assert.That(compB.IsDirty(), Is.False);
 
             // call identity.ClearAllComponentsDirtyBits
             identity.ClearAllComponentsDirtyBits();
-            Assert.That(compA.IsDirty(), Is.False); // should be cleared now
-            Assert.That(compB.IsDirty(), Is.False); // should be cleared now
+            // should be cleared now
+            Assert.That(compA.IsDirty(), Is.False);
+            // should be cleared now
+            Assert.That(compB.IsDirty(), Is.False);
 
             // set compB syncinterval to 0 to check if the masks were cleared
             // (if they weren't, then it would still be dirty now)
@@ -1083,7 +1135,8 @@ namespace Mirror.Tests
         {
             // modify it a bit
             identity.isClient = true;
-            identity.OnStartServer(); // creates .observers and generates a netId
+            // creates .observers and generates a netId
+            identity.OnStartServer();
             uint netId = identity.netId;
             identity.connectionToClient = new NetworkConnectionToClient(1);
             identity.connectionToServer = new NetworkConnectionToServer();
@@ -1126,13 +1179,15 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // try wrong component index. command shouldn't be called again.
-            LogAssert.ignoreFailingMessages = true; // warning is expected
+            // warning is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.HandleCommand(1, functionHash, payload);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // try wrong function hash. command shouldn't be called again.
-            LogAssert.ignoreFailingMessages = true; // warning is expected
+            // warning is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.HandleCommand(0, functionHash+1, payload);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
@@ -1164,13 +1219,15 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // try wrong component index. rpc shouldn't be called again.
-            LogAssert.ignoreFailingMessages = true; // warning is expected
+            // warning is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.HandleRPC(1, functionHash, payload);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // try wrong function hash. rpc shouldn't be called again.
-            LogAssert.ignoreFailingMessages = true; // warning is expected
+            // warning is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.HandleRPC(0, functionHash+1, payload);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
@@ -1202,13 +1259,15 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // try wrong component index. syncevent shouldn't be called again.
-            LogAssert.ignoreFailingMessages = true; // warning is expected
+            // warning is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.HandleSyncEvent(1, functionHash, payload);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // try wrong function hash. syncevent shouldn't be called again.
-            LogAssert.ignoreFailingMessages = true; // warning is expected
+            // warning is expected
+            LogAssert.ignoreFailingMessages = true;
             identity.HandleSyncEvent(0, functionHash+1, payload);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
@@ -1223,13 +1282,19 @@ namespace Mirror.Tests
         {
             // add components
             SerializeTest1NetworkBehaviour compA = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            compA.value = 1337; // test value
-            compA.syncInterval = 0; // set syncInterval so IsDirty passes the interval check
-            compA.syncMode = SyncMode.Owner; // one needs to sync to owner
+            // test value
+            compA.value = 1337;
+            // set syncInterval so IsDirty passes the interval check
+            compA.syncInterval = 0;
+            // one needs to sync to owner
+            compA.syncMode = SyncMode.Owner;
             SerializeTest2NetworkBehaviour compB = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
-            compB.value = "test"; // test value
-            compB.syncInterval = 0; // set syncInterval so IsDirty passes the interval check
-            compB.syncMode = SyncMode.Observers; // one needs to sync to owner
+            // test value
+            compB.value = "test";
+            // set syncInterval so IsDirty passes the interval check
+            compB.syncInterval = 0;
+            // one needs to sync to owner
+            compB.syncMode = SyncMode.Observers;
 
             // call OnStartServer once so observers are created
             identity.OnStartServer();
@@ -1248,7 +1313,8 @@ namespace Mirror.Tests
 
             // add an owner connection that will receive the updates
             ULocalConnectionToClient owner = new ULocalConnectionToClient();
-            owner.isReady = true; // for syncing
+            // for syncing
+            owner.isReady = true;
             // add a client to server connection + handler to receive syncs
             owner.connectionToServer = new ULocalConnectionToServer();
             int ownerCalled = 0;
@@ -1260,7 +1326,8 @@ namespace Mirror.Tests
 
             // add an observer connection that will receive the updates
             ULocalConnectionToClient observer = new ULocalConnectionToClient();
-            observer.isReady = true; // we only sync to ready observers
+            // we only sync to ready observers
+            observer.isReady = true;
             // add a client to server connection + handler to receive syncs
             observer.connectionToServer = new ULocalConnectionToServer();
             int observerCalled = 0;

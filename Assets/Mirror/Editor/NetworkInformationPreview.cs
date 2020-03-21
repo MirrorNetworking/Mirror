@@ -133,7 +133,8 @@ namespace Mirror
                 Rect behaviourRect = new Rect(initialX, labelRect.y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
 
                 GUI.Label(behaviourRect, new GUIContent("Network Behaviours"), styles.labelStyle);
-                behaviourRect.x += 20; // indent names
+                // indent names
+                behaviourRect.x += 20;
                 behaviourRect.y += behaviourRect.height;
 
                 foreach (NetworkBehaviourInfo info in behavioursInfo)
@@ -154,7 +155,8 @@ namespace Mirror
                     Rect observerRect = new Rect(initialX, lastY + 10, 200, 20);
 
                     GUI.Label(observerRect, new GUIContent("Network observers"), styles.labelStyle);
-                    observerRect.x += 20; // indent names
+                    // indent names
+                    observerRect.x += 20;
                     observerRect.y += observerRect.height;
 
                     foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
