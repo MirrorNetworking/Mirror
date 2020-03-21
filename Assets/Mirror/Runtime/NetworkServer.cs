@@ -579,7 +579,8 @@ namespace Mirror
             foreach (NetworkIdentity identity in spawned.Values)
             {
                 // try with far away ones in ummorpg!
-                if (identity.gameObject.activeSelf) //TODO this is different
+                //TODO this is different
+                if (identity.gameObject.activeSelf)
                 {
                     if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId + " sceneId=" + identity.sceneId);
 
