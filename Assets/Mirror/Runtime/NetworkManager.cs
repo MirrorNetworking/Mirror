@@ -65,18 +65,26 @@ namespace Mirror
         /// <para>Setting this makes the NetworkManager do scene management. This scene will be switched to when a network session is completed - such as a client disconnect, or a server shutdown.</para>
         /// </summary>
         [Header("Scene Management")]
-        [Scene]
-        [FormerlySerializedAs("m_OfflineScene")]
         [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
+        public SceneField offlineSceneField;
+
+        [Scene]
+        [Obsolete("Use offlineSceneAsset Instead", true)]
+        [HideInInspector]
+        [FormerlySerializedAs("m_OfflineScene")]
         public string offlineScene = "";
 
         /// <summary>
         /// The scene to switch to when online.
         /// <para>Setting this makes the NetworkManager do scene management. This scene will be switched to when a network session is started - such as a client connect, or a server listen.</para>
         /// </summary>
-        [Scene]
-        [FormerlySerializedAs("m_OnlineScene")]
         [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
+        public SceneField onlineSceneField;
+
+        [Scene]
+        [Obsolete("Use onlineSceneField Instead", true)]
+        [HideInInspector]
+        [FormerlySerializedAs("m_OnlineScene")]
         public string onlineScene = "";
 
         // transport layer
