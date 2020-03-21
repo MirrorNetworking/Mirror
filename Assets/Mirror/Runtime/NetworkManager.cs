@@ -197,7 +197,8 @@ namespace Mirror
 #endif
             }
 
-            maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
+            // always >= 0
+            maxConnections = Mathf.Max(maxConnections, 0);
 
             if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
             {

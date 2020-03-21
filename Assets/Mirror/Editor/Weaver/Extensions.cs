@@ -80,8 +80,10 @@ namespace Mirror.Weaver
 
         public static bool IsArrayType(this TypeReference tr)
         {
-            if ((tr.IsArray && ((ArrayType)tr).ElementType.IsArray) || // jagged array
-                (tr.IsArray && ((ArrayType)tr).Rank > 1)) // multidimensional array
+            // jagged array
+            if ((tr.IsArray && ((ArrayType)tr).ElementType.IsArray) ||
+                // multidimensional array
+                (tr.IsArray && ((ArrayType)tr).Rank > 1))
                 return false;
             return true;
         }

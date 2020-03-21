@@ -14,12 +14,17 @@ namespace Mirror.Weaver
         const string MirrorRuntimeAssemblyName = "Mirror";
         const string MirrorWeaverAssemblyName = "Mirror.Weaver";
 
-        public static Action<string> OnWeaverMessage; // delegate for subscription to Weaver debug messages
-        public static Action<string> OnWeaverWarning; // delegate for subscription to Weaver warning messages
-        public static Action<string> OnWeaverError; // delete for subscription to Weaver error messages
+        // delegate for subscription to Weaver debug messages
+        public static Action<string> OnWeaverMessage;
+        // delegate for subscription to Weaver warning messages
+        public static Action<string> OnWeaverWarning;
+        // delete for subscription to Weaver error messages
+        public static Action<string> OnWeaverError;
 
-        public static bool WeaverEnabled { get; set; } // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
-        public static bool UnityLogEnabled = true; // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
+        // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
+        public static bool WeaverEnabled { get; set; }
+        // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
+        public static bool UnityLogEnabled = true;
 
         // holds the result status of our latest Weave operation
         // NOTE: WeaveFailed is critical to unit tests, but isn't used for anything else. 

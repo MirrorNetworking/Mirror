@@ -89,11 +89,14 @@ namespace Mirror.Weaver
                 return null;
 
             // invoke interal send and return
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
+            // this
+            evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0));
             evtWorker.Append(evtWorker.Create(OpCodes.Ldtoken, td));
-            evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference)); // invokerClass
+            // invokerClass
+            evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
             evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // writer
+            // writer
+            evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0));
             evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
             evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.sendEventInternal));
 
@@ -140,7 +143,8 @@ namespace Mirror.Weaver
                         MethodDefinition eventCallFunc = ProcessEventCall(td, ed, ca);
                         td.Methods.Add(eventCallFunc);
 
-                        Weaver.WeaveLists.replaceEvents[ed.Name] = eventCallFunc; // original weaver compares .Name, not EventDefinition.
+                        // original weaver compares .Name, not EventDefinition.
+                        Weaver.WeaveLists.replaceEvents[ed.Name] = eventCallFunc;
 
                         Weaver.DLog(td, "  Event: " + ed.Name);
                         break;
