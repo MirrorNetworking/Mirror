@@ -31,7 +31,6 @@ namespace MirrorTest
              // This gonna give error saying-- Mirror.Weaver error: 
              // Cannot generate writer for scriptable object Data[]. Use a supported type or provide a custom writer
             CmdwriteArraydata(
-                //This gonna give error saying-- Mirror.Weaver error: Cannot generate writer for scriptable object Data[]. Use a supported type or provide a custom writer
                 Data[] arg)
         {
 
