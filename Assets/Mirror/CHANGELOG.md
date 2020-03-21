@@ -1,3 +1,11 @@
+## [20.0.3](https://github.com/MirrorNG/MirrorNG/compare/20.0.2-master...20.0.3-master) (2020-03-21)
+
+
+### Bug Fixes
+
+* additive scene player movement is client authoritative ([e683a92](https://github.com/MirrorNG/MirrorNG/commit/e683a92b081c989314c11e48fb21ee0096465797))
+* the Room scene references other scenes ([9b60871](https://github.com/MirrorNG/MirrorNG/commit/9b60871e2ea1a2912c0af3d95796660fc04dc569))
+
 ## [20.0.2](https://github.com/MirrorNG/MirrorNG/compare/20.0.1-master...20.0.2-master) (2020-03-21)
 
 
