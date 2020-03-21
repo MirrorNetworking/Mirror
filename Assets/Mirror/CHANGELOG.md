@@ -1,3 +1,10 @@
+## [20.0.2](https://github.com/MirrorNG/MirrorNG/compare/20.0.1-master...20.0.2-master) (2020-03-21)
+
+
+### Bug Fixes
+
+* additive scene example ([9fa0169](https://github.com/MirrorNG/MirrorNG/commit/9fa016957f487526ab44d443aabfe58fcc69518a))
+
 ## [20.0.1](https://github.com/MirrorNG/MirrorNG/compare/20.0.0-master...20.0.1-master) (2020-03-20)
 
 
