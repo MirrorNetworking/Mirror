@@ -233,7 +233,6 @@ namespace Mirror
                 // position if we aren't too far away
                 //
                 // local position/rotation for VR support
-                //
                 if (Vector3.Distance(targetComponent.transform.localPosition, start.localPosition) < oldDistance + newDistance)
                 {
                     start.localPosition = targetComponent.transform.localPosition;
