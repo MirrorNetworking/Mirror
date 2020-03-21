@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -12,6 +13,23 @@ namespace Mirror
     {
         public string path;
         [SerializeField] string assetGuid;
+
+        public bool HasValue()
+        {
+            return !string.IsNullOrEmpty(path);
+        }
+
+        public bool IsActiveScene()
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return false;
+            }
+
+            Scene activeScene = SceneManager.GetActiveScene();
+
+            return activeScene.path == path;
+        }
 
         public override bool Equals(object obj)
         {
