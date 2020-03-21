@@ -96,6 +96,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -292,8 +293,8 @@ MonoBehaviour:
   minPlayers: 1
   roomPlayerPrefab: {fileID: 114033720796874720, guid: deae2134a1d77704b9c595efe69767dd,
     type: 3}
-  RoomScene: 
-  GameplayScene: 
+  RoomScene: RoomScene
+  GameplayScene: OnlineScene
   AllPlayersReady: 0
   RoomSlots: []
 --- !u!4 &2008127832
