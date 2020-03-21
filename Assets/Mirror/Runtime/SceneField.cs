@@ -11,24 +11,26 @@ namespace Mirror
     [System.Serializable]
     public struct SceneField : IEquatable<SceneField>
     {
-        public string path;
+        [SerializeField] string path;
         [SerializeField] string assetGuid;
+
+        public string Path => path; 
 
         public bool HasValue()
         {
-            return !string.IsNullOrEmpty(path);
+            return !string.IsNullOrEmpty(Path);
         }
 
         public bool IsActiveScene()
         {
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(Path))
             {
                 return false;
             }
 
             Scene activeScene = SceneManager.GetActiveScene();
 
-            return activeScene.path == path;
+            return activeScene.path == Path;
         }
 
         public override bool Equals(object obj)
