@@ -46,13 +46,19 @@ namespace Mirror
         /// <summary>
         /// The scene to use for the room. This is similar to the offlineScene of the NetworkManager.
         /// </summary>
+        public SceneField RoomSceneField;
         [Scene]
+        [Obsolete("Use RoomSceneField Instead", true)]
+        [HideInInspector]
         public string RoomScene;
 
         /// <summary>
         /// The scene to use for the playing the game from the room. This is similar to the onlineScene of the NetworkManager.
         /// </summary>
+        public SceneField GameplaySceneField;
         [Scene]
+        [Obsolete("Use GameplaySceneField Instead", true)]
+        [HideInInspector] 
         public string GameplayScene;
 
         /// <summary>
