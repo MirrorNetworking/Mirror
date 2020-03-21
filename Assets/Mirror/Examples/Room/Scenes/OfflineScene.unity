@@ -276,8 +276,8 @@ MonoBehaviour:
   startOnHeadless: 1
   showDebugMessages: 0
   serverTickRate: 30
-  offlineScene: 
-  onlineScene: 
+  offlineScene: OfflineScene
+  onlineScene: RoomScene
   server: {fileID: 2008127834}
   client: {fileID: 2008127835}
   transport: {fileID: 2008127830}
