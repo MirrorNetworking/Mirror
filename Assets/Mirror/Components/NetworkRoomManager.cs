@@ -143,9 +143,9 @@ namespace Mirror
 
         void SceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer)
         {
-            if (LogFilter.Debug) Debug.LogFormat("NetworkRoom SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().name, conn);
+            if (LogFilter.Debug) Debug.LogFormat("NetworkRoom SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().path, conn);
 
-            if (SceneManager.GetActiveScene().name == RoomScene)
+            if (SceneManager.GetActiveScene().path == RoomScene)
             {
                 // cant be ready in room, add to ready list
                 PendingPlayer pending;
@@ -179,7 +179,7 @@ namespace Mirror
         /// </summary>
         public void CheckReadyToBegin()
         {
-            if (SceneManager.GetActiveScene().name != RoomScene)
+            if (SceneManager.GetActiveScene().path != RoomScene)
                 return;
 
             if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
@@ -229,7 +229,7 @@ namespace Mirror
             }
 
             // cannot join game in progress
-            if (SceneManager.GetActiveScene().name != RoomScene)
+            if (SceneManager.GetActiveScene().path != RoomScene)
             {
                 conn.Disconnect();
                 return;
@@ -262,7 +262,7 @@ namespace Mirror
                     player.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
             }
 
-            if (SceneManager.GetActiveScene().name == RoomScene)
+            if (SceneManager.GetActiveScene().path == RoomScene)
                 RecalculateRoomPlayerIndices();
 
             base.OnServerDisconnect(conn);
@@ -276,7 +276,7 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
-            if (SceneManager.GetActiveScene().name == RoomScene)
+            if (SceneManager.GetActiveScene().path == RoomScene)
             {
                 if (roomSlots.Count == maxConnections)
                     return;
@@ -464,7 +464,7 @@ namespace Mirror
         /// <param name="conn">Connection of the client</param>
         public override void OnClientSceneChanged(NetworkConnection conn)
         {
-            if (SceneManager.GetActiveScene().name == RoomScene)
+            if (SceneManager.GetActiveScene().path == RoomScene)
             {
                 if (NetworkClient.isConnected)
                     CallOnClientEnterRoom();
@@ -659,7 +659,7 @@ namespace Mirror
             if (!showRoomGUI)
                 return;
 
-            if (NetworkServer.active && SceneManager.GetActiveScene().name == GameplayScene)
+            if (NetworkServer.active && SceneManager.GetActiveScene().path == GameplayScene)
             {
                 GUILayout.BeginArea(new Rect(Screen.width - 150f, 10f, 140f, 30f));
                 if (GUILayout.Button("Return to Room"))
@@ -667,7 +667,7 @@ namespace Mirror
                 GUILayout.EndArea();
             }
 
-            if (SceneManager.GetActiveScene().name == RoomScene)
+            if (SceneManager.GetActiveScene().path == RoomScene)
                 GUI.Box(new Rect(10f, 180f, 520f, 150f), "PLAYERS");
         }
 
