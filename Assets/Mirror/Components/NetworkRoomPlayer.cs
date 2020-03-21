@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -125,7 +124,7 @@ namespace Mirror
                 if (!room.showRoomGUI)
                     return;
 
-                if (SceneManager.GetActiveScene().name != room.RoomScene)
+                if (!room.RoomSceneField.IsActiveScene())
                     return;
 
                 DrawPlayerReadyState();

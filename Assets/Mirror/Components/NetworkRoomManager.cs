@@ -151,7 +151,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.LogFormat("NetworkRoom SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().name, conn);
 
-            if (SceneManager.GetActiveScene().name == RoomScene)
+            if (RoomSceneField.IsActiveScene())
             {
                 // cant be ready in room, add to ready list
                 PendingPlayer pending;
@@ -185,7 +185,7 @@ namespace Mirror
         /// </summary>
         public void CheckReadyToBegin()
         {
-            if (SceneManager.GetActiveScene().name != RoomScene)
+            if (!RoomSceneField.IsActiveScene())
                 return;
 
             if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
@@ -235,7 +235,7 @@ namespace Mirror
             }
 
             // cannot join game in progress
-            if (SceneManager.GetActiveScene().name != RoomScene)
+            if (!RoomSceneField.IsActiveScene())
             {
                 conn.Disconnect();
                 return;
@@ -268,8 +268,10 @@ namespace Mirror
                     player.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
             }
 
-            if (SceneManager.GetActiveScene().name == RoomScene)
+            if (RoomSceneField.IsActiveScene())
+            {
                 RecalculateRoomPlayerIndices();
+            }
 
             base.OnServerDisconnect(conn);
             OnRoomServerDisconnect(conn);
@@ -282,7 +284,7 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
-            if (SceneManager.GetActiveScene().name == RoomScene)
+            if (RoomSceneField.IsActiveScene())
             {
                 if (roomSlots.Count == maxConnections)
                     return;
@@ -319,7 +321,7 @@ namespace Mirror
         /// <param name="newSceneName"></param>
         public override void ServerChangeScene(string newSceneName)
         {
-            if (newSceneName == RoomScene)
+            if (newSceneName == RoomSceneField.Path)
             {
                 foreach (NetworkRoomPlayer roomPlayer in roomSlots)
                 {
@@ -349,7 +351,7 @@ namespace Mirror
         /// <param name="sceneName">The name of the new scene.</param>
         public override void OnServerSceneChanged(string sceneName)
         {
-            if (sceneName != RoomScene)
+            if (sceneName != RoomSceneField.Path)
             {
                 // call SceneLoadedForPlayer on any players that become ready while we were loading the scene.
                 foreach (PendingPlayer pending in pendingPlayers)
@@ -367,13 +369,13 @@ namespace Mirror
         /// </summary>
         public override void OnStartServer()
         {
-            if (string.IsNullOrEmpty(RoomScene))
+            if (!RoomSceneField.HasValue())
             {
                 Debug.LogError("NetworkRoomManager RoomScene is empty. Set the RoomScene in the inspector for the NetworkRoomMangaer");
                 return;
             }
 
-            if (string.IsNullOrEmpty(GameplayScene))
+            if (!GameplaySceneField.HasValue())
             {
                 Debug.LogError("NetworkRoomManager PlayScene is empty. Set the PlayScene in the inspector for the NetworkRoomMangaer");
                 return;
@@ -470,7 +472,7 @@ namespace Mirror
         /// <param name="conn">Connection of the client</param>
         public override void OnClientSceneChanged(NetworkConnection conn)
         {
-            if (SceneManager.GetActiveScene().name == RoomScene)
+            if (RoomSceneField.IsActiveScene())
             {
                 if (NetworkClient.isConnected)
                     CallOnClientEnterRoom();
@@ -596,7 +598,7 @@ namespace Mirror
         public virtual void OnRoomServerPlayersReady()
         {
             // all players are readyToBegin, start the game
-            ServerChangeScene(GameplayScene);
+            ServerChangeScene(GameplaySceneField.Path);
         }
 
         #endregion
@@ -660,15 +662,15 @@ namespace Mirror
             if (!showRoomGUI)
                 return;
 
-            if (NetworkServer.active && SceneManager.GetActiveScene().name == GameplayScene)
+            if (NetworkServer.active && GameplaySceneField.IsActiveScene())
             {
                 GUILayout.BeginArea(new Rect(Screen.width - 150f, 10f, 140f, 30f));
                 if (GUILayout.Button("Return to Room"))
-                    ServerChangeScene(RoomScene);
+                    ServerChangeScene(RoomSceneField.Path);
                 GUILayout.EndArea();
             }
 
-            if (SceneManager.GetActiveScene().name == RoomScene)
+            if (RoomSceneField.IsActiveScene())
                 GUI.Box(new Rect(10f, 180f, 520f, 150f), "PLAYERS");
         }
 
