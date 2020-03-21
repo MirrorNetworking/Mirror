@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -30,7 +30,7 @@ namespace Mirror.Tests
             Assert.That(manager.startOnHeadless, Is.True);
             Assert.That(manager.showDebugMessages, Is.False);
             Assert.That(manager.serverTickRate, Is.EqualTo(30));
-            Assert.That(manager.offlineScene, Is.Empty);
+            Assert.IsTrue(string.IsNullOrEmpty(manager.offlineSceneField.Path));
             Assert.That(manager.networkAddress, Is.EqualTo("localhost"));
             Assert.That(manager.maxConnections, Is.EqualTo(4));
             Assert.That(manager.autoCreatePlayer, Is.True);
