@@ -653,6 +653,22 @@ namespace Mirror.Tests
         #endregion
 
         #region Server Client Attribute Tests 
+        [Test]
+        public void NetworkBehaviourServer()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+            CheckAddedCodeServer();
+        }
+
+        [Test] 
+        public void NetworkBehaviourClient()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+            CheckAddedCodeClient();
+        }
+
         void CheckAddedCodeServer()
         {
             const string networkServerGetActive = "System.Boolean Mirror.NetworkServer::get_active()";
