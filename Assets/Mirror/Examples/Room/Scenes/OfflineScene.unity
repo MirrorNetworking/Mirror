@@ -268,10 +268,16 @@ MonoBehaviour:
   dontDestroyOnLoad: 1
   runInBackground: 1
   startOnHeadless: 1
-  serverTickRate: 30
   showDebugMessages: 0
-  offlineScene: OfflineScene
-  onlineScene: RoomScene
+  serverTickRate: 30
+  offlineSceneField:
+    path: Assets/Mirror/Examples/Room/Scenes/OfflineScene.unity
+    assetGuid: 9e6f14982412b2545a0911ebaaa46a23
+  offlineScene: 
+  onlineSceneField:
+    path: Assets/Mirror/Examples/Room/Scenes/RoomScene.unity
+    assetGuid: 48478f4d522f96945b8396f376299d3a
+  onlineScene: 
   transport: {fileID: 2008127830}
   networkAddress: localhost
   maxConnections: 5
@@ -286,10 +292,16 @@ MonoBehaviour:
   minPlayers: 1
   roomPlayerPrefab: {fileID: 114033720796874720, guid: deae2134a1d77704b9c595efe69767dd,
     type: 3}
-  RoomScene: RoomScene
-  GameplayScene: OnlineScene
-  roomSlots: []
+  RoomSceneField:
+    path: Assets/Mirror/Examples/Room/Scenes/RoomScene.unity
+    assetGuid: 48478f4d522f96945b8396f376299d3a
+  RoomScene: 
+  GameplaySceneField:
+    path: Assets/Mirror/Examples/Room/Scenes/OnlineScene.unity
+    assetGuid: d7a6763559b31854586c9e49916273ef
+  GameplayScene: 
   allPlayersReady: 0
+  roomSlots: []
 --- !u!4 &2008127832
 Transform:
   m_ObjectHideFlags: 0
