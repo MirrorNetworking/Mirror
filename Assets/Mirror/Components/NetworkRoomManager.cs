@@ -103,7 +103,18 @@ namespace Mirror
                 }
             }
 
+#pragma warning disable CS0618 // Type or member is obsolete
+            fixSceneFields();
+#pragma warning restore CS0618 // Type or member is obsolete
+
             base.OnValidate();
+        }
+
+        [System.Obsolete("Fixing Obsolete fields")]
+        void fixSceneFields()
+        {
+            SceneFieldFixer.FixField(this, nameof(GameplayScene), nameof(GameplaySceneField));
+            SceneFieldFixer.FixField(this, nameof(RoomScene), nameof(RoomSceneField));
         }
 
         internal void ReadyStatusChanged()

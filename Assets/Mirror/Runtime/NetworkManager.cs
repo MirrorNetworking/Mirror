@@ -213,6 +213,17 @@ namespace Mirror
                 Debug.LogError("NetworkManager - playerPrefab must have a NetworkIdentity.");
                 playerPrefab = null;
             }
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            fixSceneFields();
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+        
+        [System.Obsolete("Fixing Obsolete fields")]
+        void fixSceneFields()
+        {
+            SceneFieldFixer.FixField(this, nameof(offlineScene), nameof(offlineSceneField));
+            SceneFieldFixer.FixField(this, nameof(onlineScene), nameof(onlineSceneField));
         }
 
         /// <summary>
