@@ -122,8 +122,6 @@ namespace Mirror
         [NonSerialized]
         public bool isNetworkActive;
 
-        NetworkConnection clientReadyConnection;
-
         /// <summary>
         /// This is true if the client loaded a new scene when connecting to the server.
         /// <para>This is set before OnClientConnect is called, so it can be checked there to perform different logic if a scene load occurred.</para>
@@ -826,7 +824,7 @@ namespace Mirror
         {
             if (loadingSceneAsync != null && loadingSceneAsync.isDone)
             {
-                if (LogFilter.Debug) Debug.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
+                if (LogFilter.Debug) Debug.Log("ClientChangeScene done readyCon:" + client.connection);
                 FinishLoadScene();
                 loadingSceneAsync.allowSceneActivation = true;
                 loadingSceneAsync = null;
@@ -869,11 +867,11 @@ namespace Mirror
             // it's very obvious to notice.
             Debug.Log("Finished loading scene in host mode.");
 
-            if (clientReadyConnection != null)
+            if (client.connection != null)
             {
-                OnClientConnect(clientReadyConnection);
+                OnClientConnect(client.connection);
                 clientLoadedScene = true;
-                clientReadyConnection = null;
+                client.connection = null;
             }
 
             // do we need to finish a StartHost() call?
@@ -927,11 +925,11 @@ namespace Mirror
             // it's very obvious to notice.
             Debug.Log("Finished loading scene in client-only mode.");
 
-            if (clientReadyConnection != null)
+            if (client.connection != null)
             {
-                OnClientConnect(clientReadyConnection);
+                OnClientConnect(client.connection);
                 clientLoadedScene = true;
-                clientReadyConnection = null;
+                client.connection = null;
             }
 
             if (client.isConnected)
@@ -1123,7 +1121,7 @@ namespace Mirror
             {
                 // will wait for scene id to come from the server.
                 clientLoadedScene = true;
-                clientReadyConnection = conn;
+                client.connection = conn;
             }
         }
 
