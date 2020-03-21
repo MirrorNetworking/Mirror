@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -13,9 +14,9 @@ namespace Mirror
                 SceneAsset sceneObject = AssetDatabase.LoadAssetAtPath<SceneAsset>(property.stringValue);
 
                 if (sceneObject == null)
-                { 
+                {
                     // try to load it from the build settings for legacy compatibility
-                    sceneObject = GetBuildSettingsSceneObject(property);
+                    sceneObject = GetBuildSettingsSceneObject(property.stringValue);
                 }
                 SceneAsset scene = (SceneAsset)EditorGUI.ObjectField(position, label, sceneObject, typeof(SceneAsset), true);
                 property.stringValue = AssetDatabase.GetAssetPath(scene);
@@ -26,25 +27,13 @@ namespace Mirror
             }
         }
 
-        protected SceneAsset GetBuildSettingsSceneObject(SerializedProperty property)
+        protected SceneAsset GetBuildSettingsSceneObject(string sceneName)
         {
-            string sceneObjectName = property.stringValue;
-
-            if (string.IsNullOrEmpty(sceneObjectName))
-            {
+            Scene scene = SceneManager.GetSceneByName(sceneName);
+            if (scene == null)
                 return null;
-            }
 
-            foreach (EditorBuildSettingsScene editorScene in EditorBuildSettings.scenes)
-            {
-                // hack,  but retains backwards compatibility
-                if (editorScene.path.IndexOf(sceneObjectName) != -1)
-                {
-                    return AssetDatabase.LoadAssetAtPath<SceneAsset>(editorScene.path);
-                }
-            }
-            Debug.LogError($"Scene {sceneObjectName} not found in {property.propertyPath}");
-            return null;
+            return AssetDatabase.LoadAssetAtPath<SceneAsset>(scene.path);
         }
     }
 }
