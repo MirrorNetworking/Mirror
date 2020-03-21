@@ -79,8 +79,9 @@ namespace Mirror
     public class ClientCallbackAttribute : Attribute { }
 
     /// <summary>
-    /// Converts a string property into a Scene property in the inspector
+    /// Obsolete: Use SceneField instead.
     /// </summary>
+    [System.Obsolete("Use " + nameof(SceneField) + " Instead")]
     public class SceneAttribute : PropertyAttribute { }
 
     /// <summary>
