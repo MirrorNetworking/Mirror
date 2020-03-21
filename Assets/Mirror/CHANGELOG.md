@@ -1,3 +1,10 @@
+## [20.0.4](https://github.com/MirrorNG/MirrorNG/compare/20.0.3-master...20.0.4-master) (2020-03-21)
+
+
+### Bug Fixes
+
+* movement in room demo ([49f7904](https://github.com/MirrorNG/MirrorNG/commit/49f7904b4a83fc5318031d273cb10a4b87af2172))
+
 ## [20.0.3](https://github.com/MirrorNG/MirrorNG/compare/20.0.2-master...20.0.3-master) (2020-03-21)
 
 
