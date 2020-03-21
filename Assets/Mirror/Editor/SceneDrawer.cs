@@ -30,9 +30,6 @@ namespace Mirror
         protected SceneAsset GetBuildSettingsSceneObject(string sceneName)
         {
             Scene scene = SceneManager.GetSceneByName(sceneName);
-            if (scene == null)
-                return null;
-
             return AssetDatabase.LoadAssetAtPath<SceneAsset>(scene.path);
         }
     }
