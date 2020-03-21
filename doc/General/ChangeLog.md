@@ -7,6 +7,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 ## Version 11.x.x - In Progress
 - Fixed: Setting breakpoints in an IDE for Command's and Rpc's work correctly now.
 - Fixed: NetworkServer's calls to SendToObservers now reports correct channel to Mirror Profiler.
+- Fixed: NetworkRoomManager's `roomPlayerPrefab` is now `protected` so it can be accessed in derived classes.
 - Fixed: NetworkRoomPlayer inspector and documentation updated to be less confusing.
 - Fixed: NetworkIdentity no longer double calls NetworkServer.Destroy.
 - Fixed: NwtworkAnimator now correctly excludes parameters controlled by curves.
