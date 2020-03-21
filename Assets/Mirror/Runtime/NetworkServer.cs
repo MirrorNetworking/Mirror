@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Mirror
 {
+
+
     /// <summary>
     /// The NetworkServer.
     /// </summary>
@@ -18,6 +21,9 @@ namespace Mirror
     {
         bool initialized;
 
+        public class NetworkConnectionEvent : UnityEvent<NetworkConnectionToClient> { }
+
+
         /// <summary>
         /// The maximum number of concurrent network connections to support.
         /// <para>This effects the memory usage of the network layer.</para>
@@ -25,6 +31,8 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         [Min(1)]
         public int MaxConnections = 4;
+
+        public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
 
         /// <summary>
         /// The connection to the host mode client (if any).
@@ -387,7 +395,7 @@ namespace Mirror
 
             // add connection and invoke connected event
             AddConnection(conn);
-            conn.InvokeHandler(new ConnectMessage(), -1);
+            Connected.Invoke(conn);
         }
 
         void OnDisconnected(int connectionId)

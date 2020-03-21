@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.TestTools;
 
 namespace Mirror.Tests
@@ -109,11 +110,33 @@ namespace Mirror.Tests
             Assert.That(server.active, Is.False);
         }
 
+
+        [Test]
+        public void ConnectionEventTest()
+        {
+            // message handlers
+            server.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            server.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
+
+            // listen with maxconnections=1
+            server.MaxConnections = 1;
+
+            UnityAction<NetworkConnectionToClient> func = Substitute.For<UnityAction<NetworkConnectionToClient>>();
+
+            server.Connected.AddListener(func); 
+            server.Listen();
+
+            // connect first: should work
+            Transport.activeTransport.OnServerConnected.Invoke(42);
+
+            func.Received().Invoke(Arg.Is<NetworkConnectionToClient>(conn => conn.connectionId == 42));
+        }
+
+
         [Test]
         public void MaxConnectionsTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -132,29 +155,10 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ConnectMessageHandlerTest()
-        {
-            // message handlers
-            bool connectCalled = false;
-            server.RegisterHandler<ConnectMessage>((conn, msg) => { connectCalled = true; }, false);
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
-            // listen
-            server.Listen();
-            Assert.That(connectCalled, Is.False);
-
-            // connect
-            Transport.activeTransport.OnServerConnected.Invoke(42);
-            Assert.That(connectCalled, Is.True);
-        }
-
-        [Test]
         public void DisconnectMessageHandlerTest()
         {
             // message handlers
             bool disconnectCalled = false;
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => { disconnectCalled = true; }, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -175,7 +179,6 @@ namespace Mirror.Tests
         public void ConnectionsDictTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -211,7 +214,6 @@ namespace Mirror.Tests
             // <0 is never used
 
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -235,7 +237,6 @@ namespace Mirror.Tests
         public void ConnectDuplicateConnectionIdsTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -272,7 +273,6 @@ namespace Mirror.Tests
         public void AddConnectionTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -313,7 +313,6 @@ namespace Mirror.Tests
         public void RemoveConnectionTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -339,7 +338,6 @@ namespace Mirror.Tests
         public void DisconnectAllConnectionsTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -361,7 +359,6 @@ namespace Mirror.Tests
         public void DisconnectAllTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -387,7 +384,6 @@ namespace Mirror.Tests
         public void OnDataReceivedTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -432,7 +428,6 @@ namespace Mirror.Tests
         public void OnDataReceivedInvalidConnectionIdTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -564,7 +559,6 @@ namespace Mirror.Tests
         public void SendToAllTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -601,7 +595,6 @@ namespace Mirror.Tests
         public void RegisterUnregisterClearHandlerTest()
         {
             // message handlers that are needed for the test
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -669,7 +662,6 @@ namespace Mirror.Tests
         public void SendToClientOfPlayer()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -740,7 +732,6 @@ namespace Mirror.Tests
         public void ShowForConnection()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -787,7 +778,6 @@ namespace Mirror.Tests
         public void HideForConnection()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 
@@ -962,7 +952,6 @@ namespace Mirror.Tests
         public void ShutdownCleanupTest()
         {
             // message handlers
-            server.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
             server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
 

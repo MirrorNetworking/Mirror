@@ -645,7 +645,7 @@ namespace Mirror
 
         void RegisterServerMessages()
         {
-            server.RegisterHandler<ConnectMessage>(OnServerConnectInternal, false);
+            server.Connected.AddListener(OnServerConnectInternal);
             server.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal, false);
             server.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             server.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
@@ -994,7 +994,7 @@ namespace Mirror
 
         #region Server Internal Message Handlers
 
-        void OnServerConnectInternal(NetworkConnectionToClient conn, ConnectMessage connectMsg)
+        void OnServerConnectInternal(NetworkConnectionToClient conn)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerConnectInternal");
 
