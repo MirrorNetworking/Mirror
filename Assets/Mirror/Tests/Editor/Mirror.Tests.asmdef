@@ -19,7 +19,8 @@
         "NSubstitute.dll",
         "Castle.Core.dll",
         "System.Threading.Tasks.Extensions.dll",
-        "nunit.framework.dll"
+        "nunit.framework.dll",
+        "Mono.CecilX.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

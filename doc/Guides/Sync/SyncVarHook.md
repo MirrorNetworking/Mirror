@@ -9,7 +9,7 @@ The hook attribute can be used to specify a function to be called when the SyncV
 
 Below is a simple example of assigning a random color to each player when they're spawned on the server.  All clients will see all players in the correct colors, even if they join later.
 
->   Note:  The signature for hook methods was changed in version 7.0 (Feb 2020) to having 2 parameters (old and new values).  If you're on an older version, hook methods just have one parameter (new value).
+>   Note:  The signature for hook methods was changed in version 9.0 (Feb 2020) to having 2 parameters (old and new values).  If you're on an older version, hook methods just have one parameter (new value).
 
 ```cs
 using UnityEngine;
