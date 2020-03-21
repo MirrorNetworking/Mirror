@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.Additive
@@ -7,9 +7,8 @@ namespace Mirror.Examples.Additive
     [AddComponentMenu("")]
     public class AdditiveNetworkManager : NetworkManager
     {
-        [Scene]
         [Tooltip("Add all sub-scenes to this list")]
-        public string[] subScenes;
+        public SceneField[] subScenes;
 
         public override void OnStartServer()
         {
@@ -23,10 +22,13 @@ namespace Mirror.Examples.Additive
         {
             if (LogFilter.Debug) Debug.Log("Loading Scenes");
 
-            foreach (string sceneName in subScenes)
+            foreach (SceneField scene in subScenes)
             {
-                yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-                if (LogFilter.Debug) Debug.Log($"Loaded {sceneName}");
+                if (scene.HasValue())
+                {
+                    yield return SceneManager.LoadSceneAsync(scene.Path, LoadSceneMode.Additive);
+                    if (LogFilter.Debug) Debug.Log($"Loaded {scene.Path}");
+                }
             }
         }
 
@@ -44,12 +46,14 @@ namespace Mirror.Examples.Additive
         {
             if (LogFilter.Debug) Debug.Log("Unloading Subscenes");
 
-            foreach (string sceneName in subScenes)
-                if (SceneManager.GetSceneByName(sceneName).IsValid())
+            foreach (SceneField scene in subScenes)
+            {
+                if (SceneManager.GetSceneByPath(scene.Path).IsValid())
                 {
-                    yield return SceneManager.UnloadSceneAsync(sceneName);
-                    if (LogFilter.Debug) Debug.Log($"Unloaded {sceneName}");
+                    yield return SceneManager.UnloadSceneAsync(scene.Path);
+                    if (LogFilter.Debug) Debug.Log($"Unloaded {scene.Path}");
                 }
+            }
 
             yield return Resources.UnloadUnusedAssets();
         }
