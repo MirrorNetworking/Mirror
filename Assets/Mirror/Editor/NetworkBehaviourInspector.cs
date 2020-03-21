@@ -43,7 +43,11 @@ namespace Mirror
 
         void OnEnable()
         {
-            if (target == null) { Debug.LogWarning("NetworkBehaviourInspector had no target object", serializedObject.context); return; }
+            if (target == null) { Debug.LogWarning("NetworkBehaviourInspector had no target object"); return; }
+           
+            // If target's base class is changed from NetworkBehaviour to MonoBehaviour
+            // then Unity temporarily keep using this Inspector causing things to break
+            if (!(target is NetworkBehaviour)) { return; }
 
             Type scriptClass = target.GetType();
 
@@ -73,6 +77,9 @@ namespace Mirror
         /// </summary>
         protected void DrawDefaultSyncLists()
         {
+            // Need this check incase OnEnable returns early
+            if (syncListDrawer == null) { return; }
+
             syncListDrawer.Draw();
         }
 
