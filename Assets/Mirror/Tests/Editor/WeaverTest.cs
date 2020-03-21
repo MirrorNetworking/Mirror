@@ -671,13 +671,13 @@ namespace Mirror.Tests
 
         static void CheckAddedCodeServer()
         {
-            const string networkServerGetActive = "System.Boolean Mirror.NetworkServer::get_active()";
+            string networkServerGetActive = Weaver.Weaver.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "ServerOnlyMethod");
         }
 
         static void CheckAddedCodeClient()
         {
-            const string networkClientGetActive = "System.Boolean Mirror.NetworkClient::get_active()";
+            string networkClientGetActive = Weaver.Weaver.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "ClientOnlyMethod");
         }
 
