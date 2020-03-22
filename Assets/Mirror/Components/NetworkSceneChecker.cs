@@ -31,9 +31,11 @@ namespace Mirror
         {
             currentScene = gameObject.scene;
             if (LogFilter.Debug) Debug.Log($"NetworkSceneChecker.Awake currentScene: {currentScene}");
+
+            netIdentity.OnStartServer.AddListener(OnStartServer);
         }
 
-        public override void OnStartServer()
+        public void OnStartServer()
         {
             if (!sceneCheckerObjects.ContainsKey(currentScene))
                 sceneCheckerObjects.Add(currentScene, new HashSet<NetworkIdentity>());

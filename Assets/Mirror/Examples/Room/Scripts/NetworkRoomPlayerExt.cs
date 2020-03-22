@@ -6,11 +6,14 @@ namespace Mirror.Examples.NetworkRoom
     [AddComponentMenu("")]
     public class NetworkRoomPlayerExt : NetworkRoomPlayer
     {
-        public override void OnStartClient()
+        void Awake()
+        {
+            netIdentity.OnStartClient.AddListener(OnStartClient);
+        }
+
+        public void OnStartClient()
         {
             if (LogFilter.Debug) Debug.LogFormat("OnStartClient {0}", SceneManager.GetActiveScene().name);
-
-            base.OnStartClient();
         }
 
         public override void OnClientEnterRoom()

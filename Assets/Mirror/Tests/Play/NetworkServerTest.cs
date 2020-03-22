@@ -49,14 +49,20 @@ namespace Mirror.Tests
     {
         // counter to make sure that it's called exactly once
         public int called;
-        public override void OnStartClient() { ++called; }
+        public void OnStartClient()
+        {
+            ++called;
+        }
     }
 
     public class OnNetworkDestroyTestNetworkBehaviour : NetworkBehaviour
     {
         // counter to make sure that it's called exactly once
         public int called;
-        public override void OnNetworkDestroy() { ++called; }
+        public void OnNetworkDestroy()
+        {
+            ++called;
+        }
     }
 
     [TestFixture]
@@ -537,6 +543,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
             //connection.identity = identity;
             server.spawned[identity.netId] = identity;
+            identity.OnStartClient.AddListener(comp.OnStartClient);
 
             // ActivateHostScene
             server.ActivateHostScene();

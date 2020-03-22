@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.Events;
 #if UNITY_EDITOR
 using UnityEditor;
 #if UNITY_2018_3_OR_NEWER
@@ -185,6 +186,45 @@ namespace Mirror
 
         // keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
+
+        /// <summary>
+        /// This is invoked for NetworkBehaviour objects when they become active on the server.
+        /// <para>This could be triggered by NetworkServer.Listen() for objects in the scene, or by NetworkServer.Spawn() for objects that are dynamically created.</para>
+        /// <para>This will be called for objects on a "host" as well as for object on a dedicated server.</para>
+        /// </summary>
+        public UnityEvent OnStartServer = new UnityEvent();
+
+        /// <summary>
+        /// Called on every NetworkBehaviour when it is activated on a client.
+        /// <para>Objects on the host have this function called, as there is a local client on the host. The values of SyncVars on object are guaranteed to be initialized correctly with the latest state from the server when this function is called on the client.</para>
+        /// </summary>
+        public UnityEvent OnStartClient = new UnityEvent();
+
+        /// <summary>
+        /// Called when the local player object has been set up.
+        /// <para>This happens after OnStartClient(), as it is triggered by an ownership message from the server. This is an appropriate place to activate components or functionality that should only be active for the local player, such as cameras and input.</para>
+        /// </summary>
+        public UnityEvent OnStartLocalPlayer = new UnityEvent();
+
+        /// <summary>
+        /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see>.
+        /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and before <see cref="OnStartClient">OnStartClient.</see></para>
+        /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
+        /// </summary>
+        public UnityEvent OnStartAuthority = new UnityEvent();
+
+        /// <summary>
+        /// This is invoked on behaviours when authority is removed.
+        /// <para>When NetworkIdentity.RemoveClientAuthority is called on the server, this will be called on the client that owns the object.</para>
+        /// </summary>
+        public UnityEvent OnStopAuthority = new UnityEvent();
+
+        /// <summary>
+        /// This is invoked on clients when the server has caused this object to be destroyed.
+        /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
+        /// </summary>
+        ///<summary>Called on clients when the server destroys the GameObject.</summary>
+        public UnityEvent OnNetworkDestroy = new UnityEvent();
 
         /// <summary>
         /// Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id
@@ -501,7 +541,7 @@ namespace Mirror
             }
         }
 
-        internal void OnStartServer()
+        internal void StartServer()
         {
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
             if (netId != 0)
@@ -521,124 +561,47 @@ namespace Mirror
             // because we already set m_isServer=true above)
             server.spawned[netId] = this;
 
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                // an exception in OnStartServer should be caught, so that one
-                // component's exception doesn't stop all other components from
-                // being initialized
-                // => this is what Unity does for Start() etc. too.
-                //    one exception doesn't stop all the other Start() calls!
-                try
-                {
-                    comp.OnStartServer();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Exception in OnStartServer:" + e.Message + " " + e.StackTrace);
-                }
-            }
+            OnStartServer.Invoke();
         }
 
         bool clientStarted;
-        internal void OnStartClient()
+        internal void StartClient()
         {
             if (clientStarted)
                 return;
             clientStarted = true;
 
-            if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                // an exception in OnStartClient should be caught, so that one
-                // component's exception doesn't stop all other components from
-                // being initialized
-                // => this is what Unity does for Start() etc. too.
-                //    one exception doesn't stop all the other Start() calls!
-                try
-                {
-                    // user implemented startup
-                    comp.OnStartClient();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Exception in OnStartClient:" + e.Message + " " + e.StackTrace);
-                }
-            }
+            OnStartClient.Invoke();
         }
 
         static NetworkIdentity previousLocalPlayer = null;
-        internal void OnStartLocalPlayer()
+        internal void StartLocalPlayer()
         {
             if (previousLocalPlayer == this)
                 return;
             previousLocalPlayer = this;
 
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                // an exception in OnStartLocalPlayer should be caught, so that
-                // one component's exception doesn't stop all other components
-                // from being initialized
-                // => this is what Unity does for Start() etc. too.
-                //    one exception doesn't stop all the other Start() calls!
-                try
-                {
-                    comp.OnStartLocalPlayer();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Exception in OnStartLocalPlayer:" + e.Message + " " + e.StackTrace);
-                }
-            }
+            OnStartLocalPlayer.Invoke();
         }
 
         bool hadAuthority;
         internal void NotifyAuthority()
         {
             if (!hadAuthority && hasAuthority)
-                OnStartAuthority();
+                StartAuthority();
             if (hadAuthority && !hasAuthority)
-                OnStopAuthority();
+                StopAuthority();
             hadAuthority = hasAuthority;
         }
 
-        internal void OnStartAuthority()
+        internal void StartAuthority()
         {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                // an exception in OnStartAuthority should be caught, so that one
-                // component's exception doesn't stop all other components from
-                // being initialized
-                // => this is what Unity does for Start() etc. too.
-                //    one exception doesn't stop all the other Start() calls!
-                try
-                {
-                    comp.OnStartAuthority();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Exception in OnStartAuthority:" + e.Message + " " + e.StackTrace);
-                }
-            }
+            OnStartAuthority.Invoke();
         }
 
-        internal void OnStopAuthority()
+        internal void StopAuthority()
         {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                // an exception in OnStopAuthority should be caught, so that one
-                // component's exception doesn't stop all other components from
-                // being initialized
-                // => this is what Unity does for Start() etc. too.
-                //    one exception doesn't stop all the other Start() calls!
-                try
-                {
-                    comp.OnStopAuthority();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Exception in OnStopAuthority:" + e.Message + " " + e.StackTrace);
-                }
-            }
+            OnStopAuthority.Invoke();
         }
 
         internal void OnSetHostVisibility(bool visible)
@@ -673,24 +636,9 @@ namespace Mirror
             return true;
         }
 
-        internal void OnNetworkDestroy()
+        internal void NetworkDestroy()
         {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                // an exception in OnNetworkDestroy should be caught, so that
-                // one component's exception doesn't stop all other components
-                // from being initialized
-                // => this is what Unity does for Start() etc. too.
-                //    one exception doesn't stop all the other Start() calls!
-                try
-                {
-                    comp.OnNetworkDestroy();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Exception in OnNetworkDestroy:" + e.Message + " " + e.StackTrace);
-                }
-            }
+            OnNetworkDestroy.Invoke();
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -6,7 +6,12 @@ namespace Mirror.Examples.NetworkRoom
     {
         public NetworkIdentity prizePrefab;
 
-        public override void OnStartServer()
+        void Awake()
+        {
+            netIdentity.OnStartServer.AddListener(OnStartServer);
+        }
+
+        public void OnStartServer()
         {
             for (int i = 0; i < 10; i++)
                 SpawnPrize();

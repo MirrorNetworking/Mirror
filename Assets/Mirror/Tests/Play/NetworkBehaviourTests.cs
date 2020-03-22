@@ -65,7 +65,7 @@ namespace Mirror.Tests
         {
             public bool called = false;
 
-            public override void OnStartServer()
+            public void OnStartServer()
             {
                 Assert.That(isClient, Is.True);
                 Assert.That(isLocalPlayer, Is.False);
@@ -79,12 +79,15 @@ namespace Mirror.Tests
         public void OnStartServer()
         {
             var gameObject = new GameObject();
-            gameObject.AddComponent<NetworkIdentity>();
+            var netIdentity = gameObject.AddComponent<NetworkIdentity>();
             var comp = gameObject.AddComponent<OnStartServerTestComponent>();
+            netIdentity.OnStartServer.AddListener(comp.OnStartServer);
 
             Assert.That(comp.called, Is.False);
 
             server.Spawn(gameObject);
+
+            netIdentity.StartServer();
 
             Assert.That(comp.called, Is.True);
 

@@ -23,6 +23,13 @@ namespace Mirror.Examples.Basic
         [SyncVar(hook = nameof(OnPlayerDataChanged))]
         public int playerData;
 
+        void Awake()
+        {
+            netIdentity.OnStartServer.AddListener(OnStartServer);
+            netIdentity.OnStartClient.AddListener(OnStartClient);
+            netIdentity.OnStartLocalPlayer.AddListener(OnStartLocalPlayer);
+        }
+
         // This is called by the hook of playerData SyncVar above
         void OnPlayerDataChanged(int oldPlayerData, int newPlayerData)
         {
@@ -31,10 +38,8 @@ namespace Mirror.Examples.Basic
         }
 
         // This fires on server when this player object is network-ready
-        public override void OnStartServer()
+        public void OnStartServer()
         {
-            base.OnStartServer();
-
             // Set SyncVar values
             playerNo = connectionToClient.connectionId;
             playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
@@ -51,10 +56,8 @@ namespace Mirror.Examples.Basic
         }
 
         // This fires on all clients when this player object is network-ready
-        public override void OnStartClient()
+        public void OnStartClient()
         {
-            base.OnStartClient();
-
             // Make this a child of the layout panel in the Canvas
             transform.SetParent(GameObject.Find("PlayersPanel").transform);
 
@@ -69,10 +72,8 @@ namespace Mirror.Examples.Basic
         }
 
         // This only fires on the local client when this player object is network-ready
-        public override void OnStartLocalPlayer()
+        public void OnStartLocalPlayer()
         {
-            base.OnStartLocalPlayer();
-
             // apply a shaded background to our player
             image.color = new Color(1f, 1f, 1f, 0.1f);
         }

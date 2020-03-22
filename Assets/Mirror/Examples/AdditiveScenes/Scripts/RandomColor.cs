@@ -4,9 +4,13 @@ namespace Mirror.Examples.Additive
 {
     public class RandomColor : NetworkBehaviour
     {
-        public override void OnStartServer()
+        void Awake()
         {
-            base.OnStartServer();
+            netIdentity.OnStartServer.AddListener(OnStartServer);
+        }
+
+        public void OnStartServer()
+        {
             color = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
         }
 

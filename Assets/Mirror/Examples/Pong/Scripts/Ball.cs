@@ -7,10 +7,13 @@ namespace Mirror.Examples.Pong
         public float speed = 30;
         public Rigidbody2D rigidbody2d;
 
-        public override void OnStartServer()
+        void Awake()
         {
-            base.OnStartServer();
+            netIdentity.OnStartServer.AddListener(OnStartServer);
+        }
 
+        public void OnStartServer()
+        {
             // only simulate ball physics on server
             rigidbody2d.simulated = true;
 

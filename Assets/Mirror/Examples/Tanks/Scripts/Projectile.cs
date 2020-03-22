@@ -8,7 +8,12 @@ namespace Mirror.Examples.Tanks
         public Rigidbody rigidBody;
         public float force = 1000;
 
-        public override void OnStartServer()
+        void Awake()
+        {
+            netIdentity.OnStartServer.AddListener(OnStartServer);
+        }
+
+        public void OnStartServer()
         {
             Invoke(nameof(DestroySelf), destroyAfter);
         }

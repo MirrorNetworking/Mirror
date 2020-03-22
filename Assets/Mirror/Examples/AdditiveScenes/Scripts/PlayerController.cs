@@ -8,16 +8,19 @@ namespace Mirror.Examples.Additive
     {
         public CharacterController characterController;
 
+        void Awake()
+        {
+            netIdentity.OnStartLocalPlayer.AddListener(OnStartLocalPlayer);
+        }
+
         void OnValidate()
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
         }
 
-        public override void OnStartLocalPlayer()
+        public void OnStartLocalPlayer()
         {
-            base.OnStartLocalPlayer();
-
             Camera.main.orthographic = false;
             Camera.main.transform.SetParent(transform);
             Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
