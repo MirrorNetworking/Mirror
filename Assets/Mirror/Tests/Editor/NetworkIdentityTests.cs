@@ -14,24 +14,6 @@ namespace Mirror.Tests
     public class NetworkIdentityTests
     {
        #region test components
-        class StartAuthorityCalledNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public void OnStartAuthority()
-            {
-                ++called;
-            }
-        }
-
-        class StopAuthorityCalledNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public void OnStopAuthority()
-            {
-                ++called;
-            }
-        }
-
         class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -439,10 +421,11 @@ namespace Mirror.Tests
         public void NotifyAuthorityCallsOnStartStopAuthority()
         {
             // add components
-            StartAuthorityCalledNetworkBehaviour compStart = gameObject.AddComponent<StartAuthorityCalledNetworkBehaviour>();
-            identity.OnStartAuthority.AddListener(compStart.OnStartAuthority);
-            StopAuthorityCalledNetworkBehaviour compStop = gameObject.AddComponent<StopAuthorityCalledNetworkBehaviour>();
-            identity.OnStopAuthority.AddListener(compStop.OnStopAuthority);
+            UnityAction startAuthFunc = Substitute.For<UnityAction>();
+            UnityAction stopAuthFunc = Substitute.For<UnityAction>();
+
+            identity.OnStartAuthority.AddListener(startAuthFunc);
+            identity.OnStopAuthority.AddListener(stopAuthFunc);
 
             // set authority from false to true, which should call OnStartAuthority
             identity.hasAuthority = true;
@@ -450,9 +433,8 @@ namespace Mirror.Tests
             // shouldn't be touched
             Assert.That(identity.hasAuthority, Is.True);
             // start should be called
-            Assert.That(compStart.called, Is.EqualTo(1));
-            // stop shouldn't
-            Assert.That(compStop.called, Is.EqualTo(0));
+            startAuthFunc.Received(1).Invoke();
+            stopAuthFunc.Received(0).Invoke();
 
             // set it to true again, should do nothing because already true
             identity.hasAuthority = true;
@@ -460,9 +442,8 @@ namespace Mirror.Tests
             // shouldn't be touched
             Assert.That(identity.hasAuthority, Is.True);
             // same as before
-            Assert.That(compStart.called, Is.EqualTo(1));
-            // same as before
-            Assert.That(compStop.called, Is.EqualTo(0));
+            startAuthFunc.Received(1).Invoke();
+            stopAuthFunc.Received(0).Invoke();
 
             // set it to false, should call OnStopAuthority
             identity.hasAuthority = false;
@@ -470,9 +451,8 @@ namespace Mirror.Tests
             // shouldn't be touched
             Assert.That(identity.hasAuthority, Is.False);
             // same as before
-            Assert.That(compStart.called, Is.EqualTo(1));
-            // stop should be called
-            Assert.That(compStop.called, Is.EqualTo(1));
+            startAuthFunc.Received(1).Invoke();
+            stopAuthFunc.Received(1).Invoke();
 
             // set it to false again, should do nothing because already false
             identity.hasAuthority = false;
@@ -480,9 +460,8 @@ namespace Mirror.Tests
             // shouldn't be touched
             Assert.That(identity.hasAuthority, Is.False);
             // same as before
-            Assert.That(compStart.called, Is.EqualTo(1));
-            // same as before
-            Assert.That(compStop.called, Is.EqualTo(1));
+            startAuthFunc.Received(1).Invoke();
+            stopAuthFunc.Received(1).Invoke();
         }
 
         [Test]
