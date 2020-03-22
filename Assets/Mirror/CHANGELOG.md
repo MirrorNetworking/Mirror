@@ -1,3 +1,10 @@
+# [21.1.0](https://github.com/MirrorNG/MirrorNG/compare/21.0.1-master...21.1.0-master) (2020-03-22)
+
+
+### Features
+
+* NetworkConnection manages messages handlers ([#93](https://github.com/MirrorNG/MirrorNG/issues/93)) ([5c79f0d](https://github.com/MirrorNG/MirrorNG/commit/5c79f0db64e46905081e6c0b5502376c5acf0d99))
+
 ## [21.0.1](https://github.com/MirrorNG/MirrorNG/compare/21.0.0-master...21.0.1-master) (2020-03-22)
 
 
