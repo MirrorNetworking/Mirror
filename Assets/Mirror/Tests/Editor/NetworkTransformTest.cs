@@ -1,4 +1,3 @@
-﻿using System;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -16,7 +15,7 @@ namespace Mirror.Tests
             Vector3 scale = new Vector3(0.5f, 0.6f, 0.7f);
 
             // Compression.None
-            NetworkTransformBase.SerializeIntoWriter(writer, position, rotation, NetworkTransformBase.Compression.None, scale);
+            NetworkTransformBase.SerializeIntoWriter(writer, position, rotation, RotationCompression.None, scale);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadVector3(), Is.EqualTo(position));
             Assert.That(reader.ReadVector3(), Is.EqualTo(rotation.eulerAngles));

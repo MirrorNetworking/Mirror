@@ -299,6 +299,44 @@ namespace Mirror
         public static Color ReadColor(this NetworkReader reader) => new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         public static Color32 ReadColor32(this NetworkReader reader) => new Color32(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
         public static Quaternion ReadQuaternion(this NetworkReader reader) => new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+
+        public static Quaternion ReadRotation(this NetworkReader reader, RotationCompression compression)
+        {
+            return Quaternion.Euler(ReadRotationEuler(reader, compression));
+        }
+
+        public static Vector3 ReadRotationEuler(this NetworkReader reader, RotationCompression compression)
+        {
+            Vector3 euler;
+            if (compression == RotationCompression.None)
+            {
+                // read 3 floats = 16 byte
+                float x = reader.ReadSingle();
+                float y = reader.ReadSingle();
+                float z = reader.ReadSingle();
+                euler = new Vector3(x, y, z);
+            }
+            else if (compression == RotationCompression.Much)
+            {
+                // read 3 byte. scaling [0,255] to [0,360]
+                float x = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
+                float y = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
+                float z = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
+                euler = new Vector3(x, y, z);
+            }
+            else if (compression == RotationCompression.Lots)
+            {
+                // read 2 byte, 5 bits per float
+                euler = FloatBytePacker.UnpackUShortIntoThreeFloats(reader.ReadUInt16(), 0, 360);
+            }
+            else
+            {
+                euler = Vector3.zero;
+            }
+
+            return euler;
+        }
+
         public static Rect ReadRect(this NetworkReader reader) => new Rect(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         public static Plane ReadPlane(this NetworkReader reader) => new Plane(reader.ReadVector3(), reader.ReadSingle());
         public static Ray ReadRay(this NetworkReader reader) => new Ray(reader.ReadVector3(), reader.ReadVector3());

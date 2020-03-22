@@ -365,6 +365,39 @@ namespace Mirror
             writer.WriteSingle(value.w);
         }
 
+        public static void WriteRotation(this NetworkWriter writer, Quaternion value, RotationCompression compression)
+        {
+            // writing quaternion = 16 byte
+            // writing euler angles = 12 byte
+            // -> quaternion->euler->quaternion always works.
+            // -> gimbal lock only occurs when adding.
+            Vector3 euler = value.eulerAngles;
+            WriteRotationEuler(writer, euler, compression);
+        }
+
+        public static void WriteRotationEuler(this NetworkWriter writer, Vector3 euler, RotationCompression compression)
+        {
+            if (compression == RotationCompression.None)
+            {
+                // write 3 floats = 12 byte
+                writer.WriteSingle(euler.x);
+                writer.WriteSingle(euler.y);
+                writer.WriteSingle(euler.z);
+            }
+            else if (compression == RotationCompression.Much)
+            {
+                // write 3 byte. scaling [0,360] to [0,255]
+                writer.WriteByte(FloatBytePacker.ScaleFloatToByte(euler.x, 0, 360, byte.MinValue, byte.MaxValue));
+                writer.WriteByte(FloatBytePacker.ScaleFloatToByte(euler.y, 0, 360, byte.MinValue, byte.MaxValue));
+                writer.WriteByte(FloatBytePacker.ScaleFloatToByte(euler.z, 0, 360, byte.MinValue, byte.MaxValue));
+            }
+            else if (compression == RotationCompression.Lots)
+            {
+                // write 2 byte, 5 bits for each float
+                writer.WriteUInt16(FloatBytePacker.PackThreeFloatsIntoUShort(euler.x, euler.y, euler.z, 0, 360));
+            }
+        }
+
         public static void WriteRect(this NetworkWriter writer, Rect value)
         {
             writer.WriteSingle(value.xMin);
