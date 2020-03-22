@@ -308,17 +308,27 @@ namespace Mirror.Tests
         public void SetClientOwner()
         {
             // SetClientOwner
-            (_, ULocalConnectionToClient original ) = ULocalConnectionToClient.CreateLocalConnections();
+            (_, ULocalConnectionToClient original) = ULocalConnectionToClient.CreateLocalConnections();
             identity.SetClientOwner(original);
             Assert.That(identity.connectionToClient, Is.EqualTo(original));
+        }
+
+        [Test]
+        public void SetOverrideClientOwner()
+        {
+            // SetClientOwner
+            (_, ULocalConnectionToClient original) = ULocalConnectionToClient.CreateLocalConnections();
+            identity.SetClientOwner(original);
 
             // setting it when it's already set shouldn't overwrite the original
             (_, ULocalConnectionToClient overwrite) = ULocalConnectionToClient.CreateLocalConnections();
             // will log a warning
-            LogAssert.ignoreFailingMessages = true;
-            identity.SetClientOwner(overwrite);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                identity.SetClientOwner(overwrite);
+            });
+
             Assert.That(identity.connectionToClient, Is.EqualTo(original));
-            LogAssert.ignoreFailingMessages = false;
         }
 
         [Test]

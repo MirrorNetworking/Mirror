@@ -199,8 +199,7 @@ namespace Mirror
             // do nothing if it already has an owner
             if (connectionToClient != null && conn != connectionToClient)
             {
-                Debug.LogError($"Object {this} netId={netId} already has an owner. Use RemoveClientAuthority() first", this);
-                return;
+                throw new InvalidOperationException($"Object {this} netId={netId} already has an owner. Use RemoveClientAuthority() first");
             }
 
             // otherwise set the owner connection
