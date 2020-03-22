@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.TestTools;
+using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
@@ -33,16 +34,6 @@ namespace Mirror.Tests
 
 
         #region Async Utilities
-
-        // Unity's nunit does not support async tests
-        // so we do this boilerplate to run our async methods
-        public IEnumerator RunAsync(Func<Task> block)
-        {
-            var task = Task.Run(block);
-
-            while (!task.IsCompleted) { yield return null; }
-            if (task.IsFaulted) { throw task.Exception; }
-        }
 
         private async Task<(int, byte[])> GetServerData()
         {
