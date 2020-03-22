@@ -14,16 +14,6 @@ namespace Mirror.Tests
     public class NetworkIdentityTests
     {
        #region test components
-        class MyTestComponent : NetworkBehaviour
-        {
-            internal bool onStartServerInvoked;
-
-            public void OnStartServer()
-            {
-                onStartServerInvoked = true;
-            }
-        }
-
         class StartAuthorityCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -244,16 +234,16 @@ namespace Mirror.Tests
         public void OnStartServerTest()
         {
             // lets add a component to check OnStartserver
-            MyTestComponent component1 = gameObject.AddComponent<MyTestComponent>();
-            MyTestComponent component2 = gameObject.AddComponent<MyTestComponent>();
+            UnityAction func1 = Substitute.For<UnityAction>();
+            UnityAction func2 = Substitute.For<UnityAction>();
 
-            identity.OnStartServer.AddListener(component1.OnStartServer);
-            identity.OnStartServer.AddListener(component2.OnStartServer);
+            identity.OnStartServer.AddListener(func1);
+            identity.OnStartServer.AddListener(func2);
 
             identity.StartServer();
 
-            Assert.That(component1.onStartServerInvoked);
-            Assert.That(component2.onStartServerInvoked);
+            func1.Received(1).Invoke();
+            func2.Received(1).Invoke();
         }
 
         [Test]
