@@ -129,6 +129,55 @@ namespace Mirror
         /// </summary>
         public abstract void Disconnect();
 
+        internal static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
+            where T : IMessageBase, new()
+            where C : NetworkConnection
+        {
+            void AdapterFunction(NetworkConnection conn, NetworkReader reader, int channelId)
+            {
+                // protect against DOS attacks if attackers try to send invalid
+                // data packets to crash the server/client. there are a thousand
+                // ways to cause an exception in data handling:
+                // - invalid headers
+                // - invalid message ids
+                // - invalid data causing exceptions
+                // - negative ReadBytesAndSize prefixes
+                // - invalid utf8 strings
+                // - etc.
+                //
+                // let's catch them all and then disconnect that connection to avoid
+                // further attacks.
+                T message = default;
+                try
+                {
+                    if (requireAuthenication && !conn.isAuthenticated)
+                    {
+                        // message requires authentication, but the connection was not authenticated
+                        Debug.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
+                        conn.Disconnect();
+                        return;
+                    }
+
+                    message = typeof(T).IsValueType ? default(T) : new T();
+                    message.Deserialize(reader);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogError("Closed connection: " + conn + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
+                    conn.Disconnect();
+                    return;
+                }
+                finally
+                {
+                    // TODO: Figure out the correct channel
+                    NetworkDiagnostics.OnReceive(message, channelId, reader.Length);
+                }
+
+                handler((C)conn, message);
+            };
+            return AdapterFunction;
+        }
+
         internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
         {
             messageHandlers = handlers;
