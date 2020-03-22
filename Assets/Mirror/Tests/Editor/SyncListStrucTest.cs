@@ -11,16 +11,16 @@ namespace Mirror.Tests
             SyncListTestPlayer serverList = new SyncListTestPlayer();
             SyncListTestPlayer clientList = new SyncListTestPlayer();
             SyncListTest.SerializeAllTo(serverList, clientList);
-            serverList.Add(new TestPlayer { armor = new TestArmor() { weight = 10 } });
+            serverList.Add(new TestArmor { weight = 10 });
             SyncListTest.SerializeDeltaTo(serverList, clientList);
             Assert.That(serverList.IsDirty, Is.False);
 
-            serverList.Callback += (SyncList<TestPlayer>.Operation op, int itemIndex, TestPlayer oldItem, TestPlayer newItem) =>
+            serverList.Callback += (SyncList<TestArmor>.Operation op, int itemIndex, TestArmor oldItem, TestArmor newItem) =>
             {
                 // see Ignore reason
                 Assert.Fail();
             };
-            serverList[0].armor.weight = 15;
+            serverList[0].weight = 15;
 
             Assert.That(serverList.IsDirty, Is.False);
             SyncListTest.SerializeDeltaTo(serverList, clientList);
@@ -32,12 +32,12 @@ namespace Mirror.Tests
             SyncListTestPlayer serverList = new SyncListTestPlayer();
             SyncListTestPlayer clientList = new SyncListTestPlayer();
             SyncListTest.SerializeAllTo(serverList, clientList);
-            serverList.Add(new TestPlayer { armor = new TestArmor() { weight = 10 } });
+            serverList.Add(new TestArmor { weight = 10 });
             SyncListTest.SerializeDeltaTo(serverList, clientList);
 
             Assert.That(serverList.IsDirty, Is.False);
 
-            serverList[0].armor.weight = 15;
+            serverList[0].weight = 15;
 
             Assert.That(serverList.IsDirty, Is.False);
 
@@ -53,34 +53,34 @@ namespace Mirror.Tests
             SyncListTestPlayer serverList = new SyncListTestPlayer();
             SyncListTestPlayer clientList = new SyncListTestPlayer();
             SyncListTest.SerializeAllTo(serverList, clientList);
-            serverList.Add(new TestPlayer { armor = new TestArmor { weight = 10 } });
+            serverList.Add(new TestArmor { weight = 10 });
             SyncListTest.SerializeDeltaTo(serverList, clientList);
 
-            serverList[0].armor.weight = 15;
+            serverList[0].weight = 15;
             serverList.SetItemDirty(0);
 
             clientList.Callback += ClientList_Callback;
             SyncListTest.SerializeDeltaTo(serverList, clientList);
         }
 
-        static void ClientList_Callback(SyncList<TestPlayer>.Operation op, int itemIndex, TestPlayer oldItem, TestPlayer newItem)
+        static void ClientList_Callback(SyncList<TestArmor>.Operation op, int itemIndex, TestArmor oldItem, TestArmor newItem)
         {
-            Assert.That(op == SyncList<TestPlayer>.Operation.OP_SET, Is.True);
+            Assert.That(op == SyncList<TestArmor>.Operation.OP_SET, Is.True);
             Assert.That(itemIndex, Is.EqualTo(0));
-            Assert.That(oldItem.armor.weight, Is.EqualTo(10));
-            Assert.That(newItem.armor.weight, Is.EqualTo(15));
+            Assert.That(oldItem.weight, Is.EqualTo(10));
+            Assert.That(newItem.weight, Is.EqualTo(15));
         }
     }
 
 
-    public class SyncListTestPlayer : SyncList<TestPlayer>
+    public class SyncListTestPlayer : SyncList<TestArmor>
     {
 
     }
-    public struct TestPlayer
-    {
-        public TestArmor armor;
-    }
+    //public struct TestPlayer
+    //{
+    //    public TestArmor armor;
+    //}
     public class TestArmor
     {
         public float weight;
