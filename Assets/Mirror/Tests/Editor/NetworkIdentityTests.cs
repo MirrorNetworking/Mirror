@@ -7,6 +7,7 @@ using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
 using static Mirror.Tests.AsyncUtil;
+using UnityEngine.Events;
 
 namespace Mirror.Tests
 {
@@ -20,16 +21,6 @@ namespace Mirror.Tests
             public void OnStartServer()
             {
                 onStartServerInvoked = true;
-            }
-        }
-
-        class StartServerExceptionNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public void OnStartServer()
-            {
-                ++called;
-                throw new Exception("some exception");
             }
         }
 
@@ -401,16 +392,27 @@ namespace Mirror.Tests
         [Test]
         public void OnStartServerCallsComponentsAndCatchesExceptions()
         {
-            // add component
-            StartServerExceptionNetworkBehaviour comp = gameObject.AddComponent<StartServerExceptionNetworkBehaviour>();
-            identity.OnStartServer.AddListener(comp.OnStartServer);
+            // make a mock delegate
+            UnityAction func = Substitute.For<UnityAction>();
 
-            // make sure that comp.OnStartServer was called
-            // the exception was caught and not thrown in here.
+            // add it to the listener
+            identity.OnStartServer.AddListener(func);
+
+            // Since we are testing that exceptions are not swallowed,
+            // when the mock is invoked, throw an exception 
+            func
+                .When(f => f.Invoke())
+                .Do(f => { throw new Exception("Some exception"); });
+
+            // Make sure that the exception is not swallowed
             Assert.Throws<Exception>( () => { 
                 identity.StartServer();
             });
-            Assert.That(comp.called, Is.EqualTo(1));
+
+            // ask the mock if it got invoked
+            // if the mock is not invoked,  then this fails
+            // This is a type of assert
+            func.Received().Invoke();
         }
 
         [Test]
