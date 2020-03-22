@@ -873,11 +873,9 @@ namespace Mirror.Tests
                 = ULocalConnectionToClient.CreateLocalConnections();
             owner.isReady = true;
             owner.isAuthenticated = true;
+            owner.connectionToServer.isAuthenticated = true;
             int ownerCalled = 0;
-            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
-            {
-                { MessagePacker.GetId<UpdateVarsMessage>(), ((conn, reader, channelId) => ++ownerCalled) }
-            });
+            owner.connectionToServer.RegisterHandler<UpdateVarsMessage>(msg => ++ownerCalled);
             identity.connectionToClient = owner;
 
             // add an observer connection that will receive the updates
@@ -885,11 +883,9 @@ namespace Mirror.Tests
                 = ULocalConnectionToClient.CreateLocalConnections();
             observer.isReady = true;
             observer.isAuthenticated = true;
+            observer.connectionToServer.isAuthenticated = true;
             int observerCalled = 0;
-            observer.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
-            {
-                { MessagePacker.GetId<UpdateVarsMessage>(), ((conn, reader, channelId) => ++observerCalled) }
-            });
+            observer.connectionToServer.RegisterHandler<UpdateVarsMessage>(msg => ++observerCalled);
             identity.observers.Add(observer);
 
             // set components dirty again

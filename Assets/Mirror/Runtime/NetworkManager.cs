@@ -256,9 +256,6 @@ namespace Mirror
             //       and we don't start processing connects until Update.
             OnStartServer();
 
-            // this must be after Listen(), since that registers the default message handlers
-            RegisterServerMessages();
-
             isNetworkActive = true;
         }
 
@@ -311,8 +308,6 @@ namespace Mirror
 
             isNetworkActive = true;
 
-            RegisterClientMessages();
-
             if (string.IsNullOrEmpty(serverIp))
             {
                 Debug.LogError("serverIp shouldn't be empty");
@@ -335,7 +330,6 @@ namespace Mirror
             mode = NetworkManagerMode.ClientOnly;
             isNetworkActive = true;
 
-            RegisterClientMessages();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + uri);
 
@@ -435,8 +429,6 @@ namespace Mirror
             //             isn't called in host mode!
             //
 
-            RegisterClientMessages();
-
             // TODO call this after spawnobjects and worry about the syncvar hook fix later?
             client.ConnectHost(server);
 
@@ -456,10 +448,9 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager ConnectLocalClient");
 
             server.ActivateHostScene();
-
-            // ConnectLocalServer needs to be called AFTER RegisterClientMessages
-            // (https://github.com/vis2k/Mirror/pull/1249/)
             client.ConnectLocalServer(server);
+
+            RegisterClientMessages(client.connection);
 
             OnStartClient();
         }
@@ -592,30 +583,19 @@ namespace Mirror
             }                
 
             Transport.activeTransport = transport;
-        }
-
-        void RegisterServerMessages()
-        {
-            server.Authenticated.AddListener(OnServerAuthenticated);
-            server.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal, false);
-            server.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
-            server.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
-            server.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
-            server.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
-        }
-
-        void RegisterClientMessages()
-        {
-            client.Authenticated.AddListener(OnClientAuthenticated);
-            client.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
-            client.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            client.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
-            client.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
 
             if (playerPrefab != null)
             {
                 client.RegisterPrefab(playerPrefab);
             }
+            // subscribe to the server
+            if (server != null)
+                server.Authenticated.AddListener(OnServerAuthenticated);
+
+
+            // subscribe to the client
+            if (client!= null)
+                client.Authenticated.AddListener(OnClientAuthenticated);
         }
 
         void CleanupNetworkIdentities()
@@ -835,8 +815,6 @@ namespace Mirror
 
                 if (client.isConnected)
                 {
-                    RegisterClientMessages();
-
                     // DO NOT call OnClientSceneChanged here.
                     // the scene change happened because StartHost loaded the
                     // server's online scene. it has nothing to do with the client.
@@ -858,8 +836,6 @@ namespace Mirror
 
                 if (client.isConnected)
                 {
-                    RegisterClientMessages();
-
                     // let client know that we changed scene
                     OnClientSceneChanged(client.connection);
                 }
@@ -883,7 +859,6 @@ namespace Mirror
 
             if (client.isConnected)
             {
-                RegisterClientMessages();
                 OnClientSceneChanged(client.connection);
             }
         }
@@ -942,9 +917,22 @@ namespace Mirror
         #endregion
 
         #region Server Internal Message Handlers
+
+        void RegisterServerMessages(NetworkConnection connection)
+        {
+            connection.RegisterHandler<NetworkConnectionToClient, DisconnectMessage>(OnServerDisconnectInternal, false);
+            connection.RegisterHandler<NetworkConnectionToClient, ReadyMessage>(OnServerReadyMessageInternal);
+            connection.RegisterHandler<NetworkConnectionToClient, AddPlayerMessage>(OnServerAddPlayerInternal);
+            connection.RegisterHandler<NetworkConnectionToClient, RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
+            connection.RegisterHandler<NetworkConnectionToClient, ErrorMessage>(OnServerErrorInternal, false);
+        }
+
         // called after successful authentication
         void OnServerAuthenticated(NetworkConnectionToClient conn)
         {
+            // a connection has been established,  register for our messages
+            RegisterServerMessages(conn);
+
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticated");
 
             // proceed with the login handshake by calling OnServerConnect
@@ -1015,9 +1003,19 @@ namespace Mirror
 
         #region Client Internal Message Handlers
 
+        void RegisterClientMessages(NetworkConnection connection)
+        {
+            connection.RegisterHandler<NetworkConnectionToServer, DisconnectMessage>(OnClientDisconnectInternal, false);
+            connection.RegisterHandler<NetworkConnectionToServer, NotReadyMessage>(OnClientNotReadyMessageInternal);
+            connection.RegisterHandler<NetworkConnectionToServer, ErrorMessage>(OnClientErrorInternal, false);
+            connection.RegisterHandler<NetworkConnectionToServer, SceneMessage>(OnClientSceneInternal, false);
+        }
+
         // called after successful authentication
         void OnClientAuthenticated(NetworkConnection conn)
         {
+            RegisterClientMessages(conn);
+
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticated");
 
             // proceed with the login handshake by calling OnClientConnect

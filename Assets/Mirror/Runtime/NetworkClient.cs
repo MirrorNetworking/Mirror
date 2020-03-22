@@ -31,11 +31,6 @@ namespace Mirror
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
 
-        /// <summary>
-        /// The registered network message handlers.
-        /// </summary>
-        readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
-
         // spawn handlers
         readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
         readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
@@ -138,7 +133,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + serverIp);
 
-            RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
             RegisterSpawnPrefabs();
@@ -148,7 +142,7 @@ namespace Mirror
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
+            RegisterMessageHandlers(connection);
             OnConnected();
         }
 
@@ -160,7 +154,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + uri);
 
-            RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
             RegisterSpawnPrefabs();
@@ -170,16 +163,13 @@ namespace Mirror
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
+            RegisterMessageHandlers(connection);
             OnConnected();
         }
 
         internal void ConnectHost(NetworkServer server)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
-
-            RegisterSystemHandlers(true);
-
             connectState = ConnectState.Connected;
 
             // create local connection objects and connect them
@@ -187,7 +177,7 @@ namespace Mirror
                 = ULocalConnectionToClient.CreateLocalConnections();
 
             connection = connectionToServer;
-            connection.SetHandlers(handlers);
+            RegisterHostHandlers(connection);
 
             // create server connection to local client
             server.SetLocalConnection(this, connectionToClient);
@@ -215,7 +205,6 @@ namespace Mirror
         {
             if (authenticator != null)
             {
-                authenticator.OnStartClient();
                 authenticator.OnClientAuthenticated += OnAuthenticated;
 
                 Connected.AddListener(authenticator.OnClientAuthenticateInternal);
@@ -354,75 +343,32 @@ namespace Mirror
             }
         }
 
-        internal void RegisterSystemHandlers(bool hostMode)
+        internal void RegisterHostHandlers(NetworkConnection connection)
         {
-            // host mode client / regular client react to some messages differently.
-            // but we still need to add handlers for all of them to avoid
-            // 'message id not found' errors.
-            if (hostMode)
-            {
-                RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
-                RegisterHandler<NetworkPongMessage>((conn, msg) => { }, false);
-                RegisterHandler<SpawnMessage>(OnHostClientSpawn);
-                // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => { });
-                // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => { });
-                RegisterHandler<UpdateVarsMessage>((conn, msg) => { });
-            }
-            else
-            {
-                RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(OnObjectHide);
-                RegisterHandler<NetworkPongMessage>(Time.OnClientPong, false);
-                RegisterHandler<SpawnMessage>(OnSpawn);
-                RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
-                RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
-                RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
-            }
-            RegisterHandler<RpcMessage>(OnRPCMessage);
-            RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
+            connection.RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
+            connection.RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
+            connection.RegisterHandler<NetworkPongMessage>(msg => { }, false);
+            connection.RegisterHandler<SpawnMessage>(OnHostClientSpawn);
+            // host mode reuses objects in the server
+            // so we don't need to spawn them
+            connection.RegisterHandler<ObjectSpawnStartedMessage>(msg => { });
+            connection.RegisterHandler<ObjectSpawnFinishedMessage>(msg => { });
+            connection.RegisterHandler<UpdateVarsMessage>(msg => { });            
+            connection.RegisterHandler<RpcMessage>(OnRPCMessage);
+            connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
-        /// <summary>
-        /// Register a handler for a particular message type.
-        /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
-        /// </summary>
-        /// <typeparam name="T">The message type to unregister.</typeparam>
-        /// <param name="handler"></param>
-        /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
-        public void RegisterHandler<T>(Action<NetworkConnectionToServer, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
+        internal void RegisterMessageHandlers(NetworkConnection connection)
         {
-            int msgType = MessagePacker.GetId<T>();
-            if (handlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler + " - " + msgType);
-            }
-            handlers[msgType] = NetworkConnection.MessageHandler(handler, requireAuthentication);
-        }
-
-        /// <summary>
-        /// Register a handler for a particular message type.
-        /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
-        /// </summary>
-        /// <typeparam name="T">The message type to unregister.</typeparam>
-        /// <param name="handler"></param>
-        /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
-        public void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
-        {
-            RegisterHandler((NetworkConnectionToServer _, T value) => { handler(value); }, requireAuthentication);
-        }
-
-        /// <summary>
-        /// Unregisters a network message handler.
-        /// </summary>
-        /// <typeparam name="T">The message type to unregister.</typeparam>
-        public void UnregisterHandler<T>() where T : IMessageBase
-        {
-            // use int to minimize collisions
-            int msgType = MessagePacker.GetId<T>();
-            handlers.Remove(msgType);
+            connection.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
+            connection.RegisterHandler<ObjectHideMessage>(OnObjectHide);
+            connection.RegisterHandler<NetworkPongMessage>(Time.OnClientPong, false);
+            connection.RegisterHandler<SpawnMessage>(OnSpawn);
+            connection.RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
+            connection.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
+            connection.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
+            connection.RegisterHandler<RpcMessage>(OnRPCMessage);
+            connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
         /// <summary>
@@ -441,7 +387,6 @@ namespace Mirror
             isSpawnFinished = false;
 
             connectState = ConnectState.None;
-            handlers.Clear();
 
             if (authenticator != null)
                 authenticator.OnClientAuthenticated -= OnAuthenticated;

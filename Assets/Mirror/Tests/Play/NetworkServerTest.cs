@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -119,10 +118,6 @@ namespace Mirror.Tests
         [Test]
         public void ConnectionEventTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
-
             // listen with maxconnections=1
             server.MaxConnections = 1;
 
@@ -143,10 +138,6 @@ namespace Mirror.Tests
         [Test]
         public void MaxConnectionsTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen with maxconnections=1
             server.MaxConnections = 1;
             server.Listen();
@@ -161,6 +152,7 @@ namespace Mirror.Tests
             Assert.That(server.connections.Count, Is.EqualTo(1));
         }
 
+        /*
         [Test]
         public void DisconnectMessageHandlerTest()
         {
@@ -180,15 +172,11 @@ namespace Mirror.Tests
             // disconnect
             Transport.activeTransport.OnServerDisconnected.Invoke(42);
             Assert.That(disconnectCalled, Is.True);
-        }
+        }*/
 
         [Test]
         public void ConnectionsDictTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
@@ -220,10 +208,6 @@ namespace Mirror.Tests
             // 0 is for local player
             // <0 is never used
 
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
@@ -243,10 +227,6 @@ namespace Mirror.Tests
         [Test]
         public void ConnectDuplicateConnectionIdsTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
@@ -279,10 +259,6 @@ namespace Mirror.Tests
         [Test]
         public void AddConnectionTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
@@ -319,10 +295,6 @@ namespace Mirror.Tests
         [Test]
         public void RemoveConnectionTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
@@ -344,10 +316,6 @@ namespace Mirror.Tests
         [Test]
         public void DisconnectAllConnectionsTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
@@ -365,10 +333,6 @@ namespace Mirror.Tests
         [Test]
         public void DisconnectAllTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
@@ -390,19 +354,10 @@ namespace Mirror.Tests
         [Test]
         public void OnDataReceivedTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // add one custom message handler
             bool wasReceived = false;
             NetworkConnection connectionReceived = null;
             var messageReceived = new TestMessage();
-            server.RegisterHandler<TestMessage>((conn, msg) => {
-                wasReceived = true;
-                connectionReceived = conn;
-                messageReceived = msg;
-            }, false);
 
             // listen
             server.Listen();
@@ -410,6 +365,13 @@ namespace Mirror.Tests
 
             // add a connection
             var connection = new NetworkConnectionToClient(42);
+
+            connection.RegisterHandler<NetworkConnectionToClient, TestMessage>((conn, msg) => {
+                wasReceived = true;
+                connectionReceived = conn;
+                messageReceived = msg;
+            }, false);
+
             server.AddConnection(connection);
             Assert.That(server.connections.Count, Is.EqualTo(1));
 
@@ -434,19 +396,9 @@ namespace Mirror.Tests
         [Test]
         public void OnDataReceivedInvalidConnectionIdTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // add one custom message handler
             bool wasReceived = false;
             NetworkConnection connectionReceived = null;
-            var messageReceived = new TestMessage();
-            server.RegisterHandler<TestMessage>((conn, msg) => {
-                wasReceived = true;
-                connectionReceived = conn;
-                messageReceived = msg;
-            }, false);
 
             // listen
             server.Listen();
@@ -563,22 +515,18 @@ namespace Mirror.Tests
         [Test]
         public void SendToAllTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
 
             // add connection
             (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
+            connection.isAuthenticated = true;
+            connection.connectionToServer.isAuthenticated = true;
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
-            {
-                { MessagePacker.GetId<TestMessage>(), (conn, reader, channel) => ++called }
-            });
+            connection.connectionToServer.RegisterHandler<TestMessage>(msg => ++called);
+
             server.AddConnection(connection);
 
             // create a message
@@ -598,27 +546,20 @@ namespace Mirror.Tests
         [Test]
         public void RegisterUnregisterClearHandlerTest()
         {
-            // message handlers that are needed for the test
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
-
-            // RegisterHandler(conn, msg) variant
-            int variant1Called = 0;
-            server.RegisterHandler<TestMessage>((conn, msg) => { ++variant1Called; }, false);
-
-            // RegisterHandler(msg) variant
-            int variant2Called = 0;
-            server.RegisterHandler<WovenTestMessage>(msg => { ++variant2Called; }, false);
 
             // listen
             server.Listen();
-            Assert.That(server.connections.Count, Is.EqualTo(0));
-
             // add a connection
             var connection = new NetworkConnectionToClient(42);
             server.AddConnection(connection);
-            Assert.That(server.connections.Count, Is.EqualTo(1));
+
+            // RegisterHandler(conn, msg) variant
+            int variant1Called = 0;
+            connection.RegisterHandler<NetworkConnectionToClient, TestMessage>((conn, msg) => { ++variant1Called; }, false);
+
+            // RegisterHandler(msg) variant
+            int variant2Called = 0;
+            connection.RegisterHandler<WovenTestMessage>(msg => { ++variant2Called; }, false);
 
             // serialize first message, send it to server, check if it was handled
             var writer = new NetworkWriter();
@@ -640,7 +581,7 @@ namespace Mirror.Tests
             Assert.That(variant2Called, Is.EqualTo(1));
 
             // unregister first handler, send, should fail
-            server.UnregisterHandler<TestMessage>();
+            connection.UnregisterHandler<TestMessage>();
             writer = new NetworkWriter();
             MessagePacker.Pack(new TestMessage(), writer);
             // log error messages are expected
@@ -651,9 +592,9 @@ namespace Mirror.Tests
             Assert.That(variant1Called, Is.EqualTo(1));
 
             // unregister second handler via ClearHandlers to test that one too. send, should fail
-            server.ClearHandlers();
+            connection.ClearHandlers();
             // (only add this one to avoid disconnect error)
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            connection.RegisterHandler<DisconnectMessage>(msg => {}, false);
             writer = new NetworkWriter();
             MessagePacker.Pack(new TestMessage(), writer);
             // log error messages are expected
@@ -667,22 +608,18 @@ namespace Mirror.Tests
         [Test]
         public void SendToClientOfPlayer()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
 
             // add connection
             (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
+            connection.isAuthenticated = true;
+            connection.connectionToServer.isAuthenticated = true;
+
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
-            {
-                { MessagePacker.GetId<TestMessage>(), (conn, reader, channel) => ++called }
-            });
+            connection.connectionToServer.RegisterHandler<TestMessage>(msg => ++called);
             server.AddConnection(connection);
 
             // create a message
@@ -736,10 +673,6 @@ namespace Mirror.Tests
         [Test]
         public void ShowForConnection()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
@@ -747,12 +680,11 @@ namespace Mirror.Tests
             // add connection
             (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
             connection.isReady = true;
+            connection.isAuthenticated = true;
+            connection.connectionToServer.isAuthenticated = true;
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
-            {
-                { MessagePacker.GetId<SpawnMessage>(), (conn, reader, channel) => ++called }
-            });
+            connection.connectionToServer.RegisterHandler<SpawnMessage>(msg => ++called);
             server.AddConnection(connection);
 
             // create a gameobject and networkidentity and some unique values
@@ -782,10 +714,6 @@ namespace Mirror.Tests
         [Test]
         public void HideForConnection()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.connections.Count, Is.EqualTo(0));
@@ -793,12 +721,11 @@ namespace Mirror.Tests
             // add connection
             (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
             connection.isReady = true;
+            connection.isAuthenticated = true;
+            connection.connectionToServer.isAuthenticated = true;
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
-            {
-                { MessagePacker.GetId<ObjectHideMessage>(), (conn, reader, channel) => ++called }
-            });
+            connection.connectionToServer.RegisterHandler<ObjectHideMessage>(msg => ++called);
             server.AddConnection(connection);
 
             // create a gameobject and networkidentity
@@ -969,10 +896,6 @@ namespace Mirror.Tests
         [Test]
         public void ShutdownCleanupTest()
         {
-            // message handlers
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-
             // listen
             server.Listen();
             Assert.That(server.active, Is.True);
