@@ -330,6 +330,12 @@ namespace Mirror
             }
         }
 
+        public void SetItemDirty(int i)
+        {
+            T item = objects[i];
+            AddOperation(Operation.OP_SET, i, item, item);
+        }
+
         public Enumerator GetEnumerator() => new Enumerator(this);
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);
