@@ -14,25 +14,6 @@ namespace Mirror.Tests
     public class NetworkIdentityTests
     {
        #region test components
-        class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public void OnStartLocalPlayer()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
-        }
-
-        class StartLocalPlayerCalledNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public void OnStartLocalPlayer()
-            {
-                ++called;
-            }
-        }
-
         class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -655,24 +636,26 @@ namespace Mirror.Tests
         public void OnStartLocalPlayer()
         {
             // add components
-            StartLocalPlayerExceptionNetworkBehaviour compEx = gameObject.AddComponent<StartLocalPlayerExceptionNetworkBehaviour>();
-            identity.OnStartLocalPlayer.AddListener(compEx.OnStartLocalPlayer);
-            StartLocalPlayerCalledNetworkBehaviour comp = gameObject.AddComponent<StartLocalPlayerCalledNetworkBehaviour>();
-            identity.OnStartLocalPlayer.AddListener(comp.OnStartLocalPlayer);
+            UnityAction funcEx = Substitute.For<UnityAction>();
+            UnityAction func = Substitute.For<UnityAction>();
 
-            // make sure our test values are set to 0
-            Assert.That(compEx.called, Is.EqualTo(0));
-            Assert.That(comp.called, Is.EqualTo(0));
+            identity.OnStartLocalPlayer.AddListener(funcEx);
+            identity.OnStartLocalPlayer.AddListener(func);
+
+            funcEx
+                .When(f => f.Invoke())
+                .Do(f => { throw new Exception("Some exception"); });
+
 
             // make sure that comp.OnStartServer was called
             // the exception was caught and not thrown in here.
             Assert.Throws<Exception>( () => {
                 identity.StartLocalPlayer();
             });
-            
-            Assert.That(compEx.called, Is.EqualTo(1));
+
+            funcEx.Received(1).Invoke();
             //Due to the order the listeners are added the one without exception is never called
-            Assert.That(comp.called, Is.EqualTo(0));
+            func.Received(0).Invoke();
 
             // we have checks to make sure that it's only called once.
             // let's see if they work.
@@ -680,9 +663,9 @@ namespace Mirror.Tests
                 identity.StartLocalPlayer();
             });
             // same as before?
-            Assert.That(compEx.called, Is.EqualTo(1));
+            funcEx.Received(1).Invoke();
             //Due to the order the listeners are added the one without exception is never called
-            Assert.That(comp.called, Is.EqualTo(0));
+            func.Received(0).Invoke();
         }
 
         [Test]
