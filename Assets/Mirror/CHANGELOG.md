@@ -1,3 +1,10 @@
+## [20.0.6](https://github.com/MirrorNG/MirrorNG/compare/20.0.5-master...20.0.6-master) (2020-03-22)
+
+
+### Bug Fixes
+
+* NetworkConnectionEvent should be serialized in editor ([0e756ce](https://github.com/MirrorNG/MirrorNG/commit/0e756cec06c5fda9eb4b5c8aa9de093c32b0315c))
+
 ## [20.0.5](https://github.com/MirrorNG/MirrorNG/compare/20.0.4-master...20.0.5-master) (2020-03-21)
 
 
