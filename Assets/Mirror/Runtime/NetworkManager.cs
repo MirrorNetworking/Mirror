@@ -248,12 +248,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager SetupServer");
             Initialize();
 
-            if (server.authenticator != null)
-            {
-                server.authenticator.OnStartServer();
-                server.authenticator.OnServerAuthenticated += OnServerAuthenticated;
-            }
-
             ConfigureServerFrameRate();
 
             // start listening to network connections
@@ -516,9 +510,6 @@ namespace Mirror
             if (!server.active)
                 return;
 
-            if (server.authenticator != null)
-                server.authenticator.OnServerAuthenticated -= OnServerAuthenticated;
-
             OnStopServer();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StopServer");
@@ -636,7 +627,7 @@ namespace Mirror
 
         void RegisterServerMessages()
         {
-            server.Connected.AddListener(OnServerConnectInternal);
+            server.Authenticated.AddListener(OnServerAuthenticated);
             server.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal, false);
             server.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             server.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
@@ -984,30 +975,10 @@ namespace Mirror
         #endregion
 
         #region Server Internal Message Handlers
-
-        void OnServerConnectInternal(NetworkConnectionToClient conn)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerConnectInternal");
-
-            if (server.authenticator != null)
-            {
-                // we have an authenticator - let it handle authentication
-                server.authenticator.OnServerAuthenticateInternal(conn);
-            }
-            else
-            {
-                // authenticate immediately
-                OnServerAuthenticated(conn);
-            }
-        }
-
         // called after successful authentication
         void OnServerAuthenticated(NetworkConnectionToClient conn)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticated");
-
-            // set connection to authenticated
-            conn.isAuthenticated = true;
 
             // proceed with the login handshake by calling OnServerConnect
             if (networkSceneName != "" && networkSceneName != offlineScene)

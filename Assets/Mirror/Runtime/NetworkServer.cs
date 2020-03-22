@@ -23,7 +23,6 @@ namespace Mirror
 
         public class NetworkConnectionEvent : UnityEvent<NetworkConnectionToClient> { }
 
-
         /// <summary>
         /// The maximum number of concurrent network connections to support.
         /// <para>This effects the memory usage of the network layer.</para>
@@ -33,7 +32,7 @@ namespace Mirror
         public int MaxConnections = 4;
 
         public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
-
+        public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
 
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
@@ -114,6 +113,9 @@ namespace Mirror
                 Transport.activeTransport.OnServerDataReceived.RemoveListener(OnDataReceived);
                 Transport.activeTransport.OnServerError.RemoveListener(OnError);
 
+                if (authenticator != null)
+                    authenticator.OnServerAuthenticated -= OnAuthenticated;
+
                 initialized = false;
             }
 
@@ -137,6 +139,19 @@ namespace Mirror
             Transport.activeTransport.OnServerConnected.AddListener(OnConnected);
             Transport.activeTransport.OnServerDataReceived.AddListener(OnDataReceived);
             Transport.activeTransport.OnServerError.AddListener(OnError);
+
+            if (authenticator != null)
+            {
+                authenticator.OnStartServer();
+                authenticator.OnServerAuthenticated += OnAuthenticated;
+
+                Connected.AddListener(authenticator.OnServerAuthenticateInternal);
+            }
+            else
+            {
+                // if no authenticator, consider every connection as authenticated
+                Connected.AddListener(OnAuthenticated);
+            }
         }
 
 
@@ -421,6 +436,16 @@ namespace Mirror
         {
             conn.InvokeHandler(new DisconnectMessage(), -1);
             if (LogFilter.Debug) Debug.Log("Server lost client:" + conn);
+        }
+
+        internal void OnAuthenticated(NetworkConnectionToClient conn)
+        {
+            if (LogFilter.Debug) Debug.Log("Server authenticate client:" + conn);
+
+            // set connection to authenticated
+            conn.isAuthenticated = true;
+
+            Authenticated?.Invoke(conn);
         }
 
         /// <summary>
