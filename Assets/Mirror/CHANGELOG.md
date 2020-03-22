@@ -1,3 +1,15 @@
+# [21.0.0](https://github.com/MirrorNG/MirrorNG/compare/20.1.0-master...21.0.0-master) (2020-03-22)
+
+
+### Features
+
+* NetworkIdentity lifecycle events ([#88](https://github.com/MirrorNG/MirrorNG/issues/88)) ([9a7c572](https://github.com/MirrorNG/MirrorNG/commit/9a7c5726eb3d333b85c3d0e44b884c11e34be45d))
+
+
+### BREAKING CHANGES
+
+* NetworkBehavior no longer has virtuals for lifecycle events
+
 # [20.1.0](https://github.com/MirrorNG/MirrorNG/compare/20.0.6-master...20.1.0-master) (2020-03-22)
 
 
