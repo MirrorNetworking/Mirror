@@ -24,16 +24,6 @@ namespace Mirror.Tests
             }
         }
 
-        class StartClientExceptionNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public void OnStartClient()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
-        }
-
         class StartAuthorityExceptionNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -419,22 +409,24 @@ namespace Mirror.Tests
         public void OnStartClientCallsComponentsAndCatchesExceptions()
         {
             // add component
-            StartClientExceptionNetworkBehaviour comp = gameObject.AddComponent<StartClientExceptionNetworkBehaviour>();
-            identity.OnStartClient.AddListener(comp.OnStartClient);
+            UnityAction func = Substitute.For<UnityAction>();
+            identity.OnStartClient.AddListener(func);
 
-            // make sure that comp.OnStartServer was called
-            // the exception was caught and not thrown in here.
+            func
+                .When(f => f.Invoke())
+                .Do(f => { throw new Exception("Some exception"); });
+
+            // make sure exceptions are not swallowed
             Assert.Throws<Exception>( () => { 
                 identity.StartClient();
             });
-            Assert.That(comp.called, Is.EqualTo(1));
+            func.Received().Invoke();
             
-
             // we have checks to make sure that it's only called once.
             Assert.DoesNotThrow(() => { 
                 identity.StartClient();
             });
-            Assert.That(comp.called, Is.EqualTo(1)); 
+            func.Received(1).Invoke();
         }
 
         [Test]
