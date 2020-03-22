@@ -1,5 +1,7 @@
+using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -45,10 +47,15 @@ namespace Mirror.Tests
         SampleBehavior behavior2;
         Flags flags;
 
-        [SetUp]
-        public void SetupNetworkServer()
+        [UnitySetUp]
+        public IEnumerator SetupNetworkServer()
         {
+
             SetupServer();
+            // wait for manager to initialize
+            yield return null;
+
+            manager.StartServer();
 
             playerGO = new GameObject();
             playerGO.AddComponent<NetworkIdentity>();

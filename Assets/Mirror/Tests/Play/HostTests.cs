@@ -38,6 +38,7 @@ namespace Mirror.Tests
 
             manager.StartHost();
 
+
             playerGO = new GameObject();
             identity = playerGO.AddComponent<NetworkIdentity>();
             component = playerGO.AddComponent<T>();

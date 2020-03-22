@@ -23,10 +23,9 @@ namespace Mirror.Tests
             manager.server = networkManagerGo.GetComponent<NetworkServer>();
             server = manager.server;
             client = manager.client;
-
+            manager.startOnHeadless = false;
             manager.autoCreatePlayer = false;
             
-            manager.StartServer();
         }
 
         public void SetupClient(string hostname = "localhost")

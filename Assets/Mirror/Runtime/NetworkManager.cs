@@ -188,9 +188,9 @@ namespace Mirror
         }
 
         /// <summary>
-        /// virtual so that inheriting classes' Awake() can call base.Awake() too
+        /// virtual so that inheriting classes' Start() can call base.Start() too
         /// </summary>
-        public virtual void Awake()
+        public virtual void Start()
         {
             Debug.Log("Thank you for using Mirror! https://mirror-networking.com");
 
@@ -202,13 +202,7 @@ namespace Mirror
 
             // setup OnSceneLoaded callback
             SceneManager.sceneLoaded += OnSceneLoaded;
-        }
 
-        /// <summary>
-        /// virtual so that inheriting classes' Start() can call base.Start() too
-        /// </summary>
-        public virtual void Start()
-        {
             // headless mode? then start the server
             // can't do this in Awake because Awake is for initialization.
             // some transports might not be ready until Start.
@@ -246,7 +240,6 @@ namespace Mirror
         void SetupServer()
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager SetupServer");
-            Initialize();
 
             ConfigureServerFrameRate();
 
@@ -316,8 +309,6 @@ namespace Mirror
         {
             mode = NetworkManagerMode.ClientOnly;
 
-            Initialize();
-
             isNetworkActive = true;
 
             RegisterClientMessages();
@@ -342,9 +333,6 @@ namespace Mirror
         public void StartClient(Uri uri)
         {
             mode = NetworkManagerMode.ClientOnly;
-
-            Initialize();
-
             isNetworkActive = true;
 
             RegisterClientMessages();
