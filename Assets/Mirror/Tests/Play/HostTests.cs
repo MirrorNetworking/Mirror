@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System.Collections;
+using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -19,8 +21,8 @@ namespace Mirror.Tests
         protected NetworkIdentity identity;
         protected T component;
 
-        [SetUp]
-        public void SetupHost()
+        [UnitySetUp]
+        public IEnumerator SetupHost()
         {
             networkManagerGo = new GameObject();
             manager = networkManagerGo.AddComponent<NetworkManager>();
@@ -28,8 +30,11 @@ namespace Mirror.Tests
             manager.server = networkManagerGo.GetComponent<NetworkServer>();
             server = manager.server;
             client = manager.client;
-
+            manager.startOnHeadless = false;
             manager.autoCreatePlayer = false;
+
+            // wait for manager to Start()
+            yield return null;
 
             manager.StartHost();
 

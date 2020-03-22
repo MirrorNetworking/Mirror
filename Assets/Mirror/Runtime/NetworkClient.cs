@@ -179,7 +179,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
 
             RegisterSystemHandlers(true);
-            InitializeAuthEvents();
 
             connectState = ConnectState.Connected;
 
