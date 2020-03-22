@@ -40,7 +40,7 @@ namespace Mirror
         readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
         readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
-        public class NetworkConnectionEvent : UnityEvent<NetworkConnectionToServer> { }
+        [Serializable] public class NetworkConnectionEvent : UnityEvent<NetworkConnectionToServer> { }
 
         public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
 
