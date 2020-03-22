@@ -178,6 +178,7 @@ namespace Mirror.Tests
                 client.Disconnect();
 
                 await WaitForServerDisconnect();
+                await WaitForClientDisconnect();
 
                 Assert.That(client.Connected, Is.False);
                 Assert.That(client.Connecting, Is.False);
@@ -223,6 +224,7 @@ namespace Mirror.Tests
 
                 client.Disconnect();
                 await WaitForServerDisconnect();
+                await WaitForClientDisconnect();
 
                 Assert.That(client.Connected, Is.False);
                 Assert.That(client.Connecting, Is.False);
@@ -253,8 +255,11 @@ namespace Mirror.Tests
                 await WaitForServerDisconnect();
                 await WaitForClientDisconnect();
 
+                Assert.That(clientSemaphore.CurrentCount, Is.Zero);
+
                 Assert.That(client.Connected, Is.False);
                 Assert.That(client.Connecting, Is.False);
+
             });
         }
 
@@ -284,6 +289,9 @@ namespace Mirror.Tests
 
                 var disconnectId = await WaitForServerDisconnect();
                 Assert.That(disconnectId, Is.EqualTo(id));
+
+                await WaitForClientDisconnect();
+
             });
         }
 
@@ -367,7 +375,7 @@ namespace Mirror.Tests
                 client.Disconnect();
 
                 await WaitForServerDisconnect();
-
+                await WaitForClientDisconnect();
             });
         }
 
@@ -386,6 +394,7 @@ namespace Mirror.Tests
                 client.Disconnect();
 
                 await WaitForServerDisconnect();
+                await WaitForClientDisconnect();
             });
         }
 
@@ -402,6 +411,7 @@ namespace Mirror.Tests
                 client.Disconnect();
 
                 await WaitForServerDisconnect();
+                await WaitForClientDisconnect();
             });
         }
 
@@ -418,6 +428,7 @@ namespace Mirror.Tests
                 client.Disconnect();
 
                 await WaitForServerDisconnect();
+                await WaitForClientDisconnect();
             });
         }
 
@@ -442,6 +453,9 @@ namespace Mirror.Tests
                 // finally if the server stops,  the clients should get a disconnect error
                 server.Stop();
                 client.Disconnect();
+                await WaitForServerDisconnect();
+                await WaitForClientDisconnect();
+
             });
         }
 
