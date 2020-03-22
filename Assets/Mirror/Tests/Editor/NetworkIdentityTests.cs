@@ -24,16 +24,6 @@ namespace Mirror.Tests
             }
         }
 
-        class StartAuthorityExceptionNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public void OnStartAuthority()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
-        }
-
         class StartAuthorityCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -433,15 +423,18 @@ namespace Mirror.Tests
         public void OnStartAuthorityCallsComponentsAndCatchesExceptions()
         {
             // add component
-            StartAuthorityExceptionNetworkBehaviour comp = gameObject.AddComponent<StartAuthorityExceptionNetworkBehaviour>();
-            identity.OnStartAuthority.AddListener(comp.OnStartAuthority);
+            UnityAction func = Substitute.For<UnityAction>();
+            identity.OnStartAuthority.AddListener(func);
 
-            // make sure that comp.OnStartServer was called
-            // the exception was caught and not thrown in here.
+            func
+                .When(f => f.Invoke())
+                .Do(f => { throw new Exception("Some exception"); });
+
+            // make sure exceptions are not swallowed
             Assert.Throws<Exception>( () => { 
                 identity.StartAuthority();
             });
-            Assert.That(comp.called, Is.EqualTo(1));
+            func.Received(1).Invoke();
         }
 
         [Test]
