@@ -649,8 +649,6 @@ namespace Mirror
             {
                 client.RegisterPrefab(playerPrefab);
             }
-
-            client.RegisterSpawnPrefabs();
         }
 
         void CleanupNetworkIdentities()

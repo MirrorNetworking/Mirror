@@ -135,6 +135,7 @@ namespace Mirror
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
+            RegisterSpawnPrefabs();
 
             connectState = ConnectState.Connecting;
             await Transport.activeTransport.ClientConnectAsync(serverIp);
@@ -156,6 +157,7 @@ namespace Mirror
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
+            RegisterSpawnPrefabs();
 
             connectState = ConnectState.Connecting;
             await Transport.activeTransport.ClientConnectAsync(uri);
@@ -320,18 +322,6 @@ namespace Mirror
                 if (active && connectState == ConnectState.Connected)
                 {
                     Time.UpdateClient(this);
-                }
-            }
-        }
-
-        internal void RegisterSpawnPrefabs()
-        {
-            for (int i = 0; i < spawnPrefabs.Count; i++)
-            {
-                GameObject prefab = spawnPrefabs[i];
-                if (prefab != null)
-                {
-                    RegisterPrefab(prefab);
                 }
             }
         }
@@ -587,6 +577,20 @@ namespace Mirror
             return null;
         }
 
+
+        #region Spawn Prefabs
+        private void RegisterSpawnPrefabs()
+        {
+            for (int i = 0; i < spawnPrefabs.Count; i++)
+            {
+                GameObject prefab = spawnPrefabs[i];
+                if (prefab != null)
+                {
+                    RegisterPrefab(prefab);
+                }
+            }
+        }
+
         /// <summary>
         /// Find the registered prefab for this asset id.
         /// Useful for debuggers
@@ -719,6 +723,10 @@ namespace Mirror
             unspawnHandlers.Remove(identity.assetId);
         }
 
+        #endregion
+
+        #region Spawn Handler
+
         /// <summary>
         /// This is an advanced spawning function that registers a custom assetId with the UNET spawning system.
         /// <para>This can be used to register custom spawning methods for an assetId - instead of the usual method of registering spawning methods for a prefab. This should be used when no prefab exists for the spawned objects - such as when they are constructed dynamically at runtime from configuration data.</para>
@@ -771,6 +779,8 @@ namespace Mirror
             spawnHandlers.Clear();
             unspawnHandlers.Clear();
         }
+
+        #endregion
 
         void UnSpawn(NetworkIdentity identity)
         {
