@@ -318,12 +318,6 @@ namespace Mirror
 
             Initialize();
 
-            if (client.authenticator != null)
-            {
-                client.authenticator.OnStartClient();
-                client.authenticator.OnClientAuthenticated += OnClientAuthenticated;
-            }
-
             isNetworkActive = true;
 
             RegisterClientMessages();
@@ -350,12 +344,6 @@ namespace Mirror
             mode = NetworkManagerMode.ClientOnly;
 
             Initialize();
-
-            if (client.authenticator != null)
-            {
-                client.authenticator.OnStartClient();
-                client.authenticator.OnClientAuthenticated += OnClientAuthenticated;
-            }
 
             isNetworkActive = true;
 
@@ -479,12 +467,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager ConnectLocalClient");
 
-            if (client.authenticator != null)
-            {
-                client.authenticator.OnStartClient();
-                client.authenticator.OnClientAuthenticated += OnClientAuthenticated;
-            }
-
             server.ActivateHostScene();
 
             // ConnectLocalServer needs to be called AFTER RegisterClientMessages
@@ -536,9 +518,6 @@ namespace Mirror
         /// </summary>
         public void StopClient()
         {
-            if (client.authenticator != null)
-                client.authenticator.OnClientAuthenticated -= OnClientAuthenticated;
-
             OnStopClient();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StopClient");
@@ -639,7 +618,7 @@ namespace Mirror
 
         void RegisterClientMessages()
         {
-            client.Connected.AddListener(OnClientConnectInternal);
+            client.Authenticated.AddListener(OnClientAuthenticated);
             client.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
             client.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
             client.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
@@ -1048,29 +1027,10 @@ namespace Mirror
 
         #region Client Internal Message Handlers
 
-        void OnClientConnectInternal(NetworkConnectionToServer conn)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientConnectInternal");
-
-            if (client.authenticator != null)
-            {
-                // we have an authenticator - let it handle authentication
-                client.authenticator.OnClientAuthenticateInternal(conn);
-            }
-            else
-            {
-                // authenticate immediately
-                OnClientAuthenticated(conn);
-            }
-        }
-
         // called after successful authentication
         void OnClientAuthenticated(NetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticated");
-
-            // set connection to authenticated
-            conn.isAuthenticated = true;
 
             // proceed with the login handshake by calling OnClientConnect
             string loadedSceneName = SceneManager.GetActiveScene().name;

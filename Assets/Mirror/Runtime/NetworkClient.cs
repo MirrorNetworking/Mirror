@@ -43,6 +43,7 @@ namespace Mirror
         [Serializable] public class NetworkConnectionEvent : UnityEvent<NetworkConnectionToServer> { }
 
         public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
+        public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
 
         /// <summary>
         /// The NetworkConnection object this client is using.
@@ -124,6 +125,11 @@ namespace Mirror
         /// </summary>
         public bool isLocalClient => hostServer != null;
 
+        void Start()
+        {
+            InitializeAuthEvents();            
+        }
+
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
@@ -173,6 +179,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
 
             RegisterSystemHandlers(true);
+            InitializeAuthEvents();
 
             connectState = ConnectState.Connected;
 
@@ -203,6 +210,22 @@ namespace Mirror
             Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
             Transport.activeTransport.OnClientDisconnected.AddListener(OnDisconnected);
             Transport.activeTransport.OnClientError.AddListener(OnError);
+        }
+
+        void InitializeAuthEvents()
+        {
+            if (authenticator != null)
+            {
+                authenticator.OnStartClient();
+                authenticator.OnClientAuthenticated += OnAuthenticated;
+
+                Connected.AddListener(authenticator.OnClientAuthenticateInternal);
+            }
+            else
+            {
+                // if no authenticator, consider connection as authenticated
+                Connected.AddListener(OnAuthenticated);
+            }
         }
 
         void OnError(Exception exception)
@@ -244,6 +267,14 @@ namespace Mirror
             connectState = ConnectState.Connected;
             Time.UpdateClient(this);
             Connected.Invoke((NetworkConnectionToServer)connection);
+        }
+
+        void OnAuthenticated(NetworkConnectionToServer conn)
+        {
+            // set connection to authenticated
+            conn.isAuthenticated = true;
+
+            Authenticated?.Invoke(conn);
         }
 
         /// <summary>
@@ -412,6 +443,10 @@ namespace Mirror
 
             connectState = ConnectState.None;
             handlers.Clear();
+
+            if (authenticator != null)
+                authenticator.OnClientAuthenticated -= OnAuthenticated;
+
             // disconnect the client connection.
             // we do NOT call Transport.Shutdown, because someone only called
             // NetworkClient.Shutdown. we can't assume that the server is
