@@ -66,10 +66,10 @@ namespace Mirror
         readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
         /// <summary>
-        /// <para>If you enable this, the server will not listen for incoming connections on the regular network port.</para>
-        /// <para>This can be used if the game is running in host mode and does not want external players to be able to connect - making it like a single-player game. Also this can be useful when using AddExternalConnection().</para>
+        /// <para>If you enable this, the server will listen for incoming connections on the regular network port.</para>
+        /// <para>This can be used if set as false and the game is running in host mode and does not want external players to be able to connect - making it like a single-player game. Also this can be useful when using AddExternalConnection().</para>
         /// </summary>
-        public bool dontListen;
+        public bool Listening = true;
 
         /// <summary>
         /// <para>Checks if the server has been started.</para>
@@ -95,11 +95,7 @@ namespace Mirror
             {
                 DisconnectAll();
 
-                if (dontListen)
-                {
-                    // was never started, so dont stop
-                }
-                else
+                if (Listening)
                 {
                     // stop the server.
                     // we do NOT call Transport.Shutdown, because someone only
@@ -119,7 +115,6 @@ namespace Mirror
                 initialized = false;
             }
 
-            dontListen = false;
             active = false;
 
             NetworkIdentity.ResetNextNetworkId();
@@ -173,7 +168,7 @@ namespace Mirror
             Initialize();
 
             // only start server if we want to listen
-            if (!dontListen)
+            if (Listening)
             {
                 Transport.activeTransport.ServerStart();
                 if (LogFilter.Debug) Debug.Log("Server started listening");
