@@ -47,7 +47,7 @@ namespace Mirror
         public NetworkConnectionToClient localConnection { get; private set; }
 
         // The host client for this server 
-        public NetworkClient localClient;
+        public NetworkClient localClient { get; private set; }
 
         /// <summary>
         /// True if there is a local client connected to this server (host mode)
