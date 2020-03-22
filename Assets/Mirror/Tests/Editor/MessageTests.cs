@@ -49,12 +49,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ConnectMessageTest()
-        {
-            TestSerializeDeserialize(new ConnectMessage());
-        }
-
-        [Test]
         public void DisconnectMessageTest()
         {
             TestSerializeDeserialize(new DisconnectMessage());

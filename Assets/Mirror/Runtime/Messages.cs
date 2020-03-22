@@ -75,13 +75,6 @@ namespace Mirror
         public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
     }
 
-    public struct ConnectMessage : IMessageBase
-    {
-        public void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
-
-        public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
-    }
-
     public struct SceneMessage : IMessageBase
     {
         public string sceneName;

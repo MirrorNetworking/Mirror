@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 using Guid = System.Guid;
 using Object = UnityEngine.Object;
 
@@ -38,6 +39,10 @@ namespace Mirror
         // spawn handlers
         readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
         readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
+
+        public class NetworkConnectionEvent : UnityEvent<NetworkConnectionToServer> { }
+
+        public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
 
         /// <summary>
         /// The NetworkConnection object this client is using.
@@ -180,6 +185,8 @@ namespace Mirror
 
             // create server connection to local client
             server.SetLocalConnection(this, connectionToClient);
+
+            Connected.Invoke(connectionToServer);
             hostServer = server;
         }
 
@@ -189,7 +196,6 @@ namespace Mirror
         internal void ConnectLocalServer(NetworkServer server)
         {
             server.OnConnected(server.localConnection);
-            server.localConnection.Send(new ConnectMessage());
         }
 
         void InitializeTransportHandlers()
@@ -237,7 +243,7 @@ namespace Mirror
             // thus we should set the connected state before calling the handler
             connectState = ConnectState.Connected;
             Time.UpdateClient(this);
-            connection.InvokeHandler(new ConnectMessage(), -1);
+            Connected.Invoke((NetworkConnectionToServer)connection);
         }
 
         /// <summary>

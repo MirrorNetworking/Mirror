@@ -1,5 +1,11 @@
+using System.Collections;
+using System.Threading.Tasks;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.TestTools;
+using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
@@ -15,6 +21,7 @@ namespace Mirror.Tests
         {
             gameObject = new GameObject();
             manager = gameObject.AddComponent<NetworkManager>();
+            manager.startOnHeadless = false;
             manager.client = gameObject.GetComponent<NetworkClient>();
             manager.server = gameObject.GetComponent<NetworkServer>();
         }
@@ -29,7 +36,7 @@ namespace Mirror.Tests
         public void VariableTest()
         {
             Assert.That(manager.dontDestroyOnLoad, Is.True);
-            Assert.That(manager.startOnHeadless, Is.True);
+            Assert.That(manager.startOnHeadless, Is.False);
             Assert.That(manager.showDebugMessages, Is.False);
             Assert.That(manager.serverTickRate, Is.EqualTo(30));
             Assert.That(manager.offlineScene, Is.Empty);
@@ -76,6 +83,59 @@ namespace Mirror.Tests
             Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.ClientOnly));
 
             manager.StopClient();
+        }
+
+        [UnityTest]
+        public IEnumerator ConnectedClientTest()
+        {
+            return RunAsync(async () =>
+            {
+                manager.StartServer();
+                UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
+                manager.client.Connected.AddListener(func);
+                
+                await manager.client.ConnectAsync("localhost");
+                func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
+                manager.client.Disconnect();
+                manager.client.Shutdown();
+                manager.StopServer();
+            });
+        }
+
+        [UnityTest]
+        public IEnumerator ConnectedClientUriTest()
+        {
+            return RunAsync(async () =>
+            {
+                manager.StartServer();
+                UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
+                manager.client.Connected.AddListener(func);
+                await manager.client.ConnectAsync(new System.Uri("tcp4://localhost"));
+                func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
+                manager.client.Disconnect();
+                manager.client.Shutdown();
+                manager.StopServer();
+                await Task.Delay(1);
+
+            });
+        }
+
+        [UnityTest]
+        public IEnumerator ConnectedHostTest()
+        {
+            return RunAsync(async () =>
+            {
+                manager.StartServer();
+                UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
+                manager.client.Connected.AddListener(func);
+                manager.client.ConnectHost(manager.server);
+                func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
+                manager.client.Disconnect();
+                manager.client.Shutdown();
+                manager.StopServer();
+
+                await Task.Delay(1);
+            });
         }
 
         [Test]

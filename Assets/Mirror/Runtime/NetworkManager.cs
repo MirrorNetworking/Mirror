@@ -458,6 +458,9 @@ namespace Mirror
             //          -> localClientActive needs to be true, otherwise the hook
             //             isn't called in host mode!
             //
+
+            RegisterClientMessages();
+
             // TODO call this after spawnobjects and worry about the syncvar hook fix later?
             client.ConnectHost(server);
 
@@ -483,7 +486,6 @@ namespace Mirror
             }
 
             server.ActivateHostScene();
-            RegisterClientMessages();
 
             // ConnectLocalServer needs to be called AFTER RegisterClientMessages
             // (https://github.com/vis2k/Mirror/pull/1249/)
@@ -637,7 +639,7 @@ namespace Mirror
 
         void RegisterClientMessages()
         {
-            client.RegisterHandler<ConnectMessage>(OnClientConnectInternal, false);
+            client.Connected.AddListener(OnClientConnectInternal);
             client.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
             client.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
             client.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
@@ -1048,7 +1050,7 @@ namespace Mirror
 
         #region Client Internal Message Handlers
 
-        void OnClientConnectInternal(NetworkConnectionToServer conn, ConnectMessage message)
+        void OnClientConnectInternal(NetworkConnectionToServer conn)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientConnectInternal");
 
