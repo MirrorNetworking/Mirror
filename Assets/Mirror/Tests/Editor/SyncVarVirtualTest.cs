@@ -111,14 +111,16 @@ namespace Mirror.Tests
                 value2OverrideCalled = true;
             };
 
+            bool value2VirtualCalled = false;
             clientTester.OnValue2ChangedVirtualCalled += () => {
-                Assert.Fail("Virtual method Called when Override exists");
+                value2VirtualCalled = true;
             };
 
             SyncValuesWithClient();
 
             Assert.AreEqual(serverTester.value2, serverTester.value2);
-            Assert.IsTrue(value2OverrideCalled);
+            Assert.IsTrue(value2OverrideCalled, "Override method not called");
+            Assert.IsFalse(value2VirtualCalled, "Virtual method called when Override exists");
         }
     }
 }
