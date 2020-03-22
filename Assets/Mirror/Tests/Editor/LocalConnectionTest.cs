@@ -20,12 +20,7 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUpConnections()
         {
-            connectionToServer = new ULocalConnectionToServer();
-            connectionToClient = new ULocalConnectionToClient
-            {
-                connectionToServer = connectionToServer
-            };
-            connectionToServer.connectionToClient = connectionToClient;
+            (connectionToServer, connectionToClient) = ULocalConnectionToClient.CreateLocalConnections();
         }
 
         [TearDown]

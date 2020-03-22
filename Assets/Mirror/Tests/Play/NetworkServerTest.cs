@@ -466,10 +466,7 @@ namespace Mirror.Tests
         [Test]
         public void SetClientReadyAndNotReadyTest()
         {
-            var connection = new ULocalConnectionToClient
-            {
-                connectionToServer = new ULocalConnectionToServer()
-            };
+            (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
             Assert.That(connection.isReady, Is.False);
 
             server.SetClientReady(connection);
@@ -483,19 +480,13 @@ namespace Mirror.Tests
         public void SetAllClientsNotReadyTest()
         {
             // add first ready client
-            var first = new ULocalConnectionToClient
-            {
-                connectionToServer = new ULocalConnectionToServer(),
-                isReady = true
-            };
+            (_, var first) = ULocalConnectionToClient.CreateLocalConnections();
+            first.isReady = true;
             server.connections[42] = first;
 
             // add second ready client
-            var second = new ULocalConnectionToClient
-            {
-                connectionToServer = new ULocalConnectionToServer(),
-                isReady = true
-            };
+            (_, var second) = ULocalConnectionToClient.CreateLocalConnections();
+            second.isReady = true;
             server.connections[43] = second;
 
             // set all not ready
@@ -512,10 +503,7 @@ namespace Mirror.Tests
             Assert.That(server.connections.Count, Is.EqualTo(0));
 
             // add connection
-            var connection = new ULocalConnectionToClient
-            {
-                connectionToServer = new ULocalConnectionToServer()
-            };
+            (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
             server.AddConnection(connection);
 
             // set as authenticated, otherwise readymessage is rejected
@@ -577,10 +565,7 @@ namespace Mirror.Tests
             Assert.That(server.connections.Count, Is.EqualTo(0));
 
             // add connection
-            var connection = new ULocalConnectionToClient
-            {
-                connectionToServer = new ULocalConnectionToServer()
-            };
+            (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
             // set a client handler
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
@@ -684,10 +669,7 @@ namespace Mirror.Tests
             Assert.That(server.connections.Count, Is.EqualTo(0));
 
             // add connection
-            var connection = new ULocalConnectionToClient
-            {
-                connectionToServer = new ULocalConnectionToServer()
-            };
+            (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
             // set a client handler
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
@@ -756,12 +738,8 @@ namespace Mirror.Tests
             Assert.That(server.connections.Count, Is.EqualTo(0));
 
             // add connection
-            var connection = new ULocalConnectionToClient
-            {
-                // required for ShowForConnection
-                isReady = true,
-                connectionToServer = new ULocalConnectionToServer()
-            };
+            (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
+            connection.isReady = true;
             // set a client handler
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
@@ -806,12 +784,8 @@ namespace Mirror.Tests
             Assert.That(server.connections.Count, Is.EqualTo(0));
 
             // add connection
-            var connection = new ULocalConnectionToClient
-            {
-                // required for ShowForConnection
-                isReady = true,
-                connectionToServer = new ULocalConnectionToServer()
-            };
+            (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
+            connection.isReady = true;
             // set a client handler
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()

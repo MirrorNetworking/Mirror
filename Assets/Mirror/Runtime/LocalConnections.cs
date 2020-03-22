@@ -8,9 +8,9 @@ namespace Mirror
     // sending messages on this connection causes the client's handler function to be invoked directly
     class ULocalConnectionToClient : NetworkConnectionToClient
     {
-        internal ULocalConnectionToServer connectionToServer;
+        internal ULocalConnectionToServer connectionToServer { get; private set; }
 
-        public ULocalConnectionToClient() : base(0)
+        private ULocalConnectionToClient() : base(0)
         {
         }
 
@@ -42,13 +42,31 @@ namespace Mirror
             DisconnectInternal();
             connectionToServer.DisconnectInternal();
         }
+
+        /// <summary>
+        /// Creates a pair of connections,  one for client and one for server
+        /// the connection just send data to each other
+        /// </summary>
+        /// <returns></returns>
+        public static (ULocalConnectionToServer, ULocalConnectionToClient) CreateLocalConnections()
+        {
+            var connectionToClient = new ULocalConnectionToClient();
+            var connectionToServer = new ULocalConnectionToServer(connectionToClient);
+            connectionToClient.connectionToServer = connectionToServer;
+            return (connectionToServer, connectionToClient);
+        }
     }
 
     // a localClient's connection TO a server.
     // send messages on this connection causes the server's handler function to be invoked directly.
     internal class ULocalConnectionToServer : NetworkConnectionToServer
     {
-        internal ULocalConnectionToClient connectionToClient;
+        internal ULocalConnectionToClient connectionToClient { get; }
+
+        internal ULocalConnectionToServer(ULocalConnectionToClient connectionToClient)
+        {
+            this.connectionToClient = connectionToClient;
+        }
 
         // local client in host mode might call Cmds/Rpcs during Update, but we
         // want to apply them in LateUpdate like all other Transport messages

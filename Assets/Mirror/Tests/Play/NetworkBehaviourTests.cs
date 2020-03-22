@@ -117,14 +117,14 @@ namespace Mirror.Tests
         [Test]
         public void HasIdentitysConnectionToServer()
         {
-            identity.connectionToServer = new ULocalConnectionToServer();
+            (identity.connectionToServer, _) = ULocalConnectionToClient.CreateLocalConnections();
             Assert.That(component.connectionToServer, Is.EqualTo(identity.connectionToServer));
         }
 
         [Test]
         public void HasIdentitysConnectionToClient()
         {
-            identity.connectionToClient = new ULocalConnectionToClient();
+            (_, identity.connectionToClient) = ULocalConnectionToClient.CreateLocalConnections();
             Assert.That(component.connectionToClient, Is.EqualTo(identity.connectionToClient));
         }
 

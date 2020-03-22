@@ -177,10 +177,8 @@ namespace Mirror
             connectState = ConnectState.Connected;
 
             // create local connection objects and connect them
-            var connectionToServer = new ULocalConnectionToServer();
-            var connectionToClient = new ULocalConnectionToClient();
-            connectionToServer.connectionToClient = connectionToClient;
-            connectionToClient.connectionToServer = connectionToServer;
+            (ULocalConnectionToServer connectionToServer, ULocalConnectionToClient connectionToClient)
+                = ULocalConnectionToClient.CreateLocalConnections();
 
             connection = connectionToServer;
             connection.SetHandlers(handlers);

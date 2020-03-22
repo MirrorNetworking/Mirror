@@ -308,12 +308,12 @@ namespace Mirror.Tests
         public void SetClientOwner()
         {
             // SetClientOwner
-            var original = new ULocalConnectionToClient();
+            (_, ULocalConnectionToClient original ) = ULocalConnectionToClient.CreateLocalConnections();
             identity.SetClientOwner(original);
             Assert.That(identity.connectionToClient, Is.EqualTo(original));
 
             // setting it when it's already set shouldn't overwrite the original
-            var overwrite = new ULocalConnectionToClient();
+            (_, ULocalConnectionToClient overwrite) = ULocalConnectionToClient.CreateLocalConnections();
             // will log a warning
             LogAssert.ignoreFailingMessages = true;
             identity.SetClientOwner(overwrite);
@@ -862,14 +862,10 @@ namespace Mirror.Tests
             Assert.That(compA.IsDirty(), Is.False);
             Assert.That(compB.IsDirty(), Is.False);
 
-            // add an owner connection that will receive the updates
-            var owner = new ULocalConnectionToClient
-            {
-                // for syncing
-                isReady = true,
-                                // add a client to server connection + handler to receive syncs
-                connectionToServer = new ULocalConnectionToServer()
-            };
+            (_, ULocalConnectionToClient owner)
+                = ULocalConnectionToClient.CreateLocalConnections();
+            owner.isReady = true;
+            owner.isAuthenticated = true;
             int ownerCalled = 0;
             owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
             {
@@ -878,13 +874,10 @@ namespace Mirror.Tests
             identity.connectionToClient = owner;
 
             // add an observer connection that will receive the updates
-            var observer = new ULocalConnectionToClient
-            {
-                // we only sync to ready observers
-                isReady = true,
-                                // add a client to server connection + handler to receive syncs
-                connectionToServer = new ULocalConnectionToServer()
-            };
+            (_, ULocalConnectionToClient observer)
+                = ULocalConnectionToClient.CreateLocalConnections();
+            observer.isReady = true;
+            observer.isAuthenticated = true;
             int observerCalled = 0;
             observer.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
             {
@@ -957,11 +950,9 @@ namespace Mirror.Tests
             server.connections[13] = connection2;
 
             // add a host connection
-            var localConnection = new ULocalConnectionToClient
-            {
-                connectionToServer = new ULocalConnectionToServer(),
-                isReady = true
-            };
+            (_, ULocalConnectionToClient localConnection)
+                = ULocalConnectionToClient.CreateLocalConnections();
+            localConnection.isReady = true;
             server.SetLocalConnection(client, localConnection);
 
             // call OnStartServer so that observers dict is created
@@ -986,8 +977,7 @@ namespace Mirror.Tests
             gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
 
             // add own player connection
-            var connection = new ULocalConnectionToClient();
-            connection.connectionToServer = new ULocalConnectionToServer();
+            (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
             connection.isReady = true;
             identity.connectionToClient = connection;
 
@@ -1009,8 +999,7 @@ namespace Mirror.Tests
             gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
 
             // add own player connection that isn't ready
-            var connection = new ULocalConnectionToClient();
-            connection.connectionToServer = new ULocalConnectionToServer();
+            (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
             identity.connectionToClient = connection;
 
             // call OnStartServer so that observers dict is created
