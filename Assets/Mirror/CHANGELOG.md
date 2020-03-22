@@ -1,3 +1,10 @@
+## [21.0.1](https://github.com/MirrorNG/MirrorNG/compare/21.0.0-master...21.0.1-master) (2020-03-22)
+
+
+### Bug Fixes
+
+* calling Connect and Authenticate handler twice ([#102](https://github.com/MirrorNG/MirrorNG/issues/102)) ([515f5a1](https://github.com/MirrorNG/MirrorNG/commit/515f5a15cd5be984f8cb4f94d3be0a0ac919eb63))
+
 # [21.0.0](https://github.com/MirrorNG/MirrorNG/compare/20.1.0-master...21.0.0-master) (2020-03-22)
 
 
