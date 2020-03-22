@@ -251,6 +251,7 @@ namespace Mirror.Tests
                 client.Disconnect();
 
                 await WaitForServerDisconnect();
+                await WaitForClientDisconnect();
 
                 Assert.That(client.Connected, Is.False);
                 Assert.That(client.Connecting, Is.False);

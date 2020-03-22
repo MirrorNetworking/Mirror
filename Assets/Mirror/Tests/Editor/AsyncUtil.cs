@@ -12,7 +12,7 @@ namespace Mirror.Tests
         {
             Task task = block();
 
-            while (!task.IsCompleted) { yield return 0; }
+            while (!task.IsCompleted) { yield return null; }
             if (task.IsFaulted) { throw task.Exception; }
         }
     }
