@@ -2,14 +2,14 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    public class SyncListStrucTest
+    public class SyncListClassTest
     {
         [Test]
         [Ignore("This test is to show that List/Item is not dirty after seting a field inside Item")]
         public void ListNotDirtyAfterChangingValueInsideItem()
         {
-            SyncListTestPlayer serverList = new SyncListTestPlayer();
-            SyncListTestPlayer clientList = new SyncListTestPlayer();
+            SyncListTestArmor serverList = new SyncListTestArmor();
+            SyncListTestArmor clientList = new SyncListTestArmor();
             SyncListTest.SerializeAllTo(serverList, clientList);
             serverList.Add(new TestArmor { weight = 10 });
             SyncListTest.SerializeDeltaTo(serverList, clientList);
@@ -23,14 +23,13 @@ namespace Mirror.Tests
             serverList[0].weight = 15;
 
             Assert.That(serverList.IsDirty, Is.False);
-            SyncListTest.SerializeDeltaTo(serverList, clientList);
         }
 
         [Test]
         public void ListIsDirtAfterCallingSetItemDirty()
         {
-            SyncListTestPlayer serverList = new SyncListTestPlayer();
-            SyncListTestPlayer clientList = new SyncListTestPlayer();
+            SyncListTestArmor serverList = new SyncListTestArmor();
+            SyncListTestArmor clientList = new SyncListTestArmor();
             SyncListTest.SerializeAllTo(serverList, clientList);
             serverList.Add(new TestArmor { weight = 10 });
             SyncListTest.SerializeDeltaTo(serverList, clientList);
@@ -50,8 +49,8 @@ namespace Mirror.Tests
         [Test]
         public void OldValueShouldNotBeNewValue()
         {
-            SyncListTestPlayer serverList = new SyncListTestPlayer();
-            SyncListTestPlayer clientList = new SyncListTestPlayer();
+            SyncListTestArmor serverList = new SyncListTestArmor();
+            SyncListTestArmor clientList = new SyncListTestArmor();
             SyncListTest.SerializeAllTo(serverList, clientList);
             serverList.Add(new TestArmor { weight = 10 });
             SyncListTest.SerializeDeltaTo(serverList, clientList);
@@ -73,19 +72,15 @@ namespace Mirror.Tests
     }
 
 
-    public class SyncListTestPlayer : SyncList<TestArmor>
+    public class SyncListTestArmor : SyncList<TestArmor>
     {
 
     }
-    //public struct TestPlayer
-    //{
-    //    public TestArmor armor;
-    //}
     public class TestArmor
     {
         public float weight;
     }
-    public static class TestItemReadWrite
+    public static class TestArmorReadWrite
     {
         public static void WriteTestItem(this NetworkWriter writer, TestArmor armor)
         {
