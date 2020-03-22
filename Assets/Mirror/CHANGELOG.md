@@ -1,3 +1,15 @@
+# [20.1.0](https://github.com/MirrorNG/MirrorNG/compare/20.0.6-master...20.1.0-master) (2020-03-22)
+
+
+### Bug Fixes
+
+* tcp server Tests ([3b95477](https://github.com/MirrorNG/MirrorNG/commit/3b954777f16a41469d953e3744c5d68554e3d200))
+
+
+### Features
+
+* NetworkClient raises event after authentication ([#96](https://github.com/MirrorNG/MirrorNG/issues/96)) ([c332271](https://github.com/MirrorNG/MirrorNG/commit/c332271d918f782d4b1a84b3f0fd660239f95743))
+
 ## [20.0.6](https://github.com/MirrorNG/MirrorNG/compare/20.0.5-master...20.0.6-master) (2020-03-22)
 
 
