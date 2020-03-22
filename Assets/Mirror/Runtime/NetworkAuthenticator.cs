@@ -21,12 +21,6 @@ namespace Mirror
 
         #region server
 
-        /// <summary>
-        /// Called on server from StartServer to initialize the Authenticator
-        /// <para>Server message handlers should be registered in this method.</para>
-        /// </summary>
-        public virtual void OnStartServer() { }
-
         // This will get more code in the near future
         internal void OnServerAuthenticateInternal(NetworkConnectionToClient conn)
         {
@@ -45,12 +39,6 @@ namespace Mirror
         #endregion
 
         #region client
-
-        /// <summary>
-        /// Called on client from StartClient to initialize the Authenticator
-        /// <para>Client message handlers should be registered in this method.</para>
-        /// </summary>
-        public virtual void OnStartClient() { }
 
         // This will get more code in the near future
         internal void OnClientAuthenticateInternal(NetworkConnectionToServer conn)

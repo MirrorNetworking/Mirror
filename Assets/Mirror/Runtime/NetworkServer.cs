@@ -60,14 +60,8 @@ namespace Mirror
         public readonly Dictionary<int, NetworkConnectionToClient> connections = new Dictionary<int, NetworkConnectionToClient>();
 
         /// <summary>
-        /// <para>Dictionary of the message handlers registered with the server.</para>
-        /// <para>The key to the dictionary is the message Id.</para>
-        /// </summary>
-        readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
-
-        /// <summary>
-        /// <para>If you enable this, the server will listen for incoming connections on the regular network port.</para>
-        /// <para>This can be used if set as false and the game is running in host mode and does not want external players to be able to connect - making it like a single-player game. Also this can be useful when using AddExternalConnection().</para>
+        /// <para>If you enable this, the server will not listen for incoming connections on the regular network port.</para>
+        /// <para>This can be used if the game is running in host mode and does not want external players to be able to connect - making it like a single-player game. Also this can be useful when using AddExternalConnection().</para>
         /// </summary>
         public bool Listening = true;
 
@@ -137,7 +131,6 @@ namespace Mirror
 
             if (authenticator != null)
             {
-                authenticator.OnStartServer();
                 authenticator.OnServerAuthenticated += OnAuthenticated;
 
                 Connected.AddListener(authenticator.OnServerAuthenticateInternal);
@@ -150,12 +143,12 @@ namespace Mirror
         }
 
 
-        internal void RegisterMessageHandlers()
+        internal void RegisterMessageHandlers(NetworkConnectionToClient connection)
         {
-            RegisterHandler<ReadyMessage>(OnClientReadyMessage);
-            RegisterHandler<CommandMessage>(OnCommandMessage);
-            RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
-            RegisterHandler<NetworkPingMessage>(Time.OnServerPing, false);
+            connection.RegisterHandler<NetworkConnectionToClient, ReadyMessage>(OnClientReadyMessage);
+            connection.RegisterHandler<NetworkConnectionToClient, CommandMessage>(OnCommandMessage);
+            connection.RegisterHandler<NetworkConnectionToClient, RemovePlayerMessage>(OnRemovePlayerMessage);
+            connection.RegisterHandler<NetworkConnectionToClient, NetworkPingMessage>(Time.OnServerPing, false);
         }
 
         /// <summary>
@@ -175,7 +168,6 @@ namespace Mirror
             }
 
             active = true;
-            RegisterMessageHandlers();
         }
 
         /// <summary>
@@ -191,7 +183,7 @@ namespace Mirror
                 // connection cannot be null here or conn.connectionId
                 // would throw NRE
                 connections[conn.connectionId] = conn;
-                conn.SetHandlers(handlers);
+                RegisterMessageHandlers(conn);
                 return true;
             }
             // already a connection with this id
@@ -216,8 +208,6 @@ namespace Mirror
                 Debug.LogError("Local Connection already exists");
                 return;
             }
-
-            conn.SetHandlers(handlers);
 
             localConnection = conn;
             localClient = client;
@@ -471,53 +461,6 @@ namespace Mirror
         {
             // TODO Let's discuss how we will handle errors
             Debug.LogException(exception);
-        }
-
-        /// <summary>
-        /// Register a handler for a particular message type.
-        /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
-        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
-        public void RegisterHandler<T>(Action<NetworkConnectionToClient, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
-        {
-            int msgType = MessagePacker.GetId<T>();
-            if (handlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkServer.RegisterHandler replacing " + msgType);
-            }
-            handlers[msgType] = NetworkConnection.MessageHandler(handler, requireAuthentication);
-        }
-
-        /// <summary>
-        /// Register a handler for a particular message type.
-        /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
-        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
-        public void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
-        {
-            RegisterHandler<T>((_, value) => { handler(value); }, requireAuthentication);
-        }
-
-        /// <summary>
-        /// Unregisters a handler for a particular message type.
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        public void UnregisterHandler<T>() where T : IMessageBase
-        {
-            int msgType = MessagePacker.GetId<T>();
-            handlers.Remove(msgType);
-        }
-
-        /// <summary>
-        /// Clear all registered callback handlers.
-        /// </summary>
-        public void ClearHandlers()
-        {
-            handlers.Clear();
         }
 
         /// <summary>

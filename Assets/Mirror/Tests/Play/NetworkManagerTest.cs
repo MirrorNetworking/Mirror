@@ -22,6 +22,7 @@ namespace Mirror.Tests
             gameObject = new GameObject();
             manager = gameObject.AddComponent<NetworkManager>();
             manager.startOnHeadless = false;
+            manager.autoCreatePlayer = false;
             manager.client = gameObject.GetComponent<NetworkClient>();
             manager.server = gameObject.GetComponent<NetworkServer>();
         }
@@ -41,7 +42,7 @@ namespace Mirror.Tests
             Assert.That(manager.serverTickRate, Is.EqualTo(30));
             Assert.That(manager.offlineScene, Is.Empty);
             Assert.That(manager.server.MaxConnections, Is.EqualTo(4));
-            Assert.That(manager.autoCreatePlayer, Is.True);
+            Assert.That(manager.autoCreatePlayer, Is.False);
             Assert.That(manager.numPlayers, Is.Zero);
             Assert.That(manager.isNetworkActive, Is.False);
 
