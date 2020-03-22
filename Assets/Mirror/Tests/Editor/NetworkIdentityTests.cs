@@ -33,16 +33,6 @@ namespace Mirror.Tests
             }
         }
 
-        class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public void OnStopAuthority()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
-        }
-
         class StopAuthorityCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -441,15 +431,18 @@ namespace Mirror.Tests
         public void OnStopAuthorityCallsComponentsAndCatchesExceptions()
         {
             // add component
-            StopAuthorityExceptionNetworkBehaviour comp = gameObject.AddComponent<StopAuthorityExceptionNetworkBehaviour>();
-            identity.OnStopAuthority.AddListener(comp.OnStopAuthority);
-            
-            // make sure that comp.OnStartServer was called
-            // the exception was caught and not thrown in here.
+            UnityAction func = Substitute.For<UnityAction>();
+            identity.OnStopAuthority.AddListener(func);
+
+            func
+                .When(f => f.Invoke())
+                .Do(f => { throw new Exception("Some exception"); });
+
+            // make sure exceptions are not swallowed
             Assert.Throws<Exception>( () => { 
                 identity.StopAuthority();
             });
-            Assert.That(comp.called, Is.EqualTo(1));
+            func.Received(1).Invoke();
         }
 
         [Test]
