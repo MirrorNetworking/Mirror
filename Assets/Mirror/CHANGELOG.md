@@ -1,3 +1,10 @@
+# [21.2.0](https://github.com/MirrorNG/MirrorNG/compare/21.1.0-master...21.2.0-master) (2020-03-23)
+
+
+### Features
+
+* next gen async transport ([#106](https://github.com/MirrorNG/MirrorNG/issues/106)) ([4a8dc67](https://github.com/MirrorNG/MirrorNG/commit/4a8dc676b96840493d178718049b9e20c8eb6510))
+
 # [21.1.0](https://github.com/MirrorNG/MirrorNG/compare/21.0.1-master...21.1.0-master) (2020-03-22)
 
 
