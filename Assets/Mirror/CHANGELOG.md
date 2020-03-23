@@ -1,3 +1,15 @@
+# [23.0.0](https://github.com/MirrorNG/MirrorNG/compare/22.0.0-master...23.0.0-master) (2020-03-23)
+
+
+### Features
+
+* individual events for SyncSet ([#111](https://github.com/MirrorNG/MirrorNG/issues/111)) ([261f5d6](https://github.com/MirrorNG/MirrorNG/commit/261f5d6a1481634dc524fb57b5866e378a1d909d))
+
+
+### BREAKING CHANGES
+
+* callback signature changed in SyncSet
+
 # [22.0.0](https://github.com/MirrorNG/MirrorNG/compare/21.2.1-master...22.0.0-master) (2020-03-23)
 
 
