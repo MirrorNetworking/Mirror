@@ -12,6 +12,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: NetworkIdentity no longer double calls NetworkServer.Destroy.
 - Fixed: NetworkAnimator now correctly excludes parameters controlled by curves.
 - Fixed: NetworkBehaviour now uses a property drawer for the SyncVar label so it displays better.
+- Fixed: NetworkServer.SendToReady overloads are no longer ambiguous.
 - Changed: NetworkSceneChecker initializes in Awake again because OnEnable proved to be unreliable in some cases.
 - Changed: **Breaking** Many obsolete methods and properties removed. Use version 10 first if upgrading from UNet or older Mirror. See [Deprecations](Deprecations.md) for complete list.
 

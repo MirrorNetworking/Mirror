@@ -111,19 +111,24 @@ namespace Mirror.Weaver
             }
 
             // invoke SendInternal and return
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
+            // this
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
             if (HasNetworkConnectionParameter(md))
             {
-                rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_1)); // connection
+                // connection
+                rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_1));
             }
             else
             {
-                rpcWorker.Append(rpcWorker.Create(OpCodes.Ldnull)); // null
+                // null
+                rpcWorker.Append(rpcWorker.Create(OpCodes.Ldnull));
             }
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldtoken, td));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference)); // invokerClass
+            // invokerClass
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
+            // writer
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendTargetRpcInternal));
 

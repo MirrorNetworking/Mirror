@@ -133,8 +133,10 @@ namespace Telepathy
             // => the trick is to clear the internal IPv4 socket so that Connect
             //    resolves the hostname and creates either an IPv4 or an IPv6
             //    socket as needed (see TcpClient source)
-            client = new TcpClient(); // creates IPv4 socket
-            client.Client = null; // clear internal IPv4 socket until Connect()
+            // creates IPv4 socket
+            client = new TcpClient();
+            // clear internal IPv4 socket until Connect()
+            client.Client = null;
 
             // clear old messages in queue, just to be sure that the caller
             // doesn't receive data from last time and gets out of sync.
@@ -194,7 +196,8 @@ namespace Telepathy
                     // calling Send here would be blocking (sometimes for long times
                     // if other side lags or wire was disconnected)
                     sendQueue.Enqueue(data);
-                    sendPending.Set(); // interrupt SendThread WaitOne()
+                    // interrupt SendThread WaitOne()
+                    sendPending.Set();
                     return true;
                 }
                 Logger.LogError("Client.Send: message too big: " + data.Length + ". Limit: " + MaxMessageSize);

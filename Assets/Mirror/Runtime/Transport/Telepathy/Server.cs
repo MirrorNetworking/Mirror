@@ -252,7 +252,8 @@ namespace Telepathy
                     // calling Send here would be blocking (sometimes for long times
                     // if other side lags or wire was disconnected)
                     token.sendQueue.Enqueue(data);
-                    token.sendPending.Set(); // interrupt SendThread WaitOne()
+                    // interrupt SendThread WaitOne()
+                    token.sendPending.Set();
                     return true;
                 }
                 // sending to an invalid connectionId is expected sometimes.

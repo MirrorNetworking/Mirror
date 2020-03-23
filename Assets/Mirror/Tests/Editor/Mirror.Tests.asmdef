@@ -18,7 +18,8 @@
     "precompiledReferences": [
         "NSubstitute.dll",
         "Castle.Core.dll",
-        "System.Threading.Tasks.Extensions.dll"
+        "System.Threading.Tasks.Extensions.dll",
+        "Mono.CecilX.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": []

@@ -89,7 +89,8 @@ namespace Mirror.Tests
         public void TestWritingSegmentAndReadingSegment()
         {
             byte[] data = { 1, 2, 3, 4 };
-            ArraySegment<byte> segment = new ArraySegment<byte>(data, 1, 1); // [2, 3]
+            // [2, 3]
+            ArraySegment<byte> segment = new ArraySegment<byte>(data, 1, 1);
             NetworkWriter writer = new NetworkWriter();
             writer.WriteBytesAndSizeSegment(segment);
 
@@ -1117,11 +1118,16 @@ namespace Mirror.Tests
             writer.WriteString((string)null);
             writer.WriteString("");
             writer.WriteString("13");
-            writer.WriteBytes(new byte[] { 14, 15 }, 0, 2); // just the byte array, no size info etc.
-            writer.WriteBytesAndSize((byte[])null); // [SyncVar] struct values can have uninitialized byte arrays, null needs to be supported
-            writer.WriteBytesAndSize(new byte[] { 17, 18 }, 0, 2); // buffer, no-offset, count
-            writer.WriteBytesAndSize(new byte[] { 19, 20, 21 }, 1, 2); // buffer, offset, count
-            writer.WriteBytesAndSize(new byte[] { 22, 23 }, 0, 2); // size, buffer
+            // just the byte array, no size info etc.
+            writer.WriteBytes(new byte[] { 14, 15 }, 0, 2);
+            // [SyncVar] struct values can have uninitialized byte arrays, null needs to be supported
+            writer.WriteBytesAndSize((byte[])null);
+            // buffer, no-offset, count
+            writer.WriteBytesAndSize(new byte[] { 17, 18 }, 0, 2);
+            // buffer, offset, count
+            writer.WriteBytesAndSize(new byte[] { 19, 20, 21 }, 1, 2);
+            // size, buffer
+            writer.WriteBytesAndSize(new byte[] { 22, 23 }, 0, 2);
 
             // read them
             NetworkReader reader = new NetworkReader(writer.ToArray());
@@ -1139,7 +1145,8 @@ namespace Mirror.Tests
             Assert.That(reader.ReadSingle(), Is.EqualTo(10));
             Assert.That(reader.ReadDouble(), Is.EqualTo(11));
             Assert.That(reader.ReadDecimal(), Is.EqualTo(12));
-            Assert.That(reader.ReadString(), Is.Null); // writing null string should write null in Mirror ("" in original HLAPI)
+            // writing null string should write null in Mirror ("" in original HLAPI)
+            Assert.That(reader.ReadString(), Is.Null);
             Assert.That(reader.ReadString(), Is.EqualTo(""));
             Assert.That(reader.ReadString(), Is.EqualTo("13"));
 

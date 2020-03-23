@@ -36,8 +36,8 @@ namespace Mirror.Discovery
         [Range(1, 60)]
         float ActiveDiscoveryInterval = 3;
 
-        protected UdpClient serverUdpClient = null;
-        protected UdpClient clientUdpClient = null;
+        protected UdpClient serverUdpClient;
+        protected UdpClient clientUdpClient;
 
 #if UNITY_EDITOR
         void OnValidate()
@@ -146,7 +146,6 @@ namespace Mirror.Discovery
                 }
                 catch (Exception)
                 {
-                    continue;
                 }
             }
         }

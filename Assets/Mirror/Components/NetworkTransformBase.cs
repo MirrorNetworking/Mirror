@@ -50,7 +50,8 @@ namespace Mirror
         [Header("Compression")]
         [Tooltip("Compresses 16 Byte Quaternion into None=12, Much=3, Lots=2 Byte")]
         [SerializeField] Compression compressRotation = Compression.Much;
-        public enum Compression { None, Much, Lots, NoRotation }; // easily understandable and funny
+        // easily understandable and funny
+        public enum Compression { None, Much, Lots, NoRotation };
 
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
@@ -78,7 +79,8 @@ namespace Mirror
         float lastClientSendTime;
 
         // serialization is needed by OnSerialize and by manual sending from authority
-        [EditorBrowsable(EditorBrowsableState.Never)] // public only for tests
+        // public only for tests
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation, Vector3 scale)
         {
             // serialize position
@@ -130,7 +132,8 @@ namespace Mirror
         {
             Vector3 delta = to.localPosition - (from != null ? from.localPosition : transform.localPosition);
             float elapsed = from != null ? to.timeStamp - from.timeStamp : sendInterval;
-            return elapsed > 0 ? delta.magnitude / elapsed : 0; // avoid NaN
+            // avoid NaN
+            return elapsed > 0 ? delta.magnitude / elapsed : 0;
         }
 
         // serialization is needed by OnSerialize and by manual sending from authority
@@ -229,7 +232,7 @@ namespace Mirror
                 // teleport / lag / obstacle detection: only continue at current
                 // position if we aren't too far away
                 //
-                // // local position/rotation for VR support
+                // local position/rotation for VR support
                 if (Vector3.Distance(targetComponent.transform.localPosition, start.localPosition) < oldDistance + newDistance)
                 {
                     start.localPosition = targetComponent.transform.localPosition;
@@ -279,7 +282,8 @@ namespace Mirror
                 // the moment we get 'goal', 'start' is supposed to
                 // start, so elapsed time is based on:
                 float elapsed = Time.time - goal.timeStamp;
-                return difference > 0 ? elapsed / difference : 0; // avoid NaN
+                // avoid NaN
+                return difference > 0 ? elapsed / difference : 0;
             }
             return 0;
         }
@@ -451,10 +455,12 @@ namespace Mirror
             Gizmos.DrawSphere(data.localPosition + offset, 0.5f);
 
             // draw forward and up
-            Gizmos.color = Color.blue; // like unity move tool
+            // like unity move tool
+            Gizmos.color = Color.blue;
             Gizmos.DrawRay(data.localPosition + offset, data.localRotation * Vector3.forward);
 
-            Gizmos.color = Color.green; // like unity move tool
+            // like unity move tool
+            Gizmos.color = Color.green;
             Gizmos.DrawRay(data.localPosition + offset, data.localRotation * Vector3.up);
         }
 

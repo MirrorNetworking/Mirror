@@ -7,7 +7,8 @@ namespace Mirror.Weaver
 {
     public static class SyncVarProcessor
     {
-        const int SyncVarLimit = 64; // ulong = 64 bytes
+        // ulong = 64 bytes
+        const int SyncVarLimit = 64;
 
         // returns false for error, not for no-hook-exists
         public static bool CheckForHookFunction(TypeDefinition td, FieldDefinition syncVar, out MethodDefinition foundMethod)
@@ -66,7 +67,8 @@ namespace Mirror.Weaver
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
             {
                 // return this.GetSyncVarGameObject(ref field, uint netId);
-                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0)); // this.
+                // this.
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
                 getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
                 getWorker.Append(getWorker.Create(OpCodes.Ldfld, netFieldId));
                 getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
@@ -78,7 +80,8 @@ namespace Mirror.Weaver
             else if (fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
                 // return this.GetSyncVarNetworkIdentity(ref field, uint netId);
-                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0)); // this.
+                // this.
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
                 getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
                 getWorker.Append(getWorker.Create(OpCodes.Ldfld, netFieldId));
                 getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
@@ -167,7 +170,8 @@ namespace Mirror.Weaver
             setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
 
             // dirty bit
-            setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit)); // 8 byte integer aka long
+            // 8 byte integer aka long
+            setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
 
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
             {
@@ -218,7 +222,7 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
                 setWorker.Append(setWorker.Create(OpCodes.Ldloc, oldValue));
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
-                setWorker.Append(setWorker.Create(OpCodes.Call, hookFunctionMethod));
+                setWorker.Append(setWorker.Create(OpCodes.Callvirt, hookFunctionMethod));
 
                 // setSyncVarHookGuard(dirtyBit, false);
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
