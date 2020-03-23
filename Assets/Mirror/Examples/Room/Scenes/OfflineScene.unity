@@ -276,14 +276,11 @@ MonoBehaviour:
   startOnHeadless: 1
   showDebugMessages: 0
   serverTickRate: 30
-  offlineScene: OfflineScene
-  onlineScene: RoomScene
+  offlineScene: 
+  onlineScene: 
   server: {fileID: 2008127834}
   client: {fileID: 2008127835}
   transport: {fileID: 2008127830}
-  authenticator: {fileID: 0}
-  playerPrefab: {fileID: 1480027675339556, guid: 21daf89214c6ee443ad6875b73083c60,
-    type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 1
   networkSceneName: 
@@ -293,8 +290,8 @@ MonoBehaviour:
   minPlayers: 1
   roomPlayerPrefab: {fileID: 114033720796874720, guid: deae2134a1d77704b9c595efe69767dd,
     type: 3}
-  RoomScene: RoomScene
-  GameplayScene: OnlineScene
+  RoomScene: 
+  GameplayScene: 
   AllPlayersReady: 0
   RoomSlots: []
 --- !u!4 &2008127832
@@ -340,8 +337,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxConnections: 4
-  localClient: {fileID: 0}
-  dontListen: 0
+  Connected:
+    m_PersistentCalls:
+      m_Calls: []
+  Authenticated:
+    m_PersistentCalls:
+      m_Calls: []
+  authenticator: {fileID: 0}
+  Listening: 1
+  playerPrefab: {fileID: 1480027675339556, guid: 21daf89214c6ee443ad6875b73083c60,
+    type: 3}
 --- !u!114 &2008127835
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -354,4 +359,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abe6be14204d94224a3e7cd99dd2ea73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  authenticator: {fileID: 0}
+  Connected:
+    m_PersistentCalls:
+      m_Calls: []
+  Authenticated:
+    m_PersistentCalls:
+      m_Calls: []
   spawnPrefabs: []

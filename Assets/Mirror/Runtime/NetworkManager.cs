@@ -83,15 +83,6 @@ namespace Mirror
         protected Transport transport;
 
         /// <summary>
-        /// The default prefab to be used to create player objects on the server.
-        /// <para>Player objects are created in the default handler for AddPlayer() on the server. Implementing OnServerAddPlayer overrides this behaviour.</para>
-        /// </summary>
-        [Header("Player Object")]
-        [FormerlySerializedAs("m_PlayerPrefab")]
-        [Tooltip("Prefab of the player object. Prefab must have a Network Identity component. May be an empty game object or a full avatar.")]
-        public GameObject playerPrefab;
-
-        /// <summary>
         /// A flag to control whether or not player objects are automatically created on connect, and on scene change.
         /// </summary>
         [FormerlySerializedAs("m_AutoCreatePlayer")]
@@ -180,10 +171,10 @@ namespace Mirror
 #endif
             }
 
-            if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
+            if (server != null && server.playerPrefab != null && server.playerPrefab.GetComponent<NetworkIdentity>() == null)
             {
                 Debug.LogError("NetworkManager - playerPrefab must have a NetworkIdentity.");
-                playerPrefab = null;
+                server.playerPrefab = null;
             }
         }
 
@@ -584,9 +575,9 @@ namespace Mirror
 
             Transport.activeTransport = transport;
 
-            if (playerPrefab != null)
+            if (server.playerPrefab != null)
             {
-                client.RegisterPrefab(playerPrefab);
+                client.RegisterPrefab(server.playerPrefab);
             }
             // subscribe to the server
             if (server != null)
@@ -961,13 +952,13 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
 
-            if (autoCreatePlayer && playerPrefab == null)
+            if (autoCreatePlayer && server.playerPrefab == null)
             {
                 Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");
                 return;
             }
 
-            if (autoCreatePlayer && playerPrefab.GetComponent<NetworkIdentity>() == null)
+            if (autoCreatePlayer && server.playerPrefab.GetComponent<NetworkIdentity>() == null)
             {
                 Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab.");
                 return;
@@ -1111,8 +1102,8 @@ namespace Mirror
         {
             Transform startPos = GetStartPosition();
             GameObject player = startPos != null
-                ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
-                : Instantiate(playerPrefab);
+                ? Instantiate(server.playerPrefab, startPos.position, startPos.rotation)
+                : Instantiate(server.playerPrefab);
 
             server.AddPlayerForConnection(conn, player);
         }

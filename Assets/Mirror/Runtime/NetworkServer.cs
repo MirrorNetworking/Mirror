@@ -71,6 +71,14 @@ namespace Mirror
         /// </summary>
         public bool active { get; private set; }
 
+        /// <summary>
+        /// The default prefab to be used to create player objects on the server.
+        /// <para>Player objects are created in the default handler for AddPlayer() on the server. Implementing OnServerAddPlayer overrides this behaviour.</para>
+        /// </summary>
+        [Header("Player Object")]
+        [Tooltip("Prefab of the player object. Prefab must have a Network Identity component. May be an empty game object or a full avatar.")]
+        public GameObject playerPrefab;
+
         public readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
         // just a cached memory area where we can collect connections
