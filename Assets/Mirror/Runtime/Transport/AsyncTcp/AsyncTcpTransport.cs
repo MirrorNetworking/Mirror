@@ -8,7 +8,7 @@ namespace Mirror.AsyncTcp
     public class AsyncTcpTransport : AsyncTransport
     {
         private TcpListener listener;
-        public int Port { get; set; }
+        public int Port;
 
         public override Task ListenAsync()
         {
