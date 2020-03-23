@@ -9,15 +9,42 @@ namespace Mirror
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ISyncObject
     {
-        public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
-
         protected readonly IDictionary<TKey, TValue> objects;
 
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
-        public event SyncDictionaryChanged Callback;
 
-        public enum Operation : byte
+        /// <summary>
+        /// Raised when an element is added to the dictionary.
+        /// Receives the key and value of the new item
+        /// </summary>
+        public event Action<TKey, TValue> OnInsert;
+
+        /// <summary>
+        /// Raised when the dictionary is cleared
+        /// </summary>
+        public event Action OnClear;
+
+        /// <summary>
+        /// Raised when an item is removed from the dictionary
+        /// receives the key and value of the old item
+        /// </summary>
+        public event Action<TKey, TValue> OnRemove;
+
+        /// <summary>
+        /// Raised when an item is changed in a dictionary
+        /// Receives key, the old value and the new value
+        /// </summary>
+        public event Action<TKey, TValue, TValue> OnSet;
+
+        /// <summary>
+        /// Raised after the dictionary has been updated
+        /// Note that if there are multiple changes
+        /// this event is only raised once.
+        /// </summary>
+        public event Action OnChange;
+
+        private enum Operation : byte
         {
             OP_ADD,
             OP_CLEAR,
@@ -59,7 +86,7 @@ namespace Mirror
             this.objects = objects;
         }
 
-        void AddOperation(Operation op, TKey key, TValue item)
+        void AddOperation(Operation op, TKey key, TValue item, TValue oldItem)
         {
             if (IsReadOnly)
             {
@@ -75,7 +102,28 @@ namespace Mirror
 
             changes.Add(change);
 
-            Callback?.Invoke(op, key, item);
+            RaiseEvents(op, key, item, oldItem);
+
+            OnChange?.Invoke();
+        }
+
+        private void RaiseEvents(Operation op, TKey key, TValue value, TValue oldValue)
+        {
+            switch (op)
+            {
+                case Operation.OP_ADD:
+                    OnInsert?.Invoke(key, value);
+                    break;
+                case Operation.OP_CLEAR:
+                    OnClear?.Invoke();
+                    break;
+                case Operation.OP_REMOVE:
+                    OnRemove?.Invoke(key, value);
+                    break;
+                case Operation.OP_SET:
+                    OnSet?.Invoke(key, oldValue, value);
+                    break;
+            }
         }
 
         public void OnSerializeAll(NetworkWriter writer)
@@ -148,6 +196,7 @@ namespace Mirror
         {
             // This list can now only be modified by synchronization
             IsReadOnly = true;
+            bool raiseOnChange = false;
 
             int changesCount = (int)reader.ReadPackedUInt32();
 
@@ -160,15 +209,25 @@ namespace Mirror
                 bool apply = changesAhead == 0;
                 TKey key = default;
                 TValue item = default;
+                TValue oldItem = default;
 
                 switch (operation)
                 {
                     case Operation.OP_ADD:
+                        key = DeserializeKey(reader);
+                        item = DeserializeItem(reader);
+                        if (apply)
+                        {
+                            objects[key] = item;
+                        }
+                        break;
+
                     case Operation.OP_SET:
                         key = DeserializeKey(reader);
                         item = DeserializeItem(reader);
                         if (apply)
                         {
+                            oldItem = objects[key];
                             objects[key] = item;
                         }
                         break;
@@ -192,7 +251,8 @@ namespace Mirror
 
                 if (apply)
                 {
-                    Callback?.Invoke(operation, key, item);
+                    RaiseEvents(operation, key, item, oldItem);
+                    raiseOnChange = true;
                 }
                 // we just skipped this change
                 else
@@ -200,12 +260,17 @@ namespace Mirror
                     changesAhead--;
                 }
             }
+
+            if (raiseOnChange)
+            {
+                OnChange?.Invoke();
+            }
         }
 
         public void Clear()
         {
             objects.Clear();
-            AddOperation(Operation.OP_CLEAR, default, default);
+            AddOperation(Operation.OP_CLEAR, default, default, default);
         }
 
         public bool ContainsKey(TKey key) => objects.ContainsKey(key);
@@ -214,7 +279,7 @@ namespace Mirror
         {
             if (objects.TryGetValue(key, out TValue item) && objects.Remove(key))
             {
-                AddOperation(Operation.OP_REMOVE, key, item);
+                AddOperation(Operation.OP_REMOVE, key, item, default);
                 return true;
             }
             return false;
@@ -227,13 +292,14 @@ namespace Mirror
             {
                 if (ContainsKey(i))
                 {
+                    TValue oldItem = objects[i];
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, value);
+                    AddOperation(Operation.OP_SET, i, value, oldItem);
                 }
                 else
                 {
                     objects[i] = value;
-                    AddOperation(Operation.OP_ADD, i, value);
+                    AddOperation(Operation.OP_ADD, i, value, default);
                 }
             }
         }
@@ -243,7 +309,7 @@ namespace Mirror
         public void Add(TKey key, TValue value)
         {
             objects.Add(key, value);
-            AddOperation(Operation.OP_ADD, key, value);
+            AddOperation(Operation.OP_ADD, key, value, default);
         }
 
         public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
@@ -277,7 +343,7 @@ namespace Mirror
             bool result = objects.Remove(item.Key);
             if (result)
             {
-                AddOperation(Operation.OP_REMOVE, item.Key, item.Value);
+                AddOperation(Operation.OP_REMOVE, item.Key, item.Value, default);
             }
             return result;
         }
