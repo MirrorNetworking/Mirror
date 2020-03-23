@@ -42,7 +42,7 @@ namespace Mirror
         int[] transitionHash;
         float sendTimer;
 
-        bool sendMessagesAllowed
+        bool SendMessagesAllowed
         {
             get
             {
@@ -81,7 +81,7 @@ namespace Mirror
 
         void FixedUpdate()
         {
-            if (!sendMessagesAllowed)
+            if (!SendMessagesAllowed)
                 return;
 
             CheckSendRate();
@@ -140,7 +140,7 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            if (sendMessagesAllowed && syncInterval > 0 && sendTimer < Time.time)
+            if (SendMessagesAllowed && syncInterval > 0 && sendTimer < Time.time)
             {
                 sendTimer = Time.time + syncInterval;
 
