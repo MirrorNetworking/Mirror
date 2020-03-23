@@ -235,26 +235,25 @@ namespace Mirror.Tests
         [TearDown]
         public void TearDown()
         {
-            NetworkServer.RemoveLocalConnection();
+            // reset netId so that isServer is false. otherwise Destroy instead
+            // of DestroyImmediate is called internally, giving an error in
+            // Editor tests
+            identity.netId = 0;
             GameObject.DestroyImmediate(gameObject);
+            NetworkServer.RemoveLocalConnection();
         }
 
         [Test]
         public void IsServerOnly()
         {
-            // start server and assign netId so that isServer is true
-            Transport.activeTransport = Substitute.For<Transport>();
-            NetworkServer.Listen(1);
-            identity.netId = 42;
+            // call OnStartServer so isServer is true
+            identity.OnStartServer();
+            Assert.That(identity.isServer, Is.True);
 
             // isServerOnly should be true when isServer = true && isClient = false
             Assert.That(emptyBehaviour.isServer, Is.True);
             Assert.That(emptyBehaviour.isClient, Is.False);
             Assert.That(emptyBehaviour.isServerOnly, Is.True);
-
-            // clean up
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         [Test]
@@ -572,7 +571,8 @@ namespace Mirror.Tests
             comp.CallSendTargetRPCInternal(null);
             Assert.That(comp.called, Is.EqualTo(0));
 
-            identity.netId = 42;
+            // call OnStartServer so isServer is true
+            identity.OnStartServer();
 
             // calling rpc on connectionToServer shouldn't work
             LogAssert.Expect(LogType.Error, "TargetRPC Function " + nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated) + " called on connection to server");
@@ -1163,11 +1163,8 @@ namespace Mirror.Tests
         [Test]
         public void GetSyncVarGameObjectOnServer()
         {
-            // isServer is only true if we have a server running and netId set
-            Transport.activeTransport = Substitute.For<Transport>();
-            NetworkServer.Listen(1);
-            // otherwise isServer is false
-            identity.netId = 42;
+            // call OnStartServer so isServer is true
+            identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
 
             // add test component
@@ -1178,7 +1175,7 @@ namespace Mirror.Tests
             // create a syncable GameObject
             GameObject go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            ni.netId = 43;
+            ni.netId = identity.netId + 1;
 
             // assign it in the component
             comp.test = go;
@@ -1189,20 +1186,16 @@ namespace Mirror.Tests
             GameObject result = comp.GetSyncVarGameObjectExposed();
             Assert.That(result, Is.EqualTo(go));
 
-            // clean up
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
+            // clean up: set isServer false first, otherwise Destroy instead of DestroyImmediate is called
+            identity.netId = 0;
             GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void GetSyncVarGameObjectOnServerNull()
         {
-            // isServer is only true if we have a server running and netId set
-            Transport.activeTransport = Substitute.For<Transport>();
-            NetworkServer.Listen(1);
-            // otherwise isServer is false
-            identity.netId = 42;
+            // call OnStartServer and assign netId so isServer is true
+            identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
 
             // add test component
@@ -1213,10 +1206,6 @@ namespace Mirror.Tests
             // get it on the server. null should work fine.
             GameObject result = comp.GetSyncVarGameObjectExposed();
             Assert.That(result, Is.Null);
-
-            // clean up
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         [Test]
@@ -1372,11 +1361,8 @@ namespace Mirror.Tests
         [Test]
         public void GetSyncVarNetworkIdentityOnServer()
         {
-            // isServer is only true if we have a server running and netId set
-            Transport.activeTransport = Substitute.For<Transport>();
-            NetworkServer.Listen(1);
-            // otherwise isServer is false
-            identity.netId = 42;
+            // call OnStartServer so isServer is true
+            identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
 
             // add test component
@@ -1387,7 +1373,7 @@ namespace Mirror.Tests
             // create a syncable GameObject
             GameObject go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            ni.netId = 43;
+            ni.netId = identity.netId + 1;
 
             // assign it in the component
             comp.test = ni;
@@ -1399,19 +1385,14 @@ namespace Mirror.Tests
             Assert.That(result, Is.EqualTo(ni));
 
             // clean up
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
             GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void GetSyncVarNetworkIdentityOnServerNull()
         {
-            // isServer is only true if we have a server running and netId set
-            Transport.activeTransport = Substitute.For<Transport>();
-            NetworkServer.Listen(1);
-            // otherwise isServer is false
-            identity.netId = 42;
+            // call OnStartServer so isServer is true
+            identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
 
             // add test component
@@ -1422,10 +1403,6 @@ namespace Mirror.Tests
             // get it on the server. null should work fine.
             NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();
             Assert.That(result, Is.Null);
-
-            // clean up
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         [Test]
