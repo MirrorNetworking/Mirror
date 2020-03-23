@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -149,54 +150,64 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void CallbackTest()
+        public void AddClientCallbackTest()
         {
-            bool called = false;
-            clientSyncDictionary.Callback += (op, index, item) =>
-            {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncDictionaryIntString.Operation.OP_ADD));
-                Assert.That(index, Is.EqualTo(3));
-                Assert.That(item, Is.EqualTo("yay"));
-                Assert.That(clientSyncDictionary[index], Is.EqualTo("yay"));
-
-            };
+            Action<int, string> callback = Substitute.For<Action<int, string>>();
+            clientSyncDictionary.OnInsert += callback;
             serverSyncDictionary.Add(3, "yay");
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
-            Assert.That(called, Is.True);
+            callback.Received().Invoke(3, "yay");
         }
 
         [Test]
-        public void ServerCallbackTest()
+        public void AddServerCallbackTest()
         {
-            bool called = false;
-            serverSyncDictionary.Callback += (op, index, item) =>
-            {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncDictionaryIntString.Operation.OP_ADD));
-                Assert.That(index, Is.EqualTo(3));
-                Assert.That(item, Is.EqualTo("yay"));
-                Assert.That(serverSyncDictionary[index], Is.EqualTo("yay"));
-            };
-            serverSyncDictionary[3] = "yay";
-            Assert.That(called, Is.True);
+            Action<int, string> callback = Substitute.For<Action<int, string>>();
+            serverSyncDictionary.OnInsert += callback;
+            serverSyncDictionary.Add(3, "yay");
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            callback.Received().Invoke(3, "yay");
         }
 
         [Test]
-        public void CallbackRemoveTest()
+        public void RemoveClientCallbackTest()
         {
-            bool called = false;
-            clientSyncDictionary.Callback += (op, key, item) =>
-            {
-                called = true;
-                Assert.That(op, Is.EqualTo(SyncDictionaryIntString.Operation.OP_REMOVE));
-                Assert.That(item, Is.EqualTo("World"));
-            };
+            Action<int, string> callback = Substitute.For<Action<int, string>>();
+            clientSyncDictionary.OnRemove += callback;
             serverSyncDictionary.Remove(1);
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
-            Assert.That(called, Is.True);
+            callback.Received().Invoke(1, "World");
+        }
+
+        [Test]
+        public void ClearClientCallbackTest()
+        {
+            Action callback = Substitute.For<Action>();
+            clientSyncDictionary.OnClear += callback;
+            serverSyncDictionary.Clear();
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            callback.Received().Invoke();
+        }
+
+        [Test]
+        public void ChangeClientCallbackTest()
+        {
+            Action callback = Substitute.For<Action>();
+            clientSyncDictionary.OnChange += callback;
+            serverSyncDictionary.Add(3, "1");
+            serverSyncDictionary.Add(4, "1");
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            callback.Received(1).Invoke();
+        }
+
+        [Test]
+        public void SetClientCallbackTest()
+        {
+            Action<int, string, string> callback = Substitute.For<Action<int, string, string>>();
+            clientSyncDictionary.OnSet += callback;
+            serverSyncDictionary[0] = "yay";
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            callback.Received().Invoke(0, "Hello", "yay");
         }
 
         [Test]

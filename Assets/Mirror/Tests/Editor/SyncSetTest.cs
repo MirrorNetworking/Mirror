@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -91,40 +92,44 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void CallbackTest()
+        public void AddClientCallbackTest()
         {
-            bool called = false;
-
-            clientSyncSet.Callback += (op, item) =>
-            {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncSetString.Operation.OP_ADD));
-                Assert.That(item, Is.EqualTo("yay"));
-            };
-
+            Action<string> callback = Substitute.For<Action<string>>();
+            clientSyncSet.OnAdd += callback;
             serverSyncSet.Add("yay");
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-
-            Assert.That(called, Is.True);
+            callback.Received().Invoke("yay");
         }
 
         [Test]
-        public void CallbackRemoveTest()
+        public void RemoveClientCallbackTest()
         {
-            bool called = false;
-
-            clientSyncSet.Callback += (op, item) =>
-            {
-                called = true;
-
-                Assert.That(op, Is.EqualTo(SyncSetString.Operation.OP_REMOVE));
-                Assert.That(item, Is.EqualTo("World"));
-            };
+            Action<string> callback = Substitute.For<Action<string>>();
+            clientSyncSet.OnRemove += callback;
             serverSyncSet.Remove("World");
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
+            callback.Received().Invoke("World");
+        }
 
-            Assert.That(called, Is.True);
+        [Test]
+        public void ClearClientCallbackTest()
+        {
+            Action callback = Substitute.For<Action>();
+            clientSyncSet.OnClear += callback;
+            serverSyncSet.Clear();
+            SerializeDeltaTo(serverSyncSet, clientSyncSet);
+            callback.Received().Invoke();
+        }
+
+        [Test]
+        public void ChangeClientCallbackTest()
+        {
+            Action callback = Substitute.For<Action>();
+            clientSyncSet.OnChange += callback;
+            serverSyncSet.Add("1");
+            serverSyncSet.Add("2");
+            SerializeDeltaTo(serverSyncSet, clientSyncSet);
+            callback.Received(1).Invoke();
         }
 
         [Test]
