@@ -1,3 +1,15 @@
+# [22.0.0](https://github.com/MirrorNG/MirrorNG/compare/21.2.1-master...22.0.0-master) (2020-03-23)
+
+
+### Features
+
+* synclists has individual meaningful events ([#109](https://github.com/MirrorNG/MirrorNG/issues/109)) ([e326064](https://github.com/MirrorNG/MirrorNG/commit/e326064b51e8372726b30d19973df6293c74c376)), closes [#103](https://github.com/MirrorNG/MirrorNG/issues/103)
+
+
+### BREAKING CHANGES
+
+* Sync lists no longer have a Callback event with an operation enum
+
 ## [21.2.1](https://github.com/MirrorNG/MirrorNG/compare/21.2.0-master...21.2.1-master) (2020-03-23)
 
 
