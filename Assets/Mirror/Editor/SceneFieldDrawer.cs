@@ -4,19 +4,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [CustomPropertyDrawer(typeof(SceneAttribute))]
-    [System.Obsolete("Use " + nameof(SceneField) + " Instead")]
-    public class SceneDrawer : PropertyDrawer
-    {
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            GUIStyle style = new GUIStyle(EditorStyles.label);
-            
-            style.normal.textColor = Color.red; // warning color
-            EditorGUI.LabelField(position, label.text, "[Obslete] Replace 'string' field with 'SceneField'", style);
-        }
-    }
-
     [CustomPropertyDrawer(typeof(SceneField))]
     public class SceneFieldDrawer : PropertyDrawer
     {
