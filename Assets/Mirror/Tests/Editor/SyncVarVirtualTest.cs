@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    abstract class SyncVarDemoBase : NetworkBehaviour
+    abstract class SyncVarHookTesterBase : NetworkBehaviour
     {
         [SyncVar(hook = nameof(onValue1Changed))]
         public float value1;
@@ -24,9 +24,14 @@ namespace Mirror.Tests
             value1 += 1f;
             value2 += 1f;
         }
+
+        public void CallOnValue2Changed()
+        {
+            this.onValue2Changed(1, 1);
+        }
     }
 
-    class SyncVarHookTester : SyncVarDemoBase
+    class SyncVarHookTester : SyncVarHookTesterBase
     {
         public event Action OnValue1ChangedOverrideCalled;
         public event Action OnValue2ChangedOverrideCalled;
@@ -117,6 +122,53 @@ namespace Mirror.Tests
             };
 
             SyncValuesWithClient();
+
+            Assert.AreEqual(serverTester.value2, serverTester.value2);
+            Assert.IsTrue(value2OverrideCalled, "Override method not called");
+            Assert.IsFalse(value2VirtualCalled, "Virtual method called when Override exists");
+        }
+
+        [Test]
+        public void manuallyCallingVirtualMethodCallsOverride()
+        {
+            // this to check that class are set up correct for tests above
+            serverTester.ChangeValues();
+
+            bool value2OverrideCalled = false;
+            clientTester.OnValue2ChangedOverrideCalled += () => {
+                value2OverrideCalled = true;
+            };
+
+            bool value2VirtualCalled = false;
+            clientTester.OnValue2ChangedVirtualCalled += () => {
+                value2VirtualCalled = true;
+            };
+
+            SyncVarHookTesterBase baseClass = clientTester as SyncVarHookTesterBase;
+            baseClass.onValue2Changed(1, 1);
+
+            Assert.AreEqual(serverTester.value2, serverTester.value2);
+            Assert.IsTrue(value2OverrideCalled, "Override method not called");
+            Assert.IsFalse(value2VirtualCalled, "Virtual method called when Override exists");
+        }
+        [Test]
+        public void manuallyCallingVirtualMethodInsideBaseClassCallsOverride()
+        {
+            // this to check that class are set up correct for tests above
+            serverTester.ChangeValues();
+
+            bool value2OverrideCalled = false;
+            clientTester.OnValue2ChangedOverrideCalled += () => {
+                value2OverrideCalled = true;
+            };
+
+            bool value2VirtualCalled = false;
+            clientTester.OnValue2ChangedVirtualCalled += () => {
+                value2VirtualCalled = true;
+            };
+
+            SyncVarHookTesterBase baseClass = clientTester as SyncVarHookTesterBase;
+            baseClass.CallOnValue2Changed();
 
             Assert.AreEqual(serverTester.value2, serverTester.value2);
             Assert.IsTrue(value2OverrideCalled, "Override method not called");
