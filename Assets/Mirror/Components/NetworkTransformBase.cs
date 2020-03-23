@@ -48,10 +48,7 @@ namespace Mirror
         // -> can still be modified in the Inspector while the game is running,
         //    but would cause errors immediately and be pretty obvious.
         [Header("Compression")]
-        [Tooltip("Compresses 16 Byte Quaternion into None=12, Much=3, Lots=2 Byte")]
-        [SerializeField] Compression compressRotation = Compression.Much;
-        // easily understandable and funny
-        public enum Compression { None, Much, Lots, NoRotation };
+        [SerializeField] RotationPrecision compressRotation = RotationPrecision.Half;
 
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
@@ -81,36 +78,13 @@ namespace Mirror
         // serialization is needed by OnSerialize and by manual sending from authority
         // public only for tests
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation, Vector3 scale)
+        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, RotationPrecision compressRotation, Vector3 scale)
         {
             // serialize position
             writer.WriteVector3(position);
 
             // serialize rotation
-            // writing quaternion = 16 byte
-            // writing euler angles = 12 byte
-            // -> quaternion->euler->quaternion always works.
-            // -> gimbal lock only occurs when adding.
-            Vector3 euler = rotation.eulerAngles;
-            if (compressRotation == Compression.None)
-            {
-                // write 3 floats = 12 byte
-                writer.WriteSingle(euler.x);
-                writer.WriteSingle(euler.y);
-                writer.WriteSingle(euler.z);
-            }
-            else if (compressRotation == Compression.Much)
-            {
-                // write 3 byte. scaling [0,360] to [0,255]
-                writer.WriteByte(FloatBytePacker.ScaleFloatToByte(euler.x, 0, 360, byte.MinValue, byte.MaxValue));
-                writer.WriteByte(FloatBytePacker.ScaleFloatToByte(euler.y, 0, 360, byte.MinValue, byte.MaxValue));
-                writer.WriteByte(FloatBytePacker.ScaleFloatToByte(euler.z, 0, 360, byte.MinValue, byte.MaxValue));
-            }
-            else if (compressRotation == Compression.Lots)
-            {
-                // write 2 byte, 5 bits for each float
-                writer.WriteUInt16(FloatBytePacker.PackThreeFloatsIntoUShort(euler.x, euler.y, euler.z, 0, 360));
-            }
+            writer.WriteQuaternion(rotation, compressRotation);
 
             // serialize scale
             writer.WriteVector3(scale);
@@ -147,28 +121,7 @@ namespace Mirror
             };
 
             // deserialize rotation
-            if (compressRotation == Compression.None)
-            {
-                // read 3 floats = 16 byte
-                float x = reader.ReadSingle();
-                float y = reader.ReadSingle();
-                float z = reader.ReadSingle();
-                temp.localRotation = Quaternion.Euler(x, y, z);
-            }
-            else if (compressRotation == Compression.Much)
-            {
-                // read 3 byte. scaling [0,255] to [0,360]
-                float x = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
-                float y = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
-                float z = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
-                temp.localRotation = Quaternion.Euler(x, y, z);
-            }
-            else if (compressRotation == Compression.Lots)
-            {
-                // read 2 byte, 5 bits per float
-                Vector3 xyz = FloatBytePacker.UnpackUShortIntoThreeFloats(reader.ReadUInt16(), 0, 360);
-                temp.localRotation = Quaternion.Euler(xyz.x, xyz.y, xyz.z);
-            }
+            temp.localRotation = reader.ReadQuaternion(compressRotation);
 
             temp.localScale = reader.ReadVector3();
 
@@ -371,7 +324,7 @@ namespace Mirror
         {
             // local position/rotation for VR support
             targetComponent.transform.localPosition = position;
-            if (Compression.NoRotation != compressRotation)
+            if (RotationPrecision.NoRotation != compressRotation)
             {
                 targetComponent.transform.localRotation = rotation;
             }
