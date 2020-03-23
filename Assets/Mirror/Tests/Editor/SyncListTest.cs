@@ -1,7 +1,5 @@
 using System;
 using NUnit.Framework;
-
-using Mirror;
 using NSubstitute;
 
 namespace Mirror.Tests
@@ -14,17 +12,17 @@ namespace Mirror.Tests
 
         public static void SerializeAllTo<T>(T fromList, T toList) where T : ISyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
             fromList.OnSerializeAll(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            var reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeAll(reader);
         }
 
         public static void SerializeDeltaTo<T>(T fromList, T toList) where T : ISyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
             fromList.OnSerializeDelta(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            var reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeDelta(reader);
             fromList.Flush();
         }
@@ -130,8 +128,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListIntTest()
         {
-            SyncListInt serverList = new SyncListInt();
-            SyncListInt clientList = new SyncListInt();
+            var serverList = new SyncListInt();
+            var clientList = new SyncListInt();
 
             serverList.Add(1);
             serverList.Add(2);
@@ -144,8 +142,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListBoolTest()
         {
-            SyncListBool serverList = new SyncListBool();
-            SyncListBool clientList = new SyncListBool();
+            var serverList = new SyncListBool();
+            var clientList = new SyncListBool();
 
             serverList.Add(true);
             serverList.Add(false);
@@ -158,8 +156,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListUintTest()
         {
-            SyncListUInt serverList = new SyncListUInt();
-            SyncListUInt clientList = new SyncListUInt();
+            var serverList = new SyncListUInt();
+            var clientList = new SyncListUInt();
 
             serverList.Add(1U);
             serverList.Add(2U);
@@ -172,8 +170,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListFloatTest()
         {
-            SyncListFloat serverList = new SyncListFloat();
-            SyncListFloat clientList = new SyncListFloat();
+            var serverList = new SyncListFloat();
+            var clientList = new SyncListFloat();
 
             serverList.Add(1.0F);
             serverList.Add(2.0F);
@@ -317,8 +315,8 @@ namespace Mirror.Tests
         [Test]
         public void DirtyTest()
         {
-            SyncListInt serverList = new SyncListInt();
-            SyncListInt clientList = new SyncListInt();
+            var serverList = new SyncListInt();
+            var clientList = new SyncListInt();
 
             // nothing to send
             Assert.That(serverList.IsDirty, Is.False);
@@ -335,8 +333,8 @@ namespace Mirror.Tests
         [Test]
         public void ReadonlyTest()
         {
-            SyncListUInt serverList = new SyncListUInt();
-            SyncListUInt clientList = new SyncListUInt();
+            var serverList = new SyncListUInt();
+            var clientList = new SyncListUInt();
 
             // data has been flushed,  should go back to clear
             Assert.That(clientList.IsReadOnly, Is.False);
