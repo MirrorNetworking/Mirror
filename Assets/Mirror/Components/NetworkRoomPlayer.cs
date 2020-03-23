@@ -124,7 +124,7 @@ namespace Mirror
                 if (!room.showRoomGUI)
                     return;
 
-                if (!room.RoomSceneField.IsActiveScene())
+                if (!room.RoomScene.IsActiveScene())
                     return;
 
                 GUILayout.BeginArea(new Rect(20f + (index * 100), 200f, 90f, 130f));

@@ -33,6 +33,11 @@ namespace Mirror
             return activeScene.path == Path;
         }
 
+        public override string ToString()
+        {
+            return path.ToString();
+        }
+
         public override bool Equals(object obj)
         {
             return obj is SceneField field && Equals(field);
