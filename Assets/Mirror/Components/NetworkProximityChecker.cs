@@ -81,14 +81,14 @@ namespace Mirror
         /// <summary>
         /// Called when a new player enters
         /// </summary>
-        /// <param name="newObserver">NetworkConnection of player object</param>
+        /// <param name="conn">NetworkConnection of player object</param>
         /// <returns>True if object is within visible range</returns>
-        public override bool OnCheckObserver(NetworkConnection newObserver)
+        public override bool OnCheckObserver(NetworkConnection conn)
         {
             if (forceHidden)
                 return false;
 
-            return Vector3.Distance(newObserver.identity.transform.position, transform.position) < visRange;
+            return Vector3.Distance(conn.identity.transform.position, transform.position) < visRange;
         }
 
         /// <summary>
