@@ -1546,6 +1546,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1206549608}
+  - component: {fileID: 719699536}
   m_Layer: 5
   m_Name: ServerList
   m_TagString: Untagged
@@ -1553,6 +1554,31 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &719699536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 719699535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f796b44735c414783d66f47b150c5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  manager: {fileID: 1282001520}
+  listServerUrl: tpc4://35.243.149.104:8888
+  transport: {fileID: 1282001521}
+  mainPanel: {fileID: 719699535}
+  content: {fileID: 583153859}
+  statusText: {fileID: 712827152}
+  slotPrefab: {fileID: 114611570997501482, guid: 611330311f6094567ad2f8012b470129,
+    type: 3}
+  serverAndPlayButton: {fileID: 1004751479}
+  serverOnlyButton: {fileID: 993261495}
+  connectingPanel: {fileID: 1926990970}
+  connectingText: {fileID: 1081204139}
+  connectingCancelButton: {fileID: 276447174}
 --- !u!1 &747705678
 GameObject:
   m_ObjectHideFlags: 0
@@ -2452,10 +2478,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1282001518}
   - component: {fileID: 1282001520}
-  - component: {fileID: 1282001522}
   - component: {fileID: 1282001524}
   - component: {fileID: 1282001523}
   - component: {fileID: 1282001519}
+  - component: {fileID: 1282001521}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -2524,7 +2550,7 @@ MonoBehaviour:
   networkSceneName: 
   startPositionIndex: 0
   startPositions: []
---- !u!114 &1282001522
+--- !u!114 &1282001521
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2533,24 +2559,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1282001517}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69f796b44735c414783d66f47b150c5f, type: 3}
+  m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 1282001520}
-  listServerIp: 35.243.149.104
-  gameServerToListenPort: 8887
-  clientToListenPort: 8888
-  gameServerTitle: Deathmatch
-  mainPanel: {fileID: 719699535}
-  content: {fileID: 583153859}
-  statusText: {fileID: 712827152}
-  slotPrefab: {fileID: 114611570997501482, guid: 611330311f6094567ad2f8012b470129,
-    type: 3}
-  serverAndPlayButton: {fileID: 1004751479}
-  serverOnlyButton: {fileID: 993261495}
-  connectingPanel: {fileID: 1926990970}
-  connectingText: {fileID: 1081204139}
-  connectingCancelButton: {fileID: 276447174}
+  Port: 7779
 --- !u!114 &1282001523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3248,6 +3260,89 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &2011878188
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2011878191}
+  - component: {fileID: 2011878190}
+  - component: {fileID: 2011878189}
+  m_Layer: 0
+  m_Name: RegisterServer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2011878189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2011878188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1168177110de9455e84958a15375ae6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  manager: {fileID: 1282001520}
+  listServerUrl: tcp4://35.243.149.104:8887
+  gameServerTitle: Deathmatch
+  transport: {fileID: 0}
+--- !u!114 &2011878190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2011878188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 1146589430
+  serverOnly: 1
+  m_AssetId: 
+  OnStartServer:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStartClient:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStartLocalPlayer:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStartAuthority:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopAuthority:
+    m_PersistentCalls:
+      m_Calls: []
+  OnNetworkDestroy:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!4 &2011878191
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2011878188}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2020215608
 GameObject:
   m_ObjectHideFlags: 0

@@ -93,7 +93,7 @@ namespace Mirror
         /// This is dictionary of the disabled NetworkIdentity objects in the scene that could be spawned by messages from the server.
         /// <para>The key to the dictionary is the NetworkIdentity sceneId.</para>
         /// </summary>
-        public Dictionary<ulong, NetworkIdentity> spawnableObjects;
+        public readonly Dictionary<ulong, NetworkIdentity> spawnableObjects = new Dictionary<ulong, NetworkIdentity>();
 
         /// <summary>
         /// List of all objects spawned in this client
@@ -381,7 +381,6 @@ namespace Mirror
 
             ClearSpawners();
             DestroyAllClientObjects();
-            spawnableObjects = null;
             connection = null;
             ready = false;
             isSpawnFinished = false;
@@ -538,9 +537,15 @@ namespace Mirror
         public void PrepareToSpawnSceneObjects()
         {
             // add all unspawned NetworkIdentities to spawnable objects
-            spawnableObjects = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
-                               .Where(ConsiderForSpawning)
-                               .ToDictionary(identity => identity.sceneId, identity => identity);
+            spawnableObjects.Clear();
+            IEnumerable<NetworkIdentity> sceneObjects =
+                Resources.FindObjectsOfTypeAll<NetworkIdentity>()
+                               .Where(ConsiderForSpawning);
+
+            foreach (var obj in sceneObjects)
+            {
+                spawnableObjects.Add(obj.sceneId, obj);
+            }
         }
 
         NetworkIdentity SpawnSceneObject(ulong sceneId)
