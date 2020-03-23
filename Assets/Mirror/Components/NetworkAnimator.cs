@@ -370,16 +370,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Causes an animation trigger to be reset for a networked object.
-        /// <para>If local authority is set, and this is called from the client, then the trigger will be reset on the server and all clients. If not, then this is called on the server, and the trigger will be reset on all clients.</para>
-        /// </summary>
-        /// <param name="triggerName">Name of trigger.</param>
-        public void ResetTrigger(string triggerName)
-        {
-            ResetTrigger(Animator.StringToHash(triggerName));
-        }
-
-        /// <summary>
         /// Causes an animation trigger to be invoked for a networked object.
         /// </summary>
         /// <param name="hash">Hash id of trigger (from the Animator).</param>
@@ -412,6 +402,16 @@ namespace Mirror
 
                 RpcOnAnimationTriggerClientMessage(hash);
             }
+        }
+
+        /// <summary>
+        /// Causes an animation trigger to be reset for a networked object.
+        /// <para>If local authority is set, and this is called from the client, then the trigger will be reset on the server and all clients. If not, then this is called on the server, and the trigger will be reset on all clients.</para>
+        /// </summary>
+        /// <param name="triggerName">Name of trigger.</param>
+        public void ResetTrigger(string triggerName)
+        {
+            ResetTrigger(Animator.StringToHash(triggerName));
         }
 
         /// <summary>
