@@ -8,15 +8,36 @@ namespace Mirror
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class SyncSet<T> : ISet<T>, ISyncObject
     {
-        public delegate void SyncSetChanged(Operation op, T item);
-
         protected readonly ISet<T> objects;
 
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
-        public event SyncSetChanged Callback;
 
-        public enum Operation : byte
+        /// <summary>
+        /// Raised when an element is added to the list.
+        /// Receives the new item
+        /// </summary>
+        public event Action<T> OnAdd;
+
+        /// <summary>
+        /// Raised when the set is cleared
+        /// </summary>
+        public event Action OnClear;
+
+        /// <summary>
+        /// Raised when an item is removed from the set
+        /// receives the old item
+        /// </summary>
+        public event Action<T> OnRemove;
+
+        /// <summary>
+        /// Raised after the set has been updated
+        /// Note that if there are multiple changes
+        /// this event is only raised once.
+        /// </summary>
+        public event Action OnChange;
+
+        private enum Operation : byte
         {
             OP_ADD,
             OP_CLEAR,
@@ -65,7 +86,25 @@ namespace Mirror
 
             changes.Add(change);
 
-            Callback?.Invoke(op, item);
+            RaiseEvents(op, item);
+
+            OnChange?.Invoke();
+        }
+
+        private void RaiseEvents(Operation op, T item)
+        {
+            switch (op)
+            {
+                case Operation.OP_ADD:
+                    OnAdd?.Invoke(item);
+                    break;
+                case Operation.OP_CLEAR:
+                    OnClear?.Invoke();
+                    break;
+                case Operation.OP_REMOVE:
+                    OnRemove?.Invoke(item);
+                    break;
+            }
         }
 
         void AddOperation(Operation op) => AddOperation(op, default);
@@ -140,6 +179,7 @@ namespace Mirror
         {
             // This list can now only be modified by synchronization
             IsReadOnly = true;
+            bool raiseOnChange = false;
 
             int changesCount = (int)reader.ReadPackedUInt32();
 
@@ -180,13 +220,19 @@ namespace Mirror
 
                 if (apply)
                 {
-                    Callback?.Invoke(operation, item);
+                    RaiseEvents(operation, item);
+                    raiseOnChange = true;
                 }
                 // we just skipped this change
                 else
                 {
                     changesAhead--;
                 }
+            }
+
+            if (raiseOnChange)
+            {
+                OnChange?.Invoke();
             }
         }
 
