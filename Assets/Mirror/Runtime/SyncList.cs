@@ -38,16 +38,43 @@ namespace Mirror
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class SyncList<T> : IList<T>, IReadOnlyList<T>, ISyncObject
     {
-        public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem);
-
         readonly IList<T> objects;
         readonly IEqualityComparer<T> comparer;
 
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
-        public event SyncListChanged Callback;
 
-        public enum Operation : byte
+        /// <summary>
+        /// Raised when an element is added to the list.
+        /// Receives index and new item
+        /// </summary>
+        public event Action<int, T> OnInsert;
+
+        /// <summary>
+        /// Raised when the list is cleared
+        /// </summary>
+        public event Action OnClear;
+
+        /// <summary>
+        /// Raised when an item is removed from the list
+        /// receives the index and the old item
+        /// </summary>
+        public event Action<int, T> OnRemove;
+
+        /// <summary>
+        /// Raised when an item is changed in a list
+        /// Receives index, old item and new item
+        /// </summary>
+        public event Action<int, T, T> OnSet;
+
+        /// <summary>
+        /// Raised after the list has been updated
+        /// Note that if there are multiple changes
+        /// this event is only raised once.
+        /// </summary>
+        public event Action OnChange;
+
+        private enum Operation : byte
         {
             OP_ADD,
             OP_CLEAR,
@@ -107,7 +134,31 @@ namespace Mirror
 
             changes.Add(change);
 
-            Callback?.Invoke(op, itemIndex, oldItem, newItem);
+            RaiseEvents(op, itemIndex, oldItem, newItem);
+
+            OnChange?.Invoke();
+        }
+
+        private void RaiseEvents(Operation op, int itemIndex, T oldItem, T newItem)
+        {
+            switch (op)
+            {
+                case Operation.OP_ADD:
+                    OnInsert?.Invoke(objects.Count - 1, newItem);
+                    break;
+                case Operation.OP_CLEAR:
+                    OnClear?.Invoke();
+                    break;
+                case Operation.OP_INSERT:
+                    OnInsert?.Invoke(itemIndex, newItem);
+                    break;
+                case Operation.OP_REMOVEAT:
+                    OnRemove?.Invoke(itemIndex, oldItem);
+                    break;
+                case Operation.OP_SET:
+                    OnSet?.Invoke(itemIndex, oldItem, newItem);
+                    break;
+            }
         }
 
         public void OnSerializeAll(NetworkWriter writer)
@@ -187,6 +238,7 @@ namespace Mirror
         {
             // This list can now only be modified by synchronization
             IsReadOnly = true;
+            bool raiseOnChange = false;
 
             int changesCount = (int)reader.ReadPackedUInt32();
 
@@ -250,7 +302,8 @@ namespace Mirror
 
                 if (apply)
                 {
-                    Callback?.Invoke(operation, index, oldItem, newItem);
+                    RaiseEvents(operation, index, oldItem, newItem);
+                    raiseOnChange = true;
                 }
                 // we just skipped this change
                 else
@@ -258,6 +311,9 @@ namespace Mirror
                     changesAhead--;
                 }
             }
+
+            if (raiseOnChange)
+                OnChange?.Invoke();
         }
 
         public void Add(T item)
