@@ -571,7 +571,7 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     // syncvar.get (finds current GO/NI from netId)
                     serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
+                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, foundMethod));
 
                     // Generates: end if (!SyncVarEqual);
                     serWorker.Append(syncVarEqualLabel);
@@ -655,7 +655,7 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     // syncvar.get
                     serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
+                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, foundMethod));
 
                     // Generates: end if (!SyncVarEqual);
                     serWorker.Append(syncVarEqualLabel);

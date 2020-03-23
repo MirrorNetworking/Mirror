@@ -223,7 +223,7 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
                 setWorker.Append(setWorker.Create(OpCodes.Ldloc, oldValue));
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
-                setWorker.Append(setWorker.Create(OpCodes.Call, hookFunctionMethod));
+                setWorker.Append(setWorker.Create(OpCodes.Callvirt, hookFunctionMethod));
 
                 // setSyncVarHookGuard(dirtyBit, false);
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));

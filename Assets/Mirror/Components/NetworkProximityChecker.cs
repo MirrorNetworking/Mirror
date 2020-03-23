@@ -81,23 +81,23 @@ namespace Mirror
         /// <summary>
         /// Called when a new player enters
         /// </summary>
-        /// <param name="newObserver">NetworkConnection of player object</param>
+        /// <param name="conn">NetworkConnection of player object</param>
         /// <returns>True if object is within visible range</returns>
-        public override bool OnCheckObserver(NetworkConnection newObserver)
+        public override bool OnCheckObserver(NetworkConnection conn)
         {
             if (ForceHidden)
                 return false;
 
-            return Vector3.Distance(newObserver.identity.transform.position, transform.position) < VisibilityRange;
+            return Vector3.Distance(conn.identity.transform.position, transform.position) < VisibilityRange;
         }
 
         /// <summary>
         /// Called when a new player enters, and when scene changes occur
         /// </summary>
         /// <param name="observers">List of players to be updated.  Modify this set with all the players that can see this object</param>
-        /// <param name="initial">True if this is the first time the method is called for this object</param>
+        /// <param name="initialize">True if this is the first time the method is called for this object</param>
         /// <returns>True if this component calculated the list of observers</returns>
-        public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
+        public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
             // if force hidden then return without adding any observers.
             if (ForceHidden)
