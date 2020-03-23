@@ -1,3 +1,10 @@
+## [24.0.1](https://github.com/MirrorNG/MirrorNG/compare/24.0.0-master...24.0.1-master) (2020-03-23)
+
+
+### Bug Fixes
+
+* Default port is 7777 ([960c39d](https://github.com/MirrorNG/MirrorNG/commit/960c39da90db156cb58d4765695664f0c084b39a))
+
 # [24.0.0](https://github.com/MirrorNG/MirrorNG/compare/23.0.0-master...24.0.0-master) (2020-03-23)
 
 
