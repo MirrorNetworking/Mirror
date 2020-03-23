@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -311,7 +311,9 @@ namespace Mirror.Tests
                 if (fresh.sceneId == 0)
                     Assert.That(fresh.assetId, Is.EqualTo(message.assetId));
                 Assert.That(fresh.position, Is.EqualTo(message.position));
-                Assert.That(fresh.rotation, Is.EqualTo(message.rotation));
+                // spawn message should use FullPercision
+                QuaternionReadWriteTest.AssertPrecision(message.rotation, fresh.rotation, QuaternionReadWriteTest.FullPercision);
+
                 Assert.That(fresh.scale, Is.EqualTo(message.scale));
                 Assert.That(fresh.payload.Count, Is.EqualTo(message.payload.Count));
                 for (int i = 0; i < fresh.payload.Count; ++i)

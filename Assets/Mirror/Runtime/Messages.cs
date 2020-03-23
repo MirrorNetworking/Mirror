@@ -222,7 +222,7 @@ namespace Mirror
                 assetId = reader.ReadGuid();
             }
             position = reader.ReadVector3();
-            rotation = reader.ReadQuaternion();
+            rotation = reader.ReadQuaternion(RotationPrecision.Full);
             scale = reader.ReadVector3();
             payload = reader.ReadBytesAndSizeSegment();
         }
@@ -238,7 +238,7 @@ namespace Mirror
                 writer.WriteGuid(assetId);
             }
             writer.WriteVector3(position);
-            writer.WriteQuaternion(rotation);
+            writer.WriteQuaternion(rotation, RotationPrecision.Full);
             writer.WriteVector3(scale);
             writer.WriteBytesAndSizeSegment(payload);
         }
