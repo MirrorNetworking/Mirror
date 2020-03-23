@@ -1,3 +1,10 @@
+## [21.2.1](https://github.com/MirrorNG/MirrorNG/compare/21.2.0-master...21.2.1-master) (2020-03-23)
+
+
+### Bug Fixes
+
+* overriden hooks are invoked (fixes [#1581](https://github.com/MirrorNG/MirrorNG/issues/1581)) ([#1584](https://github.com/MirrorNG/MirrorNG/issues/1584)) ([cf55333](https://github.com/MirrorNG/MirrorNG/commit/cf55333a072c0ffe36a2972ca0a5122a48d708d0))
+
 # [21.2.0](https://github.com/MirrorNG/MirrorNG/compare/21.1.0-master...21.2.0-master) (2020-03-23)
 
 
