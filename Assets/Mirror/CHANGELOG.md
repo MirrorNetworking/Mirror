@@ -1,3 +1,15 @@
+# [24.0.0](https://github.com/MirrorNG/MirrorNG/compare/23.0.0-master...24.0.0-master) (2020-03-23)
+
+
+### Features
+
+* individual events for SyncDictionary ([#112](https://github.com/MirrorNG/MirrorNG/issues/112)) ([b3c1b16](https://github.com/MirrorNG/MirrorNG/commit/b3c1b16100c440131d6d933627a9f6479aed11ad))
+
+
+### BREAKING CHANGES
+
+* SyncDictionary callback has been replaced
+
 # [23.0.0](https://github.com/MirrorNG/MirrorNG/compare/22.0.0-master...23.0.0-master) (2020-03-23)
 
 
