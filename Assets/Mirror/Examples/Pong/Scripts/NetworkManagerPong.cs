@@ -16,7 +16,7 @@ namespace Mirror.Examples.Pong
         {
             // add player at correct spawn position
             Transform start = numPlayers == 0 ? leftRacketSpawn : rightRacketSpawn;
-            GameObject player = Instantiate(playerPrefab, start.position, start.rotation);
+            GameObject player = Instantiate(server.playerPrefab, start.position, start.rotation);
             server.AddPlayerForConnection(conn, player);
 
             // spawn ball if two players

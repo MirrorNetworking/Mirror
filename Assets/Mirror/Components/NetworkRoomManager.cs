@@ -76,6 +76,16 @@ namespace Mirror
         [Tooltip("List of Room Player objects")]
         public List<NetworkRoomPlayer> RoomSlots = new List<NetworkRoomPlayer>();
 
+        public override void Start()
+        {
+            base.Start();
+
+            if (server.playerPrefab == null)
+                Debug.LogError("NetworkRoomManager no GamePlayer prefab is registered. Please add a GamePlayer prefab.");
+            else
+                client.RegisterPrefab(server.playerPrefab);
+        }
+
         public override void OnValidate()
         {
 
@@ -159,9 +169,9 @@ namespace Mirror
                 // get start position from base class
                 Transform startPos = GetStartPosition();
                 gamePlayer = startPos != null
-                    ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
-                    : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-                gamePlayer.name = playerPrefab.name;
+                    ? Instantiate(server.playerPrefab, startPos.position, startPos.rotation)
+                    : Instantiate(server.playerPrefab, Vector3.zero, Quaternion.identity);
+                gamePlayer.name = server.playerPrefab.name;
             }
 
             if (!OnRoomServerSceneLoadedForPlayer(conn, roomPlayer, gamePlayer))
@@ -410,11 +420,6 @@ namespace Mirror
                 Debug.LogError("NetworkRoomManager no RoomPlayer prefab is registered. Please add a RoomPlayer prefab.");
             else
                 client.RegisterPrefab(roomPlayerPrefab.gameObject);
-
-            if (playerPrefab == null)
-                Debug.LogError("NetworkRoomManager no GamePlayer prefab is registered. Please add a GamePlayer prefab.");
-            else
-                client.RegisterPrefab(playerPrefab);
 
             OnRoomStartClient();
         }
