@@ -123,7 +123,7 @@ namespace Mirror.Tests
 
             UnityAction<NetworkConnectionToClient> func = Substitute.For<UnityAction<NetworkConnectionToClient>>();
 
-            server.Connected.AddListener(func); 
+            server.Connected.AddListener(func);
             server.Listen();
 
             // connect first: should work
@@ -132,7 +132,7 @@ namespace Mirror.Tests
             func.Received().Invoke(Arg.Is<NetworkConnectionToClient>(conn => conn.connectionId == 42));
 
             if (server.connections.TryGetValue(42, out NetworkConnectionToClient conn1))
-                Assert.That(conn1.isAuthenticated, Is.True);    
+                Assert.That(conn1.isAuthenticated, Is.True);
         }
 
         [Test]
@@ -366,7 +366,8 @@ namespace Mirror.Tests
             // add a connection
             var connection = new NetworkConnectionToClient(42);
 
-            connection.RegisterHandler<NetworkConnectionToClient, TestMessage>((conn, msg) => {
+            connection.RegisterHandler<NetworkConnectionToClient, TestMessage>((conn, msg) =>
+            {
                 wasReceived = true;
                 connectionReceived = conn;
                 messageReceived = msg;
@@ -376,7 +377,7 @@ namespace Mirror.Tests
             Assert.That(server.connections.Count, Is.EqualTo(1));
 
             // serialize a test message into an arraysegment
-            var testMessage = new TestMessage{IntValue = 13, DoubleValue = 14, StringValue = "15"};
+            var testMessage = new TestMessage { IntValue = 13, DoubleValue = 14, StringValue = "15" };
             var writer = new NetworkWriter();
             MessagePacker.Pack(testMessage, writer);
             var segment = writer.ToArraySegment();
@@ -405,7 +406,7 @@ namespace Mirror.Tests
             Assert.That(server.connections.Count, Is.EqualTo(0));
 
             // serialize a test message into an arraysegment
-            var testMessage = new TestMessage{IntValue = 13, DoubleValue = 14, StringValue = "15"};
+            var testMessage = new TestMessage { IntValue = 13, DoubleValue = 14, StringValue = "15" };
             var writer = new NetworkWriter();
             MessagePacker.Pack(testMessage, writer);
             var segment = writer.ToArraySegment();
@@ -530,7 +531,7 @@ namespace Mirror.Tests
             server.AddConnection(connection);
 
             // create a message
-            var message = new TestMessage{ IntValue = 1, DoubleValue = 2, StringValue = "3" };
+            var message = new TestMessage { IntValue = 1, DoubleValue = 2, StringValue = "3" };
 
             // send it to all
             bool result = server.SendToAll(message);
@@ -594,7 +595,7 @@ namespace Mirror.Tests
             // unregister second handler via ClearHandlers to test that one too. send, should fail
             connection.ClearHandlers();
             // (only add this one to avoid disconnect error)
-            connection.RegisterHandler<DisconnectMessage>(msg => {}, false);
+            connection.RegisterHandler<DisconnectMessage>(msg => { }, false);
             writer = new NetworkWriter();
             MessagePacker.Pack(new TestMessage(), writer);
             // log error messages are expected
@@ -623,7 +624,7 @@ namespace Mirror.Tests
             server.AddConnection(connection);
 
             // create a message
-            var message = new TestMessage{ IntValue = 1, DoubleValue = 2, StringValue = "3" };
+            var message = new TestMessage { IntValue = 1, DoubleValue = 2, StringValue = "3" };
 
             // create a gameobject and networkidentity
             NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();

@@ -54,13 +54,13 @@ namespace Mirror.Tests
         [Test]
         public void StartServerTest()
         {
-            Assert.That(manager.server.active , Is.False);
+            Assert.That(manager.server.active, Is.False);
 
             manager.StartServer();
 
-            Assert.That(manager.isNetworkActive , Is.True);
+            Assert.That(manager.isNetworkActive, Is.True);
             Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.ServerOnly));
-            Assert.That(manager.server.active , Is.True);
+            Assert.That(manager.server.active, Is.True);
 
             manager.StopServer();
         }
@@ -71,7 +71,7 @@ namespace Mirror.Tests
             manager.StartServer();
             manager.StopServer();
 
-            Assert.That(manager.isNetworkActive , Is.False);
+            Assert.That(manager.isNetworkActive, Is.False);
             Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.Offline));
         }
 
@@ -80,7 +80,7 @@ namespace Mirror.Tests
         {
             manager.StartClient("localhost");
 
-            Assert.That(manager.isNetworkActive , Is.True);
+            Assert.That(manager.isNetworkActive, Is.True);
             Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.ClientOnly));
 
             manager.StopClient();
@@ -94,7 +94,7 @@ namespace Mirror.Tests
                 manager.StartServer();
                 UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
                 manager.client.Connected.AddListener(func);
-                
+
                 await manager.client.ConnectAsync("localhost");
                 func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
                 manager.client.Disconnect();
@@ -145,7 +145,7 @@ namespace Mirror.Tests
             manager.StartClient("localhost");
             manager.StopClient();
 
-            Assert.That(manager.isNetworkActive , Is.False);
+            Assert.That(manager.isNetworkActive, Is.False);
             Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.Offline));
         }
 
@@ -155,17 +155,17 @@ namespace Mirror.Tests
             manager.StartClient("localhost");
             manager.StopClient();
 
-            Assert.That(manager.startPositions , Is.Empty);
-            Assert.That(manager.startPositionIndex , Is.Zero);
+            Assert.That(manager.startPositions, Is.Empty);
+            Assert.That(manager.startPositionIndex, Is.Zero);
         }
 
         [Test]
         public void RegisterStartPositionTest()
         {
-            Assert.That(manager.startPositions , Is.Empty);
+            Assert.That(manager.startPositions, Is.Empty);
 
             manager.RegisterStartPosition(gameObject.transform);
-            Assert.That(manager.startPositions.Count , Is.EqualTo(1));
+            Assert.That(manager.startPositions.Count, Is.EqualTo(1));
             Assert.That(manager.startPositions, Has.Member(gameObject.transform));
 
             manager.UnRegisterStartPosition(gameObject.transform);
@@ -174,23 +174,23 @@ namespace Mirror.Tests
         [Test]
         public void UnRegisterStartPositionTest()
         {
-            Assert.That(manager.startPositions , Is.Empty);
-            
+            Assert.That(manager.startPositions, Is.Empty);
+
             manager.RegisterStartPosition(gameObject.transform);
-            Assert.That(manager.startPositions.Count , Is.EqualTo(1));
+            Assert.That(manager.startPositions.Count, Is.EqualTo(1));
             Assert.That(manager.startPositions, Has.Member(gameObject.transform));
 
             manager.UnRegisterStartPosition(gameObject.transform);
-            Assert.That(manager.startPositions , Is.Empty);
+            Assert.That(manager.startPositions, Is.Empty);
         }
 
         [Test]
         public void GetStartPositionTest()
         {
-            Assert.That(manager.startPositions , Is.Empty);
-            
+            Assert.That(manager.startPositions, Is.Empty);
+
             manager.RegisterStartPosition(gameObject.transform);
-            Assert.That(manager.startPositions.Count , Is.EqualTo(1));
+            Assert.That(manager.startPositions.Count, Is.EqualTo(1));
             Assert.That(manager.startPositions, Has.Member(gameObject.transform));
 
             Assert.That(manager.GetStartPosition(), Is.SameAs(gameObject.transform));

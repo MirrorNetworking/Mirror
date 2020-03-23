@@ -14,7 +14,7 @@ namespace MirrorTest
             public float floatingpotato;
             public double givemetwopotatoes;
         }
-        class MyStructClass : SyncList<MyStruct> {};
+        class MyStructClass : SyncList<MyStruct> { };
         MyStructClass Foo;
     }
 }

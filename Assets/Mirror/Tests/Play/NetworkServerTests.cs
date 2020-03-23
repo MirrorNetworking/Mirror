@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class NetworkServerTests 
+    public class NetworkServerTests
     {
         NetworkServer testServer;
         GameObject serverGO;
@@ -39,7 +39,7 @@ namespace Mirror.Tests
             Assert.That(gameObject.GetComponent<NetworkIdentity>().server == testServer);
         }
 
-       
+
         [Test]
         public void ShutdownTest()
         {

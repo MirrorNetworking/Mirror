@@ -25,7 +25,7 @@ namespace Mirror.Tests
             client = manager.client;
             manager.startOnHeadless = false;
             manager.autoCreatePlayer = false;
-            
+
         }
 
         public void SetupClient(string hostname = "localhost")

@@ -122,7 +122,7 @@ namespace Mirror
 
         void Start()
         {
-            InitializeAuthEvents();            
+            InitializeAuthEvents();
         }
 
         /// <summary>
@@ -353,7 +353,7 @@ namespace Mirror
             // so we don't need to spawn them
             connection.RegisterHandler<ObjectSpawnStartedMessage>(msg => { });
             connection.RegisterHandler<ObjectSpawnFinishedMessage>(msg => { });
-            connection.RegisterHandler<UpdateVarsMessage>(msg => { });            
+            connection.RegisterHandler<UpdateVarsMessage>(msg => { });
             connection.RegisterHandler<RpcMessage>(OnRPCMessage);
             connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
@@ -762,7 +762,7 @@ namespace Mirror
         void UnSpawn(NetworkIdentity identity)
         {
             Guid assetId = identity.assetId;
-            
+
             identity.NetworkDestroy();
             if (unspawnHandlers.TryGetValue(assetId, out UnSpawnDelegate handler) && handler != null)
             {

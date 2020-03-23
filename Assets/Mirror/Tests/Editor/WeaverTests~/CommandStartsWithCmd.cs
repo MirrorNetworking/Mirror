@@ -8,6 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [Command]
-        void DoesntStartWithCmd() {}
+        void DoesntStartWithCmd() { }
     }
 }

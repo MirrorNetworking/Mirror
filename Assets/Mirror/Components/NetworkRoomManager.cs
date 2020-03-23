@@ -335,7 +335,7 @@ namespace Mirror
                         server.ReplacePlayerForConnection(identity.connectionToClient, client, roomPlayer.gameObject);
                     }
                 }
-            
+
                 AllPlayersReady = false;
             }
 

@@ -26,14 +26,14 @@ namespace Mirror
 
         // Send to many. basically Transport.Send(connections) + checks.
         internal static bool Send(List<int> connectionIds, ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
-        {            
+        {
             // only the server sends to many, we don't have that function on
             // a client.
             if (Transport.activeTransport.ServerActive())
             {
                 return Transport.activeTransport.ServerSend(connectionIds, channelId, segment);
             }
-            
+
             return false;
         }
 

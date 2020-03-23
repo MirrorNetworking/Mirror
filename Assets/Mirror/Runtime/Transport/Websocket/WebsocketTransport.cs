@@ -90,7 +90,7 @@ namespace Mirror.Websocket
         public override Uri ServerUri()
         {
             UriBuilder builder = new UriBuilder();
-            builder.Scheme = Secure? SecureScheme : Scheme;
+            builder.Scheme = Secure ? SecureScheme : Scheme;
             builder.Host = Dns.GetHostName();
             builder.Port = port;
             return builder.Uri;

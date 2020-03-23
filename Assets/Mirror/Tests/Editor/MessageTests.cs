@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -35,7 +35,7 @@ namespace Mirror.Tests
                     Is.EqualTo(message.payload.Array[message.payload.Offset + i]));
         }
 
-        private void TestSerializeDeserialize<T>(T message) where T: IMessageBase, new ()
+        private void TestSerializeDeserialize<T>(T message) where T : IMessageBase, new()
         {
             // serialize
             var writer = new NetworkWriter();

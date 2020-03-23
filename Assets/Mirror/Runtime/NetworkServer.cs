@@ -287,10 +287,10 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + typeof(T));
 
             connectionsCache.Clear();
-           
+
             foreach (NetworkConnection connection in identity.observers)
             {
-                
+
                 bool isOwner = connection == identity.connectionToClient;
                 if ((!isOwner || includeOwner) && connection.isReady)
                 {

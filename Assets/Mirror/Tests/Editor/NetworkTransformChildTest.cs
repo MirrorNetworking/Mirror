@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -9,8 +9,8 @@ namespace Mirror.Tests
         [Test]
         public void TargetComponentTest()
         {
-            NetworkTransformChild  networkTransformChild;
-            
+            NetworkTransformChild networkTransformChild;
+
             GameObject gameObject = new GameObject();
             networkTransformChild = gameObject.AddComponent<NetworkTransformChild>();
 

@@ -8,6 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : MonoBehaviour
     {
         [ServerCallback]
-        void ThisCantBeOutsideNetworkBehaviour() {}
+        void ThisCantBeOutsideNetworkBehaviour() { }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -8,7 +8,7 @@ namespace Mirror.Tests
 
     // set's up a host
 
-    public class HostTests<T> where T:NetworkBehaviour
+    public class HostTests<T> where T : NetworkBehaviour
     {
 
         #region Setup

@@ -123,7 +123,7 @@ namespace Mirror
         /// The NetworkClient associated with this NetworkIdentity.
         /// </summary>
         public NetworkClient client { get; internal set; }
-        
+
         NetworkConnectionToClient _connectionToClient;
 
         /// <summary>
@@ -673,7 +673,7 @@ namespace Mirror
             ulong dirtyComponentsMask = GetDirtyMask(initialState);
 
             if (dirtyComponentsMask == 0L)
-                return (0,0);
+                return (0, 0);
 
             // calculate syncMode mask at runtime. this allows users to change
             // component.syncMode while the game is running, which can be a huge

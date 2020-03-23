@@ -28,8 +28,8 @@ namespace MirrorTest
     {
         [Command]
         public void
-             // This gonna give error saying-- Mirror.Weaver error: 
-             // Cannot generate writer for scriptable object Data[]. Use a supported type or provide a custom writer
+            // This gonna give error saying-- Mirror.Weaver error: 
+            // Cannot generate writer for scriptable object Data[]. Use a supported type or provide a custom writer
             CmdwriteArraydata(
                 Data[] arg)
         {

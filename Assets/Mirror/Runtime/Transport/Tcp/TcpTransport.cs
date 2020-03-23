@@ -49,9 +49,9 @@ namespace Mirror.Tcp
             _ = client.SendAsync(segment);
             return true;
         }
-        public override void ClientDisconnect() 
+        public override void ClientDisconnect()
         {
-            client.Disconnect(); 
+            client.Disconnect();
         }
 
         // server
@@ -63,9 +63,9 @@ namespace Mirror.Tcp
 
         public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
         {
-            foreach (int connectionId in connectionIds)            
+            foreach (int connectionId in connectionIds)
                 server.Send(connectionId, segment);
-            
+
             return true;
         }
 

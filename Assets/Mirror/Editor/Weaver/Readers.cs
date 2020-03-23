@@ -341,7 +341,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Call, genericInstanceMethod));
                 worker.Append(worker.Create(OpCodes.Stloc_0));
             }
-            else 
+            else
             {
                 // classes are created with their constructor
 

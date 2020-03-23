@@ -1,4 +1,4 @@
-﻿using NSubstitute;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using InvalidOperationException = System.InvalidOperationException;
@@ -180,7 +180,7 @@ namespace Mirror.Tests
                 // shoud fail because the server is not active
                 identity.RemoveClientAuthority();
             });
-            Assert.That(ex.Message, Is.EqualTo("RemoveClientAuthority can only be called on the server for spawned objects"));            
+            Assert.That(ex.Message, Is.EqualTo("RemoveClientAuthority can only be called on the server for spawned objects"));
         }
 
 

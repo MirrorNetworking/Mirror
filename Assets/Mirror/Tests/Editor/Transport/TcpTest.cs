@@ -1,4 +1,4 @@
-﻿using Mirror.Tcp;
+using Mirror.Tcp;
 using NUnit.Framework;
 using System;
 using System.Collections;
@@ -170,7 +170,7 @@ namespace Mirror.Tests
         {
             return RunAsync(async () =>
             {
-                
+
                 await client.ConnectAsync("127.0.0.1", Port);
 
                 // I should be able to disconnect right away
@@ -275,11 +275,11 @@ namespace Mirror.Tests
                 // we should first receive a connected me
                 int id = await WaitForServerConnect();
 
-                var  data = new ArraySegment<byte>(utf8.GetBytes("Hello world"));
+                var data = new ArraySegment<byte>(utf8.GetBytes("Hello world"));
                 // then we should receive the data
                 await client.SendAsync(data);
 
-                var (rConnectionId,received) = await GetServerData();
+                var (rConnectionId, received) = await GetServerData();
 
                 string str = utf8.GetString(received);
                 Assert.That(str, Is.EqualTo("Hello world"));

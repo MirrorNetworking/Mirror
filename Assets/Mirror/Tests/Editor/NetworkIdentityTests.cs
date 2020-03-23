@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
@@ -13,7 +13,7 @@ namespace Mirror.Tests
 {
     public class NetworkIdentityTests
     {
-       #region test components
+        #region test components
         class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
         {
             public int called;
@@ -328,7 +328,8 @@ namespace Mirror.Tests
                 .Do(f => { throw new Exception("Some exception"); });
 
             // Make sure that the exception is not swallowed
-            Assert.Throws<Exception>( () => { 
+            Assert.Throws<Exception>(() =>
+            {
                 identity.StartServer();
             });
 
@@ -350,13 +351,15 @@ namespace Mirror.Tests
                 .Do(f => { throw new Exception("Some exception"); });
 
             // make sure exceptions are not swallowed
-            Assert.Throws<Exception>( () => { 
+            Assert.Throws<Exception>(() =>
+            {
                 identity.StartClient();
             });
             func.Received().Invoke();
-            
+
             // we have checks to make sure that it's only called once.
-            Assert.DoesNotThrow(() => { 
+            Assert.DoesNotThrow(() =>
+            {
                 identity.StartClient();
             });
             func.Received(1).Invoke();
@@ -374,7 +377,8 @@ namespace Mirror.Tests
                 .Do(f => { throw new Exception("Some exception"); });
 
             // make sure exceptions are not swallowed
-            Assert.Throws<Exception>( () => { 
+            Assert.Throws<Exception>(() =>
+            {
                 identity.StartAuthority();
             });
             func.Received(1).Invoke();
@@ -392,7 +396,8 @@ namespace Mirror.Tests
                 .Do(f => { throw new Exception("Some exception"); });
 
             // make sure exceptions are not swallowed
-            Assert.Throws<Exception>( () => { 
+            Assert.Throws<Exception>(() =>
+            {
                 identity.StopAuthority();
             });
             func.Received(1).Invoke();
@@ -649,7 +654,8 @@ namespace Mirror.Tests
 
             // make sure that comp.OnStartServer was called
             // the exception was caught and not thrown in here.
-            Assert.Throws<Exception>( () => {
+            Assert.Throws<Exception>(() =>
+            {
                 identity.StartLocalPlayer();
             });
 
@@ -659,7 +665,8 @@ namespace Mirror.Tests
 
             // we have checks to make sure that it's only called once.
             // let's see if they work.
-            Assert.DoesNotThrow( () => {
+            Assert.DoesNotThrow(() =>
+            {
                 identity.StartLocalPlayer();
             });
             // same as before?
@@ -683,7 +690,8 @@ namespace Mirror.Tests
 
             // we have checks to make sure that it's only called once.
             // let's see if they work.
-            Assert.Throws<Exception>( () => {
+            Assert.Throws<Exception>(() =>
+            {
                 identity.NetworkDestroy();
             });
 
@@ -744,11 +752,11 @@ namespace Mirror.Tests
         {
             // modify it a bit
             // creates .observers and generates a netId
-            identity.StartServer(); 
+            identity.StartServer();
             uint netId = identity.netId;
             identity.connectionToClient = new NetworkConnectionToClient(1);
             identity.connectionToServer = new NetworkConnectionToServer();
-            identity.observers.Add( new NetworkConnectionToClient(2));
+            identity.observers.Add(new NetworkConnectionToClient(2));
 
             // calling reset shouldn't do anything unless it was marked for reset
             identity.Reset();
@@ -893,7 +901,7 @@ namespace Mirror.Tests
 
             // add all to observers. should have the two ready connections then.
             identity.AddAllReadyServerConnectionsToObservers();
-            Assert.That(identity.observers, Is.EquivalentTo(new [] { connection1, localConnection }));
+            Assert.That(identity.observers, Is.EquivalentTo(new[] { connection1, localConnection }));
 
             // clean up
             server.RemoveLocalConnection();
@@ -943,5 +951,5 @@ namespace Mirror.Tests
             Assert.That(identity.observers, Does.Not.Contains(identity.connectionToClient));
         }
 
-     }
+    }
 }

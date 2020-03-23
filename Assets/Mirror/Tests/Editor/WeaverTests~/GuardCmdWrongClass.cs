@@ -14,19 +14,19 @@ namespace MirrorTest
             float floatingpotato;
             double givemetwopotatoes;
         }
-        class MyStructClass : SyncList<MyStruct> {};
+        class MyStructClass : SyncList<MyStruct> { };
         MyStructClass Foo;
 
         [Server]
-        public void CantServerGuardInThisClass() {}
+        public void CantServerGuardInThisClass() { }
 
         [ServerCallback]
-        public void CantServerCallbackGuardInThisClass() {}
+        public void CantServerCallbackGuardInThisClass() { }
 
         [Client]
-        public void CantClientGuardInThisClass() {}
+        public void CantClientGuardInThisClass() { }
 
         [ClientCallback]
-        public void CantClientCallbackGuardInThisClass() {}
+        public void CantClientCallbackGuardInThisClass() { }
     }
 }

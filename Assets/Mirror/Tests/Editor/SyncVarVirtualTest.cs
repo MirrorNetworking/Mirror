@@ -97,7 +97,8 @@ namespace Mirror.Tests
             serverTester.ChangeValues();
 
             bool value1OverrideCalled = false;
-            clientTester.OnValue1ChangedOverrideCalled += () => {
+            clientTester.OnValue1ChangedOverrideCalled += () =>
+            {
                 value1OverrideCalled = true;
             };
 
@@ -112,12 +113,14 @@ namespace Mirror.Tests
             serverTester.ChangeValues();
 
             bool value2OverrideCalled = false;
-            clientTester.OnValue2ChangedOverrideCalled += () => {
+            clientTester.OnValue2ChangedOverrideCalled += () =>
+            {
                 value2OverrideCalled = true;
             };
 
             bool value2VirtualCalled = false;
-            clientTester.OnValue2ChangedVirtualCalled += () => {
+            clientTester.OnValue2ChangedVirtualCalled += () =>
+            {
                 value2VirtualCalled = true;
             };
 
@@ -135,12 +138,14 @@ namespace Mirror.Tests
             serverTester.ChangeValues();
 
             bool value2OverrideCalled = false;
-            clientTester.OnValue2ChangedOverrideCalled += () => {
+            clientTester.OnValue2ChangedOverrideCalled += () =>
+            {
                 value2OverrideCalled = true;
             };
 
             bool value2VirtualCalled = false;
-            clientTester.OnValue2ChangedVirtualCalled += () => {
+            clientTester.OnValue2ChangedVirtualCalled += () =>
+            {
                 value2VirtualCalled = true;
             };
 
@@ -158,12 +163,14 @@ namespace Mirror.Tests
             serverTester.ChangeValues();
 
             bool value2OverrideCalled = false;
-            clientTester.OnValue2ChangedOverrideCalled += () => {
+            clientTester.OnValue2ChangedOverrideCalled += () =>
+            {
                 value2OverrideCalled = true;
             };
 
             bool value2VirtualCalled = false;
-            clientTester.OnValue2ChangedVirtualCalled += () => {
+            clientTester.OnValue2ChangedVirtualCalled += () =>
+            {
                 value2VirtualCalled = true;
             };
 

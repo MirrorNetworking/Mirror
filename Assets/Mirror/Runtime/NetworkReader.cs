@@ -162,14 +162,16 @@ namespace Mirror
         }
         public static double ReadDouble(this NetworkReader reader)
         {
-            var converter = new UIntDouble {
+            var converter = new UIntDouble
+            {
                 longValue = reader.ReadUInt64()
             };
             return converter.doubleValue;
         }
         public static decimal ReadDecimal(this NetworkReader reader)
         {
-            var converter = new UIntDecimal {
+            var converter = new UIntDecimal
+            {
                 longValue1 = reader.ReadUInt64(),
                 longValue2 = reader.ReadUInt64()
             };
@@ -368,7 +370,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
             return null;
         }
-        
+
 
         public static Uri ReadUri(this NetworkReader reader)
         {

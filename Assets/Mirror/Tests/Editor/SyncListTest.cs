@@ -196,7 +196,7 @@ namespace Mirror.Tests
         {
             Action<int, string> callback = Substitute.For<Action<int, string>>();
             clientSyncList.OnInsert += callback;
-            serverSyncList.Insert(1,"yay");
+            serverSyncList.Insert(1, "yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
             callback.Received().Invoke(1, "yay");
         }

@@ -1,4 +1,4 @@
-﻿// common code used by server and client
+// common code used by server and client
 using System;
 using System.IO;
 using System.Net.Sockets;

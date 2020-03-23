@@ -78,7 +78,7 @@ namespace Mirror.Tcp
                             ReceivedError?.Invoke(exception);
                         }
                     }
-                    
+
                 }
             }
             catch (ObjectDisposedException)

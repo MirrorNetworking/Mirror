@@ -12,7 +12,7 @@ namespace MirrorTest
         {
             public ArraySegment<int> jaggedArray;
         }
-        class MyStructClass : SyncList<MyStruct> {};
+        class MyStructClass : SyncList<MyStruct> { };
         MyStructClass Foo;
     }
 }

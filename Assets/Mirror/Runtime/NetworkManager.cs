@@ -571,7 +571,7 @@ namespace Mirror
                 }
 
                 DontDestroyOnLoad(gameObject);
-            }                
+            }
 
             Transport.activeTransport = transport;
 
@@ -585,7 +585,7 @@ namespace Mirror
 
 
             // subscribe to the client
-            if (client!= null)
+            if (client != null)
                 client.Authenticated.AddListener(OnClientAuthenticated);
         }
 

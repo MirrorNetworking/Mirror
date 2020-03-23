@@ -8,6 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [ClientRpc]
-        public void RpcCantHaveGeneric<T>() {}
+        public void RpcCantHaveGeneric<T>() { }
     }
 }

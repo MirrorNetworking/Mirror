@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -21,8 +21,8 @@ namespace Mirror.Tests
     // we need to inherit from networkbehaviour to test protected functions
     public class NetworkBehaviourDelegateComponent : NetworkBehaviour
     {
-        public static void Delegate(NetworkBehaviour comp, NetworkReader reader) {}
-        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) {}
+        public static void Delegate(NetworkBehaviour comp, NetworkReader reader) { }
+        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) { }
     }
 
     public class NetworkBehaviourTests : HostTests<SampleBehavior>
