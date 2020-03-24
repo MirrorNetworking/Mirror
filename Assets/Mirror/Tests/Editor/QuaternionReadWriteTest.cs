@@ -6,9 +6,13 @@ namespace Mirror.Tests
 {
     public class QuaternionReadWriteTest
     {
-        internal const float HighestPercision = 0.000000169f;
+        // worse case where xyzw all equal error in largest is ~1.732 times greater than error in smallest 3
+        // High/Low Percision fails when xyzw all equal,
+        // *1.8f is enough to allow extra error in largest,
+        internal const float HighestPercision = 0.000000169f * 1.8f;
         internal const float MediumPercision = 0.00138f;
-        internal const float LowPercision = 0.0110f;
+        // *1.2f is enough to allow extra error in largest
+        internal const float LowPercision = 0.0110f * 1.2f; 
 
         [Test]
         [TestCaseSource(nameof(GetTestCases))]
