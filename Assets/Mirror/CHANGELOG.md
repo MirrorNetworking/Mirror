@@ -1,3 +1,11 @@
+# [24.1.0](https://github.com/MirrorNG/MirrorNG/compare/24.0.1-master...24.1.0-master) (2020-03-24)
+
+
+### Features
+
+* connections can retrieve end point ([#114](https://github.com/MirrorNG/MirrorNG/issues/114)) ([d239718](https://github.com/MirrorNG/MirrorNG/commit/d239718498c5750edf0b5d11cc762136f45500fd))
+* transports can give server uri ([#113](https://github.com/MirrorNG/MirrorNG/issues/113)) ([dc700ec](https://github.com/MirrorNG/MirrorNG/commit/dc700ec721cf4ecf6ddd082d88b933c9afffbc67))
+
 ## [24.0.1](https://github.com/MirrorNG/MirrorNG/compare/24.0.0-master...24.0.1-master) (2020-03-23)
 
 
