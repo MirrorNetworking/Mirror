@@ -543,7 +543,15 @@ namespace Mirror
 
         internal void StartServer()
         {
+            // do nothing if already spawned
+            if (isServer)
+                return;
+
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
+            // NOTE: this might not be necessary because the above m_IsServer
+            //       check already checks netId. BUT this case here checks only
+            //       netId, so it would still check cases where isServer=false
+            //       but netId!=0.
             if (netId != 0)
             {
                 // This object has already been spawned, this method might be called again

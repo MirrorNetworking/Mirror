@@ -17,15 +17,10 @@ namespace Mirror.Tests
                 functionHash = 0xABCDEF,
                 payload = new ArraySegment<byte>(new byte[] { 0x01, 0x02 })
             };
-
-            // serialize
-            var writer = new NetworkWriter();
-            message.Serialize(writer);
-            byte[] writerData = writer.ToArray();
+            byte[] arr = MessagePacker.Pack(message);
 
             // deserialize the same data - do we get the same result?
-            var fresh = new CommandMessage();
-            fresh.Deserialize(new NetworkReader(writerData));
+            CommandMessage fresh = MessagePacker.Unpack<CommandMessage>(arr);
             Assert.That(fresh.netId, Is.EqualTo(message.netId));
             Assert.That(fresh.componentIndex, Is.EqualTo(message.componentIndex));
             Assert.That(fresh.functionHash, Is.EqualTo(message.functionHash));
@@ -38,13 +33,8 @@ namespace Mirror.Tests
         private void TestSerializeDeserialize<T>(T message) where T : IMessageBase, new()
         {
             // serialize
-            var writer = new NetworkWriter();
-            message.Serialize(writer);
-            byte[] writerData = writer.ToArray();
-
-            // deserialize the same data - do we get the same result?
-            var fresh = new T();
-            fresh.Deserialize(new NetworkReader(writerData));
+            byte[] arr = MessagePacker.Pack(message);
+            T fresh = MessagePacker.Unpack<T>(arr);
             Assert.That(fresh, Is.EqualTo(message));
         }
 
@@ -142,15 +132,8 @@ namespace Mirror.Tests
                 functionHash = 0xABCDEF,
                 payload = new ArraySegment<byte>(new byte[] { 0x01, 0x02 })
             };
-
-            // serialize
-            var writer = new NetworkWriter();
-            message.Serialize(writer);
-            byte[] writerData = writer.ToArray();
-
-            // deserialize the same data - do we get the same result?
-            var fresh = new RpcMessage();
-            fresh.Deserialize(new NetworkReader(writerData));
+            byte[] arr = MessagePacker.Pack(message);
+            RpcMessage fresh = MessagePacker.Unpack<RpcMessage>(arr);
             Assert.That(fresh.netId, Is.EqualTo(message.netId));
             Assert.That(fresh.componentIndex, Is.EqualTo(message.componentIndex));
             Assert.That(fresh.functionHash, Is.EqualTo(message.functionHash));
@@ -181,17 +164,8 @@ namespace Mirror.Tests
                     scale = UnityEngine.Vector3.one,
                     payload = new ArraySegment<byte>(new byte[] { 0x01, 0x02 })
                 };
-
-                UnityEngine.Debug.Log($"sceneId:{message.sceneId} | assetId:{message.assetId}");
-
-                // serialize
-                var writer = new NetworkWriter();
-                message.Serialize(writer);
-                byte[] writerData = writer.ToArray();
-
-                // deserialize the same data - do we get the same result?
-                var fresh = new SpawnMessage();
-                fresh.Deserialize(new NetworkReader(writerData));
+                byte[] arr = MessagePacker.Pack(message);
+                SpawnMessage fresh = MessagePacker.Unpack<SpawnMessage>(arr);
                 Assert.That(fresh.netId, Is.EqualTo(message.netId));
                 Assert.That(fresh.isLocalPlayer, Is.EqualTo(message.isLocalPlayer));
                 Assert.That(fresh.isOwner, Is.EqualTo(message.isOwner));
@@ -219,15 +193,9 @@ namespace Mirror.Tests
                 functionHash = 0xABCDEF,
                 payload = new ArraySegment<byte>(new byte[] { 0x01, 0x02 })
             };
+            byte[] arr = MessagePacker.Pack(message);
+            SyncEventMessage fresh = MessagePacker.Unpack<SyncEventMessage>(arr);
 
-            // serialize
-            var writer = new NetworkWriter();
-            message.Serialize(writer);
-            byte[] writerData = writer.ToArray();
-
-            // deserialize the same data - do we get the same result?
-            var fresh = new SyncEventMessage();
-            fresh.Deserialize(new NetworkReader(writerData));
             Assert.That(fresh.netId, Is.EqualTo(message.netId));
             Assert.That(fresh.componentIndex, Is.EqualTo(message.componentIndex));
             Assert.That(fresh.functionHash, Is.EqualTo(message.functionHash));
@@ -246,15 +214,8 @@ namespace Mirror.Tests
                 netId = 42,
                 payload = new ArraySegment<byte>(new byte[] { 0x01, 0x02 })
             };
-
-            // serialize
-            var writer = new NetworkWriter();
-            message.Serialize(writer);
-            byte[] writerData = writer.ToArray();
-
-            // deserialize the same data - do we get the same result?
-            var fresh = new UpdateVarsMessage();
-            fresh.Deserialize(new NetworkReader(writerData));
+            byte[] arr = MessagePacker.Pack(message);
+            UpdateVarsMessage fresh = MessagePacker.Unpack<UpdateVarsMessage>(arr);
             Assert.That(fresh.netId, Is.EqualTo(message.netId));
             Assert.That(fresh.payload.Count, Is.EqualTo(message.payload.Count));
             for (int i = 0; i < fresh.payload.Count; ++i)

@@ -24,6 +24,19 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void UnpackWrongMessage()
+        {
+            ReadyMessage message = new ReadyMessage();
+
+            byte[] data = MessagePacker.Pack(message);
+
+            Assert.Throws<FormatException>(() =>
+            {
+                DisconnectMessage unpacked = MessagePacker.Unpack<DisconnectMessage>(data);
+            });
+        }
+
+        [Test]
         public void TestUnpackIdMismatch()
         {
             // Unpack<T> has a id != msgType case that throws a FormatException.
@@ -62,12 +75,12 @@ namespace Mirror.Tests
             var reader = new NetworkReader(data);
 
             int msgType = MessagePacker.UnpackId(reader);
-            Assert.That(msgType, Is.EqualTo(MessagePacker.GetId<SceneMessage>()));
+            Assert.That(msgType, Is.EqualTo(BitConverter.ToUInt16(data, 0)));
         }
 
         [Test]
-        public void TestUnpackInvalidMessage()
-        {
+        public void UnpackInvalidMessage()
+        { 
             // try an invalid message
             Assert.Throws<EndOfStreamException>(() =>
             {

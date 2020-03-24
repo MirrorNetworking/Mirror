@@ -1,25 +1,18 @@
 {
-    "name": "Mirror.Tests",
+    "name": "Mirror.Tests.Runtime",
     "references": [
         "Mirror",
-        "Mirror.Weaver",
+        "Mirror.Tests.Common",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "MirrorNG",
-        "Mirror.Tests.Common"
+        "UnityEditor.TestRunner"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "NSubstitute.dll",
-        "Castle.Core.dll",
-        "System.Threading.Tasks.Extensions.dll",
         "nunit.framework.dll",
-        "Mono.CecilX.dll"
+        "NSubstitute.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

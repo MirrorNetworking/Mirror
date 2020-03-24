@@ -5,8 +5,6 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
-
-using static Mirror.Tests.AsyncUtil;
 using UnityEngine.Events;
 
 namespace Mirror.Tests
@@ -187,6 +185,8 @@ namespace Mirror.Tests
         [TearDown]
         public void TearDown()
         {
+            // set isServer is false. otherwise Destroy instead of
+            // DestroyImmediate is called internally, giving an error in Editor
             GameObject.DestroyImmediate(gameObject);
             Object.DestroyImmediate(networkServerGameObject);
             Transport.activeTransport = null;

@@ -2,10 +2,11 @@
 
 [![SyncVar hook video tutorial](../../images/video_tutorial.png)](https://www.youtube.com/watch?v=T7AoozedYfI&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=5)
 
-The hook attribute can be used to specify a function to be called when the SyncVar changes value on the client.  This ensures that all clients receive the proper variables from other clients.
--   The Hook method must have a two parameters of the same type as the SyncVar property. One for the old value, one for the new value.
--   The Hook is always called after the value was set. You don't need to set it yourself.
+The hook attribute can be used to specify a function to be called when the SyncVar changes value on the client.
+-   The Hook method must have two parameters of the same type as the SyncVar property. One for the old value, one for the new value.
+-   The Hook is always called after the property value is set. You don't need to set it yourself.
 -   The Hook only fires for changed values, and changing a value in the inspector will not trigger an update.
+-   As of version 11.1.4 (March 2020) and later, hooks can be virtual methods and overriden in a derived class.
 
 Below is a simple example of assigning a random color to each player when they're spawned on the server.  All clients will see all players in the correct colors, even if they join later.
 
