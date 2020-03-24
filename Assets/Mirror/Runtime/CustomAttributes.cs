@@ -85,7 +85,7 @@ namespace Mirror
     /// <summary>
     /// Obsolete: Use SceneField instead.
     /// </summary>
-    [System.Obsolete("Use " + nameof(SceneField) + " Instead")]
+    [System.Obsolete("Use " + nameof(SceneField) + " Instead", true)]
     public class SceneAttribute : PropertyAttribute { }
 
     /// <summary>
