@@ -60,19 +60,11 @@ namespace Mirror
     };
     public static class QuaternionReadWrite
     {
-        public static RotationPrecision DefaultPrecision => RotationPrecision.Medium;
         const float MinValue = -1f / 1.414214f; // 1/ sqrt(2)
         const float MaxValue = 1f / 1.414214f;
         const float ValueRange = MaxValue - MinValue;
 
-        /// <summary>
-        /// Writes Quaternion using QuaternionReadWrite.DefaultPrecision
-        /// </summary>
-        public static void WriteQuaternion(this NetworkWriter writer, Quaternion value)
-        {
-            WriteQuaternion(writer, value, DefaultPrecision);
-        }
-
+       
         public static void WriteQuaternion(this NetworkWriter writer, Quaternion value, RotationPrecision precision)
         {
             value = value.normalized;
@@ -95,14 +87,6 @@ namespace Mirror
             }
         }
 
-
-        /// <summary>
-        /// Writes Quaternion using QuaternionReadWrite.DefaultPrecision
-        /// </summary>
-        public static Quaternion ReadQuaternion(this NetworkReader reader)
-        {
-            return ReadQuaternion(reader, DefaultPrecision);
-        }
 
         public static Quaternion ReadQuaternion(this NetworkReader reader, RotationPrecision precision)
         {
