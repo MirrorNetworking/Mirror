@@ -324,7 +324,6 @@ namespace Mirror
                     NetworkIdentity identity = roomPlayer.GetComponent<NetworkIdentity>();
 
                     NetworkIdentity playerController = identity.connectionToClient.identity;
-                    NetworkServer.Destroy(playerController.gameObject);
 
                     if (NetworkServer.active)
                     {
@@ -332,6 +331,13 @@ namespace Mirror
                         roomPlayer.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
                         NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
                     }
+
+                    // destroy the player AFTER we replaced the connection's
+                    // .identity object. ReplacePlayerForConnection will
+                    // internally remove authority of the old player, but if we
+                    // destroy it first then it operates on dead data and throws
+                    // errors because isServer is already false.
+                    NetworkServer.Destroy(playerController.gameObject);
                 }
 
                 allPlayersReady = false;
