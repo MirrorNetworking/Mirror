@@ -6,11 +6,11 @@ This is a bare bones example of a running game with Network Manager and UI prefa
 
 2.  Open the Example scene and build the project.
 
-3.  In the editor, click Play, and LAN Host or LAN Server...it will be listening on port 7777.  
-    - If you clicked LAN Host, the host player will appear as Player 00.
+3.  In the editor, click Play, and Server + Client or Server Only...it will be listening on port 7777.  
+    - If you clicked Host (Server + Client), the host player will appear as Player 00.
 
 4.  Run one or more instances (up to 16 total players) of the built application.
 
-5.  Click LAN Client on each instance.
+5.  Click Client on each instance.
 
 6.  Now you will see all players in the editor and the clients, all with data being updated and synchronized.
