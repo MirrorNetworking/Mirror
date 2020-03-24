@@ -23,6 +23,19 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void UnpackWrongMessage()
+        {
+            ConnectMessage message = new ConnectMessage();
+
+            byte[] data = MessagePacker.Pack(message);
+
+            Assert.Throws<FormatException>(() =>
+            {
+                DisconnectMessage unpacked = MessagePacker.Unpack<DisconnectMessage>(data);
+            });
+        }
+
+        [Test]
         public void TestUnpackIdMismatch()
         {
             // Unpack<T> has a id != msgType case that throws a FormatException.
