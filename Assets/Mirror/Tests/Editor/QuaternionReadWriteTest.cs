@@ -159,14 +159,14 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCaseSource(nameof(GetLargestIndeTestCases))]
-        public void findLargestIndexWork(Quaternion quaternion, int expected)
+        [TestCaseSource(nameof(GetLargestIndexTestCases))]
+        public void FindLargestIndexWork(Quaternion quaternion, int expected)
         {
             int largest = QuaternionReadWrite.FindLargestIndex(quaternion);
 
             Assert.That(largest, Is.EqualTo(expected));
         }
-        static object[] GetLargestIndeTestCases()
+        static object[] GetLargestIndexTestCases()
         {
             return new object[]
             {
