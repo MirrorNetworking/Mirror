@@ -44,6 +44,10 @@ namespace Mirror
         /// </summary>
         Medium,
         /// <summary>
+        /// Send 3 bytes, smallest rotation 0.0110 in range [-1,+1]
+        /// </summary>
+        Low,
+        /// <summary>
         /// Dont send rotation
         /// </summary>
         NoRotation,
@@ -78,6 +82,10 @@ namespace Mirror
             {
                 WriteQuaternionHalf(writer, largestIndex, small);
             }
+            else if (precision == RotationPrecision.Low)
+            {
+                WriteQuaternionLow(writer, largestIndex, small);
+            }
         }
 
         /// <summary>
@@ -96,6 +104,10 @@ namespace Mirror
             else if (precision == RotationPrecision.Medium)
             {
                 return ReadQuaternionHalf(reader);
+            }
+            else if (precision == RotationPrecision.Low)
+            {
+                return ReadQuaternionLow(reader);
             }
             else
             {
@@ -216,7 +228,54 @@ namespace Mirror
             return result;
         }
 
+        static void WriteQuaternionLow(NetworkWriter writer, int largestIndex, Vector3 small)
+        {
+            const int bitLength = 7;
+            uint a = ScaleToUInt(small.x, bitLength);
+            uint b = ScaleToUInt(small.y, bitLength);
+            uint c = ScaleToUInt(small.z, bitLength);
 
+            // first 7 bits of abc,
+            uint a1 = 127u & a;
+            uint b1 = 127u & b;
+            uint c1 = 127u & c;
+
+            // pack largestIndex info ab
+            a1 |= (((uint)largestIndex) & 1u) << 7;
+            //only move 6 as bit starts in 2nd position
+            b1 |= (((uint)largestIndex) & 2u) << 6;
+
+            writer.WriteByte((byte)a1);
+            writer.WriteByte((byte)b1);
+            writer.WriteByte((byte)c1);
+        }
+        static Quaternion ReadQuaternionLow(NetworkReader reader)
+        {
+            Quaternion result;
+            uint a1 = reader.ReadByte();
+            uint b1 = reader.ReadByte();
+            uint c1 = reader.ReadByte();
+
+            // last 2 bits
+            uint i1 = 128u & a1;
+            uint i2 = 128u & b1;
+            uint largestIndex = i1 >> 7 | i2 >> 6;
+
+            // first 7 bits
+            uint a = 127u & a1;
+            uint b = 127u & b1;
+            uint c = 127u & c1;
+
+            const int bitLength = 7;
+
+            float x = ScaleFromUInt(a, bitLength);
+            float y = ScaleFromUInt(b, bitLength);
+            float z = ScaleFromUInt(c, bitLength);
+
+            Vector3 small = new Vector3(x, y, z);
+            result = FromSmallerDimensions(largestIndex, small);
+            return result;
+        }
         internal static int FindLargestIndex(Quaternion q)
         {
             int index = 0;
@@ -234,7 +293,6 @@ namespace Mirror
 
             return index;
         }
-
 
         static Vector3 GetSmallerDimensions(int largestIndex, Quaternion value)
         {

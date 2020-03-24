@@ -9,6 +9,7 @@ namespace Mirror.Tests
     {
         internal const float FullPercision = 0.000000334f;
         internal const float HalfPercision = 0.00276f;
+        internal const float LowPercision = 0.0110f;
 
         [Test]
         [TestCaseSource(nameof(GetTestCases))]
@@ -102,11 +103,12 @@ namespace Mirror.Tests
             };
 
             int count = list.Count;
-            object[] cases = new object[count * 2];
+            object[] cases = new object[count * 3];
             for (int i = 0; i < count; i++)
             {
                 cases[i] = new object[] { list[i], RotationPrecision.Highest, FullPercision };
                 cases[i + count] = new object[] { list[i], RotationPrecision.Medium, HalfPercision };
+                cases[i + count*2] = new object[] { list[i], RotationPrecision.Low, HalfPercision };
             }
 
 
