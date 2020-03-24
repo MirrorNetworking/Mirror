@@ -642,7 +642,7 @@ namespace Mirror.Tests
 
             // removing authority while not isServer shouldn't work.
             // only allow it on server.
-            identity.netId = 0;
+            identity.isServer = false;
 
             // error log is expected
             LogAssert.ignoreFailingMessages = true;
@@ -652,7 +652,7 @@ namespace Mirror.Tests
             Assert.That(callbackCalled, Is.EqualTo(1));
 
             // enable isServer again
-            identity.netId = 42;
+            identity.isServer = true;
 
             // removing authority for the main player object shouldn't work
             // set connection's player object
