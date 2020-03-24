@@ -180,7 +180,7 @@ namespace Mirror.Tests
         [Test]
         public void TestServerUri()
         {
-            var uri = transport.ServerUri();
+            Uri uri = transport.ServerUri();
 
             Assert.That(uri.Port, Is.EqualTo(8798));
             Assert.That(uri.Host, Is.EqualTo(Dns.GetHostName()).IgnoreCase);
