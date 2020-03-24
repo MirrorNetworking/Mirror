@@ -20,18 +20,25 @@ namespace Mirror
         Q * vec3 == (-Q) * vec3
 
 
-        With no precision loss 
+        smallest rotation = 2/sqrt(2) / (2^bitCount - 1)
 
-        22 bits per value (32 * 0.707)
-        2 + 22 * 3 = 70 bits => send 9 bytes
+        23 bits per value (32 * 0.707)
+        2 + 23 * 3 = 71 bits => send 9 bytes
+        smallest rotation +-0.000000169 in range [-1,+1]
 
-        9 bits per value
-        2 + 9 * 3 = 29 bits => send 4 bytes
+        10 bits per value
+        2 + 10 * 3 = 32 bits => send 4 bytes
+        smallest rotation +-0.00138 in range [-1,+1]
+
+        7 bits per value
+        2 + 7 * 3 = 23 bits => send 3 bytes
+        smallest rotation +-0.0110 in range [-1,+1]
 
         Links for more info
         https://youtu.be/Z9X4lysFr64
         https://gafferongames.com/post/snapshot_compression/
          */
+
 
     public enum RotationPrecision
     {
