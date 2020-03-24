@@ -132,11 +132,11 @@ namespace Mirror
 
             for (int i = 0; i < syncListFields.Count; i++)
             {
-                drawSyncList(syncListFields[i]);
+                DrawSyncList(syncListFields[i]);
             }
         }
 
-        void drawSyncList(SyncListField syncListField)
+        void DrawSyncList(SyncListField syncListField)
         {
             syncListField.visible = EditorGUILayout.Foldout(syncListField.visible, syncListField.label);
             if (syncListField.visible)
