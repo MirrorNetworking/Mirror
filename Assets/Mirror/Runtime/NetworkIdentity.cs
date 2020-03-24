@@ -510,10 +510,7 @@ namespace Mirror
             if (isServer)
                 return;
 
-            // set isServer flag.
-            // note that UNET previously had a netId != 0 check for isServer to
-            // be true. but if we get here, then netId will be set to != 0 no
-            // matter what. so the check is not necessary, this is fine.
+            // set isServer flag
             isServer = true;
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
