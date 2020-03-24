@@ -267,7 +267,7 @@ namespace Mirror
                     c = z;
                     break;
                 default:
-                    throw new System.ArgumentException("LargestIndex did not have value between 0 and 3");
+                    return Vector3.zero;
             }
             // largest needs to be positive to be calculated by reader 
             // if largest is negative flip sign of others
@@ -309,7 +309,7 @@ namespace Mirror
                     w = largest;
                     break;
                 default:
-                    throw new System.ArgumentException("LargestIndex did not have value between 0 and 3");
+                    return Quaternion.identity;
             }
             // 0.999999f is tolerance for Unity's Dot function
             Debug.Assert(x * x + y * y + z * z + w * w < (2 - 0.999999f), "larger than 1");
