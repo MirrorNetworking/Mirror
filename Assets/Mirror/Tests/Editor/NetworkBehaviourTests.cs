@@ -235,10 +235,9 @@ namespace Mirror.Tests
         [TearDown]
         public void TearDown()
         {
-            // reset netId so that isServer is false. otherwise Destroy instead
-            // of DestroyImmediate is called internally, giving an error in
-            // Editor tests
-            identity.netId = 0;
+            // set isServer is false. otherwise Destroy instead of
+            // DestroyImmediate is called internally, giving an error in Editor
+            identity.isServer = false;
             GameObject.DestroyImmediate(gameObject);
             NetworkServer.RemoveLocalConnection();
         }
