@@ -392,24 +392,6 @@ namespace Mirror.Tests
             }
         }
 
-        [Test]
-        public void TestQuaternion()
-        {
-            Quaternion[] inputs = {
-                Quaternion.identity,
-                default,
-                Quaternion.LookRotation(new Vector3(0.3f,0.4f,0.5f)),
-                Quaternion.Euler(45f,56f,Mathf.PI)
-            };
-            foreach (Quaternion input in inputs)
-            {
-                NetworkWriter writer = new NetworkWriter();
-                writer.WriteQuaternion(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
-                Quaternion output = reader.ReadQuaternion();
-                Assert.That(output, Is.EqualTo(input));
-            }
-        }
 
         [Test]
         public void TestRect()

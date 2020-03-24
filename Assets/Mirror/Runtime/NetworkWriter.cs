@@ -451,14 +451,6 @@ namespace Mirror
             writer.WriteByte(value.a);
         }
 
-        public static void WriteQuaternion(this NetworkWriter writer, Quaternion value)
-        {
-            writer.WriteSingle(value.x);
-            writer.WriteSingle(value.y);
-            writer.WriteSingle(value.z);
-            writer.WriteSingle(value.w);
-        }
-
         public static void WriteRect(this NetworkWriter writer, Rect value)
         {
             writer.WriteSingle(value.xMin);
