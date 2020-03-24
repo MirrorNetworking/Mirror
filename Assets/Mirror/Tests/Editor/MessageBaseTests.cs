@@ -46,14 +46,8 @@ namespace Mirror.Tests
         [Test]
         public void Roundtrip()
         {
-            NetworkWriter w = new NetworkWriter();
-            w.WriteMessage(new TestMessage(1, "2", 3.3));
-
-            byte[] arr = w.ToArray();
-
-            NetworkReader r = new NetworkReader(arr);
-            TestMessage t = new TestMessage();
-            t.Deserialize(r);
+            byte[] arr = MessagePacker.Pack(new TestMessage(1, "2", 3.3));
+            TestMessage t = MessagePacker.Unpack<TestMessage>(arr);
 
             Assert.AreEqual(1, t.IntValue);
         }
@@ -61,14 +55,8 @@ namespace Mirror.Tests
         [Test]
         public void WovenSerializationBodyRoundtrip()
         {
-            NetworkWriter w = new NetworkWriter();
-            w.WriteMessage(new WovenTestMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
-
-            byte[] arr = w.ToArray();
-
-            NetworkReader r = new NetworkReader(arr);
-            WovenTestMessage t = new WovenTestMessage();
-            t.Deserialize(r);
+            byte[] arr = MessagePacker.Pack(new WovenTestMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
+            WovenTestMessage t = MessagePacker.Unpack<WovenTestMessage>(arr);
 
             Assert.AreEqual(1, t.IntValue);
             Assert.AreEqual("2", t.StringValue);
