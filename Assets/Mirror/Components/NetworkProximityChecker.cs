@@ -109,44 +109,12 @@ namespace Mirror
             switch (ActualCheckMethod)
             {
                 case CheckMethod.Physics3D:
-                    {
-                        // cast without allocating GC for maximum performance
-                        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, VisibilityRange, hitsBuffer3D, CastLayers);
-                        if (hitCount == hitsBuffer3D.Length) Debug.LogWarning("NetworkProximityChecker's OverlapSphere test for " + name + " has filled the whole buffer(" + hitsBuffer3D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
-
-                        for (int i = 0; i < hitCount; i++)
-                        {
-                            Collider hit = hitsBuffer3D[i];
-                            // collider might be on pelvis, often the NetworkIdentity is in a parent
-                            // (looks in the object itself and then parents)
-                            NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
-                            // (if an object has a connectionToClient, it is a player)
-                            if (identity != null && identity.connectionToClient != null)
-                            {
-                                observers.Add(identity.connectionToClient);
-                            }
-                        }
-                        break;
-                    }
+                    Add3dHits(observers);
+                    break;
 
                 case CheckMethod.Physics2D:
                     {
-                        // cast without allocating GC for maximum performance
-                        int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, VisibilityRange, hitsBuffer2D, CastLayers);
-                        if (hitCount == hitsBuffer2D.Length) Debug.LogWarning("NetworkProximityChecker's OverlapCircle test for " + name + " has filled the whole buffer(" + hitsBuffer2D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
-
-                        for (int i = 0; i < hitCount; i++)
-                        {
-                            Collider2D hit = hitsBuffer2D[i];
-                            // collider might be on pelvis, often the NetworkIdentity is in a parent
-                            // (looks in the object itself and then parents)
-                            NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
-                            // (if an object has a connectionToClient, it is a player)
-                            if (identity != null && identity.connectionToClient != null)
-                            {
-                                observers.Add(identity.connectionToClient);
-                            }
-                        }
+                        Add2dHits(observers);
                         break;
                     }
             }
@@ -154,6 +122,46 @@ namespace Mirror
             // always return true when overwriting OnRebuildObservers so that
             // Mirror knows not to use the built in rebuild method.
             return true;
+        }
+
+        private void Add3dHits(HashSet<NetworkConnection> observers)
+        {
+            // cast without allocating GC for maximum performance
+            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, VisibilityRange, hitsBuffer3D, CastLayers);
+            if (hitCount == hitsBuffer3D.Length) Debug.LogWarning("NetworkProximityChecker's OverlapSphere test for " + name + " has filled the whole buffer(" + hitsBuffer3D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                Collider hit = hitsBuffer3D[i];
+                // collider might be on pelvis, often the NetworkIdentity is in a parent
+                // (looks in the object itself and then parents)
+                NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
+                // (if an object has a connectionToClient, it is a player)
+                if (identity != null && identity.connectionToClient != null)
+                {
+                    observers.Add(identity.connectionToClient);
+                }
+            }
+        }
+
+        private void Add2dHits(HashSet<NetworkConnection> observers)
+        {
+            // cast without allocating GC for maximum performance
+            int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, VisibilityRange, hitsBuffer2D, CastLayers);
+            if (hitCount == hitsBuffer2D.Length) Debug.LogWarning("NetworkProximityChecker's OverlapCircle test for " + name + " has filled the whole buffer(" + hitsBuffer2D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                Collider2D hit = hitsBuffer2D[i];
+                // collider might be on pelvis, often the NetworkIdentity is in a parent
+                // (looks in the object itself and then parents)
+                NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
+                // (if an object has a connectionToClient, it is a player)
+                if (identity != null && identity.connectionToClient != null)
+                {
+                    observers.Add(identity.connectionToClient);
+                }
+            }
         }
 
         /// <summary>
