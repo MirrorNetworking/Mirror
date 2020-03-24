@@ -72,7 +72,7 @@ namespace Mirror
         //
         // IMPORTANT: checking NetworkServer.active means that isServer is false in OnDestroy:
         //   public bool isServer => NetworkServer.active && netId != 0;
-        // but we need it in OnDestroy, e.g. when saving skillbars on quit. this
+        // but we need it in OnDestroy, e.g. when saving players on quit. this
         // works fine if we keep the UNET way of setting isServer manually.
         // => fixes https://github.com/vis2k/Mirror/issues/1484
         public bool isServer
