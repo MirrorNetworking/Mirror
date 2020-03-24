@@ -41,12 +41,12 @@ namespace Mirror.Examples.NetworkRoom
         public float maxTurnSpeed = 150f;
 
         [Header("Diagnostics")]
-        public float horizontal = 0f;
-        public float vertical = 0f;
-        public float turn = 0f;
-        public float jumpSpeed = 0f;
+        public float horizontal;
+        public float vertical;
+        public float turn;
+        public float jumpSpeed;
         public bool isGrounded = true;
-        public bool isFalling = false;
+        public bool isFalling;
         public Vector3 velocity;
 
         void Update()
