@@ -43,7 +43,7 @@ namespace Mirror
         /// <summary>
         /// The NetworkConnection object this client is using.
         /// </summary>
-        public NetworkConnection connection { get; internal set; }
+        public NetworkConnectionToServer connection { get; internal set; }
 
         /// <summary>
         /// NetworkIdentity of the localPlayer
@@ -257,7 +257,7 @@ namespace Mirror
             Connected.Invoke((NetworkConnectionToServer)connection);
         }
 
-        void OnAuthenticated(NetworkConnectionToServer conn)
+        public void OnAuthenticated(NetworkConnectionToServer conn)
         {
             // set connection to authenticated
             conn.isAuthenticated = true;
@@ -420,7 +420,7 @@ namespace Mirror
         /// <param name="readyConn">The connection to become ready for this client.</param>
         /// <param name="extraData">An extra message object that can be passed to the server for this player.</param>
         /// <returns>True if player was added.</returns>
-        public bool AddPlayer(NetworkConnection readyConn)
+        public bool AddPlayer(NetworkConnectionToServer readyConn)
         {
             // ensure valid ready connection
             if (readyConn != null)
@@ -476,7 +476,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">The client connection which is ready.</param>
         /// <returns>True if succcessful</returns>
-        public bool Ready(NetworkConnection conn)
+        public bool Ready(NetworkConnectionToServer conn)
         {
             if (ready)
             {

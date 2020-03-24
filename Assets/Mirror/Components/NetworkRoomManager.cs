@@ -76,6 +76,11 @@ namespace Mirror
         [Tooltip("List of Room Player objects")]
         public List<NetworkRoomPlayer> RoomSlots = new List<NetworkRoomPlayer>();
 
+        void Awake()
+        {
+            client.Authenticated.AddListener(OnAuthenticated);
+        }
+
         public override void Start()
         {
             base.Start();
@@ -429,11 +434,10 @@ namespace Mirror
         /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
         /// </summary>
         /// <param name="conn">Connection to the server.</param>
-        public override void OnClientConnect(NetworkConnection conn)
+        public void OnAuthenticated(NetworkConnection conn)
         {
             OnRoomClientConnect(conn);
             CallOnClientEnterRoom();
-            base.OnClientConnect(conn);
         }
 
         /// <summary>
@@ -462,7 +466,7 @@ namespace Mirror
         /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
         /// </summary>
         /// <param name="conn">Connection of the client</param>
-        public override void OnClientSceneChanged(NetworkConnection conn)
+        public override void OnClientSceneChanged(NetworkConnectionToServer conn)
         {
             if (SceneManager.GetActiveScene().name == RoomScene)
             {
