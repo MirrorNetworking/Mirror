@@ -82,7 +82,7 @@ namespace Mirror
 
         #region SyncVar Hooks
 
-        void ReadyStateChanged(bool oldReadyState, bool newReadyState)
+        void ReadyStateChanged(bool _, bool newReadyState)
         {
             OnClientReady(newReadyState);
         }
@@ -129,43 +129,52 @@ namespace Mirror
                 if (SceneManager.GetActiveScene().name != roomManager.RoomScene)
                     return;
 
-                GUILayout.BeginArea(new Rect(20f + (Index * 100), 200f, 90f, 130f));
+                DrawPlayerReadyState();
+                DrawPlayerReadyButton();
+            }
+        }
 
-                GUILayout.Label($"Player [{Index + 1}]");
+        void DrawPlayerReadyButton()
+        {
+            if (client.active && isLocalPlayer)
+            {
+                GUILayout.BeginArea(new Rect(20f, 300f, 120f, 20f));
 
                 if (ReadyToBegin)
-                    GUILayout.Label("Ready");
-                else
-                    GUILayout.Label("Not Ready");
-
-                if (((isServer && Index > 0) || isServerOnly) && GUILayout.Button("REMOVE"))
                 {
-                    // This button only shows on the Host for all players other than the Host
-                    // Host and Players can't remove themselves (stop the client instead)
-                    // Host can kick a Player this way.
-                    GetComponent<NetworkIdentity>().connectionToClient.Disconnect();
+                    if (GUILayout.Button("Cancel"))
+                        CmdChangeReadyState(false);
+                }
+                else
+                {
+                    if (GUILayout.Button("Ready"))
+                        CmdChangeReadyState(true);
                 }
 
                 GUILayout.EndArea();
-
-                if (client.active && isLocalPlayer)
-                {
-                    GUILayout.BeginArea(new Rect(20f, 300f, 120f, 20f));
-
-                    if (ReadyToBegin)
-                    {
-                        if (GUILayout.Button("Cancel"))
-                            CmdChangeReadyState(false);
-                    }
-                    else
-                    {
-                        if (GUILayout.Button("Ready"))
-                            CmdChangeReadyState(true);
-                    }
-
-                    GUILayout.EndArea();
-                }
             }
+        }
+
+        void DrawPlayerReadyState()
+        {
+            GUILayout.BeginArea(new Rect(20f + (Index * 100), 200f, 90f, 130f));
+
+            GUILayout.Label($"Player [{Index + 1}]");
+
+            if (ReadyToBegin)
+                GUILayout.Label("Ready");
+            else
+                GUILayout.Label("Not Ready");
+
+            if (((isServer && Index > 0) || isServerOnly) && GUILayout.Button("REMOVE"))
+            {
+                // This button only shows on the Host for all players other than the Host
+                // Host and Players can't remove themselves (stop the client instead)
+                // Host can kick a Player this way.
+                GetComponent<NetworkIdentity>().connectionToClient.Disconnect();
+            }
+
+            GUILayout.EndArea();
         }
 
         #endregion

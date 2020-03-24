@@ -59,6 +59,12 @@ dotnet_naming_rule.constant_fields_should_be_pascal_case.style = pascal_case_sty
 dotnet_naming_symbols.constant_fields.applicable_kinds = field 
 dotnet_naming_symbols.constant_fields.applicable_accessibilities = * 
 dotnet_naming_symbols.constant_fields.required_modifiers = const 
+dotnet_naming_rule.method_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.method_should_be_pascal_case.symbols = method
+dotnet_naming_rule.method_should_be_pascal_case.style = pascal_case_style
+dotnet_naming_symbols.method.applicable_kinds = method
+dotnet_naming_symbols.method.applicable_accessibilities = *
+dotnet_naming_symbols.method.required_modifiers = 
 ############################### 
 # C# Coding Conventions       # 
 ############################### 
