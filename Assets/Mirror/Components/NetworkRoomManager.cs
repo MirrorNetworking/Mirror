@@ -47,8 +47,8 @@ namespace Mirror
         /// The scene to use for the room. This is similar to the offlineScene of the NetworkManager.
         /// </summary>
         public SceneField RoomSceneField;
-        [Scene]
-        [Obsolete("Use RoomSceneField Instead", true)]
+
+        [Obsolete("Use RoomSceneField Instead")]
         [HideInInspector]
         public string RoomScene;
 
@@ -56,8 +56,8 @@ namespace Mirror
         /// The scene to use for the playing the game from the room. This is similar to the onlineScene of the NetworkManager.
         /// </summary>
         public SceneField GameplaySceneField;
-        [Scene]
-        [Obsolete("Use GameplaySceneField Instead", true)]
+
+        [Obsolete("Use GameplaySceneField Instead")]
         [HideInInspector] 
         public string GameplayScene;
 
@@ -104,18 +104,13 @@ namespace Mirror
             }
 
 #pragma warning disable CS0618 // Type or member is obsolete
-            fixSceneFields();
+            SceneFieldFixer.FixField(this, nameof(GameplayScene), nameof(GameplaySceneField));
+            SceneFieldFixer.FixField(this, nameof(RoomScene), nameof(RoomSceneField));
 #pragma warning restore CS0618 // Type or member is obsolete
 
             base.OnValidate();
         }
 
-        [System.Obsolete("Fixing Obsolete fields")]
-        void fixSceneFields()
-        {
-            SceneFieldFixer.FixField(this, nameof(GameplayScene), nameof(GameplaySceneField));
-            SceneFieldFixer.FixField(this, nameof(RoomScene), nameof(RoomSceneField));
-        }
 
         internal void ReadyStatusChanged()
         {

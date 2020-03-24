@@ -7,8 +7,17 @@ namespace Mirror.Examples.Additive
     [AddComponentMenu("")]
     public class AdditiveNetworkManager : NetworkManager
     {
+        [HideInInspector, System.Obsolete("Use subSceneFields Instead")]
+        public string[] subScenes;
+
         [Tooltip("Add all sub-scenes to this list")]
-        public SceneField[] subScenes;
+        public SceneField[] subSceneFields;
+
+        public override void OnValidate()
+        {
+            base.OnValidate();
+            SceneFieldFixer.FixArrayField(this, nameof(subScenes), nameof(subSceneFields));
+        }
 
         public override void OnStartServer()
         {
@@ -22,7 +31,7 @@ namespace Mirror.Examples.Additive
         {
             if (LogFilter.Debug) Debug.Log("Loading Scenes");
 
-            foreach (SceneField scene in subScenes)
+            foreach (SceneField scene in subSceneFields)
             {
                 if (scene.HasValue())
                 {
@@ -46,7 +55,7 @@ namespace Mirror.Examples.Additive
         {
             if (LogFilter.Debug) Debug.Log("Unloading Subscenes");
 
-            foreach (SceneField scene in subScenes)
+            foreach (SceneField scene in subSceneFields)
             {
                 if (SceneManager.GetSceneByPath(scene.Path).IsValid())
                 {

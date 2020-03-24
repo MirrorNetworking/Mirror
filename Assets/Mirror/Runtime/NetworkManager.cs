@@ -68,8 +68,7 @@ namespace Mirror
         [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
         public SceneField offlineSceneField;
 
-        [Scene]
-        [Obsolete("Use offlineSceneAsset Instead", true)]
+        [Obsolete("Use offlineSceneAsset Instead")]
         [HideInInspector]
         [FormerlySerializedAs("m_OfflineScene")]
         public string offlineScene = "";
@@ -81,8 +80,7 @@ namespace Mirror
         [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
         public SceneField onlineSceneField;
 
-        [Scene]
-        [Obsolete("Use onlineSceneField Instead", true)]
+        [Obsolete("Use onlineSceneField Instead")]
         [HideInInspector]
         [FormerlySerializedAs("m_OnlineScene")]
         public string onlineScene = "";
@@ -215,16 +213,11 @@ namespace Mirror
             }
 
 #pragma warning disable CS0618 // Type or member is obsolete
-            fixSceneFields();
+            SceneFieldFixer.FixField(this, nameof(offlineScene), nameof(offlineSceneField));
+            SceneFieldFixer.FixField(this, nameof(onlineScene), nameof(onlineSceneField));
 #pragma warning restore CS0618 // Type or member is obsolete
         }
         
-        [System.Obsolete("Fixing Obsolete fields")]
-        void fixSceneFields()
-        {
-            SceneFieldFixer.FixField(this, nameof(offlineScene), nameof(offlineSceneField));
-            SceneFieldFixer.FixField(this, nameof(onlineScene), nameof(onlineSceneField));
-        }
 
         /// <summary>
         /// virtual so that inheriting classes' Awake() can call base.Awake() too
