@@ -64,7 +64,9 @@ namespace Mirror
         const float MaxValue = 1f / 1.414214f;
         const float ValueRange = MaxValue - MinValue;
 
-       
+        /// <summary>
+        /// Used to Compress Quaternion into [Highest 9 bytes, Medium 4 bytes, Low 3 bytes, NoRotation 0 bytes]
+        /// </summary>
         public static void WriteQuaternion(this NetworkWriter writer, Quaternion value, RotationPrecision precision)
         {
             value = value.normalized;
@@ -87,7 +89,10 @@ namespace Mirror
             }
         }
 
-
+        /// <summary>
+        /// Used to read a Compressed Quaternion [Highest 9 bytes, Medium 4 bytes, Low 3 bytes, NoRotation 0 bytes]
+        /// <para>Quaternion is normalised</para>
+        /// </summary>
         public static Quaternion ReadQuaternion(this NetworkReader reader, RotationPrecision precision)
         {
             if (precision == RotationPrecision.Highest)
