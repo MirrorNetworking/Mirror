@@ -105,8 +105,8 @@ namespace Mirror.Tests
             object[] cases = new object[count * 2];
             for (int i = 0; i < count; i++)
             {
-                cases[i] = new object[] { list[i], RotationPrecision.Full, FullPercision };
-                cases[i + count] = new object[] { list[i], RotationPrecision.Half, HalfPercision };
+                cases[i] = new object[] { list[i], RotationPrecision.Highest, FullPercision };
+                cases[i + count] = new object[] { list[i], RotationPrecision.Medium, HalfPercision };
             }
 
 
@@ -118,7 +118,7 @@ namespace Mirror.Tests
         public void WriteQuaternionCorrectLengthForFull()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteQuaternion(Quaternion.identity, RotationPrecision.Full);
+            writer.WriteQuaternion(Quaternion.identity, RotationPrecision.Highest);
 
             Assert.That(writer.ToArray().Length, Is.EqualTo(9));
         }
@@ -126,7 +126,7 @@ namespace Mirror.Tests
         public void WriteQuaternionCorrectLengthForHalf()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteQuaternion(Quaternion.identity, RotationPrecision.Half);
+            writer.WriteQuaternion(Quaternion.identity, RotationPrecision.Medium);
 
             Assert.That(writer.ToArray().Length, Is.EqualTo(4));
         }

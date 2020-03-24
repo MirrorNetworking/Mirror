@@ -36,13 +36,13 @@ namespace Mirror
     public enum RotationPrecision
     {
         /// <summary>
-        /// Send 9 bytes, smallest rotation 0.000000334
+        /// Send 9 bytes, smallest rotation 0.000000169 in range [-1,+1]
         /// </summary>
-        Full,
+        Highest,
         /// <summary>
-        /// Send 4 bytes, smallest rotation 0.00276
+        /// Send 4 bytes, smallest rotation 0.00138 in range [-1,+1]
         /// </summary>
-        Half,
+        Medium,
         /// <summary>
         /// Dont send rotation
         /// </summary>
@@ -50,7 +50,7 @@ namespace Mirror
     };
     public static class QuaternionReadWrite
     {
-        public static RotationPrecision DefaultPrecision => RotationPrecision.Half;
+        public static RotationPrecision DefaultPrecision => RotationPrecision.Medium;
         const float MinValue = -1f / 1.414214f; // 1/ sqrt(2)
         const float MaxValue = 1f / 1.414214f;
         const float ValueRange = MaxValue - MinValue;
@@ -70,11 +70,11 @@ namespace Mirror
             Vector3 small = GetSmallerDimensions(largestIndex, value);
 
 
-            if (precision == RotationPrecision.Full)
+            if (precision == RotationPrecision.Highest)
             {
                 WriteQuaternionFull(writer, largestIndex, small);
             }
-            else if (precision == RotationPrecision.Half)
+            else if (precision == RotationPrecision.Medium)
             {
                 WriteQuaternionHalf(writer, largestIndex, small);
             }
@@ -89,11 +89,11 @@ namespace Mirror
         }
         public static Quaternion ReadQuaternion(this NetworkReader reader, RotationPrecision precision)
         {
-            if (precision == RotationPrecision.Full)
+            if (precision == RotationPrecision.Highest)
             {
                 return ReadQuaternionFull(reader);
             }
-            else if (precision == RotationPrecision.Half)
+            else if (precision == RotationPrecision.Medium)
             {
                 return ReadQuaternionHalf(reader);
             }
