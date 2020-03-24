@@ -38,5 +38,12 @@ namespace Mirror
         /// </summary>
         /// <returns>The connection to a client</returns>
         public abstract Task<IConnection> AcceptAsync();
+
+        /// <summary>
+        /// Retrieves the address of this server.
+        /// Useful for network discovery
+        /// </summary>
+        /// <returns>the url at which this server can be reached</returns>
+        public abstract Uri ServerUri();
     }
 }

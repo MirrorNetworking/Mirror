@@ -5,6 +5,7 @@ using UnityEngine.TestTools;
 using Mirror.AsyncTcp;
 using System.Text;
 using System.IO;
+using System.Net;
 
 using static Mirror.Tests.AsyncUtil;
 using System;
@@ -149,5 +150,18 @@ namespace Mirror.Tests
             });
         }
 
+        [Test]
+        public void TestServerUri()
+        {
+            var uri = transport.ServerUri();
+
+            Assert.That(uri.Port, Is.EqualTo(8798));
+            Assert.That(uri.Host, Is.EqualTo(Dns.GetHostName()).IgnoreCase);
+            Assert.That(uri.Scheme, Is.EqualTo("tcp4"));
+
+        }
+
     }
+
 }
+

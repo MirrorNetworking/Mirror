@@ -1,5 +1,6 @@
 
 using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -45,6 +46,18 @@ namespace Mirror.AsyncTcp
         {
             TcpClient client = await listener.AcceptTcpClientAsync();
             return new TcpConnection(client);
+        }
+
+        public override Uri ServerUri()
+        {
+            var builder = new UriBuilder
+            {
+                Host = Dns.GetHostName(),
+                Port = this.Port,
+                Scheme = "tcp4"
+            };
+
+            return builder.Uri;
         }
     }
 }
