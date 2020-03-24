@@ -221,28 +221,19 @@ namespace Mirror
                 {
                     int newIntValue = animator.GetInteger(par.nameHash);
                     changed = newIntValue != lastIntParameters[i];
-                    if (changed)
-                    {
-                        lastIntParameters[i] = newIntValue;
-                    }
+                    lastIntParameters[i] = newIntValue;
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = animator.GetFloat(par.nameHash);
                     changed = Mathf.Abs(newFloatValue - lastFloatParameters[i]) > 0.001f;
-                    if (changed)
-                    {
-                        lastFloatParameters[i] = newFloatValue;
-                    }
+                    lastFloatParameters[i] = newFloatValue;
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = animator.GetBool(par.nameHash);
                     changed = newBoolValue != lastBoolParameters[i];
-                    if (changed)
-                    {
-                        lastBoolParameters[i] = newBoolValue;
-                    }
+                    lastBoolParameters[i] = newBoolValue;
                 }
                 if (changed)
                 {
