@@ -29,6 +29,20 @@ namespace Mirror.Weaver
             return null;
         }
 
+        public static MethodReference ResolveMethod(TypeReference t, AssemblyDefinition scriptDef, System.Func<MethodDefinition, bool> predicate)
+        {
+            foreach (MethodDefinition methodRef in t.Resolve().Methods)
+            {
+                if (predicate(methodRef))
+                {
+                    return scriptDef.MainModule.ImportReference(methodRef);
+                }
+            }
+
+            Weaver.Error($"Method not found");
+            return null;
+        }
+
         // TODO reuse ResolveMethod in here after Weaver.fail was removed
         public static MethodReference ResolveMethodInParents(TypeReference tr, AssemblyDefinition scriptDef, string name)
         {
@@ -111,20 +125,6 @@ namespace Mirror.Weaver
             }
 
             Weaver.Error($"{t}.{name}<{genericType}>() not found");
-            return null;
-        }
-
-        public static MethodReference ResolveMethod(TypeReference t, AssemblyDefinition scriptDef, System.Func<MethodDefinition, bool> predicate)
-        {
-            foreach (MethodDefinition methodRef in t.Resolve().Methods)
-            {
-                if (predicate(methodRef))
-                {
-                    return scriptDef.MainModule.ImportReference(methodRef);
-                }
-            }
-
-            Weaver.Error($"Method not found");
             return null;
         }
 
