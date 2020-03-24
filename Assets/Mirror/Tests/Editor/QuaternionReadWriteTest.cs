@@ -43,7 +43,7 @@ namespace Mirror.Tests
 
         internal static void AssertPrecision(Quaternion inRot, Quaternion outRot, float percision)
         {
-            int largest = QuaternionReadWrite.findLargestIndex(inRot);
+            int largest = QuaternionReadWrite.FindLargestIndex(inRot);
             float sign = Mathf.Sign(inRot[largest]);
             // flip sign of A if largest is is negative
             // Q == (-Q)
@@ -143,7 +143,7 @@ namespace Mirror.Tests
         [TestCaseSource(nameof(GetLargestIndeTestCases))]
         public void findLargestIndexWork(Quaternion quaternion, int expected)
         {
-            int largest = QuaternionReadWrite.findLargestIndex(quaternion);
+            int largest = QuaternionReadWrite.FindLargestIndex(quaternion);
 
             Assert.That(largest, Is.EqualTo(expected));
         }

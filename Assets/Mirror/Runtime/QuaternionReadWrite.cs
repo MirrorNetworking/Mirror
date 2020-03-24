@@ -66,8 +66,8 @@ namespace Mirror
         {
             value = value.normalized;
 
-            int largestIndex = findLargestIndex(value);
-            Vector3 small = getSmallerDimensions(largestIndex, value);
+            int largestIndex = FindLargestIndex(value);
+            Vector3 small = GetSmallerDimensions(largestIndex, value);
 
 
             if (precision == RotationPrecision.Full)
@@ -107,9 +107,9 @@ namespace Mirror
         {
             // 22 bits
             int bitLength = 22;
-            uint a = scaleToUInt(small.x, bitLength);
-            uint b = scaleToUInt(small.y, bitLength);
-            uint c = scaleToUInt(small.z, bitLength);
+            uint a = ScaleToUInt(small.x, bitLength);
+            uint b = ScaleToUInt(small.y, bitLength);
+            uint c = ScaleToUInt(small.z, bitLength);
 
             // pack largestIndex info a
             a |= ((uint)largestIndex) << 22;
@@ -151,9 +151,9 @@ namespace Mirror
 
             const int bitLength = 22;
 
-            float x = scaleFromUInt(a, bitLength);
-            float y = scaleFromUInt(b, bitLength);
-            float z = scaleFromUInt(c, bitLength);
+            float x = ScaleFromUInt(a, bitLength);
+            float y = ScaleFromUInt(b, bitLength);
+            float z = ScaleFromUInt(c, bitLength);
 
             Vector3 small = new Vector3(x, y, z);
             result = FromSmallerDimensions(largestIndex, small);
@@ -164,9 +164,9 @@ namespace Mirror
         {
             // 22 bits
             int bitLength = 9;
-            uint a = scaleToUInt(small.x, bitLength);
-            uint b = scaleToUInt(small.y, bitLength);
-            uint c = scaleToUInt(small.z, bitLength);
+            uint a = ScaleToUInt(small.x, bitLength);
+            uint b = ScaleToUInt(small.y, bitLength);
+            uint c = ScaleToUInt(small.z, bitLength);
 
             // split abc into 8+1 bits, pack extra 1 bit with largestIndex
             uint a1 = byte.MaxValue & a;
@@ -207,9 +207,9 @@ namespace Mirror
 
             const int bitLength = 9;
 
-            float x = scaleFromUInt(a, bitLength);
-            float y = scaleFromUInt(b, bitLength);
-            float z = scaleFromUInt(c, bitLength);
+            float x = ScaleFromUInt(a, bitLength);
+            float y = ScaleFromUInt(b, bitLength);
+            float z = ScaleFromUInt(c, bitLength);
 
             Vector3 small = new Vector3(x, y, z);
             result = FromSmallerDimensions(largestIndex, small);
@@ -217,7 +217,7 @@ namespace Mirror
         }
 
 
-        internal static int findLargestIndex(Quaternion q)
+        internal static int FindLargestIndex(Quaternion q)
         {
             int index = 0;
             float current = Mathf.Abs(q.x);
@@ -236,7 +236,7 @@ namespace Mirror
         }
 
 
-        static Vector3 getSmallerDimensions(int largestIndex, Quaternion value)
+        static Vector3 GetSmallerDimensions(int largestIndex, Quaternion value)
         {
             float x = value.x;
             float y = value.y;
@@ -317,7 +317,7 @@ namespace Mirror
         }
 
 
-        static uint scaleToUInt(float value, int targetBitLength)
+        static uint ScaleToUInt(float value, int targetBitLength)
         {
             // same as Mathf.Pow(2, targetBitLength) - 1
             int targetRange = (1 << targetBitLength) - 1;
@@ -330,7 +330,7 @@ namespace Mirror
 
             return (uint)outValue;
         }
-        static float scaleFromUInt(uint source, int sourceBitLength)
+        static float ScaleFromUInt(uint source, int sourceBitLength)
         {
             // same as Mathf.Pow(2, targetBitLength) - 1
             int sourceRange = (1 << sourceBitLength) - 1;
