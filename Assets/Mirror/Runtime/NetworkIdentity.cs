@@ -65,7 +65,6 @@ namespace Mirror
         // => fixes https://github.com/vis2k/Mirror/issues/1475
         public bool isClient { get; internal set; }
 
-        bool m_IsServer;
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
         /// </summary>
@@ -75,11 +74,7 @@ namespace Mirror
         // but we need it in OnDestroy, e.g. when saving players on quit. this
         // works fine if we keep the UNET way of setting isServer manually.
         // => fixes https://github.com/vis2k/Mirror/issues/1484
-        public bool isServer
-        {
-            get => m_IsServer && netId != 0;
-            internal set => m_IsServer = value;
-        }
+        public bool isServer { get; internal set; }
 
         /// <summary>
         /// This returns true if this object is the one that represents the player on the local machine.
@@ -512,11 +507,11 @@ namespace Mirror
         internal void OnStartServer()
         {
             // do nothing if already spawned
-            if (m_IsServer)
-            {
+            if (isServer)
                 return;
-            }
-            m_IsServer = true;
+
+            // set isServer flag
+            isServer = true;
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
             // NOTE: this might not be necessary because the above m_IsServer
@@ -718,7 +713,7 @@ namespace Mirror
                 {
                     Debug.LogError("Exception in OnNetworkDestroy:" + e.Message + " " + e.StackTrace);
                 }
-                m_IsServer = false;
+                isServer = false;
             }
         }
 
@@ -1225,7 +1220,7 @@ namespace Mirror
 
             clientStarted = false;
             isClient = false;
-            m_IsServer = false;
+            isServer = false;
             reset = false;
 
             netId = 0;

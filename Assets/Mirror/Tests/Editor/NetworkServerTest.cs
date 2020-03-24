@@ -1066,10 +1066,10 @@ namespace Mirror.Tests
             Assert.That(go2.activeSelf, Is.False);
 
             // clean up
-            // reset isServer otherwise Destory instead of DestroyImmediate is
+            // reset isServer otherwise Destroy instead of DestroyImmediate is
             // called
-            identity.netId = 0;
-            identity2.netId = 0;
+            identity.isServer = false;
+            identity2.isServer = false;
             NetworkServer.Shutdown();
             GameObject.DestroyImmediate(go);
             GameObject.DestroyImmediate(go2);
