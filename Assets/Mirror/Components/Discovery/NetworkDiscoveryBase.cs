@@ -146,6 +146,7 @@ namespace Mirror.Discovery
                 }
                 catch (Exception)
                 {
+                    // if we get an invalid request,  just ignore it
                 }
             }
         }
