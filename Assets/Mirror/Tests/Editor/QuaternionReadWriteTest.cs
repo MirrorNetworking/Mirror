@@ -140,19 +140,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void QuaternionCompressShouldNotAcceptDefault()
-        {
-            NetworkWriter writer = new NetworkWriter();
-
-            ArgumentException exception = Assert.Throws<ArgumentException>(() =>
-            {
-                writer.WriteQuaternion(default, RotationPrecision.Full);
-            });
-
-            Assert.That(exception.Message, Is.EqualTo("Quaternion must be normalized, Use 'Quaternion.identity' instead of 'default'"));
-        }
-
-        [Test]
         [TestCaseSource(nameof(GetLargestIndeTestCases))]
         public void findLargestIndexWork(Quaternion quaternion, int expected)
         {

@@ -64,11 +64,7 @@ namespace Mirror
         }
         public static void WriteQuaternion(this NetworkWriter writer, Quaternion value, RotationPrecision precision)
         {
-            // use Equals because Quaternion overrides ==
-            if (Equals(value, default(Quaternion)))
-            {
-                throw new System.ArgumentException("Quaternion must be normalized, Use 'Quaternion.identity' instead of 'default'");
-            }
+            value = value.normalized;
 
             int largestIndex = findLargestIndex(value);
             Vector3 small = getSmallerDimensions(largestIndex, value);
