@@ -24,8 +24,8 @@ namespace Mirror.Weaver
     {
         public static bool Process(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
         {
-            CheckDLLPath(unityEngine);
-            CheckDLLPath(netDLL);
+            CheckDllPath(unityEngine);
+            CheckDllPath(netDLL);
             CheckOutputDirectory(outputDirectory);
             CheckAssemblies(assemblies);
             Log.WarningMethod = printWarning;
@@ -33,7 +33,7 @@ namespace Mirror.Weaver
             return Weaver.WeaveAssemblies(assemblies, extraAssemblyPaths, outputDirectory, unityEngine, netDLL);
         }
 
-        static void CheckDLLPath(string path)
+        static void CheckDllPath(string path)
         {
             if (!File.Exists(path))
                 throw new Exception("dll could not be located at " + path + "!");

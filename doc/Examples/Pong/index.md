@@ -42,8 +42,8 @@ will be automatically registered by the NetworkManager as spawning positions.
 ## Setting up the network
 
 A very convenient component for establish/testing connections is the
-NetworkManagerHUD. It provides basic functionality for start a game as LAN
-client, LAN server or host (LAN client and LAN server at the same time). It
+NetworkManagerHUD. It provides basic functionality for start a game as
+Client, Server, or Host (Client and Server at the same time). It
 requires the NetworkManager component.
 
 ![NetworkManagerHUD](Pong4.jpg)

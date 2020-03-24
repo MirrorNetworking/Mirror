@@ -1,4 +1,4 @@
-﻿# Additive Scenes Example
+# Additive Scenes Example
 
 IMPORTANT: Make sure you have a layer in project settings called Player for this example to work well.
 
@@ -12,10 +12,10 @@ File -> Build and Run
 
 Start up to 3 built instances:  These will all be client players.
 
-Press Play in the Editor and click LAN Host in the editor
-- This will be the host and the 1st player of up to 4.  You can also use LAN Server if you prefer.
+Press Play in the Editor and click Host (Server + Client) in the HUD
+- This will be the host and the 1st player of up to 4.  You can also use Server Only if you prefer.
 
-Click LAN Client in the built instances.
+Click Client in the built instances.
 - WASDQE keys to move & turn your player capsule.
 - There are objects in the corners of the scene hidden by Proximity Checkers.
 - The big area in the middle is where the subscene will be loaded when you get near the shelter.
