@@ -89,7 +89,7 @@ namespace Mirror.Examples.Additive
 
             transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);
 
-            Vector3 direction = new Vector3(horizontal, jumpSpeed, vertical);
+            var direction = new Vector3(horizontal, jumpSpeed, vertical);
             direction = Vector3.ClampMagnitude(direction, 1f);
             direction = transform.TransformDirection(direction);
             direction *= moveSpeed;
