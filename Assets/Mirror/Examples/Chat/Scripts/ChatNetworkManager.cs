@@ -5,7 +5,7 @@ namespace Mirror.Examples.Chat
     [AddComponentMenu("")]
     public class ChatNetworkManager : NetworkManager
     {
-        public string playerName { get; set; }
+        public string PlayerName { get; set; }
 
         public void SetHostname(string hostname)
         {
@@ -30,7 +30,7 @@ namespace Mirror.Examples.Chat
             base.OnClientConnect(conn);
 
             // tell the server to create a player with this name
-            conn.Send(new CreatePlayerMessage { name = playerName });
+            conn.Send(new CreatePlayerMessage { name = PlayerName });
         }
 
         private void OnCreatePlayer(NetworkConnection connection, CreatePlayerMessage createPlayerMessage)
