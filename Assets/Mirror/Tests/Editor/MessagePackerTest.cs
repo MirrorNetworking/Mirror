@@ -40,16 +40,9 @@ namespace Mirror.Tests
             data[0] = 0x01;
             data[1] = 0x02;
 
-            try
-            {
+            Assert.Throws<FormatException>(() => {
                 SceneMessage unpacked = MessagePacker.Unpack<SceneMessage>(data);
-                // BAD: IF WE GET HERE THEN NO EXCEPTION WAS THROWN
-                Assert.Fail();
-            }
-            catch (FormatException)
-            {
-                // GOOD
-            }
+            });
         }
 
         [Test]
