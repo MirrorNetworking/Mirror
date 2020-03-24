@@ -80,7 +80,7 @@ namespace Mirror
 
         #region SyncVar Hooks
 
-        void ReadyStateChanged(bool oldReadyState, bool newReadyState)
+        void ReadyStateChanged(bool _, bool newReadyState)
         {
             OnClientReady(newReadyState);
         }
