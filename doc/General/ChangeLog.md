@@ -5,6 +5,7 @@
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
 ## Version 11.x.x - In Progress
+- Added: SyncVar hooks can be virtual now, and overriden in a derived class.
 - Fixed: Setting breakpoints in an IDE for Command's and Rpc's work correctly now.
 - Fixed: NetworkServer's calls to SendToObservers now reports correct channel to Mirror Profiler.
 - Fixed: NetworkRoomManager's `roomPlayerPrefab` is now `protected` so it can be accessed in derived classes.
