@@ -71,12 +71,9 @@ namespace Mirror
 #else
                             GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
 #endif
-                            if (prefabRootGO)
+                            if (prefabRootGO != null && prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
                             {
-                                if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
-                                {
-                                    Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
-                                }
+                                Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
                             }
                         }
                     }
