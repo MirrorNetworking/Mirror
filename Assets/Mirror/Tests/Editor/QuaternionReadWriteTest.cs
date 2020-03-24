@@ -1,0 +1,191 @@
+using System;
+using System.Collections.Generic;
+using NUnit.Framework;
+using UnityEngine;
+
+namespace Mirror.Tests
+{
+    public class QuaternionReadWriteTest
+    {
+        internal const float FullPercision = 0.000000334f;
+        internal const float HalfPercision = 0.00276f;
+
+        [Test]
+        [TestCaseSource(nameof(GetTestCases))]
+        public void QuaternionCompressWithinPrecision(Quaternion rotationIn, RotationPrecision precision, float allowedPercision)
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteQuaternion(rotationIn, precision);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Quaternion rotationOut = reader.ReadQuaternion(precision);
+
+            Assert.That(rotationOut.x, Is.Not.NaN, "x was NaN");
+            Assert.That(rotationOut.y, Is.Not.NaN, "y was NaN");
+            Assert.That(rotationOut.z, Is.Not.NaN, "z was NaN");
+            Assert.That(rotationOut.w, Is.Not.NaN, "w was NaN");
+
+            Debug.LogFormat("In  {0}, {1}, {2}, {3}",
+                rotationIn.x.ToString("N32"),
+                rotationIn.y.ToString("N32"),
+                rotationIn.z.ToString("N32"),
+                rotationIn.w.ToString("N32")
+                );
+            Debug.LogFormat("Out {0}, {1}, {2}, {3}",
+               rotationOut.x.ToString("N32"),
+               rotationOut.y.ToString("N32"),
+               rotationOut.z.ToString("N32"),
+               rotationOut.w.ToString("N32")
+               );
+
+            AssertPrecision(rotationIn, rotationOut, allowedPercision);
+        }
+
+        internal static void AssertPrecision(Quaternion inRot, Quaternion outRot, float percision)
+        {
+            int largest = QuaternionReadWrite.findLargestIndex(inRot);
+            float sign = Mathf.Sign(inRot[largest]);
+            // flip sign of A if largest is is negative
+            // Q == (-Q)
+
+            Assert.AreEqual(sign * inRot.x, outRot.x, percision);
+            Assert.AreEqual(sign * inRot.y, outRot.y, percision);
+            Assert.AreEqual(sign * inRot.z, outRot.z, percision);
+            Assert.AreEqual(sign * inRot.w, outRot.w, percision);
+        }
+
+        static object[] GetTestCases()
+        {
+            List<Quaternion> list = new List<Quaternion>
+            {
+                Quaternion.identity,
+                new Quaternion(1, 0, 0, 0),
+                new Quaternion(0, 1, 0, 0),
+                new Quaternion(0, 0, 1, 0),
+
+                new Quaternion(1, 1, 0, 0).normalized,
+                new Quaternion(0, 1, 1, 0).normalized,
+                new Quaternion(0, 1, 1, 0).normalized,
+                new Quaternion(0, 0, 1, 1).normalized,
+
+                new Quaternion(1, 1, 1, 0).normalized,
+                new Quaternion(1, 1, 0, 1).normalized,
+                new Quaternion(1, 0, 1, 1).normalized,
+                new Quaternion(0, 1, 1, 1).normalized,
+
+                new Quaternion(1, 1, 1, 1).normalized,
+
+                new Quaternion(-1, 0, 0, 0),
+                new Quaternion(0, -1, 0, 0),
+                new Quaternion(0, 0, -1, 0),
+                new Quaternion(0, 0, 0, -1),
+
+                new Quaternion(-1, -1, 0, 0).normalized,
+                new Quaternion(0, -1, -1, 0).normalized,
+                new Quaternion(0, -1, -1, 0).normalized,
+                new Quaternion(0, 0, -1, -1).normalized,
+
+                new Quaternion(-1, -1, -1, 0).normalized,
+                new Quaternion(-1, -1, 0, -1).normalized,
+                new Quaternion(-1, 0, -1, -1).normalized,
+                new Quaternion(0, -1, -1, -1).normalized,
+
+                new Quaternion(-1, -1, -1, -1).normalized,
+
+                Quaternion.Euler(200, 100, 10),
+                Quaternion.LookRotation(new Vector3(0.3f, 0.4f, 0.5f)),
+                Quaternion.Euler(45f, 56f, Mathf.PI),
+                Quaternion.AngleAxis(30, new Vector3(1, 2, 5)),
+                Quaternion.AngleAxis(5, new Vector3(-1, .01f, 0.44f)),
+                Quaternion.AngleAxis(358, new Vector3(0.5f, 2, 5)),
+                Quaternion.AngleAxis(-54, new Vector3(1, 2, 5)),
+            };
+
+            int count = list.Count;
+            object[] cases = new object[count * 2];
+            for (int i = 0; i < count; i++)
+            {
+                cases[i] = new object[] { list[i], RotationPrecision.Full, FullPercision };
+                cases[i + count] = new object[] { list[i], RotationPrecision.Half, HalfPercision };
+            }
+
+
+            return cases;
+        }
+
+
+        [Test]
+        public void WriteQuaternionCorrectLengthForFull()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteQuaternion(Quaternion.identity, RotationPrecision.Full);
+
+            Assert.That(writer.ToArray().Length, Is.EqualTo(9));
+        }
+        [Test]
+        public void WriteQuaternionCorrectLengthForHalf()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteQuaternion(Quaternion.identity, RotationPrecision.Half);
+
+            Assert.That(writer.ToArray().Length, Is.EqualTo(4));
+        }
+        [Test]
+        public void WriteQuaternionCorrectLengthForNoRotation()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteQuaternion(Quaternion.identity, RotationPrecision.NoRotation);
+
+            Assert.That(writer.ToArray().Length, Is.Zero);
+        }
+
+        [Test]
+        public void QuaternionCompressShouldNotAcceptDefault()
+        {
+            NetworkWriter writer = new NetworkWriter();
+
+            ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+            {
+                writer.WriteQuaternion(default, RotationPrecision.Full);
+            });
+
+            Assert.That(exception.Message, Is.EqualTo("Quaternion must be normalized, Use 'Quaternion.identity' instead of 'default'"));
+        }
+
+        [Test]
+        [TestCaseSource(nameof(GetLargestIndeTestCases))]
+        public void findLargestIndexWork(Quaternion quaternion, int expected)
+        {
+            int largest = QuaternionReadWrite.findLargestIndex(quaternion);
+
+            Assert.That(largest, Is.EqualTo(expected));
+        }
+        static object[] GetLargestIndeTestCases()
+        {
+            return new object[]
+            {
+                // args = Quaternion quaternion, int expected
+                new object[] { new Quaternion(1, 0, 0, 0), 0 },
+                new object[] { new Quaternion(0, 1, 0, 0), 1 },
+                new object[] { new Quaternion(0, 0, 1, 0), 2 },
+                new object[] { new Quaternion(0, 0, 0, 1), 3 },
+
+                new object[] { new Quaternion(-1, 0, 0, 0), 0 },
+                new object[] { new Quaternion(0, -1, 0, 0), 1 },
+                new object[] { new Quaternion(0, 0, -1, 0), 2 },
+                new object[] { new Quaternion(0, 0, 0, -1), 3 },
+
+                new object[] { new Quaternion(1, 0, 0.5f, 0).normalized, 0 },
+                new object[] { new Quaternion(0, 1, 0.5f, 0).normalized, 1 },
+                new object[] { new Quaternion(0, 0.5f, 1, 0).normalized, 2 },
+                new object[] { new Quaternion(0, 0.5f, 0, 1).normalized, 3 },
+
+                new object[] { new Quaternion(-1, 0.9f, 0.5f, 0).normalized, 0 },
+                new object[] { new Quaternion(0.9f, -1, 0.5f, 0).normalized, 1 },
+                new object[] { new Quaternion(0, 0.5f, -1, 0.9f).normalized, 2 },
+                new object[] { new Quaternion(0, 0.5f, 0.9f, -1).normalized, 3 },
+            };
+        }
+
+    }
+}
