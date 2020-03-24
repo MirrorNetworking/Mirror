@@ -39,7 +39,6 @@ namespace Mirror
         https://gafferongames.com/post/snapshot_compression/
          */
 
-
     public enum RotationPrecision
     {
         /// <summary>
@@ -73,6 +72,7 @@ namespace Mirror
         {
             WriteQuaternion(writer, value, DefaultPrecision);
         }
+
         public static void WriteQuaternion(this NetworkWriter writer, Quaternion value, RotationPrecision precision)
         {
             value = value.normalized;
@@ -95,6 +95,7 @@ namespace Mirror
             }
         }
 
+
         /// <summary>
         /// Writes Quaternion using QuaternionReadWrite.DefaultPrecision
         /// </summary>
@@ -102,6 +103,7 @@ namespace Mirror
         {
             return ReadQuaternion(reader, DefaultPrecision);
         }
+
         public static Quaternion ReadQuaternion(this NetworkReader reader, RotationPrecision precision)
         {
             if (precision == RotationPrecision.Highest)
@@ -121,6 +123,7 @@ namespace Mirror
                 return Quaternion.identity;
             }
         }
+
 
         static void WriteQuaternionFull(NetworkWriter writer, int largestIndex, Vector3 small)
         {
@@ -146,6 +149,7 @@ namespace Mirror
             writer.WriteByte((byte)(c >> 8));
             writer.WriteByte((byte)(c >> 16));
         }
+
         static Quaternion ReadQuaternionFull(NetworkReader reader)
         {
             Quaternion result;
@@ -182,6 +186,7 @@ namespace Mirror
             return result;
         }
 
+
         static void WriteQuaternionHalf(NetworkWriter writer, int largestIndex, Vector3 small)
         {
             const int bitLength = 10;
@@ -206,6 +211,7 @@ namespace Mirror
             writer.WriteByte((byte)c1);
             writer.WriteByte((byte)extra);
         }
+
         static Quaternion ReadQuaternionHalf(NetworkReader reader)
         {
             Quaternion result;
@@ -237,6 +243,7 @@ namespace Mirror
             return result;
         }
 
+
         static void WriteQuaternionLow(NetworkWriter writer, int largestIndex, Vector3 small)
         {
             const int bitLength = 7;
@@ -258,6 +265,7 @@ namespace Mirror
             writer.WriteByte((byte)b1);
             writer.WriteByte((byte)c1);
         }
+
         static Quaternion ReadQuaternionLow(NetworkReader reader)
         {
             Quaternion result;
@@ -285,6 +293,8 @@ namespace Mirror
             result = FromSmallerDimensions(largestIndex, small);
             return result;
         }
+
+
         internal static int FindLargestIndex(Quaternion q)
         {
             int index = 0;
@@ -303,6 +313,7 @@ namespace Mirror
             return index;
         }
 
+        
         static Vector3 GetSmallerDimensions(int largestIndex, Quaternion value)
         {
             float x = value.x;
@@ -341,6 +352,7 @@ namespace Mirror
             float largestSign = Mathf.Sign(value[largestIndex]);
             return new Vector3(a, b, c) * largestSign;
         }
+
         static Quaternion FromSmallerDimensions(uint largestIndex, Vector3 smallest)
         {
             float a = smallest.x;
@@ -397,6 +409,7 @@ namespace Mirror
 
             return (uint)outValue;
         }
+
         static float ScaleFromUInt(uint source, int sourceBitLength)
         {
             // same as Mathf.Pow(2, targetBitLength) - 1
