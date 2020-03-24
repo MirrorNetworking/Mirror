@@ -117,14 +117,15 @@ namespace Mirror
 
         static void WriteQuaternionFull(NetworkWriter writer, int largestIndex, Vector3 small)
         {
-            // 22 bits
-            int bitLength = 22;
+            const int bitLength = 23;
             uint a = ScaleToUInt(small.x, bitLength);
             uint b = ScaleToUInt(small.y, bitLength);
             uint c = ScaleToUInt(small.z, bitLength);
 
-            // pack largestIndex info a
-            a |= ((uint)largestIndex) << 22;
+            // pack largestIndex info ab
+            a |= (((uint)largestIndex) & 1u) << 23;
+            //only move 2 as bit starts in 2nd position
+            b |= (((uint)largestIndex) & 2u) << 22;
 
             writer.WriteByte((byte)a);
             writer.WriteByte((byte)(a >> 8));
@@ -157,11 +158,13 @@ namespace Mirror
             uint b = b1 | (b2 << 8) | (b3 << 16);
             uint c = c1 | (c2 << 8) | (c3 << 16);
 
-            uint largestIndex = a >> 22;
-            // removes largestIndex from a 
-            a &= ~(3u << 22);
+            uint largestIndex = a >> 23 | (2 & (b >> 22));
 
-            const int bitLength = 22;
+            // removes largestIndex from a 
+            a &= ~(1u << 23);
+            b &= ~(1u << 23);
+
+            const int bitLength = 23;
 
             float x = ScaleFromUInt(a, bitLength);
             float y = ScaleFromUInt(b, bitLength);
@@ -174,8 +177,7 @@ namespace Mirror
 
         static void WriteQuaternionHalf(NetworkWriter writer, int largestIndex, Vector3 small)
         {
-            // 22 bits
-            int bitLength = 9;
+            const int bitLength = 10;
             uint a = ScaleToUInt(small.x, bitLength);
             uint b = ScaleToUInt(small.y, bitLength);
             uint c = ScaleToUInt(small.z, bitLength);
@@ -190,7 +192,7 @@ namespace Mirror
             uint c1 = byte.MaxValue & c;
             uint c2 = byte.MaxValue & (c >> 8);
 
-            uint extra = ((uint)largestIndex) + (a2 << 2) + (b2 << 3) + (c2 << 4);
+            uint extra = ((uint)largestIndex) + (a2 << 2) + (b2 << 4) + (c2 << 6);
 
             writer.WriteByte((byte)a1);
             writer.WriteByte((byte)b1);
@@ -209,15 +211,15 @@ namespace Mirror
             uint largestIndex = (uint)(extra & 3);
 
             // get nth bit, then move to start
-            uint a2 = (uint)((extra & (1 << 2)) >> 2);
-            uint b2 = (uint)((extra & (1 << 3)) >> 3);
-            uint c2 = (uint)((extra & (1 << 4)) >> 4);
+            uint a2 = (uint)((extra & (3 << 2)) >> 2);
+            uint b2 = (uint)((extra & (3 << 4)) >> 4);
+            uint c2 = (uint)((extra & (3 << 6)) >> 6);
 
             uint a = a1 | (a2 << 8);
             uint b = b1 | (b2 << 8);
             uint c = c1 | (c2 << 8);
 
-            const int bitLength = 9;
+            const int bitLength = 10;
 
             float x = ScaleFromUInt(a, bitLength);
             float y = ScaleFromUInt(b, bitLength);
