@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
@@ -7,13 +6,30 @@ namespace Mirror.Tests
 {
     public class QuaternionReadWriteTest
     {
-        internal const float FullPercision = 0.000000334f;
-        internal const float HalfPercision = 0.00276f;
+        internal const float HighestPercision = 0.000000169f;
+        internal const float MediumPercision = 0.00138f;
         internal const float LowPercision = 0.0110f;
 
         [Test]
         [TestCaseSource(nameof(GetTestCases))]
-        public void QuaternionCompressWithinPrecision(Quaternion rotationIn, RotationPrecision precision, float allowedPercision)
+        public void QuaternionCompressAtFullPrecision(Quaternion rotationIn)
+        {
+            QuaternionCompressWithinPrecision(rotationIn, RotationPrecision.Highest, HighestPercision);
+        }
+        [Test]
+        [TestCaseSource(nameof(GetTestCases))]
+        public void QuaternionCompressAtHalfPrecision(Quaternion rotationIn)
+        {
+            QuaternionCompressWithinPrecision(rotationIn, RotationPrecision.Medium, MediumPercision);
+        }
+        [Test]
+        [TestCaseSource(nameof(GetTestCases))]
+        public void QuaternionCompressAtLowPrecision(Quaternion rotationIn)
+        {
+            QuaternionCompressWithinPrecision(rotationIn, RotationPrecision.Low, LowPercision);
+        }
+
+        static void QuaternionCompressWithinPrecision(Quaternion rotationIn, RotationPrecision precision, float allowedPercision)
         {
             NetworkWriter writer = new NetworkWriter();
             writer.WriteQuaternion(rotationIn, precision);
@@ -49,10 +65,10 @@ namespace Mirror.Tests
             // flip sign of A if largest is is negative
             // Q == (-Q)
 
-            Assert.AreEqual(sign * inRot.x, outRot.x, percision);
-            Assert.AreEqual(sign * inRot.y, outRot.y, percision);
-            Assert.AreEqual(sign * inRot.z, outRot.z, percision);
-            Assert.AreEqual(sign * inRot.w, outRot.w, percision);
+            Assert.AreEqual(sign * inRot.x, outRot.x, percision, $"x off by {Mathf.Abs(sign * inRot.x - outRot.x)}");
+            Assert.AreEqual(sign * inRot.y, outRot.y, percision, $"y off by {Mathf.Abs(sign * inRot.y - outRot.y)}");
+            Assert.AreEqual(sign * inRot.z, outRot.z, percision, $"z off by {Mathf.Abs(sign * inRot.z - outRot.z)}");
+            Assert.AreEqual(sign * inRot.w, outRot.w, percision, $"w off by {Mathf.Abs(sign * inRot.w - outRot.w)}");
         }
 
         static object[] GetTestCases()
@@ -103,14 +119,11 @@ namespace Mirror.Tests
             };
 
             int count = list.Count;
-            object[] cases = new object[count * 3];
+            object[] cases = new object[count];
             for (int i = 0; i < count; i++)
             {
-                cases[i] = new object[] { list[i], RotationPrecision.Highest, FullPercision };
-                cases[i + count] = new object[] { list[i], RotationPrecision.Medium, HalfPercision };
-                cases[i + count*2] = new object[] { list[i], RotationPrecision.Low, HalfPercision };
+                cases[i] = new object[] { list[i] };
             }
-
 
             return cases;
         }
