@@ -6,8 +6,8 @@ This is a bare bones example of a running game with Network Manager and UI prefa
 
 2.  Open the Example scene and build the project.
 
-3.  In the editor, click Play, and Server + Host or Server Only...it will be listening on port 7777.  
-    - If you clicked Server + Host, the host player will appear as Player 00.
+3.  In the editor, click Play, and Server + Client or Server Only...it will be listening on port 7777.  
+    - If you clicked Server + Client, the host player will appear as Player 00.
 
 4.  Run one or more instances (up to 16 total players) of the built application.
 

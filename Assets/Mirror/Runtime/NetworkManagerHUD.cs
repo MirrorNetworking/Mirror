@@ -47,10 +47,10 @@ namespace Mirror
             {
                 if (!NetworkClient.active)
                 {
-                    // Server + Host
+                    // Server + Client
                     if (Application.platform != RuntimePlatform.WebGLPlayer)
                     {
-                        if (GUILayout.Button("Server + Host"))
+                        if (GUILayout.Button("Server + Client"))
                         {
                             manager.StartHost();
                         }

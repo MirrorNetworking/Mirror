@@ -20,11 +20,11 @@ The Network Manager HUD provides the basic functions so that people playing your
 
 ## Using the HUD
 
-The Network Manager HUD starts in Server + Host mode, and displays buttons relating to hosting and joining a  multiplayer game.
+The Network Manager HUD starts in Server + Client mode, and displays buttons relating to hosting and joining a  multiplayer game.
 
-### Server + Host
+### Server + Client
 
-Click the Server + Host button to start a game as a host on the local network. This client is both the host *and* one of the players in the game. It uses the information from the Network Info section in the inspector to host the game.
+Click the Server + Client button to start a game as a host on the local network. This client is both the host *and* one of the players in the game. It uses the information from the Network Info section in the inspector to host the game.
 
 When you click this button, the HUD switches to a simple display of network details, and a Stop button which allows you to stop hosting the game and return to the main HUD menu.
 
@@ -40,7 +40,7 @@ To connect to a host on the internet use the text field to the right of the Clie
 
 Use the default “localhost” in this field if you are running multiple instances of your game on one computer, to test multiplayer interactivity. To do this, you can create a standalone build of your game, and then launch it multiple times on your computer. This is a common way to quickly test that your networked game interactions are functioning as you expect, without you needing to deploy your game to multiple computers or devices.
 
-![An example of three instances of a networked game running on the same desktop PC. This is useful for quick tests to ensure networked interactions are behaving as you intended. One is running as Server + Host, and two are running as Client.](NetworkGame3Instances.jpg)
+![An example of three instances of a networked game running on the same desktop PC. This is useful for quick tests to ensure networked interactions are behaving as you intended. One is running as Server + Client, and two are running as Client.](NetworkGame3Instances.jpg)
 
 When you want to test your game on multiple machines you need to put the address of the computer acting as host into the address text field.
 

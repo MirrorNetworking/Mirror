@@ -12,7 +12,7 @@ File -> Build and Run
 
 Start up to 3 built instances:  These will all be client players.
 
-Press Play in the Editor and click Server + Host in the editor
+Press Play in the Editor and click Server + Client in the editor
 - This will be the host and the 1st player of up to 4.  You can also use Server Only if you prefer.
 
 Click Client in the built instances.

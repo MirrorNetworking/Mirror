@@ -43,7 +43,7 @@ will be automatically registered by the NetworkManager as spawning positions.
 
 A very convenient component for establish/testing connections is the
 NetworkManagerHUD. It provides basic functionality for start a game as
-Client, Server, or Server + Host (Client and Server at the same time). It
+Client, Server, or Server + Client (Client and Server at the same time). It
 requires the NetworkManager component.
 
 ![NetworkManagerHUD](Pong4.jpg)
