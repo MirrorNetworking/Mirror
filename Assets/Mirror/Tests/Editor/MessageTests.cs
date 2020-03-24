@@ -312,7 +312,7 @@ namespace Mirror.Tests
                     Assert.That(fresh.assetId, Is.EqualTo(message.assetId));
                 Assert.That(fresh.position, Is.EqualTo(message.position));
                 // spawn message should use FullPercision
-                QuaternionReadWriteTest.AssertPrecision(message.rotation, fresh.rotation, QuaternionReadWriteTest.FullPercision);
+                QuaternionReadWriteTest.AssertPrecision(message.rotation, fresh.rotation, QuaternionReadWriteTest.HighestPercision);
 
                 Assert.That(fresh.scale, Is.EqualTo(message.scale));
                 Assert.That(fresh.payload.Count, Is.EqualTo(message.payload.Count));

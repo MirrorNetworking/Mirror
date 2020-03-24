@@ -15,10 +15,10 @@ namespace Mirror.Tests
             Vector3 scale = new Vector3(0.5f, 0.6f, 0.7f);
 
             // Compression.None
-            NetworkTransformBase.SerializeIntoWriter(writer, position, rotation, RotationPrecision.Half, scale);
+            NetworkTransformBase.SerializeIntoWriter(writer, position, rotation, RotationPrecision.Medium, scale);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadVector3(), Is.EqualTo(position));
-            QuaternionReadWriteTest.AssertPrecision(rotation, reader.ReadQuaternion(), QuaternionReadWriteTest.HalfPercision);
+            QuaternionReadWriteTest.AssertPrecision(rotation, reader.ReadQuaternion(), QuaternionReadWriteTest.MediumPercision);
             Assert.That(reader.ReadVector3(), Is.EqualTo(scale));
         }
     }

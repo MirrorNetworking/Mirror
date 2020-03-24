@@ -48,7 +48,7 @@ namespace Mirror
         // -> can still be modified in the Inspector while the game is running,
         //    but would cause errors immediately and be pretty obvious.
         [Header("Compression")]
-        [SerializeField] RotationPrecision compressRotation = RotationPrecision.Half;
+        [SerializeField] RotationPrecision compressRotation = RotationPrecision.Medium;
 
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
