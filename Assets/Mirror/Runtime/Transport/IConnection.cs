@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Mirror
@@ -19,5 +20,13 @@ namespace Mirror
         /// Disconnect this connection
         /// </summary>
         void Disconnect();
+
+        /// <summary>
+        /// the address of endpoint we are connected to
+        /// Note this can be IPEndPoint or a custom implementation
+        /// of EndPoint, which depends on the transport
+        /// </summary>
+        /// <returns></returns>
+        EndPoint GetEndPointAddress();
     }
 }

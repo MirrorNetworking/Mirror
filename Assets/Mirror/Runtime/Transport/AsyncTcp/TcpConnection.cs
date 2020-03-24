@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -119,6 +120,13 @@ namespace Mirror.AsyncTcp
             stream.Close();
             client.Close();
         }
+
         #endregion
+
+        public EndPoint GetEndPointAddress()
+        {
+            return client.Client.RemoteEndPoint;
+        }
+
     }
 }
