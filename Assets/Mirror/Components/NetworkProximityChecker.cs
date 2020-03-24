@@ -113,10 +113,8 @@ namespace Mirror
                     break;
 
                 case CheckMethod.Physics2D:
-                    {
-                        Add2dHits(observers);
-                        break;
-                    }
+                    Add2dHits(observers);
+                    break;
             }
 
             // always return true when overwriting OnRebuildObservers so that
