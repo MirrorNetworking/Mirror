@@ -109,11 +109,11 @@ namespace Mirror
             switch (ActualCheckMethod)
             {
                 case CheckMethod.Physics3D:
-                    Add3dHits(observers);
+                    Add3DHits(observers);
                     break;
 
                 case CheckMethod.Physics2D:
-                    Add2dHits(observers);
+                    Add2DHits(observers);
                     break;
             }
 
@@ -122,7 +122,7 @@ namespace Mirror
             return true;
         }
 
-        private void Add3dHits(HashSet<NetworkConnection> observers)
+        private void Add3DHits(HashSet<NetworkConnection> observers)
         {
             // cast without allocating GC for maximum performance
             int hitCount = Physics.OverlapSphereNonAlloc(transform.position, VisibilityRange, hitsBuffer3D, CastLayers);
@@ -142,7 +142,7 @@ namespace Mirror
             }
         }
 
-        private void Add2dHits(HashSet<NetworkConnection> observers)
+        private void Add2DHits(HashSet<NetworkConnection> observers)
         {
             // cast without allocating GC for maximum performance
             int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, VisibilityRange, hitsBuffer2D, CastLayers);
