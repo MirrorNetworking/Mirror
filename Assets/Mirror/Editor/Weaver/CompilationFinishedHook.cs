@@ -30,13 +30,6 @@ namespace Mirror.Weaver
         // NOTE: WeaveFailed is critical to unit tests, but isn't used for anything else. 
         public static bool WeaveFailed { get; private set; }
 
-        // debug message handler that also calls OnMessageMethod delegate
-        static void HandleMessage(string msg)
-        {
-            if (UnityLogEnabled) Debug.Log(msg);
-            if (OnWeaverMessage != null) OnWeaverMessage.Invoke(msg);
-        }
-
         // warning message handler that also calls OnWarningMethod delegate
         static void HandleWarning(string msg)
         {
