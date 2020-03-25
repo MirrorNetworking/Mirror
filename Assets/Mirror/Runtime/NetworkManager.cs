@@ -266,8 +266,11 @@ namespace Mirror
             return !string.IsNullOrEmpty(onlineScene) && !IsSceneActive(onlineScene) && onlineScene != offlineScene;
         }
 
-        public static bool IsSceneActive(string scene) =>
-            SceneManager.GetActiveScene().path == scene || SceneManager.GetActiveScene().name == scene;
+        public static bool IsSceneActive(string scene)
+        {
+            Scene activeScene = SceneManager.GetActiveScene();
+            return activeScene.path == scene || activeScene.name == scene;
+        }
 
         // full server setup code, without spawning objects yet
         void SetupServer()
