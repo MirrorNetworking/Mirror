@@ -366,4 +366,9 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
-  spawnPrefabs: []
+  Disconnected:
+    m_PersistentCalls:
+      m_Calls: []
+  spawnPrefabs:
+  - {fileID: 1588750985201798, guid: deae2134a1d77704b9c595efe69767dd, type: 3}
+  - {fileID: 1480027675339556, guid: 21daf89214c6ee443ad6875b73083c60, type: 3}

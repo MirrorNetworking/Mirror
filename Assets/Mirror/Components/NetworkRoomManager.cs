@@ -79,7 +79,6 @@ namespace Mirror
         void Awake()
         {
             client.Authenticated.AddListener(OnAuthenticated);
-            client.Connected.AddListener(Connected);
             client.Disconnected.AddListener(Disconnected);
         }
 
@@ -416,19 +415,6 @@ namespace Mirror
         #region client handlers
 
         /// <summary>
-        /// This is invoked when the client is started.
-        /// </summary>
-        void Connected(NetworkConnectionToServer server)
-        {
-            if (roomPlayerPrefab == null || roomPlayerPrefab.gameObject == null)
-                Debug.LogError("NetworkRoomManager no RoomPlayer prefab is registered. Please add a RoomPlayer prefab.");
-            else
-                client.RegisterPrefab(roomPlayerPrefab.gameObject);
-
-            OnRoomStartClient();
-        }
-
-        /// <summary>
         /// Called on the client when connected to a server.
         /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
         /// </summary>
@@ -616,12 +602,6 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">The connection that disconnected.</param>
         public virtual void OnRoomClientDisconnect(NetworkConnection conn) { }
-
-        /// <summary>
-        /// This is called on the client when a client is started.
-        /// </summary>
-        /// <param name="roomClient">The connection for the room.</param>
-        public virtual void OnRoomStartClient() { }
 
         /// <summary>
         /// This is called on the client when the client stops.
