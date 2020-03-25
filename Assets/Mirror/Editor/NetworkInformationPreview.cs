@@ -270,16 +270,13 @@ namespace Mirror
             List<NetworkBehaviourInfo> behaviourInfos = new List<NetworkBehaviourInfo>();
 
             NetworkBehaviour[] behaviours = identity.GetComponents<NetworkBehaviour>();
-            if (behaviours.Length > 0)
+            foreach (NetworkBehaviour behaviour in behaviours)
             {
-                foreach (NetworkBehaviour behaviour in behaviours)
+                behaviourInfos.Add(new NetworkBehaviourInfo
                 {
-                    behaviourInfos.Add(new NetworkBehaviourInfo
-                    {
-                        Name = new GUIContent(behaviour.GetType().FullName),
-                        Behaviour = behaviour
-                    });
-                }
+                    Name = new GUIContent(behaviour.GetType().FullName),
+                    Behaviour = behaviour
+                });
             }
             return behaviourInfos;
         }
