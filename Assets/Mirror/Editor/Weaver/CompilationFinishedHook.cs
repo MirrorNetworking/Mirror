@@ -30,13 +30,6 @@ namespace Mirror.Weaver
         // NOTE: WeaveFailed is critical to unit tests, but isn't used for anything else. 
         public static bool WeaveFailed { get; private set; }
 
-        // debug message handler that also calls OnMessageMethod delegate
-        static void HandleMessage(string msg)
-        {
-            if (UnityLogEnabled) Debug.Log(msg);
-            if (OnWeaverMessage != null) OnWeaverMessage.Invoke(msg);
-        }
-
         // warning message handler that also calls OnWarningMethod delegate
         static void HandleWarning(string msg)
         {
@@ -148,6 +141,26 @@ namespace Mirror.Weaver
                 return;
             }
 
+            HashSet<string> dependencyPaths = GetDependecyPaths(assemblyPath);
+
+            // passing null in the outputDirectory param will do an in-place update of the assembly
+            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
+            {
+                // NOTE: WeaveFailed is critical for unit tests but isn't used elsewhere
+                WeaveFailed = false;
+            }
+            else
+            {
+                // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
+                SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
+
+                WeaveFailed = true;
+                if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
+            }
+        }
+
+        private static HashSet<string> GetDependecyPaths(string assemblyPath)
+        {
             // build directory list for later asm/symbol resolving using CompilationPipeline refs
             HashSet<string> dependencyPaths = new HashSet<string>();
             dependencyPaths.Add(Path.GetDirectoryName(assemblyPath));
@@ -162,22 +175,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            // passing null in the outputDirectory param will do an in-place update of the assembly
-            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
-            {
-                // NOTE: WeaveFailed is critical for unit tests but isn't used elsewhere
-                WeaveFailed = false;
-
-                //Debug.Log("Weaving succeeded for: " + assemblyPath);
-            }
-            else
-            {
-                // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
-                SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
-
-                WeaveFailed = true;
-                if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
-            }
+            return dependencyPaths;
         }
     }
 }

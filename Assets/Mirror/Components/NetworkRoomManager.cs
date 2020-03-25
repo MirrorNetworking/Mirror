@@ -330,9 +330,6 @@ namespace Mirror
                     // find the game-player object for this connection, and destroy it
                     NetworkIdentity identity = roomPlayer.GetComponent<NetworkIdentity>();
 
-                    NetworkIdentity playerController = identity.connectionToClient.identity;
-                    server.Destroy(playerController.gameObject);
-
                     if (server.active)
                     {
                         // re-add the room object

@@ -105,41 +105,29 @@ namespace Mirror.Weaver
 
         static int ProcessInstruction(MethodDefinition md, Instruction instr, int iCount)
         {
-            if (instr.OpCode == OpCodes.Call || instr.OpCode == OpCodes.Callvirt)
+            if ((instr.OpCode == OpCodes.Call || instr.OpCode == OpCodes.Callvirt)
+                && instr.Operand is MethodReference opMethod)
             {
-                if (instr.Operand is MethodReference opMethod)
-                {
-                    ProcessInstructionMethod(md, instr, opMethod, iCount);
-                }
+                ProcessInstructionMethod(md, instr, opMethod, iCount);
             }
 
-            if (instr.OpCode == OpCodes.Stfld)
+            if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
             {
                 // this instruction sets the value of a field. cache the field reference.
-                if (instr.Operand is FieldDefinition opField)
-                {
-                    ProcessInstructionSetterField(md, instr, opField);
-                }
+                ProcessInstructionSetterField(md, instr, opFieldst);
             }
 
-            if (instr.OpCode == OpCodes.Ldfld)
+            if (instr.OpCode == OpCodes.Ldfld && instr.Operand is FieldDefinition opFieldld)
             {
                 // this instruction gets the value of a field. cache the field reference.
-                if (instr.Operand is FieldDefinition opField)
-                {
-                    ProcessInstructionGetterField(md, instr, opField);
-                }
+                ProcessInstructionGetterField(md, instr, opFieldld);
             }
 
-            if (instr.OpCode == OpCodes.Ldflda)
+            if (instr.OpCode == OpCodes.Ldflda && instr.Operand is FieldDefinition opFieldlda)
             {
                 // loading a field by reference,  watch out for initobj instruction
                 // see https://github.com/vis2k/Mirror/issues/696
-
-                if (instr.Operand is FieldDefinition opField)
-                {
-                    return ProcessInstructionLoadAddress(md, instr, opField, iCount);
-                }
+                return ProcessInstructionLoadAddress(md, instr, opFieldlda, iCount);
             }
 
             return 1;
@@ -185,32 +173,33 @@ namespace Mirror.Weaver
 
         static void ProcessInstructionMethod(MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
         {
-            if (opMethodRef.Name == "Invoke")
+
+            if (opMethodRef.Name != "Invoke")
+                return;
+
+            // Events use an "Invoke" method to call the delegate.
+            // this code replaces the "Invoke" instruction with the generated "Call***" instruction which send the event to the server.
+            // but the "Invoke" instruction is called on the event field - where the "call" instruction is not.
+            // so the earlier instruction that loads the event field is replaced with a Noop.
+
+            // go backwards until find a ldfld instruction that matches ANY event
+            bool found = false;
+            while (iCount > 0 && !found)
             {
-                // Events use an "Invoke" method to call the delegate.
-                // this code replaces the "Invoke" instruction with the generated "Call***" instruction which send the event to the server.
-                // but the "Invoke" instruction is called on the event field - where the "call" instruction is not.
-                // so the earlier instruction that loads the event field is replaced with a Noop.
-
-                // go backwards until find a ldfld instruction that matches ANY event
-                bool found = false;
-                while (iCount > 0 && !found)
+                iCount -= 1;
+                Instruction inst = md.Body.Instructions[iCount];
+                if (inst.OpCode == OpCodes.Ldfld)
                 {
-                    iCount -= 1;
-                    Instruction inst = md.Body.Instructions[iCount];
-                    if (inst.OpCode == OpCodes.Ldfld)
-                    {
-                        FieldReference opField = inst.Operand as FieldReference;
+                    FieldReference opField = inst.Operand as FieldReference;
 
-                        // find replaceEvent with matching name
-                        // NOTE: original weaver compared .Name, not just the MethodDefinition,
-                        //       that's why we use dict<string,method>.
-                        if (Weaver.WeaveLists.replaceEvents.TryGetValue(opField.Name, out MethodDefinition replacement))
-                        {
-                            instr.Operand = replacement;
-                            inst.OpCode = OpCodes.Nop;
-                            found = true;
-                        }
+                    // find replaceEvent with matching name
+                    // NOTE: original weaver compared .Name, not just the MethodDefinition,
+                    //       that's why we use dict<string,method>.
+                    if (Weaver.WeaveLists.replaceEvents.TryGetValue(opField.Name, out MethodDefinition replacement))
+                    {
+                        instr.Operand = replacement;
+                        inst.OpCode = OpCodes.Nop;
+                        found = true;
                     }
                 }
             }
