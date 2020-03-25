@@ -6,7 +6,7 @@ using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
-    class Helpers
+    static class Helpers
     {
         // This code is taken from SerializationWeaver
 
