@@ -41,6 +41,11 @@ namespace Mirror
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float localScaleSensitivity = .01f;
 
+        [Header("Compression")]
+        [Tooltip("Compressed Quaternion [Highest 9 bytes, Medium 4 bytes, Low 3 bytes, NoRotation 0 bytes]")]
+        [UnityEngine.Serialization.FormerlySerializedAs("compressRotation")]
+        [SerializeField] RotationPrecision rotationPrecision = RotationPrecision.Medium;
+
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
@@ -69,21 +74,21 @@ namespace Mirror
         // serialization is needed by OnSerialize and by manual sending from authority
         // public only for tests
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
+        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, RotationPrecision rotationPrecision, Vector3 scale)
         {
             // serialize position, rotation, scale
             // note: we do NOT compress rotation.
             //       we are CPU constrained, not bandwidth constrained.
             //       the code needs to WORK for the next 5-10 years of development.
             writer.WriteVector3(position);
-            writer.WriteQuaternion(rotation);
+            writer.WriteQuaternion(rotation, rotationPrecision);
             writer.WriteVector3(scale);
         }
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             // use local position/rotation/scale for VR support
-            SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+            SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, rotationPrecision, targetComponent.transform.localScale);
             return true;
         }
 
@@ -106,19 +111,16 @@ namespace Mirror
             // put it into a data point immediately
             DataPoint temp = new DataPoint
             {
-                // deserialize position
-                localPosition = reader.ReadVector3()
+                localPosition = reader.ReadVector3(),
+                localRotation = reader.ReadQuaternion(rotationPrecision),
+                localScale = reader.ReadVector3(),
+                timeStamp = Time.time,
             };
-
-            // deserialize rotation & scale
-            temp.localRotation = reader.ReadQuaternion();
-            temp.localScale = reader.ReadVector3();
-
-            temp.timeStamp = Time.time;
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
             temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetComponent.transform, syncInterval);
+
 
             // reassign start wisely
             // -> first ever data point? then make something up for previous one
@@ -313,7 +315,10 @@ namespace Mirror
         {
             // local position/rotation for VR support
             targetComponent.transform.localPosition = position;
-            targetComponent.transform.localRotation = rotation;
+            if (RotationPrecision.NoRotation != rotationPrecision)
+            {
+                targetComponent.transform.localRotation = rotation;
+            }
             targetComponent.transform.localScale = scale;
         }
 
@@ -343,7 +348,7 @@ namespace Mirror
                             // local position/rotation for VR support
                             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                             {
-                                SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+                                SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, rotationPrecision, targetComponent.transform.localScale);
 
                                 // send to server
                                 CmdClientToServerSync(writer.ToArray());
