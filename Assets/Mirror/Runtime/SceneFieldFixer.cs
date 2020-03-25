@@ -66,7 +66,7 @@ namespace Mirror
             oldProp.stringValue = "";
 
             serializedObject.ApplyModifiedProperties();
-            EditorUtility.SetDirty(target);
+            //EditorUtility.SetDirty(target);
 #endif
         }
 
@@ -74,18 +74,15 @@ namespace Mirror
         static bool FindAndSetScene(SerializedProperty oldProp, SerializedProperty newProp)
         {
             SerializedProperty newPropPath = newProp.FindPropertyRelative("path");
-            SerializedProperty newPropGuid = newProp.FindPropertyRelative("assetGuid");
-
 
             // only set new prop if is it empty
-            if (string.IsNullOrEmpty(newPropGuid.stringValue))
+            if (string.IsNullOrEmpty(newPropPath.stringValue))
             {
                 string path = FindScene(oldProp);
 
                 if (!string.IsNullOrEmpty(path))
                 {
                     newPropPath.stringValue = path;
-                    newPropGuid.stringValue = AssetDatabase.AssetPathToGUID(path);
                     return true;
                 }
                 else

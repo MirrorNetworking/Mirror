@@ -22,10 +22,9 @@ namespace Mirror
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            SerializedProperty guidProp = property.FindPropertyRelative("assetGuid");
             SerializedProperty pathProp = property.FindPropertyRelative("path");
 
-            SceneAsset sceneObject = GetSceneObject(guidProp.stringValue);
+            SceneAsset sceneObject = GetSceneObject(pathProp.stringValue);
 
             using (EditorGUI.ChangeCheckScope scope = new EditorGUI.ChangeCheckScope())
             {
@@ -33,15 +32,14 @@ namespace Mirror
 
                 if (scope.changed)
                 {
+                    // TODO: if not in build list, show dialog and ask user if we should add it.
                     if (scene == null || NotInBuildList(scene))
                     {
-                        guidProp.stringValue = "";
                         pathProp.stringValue = "";
                     }
                     else
                     {
                         string path = AssetDatabase.GetAssetPath(scene);
-                        guidProp.stringValue = AssetDatabase.AssetPathToGUID(path);
                         pathProp.stringValue = path;
                     }
                 }
@@ -62,20 +60,14 @@ namespace Mirror
             return !isValid;
         }
 
-        static SceneAsset GetSceneObject(string sceneGuid)
+        static SceneAsset GetSceneObject(string scenePath)
         {
-            if (string.IsNullOrEmpty(sceneGuid))
+            if (string.IsNullOrEmpty(scenePath))
             {
                 return null;
             }
 
-            string path = AssetDatabase.GUIDToAssetPath(sceneGuid);
-            if (string.IsNullOrEmpty(path))
-            {
-                return null;
-            }
-
-            return AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
+            return AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
         }
     }
 }

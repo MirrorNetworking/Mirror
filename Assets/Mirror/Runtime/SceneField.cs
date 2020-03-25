@@ -12,7 +12,6 @@ namespace Mirror
     public struct SceneField : IEquatable<SceneField>
     {
         [SerializeField] string path;
-        [SerializeField] string assetGuid;
 
         public string Path => path; 
 
@@ -40,12 +39,12 @@ namespace Mirror
 
         public bool Equals(SceneField other)
         {
-            return assetGuid == other.assetGuid;
+            return path == other.path;
         }
 
         public override int GetHashCode()
         {
-            return 1488015982 + EqualityComparer<string>.Default.GetHashCode(assetGuid);
+            return 1488015982 + EqualityComparer<string>.Default.GetHashCode(path);
         }
 
         public static bool operator ==(SceneField left, SceneField right)
