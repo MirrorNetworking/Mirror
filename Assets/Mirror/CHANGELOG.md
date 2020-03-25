@@ -1,3 +1,13 @@
+# [26.0.0](https://github.com/MirrorNG/MirrorNG/compare/25.0.0-master...26.0.0-master) (2020-03-25)
+
+
+* remove OnClientStart virtual ([eb5242d](https://github.com/MirrorNG/MirrorNG/commit/eb5242d63fa011381e7692470713fd144476454a))
+
+
+### BREAKING CHANGES
+
+* Removed OnStartClient virtual,  use event from NetworkClient instead
+
 # [25.0.0](https://github.com/MirrorNG/MirrorNG/compare/24.1.1-master...25.0.0-master) (2020-03-25)
 
 
