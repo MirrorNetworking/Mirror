@@ -66,27 +66,6 @@ namespace Mirror
         // local authority send time
         float lastClientSendTime;
 
-        // serialization is needed by OnSerialize and by manual sending from authority
-        // public only for tests
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
-        {
-            // serialize position, rotation, scale
-            // note: we do NOT compress rotation.
-            //       we are CPU constrained, not bandwidth constrained.
-            //       the code needs to WORK for the next 5-10 years of development.
-            writer.WriteVector3(position);
-            writer.WriteQuaternion(rotation);
-            writer.WriteVector3(scale);
-        }
-
-        public override bool OnSerialize(NetworkWriter writer, bool initialState)
-        {
-            // use local position/rotation/scale for VR support
-            SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
-            return true;
-        }
-
         // try to estimate movement speed for a data point based on how far it
         // moved since the previous one
         // => if this is the first time ever then we use our best guess:
@@ -101,18 +80,18 @@ namespace Mirror
         }
 
         // serialization is needed by OnSerialize and by manual sending from authority
-        void DeserializeFromReader(NetworkReader reader)
+        void SetGoal(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // put it into a data point immediately
             DataPoint temp = new DataPoint
             {
                 // deserialize position
-                localPosition = reader.ReadVector3()
+                localPosition = position
             };
 
             // deserialize rotation & scale
-            temp.localRotation = reader.ReadQuaternion();
-            temp.localScale = reader.ReadVector3();
+            temp.localRotation = rotation;
+            temp.localScale = scale;
 
             temp.timeStamp = Time.time;
 
@@ -187,23 +166,16 @@ namespace Mirror
             goal = temp;
         }
 
-        public override void OnDeserialize(NetworkReader reader, bool initialState)
-        {
-            // deserialize
-            DeserializeFromReader(reader);
-        }
-
         // local authority client sends sync message to server for broadcasting
         [Command]
-        void CmdClientToServerSync(byte[] payload)
+        void CmdClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // Ignore messages from client if not in client authority mode
             if (!clientAuthority)
                 return;
 
             // deserialize payload
-            using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(payload))
-                DeserializeFromReader(networkReader);
+            SetGoal(position, rotation, scale);
 
             // server-only mode does no interpolation to save computations,
             // but let's set the position directly
@@ -341,13 +313,8 @@ namespace Mirror
                         {
                             // serialize
                             // local position/rotation for VR support
-                            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-                            {
-                                SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
-
-                                // send to server
-                                CmdClientToServerSync(writer.ToArray());
-                            }
+                            // send to server
+                            CmdClientToServerSync(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
                         }
                         lastClientSendTime = Time.time;
                     }
