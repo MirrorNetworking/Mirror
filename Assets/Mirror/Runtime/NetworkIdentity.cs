@@ -481,6 +481,8 @@ namespace Mirror
         }
 #endif
 
+        // Unity will Destroy all networked objects on Scene Change, so we have to handle that here silently.
+        // That means we cannot have any warning or logging in this method.
         void OnDestroy()
         {
             // remove from sceneIds
@@ -499,7 +501,7 @@ namespace Mirror
             // then we don't need to call it again, so the check for reset is needed to prevent the doubling.
             if (isServer && !reset)
             {
-                Debug.LogWarning("Incorrect use of Destroy. Use NetworkServer.Destroy instead for networked objects.");
+                // Do not add logging to this (see above)
                 NetworkServer.Destroy(gameObject);
             }
         }
