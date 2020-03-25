@@ -34,8 +34,15 @@ namespace Mirror
 
         protected SceneAsset GetBuildSettingsSceneObject(string sceneName)
         {
-            Scene scene = SceneManager.GetSceneByName(sceneName);
-            return AssetDatabase.LoadAssetAtPath<SceneAsset>(scene.path);
+            foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
+            {
+                SceneAsset sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(buildScene.path);
+                if (sceneAsset.name == sceneName)
+                {
+                    return sceneAsset;
+                }
+            }
+            return null;
         }
     }
 }
