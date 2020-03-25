@@ -29,7 +29,7 @@ namespace Mirror
 
             public Styles()
             {
-                Color fontColor = new Color(0.7f, 0.7f, 0.7f);
+                var fontColor = new Color(0.7f, 0.7f, 0.7f);
                 LabelStyle.padding.right += 20;
                 LabelStyle.normal.textColor = fontColor;
                 LabelStyle.active.textColor = fontColor;
@@ -104,7 +104,7 @@ namespace Mirror
                 styles = new Styles();
 
             // padding
-            RectOffset previewPadding = new RectOffset(-5, -5, -5, -5);
+            var previewPadding = new RectOffset(-5, -5, -5, -5);
             Rect paddedr = previewPadding.Add(r);
 
             //Centering
@@ -126,11 +126,11 @@ namespace Mirror
             IEnumerable<NetworkIdentityInfo> infos = GetNetworkIdentityInfo(identity);
             // Get required label size for the names of the information values we're going to show
             // There are two columns, one with label for the name of the info and the next for the value
-            Vector2 maxNameLabelSize = new Vector2(140, 16);
+            var maxNameLabelSize = new Vector2(140, 16);
             Vector2 maxValueLabelSize = GetMaxNameLabelSize(infos);
 
-            Rect labelRect = new Rect(initialX, Y, maxNameLabelSize.x, maxNameLabelSize.y);
-            Rect idLabelRect = new Rect(maxNameLabelSize.x, Y, maxValueLabelSize.x, maxValueLabelSize.y);
+            var labelRect = new Rect(initialX, Y, maxNameLabelSize.x, maxNameLabelSize.y);
+            var idLabelRect = new Rect(maxNameLabelSize.x, Y, maxValueLabelSize.x, maxValueLabelSize.y);
 
             foreach (NetworkIdentityInfo info in infos)
             {
@@ -151,7 +151,7 @@ namespace Mirror
             // Show behaviours list in a different way than the name/value pairs above
 
             Vector2 maxBehaviourLabelSize = GetMaxBehaviourLabelSize(behavioursInfo);
-            Rect behaviourRect = new Rect(initialX, Y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
+            var behaviourRect = new Rect(initialX, Y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
 
             GUI.Label(behaviourRect, new GUIContent("Network Behaviours"), styles.LabelStyle);
             // indent names
@@ -179,7 +179,7 @@ namespace Mirror
         {
             if (identity.observers != null && identity.observers.Count > 0)
             {
-                Rect observerRect = new Rect(initialX, Y + 10, 200, 20);
+                var observerRect = new Rect(initialX, Y + 10, 200, 20);
 
                 GUI.Label(observerRect, new GUIContent("Network observers"), styles.LabelStyle);
                 // indent names
@@ -202,7 +202,7 @@ namespace Mirror
         {
             if (identity.connectionToClient != null)
             {
-                Rect ownerRect = new Rect(initialX, Y + 10, 400, 20);
+                var ownerRect = new Rect(initialX, Y + 10, 400, 20);
                 GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.connectionToClient), styles.LabelStyle);
                 Y += ownerRect.height;
             }
@@ -230,7 +230,7 @@ namespace Mirror
 
         Vector2 GetMaxBehaviourLabelSize(IEnumerable<NetworkBehaviourInfo> behavioursInfo)
         {
-            var maxLabelSize = Vector2.zero;
+            Vector2 maxLabelSize = Vector2.zero;
             foreach (NetworkBehaviourInfo behaviour in behavioursInfo)
             {
                 Vector2 labelSize = styles.LabelStyle.CalcSize(behaviour.Name);
@@ -304,7 +304,7 @@ namespace Mirror
             return new NetworkIdentityInfo
             {
                 Name = new GUIContent(name),
-                Value = new GUIContent((value ? "Yes" : "No"))
+                Value = new GUIContent(value ? "Yes" : "No")
             };
         }
     }
