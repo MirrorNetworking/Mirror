@@ -111,41 +111,29 @@ namespace Mirror.Weaver
 
         static int ProcessInstruction(MethodDefinition md, Instruction instr, int iCount)
         {
-            if (instr.OpCode == OpCodes.Call || instr.OpCode == OpCodes.Callvirt)
+            if ((instr.OpCode == OpCodes.Call || instr.OpCode == OpCodes.Callvirt)
+                && instr.Operand is MethodReference opMethod)
             {
-                if (instr.Operand is MethodReference opMethod)
-                {
-                    ProcessInstructionMethod(md, instr, opMethod, iCount);
-                }
+                ProcessInstructionMethod(md, instr, opMethod, iCount);
             }
 
-            if (instr.OpCode == OpCodes.Stfld)
+            if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
             {
                 // this instruction sets the value of a field. cache the field reference.
-                if (instr.Operand is FieldDefinition opField)
-                {
-                    ProcessInstructionSetterField(md, instr, opField);
-                }
+                ProcessInstructionSetterField(md, instr, opFieldst);
             }
 
-            if (instr.OpCode == OpCodes.Ldfld)
+            if (instr.OpCode == OpCodes.Ldfld && instr.Operand is FieldDefinition opFieldld)
             {
                 // this instruction gets the value of a field. cache the field reference.
-                if (instr.Operand is FieldDefinition opField)
-                {
-                    ProcessInstructionGetterField(md, instr, opField);
-                }
+                ProcessInstructionGetterField(md, instr, opFieldld);
             }
 
-            if (instr.OpCode == OpCodes.Ldflda)
+            if (instr.OpCode == OpCodes.Ldflda && instr.Operand is FieldDefinition opFieldlda)
             {
                 // loading a field by reference,  watch out for initobj instruction
                 // see https://github.com/vis2k/Mirror/issues/696
-
-                if (instr.Operand is FieldDefinition opField)
-                {
-                    return ProcessInstructionLoadAddress(md, instr, opField, iCount);
-                }
+                return ProcessInstructionLoadAddress(md, instr, opFieldlda, iCount);
             }
 
             return 1;
