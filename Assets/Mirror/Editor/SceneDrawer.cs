@@ -13,7 +13,7 @@ namespace Mirror
             {
                 SceneAsset sceneObject = AssetDatabase.LoadAssetAtPath<SceneAsset>(property.stringValue);
 
-                if (sceneObject == null)
+                if (sceneObject == null && !string.IsNullOrEmpty(property.stringValue))
                 {
                     // try to load it from the build settings for legacy compatibility
                     sceneObject = GetBuildSettingsSceneObject(property.stringValue);
