@@ -26,6 +26,11 @@ public class #SCRIPTNAME# : NetworkRoomManager
     public override void OnRoomStartServer() { }
 
     /// <summary>
+        /// This is called on the server when the server is started - including when a host is stopped.
+    /// </summary>
+    public override void OnRoomStopServer() { }
+
+    /// <summary>
     /// This is called on the host when a host is started.
     /// </summary>
     public override void OnRoomStartHost() { }
