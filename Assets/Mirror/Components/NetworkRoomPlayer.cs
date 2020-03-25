@@ -125,7 +125,7 @@ namespace Mirror
                 if (!room.showRoomGUI)
                     return;
 
-                if (SceneManager.GetActiveScene().path != room.RoomScene)
+                if (!NetworkManager.IsSceneActive(room.RoomScene))
                     return;
 
                 DrawPlayerReadyState();
