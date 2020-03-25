@@ -344,7 +344,7 @@ namespace Mirror
                             // local position/rotation for VR support
                             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                             {
-                                SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+                                SerializeIntoWriter(writer, TargetComponent.transform.localPosition, TargetComponent.transform.localRotation, TargetComponent.transform.localScale);
 
                                 // send to server
                                 CmdClientToServerSync(writer.ToArray());
