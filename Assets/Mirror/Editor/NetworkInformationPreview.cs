@@ -90,7 +90,7 @@ namespace Mirror
             if (target == null)
                 return;
 
-            var targetGameObject = target as GameObject;
+            GameObject targetGameObject = target as GameObject;
 
             if (targetGameObject == null)
                 return;
@@ -265,18 +265,21 @@ namespace Mirror
 
         IEnumerable<NetworkBehaviourInfo> GetNetworkBehaviorInfo(NetworkIdentity identity)
         {
+            List<NetworkBehaviourInfo> behaviourInfos = new List<NetworkBehaviourInfo>();
+
             NetworkBehaviour[] behaviours = identity.GetComponents<NetworkBehaviour>();
             if (behaviours.Length > 0)
             {
                 foreach (NetworkBehaviour behaviour in behaviours)
                 {
-                    yield return new NetworkBehaviourInfo
+                    behaviourInfos.Add(new NetworkBehaviourInfo
                     {
                         name = new GUIContent(behaviour.GetType().FullName),
                         behaviour = behaviour
-                    };
+                    });
                 }
             }
+            return behaviourInfos;
         }
 
         NetworkIdentityInfo GetAssetId(NetworkIdentity identity)
