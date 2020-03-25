@@ -179,33 +179,32 @@ namespace Mirror.Weaver
 
         static void ProcessInstructionMethod(MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
         {
-            //DLog(td, "ProcessInstructionMethod " + opMethod.Name);
-            if (opMethodRef.Name == "Invoke")
+            if (opMethodRef.Name != "Invoke")
+                return;
+
+            // Events use an "Invoke" method to call the delegate.
+            // this code replaces the "Invoke" instruction with the generated "Call***" instruction which send the event to the server.
+            // but the "Invoke" instruction is called on the event field - where the "call" instruction is not.
+            // so the earlier instruction that loads the event field is replaced with a Noop.
+
+            // go backwards until find a ldfld instruction that matches ANY event
+            bool found = false;
+            while (iCount > 0 && !found)
             {
-                // Events use an "Invoke" method to call the delegate.
-                // this code replaces the "Invoke" instruction with the generated "Call***" instruction which send the event to the server.
-                // but the "Invoke" instruction is called on the event field - where the "call" instruction is not.
-                // so the earlier instruction that loads the event field is replaced with a Noop.
-
-                // go backwards until find a ldfld instruction that matches ANY event
-                bool found = false;
-                while (iCount > 0 && !found)
+                iCount -= 1;
+                Instruction inst = md.Body.Instructions[iCount];
+                if (inst.OpCode == OpCodes.Ldfld)
                 {
-                    iCount -= 1;
-                    Instruction inst = md.Body.Instructions[iCount];
-                    if (inst.OpCode == OpCodes.Ldfld)
-                    {
-                        FieldReference opField = inst.Operand as FieldReference;
+                    FieldReference opField = inst.Operand as FieldReference;
 
-                        // find replaceEvent with matching name
-                        // NOTE: original weaver compared .Name, not just the MethodDefinition,
-                        //       that's why we use dict<string,method>.
-                        if (Weaver.WeaveLists.replaceEvents.TryGetValue(opField.Name, out MethodDefinition replacement))
-                        {
-                            instr.Operand = replacement;
-                            inst.OpCode = OpCodes.Nop;
-                            found = true;
-                        }
+                    // find replaceEvent with matching name
+                    // NOTE: original weaver compared .Name, not just the MethodDefinition,
+                    //       that's why we use dict<string,method>.
+                    if (Weaver.WeaveLists.replaceEvents.TryGetValue(opField.Name, out MethodDefinition replacement))
+                    {
+                        instr.Operand = replacement;
+                        inst.OpCode = OpCodes.Nop;
+                        found = true;
                     }
                 }
             }
