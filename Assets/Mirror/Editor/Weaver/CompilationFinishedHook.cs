@@ -160,8 +160,6 @@ namespace Mirror.Weaver
             {
                 // NOTE: WeaveFailed is critical for unit tests but isn't used elsewhere
                 WeaveFailed = false;
-
-                //Debug.Log("Weaving succeeded for: " + assemblyPath);
             }
             else
             {
