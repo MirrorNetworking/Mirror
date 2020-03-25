@@ -1,1 +1,1 @@
-﻿/* Not needed anymore,  we don't manually serialize data anymore */
+﻿// Not needed anymore,  we don't manually serialize data anymore
