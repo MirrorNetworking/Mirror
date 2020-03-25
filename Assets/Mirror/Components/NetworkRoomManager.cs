@@ -79,6 +79,7 @@ namespace Mirror
         void Awake()
         {
             client.Authenticated.AddListener(OnAuthenticated);
+            server.Stopped.AddListener(Stopped);
             client.Disconnected.AddListener(Disconnected);
         }
 
@@ -396,7 +397,7 @@ namespace Mirror
         /// <summary>
         /// This is called when a server is stopped - including when a host is stopped.
         /// </summary>
-        public override void OnStopServer()
+        public void Stopped()
         {
             RoomSlots.Clear();
             OnRoomStopServer();

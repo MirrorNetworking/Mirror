@@ -460,8 +460,6 @@ namespace Mirror
             if (!server.active)
                 return;
 
-            OnStopServer();
-
             if (LogFilter.Debug) Debug.Log("NetworkManager StopServer");
             isNetworkActive = false;
             server.Shutdown();
@@ -1255,11 +1253,6 @@ namespace Mirror
         /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
         /// </summary>
         public virtual void OnStartServer() { }
-
-        /// <summary>
-        /// This is called when a server is stopped - including when a host is stopped.
-        /// </summary>
-        public virtual void OnStopServer() { }
 
         /// <summary>
         /// This is called when a host is stopped.

@@ -33,6 +33,7 @@ namespace Mirror
 
         public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
+        public UnityEvent Stopped = new UnityEvent();
 
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
@@ -115,6 +116,8 @@ namespace Mirror
                     authenticator.OnServerAuthenticated -= OnAuthenticated;
 
                 initialized = false;
+
+                Stopped.Invoke();
             }
 
             active = false;
