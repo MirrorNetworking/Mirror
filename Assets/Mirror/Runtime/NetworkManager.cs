@@ -309,8 +309,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + serverIp);
 
             _ = client.ConnectAsync(serverIp);
-
-            OnStartClient();
         }
 
         /// <summary>
@@ -327,8 +325,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + uri);
 
             _ = client.ConnectAsync(uri);
-
-            OnStartClient();
         }
 
         /// <summary>
@@ -444,8 +440,6 @@ namespace Mirror
             client.ConnectLocalServer(server);
 
             RegisterClientMessages(client.connection);
-
-            OnStartClient();
         }
 
         /// <summary>
@@ -1261,11 +1255,6 @@ namespace Mirror
         /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
         /// </summary>
         public virtual void OnStartServer() { }
-
-        /// <summary>
-        /// This is invoked when the client is started.
-        /// </summary>
-        public virtual void OnStartClient() { }
 
         /// <summary>
         /// This is called when a server is stopped - including when a host is stopped.
