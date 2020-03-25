@@ -153,21 +153,21 @@ namespace Mirror
             Vector2 maxBehaviourLabelSize = GetMaxBehaviourLabelSize(behavioursInfo);
             Rect behaviourRect = new Rect(initialX, Y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
 
-            GUI.Label(behaviourRect, new GUIContent("Network Behaviours"), styles.labelStyle);
+            GUI.Label(behaviourRect, new GUIContent("Network Behaviours"), styles.LabelStyle);
             // indent names
             behaviourRect.x += 20;
             behaviourRect.y += behaviourRect.height;
 
             foreach (NetworkBehaviourInfo info in behavioursInfo)
             {
-                if (info.behaviour == null)
+                if (info.Behaviour == null)
                 {
 
                     // could be the case in the editor after existing play mode.
                     continue;
                 }
 
-                GUI.Label(behaviourRect, info.name, info.behaviour.enabled ? styles.componentName : styles.disabledName);
+                GUI.Label(behaviourRect, info.Name, info.Behaviour.enabled ? styles.ComponentName : styles.DisabledName);
                 behaviourRect.y += behaviourRect.height;
                 Y = behaviourRect.y;
             }
@@ -181,15 +181,15 @@ namespace Mirror
             {
                 Rect observerRect = new Rect(initialX, Y + 10, 200, 20);
 
-                GUI.Label(observerRect, new GUIContent("Network observers"), styles.labelStyle);
+                GUI.Label(observerRect, new GUIContent("Network observers"), styles.LabelStyle);
                 // indent names
                 observerRect.x += 20;
                 observerRect.y += observerRect.height;
 
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                foreach (NetworkConnection conn in identity.observers)
                 {
 
-                    GUI.Label(observerRect, kvp.Value.address + ":" + kvp.Value, styles.componentName);
+                    GUI.Label(observerRect, conn.address + ":" + conn, styles.ComponentName);
                     observerRect.y += observerRect.height;
                     Y = observerRect.y;
                 }
@@ -203,7 +203,7 @@ namespace Mirror
             if (identity.connectionToClient != null)
             {
                 Rect ownerRect = new Rect(initialX, Y + 10, 400, 20);
-                GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.connectionToClient), styles.labelStyle);
+                GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.connectionToClient), styles.LabelStyle);
                 Y += ownerRect.height;
             }
             return Y;
@@ -273,8 +273,8 @@ namespace Mirror
                 {
                     yield return new NetworkBehaviourInfo
                     {
-                        name = new GUIContent(behaviour.GetType().FullName),
-                        behaviour = behaviour
+                        Name = new GUIContent(behaviour.GetType().FullName),
+                        Behaviour = behaviour
                     };
                 }
             }
