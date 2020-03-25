@@ -8,13 +8,13 @@ namespace Mirror
     [CustomPreview(typeof(GameObject))]
     class NetworkInformationPreview : ObjectPreview
     {
-        class NetworkIdentityInfo
+        struct NetworkIdentityInfo
         {
             public GUIContent name;
             public GUIContent value;
         }
 
-        class NetworkBehaviourInfo
+        struct NetworkBehaviourInfo
         {
             // This is here just so we can check if it's enabled/disabled
             public NetworkBehaviour behaviour;
@@ -60,16 +60,12 @@ namespace Mirror
             }
         }
 
-        List<NetworkIdentityInfo> info;
-        List<NetworkBehaviourInfo> behavioursInfo;
-        NetworkIdentity identity;
         GUIContent title;
         Styles styles = new Styles();
 
         public override void Initialize(UnityObject[] targets)
         {
             base.Initialize(targets);
-            GetNetworkInformation(target as GameObject);
         }
 
         public override GUIContent GetPreviewTitle()
@@ -83,7 +79,7 @@ namespace Mirror
 
         public override bool HasPreviewGUI()
         {
-            return info != null && info.Count > 0;
+            return target != null && target is GameObject gameObject && gameObject.GetComponent<NetworkIdentity>() != null;
         }
 
         public override void OnPreviewGUI(Rect r, GUIStyle background)
@@ -91,32 +87,53 @@ namespace Mirror
             if (Event.current.type != EventType.Repaint)
                 return;
 
-            // refresh the data
-            GetNetworkInformation(target as GameObject);
+            if (target == null)
+                return;
 
-            if (info == null || info.Count == 0)
+            var targetGameObject = target as GameObject;
+
+            if (targetGameObject == null)
+                return;
+
+            NetworkIdentity identity = targetGameObject.GetComponent<NetworkIdentity>();
+
+            if (identity == null)
                 return;
 
             if (styles == null)
                 styles = new Styles();
 
-            // Get required label size for the names of the information values we're going to show
-            // There are two columns, one with label for the name of the info and the next for the value
-            Vector2 maxNameLabelSize = new Vector2(140, 16);
-            Vector2 maxValueLabelSize = GetMaxNameLabelSize();
 
-            //Apply padding
+            // padding
             RectOffset previewPadding = new RectOffset(-5, -5, -5, -5);
             Rect paddedr = previewPadding.Add(r);
 
             //Centering
             float initialX = paddedr.x + 10;
-            float initialY = paddedr.y + 10;
+            float Y = paddedr.y + 10;
 
-            Rect labelRect = new Rect(initialX, initialY, maxNameLabelSize.x, maxNameLabelSize.y);
-            Rect idLabelRect = new Rect(maxNameLabelSize.x, initialY, maxValueLabelSize.x, maxValueLabelSize.y);
+            Y = DrawNetworkIdentityInfo(identity, initialX, Y);
 
-            foreach (NetworkIdentityInfo info in info)
+            Y = DrawNetworkBehaviors(identity, initialX, Y);
+
+            Y = DrawObservers(identity, initialX, Y);
+
+            _ = DrawOwner(identity, initialX, Y);
+
+        }
+
+        private float DrawNetworkIdentityInfo(NetworkIdentity identity, float initialX, float Y)
+        {
+            IEnumerable<NetworkIdentityInfo> infos = GetNetworkIdentityInfo(identity);
+            // Get required label size for the names of the information values we're going to show
+            // There are two columns, one with label for the name of the info and the next for the value
+            Vector2 maxNameLabelSize = new Vector2(140, 16);
+            Vector2 maxValueLabelSize = GetMaxNameLabelSize(infos);
+
+            Rect labelRect = new Rect(initialX, Y, maxNameLabelSize.x, maxNameLabelSize.y);
+            Rect idLabelRect = new Rect(maxNameLabelSize.x, Y, maxValueLabelSize.x, maxValueLabelSize.y);
+
+            foreach (NetworkIdentityInfo info in infos)
             {
                 GUI.Label(labelRect, info.name, styles.labelStyle);
                 GUI.Label(idLabelRect, info.value, styles.componentName);
@@ -125,61 +142,76 @@ namespace Mirror
                 idLabelRect.y += idLabelRect.height;
             }
 
+            return labelRect.y;
+        }
+
+        private float DrawNetworkBehaviors(NetworkIdentity identity, float initialX, float Y)
+        {
+            IEnumerable<NetworkBehaviourInfo> behavioursInfo = GetNetworkBehaviorInfo(identity);
+
             // Show behaviours list in a different way than the name/value pairs above
-            float lastY = labelRect.y;
-            if (behavioursInfo != null && behavioursInfo.Count > 0)
+            Vector2 maxBehaviourLabelSize = GetMaxBehaviourLabelSize(behavioursInfo);
+            Rect behaviourRect = new Rect(initialX, Y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
+
+            GUI.Label(behaviourRect, new GUIContent("Network Behaviours"), styles.labelStyle);
+            // indent names
+            behaviourRect.x += 20;
+            behaviourRect.y += behaviourRect.height;
+
+            foreach (NetworkBehaviourInfo info in behavioursInfo)
             {
-                Vector2 maxBehaviourLabelSize = GetMaxBehaviourLabelSize();
-                Rect behaviourRect = new Rect(initialX, labelRect.y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
+                if (info.behaviour == null)
+                {
+                    // could be the case in the editor after existing play mode.
+                    continue;
+                }
 
-                GUI.Label(behaviourRect, new GUIContent("Network Behaviours"), styles.labelStyle);
-                // indent names
-                behaviourRect.x += 20;
+                GUI.Label(behaviourRect, info.name, info.behaviour.enabled ? styles.componentName : styles.disabledName);
                 behaviourRect.y += behaviourRect.height;
+                Y = behaviourRect.y;
+            }
 
-                foreach (NetworkBehaviourInfo info in behavioursInfo)
+            return Y;
+        }
+
+        private float DrawObservers(NetworkIdentity identity, float initialX, float Y)
+        {
+            if (identity.observers != null && identity.observers.Count > 0)
+            {
+                Rect observerRect = new Rect(initialX, Y + 10, 200, 20);
+
+                GUI.Label(observerRect, new GUIContent("Network observers"), styles.labelStyle);
+                // indent names
+                observerRect.x += 20;
+                observerRect.y += observerRect.height;
+
+                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    if (info.behaviour == null)
-                    {
-                        // could be the case in the editor after existing play mode.
-                        continue;
-                    }
-
-                    GUI.Label(behaviourRect, info.name, info.behaviour.enabled ? styles.componentName : styles.disabledName);
-                    behaviourRect.y += behaviourRect.height;
-                    lastY = behaviourRect.y;
-                }
-
-                if (identity.observers != null && identity.observers.Count > 0)
-                {
-                    Rect observerRect = new Rect(initialX, lastY + 10, 200, 20);
-
-                    GUI.Label(observerRect, new GUIContent("Network observers"), styles.labelStyle);
-                    // indent names
-                    observerRect.x += 20;
+                    GUI.Label(observerRect, kvp.Value.address + ":" + kvp.Value, styles.componentName);
                     observerRect.y += observerRect.height;
-
-                    foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
-                    {
-                        GUI.Label(observerRect, kvp.Value.address + ":" + kvp.Value, styles.componentName);
-                        observerRect.y += observerRect.height;
-                        lastY = observerRect.y;
-                    }
-                }
-
-                if (identity.connectionToClient != null)
-                {
-                    Rect ownerRect = new Rect(initialX, lastY + 10, 400, 20);
-                    GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.connectionToClient), styles.labelStyle);
+                    Y = observerRect.y;
                 }
             }
+
+            return Y;
+        }
+
+        private float DrawOwner(NetworkIdentity identity, float initialX, float Y)
+        {
+            if (identity.connectionToClient != null)
+            {
+                Rect ownerRect = new Rect(initialX, Y + 10, 400, 20);
+                GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.connectionToClient), styles.labelStyle);
+                Y += ownerRect.height;
+            }
+            return Y;
         }
 
         // Get the maximum size used by the value of information items
-        Vector2 GetMaxNameLabelSize()
+        Vector2 GetMaxNameLabelSize(IEnumerable<NetworkIdentityInfo> infos)
         {
             Vector2 maxLabelSize = Vector2.zero;
-            foreach (NetworkIdentityInfo info in info)
+            foreach (NetworkIdentityInfo info in infos)
             {
                 Vector2 labelSize = styles.labelStyle.CalcSize(info.value);
                 if (maxLabelSize.x < labelSize.x)
@@ -194,7 +226,7 @@ namespace Mirror
             return maxLabelSize;
         }
 
-        Vector2 GetMaxBehaviourLabelSize()
+        Vector2 GetMaxBehaviourLabelSize(IEnumerable<NetworkBehaviourInfo> behavioursInfo)
         {
             Vector2 maxLabelSize = Vector2.zero;
             foreach (NetworkBehaviourInfo behaviour in behavioursInfo)
@@ -212,47 +244,41 @@ namespace Mirror
             return maxLabelSize;
         }
 
-        void GetNetworkInformation(GameObject gameObject)
+        IEnumerable<NetworkIdentityInfo> GetNetworkIdentityInfo(NetworkIdentity identity)
         {
-            identity = gameObject.GetComponent<NetworkIdentity>();
-            if (identity != null)
+            yield return GetAssetId(identity);
+            yield return GetString("Scene ID", identity.sceneId.ToString("X"));
+
+            if (!Application.isPlaying)
             {
-                info = new List<NetworkIdentityInfo>
+                yield break;
+            }
+
+            yield return GetString("Network ID", identity.netId.ToString());
+
+            yield return GetBoolean("Is Client", identity.isClient);
+            yield return GetBoolean("Is Server", identity.isServer);
+            yield return GetBoolean("Has Authority", identity.hasAuthority);
+            yield return GetBoolean("Is Local Player", identity.isLocalPlayer);
+        }
+
+        IEnumerable<NetworkBehaviourInfo> GetNetworkBehaviorInfo(NetworkIdentity identity)
+        {
+            NetworkBehaviour[] behaviours = identity.GetComponents<NetworkBehaviour>();
+            if (behaviours.Length > 0)
+            {
+                foreach (NetworkBehaviour behaviour in behaviours)
                 {
-                    GetAssetId(),
-                    GetString("Scene ID", identity.sceneId.ToString("X"))
-                };
-
-                if (!Application.isPlaying)
-                {
-                    return;
-                }
-
-                info.Add(GetString("Network ID", identity.netId.ToString()));
-
-                info.Add(GetBoolean("Is Client", identity.isClient));
-                info.Add(GetBoolean("Is Server", identity.isServer));
-                info.Add(GetBoolean("Has Authority", identity.hasAuthority));
-                info.Add(GetBoolean("Is Local Player", identity.isLocalPlayer));
-
-                NetworkBehaviour[] behaviours = gameObject.GetComponents<NetworkBehaviour>();
-                if (behaviours.Length > 0)
-                {
-                    behavioursInfo = new List<NetworkBehaviourInfo>();
-                    foreach (NetworkBehaviour behaviour in behaviours)
+                    yield return new NetworkBehaviourInfo
                     {
-                        NetworkBehaviourInfo info = new NetworkBehaviourInfo
-                        {
-                            name = new GUIContent(behaviour.GetType().FullName),
-                            behaviour = behaviour
-                        };
-                        behavioursInfo.Add(info);
-                    }
+                        name = new GUIContent(behaviour.GetType().FullName),
+                        behaviour = behaviour
+                    };
                 }
             }
         }
 
-        NetworkIdentityInfo GetAssetId()
+        NetworkIdentityInfo GetAssetId(NetworkIdentity identity)
         {
             string assetId = identity.assetId.ToString();
             if (string.IsNullOrEmpty(assetId))
@@ -264,22 +290,20 @@ namespace Mirror
 
         static NetworkIdentityInfo GetString(string name, string value)
         {
-            NetworkIdentityInfo info = new NetworkIdentityInfo
+            return new NetworkIdentityInfo
             {
                 name = new GUIContent(name),
                 value = new GUIContent(value)
             };
-            return info;
         }
 
         static NetworkIdentityInfo GetBoolean(string name, bool value)
         {
-            NetworkIdentityInfo info = new NetworkIdentityInfo
+            return new NetworkIdentityInfo
             {
                 name = new GUIContent(name),
                 value = new GUIContent((value ? "Yes" : "No"))
             };
-            return info;
         }
     }
 }
