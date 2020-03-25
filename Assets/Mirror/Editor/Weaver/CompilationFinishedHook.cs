@@ -141,19 +141,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            // build directory list for later asm/symbol resolving using CompilationPipeline refs
-            HashSet<string> dependencyPaths = new HashSet<string>();
-            dependencyPaths.Add(Path.GetDirectoryName(assemblyPath));
-            foreach (UnityAssembly unityAsm in CompilationPipeline.GetAssemblies())
-            {
-                if (unityAsm.outputPath != assemblyPath)
-                    continue;
-
-                foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
-                {
-                    dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
-                }
-            }
+            HashSet<string> dependencyPaths = GetDependecyPaths(assemblyPath);
 
             // passing null in the outputDirectory param will do an in-place update of the assembly
             if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
@@ -169,6 +157,25 @@ namespace Mirror.Weaver
                 WeaveFailed = true;
                 if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
             }
+        }
+
+        private static HashSet<string> GetDependecyPaths(string assemblyPath)
+        {
+            // build directory list for later asm/symbol resolving using CompilationPipeline refs
+            HashSet<string> dependencyPaths = new HashSet<string>();
+            dependencyPaths.Add(Path.GetDirectoryName(assemblyPath));
+            foreach (UnityAssembly unityAsm in CompilationPipeline.GetAssemblies())
+            {
+                if (unityAsm.outputPath != assemblyPath)
+                    continue;
+
+                foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
+                {
+                    dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
+                }
+            }
+
+            return dependencyPaths;
         }
     }
 }
