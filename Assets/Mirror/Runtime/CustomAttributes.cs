@@ -83,9 +83,9 @@ namespace Mirror
     public class ClientCallbackAttribute : Attribute { }
 
     /// <summary>
-    /// Obsolete: Use SceneField instead.
+    /// Obsolete: Use ScenePath instead.
     /// </summary>
-    [System.Obsolete("Use " + nameof(SceneField) + " Instead", true)]
+    [System.Obsolete("Use " + nameof(ScenePath) + " Instead", true)]
     public class SceneAttribute : PropertyAttribute { }
 
     /// <summary>

@@ -4,10 +4,10 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>
-    /// Updates fields from SceneAttribute to SceneField
+    /// Updates fields from SceneAttribute to ScenePath
     /// Without this users will have to manually reassign scene's in NetworkManager
     /// </summary>
-    public static class SceneFieldFixer
+    public static class ScenePathFixer
     {
         /// <summary>
         /// works on anything unity serialized as an array, eg arrays/lists

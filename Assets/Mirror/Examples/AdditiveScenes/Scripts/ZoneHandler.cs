@@ -10,34 +10,34 @@ namespace Mirror.Examples.Additive
     public class ZoneHandler : NetworkBehaviour
     {
         [Tooltip("Assign the sub-scene to load for this zone")]
-        public SceneField subSceneField;
+        public ScenePath subScenePath;
 
-        [HideInInspector, System.Obsolete("Use subSceneField Instead")]
+        [HideInInspector, System.Obsolete("Use subScenePath Instead")]
         public string subScene;
 
         public void OnValidate()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
-            SceneFieldFixer.FixField(this, nameof(subScene), nameof(subSceneField));
+            ScenePathFixer.FixField(this, nameof(subScene), nameof(subScenePath));
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Server]
         void OnTriggerEnter(Collider other)
         {
-            Debug.LogFormat("Loading {0}", subSceneField.Path);
+            Debug.LogFormat("Loading {0}", subScenePath.Path);
 
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
-            NetworkServer.SendToClientOfPlayer(networkIdentity, new SceneMessage { sceneName = subSceneField.Path, sceneOperation = SceneOperation.LoadAdditive });
+            NetworkServer.SendToClientOfPlayer(networkIdentity, new SceneMessage { sceneName = subScenePath.Path, sceneOperation = SceneOperation.LoadAdditive });
         }
 
         [Server]
         void OnTriggerExit(Collider other)
         {
-            Debug.LogFormat("Unloading {0}", subSceneField.Path);
+            Debug.LogFormat("Unloading {0}", subScenePath.Path);
 
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
-            NetworkServer.SendToClientOfPlayer(networkIdentity, new SceneMessage { sceneName = subSceneField.Path, sceneOperation = SceneOperation.UnloadAdditive });
+            NetworkServer.SendToClientOfPlayer(networkIdentity, new SceneMessage { sceneName = subScenePath.Path, sceneOperation = SceneOperation.UnloadAdditive });
         }
     }
 }

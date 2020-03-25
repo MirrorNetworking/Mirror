@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Mirror
 {
     [CustomPropertyDrawer(typeof(SceneAttribute))]
-    [System.Obsolete("Use " + nameof(SceneField) + " Instead")]
+    [System.Obsolete("Use " + nameof(ScenePath) + " Instead")]
     public class SceneDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -13,12 +13,12 @@ namespace Mirror
             GUIStyle style = new GUIStyle(EditorStyles.label);
             
             style.normal.textColor = Color.red; // warning color
-            EditorGUI.LabelField(position, label.text, "[Obslete] Replace 'string' field with 'SceneField'", style);
+            EditorGUI.LabelField(position, label.text, "[Obslete] Replace 'string' field with 'ScenePath'", style);
         }
     }
 
-    [CustomPropertyDrawer(typeof(SceneField))]
-    public class SceneFieldDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(ScenePath))]
+    public class ScenePathDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {

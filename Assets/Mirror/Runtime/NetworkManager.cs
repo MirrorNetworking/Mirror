@@ -66,7 +66,7 @@ namespace Mirror
         /// </summary>
         [Header("Scene Management")]
         [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
-        public SceneField offlineSceneField;
+        public ScenePath offlineScenePath;
 
         [Obsolete("Use offlineSceneAsset Instead")]
         [HideInInspector]
@@ -78,9 +78,9 @@ namespace Mirror
         /// <para>Setting this makes the NetworkManager do scene management. This scene will be switched to when a network session is started - such as a client connect, or a server listen.</para>
         /// </summary>
         [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
-        public SceneField onlineSceneField;
+        public ScenePath onlineScenePath;
 
-        [Obsolete("Use onlineSceneField Instead")]
+        [Obsolete("Use onlineScenePath Instead")]
         [HideInInspector]
         [FormerlySerializedAs("m_OnlineScene")]
         public string onlineScene = "";
@@ -213,8 +213,8 @@ namespace Mirror
             }
 
 #pragma warning disable CS0618 // Type or member is obsolete
-            SceneFieldFixer.FixField(this, nameof(offlineScene), nameof(offlineSceneField));
-            SceneFieldFixer.FixField(this, nameof(onlineScene), nameof(onlineSceneField));
+            ScenePathFixer.FixField(this, nameof(offlineScene), nameof(offlineScenePath));
+            ScenePathFixer.FixField(this, nameof(onlineScene), nameof(onlineScenePath));
 #pragma warning restore CS0618 // Type or member is obsolete
         }
         
@@ -228,7 +228,7 @@ namespace Mirror
 
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
-            networkSceneName = offlineSceneField.Path;
+            networkSceneName = offlineScenePath.Path;
 
             InitializeSingleton();
 
@@ -275,7 +275,7 @@ namespace Mirror
         bool IsServerOnlineSceneChangeNeeded()
         {
             // Only change scene if the requested online scene is not blank, and is not already loaded
-            return onlineSceneField.HasValue() && !onlineSceneField.IsActiveScene() && onlineSceneField != offlineSceneField;
+            return onlineScenePath.HasValue() && !onlineScenePath.IsActiveScene() && onlineScenePath != offlineScenePath;
         }
 
         // full server setup code, without spawning objects yet
@@ -344,7 +344,7 @@ namespace Mirror
             // scene change needed? then change scene and spawn afterwards.
             if (IsServerOnlineSceneChangeNeeded())
             {
-                ServerChangeScene(onlineSceneField.Path);
+                ServerChangeScene(onlineScenePath.Path);
             }
             // otherwise spawn directly
             else
@@ -467,7 +467,7 @@ namespace Mirror
             {
                 // call FinishStartHost after changing scene.
                 finishStartHostPending = true;
-                ServerChangeScene(onlineSceneField.Path);
+                ServerChangeScene(onlineScenePath.Path);
             }
             // otherwise call FinishStartHost directly
             else
@@ -578,9 +578,9 @@ namespace Mirror
             // doesn't think we need initialize anything.
             mode = NetworkManagerMode.Offline;
 
-            if (offlineSceneField.HasValue())
+            if (offlineScenePath.HasValue())
             {
-                ServerChangeScene(offlineSceneField.Path);
+                ServerChangeScene(offlineScenePath.Path);
             }
             CleanupNetworkIdentities();
 
@@ -610,9 +610,9 @@ namespace Mirror
 
             // If this is the host player, StopServer will already be changing scenes.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
-            if (offlineSceneField.HasValue() && !offlineSceneField.IsActiveScene() && loadingSceneAsync == null)
+            if (offlineScenePath.HasValue() && !offlineScenePath.IsActiveScene() && loadingSceneAsync == null)
             {
-                ClientChangeScene(offlineSceneField.Path, SceneOperation.Normal);
+                ClientChangeScene(offlineScenePath.Path, SceneOperation.Normal);
             }
 
             CleanupNetworkIdentities();
@@ -1092,7 +1092,7 @@ namespace Mirror
             conn.isAuthenticated = true;
 
             // proceed with the login handshake by calling OnServerConnect
-            if (!string.IsNullOrEmpty(networkSceneName) && networkSceneName != offlineSceneField.Path)
+            if (!string.IsNullOrEmpty(networkSceneName) && networkSceneName != offlineScenePath.Path)
             {
                 SceneMessage msg = new SceneMessage() { sceneName = networkSceneName };
                 conn.Send(msg);
@@ -1184,7 +1184,7 @@ namespace Mirror
             conn.isAuthenticated = true;
 
             // proceed with the login handshake by calling OnClientConnect
-            if (!onlineSceneField.HasValue() || onlineSceneField == offlineSceneField || onlineSceneField.IsActiveScene())
+            if (!onlineScenePath.HasValue() || onlineScenePath == offlineScenePath || onlineScenePath.IsActiveScene())
             {
                 clientLoadedScene = false;
                 OnClientConnect(conn);

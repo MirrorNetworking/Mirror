@@ -9,7 +9,7 @@ namespace Mirror
     /// Used for Scene property in the inspector
     /// </summary>
     [System.Serializable]
-    public struct SceneField : IEquatable<SceneField>
+    public struct ScenePath : IEquatable<ScenePath>
     {
         [SerializeField] string path;
 
@@ -34,10 +34,10 @@ namespace Mirror
 
         public override bool Equals(object obj)
         {
-            return obj is SceneField field && Equals(field);
+            return obj is ScenePath field && Equals(field);
         }
 
-        public bool Equals(SceneField other)
+        public bool Equals(ScenePath other)
         {
             return path == other.path;
         }
@@ -47,12 +47,12 @@ namespace Mirror
             return 1488015982 + EqualityComparer<string>.Default.GetHashCode(path);
         }
 
-        public static bool operator ==(SceneField left, SceneField right)
+        public static bool operator ==(ScenePath left, ScenePath right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(SceneField left, SceneField right)
+        public static bool operator !=(ScenePath left, ScenePath right)
         {
             return !(left == right);
         }
