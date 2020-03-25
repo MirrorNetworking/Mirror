@@ -1,3 +1,10 @@
+## [24.1.1](https://github.com/MirrorNG/MirrorNG/compare/24.1.0-master...24.1.1-master) (2020-03-25)
+
+
+### Bug Fixes
+
+* [#1593](https://github.com/MirrorNG/MirrorNG/issues/1593) - NetworkRoomManager.ServerChangeScene doesn't destroy the world player before replacing the connection. otherwise ReplacePlayerForConnection removes authority form a destroyed object, causing all kidns of errors. The call wasn't actually needed. ([#1594](https://github.com/MirrorNG/MirrorNG/issues/1594)) ([347cb53](https://github.com/MirrorNG/MirrorNG/commit/347cb5374d0cba72762e893645f076d3161aa0c5))
+
 # [24.1.0](https://github.com/MirrorNG/MirrorNG/compare/24.0.1-master...24.1.0-master) (2020-03-24)
 
 
