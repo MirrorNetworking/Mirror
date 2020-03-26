@@ -156,5 +156,27 @@ namespace Mirror.Weaver
             return false;
         }
 
+        public static T GetField<T>(this CustomAttribute ca, string field, T def)
+        {
+            foreach (CustomAttributeNamedArgument customField in ca.Fields)
+            {
+                if (customField.Name == field)
+                {
+                    return (T)customField.Argument.Value;
+                }
+            }
+
+            return def;
+        }
+
+        public static MethodDefinition GetMethod(this TypeDefinition td, string methodName)
+        {
+            foreach (MethodDefinition md in td.Methods)
+            {
+                if (md.Name == methodName)
+                    return md;
+            }
+            return null;
+        }
     }
 }
