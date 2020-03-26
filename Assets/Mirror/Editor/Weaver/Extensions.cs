@@ -138,7 +138,7 @@ namespace Mirror.Weaver
             return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
         }
 
-        public static CustomAttribute GetCustomAttribute(this MethodDefinition method, string attributeName)
+        public static CustomAttribute GetCustomAttribute(this ICustomAttributeProvider method, string attributeName)
         {
             foreach (CustomAttribute ca in method.CustomAttributes)
             {
@@ -146,6 +146,16 @@ namespace Mirror.Weaver
                     return ca;
             }
             return null;
+        }
+
+        public static bool HasCustomAttribute(this ICustomAttributeProvider attributeProvider, TypeReference attribute)
+        {
+            foreach (CustomAttribute ca in attributeProvider.CustomAttributes)
+            {
+                if (ca.AttributeType.FullName == attribute.FullName)
+                    return true;
+            }
+            return false;
         }
 
     }
