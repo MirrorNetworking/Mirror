@@ -170,5 +170,15 @@ namespace Mirror.Weaver
 
             return def;
         }
+
+        public static MethodDefinition GetMethod(this TypeDefinition td, string methodName)
+        {
+            foreach (MethodDefinition md in td.Methods)
+            {
+                if (md.Name == methodName)
+                    return md;
+            }
+            return null;
+        }
     }
 }

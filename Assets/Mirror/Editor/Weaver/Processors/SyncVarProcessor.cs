@@ -16,39 +16,37 @@ namespace Mirror.Weaver
             foundMethod = null;
             CustomAttribute ca = syncVar.GetCustomAttribute(Weaver.SyncVarType.FullName);
 
-            if (ca != null)
-            {
-                string hookFunctionName = ca.GetField<string>("hook", null);
+            if (ca == null)
+                return true;
 
-                if (hookFunctionName != null)
-                {
-                    foundMethod = GetHookMethod(td, syncVar, hookFunctionName);
-                    return foundMethod != null;
-                }
-            }
-            return true;
+            string hookFunctionName = ca.GetField<string>("hook", null);
+
+            if (hookFunctionName == null)
+                return true;
+
+            foundMethod = GetHookMethod(td, syncVar, hookFunctionName);
+            return foundMethod != null;
         }
 
         private static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName)
         {
-            foreach (MethodDefinition m in td.Methods)
+            MethodDefinition m = td.GetMethod(hookFunctionName);
+            if (m != null)
             {
-                if (m.Name == hookFunctionName)
+                if (m.Parameters.Count == 2)
                 {
-                    if (m.Parameters.Count == 2)
+                    if (m.Parameters[0].ParameterType != syncVar.FieldType ||
+                        m.Parameters[1].ParameterType != syncVar.FieldType)
                     {
-                        if (m.Parameters[0].ParameterType != syncVar.FieldType ||
-                            m.Parameters[1].ParameterType != syncVar.FieldType)
-                        {
-                            Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
-                            return null;
-                        }
-                        return m;
+                        Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
+                        return null;
                     }
-                    Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
-                    return null;
+                    return m;
                 }
+                Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
+                return null;
             }
+            
             Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
             return null;
         }
