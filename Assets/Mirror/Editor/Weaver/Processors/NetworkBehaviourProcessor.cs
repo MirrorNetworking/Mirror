@@ -440,19 +440,6 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Methods.Add(serialize);
         }
 
-        public static int GetChannelId(CustomAttribute ca)
-        {
-            foreach (CustomAttributeNamedArgument customField in ca.Fields)
-            {
-                if (customField.Name == "channel")
-                {
-                    return (int)customField.Argument.Value;
-                }
-            }
-
-            return 0;
-        }
-
         void DeserializeField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize)
         {
             // check for Hook function
