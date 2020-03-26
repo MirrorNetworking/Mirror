@@ -10,7 +10,7 @@ namespace Mirror.Tests
     }
 
     [TestFixture]
-    public class NetworkManagerStopHostOnServerDisconnectedTest
+    public class NetworkManagerStopHostOnServerDisconnectTest
     {
         GameObject gameObject;
         NetworkManagerOnServerDisconnect manager;
