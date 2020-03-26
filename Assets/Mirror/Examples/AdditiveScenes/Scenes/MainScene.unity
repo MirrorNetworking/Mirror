@@ -1844,7 +1844,7 @@ MonoBehaviour:
   playerSpawnMethod: 1
   spawnPrefabs: []
   subScenes:
-  - SubScene
+  - Assets/Mirror/Examples/AdditiveScenes/Scenes/SubScene.unity
 --- !u!4 &1661834279
 Transform:
   m_ObjectHideFlags: 0
