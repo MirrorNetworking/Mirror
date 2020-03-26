@@ -9,6 +9,8 @@ namespace Mirror.Examples.Chat
 
         public ChatWindow chatWindow;
 
+        public Player playerPrefab;
+
         void Awake()
         {
             client.Authenticated.AddListener(OnAuthenticated);
@@ -33,7 +35,7 @@ namespace Mirror.Examples.Chat
         private void OnCreatePlayer(NetworkConnection connection, CreatePlayerMessage createPlayerMessage)
         {
             // create a gameobject using the name supplied by client
-            GameObject playergo = Instantiate(server.playerPrefab);
+            GameObject playergo = Instantiate(playerPrefab).gameObject;
             playergo.GetComponent<Player>().playerName = createPlayerMessage.name;
 
             // set it as the player

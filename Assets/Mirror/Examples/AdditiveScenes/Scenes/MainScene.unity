@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4366757, g: 0.48427194, b: 0.5645252, a: 1}
+  m_IndirectSpecularColor: {r: 0.43667555, g: 0.48427176, b: 0.5645241, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -504,7 +504,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 178547538}
-  - component: {fileID: 178547539}
   m_Layer: 0
   m_Name: StartPos
   m_TagString: Untagged
@@ -526,19 +525,6 @@ Transform:
   m_Father: {fileID: 1172568542}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!114 &178547539
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 178547537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!1 &534669902
 GameObject:
   m_ObjectHideFlags: 0
@@ -804,7 +790,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 652875645}
-  - component: {fileID: 652875646}
   m_Layer: 0
   m_Name: StartPos
   m_TagString: Untagged
@@ -826,19 +811,6 @@ Transform:
   m_Father: {fileID: 1172568542}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 270, z: 0}
---- !u!114 &652875646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 652875644}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!1 &691846569
 GameObject:
   m_ObjectHideFlags: 0
@@ -848,7 +820,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 691846570}
-  - component: {fileID: 691846571}
   m_Layer: 0
   m_Name: StartPos
   m_TagString: Untagged
@@ -870,19 +841,6 @@ Transform:
   m_Father: {fileID: 1172568542}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &691846571
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 691846569}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!1001 &748207074
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1894,6 +1852,7 @@ GameObject:
   - component: {fileID: 1661834284}
   - component: {fileID: 1661834283}
   - component: {fileID: 1661834282}
+  - component: {fileID: 1661834280}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -1917,16 +1876,10 @@ MonoBehaviour:
   startOnHeadless: 1
   showDebugMessages: 0
   serverTickRate: 30
-  offlineScene: 
-  onlineScene: 
   server: {fileID: 1661834283}
   client: {fileID: 1661834282}
   transport: {fileID: 1661834284}
-  autoCreatePlayer: 1
-  playerSpawnMethod: 1
   networkSceneName: 
-  startPositionIndex: 0
-  startPositions: []
   subScenes:
   - SubScene
 --- !u!4 &1661834279
@@ -1943,6 +1896,29 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1661834280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1661834277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7aaac73a16c040fd871cb977b5c557b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  client: {fileID: 1661834282}
+  server: {fileID: 1661834283}
+  playerPrefab: {fileID: 8537344390966522168, guid: a5bdca0a2315d43499be7dcef473fbc7,
+    type: 3}
+  startPositionIndex: 0
+  startPositions:
+  - {fileID: 178547538}
+  - {fileID: 1816951100}
+  - {fileID: 652875645}
+  - {fileID: 691846570}
+  playerSpawnMethod: 1
 --- !u!114 &1661834281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1978,6 +1954,9 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
+  Disconnected:
+    m_PersistentCalls:
+      m_Calls: []
   spawnPrefabs:
   - {fileID: 1076878374699499732, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
   - {fileID: 5623359707189648430, guid: 4ff300cf6bb3c6342a9552c4f18788c8, type: 3}
@@ -1985,6 +1964,8 @@ MonoBehaviour:
   - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
   - {fileID: 855244094988030905, guid: f6d08eb9a8e35d84fa30a7e3ae64181a, type: 3}
   - {fileID: 160176457, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
+  - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
+  - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
 --- !u!114 &1661834283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2004,10 +1985,14 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
+  Disconnected:
+    m_PersistentCalls:
+      m_Calls: []
+  Stopped:
+    m_PersistentCalls:
+      m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  playerPrefab: {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7,
-    type: 3}
 --- !u!114 &1661834284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2131,7 +2116,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1816951100}
-  - component: {fileID: 1816951101}
   m_Layer: 0
   m_Name: StartPos
   m_TagString: Untagged
@@ -2153,19 +2137,6 @@ Transform:
   m_Father: {fileID: 1172568542}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &1816951101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1816951099}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!1001 &1076878375580925077
 PrefabInstance:
   m_ObjectHideFlags: 0
