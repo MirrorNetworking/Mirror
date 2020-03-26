@@ -1,3 +1,21 @@
+# [27.0.0](https://github.com/MirrorNG/MirrorNG/compare/26.0.0-master...27.0.0-master) (2020-03-26)
+
+
+* remove room feature for now (#122) ([87dd495](https://github.com/MirrorNG/MirrorNG/commit/87dd495a6fca6c85349afd42ba6449d98de1f567)), closes [#122](https://github.com/MirrorNG/MirrorNG/issues/122)
+* Server Disconnect is now an event not a message (#121) ([82ebd71](https://github.com/MirrorNG/MirrorNG/commit/82ebd71456cbd2e819540d961a93814c57735784)), closes [#121](https://github.com/MirrorNG/MirrorNG/issues/121)
+
+
+### Code Refactoring
+
+* Remove offline/online scenes ([#120](https://github.com/MirrorNG/MirrorNG/issues/120)) ([a4c881a](https://github.com/MirrorNG/MirrorNG/commit/a4c881a36e26b20fc72166741e20c84ce030ad8f))
+
+
+### BREAKING CHANGES
+
+* Room feature and example are gone
+* offline/online scenes are gone
+* OnServerDisconnect is gone
+
 # [26.0.0](https://github.com/MirrorNG/MirrorNG/compare/25.0.0-master...26.0.0-master) (2020-03-25)
 
 
