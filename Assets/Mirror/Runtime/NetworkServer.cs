@@ -473,7 +473,7 @@ namespace Mirror
             conn.InvokeHandler(new ConnectMessage(), -1);
         }
 
-        static void OnDisconnected(int connectionId)
+        internal static void OnDisconnected(int connectionId)
         {
             if (LogFilter.Debug) Debug.Log("Server disconnect client:" + connectionId);
 

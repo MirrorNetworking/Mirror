@@ -547,6 +547,15 @@ namespace Mirror
         public void StopHost()
         {
             OnStopHost();
+
+            // TODO try to move DisconnectLocalServer into StopClient(), and
+            // then call StopClient() before StopServer(). needs testing!.
+
+            // DisconnectLocalServer needs to be called so that the host client
+            // receives a DisconnectMessage too.
+            // fixes: https://github.com/vis2k/Mirror/issues/1515
+            NetworkClient.DisconnectLocalServer();
+
             StopServer();
             StopClient();
         }
