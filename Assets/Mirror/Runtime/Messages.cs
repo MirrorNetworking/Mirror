@@ -20,25 +20,6 @@ namespace Mirror
     }
 
     #region Public System Messages
-    public struct ErrorMessage : IMessageBase
-    {
-        public byte value;
-
-        public ErrorMessage(byte v)
-        {
-            value = v;
-        }
-
-        public void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadByte();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteByte(value);
-        }
-    }
 
     public struct ReadyMessage : IMessageBase
     {

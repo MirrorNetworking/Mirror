@@ -435,17 +435,6 @@ namespace Mirror
             // doesn't think we need initialize anything.
             mode = NetworkManagerMode.Offline;
 
-<<<<<<< HEAD
-=======
-            // If this is the host player, StopServer will already be changing scenes.
-            // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
-            if (!string.IsNullOrEmpty(offlineScene) && !IsSceneActive(offlineScene) && loadingSceneAsync == null)
-            {
-                ClientChangeScene(offlineScene, SceneOperation.Normal);
-            }
-
-            CleanupNetworkIdentities();
->>>>>>> upstream
         }
 
         /// <summary>
@@ -814,7 +803,6 @@ namespace Mirror
             connection.RegisterHandler<NetworkConnectionToClient, ReadyMessage>(OnServerReadyMessageInternal);
             connection.RegisterHandler<NetworkConnectionToClient, AddPlayerMessage>(OnServerAddPlayerInternal);
             connection.RegisterHandler<NetworkConnectionToClient, RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
-            connection.RegisterHandler<NetworkConnectionToClient, ErrorMessage>(OnServerErrorInternal, false);
         }
 
         // called after successful authentication
@@ -877,12 +865,6 @@ namespace Mirror
             }
         }
 
-        void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerErrorInternal");
-            OnServerError(conn, msg.value);
-        }
-
         #endregion
 
         #region Client Internal Message Handlers
@@ -890,7 +872,6 @@ namespace Mirror
         void RegisterClientMessages(NetworkConnection connection)
         {
             connection.RegisterHandler<NetworkConnectionToServer, NotReadyMessage>(OnClientNotReadyMessageInternal);
-            connection.RegisterHandler<NetworkConnectionToServer, ErrorMessage>(OnClientErrorInternal, false);
             connection.RegisterHandler<NetworkConnectionToServer, SceneMessage>(OnClientSceneInternal, false);
         }
 
@@ -899,26 +880,7 @@ namespace Mirror
         {
             RegisterClientMessages(conn);
 
-<<<<<<< HEAD
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticated");
-=======
-            // set connection to authenticated
-            conn.isAuthenticated = true;
-
-            // proceed with the login handshake by calling OnClientConnect
-            if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || IsSceneActive(onlineScene))
-            {
-                clientLoadedScene = false;
-                OnClientConnect(conn);
-            }
-            else
-            {
-                // will wait for scene id to come from the server.
-                clientLoadedScene = true;
-                clientReadyConnection = conn;
-            }
-        }
->>>>>>> upstream
 
             // will wait for scene id to come from the server.
             clientLoadedScene = true;
@@ -933,12 +895,6 @@ namespace Mirror
             OnClientNotReady(conn);
 
             // NOTE: clientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
-        }
-
-        void OnClientErrorInternal(NetworkConnection conn, ErrorMessage msg)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager:OnClientErrorInternal");
-            OnClientError(conn, msg.value);
         }
 
         void OnClientSceneInternal(NetworkConnection conn, SceneMessage msg)

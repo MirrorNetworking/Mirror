@@ -39,12 +39,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ErrorMessageTest()
-        {
-            TestSerializeDeserialize(new ErrorMessage(42));
-        }
-
-        [Test]
         public void NetworkPingMessageTest()
         {
             TestSerializeDeserialize(new NetworkPingMessage(DateTime.Now.ToOADate()));
