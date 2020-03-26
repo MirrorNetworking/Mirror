@@ -63,11 +63,6 @@ namespace Mirror
         GUIContent title;
         Styles styles = new Styles();
 
-        public override void Initialize(UnityObject[] targets)
-        {
-            base.Initialize(targets);
-        }
-
         public override GUIContent GetPreviewTitle()
         {
             if (title == null)
@@ -79,7 +74,7 @@ namespace Mirror
 
         public override bool HasPreviewGUI()
         {
-            return target != null && target is GameObject gameObject && gameObject.GetComponent<NetworkIdentity>() != null;
+            return target is GameObject gameObject && gameObject.GetComponent<NetworkIdentity>() != null;
         }
 
         public override void OnPreviewGUI(Rect r, GUIStyle background)
@@ -248,7 +243,7 @@ namespace Mirror
 
         IEnumerable<NetworkIdentityInfo> GetNetworkIdentityInfo(NetworkIdentity identity)
         {
-            List<NetworkIdentityInfo> infos = new List<NetworkIdentityInfo>()
+            List<NetworkIdentityInfo> infos = new List<NetworkIdentityInfo>
             {
                 GetAssetId(identity),
                 GetString("Scene ID", identity.sceneId.ToString("X"))
