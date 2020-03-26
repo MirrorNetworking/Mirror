@@ -556,8 +556,8 @@ namespace Mirror
             // fixes: https://github.com/vis2k/Mirror/issues/1515
             NetworkClient.DisconnectLocalServer();
 
-            StopServer();
             StopClient();
+            StopServer();
         }
 
         /// <summary>
