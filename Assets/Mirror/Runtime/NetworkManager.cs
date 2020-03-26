@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mirror.Tcp;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -109,6 +110,17 @@ namespace Mirror
         //    in other words, we need this to know which mode we are running in
         //    during FinishLoadScene.
         public NetworkManagerMode mode { get; private set; }
+
+        /// <summary>
+        /// This is invoked when a host is started.
+        /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
+        /// </summary>
+        public UnityEvent OnStartHost = new UnityEvent();
+
+        /// <summary>
+        /// This is called when a host is stopped.
+        /// </summary>
+        public UnityEvent OnStopHost = new UnityEvent();
 
         #region Unity Callbacks
 
@@ -326,7 +338,7 @@ namespace Mirror
             // call OnStartHost AFTER SetupServer. this way we can use
             // NetworkServer.Spawn etc. in there too. just like OnStartServer
             // is called after the server is actually properly started.
-            OnStartHost();
+            OnStartHost.Invoke();
 
             FinishStartHost();
         }
@@ -394,7 +406,7 @@ namespace Mirror
         /// </summary>
         public void StopHost()
         {
-            OnStopHost();
+            OnStopHost.Invoke();
             StopServer();
             StopClient();
         }
@@ -1083,21 +1095,10 @@ namespace Mirror
         // from all versions, so users only need to implement this one case.
 
         /// <summary>
-        /// This is invoked when a host is started.
-        /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
-        /// </summary>
-        public virtual void OnStartHost() { }
-
-        /// <summary>
         /// This is invoked when a server is started - including when a host is started.
         /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
         /// </summary>
         public virtual void OnStartServer() { }
-
-        /// <summary>
-        /// This is called when a host is stopped.
-        /// </summary>
-        public virtual void OnStopHost() { }
 
         #endregion
     }
