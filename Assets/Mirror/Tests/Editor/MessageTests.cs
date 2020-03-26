@@ -86,7 +86,7 @@ namespace Mirror.Tests
             byte[] arr = MessagePacker.Pack(message);
             NetworkPongMessage fresh = MessagePacker.Unpack<NetworkPongMessage>(arr);
             Assert.That(fresh.clientTime, Is.EqualTo(message.clientTime));
-            Assert.That(fresh.serverTime, Is.EqualTo(message.clientTime));
+            Assert.That(fresh.serverTime, Is.EqualTo(message.serverTime));
         }
 
         [Test]
