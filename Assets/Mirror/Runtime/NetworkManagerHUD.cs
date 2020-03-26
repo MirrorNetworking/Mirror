@@ -113,12 +113,28 @@ namespace Mirror
                 }
             }
 
-            // stop
-            if (NetworkServer.active || NetworkClient.isConnected)
+            // stop host if host mode
+            if (NetworkServer.active && NetworkClient.isConnected)
             {
-                if (GUILayout.Button("Stop"))
+                if (GUILayout.Button("Stop Host"))
                 {
                     manager.StopHost();
+                }
+            }
+            // stop client if client-only
+            else if (NetworkClient.isConnected)
+            {
+                if (GUILayout.Button("Stop Client"))
+                {
+                    manager.StopClient();
+                }
+            }
+            // stop server if server-only
+            else if (NetworkServer.active)
+            {
+                if (GUILayout.Button("Stop Server"))
+                {
+                    manager.StopServer();
                 }
             }
 
