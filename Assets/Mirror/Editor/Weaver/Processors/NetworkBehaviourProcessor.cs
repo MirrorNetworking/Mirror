@@ -841,8 +841,10 @@ namespace Mirror.Weaver
         {
             HashSet<string> names = new HashSet<string>();
 
+            // copy the list of methods because we will be adding methods in the loop
+            List<MethodDefinition> methods = new List<MethodDefinition>(netBehaviourSubclass.Methods);
             // find command and RPC functions
-            foreach (MethodDefinition md in netBehaviourSubclass.Methods)
+            foreach (MethodDefinition md in methods)
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
@@ -864,34 +866,6 @@ namespace Mirror.Weaver
                         break;
                     }
                 }
-            }
-
-            // cmds
-            foreach (MethodDefinition md in commandInvocationFuncs)
-            {
-                netBehaviourSubclass.Methods.Add(md);
-            }
-            foreach (MethodDefinition md in commandCallFuncs)
-            {
-                netBehaviourSubclass.Methods.Add(md);
-            }
-
-            // rpcs
-            foreach (MethodDefinition md in clientRpcInvocationFuncs)
-            {
-                netBehaviourSubclass.Methods.Add(md);
-            }
-            foreach (MethodDefinition md in targetRpcInvocationFuncs)
-            {
-                netBehaviourSubclass.Methods.Add(md);
-            }
-            foreach (MethodDefinition md in clientRpcCallFuncs)
-            {
-                netBehaviourSubclass.Methods.Add(md);
-            }
-            foreach (MethodDefinition md in targetRpcCallFuncs)
-            {
-                netBehaviourSubclass.Methods.Add(md);
             }
         }
 

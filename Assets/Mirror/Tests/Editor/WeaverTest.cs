@@ -470,8 +470,8 @@ namespace Mirror.Tests
         [Test]
         public void ClientRpcValid()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
         }
 
         [Test]

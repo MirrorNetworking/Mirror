@@ -29,7 +29,7 @@ namespace Mirror.Weaver
         //
         //  the original method definition loses all code
         //  this returns the newly created method with all the user provided code
-        public static MethodDefinition SubstituteMethod(MethodDefinition md, string newName)
+        public static MethodDefinition SubstituteMethod(TypeDefinition td, MethodDefinition md, string newName)
         {
             MethodDefinition cmd = new MethodDefinition(newName,md.Attributes, md.ReturnType);
 
@@ -53,6 +53,7 @@ namespace Mirror.Weaver
 
             (md.DebugInformation.Scope, cmd.DebugInformation.Scope) = (cmd.DebugInformation.Scope, md.DebugInformation.Scope);
 
+            td.Methods.Add(cmd);
             return cmd;
         }
     }
