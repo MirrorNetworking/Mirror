@@ -136,16 +136,5 @@ namespace Mirror.Tests
 
             NetworkManager.UnRegisterStartPosition(gameObject.transform);
         }
-
-        // test to prevent https://github.com/vis2k/Mirror/issues/1515
-        [Test]
-        public void StopHostCallsOnServerDisconnectForHostClient()
-        {
-            // OnServerDisconnect is always called when a client disconnects.
-            // it should also be called for the host client when we stop the host
-            manager.StartHost();
-            manager.StopHost();
-            // TODO check if called
-        }
     }
 }
