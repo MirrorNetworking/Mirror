@@ -46,6 +46,7 @@ namespace Mirror.Tests
             transport.LateUpdate();
             Assert.That(NetworkClient.isConnected, Is.True);
             manager.StopClient();
+            transport.LateUpdate(); // let transport process the disconnect
             Assert.That(manager.called, Is.EqualTo(1));
         }
     }
