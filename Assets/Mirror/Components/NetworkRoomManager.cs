@@ -81,6 +81,7 @@ namespace Mirror
             client.Authenticated.AddListener(OnAuthenticated);
             server.Stopped.AddListener(Stopped);
             client.Disconnected.AddListener(Disconnected);
+            server.Disconnected.AddListener(OnServerDisconnect);
         }
 
         public override void Start()
@@ -253,7 +254,7 @@ namespace Mirror
         /// <para>This is called on the Server when a Client disconnects from the Server. Use an override to decide what should happen when a disconnection is detected.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public override void OnServerDisconnect(NetworkConnection conn)
+        public void OnServerDisconnect(NetworkConnection conn)
         {
             if (conn.identity != null)
             {
@@ -274,7 +275,6 @@ namespace Mirror
             if (SceneManager.GetActiveScene().name == RoomScene)
                 RecalculateRoomPlayerIndices();
 
-            base.OnServerDisconnect(conn);
             OnRoomServerDisconnect(conn);
         }
 
@@ -424,17 +424,6 @@ namespace Mirror
         {
             OnRoomClientConnect(conn);
             CallOnClientEnterRoom();
-        }
-
-        /// <summary>
-        /// Called on clients when disconnected from a server.
-        /// <para>This is called on the client when it disconnects from the server. Override this function to decide what happens when the client disconnects.</para>
-        /// </summary>
-        /// <param name="conn">Connection to the server.</param>
-        public override void OnClientDisconnect(NetworkConnection conn)
-        {
-            OnRoomClientDisconnect(conn);
-            base.OnClientDisconnect(conn);
         }
 
         /// <summary>
@@ -597,12 +586,6 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">The connection that connected.</param>
         public virtual void OnRoomClientConnect(NetworkConnection conn) { }
-
-        /// <summary>
-        /// This is called on the client when disconnected from a server.
-        /// </summary>
-        /// <param name="conn">The connection that disconnected.</param>
-        public virtual void OnRoomClientDisconnect(NetworkConnection conn) { }
 
         /// <summary>
         /// This is called on the client when the client stops.

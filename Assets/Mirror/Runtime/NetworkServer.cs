@@ -33,6 +33,7 @@ namespace Mirror
 
         public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
+        public NetworkConnectionEvent Disconnected = new NetworkConnectionEvent();
         public UnityEvent Stopped = new UnityEvent();
 
         [Header("Authentication")]
@@ -337,12 +338,12 @@ namespace Mirror
         /// </summary>
         public void DisconnectAllConnections()
         {
-            foreach (NetworkConnection conn in connections.Values)
+            foreach (NetworkConnectionToClient conn in connections.Values)
             {
                 conn.Disconnect();
                 // call OnDisconnected unless local player in host mode
                 if (conn.connectionId != 0)
-                    OnDisconnected(conn);
+                    Disconnected.Invoke(conn);
                 conn.Dispose();
             }
             connections.Clear();
@@ -428,14 +429,10 @@ namespace Mirror
                 RemoveConnection(connectionId);
                 if (LogFilter.Debug) Debug.Log("Server lost client:" + connectionId);
 
-                OnDisconnected(conn);
-            }
-        }
+                DestroyPlayerForConnection(conn);
 
-        void OnDisconnected(NetworkConnection conn)
-        {
-            conn.InvokeHandler(new DisconnectMessage(), -1);
-            if (LogFilter.Debug) Debug.Log("Server lost client:" + conn);
+                Disconnected.Invoke(conn);
+            }
         }
 
         internal void OnAuthenticated(NetworkConnectionToClient conn)

@@ -152,14 +152,13 @@ namespace Mirror.Tests
             Assert.That(server.connections.Count, Is.EqualTo(1));
         }
 
-        /*
+        
         [Test]
         public void DisconnectMessageHandlerTest()
         {
             // message handlers
             bool disconnectCalled = false;
-            server.RegisterHandler<DisconnectMessage>((conn, msg) => { disconnectCalled = true; }, false);
-            server.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            server.Disconnected.AddListener(conn => { disconnectCalled = true; });
 
             // listen
             server.Listen();
@@ -172,7 +171,7 @@ namespace Mirror.Tests
             // disconnect
             Transport.activeTransport.OnServerDisconnected.Invoke(42);
             Assert.That(disconnectCalled, Is.True);
-        }*/
+        }
 
         [Test]
         public void ConnectionsDictTest()
@@ -595,7 +594,6 @@ namespace Mirror.Tests
             // unregister second handler via ClearHandlers to test that one too. send, should fail
             connection.ClearHandlers();
             // (only add this one to avoid disconnect error)
-            connection.RegisterHandler<DisconnectMessage>(msg => { }, false);
             writer = new NetworkWriter();
             MessagePacker.Pack(new TestMessage(), writer);
             // log error messages are expected

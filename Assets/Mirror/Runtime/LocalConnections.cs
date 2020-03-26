@@ -111,7 +111,7 @@ namespace Mirror
 
             // TODO: this does not work if there is no player yet
             if (identity != null)
-                identity.client.HandleClientDisconnect(this);
+                identity.client.HandleClientDisconnect();
         }
 
         /// <summary>

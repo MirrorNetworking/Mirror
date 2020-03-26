@@ -32,7 +32,7 @@ namespace Mirror.Tests
 
             Assert.Throws<FormatException>(() =>
             {
-                DisconnectMessage unpacked = MessagePacker.Unpack<DisconnectMessage>(data);
+                AddPlayerMessage unpacked = MessagePacker.Unpack<AddPlayerMessage>(data);
             });
         }
 

@@ -12,6 +12,11 @@ namespace Mirror.Examples.Pong
         public Transform rightRacketSpawn;
         GameObject ball;
 
+        public void Awake()
+        {
+            server.Disconnected.AddListener(OnServerDisconnect);
+        }
+
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
             // add player at correct spawn position
@@ -27,14 +32,11 @@ namespace Mirror.Examples.Pong
             }
         }
 
-        public override void OnServerDisconnect(NetworkConnection conn)
+        public void OnServerDisconnect(NetworkConnection conn)
         {
             // destroy ball
             if (ball != null)
                 server.Destroy(ball);
-
-            // call base functionality (actually destroys the player)
-            base.OnServerDisconnect(conn);
         }
     }
 }
