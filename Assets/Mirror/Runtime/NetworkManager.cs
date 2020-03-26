@@ -435,6 +435,17 @@ namespace Mirror
             // doesn't think we need initialize anything.
             mode = NetworkManagerMode.Offline;
 
+<<<<<<< HEAD
+=======
+            // If this is the host player, StopServer will already be changing scenes.
+            // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
+            if (!string.IsNullOrEmpty(offlineScene) && !IsSceneActive(offlineScene) && loadingSceneAsync == null)
+            {
+                ClientChangeScene(offlineScene, SceneOperation.Normal);
+            }
+
+            CleanupNetworkIdentities();
+>>>>>>> upstream
         }
 
         /// <summary>
@@ -888,7 +899,26 @@ namespace Mirror
         {
             RegisterClientMessages(conn);
 
+<<<<<<< HEAD
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticated");
+=======
+            // set connection to authenticated
+            conn.isAuthenticated = true;
+
+            // proceed with the login handshake by calling OnClientConnect
+            if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || IsSceneActive(onlineScene))
+            {
+                clientLoadedScene = false;
+                OnClientConnect(conn);
+            }
+            else
+            {
+                // will wait for scene id to come from the server.
+                clientLoadedScene = true;
+                clientReadyConnection = conn;
+            }
+        }
+>>>>>>> upstream
 
             // will wait for scene id to come from the server.
             clientLoadedScene = true;
