@@ -1,3 +1,10 @@
+## [27.0.1](https://github.com/MirrorNG/MirrorNG/compare/27.0.0-master...27.0.1-master) (2020-03-26)
+
+
+### Bug Fixes
+
+* empty scene name isn't considered as empty ([ec3a939](https://github.com/MirrorNG/MirrorNG/commit/ec3a93945b5b52a77fd745b39e1e821db721768d))
+
 # [27.0.0](https://github.com/MirrorNG/MirrorNG/compare/26.0.0-master...27.0.0-master) (2020-03-26)
 
 
