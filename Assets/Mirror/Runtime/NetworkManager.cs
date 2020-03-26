@@ -815,7 +815,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticated");
 
             // proceed with the login handshake by calling OnServerConnect
-            if (networkSceneName != "")
+            if (!string.IsNullOrEmpty(networkSceneName))
             {
                 var msg = new SceneMessage() { sceneName = networkSceneName };
                 conn.Send(msg);
