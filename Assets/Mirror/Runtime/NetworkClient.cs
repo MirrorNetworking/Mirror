@@ -407,48 +407,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This adds a player GameObject for this client.
-        /// <para>This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called.</para>
-        /// </summary>
-        /// <returns>True if player was added.</returns>
-        public bool AddPlayer() => AddPlayer(null);
-
-        /// <summary>
-        /// This adds a player GameObject for this client. This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called. If an extra message was passed to AddPlayer, then OnServerAddPlayer will be called with a NetworkReader that contains the contents of the message.
-        /// <para>extraMessage can contain character selection, etc.</para>
-        /// </summary>
-        /// <param name="readyConn">The connection to become ready for this client.</param>
-        /// <param name="extraData">An extra message object that can be passed to the server for this player.</param>
-        /// <returns>True if player was added.</returns>
-        public bool AddPlayer(NetworkConnectionToServer readyConn)
-        {
-            // ensure valid ready connection
-            if (readyConn != null)
-            {
-                ready = true;
-                connection = readyConn;
-            }
-
-            if (!ready)
-            {
-                Debug.LogError("Must call AddPlayer() with a connection the first time to become ready.");
-                return false;
-            }
-
-            if (connection.identity != null)
-            {
-                Debug.LogError("ClientScene.AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?");
-                return false;
-            }
-
-            if (LogFilter.Debug) Debug.Log("ClientScene.AddPlayer() called with connection [" + connection + "]");
-
-            var message = new AddPlayerMessage();
-            connection.Send(message);
-            return true;
-        }
-
-        /// <summary>
         /// Removes the player from the game.
         /// </summary>
         /// <returns>True if succcessful</returns>

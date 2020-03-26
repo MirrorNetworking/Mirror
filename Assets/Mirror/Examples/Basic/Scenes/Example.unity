@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.574817, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 249891960}
   - component: {fileID: 249891959}
   - component: {fileID: 249891958}
+  - component: {fileID: 249891955}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -158,6 +159,25 @@ MonoBehaviour:
   offsetX: 0
   offsetY: 0
   serverIp: localhost
+--- !u!114 &249891955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 249891953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7aaac73a16c040fd871cb977b5c557b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  client: {fileID: 249891958}
+  server: {fileID: 249891959}
+  playerPrefab: {fileID: 1088833923132447018, guid: 22f1fa3a0aff72b46a371f667bb4fb30,
+    type: 3}
+  startPositionIndex: 0
+  startPositions: []
+  playerSpawnMethod: 1
 --- !u!114 &249891956
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,16 +194,14 @@ MonoBehaviour:
   startOnHeadless: 0
   showDebugMessages: 0
   serverTickRate: 30
-  offlineScene: 
-  onlineScene: 
   server: {fileID: 249891959}
   client: {fileID: 249891958}
   transport: {fileID: 249891960}
-  autoCreatePlayer: 1
   playerSpawnMethod: 1
   networkSceneName: 
   startPositionIndex: 0
   startPositions: []
+  autoCreatePlayer: 1
 --- !u!4 &249891957
 Transform:
   m_ObjectHideFlags: 0
@@ -217,7 +235,15 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
+  Disconnected:
+    m_PersistentCalls:
+      m_Calls: []
   spawnPrefabs:
+  - {fileID: 1088833923132447022, guid: 22f1fa3a0aff72b46a371f667bb4fb30, type: 3}
+  - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
+  - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
+  - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
+  - {fileID: 1088833923132447022, guid: 22f1fa3a0aff72b46a371f667bb4fb30, type: 3}
   - {fileID: 1088833923132447022, guid: 22f1fa3a0aff72b46a371f667bb4fb30, type: 3}
 --- !u!114 &249891959
 MonoBehaviour:
@@ -238,10 +264,14 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
+  Disconnected:
+    m_PersistentCalls:
+      m_Calls: []
+  Stopped:
+    m_PersistentCalls:
+      m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  playerPrefab: {fileID: 1088833923132447022, guid: 22f1fa3a0aff72b46a371f667bb4fb30,
-    type: 3}
 --- !u!114 &249891960
 MonoBehaviour:
   m_ObjectHideFlags: 0

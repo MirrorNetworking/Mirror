@@ -1,3 +1,63 @@
+# [29.0.0](https://github.com/MirrorNG/MirrorNG/compare/28.0.0-master...29.0.0-master) (2020-03-26)
+
+
+### Features
+
+* PlayerSpawner component ([#123](https://github.com/MirrorNG/MirrorNG/issues/123)) ([e8b933d](https://github.com/MirrorNG/MirrorNG/commit/e8b933ddff9a47b64be371edb63af130bd3958b4))
+
+
+### BREAKING CHANGES
+
+* NetworkManager no longer spawns the player.  You need to add PlayerSpawner component if you want that behavior
+
+# [28.0.0](https://github.com/MirrorNG/MirrorNG/compare/27.0.1-master...28.0.0-master) (2020-03-26)
+
+
+### Bug Fixes
+
+* [#1599](https://github.com/MirrorNG/MirrorNG/issues/1599) - NetworkManager HUD calls StopHost/Server/Client depending on state. It does not call StopHost in all cases. ([#1600](https://github.com/MirrorNG/MirrorNG/issues/1600)) ([8c6ae0f](https://github.com/MirrorNG/MirrorNG/commit/8c6ae0f8b4fdafbc3abd194c081c75ee75fcfe51))
+
+
+### Features
+
+* now you can assign scenes even if not in Editor ([#1576](https://github.com/MirrorNG/MirrorNG/issues/1576)) ([c8a1a5e](https://github.com/MirrorNG/MirrorNG/commit/c8a1a5e56f7561487e3180f26e28484f714f36c1))
+
+
+### BREAKING CHANGES
+
+* You will need to reassign your scenes after upgrade
+
+* Automatically fix properties that were using name
+
+If you open a NetworkManager or other gameobject that uses a scene name
+it now gets converted to scene path by the SceneDrawer
+
+* Use get scene by name
+
+* Scene can never be null
+
+* Update Assets/Mirror/Examples/AdditiveScenes/Scenes/MainScene.unity
+
+* Issue warning if we drop the scene
+
+* Issue error if scene is lost
+
+* Add suggestion on how to fix the error
+
+* Keep backwards compatibility, check for scene name
+
+* cache the active scene
+
+* Update Assets/Mirror/Editor/SceneDrawer.cs
+
+Co-Authored-By: James Frowen <jamesfrowendev@gmail.com>
+
+* GetSceneByName only works if scene is loaded
+
+* Remove unused using
+
+Co-authored-by: James Frowen <jamesfrowendev@gmail.com>
+
 ## [27.0.1](https://github.com/MirrorNG/MirrorNG/compare/27.0.0-master...27.0.1-master) (2020-03-26)
 
 

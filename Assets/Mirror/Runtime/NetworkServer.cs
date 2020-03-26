@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -56,6 +57,13 @@ namespace Mirror
         /// </summary>
         public bool LocalClientActive => localClient != null && localClient.active;
 
+
+        /// <summary>
+        /// Number of active player objects across all connections on the server.
+        /// <para>This is only valid on the host / server.</para>
+        /// </summary>
+        public int NumPlayers => connections.Count(kv => kv.Value.identity != null);
+
         /// <summary>
         /// A list of local connections on the server.
         /// </summary>
@@ -72,14 +80,6 @@ namespace Mirror
         /// <para>This will be true after NetworkServer.Listen() has been called.</para>
         /// </summary>
         public bool active { get; private set; }
-
-        /// <summary>
-        /// The default prefab to be used to create player objects on the server.
-        /// <para>Player objects are created in the default handler for AddPlayer() on the server. Implementing OnServerAddPlayer overrides this behaviour.</para>
-        /// </summary>
-        [Header("Player Object")]
-        [Tooltip("Prefab of the player object. Prefab must have a Network Identity component. May be an empty game object or a full avatar.")]
-        public GameObject playerPrefab;
 
         public readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 

@@ -22,7 +22,6 @@ namespace Mirror.Tests
             gameObject = new GameObject();
             manager = gameObject.AddComponent<NetworkManager>();
             manager.startOnHeadless = false;
-            manager.autoCreatePlayer = false;
             manager.client = gameObject.GetComponent<NetworkClient>();
             manager.server = gameObject.GetComponent<NetworkServer>();
         }
@@ -41,13 +40,9 @@ namespace Mirror.Tests
             Assert.That(manager.showDebugMessages, Is.False);
             Assert.That(manager.serverTickRate, Is.EqualTo(30));
             Assert.That(manager.server.MaxConnections, Is.EqualTo(4));
-            Assert.That(manager.autoCreatePlayer, Is.False);
-            Assert.That(manager.numPlayers, Is.Zero);
             Assert.That(manager.isNetworkActive, Is.False);
 
             Assert.That(manager.networkSceneName, Is.Empty);
-            Assert.That(manager.startPositionIndex, Is.Zero);
-            Assert.That(manager.startPositions, Is.Empty);
         }
 
         [Test]
@@ -146,55 +141,6 @@ namespace Mirror.Tests
 
             Assert.That(manager.isNetworkActive, Is.False);
             Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.Offline));
-        }
-
-        [Test]
-        public void ShutdownTest()
-        {
-            manager.StartClient("localhost");
-            manager.StopClient();
-
-            Assert.That(manager.startPositions, Is.Empty);
-            Assert.That(manager.startPositionIndex, Is.Zero);
-        }
-
-        [Test]
-        public void RegisterStartPositionTest()
-        {
-            Assert.That(manager.startPositions, Is.Empty);
-
-            manager.RegisterStartPosition(gameObject.transform);
-            Assert.That(manager.startPositions.Count, Is.EqualTo(1));
-            Assert.That(manager.startPositions, Has.Member(gameObject.transform));
-
-            manager.UnRegisterStartPosition(gameObject.transform);
-        }
-
-        [Test]
-        public void UnRegisterStartPositionTest()
-        {
-            Assert.That(manager.startPositions, Is.Empty);
-
-            manager.RegisterStartPosition(gameObject.transform);
-            Assert.That(manager.startPositions.Count, Is.EqualTo(1));
-            Assert.That(manager.startPositions, Has.Member(gameObject.transform));
-
-            manager.UnRegisterStartPosition(gameObject.transform);
-            Assert.That(manager.startPositions, Is.Empty);
-        }
-
-        [Test]
-        public void GetStartPositionTest()
-        {
-            Assert.That(manager.startPositions, Is.Empty);
-
-            manager.RegisterStartPosition(gameObject.transform);
-            Assert.That(manager.startPositions.Count, Is.EqualTo(1));
-            Assert.That(manager.startPositions, Has.Member(gameObject.transform));
-
-            Assert.That(manager.GetStartPosition(), Is.SameAs(gameObject.transform));
-
-            manager.UnRegisterStartPosition(gameObject.transform);
         }
     }
 }
