@@ -130,11 +130,15 @@ namespace Mirror
         /// </summary>
         internal static void DisconnectLocalServer()
         {
-            // TODO ConnectLocalServer manually sends a ConnectMessage to the
-            // local connection. should we send a DisconnectMessage here too?
-            // (if we do then we get an Unknown Message ID log)
-            //NetworkServer.localConnection.Send(new DisconnectMessage());
-            NetworkServer.OnDisconnected(NetworkServer.localConnection.connectionId);
+            // only if host connection is running
+            if (NetworkServer.localConnection != null)
+            {
+                // TODO ConnectLocalServer manually sends a ConnectMessage to the
+                // local connection. should we send a DisconnectMessage here too?
+                // (if we do then we get an Unknown Message ID log)
+                //NetworkServer.localConnection.Send(new DisconnectMessage());
+                NetworkServer.OnDisconnected(NetworkServer.localConnection.connectionId);
+            }
         }
 
         static void InitializeTransportHandlers()
