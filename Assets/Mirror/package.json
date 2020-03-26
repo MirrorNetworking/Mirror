@@ -26,11 +26,6 @@
             "path": "Samples~/Tanks"
         },
         {
-            "displayName": "Room",
-            "description": "Room system",
-            "path": "Samples~/Room"
-        },
-        {
             "displayName": "Chat",
             "description": "Simple chat and custom UI demo",
             "path": "Samples~/Chat"
