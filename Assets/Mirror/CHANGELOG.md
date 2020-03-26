@@ -1,3 +1,15 @@
+# [29.0.0](https://github.com/MirrorNG/MirrorNG/compare/28.0.0-master...29.0.0-master) (2020-03-26)
+
+
+### Features
+
+* PlayerSpawner component ([#123](https://github.com/MirrorNG/MirrorNG/issues/123)) ([e8b933d](https://github.com/MirrorNG/MirrorNG/commit/e8b933ddff9a47b64be371edb63af130bd3958b4))
+
+
+### BREAKING CHANGES
+
+* NetworkManager no longer spawns the player.  You need to add PlayerSpawner component if you want that behavior
+
 # [28.0.0](https://github.com/MirrorNG/MirrorNG/compare/27.0.1-master...28.0.0-master) (2020-03-26)
 
 
