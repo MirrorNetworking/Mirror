@@ -80,19 +80,7 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                MethodReference writeFunc = Writers.GetWriteFunc(field.FieldType);
-                if (writeFunc != null)
-                {
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, field));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
-                }
-                else
-                {
-                    Weaver.Error($"{field} has unsupported type");
-                    return;
-                }
+                CallWriter(serWorker, field);
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
@@ -100,6 +88,22 @@ namespace Mirror.Weaver
             if (existingMethod == null)
             {
                 td.Methods.Add(serializeFunc);
+            }
+        }
+
+        private static void CallWriter(ILProcessor serWorker, FieldDefinition field)
+        {
+            MethodReference writeFunc = Writers.GetWriteFunc(field.FieldType);
+            if (writeFunc != null)
+            {
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldfld, field));
+                serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
+            }
+            else
+            {
+                Weaver.Error($"{field} has unsupported type");
             }
         }
 
@@ -157,19 +161,7 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                MethodReference readerFunc = Readers.GetReadFunc(field.FieldType);
-                if (readerFunc != null)
-                {
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, readerFunc));
-                    serWorker.Append(serWorker.Create(OpCodes.Stfld, field));
-                }
-                else
-                {
-                    Weaver.Error($"{field} has unsupported type");
-                    return;
-                }
+                CallReader(serWorker, field);
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
@@ -177,6 +169,22 @@ namespace Mirror.Weaver
             if (existingMethod == null)
             {
                 td.Methods.Add(serializeFunc);
+            }
+        }
+
+        private static void CallReader(ILProcessor serWorker, FieldDefinition field)
+        {
+            MethodReference readerFunc = Readers.GetReadFunc(field.FieldType);
+            if (readerFunc != null)
+            {
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                serWorker.Append(serWorker.Create(OpCodes.Call, readerFunc));
+                serWorker.Append(serWorker.Create(OpCodes.Stfld, field));
+            }
+            else
+            {
+                Weaver.Error($"{field} has unsupported type");
             }
         }
     }
