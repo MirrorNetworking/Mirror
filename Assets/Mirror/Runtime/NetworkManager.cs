@@ -54,25 +54,6 @@ namespace Mirror
         [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         public int serverTickRate = 30;
 
-        /// <summary>
-        /// The scene to switch to when offline.
-        /// <para>Setting this makes the NetworkManager do scene management. This scene will be switched to when a network session is completed - such as a client disconnect, or a server shutdown.</para>
-        /// </summary>
-        [Header("Scene Management")]
-        [Scene]
-        [FormerlySerializedAs("m_OfflineScene")]
-        [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
-        public string offlineScene = "";
-
-        /// <summary>
-        /// The scene to switch to when online.
-        /// <para>Setting this makes the NetworkManager do scene management. This scene will be switched to when a network session is started - such as a client connect, or a server listen.</para>
-        /// </summary>
-        [Scene]
-        [FormerlySerializedAs("m_OnlineScene")]
-        [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
-        public string onlineScene = "";
-
         public NetworkServer server;
         public NetworkClient client;
 
@@ -187,7 +168,7 @@ namespace Mirror
 
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
-            networkSceneName = offlineScene;
+            networkSceneName = null;
 
             client.Authenticated.AddListener(OnAuthenticated);
 
@@ -220,14 +201,6 @@ namespace Mirror
         #endregion
 
         #region Start & Stop
-
-        // keep the online scene change check in a separate function
-        bool IsServerOnlineSceneChangeNeeded()
-        {
-            // Only change scene if the requested online scene is not blank, and is not already loaded
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            return !string.IsNullOrEmpty(onlineScene) && onlineScene != loadedSceneName && onlineScene != offlineScene;
-        }
 
         // full server setup code, without spawning objects yet
         void SetupServer()
@@ -279,16 +252,7 @@ namespace Mirror
 
             SetupServer();
 
-            // scene change needed? then change scene and spawn afterwards.
-            if (IsServerOnlineSceneChangeNeeded())
-            {
-                ServerChangeScene(onlineScene);
-            }
-            // otherwise spawn directly
-            else
-            {
-                server.SpawnObjects();
-            }
+            server.SpawnObjects();
         }
 
         /// <summary>
@@ -364,25 +328,8 @@ namespace Mirror
             // is called after the server is actually properly started.
             OnStartHost();
 
-            // scene change needed? then change scene and spawn afterwards.
-            // => BEFORE host client connects. if client auth succeeds then the
-            //    server tells it to load 'onlineScene'. we can't do that if
-            //    server is still in 'offlineScene'. so load on server first.
-            if (IsServerOnlineSceneChangeNeeded())
-            {
-                // call FinishStartHost after changing scene.
-                finishStartHostPending = true;
-                ServerChangeScene(onlineScene);
-            }
-            // otherwise call FinishStartHost directly
-            else
-            {
-                FinishStartHost();
-            }
+            FinishStartHost();
         }
-
-        // This may be set true in StartHost and is evaluated in FinishStartHost
-        bool finishStartHostPending;
 
         // FinishStartHost is guaranteed to be called after the host server was
         // fully started and all the asynchronous StartHost magic is finished
@@ -468,11 +415,6 @@ namespace Mirror
             // doesn't think we need initialize anything.
             mode = NetworkManagerMode.Offline;
 
-            if (!string.IsNullOrEmpty(offlineScene))
-            {
-                ServerChangeScene(offlineScene);
-            }
-
             startPositionIndex = 0;
         }
 
@@ -483,6 +425,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StopClient");
             isNetworkActive = false;
+            clientLoadedScene = false;
 
             // shutdown client
             client.Disconnect();
@@ -491,13 +434,6 @@ namespace Mirror
             // set offline mode BEFORE changing scene so that FinishStartScene
             // doesn't think we need initialize anything.
             mode = NetworkManagerMode.Offline;
-
-            // If this is the host player, StopServer will already be changing scenes.
-            // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
-            if (!string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene && loadingSceneAsync == null)
-            {
-                ClientChangeScene(offlineScene, SceneOperation.Normal);
-            }
 
         }
 
@@ -756,8 +692,6 @@ namespace Mirror
             {
                 FinishLoadSceneClientOnly();
             }
-            // otherwise we called it after stopping when loading offline scene.
-            // do nothing then.
         }
 
         // finish load scene part for host mode. makes code easier and is
@@ -776,42 +710,15 @@ namespace Mirror
                 client.connection = null;
             }
 
-            // do we need to finish a StartHost() call?
-            // then call FinishStartHost and let it take care of spawning etc.
-            if (finishStartHostPending)
+            FinishStartHost();
+
+            // call OnServerSceneChanged
+            OnServerSceneChanged(networkSceneName);
+
+            if (client.isConnected)
             {
-                finishStartHostPending = false;
-                FinishStartHost();
-
-                // call OnServerSceneChanged
-                OnServerSceneChanged(networkSceneName);
-
-                if (client.isConnected)
-                {
-                    // DO NOT call OnClientSceneChanged here.
-                    // the scene change happened because StartHost loaded the
-                    // server's online scene. it has nothing to do with the client.
-                    // this was not meant as a client scene load, so don't call it.
-                    //
-                    // otherwise AddPlayer would be called twice:
-                    // -> once for client OnConnected
-                    // -> once in OnClientSceneChanged
-                }
-            }
-            // otherwise we just changed a scene in host mode
-            else
-            {
-                // spawn server objects
-                server.SpawnObjects();
-
-                // call OnServerSceneChanged
-                OnServerSceneChanged(networkSceneName);
-
-                if (client.isConnected)
-                {
-                    // let client know that we changed scene
-                    OnClientSceneChanged(client.connection);
-                }
+                // let client know that we changed scene
+                OnClientSceneChanged(client.connection);
             }
         }
 
@@ -908,7 +815,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticated");
 
             // proceed with the login handshake by calling OnServerConnect
-            if (networkSceneName != "" && networkSceneName != offlineScene)
+            if (networkSceneName != "")
             {
                 var msg = new SceneMessage() { sceneName = networkSceneName };
                 conn.Send(msg);
@@ -983,18 +890,9 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticated");
 
-            // proceed with the login handshake by calling OnClientConnect
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
-            {
-                clientLoadedScene = false;
-            }
-            else
-            {
-                // will wait for scene id to come from the server.
-                clientLoadedScene = true;
-                client.connection = conn;
-            }
+            // will wait for scene id to come from the server.
+            clientLoadedScene = true;
+            client.connection = conn;
         }
 
         void OnClientNotReadyMessageInternal(NetworkConnection conn, NotReadyMessage msg)

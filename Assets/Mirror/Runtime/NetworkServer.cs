@@ -614,7 +614,7 @@ namespace Mirror
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
-
+            
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
             if (conn is ULocalConnectionToClient)
             {
@@ -1080,7 +1080,7 @@ namespace Mirror
             // only if server active
             if (!active)
                 return false;
-
+            
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
             foreach (NetworkIdentity identity in identities)
             {
@@ -1089,14 +1089,11 @@ namespace Mirror
                     if (LogFilter.Debug) Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
                     identity.Reset();
                     identity.gameObject.SetActive(true);
+
+                    Spawn(identity.gameObject);
                 }
             }
 
-            foreach (NetworkIdentity identity in identities)
-            {
-                if (ValidateSceneObject(identity))
-                    Spawn(identity.gameObject);
-            }
             return true;
         }
     }

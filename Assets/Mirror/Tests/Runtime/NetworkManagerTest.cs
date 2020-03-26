@@ -40,7 +40,6 @@ namespace Mirror.Tests
             Assert.That(manager.startOnHeadless, Is.False);
             Assert.That(manager.showDebugMessages, Is.False);
             Assert.That(manager.serverTickRate, Is.EqualTo(30));
-            Assert.That(manager.offlineScene, Is.Empty);
             Assert.That(manager.server.MaxConnections, Is.EqualTo(4));
             Assert.That(manager.autoCreatePlayer, Is.False);
             Assert.That(manager.numPlayers, Is.Zero);
