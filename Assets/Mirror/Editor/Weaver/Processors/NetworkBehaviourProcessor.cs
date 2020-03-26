@@ -21,10 +21,6 @@ namespace Mirror.Weaver
         readonly List<MethodDefinition> targetRpcInvocationFuncs = new List<MethodDefinition>();
         readonly List<MethodDefinition> eventRpcInvocationFuncs = new List<MethodDefinition>();
 
-        readonly List<MethodDefinition> commandCallFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> clientRpcCallFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> targetRpcCallFuncs = new List<MethodDefinition>();
-
         readonly TypeDefinition netBehaviourSubclass;
 
         public NetworkBehaviourProcessor(TypeDefinition td)
@@ -891,11 +887,6 @@ namespace Mirror.Weaver
             {
                 clientRpcInvocationFuncs.Add(rpcFunc);
             }
-
-            if (rpcCallFunc != null)
-            {
-                clientRpcCallFuncs.Add(rpcCallFunc);
-            }
         }
 
         void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
@@ -917,11 +908,6 @@ namespace Mirror.Weaver
             if (rpcFunc != null)
             {
                 targetRpcInvocationFuncs.Add(rpcFunc);
-            }
-
-            if (rpcCallFunc != null)
-            {
-                targetRpcCallFuncs.Add(rpcCallFunc);
             }
         }
 
@@ -945,11 +931,6 @@ namespace Mirror.Weaver
             if (cmdFunc != null)
             {
                 commandInvocationFuncs.Add(cmdFunc);
-            }
-
-            if (cmdCallFunc != null)
-            {
-                commandCallFuncs.Add(cmdCallFunc);
             }
         }
     }
