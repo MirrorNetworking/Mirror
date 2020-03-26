@@ -34,7 +34,7 @@ namespace Mirror.Tests
             GameObject.DestroyImmediate(gameObject);
         }
 
-        // test to prevent https://github.com/vis2k/Mirror/issues/1515
+        // test to prevent https://github.com/vis2k/Mirror/issues/1499
         [Test]
         public void StopHostCallsOnClientDisconnectForHostClient()
         {
