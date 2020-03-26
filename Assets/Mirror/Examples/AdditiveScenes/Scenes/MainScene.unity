@@ -376,7 +376,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  subScene: SubScene
+  subScene: Assets/Mirror/Examples/AdditiveScenes/Scenes/SubScene.unity
 --- !u!1001 &160176455
 PrefabInstance:
   m_ObjectHideFlags: 0
