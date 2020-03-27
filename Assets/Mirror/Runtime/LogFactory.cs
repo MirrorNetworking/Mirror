@@ -4,24 +4,30 @@ using UnityEngine;
 
 namespace Mirror
 {
-    // hold a reference to the class logger
-    internal static class Loggers<T>
-    {
-        // note that Loggers<X>.Logger
-        // would have a separate value than Loggers<Y>.Logger
-        // this way we can always get teh same logger back and change it's log level
-        public static readonly ILogger Logger = new Logger(Debug.unityLogger)
-        {
-            // by default, log warnings and up
-            filterLogType = LogType.Warning
-        };
-    }
-
     public static class LogFactory
     {
+        private static readonly Dictionary<string, ILogger> loggers = new Dictionary<string, ILogger>();
+
         public static ILogger GetLogger<T>()
         {
-            return Loggers<T>.Logger;
+            return GetLogger(typeof(T).Name);
+        }
+
+        public static ILogger GetLogger(string loggerName)
+        {
+            if (loggers.TryGetValue(loggerName, out ILogger logger ))
+            {
+                return logger;
+            }
+
+            logger = new Logger(Debug.unityLogger)
+            {
+                // by default, log warnings and up
+                filterLogType = LogType.Warning
+            };
+
+            loggers[loggerName] = logger;
+            return logger;
         }
     }
 }
