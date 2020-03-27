@@ -329,19 +329,19 @@ namespace Mirror.Weaver
             // loop body
             Instruction labelBody = worker.Create(OpCodes.Nop);
             worker.Append(labelBody);
-            {
-                // writer.Write(value.Array[i + value.Offset]);
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
-                worker.Append(worker.Create(OpCodes.Call, Weaver.ArraySegmentArrayReference.MakeHostInstanceGeneric(genericInstance)));
-                worker.Append(worker.Create(OpCodes.Ldloc_1));
-                worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
-                worker.Append(worker.Create(OpCodes.Call, Weaver.ArraySegmentOffsetReference.MakeHostInstanceGeneric(genericInstance)));
-                worker.Append(worker.Create(OpCodes.Add));
-                worker.Append(worker.Create(OpCodes.Ldelema, elementType));
-                worker.Append(worker.Create(OpCodes.Ldobj, elementType));
-                worker.Append(worker.Create(OpCodes.Call, elementWriteFunc));
-            }
+            
+            // writer.Write(value.Array[i + value.Offset]);
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.ArraySegmentArrayReference.MakeHostInstanceGeneric(genericInstance)));
+            worker.Append(worker.Create(OpCodes.Ldloc_1));
+            worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.ArraySegmentOffsetReference.MakeHostInstanceGeneric(genericInstance)));
+            worker.Append(worker.Create(OpCodes.Add));
+            worker.Append(worker.Create(OpCodes.Ldelema, elementType));
+            worker.Append(worker.Create(OpCodes.Ldobj, elementType));
+            worker.Append(worker.Create(OpCodes.Call, elementWriteFunc));
+            
 
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
