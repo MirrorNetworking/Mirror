@@ -16,7 +16,7 @@ namespace Mirror.Tests
             {
                 if (string.IsNullOrEmpty(_outputDirectory))
                 {
-                    string[] guidsFound = AssetDatabase.FindAssets($"t:Script WeaverAssembler");
+                    string[] guidsFound = AssetDatabase.FindAssets($"t:Script " + nameof(WeaverAssembler));
                     if (guidsFound.Length == 1 && !string.IsNullOrEmpty(guidsFound[0]))
                     {
                         string path = AssetDatabase.GUIDToAssetPath(guidsFound[0]);
@@ -112,7 +112,9 @@ namespace Mirror.Tests
         {
             // "x.dll" shortest possible dll name
             if (OutputFile.Length < 5)
+            {
                 return;
+            }
 
             string projPathFile = OutputDirectory + OutputFile;
 
