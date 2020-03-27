@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -32,20 +33,22 @@ namespace Mirror.Tests
             ILogger logger = LogFactory.GetLogger<LogFactoryTests>();
             logger.filterLogType = LogType.Warning;
 
+            ILogHandler mockHandler = Substitute.For<ILogHandler>();
+            logger.logHandler = mockHandler;
             logger.Log("This message should not be logged");
-            LogAssert.NoUnexpectedReceived();
+            mockHandler.DidNotReceiveWithAnyArgs().LogFormat(LogType.Log, null, null);
         }
 
         [Test]
-        public void LogWarnOnly()
+        public void LogDebugFull()
         {
             ILogger logger = LogFactory.GetLogger<LogFactoryTests>();
-            logger.filterLogType = LogType.Warning;
+            logger.filterLogType = LogType.Log;
 
-            LogAssert.Expect(LogType.Warning, "LogFactoryTests: This message should be logged");
-            logger.LogWarning(nameof(LogFactoryTests), "This message should be logged");
-            LogAssert.NoUnexpectedReceived();
+            ILogHandler mockHandler = Substitute.For<ILogHandler>();
+            logger.logHandler = mockHandler;
+            logger.Log("This message be logged");
+            mockHandler.Received().LogFormat(LogType.Log, null, "{0}", "This message be logged");
         }
-
     }
 }
