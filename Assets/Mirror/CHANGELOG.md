@@ -1,3 +1,10 @@
+## [29.0.2](https://github.com/MirrorNG/MirrorNG/compare/29.0.1-master...29.0.2-master) (2020-03-27)
+
+
+### Performance Improvements
+
+* Remove redundant mask ([#1604](https://github.com/MirrorNG/MirrorNG/issues/1604)) ([5d76afb](https://github.com/MirrorNG/MirrorNG/commit/5d76afbe29f456a657c9e1cb7c97435242031091))
+
 ## [29.0.1](https://github.com/MirrorNG/MirrorNG/compare/29.0.0-master...29.0.1-master) (2020-03-27)
 
 
