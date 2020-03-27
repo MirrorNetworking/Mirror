@@ -1,3 +1,15 @@
+## [29.0.1](https://github.com/MirrorNG/MirrorNG/compare/29.0.0-master...29.0.1-master) (2020-03-27)
+
+
+### Bug Fixes
+
+* [#1515](https://github.com/MirrorNG/MirrorNG/issues/1515) - StopHost now invokes OnServerDisconnected for the host client too ([#1601](https://github.com/MirrorNG/MirrorNG/issues/1601)) ([678ac68](https://github.com/MirrorNG/MirrorNG/commit/678ac68b58798816658d29be649bdaf18ad70794))
+
+
+### Performance Improvements
+
+* simplify and speed up getting methods in weaver ([c1cfc42](https://github.com/MirrorNG/MirrorNG/commit/c1cfc421811e4c12e84cb28677ac68c82575958d))
+
 # [29.0.0](https://github.com/MirrorNG/MirrorNG/compare/28.0.0-master...29.0.0-master) (2020-03-26)
 
 
