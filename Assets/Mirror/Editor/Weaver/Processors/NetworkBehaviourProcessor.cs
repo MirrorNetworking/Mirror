@@ -1,5 +1,4 @@
 // this class processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
-using System.Linq;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;

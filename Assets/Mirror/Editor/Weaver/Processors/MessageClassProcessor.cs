@@ -150,7 +150,7 @@ namespace Mirror.Weaver
                 serWorker.Body.Instructions.Clear();
             }
 
-            //if not struct(IMessageBase), likely same as using else {} here in all cases
+            // if not value type, call base
             if (!td.IsValueType)
             {
                 CallBase(td, serWorker, "Deserialize");

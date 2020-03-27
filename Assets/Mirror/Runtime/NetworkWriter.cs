@@ -63,24 +63,24 @@ namespace Mirror
 
         public void WriteUInt32(uint value)
         {
-            WriteByte((byte)(value & 0xFF));
-            WriteByte((byte)((value >> 8) & 0xFF));
-            WriteByte((byte)((value >> 16) & 0xFF));
-            WriteByte((byte)((value >> 24) & 0xFF));
+            WriteByte((byte)value);
+            WriteByte((byte)(value >> 8));
+            WriteByte((byte)(value >> 16));
+            WriteByte((byte)(value >> 24));
         }
 
         public void WriteInt32(int value) => WriteUInt32((uint)value);
 
         public void WriteUInt64(ulong value)
         {
-            WriteByte((byte)(value & 0xFF));
-            WriteByte((byte)((value >> 8) & 0xFF));
-            WriteByte((byte)((value >> 16) & 0xFF));
-            WriteByte((byte)((value >> 24) & 0xFF));
-            WriteByte((byte)((value >> 32) & 0xFF));
-            WriteByte((byte)((value >> 40) & 0xFF));
-            WriteByte((byte)((value >> 48) & 0xFF));
-            WriteByte((byte)((value >> 56) & 0xFF));
+            WriteByte((byte)value);
+            WriteByte((byte)(value >> 8));
+            WriteByte((byte)(value >> 16));
+            WriteByte((byte)(value >> 24));
+            WriteByte((byte)(value >> 32));
+            WriteByte((byte)(value >> 40));
+            WriteByte((byte)(value >> 48));
+            WriteByte((byte)(value >> 56));
         }
 
         public void WriteInt64(long value) => WriteUInt64((ulong)value);
@@ -107,7 +107,7 @@ namespace Mirror
 
         public static void WriteUInt16(this NetworkWriter writer, ushort value)
         {
-            writer.WriteByte((byte)(value & 0xFF));
+            writer.WriteByte((byte)value);
             writer.WriteByte((byte)(value >> 8));
         }
 
@@ -232,78 +232,78 @@ namespace Mirror
             if (value <= 2287)
             {
                 writer.WriteByte((byte)(((value - 240) >> 8) + 241));
-                writer.WriteByte((byte)((value - 240) & 0xFF));
+                writer.WriteByte((byte)(value - 240));
                 return;
             }
             if (value <= 67823)
             {
                 writer.WriteByte((byte)249);
                 writer.WriteByte((byte)((value - 2288) >> 8));
-                writer.WriteByte((byte)((value - 2288) & 0xFF));
+                writer.WriteByte((byte)(value - 2288));
                 return;
             }
             if (value <= 16777215)
             {
                 writer.WriteByte((byte)250);
-                writer.WriteByte((byte)(value & 0xFF));
-                writer.WriteByte((byte)((value >> 8) & 0xFF));
-                writer.WriteByte((byte)((value >> 16) & 0xFF));
+                writer.WriteByte((byte)value);
+                writer.WriteByte((byte)(value >> 8));
+                writer.WriteByte((byte)(value >> 16));
                 return;
             }
             if (value <= 4294967295)
             {
                 writer.WriteByte((byte)251);
-                writer.WriteByte((byte)(value & 0xFF));
-                writer.WriteByte((byte)((value >> 8) & 0xFF));
-                writer.WriteByte((byte)((value >> 16) & 0xFF));
-                writer.WriteByte((byte)((value >> 24) & 0xFF));
+                writer.WriteByte((byte)value);
+                writer.WriteByte((byte)(value >> 8));
+                writer.WriteByte((byte)(value >> 16));
+                writer.WriteByte((byte)(value >> 24));
                 return;
             }
             if (value <= 1099511627775)
             {
                 writer.WriteByte((byte)252);
-                writer.WriteByte((byte)(value & 0xFF));
-                writer.WriteByte((byte)((value >> 8) & 0xFF));
-                writer.WriteByte((byte)((value >> 16) & 0xFF));
-                writer.WriteByte((byte)((value >> 24) & 0xFF));
-                writer.WriteByte((byte)((value >> 32) & 0xFF));
+                writer.WriteByte((byte)value);
+                writer.WriteByte((byte)(value >> 8));
+                writer.WriteByte((byte)(value >> 16));
+                writer.WriteByte((byte)(value >> 24));
+                writer.WriteByte((byte)(value >> 32));
                 return;
             }
             if (value <= 281474976710655)
             {
                 writer.WriteByte((byte)253);
-                writer.WriteByte((byte)(value & 0xFF));
-                writer.WriteByte((byte)((value >> 8) & 0xFF));
-                writer.WriteByte((byte)((value >> 16) & 0xFF));
-                writer.WriteByte((byte)((value >> 24) & 0xFF));
-                writer.WriteByte((byte)((value >> 32) & 0xFF));
-                writer.WriteByte((byte)((value >> 40) & 0xFF));
+                writer.WriteByte((byte)value);
+                writer.WriteByte((byte)(value >> 8));
+                writer.WriteByte((byte)(value >> 16));
+                writer.WriteByte((byte)(value >> 24));
+                writer.WriteByte((byte)(value >> 32));
+                writer.WriteByte((byte)(value >> 40));
                 return;
             }
             if (value <= 72057594037927935)
             {
                 writer.WriteByte((byte)254);
-                writer.WriteByte((byte)(value & 0xFF));
-                writer.WriteByte((byte)((value >> 8) & 0xFF));
-                writer.WriteByte((byte)((value >> 16) & 0xFF));
-                writer.WriteByte((byte)((value >> 24) & 0xFF));
-                writer.WriteByte((byte)((value >> 32) & 0xFF));
-                writer.WriteByte((byte)((value >> 40) & 0xFF));
-                writer.WriteByte((byte)((value >> 48) & 0xFF));
+                writer.WriteByte((byte)value);
+                writer.WriteByte((byte)(value >> 8));
+                writer.WriteByte((byte)(value >> 16));
+                writer.WriteByte((byte)(value >> 24));
+                writer.WriteByte((byte)(value >> 32));
+                writer.WriteByte((byte)(value >> 40));
+                writer.WriteByte((byte)(value >> 48));
                 return;
             }
 
             // all others
             {
                 writer.WriteByte((byte)255);
-                writer.WriteByte((byte)(value & 0xFF));
-                writer.WriteByte((byte)((value >> 8) & 0xFF));
-                writer.WriteByte((byte)((value >> 16) & 0xFF));
-                writer.WriteByte((byte)((value >> 24) & 0xFF));
-                writer.WriteByte((byte)((value >> 32) & 0xFF));
-                writer.WriteByte((byte)((value >> 40) & 0xFF));
-                writer.WriteByte((byte)((value >> 48) & 0xFF));
-                writer.WriteByte((byte)((value >> 56) & 0xFF));
+                writer.WriteByte((byte)value);
+                writer.WriteByte((byte)(value >> 8));
+                writer.WriteByte((byte)(value >> 16));
+                writer.WriteByte((byte)(value >> 24));
+                writer.WriteByte((byte)(value >> 32));
+                writer.WriteByte((byte)(value >> 40));
+                writer.WriteByte((byte)(value >> 48));
+                writer.WriteByte((byte)(value >> 56));
             }
         }
 
