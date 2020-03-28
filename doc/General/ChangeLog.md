@@ -15,7 +15,14 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: NetworkAnimator now correctly excludes parameters controlled by curves.
 - Fixed: NetworkBehaviour now uses a property drawer for the SyncVar label so it displays better.
 - Fixed: NetworkServer.SendToReady overloads are no longer ambiguous.
+- Fixed: NetworkRoomManager no longer incorrectly destroys the game player object. It's left in the game scene to be cleaned up by Unity when the scene changes.
+- Fixed: StopHost correctly raises OnServerDisconnect in Network Manager, and correctly unwinds before shutting down the server.
+- Fixed: `isServer` is no longer incorrectly false on server in Network Identity's OnDestroy
+- Changed: Network Manager HUD now calls StopHost / StopServer / StopClient more appropriately.
+- Changed: Network Manager HUD labels no longer say LAN. Associated docs also cleaned up to eliminate the misconception of Mirror being LAN only solution.
+- Changed: NetworkTransform compression removed and message handling is much simpler now.
 - Changed: NetworkSceneChecker initializes in Awake again because OnEnable proved to be unreliable in some cases.
+- Changed: Network Manager will no longer lose references to scenes if they aren't in the Build Settings scene list, however moving or renaming scenes may cause references to be lost.
 - Changed: **Breaking** Many obsolete methods and properties removed. Use version 10 first if upgrading from UNet or older Mirror. See [Deprecations](Deprecations.md) for complete list.
 
 ## Version 10.4.7 - 2020-Mar-03

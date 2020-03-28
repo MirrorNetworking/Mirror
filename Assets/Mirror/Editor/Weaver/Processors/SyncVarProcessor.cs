@@ -14,42 +14,41 @@ namespace Mirror.Weaver
         public static bool CheckForHookFunction(TypeDefinition td, FieldDefinition syncVar, out MethodDefinition foundMethod)
         {
             foundMethod = null;
-            foreach (CustomAttribute ca in syncVar.CustomAttributes)
-            {
-                if (ca.AttributeType.FullName == Weaver.SyncVarType.FullName)
-                {
-                    foreach (CustomAttributeNamedArgument customField in ca.Fields)
-                    {
-                        if (customField.Name == "hook")
-                        {
-                            string hookFunctionName = customField.Argument.Value as string;
+            CustomAttribute ca = syncVar.GetCustomAttribute(Weaver.SyncVarType.FullName);
 
-                            foreach (MethodDefinition m in td.Methods)
-                            {
-                                if (m.Name == hookFunctionName)
-                                {
-                                    if (m.Parameters.Count == 2)
-                                    {
-                                        if (m.Parameters[0].ParameterType != syncVar.FieldType ||
-                                            m.Parameters[1].ParameterType != syncVar.FieldType)
-                                        {
-                                            Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
-                                            return false;
-                                        }
-                                        foundMethod = m;
-                                        return true;
-                                    }
-                                    Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
-                                    return false;
-                                }
-                            }
-                            Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
-                            return false;
-                        }
+            if (ca == null)
+                return true;
+
+            string hookFunctionName = ca.GetField<string>("hook", null);
+
+            if (hookFunctionName == null)
+                return true;
+
+            foundMethod = GetHookMethod(td, syncVar, hookFunctionName);
+            return foundMethod != null;
+        }
+
+        private static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName)
+        {
+            MethodDefinition m = td.GetMethod(hookFunctionName);
+            if (m != null)
+            {
+                if (m.Parameters.Count == 2)
+                {
+                    if (m.Parameters[0].ParameterType != syncVar.FieldType ||
+                        m.Parameters[1].ParameterType != syncVar.FieldType)
+                    {
+                        Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
+                        return null;
                     }
+                    return m;
                 }
+                Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
+                return null;
             }
-            return true;
+            
+            Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
+            return null;
         }
 
         public static MethodDefinition ProcessSyncVarGet(FieldDefinition fd, string originalName, FieldDefinition netFieldId)
@@ -301,30 +300,28 @@ namespace Mirror.Weaver
             // find syncvars
             foreach (FieldDefinition fd in td.Fields)
             {
-                foreach (CustomAttribute ca in fd.CustomAttributes)
+                if (fd.HasCustomAttribute(Weaver.SyncVarType))
                 {
-                    if (ca.AttributeType.FullName == Weaver.SyncVarType.FullName)
+                    TypeDefinition resolvedField = fd.FieldType.Resolve();
+
+                    if ((fd.Attributes & FieldAttributes.Static) != 0)
                     {
-                        TypeDefinition resolvedField = fd.FieldType.Resolve();
+                        Weaver.Error($"{fd} cannot be static");
+                        return;
+                    }
 
-                        if ((fd.Attributes & FieldAttributes.Static) != 0)
-                        {
-                            Weaver.Error($"{fd} cannot be static");
-                            return;
-                        }
+                    if (fd.FieldType.IsArray)
+                    {
+                        Weaver.Error($"{fd} has invalid type. Use SyncLists instead of arrays");
+                        return;
+                    }
 
-                        if (fd.FieldType.IsArray)
-                        {
-                            Weaver.Error($"{fd} has invalid type. Use SyncLists instead of arrays");
-                            return;
-                        }
-
-                        if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
-                        {
-                            Log.Warning($"{fd} has [SyncVar] attribute. SyncLists should not be marked with SyncVar");
-                            break;
-                        }
-
+                    if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
+                    {
+                        Log.Warning($"{fd} has [SyncVar] attribute. SyncLists should not be marked with SyncVar");
+                    }
+                    else
+                    {
                         syncVars.Add(fd);
 
                         ProcessSyncVar(td, fd, syncVarNetIds, 1L << dirtyBitCounter);
@@ -336,7 +333,6 @@ namespace Mirror.Weaver
                             Weaver.Error($"{td} has too many SyncVars. Consider refactoring your class into multiple components");
                             return;
                         }
-                        break;
                     }
                 }
 

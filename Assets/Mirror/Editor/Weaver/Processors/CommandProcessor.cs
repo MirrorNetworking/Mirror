@@ -33,7 +33,7 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition cmd = MethodProcessor.SubstituteMethod(md, "Call" + md.Name);
+            MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
 
             ILProcessor cmdWorker = md.Body.GetILProcessor();
 
@@ -68,7 +68,7 @@ namespace Mirror.Weaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, cmdName));
             // writer
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, ca.GetField("channel", 0)));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.sendCommandInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(cmdWorker);
@@ -112,7 +112,7 @@ namespace Mirror.Weaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
-
+            td.Methods.Add(cmd);
             return cmd;
         }
 

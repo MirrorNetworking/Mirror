@@ -48,7 +48,7 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(rpc.Parameters);
-
+            td.Methods.Add(rpc);
             return rpc;
         }
 
@@ -87,7 +87,7 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessTargetRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition rpc = MethodProcessor.SubstituteMethod(md, "Call" + md.Name);
+            MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
 
             ILProcessor rpcWorker = md.Body.GetILProcessor();
 
@@ -129,7 +129,7 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             // writer
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, ca.GetField("channel", 0)));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendTargetRpcInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(rpcWorker);

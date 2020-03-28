@@ -114,7 +114,7 @@ namespace Mirror.Tests
         public void UnRegisterStartPositionTest()
         {
             Assert.That(NetworkManager.startPositions.Count , Is.Zero);
-            
+
             NetworkManager.RegisterStartPosition(gameObject.transform);
             Assert.That(NetworkManager.startPositions.Count , Is.EqualTo(1));
             Assert.That(NetworkManager.startPositions, Has.Member(gameObject.transform));
@@ -127,7 +127,7 @@ namespace Mirror.Tests
         public void GetStartPositionTest()
         {
             Assert.That(NetworkManager.startPositions.Count , Is.Zero);
-            
+
             NetworkManager.RegisterStartPosition(gameObject.transform);
             Assert.That(NetworkManager.startPositions.Count , Is.EqualTo(1));
             Assert.That(NetworkManager.startPositions, Has.Member(gameObject.transform));

@@ -16,14 +16,9 @@ namespace Mirror.Weaver
             // find syncvars
             foreach (FieldDefinition fd in td.Fields)
             {
-                foreach (CustomAttribute ca in fd.CustomAttributes)
-                {
-                    if (ca.AttributeType.FullName == Weaver.SyncVarType.FullName)
-                    {
-                        Weaver.Error($"[SyncVar] {fd} must be inside a NetworkBehaviour.  {td} is not a NetworkBehaviour");
-                    }
-                }
-
+                if (fd.HasCustomAttribute(Weaver.SyncVarType))
+                    Weaver.Error($"[SyncVar] {fd} must be inside a NetworkBehaviour.  {td} is not a NetworkBehaviour");
+ 
                 if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
                 {
                     Weaver.Error($"{fd} is a SyncObject and must be inside a NetworkBehaviour.  {td} is not a NetworkBehaviour");

@@ -124,6 +124,23 @@ namespace Mirror
             NetworkServer.localConnection.Send(new ConnectMessage());
         }
 
+        /// <summary>
+        /// disconnect host mode. this is needed to call DisconnectMessage for
+        /// the host client too.
+        /// </summary>
+        internal static void DisconnectLocalServer()
+        {
+            // only if host connection is running
+            if (NetworkServer.localConnection != null)
+            {
+                // TODO ConnectLocalServer manually sends a ConnectMessage to the
+                // local connection. should we send a DisconnectMessage here too?
+                // (if we do then we get an Unknown Message ID log)
+                //NetworkServer.localConnection.Send(new DisconnectMessage());
+                NetworkServer.OnDisconnected(NetworkServer.localConnection.connectionId);
+            }
+        }
+
         static void InitializeTransportHandlers()
         {
             Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
