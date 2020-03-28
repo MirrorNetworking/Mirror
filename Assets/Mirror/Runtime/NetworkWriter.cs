@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -18,7 +17,7 @@ namespace Mirror
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position;
        
-        int length = 0;
+        int length;
 
         public int Length 
         {
