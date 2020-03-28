@@ -31,7 +31,7 @@ namespace Mirror
             }
         }
 
-        private void EnsureCapacity(int value)
+        void EnsureCapacity(int value)
         {
             if (buffer.Length < value)
             {
