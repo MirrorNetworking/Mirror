@@ -1,3 +1,10 @@
+# [29.1.0](https://github.com/MirrorNG/MirrorNG/compare/29.0.3-master...29.1.0-master) (2020-03-28)
+
+
+### Features
+
+* get a convenient property to get network time ([1e8c2fe](https://github.com/MirrorNG/MirrorNG/commit/1e8c2fe0522d7843a6a2fae7287287c7afa4e417))
+
 ## [29.0.3](https://github.com/MirrorNG/MirrorNG/compare/29.0.2-master...29.0.3-master) (2020-03-28)
 
 
