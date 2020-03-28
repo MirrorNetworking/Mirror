@@ -100,7 +100,7 @@ namespace Mirror
             buffer[Position++] = (byte)((value >> 8) & 0xFF);
             buffer[Position++] = (byte)((value >> 16) & 0xFF);
             buffer[Position++] = (byte)((value >> 24) & 0xFF);
-            Length = Length < Position ? Position : Length;
+            Length = Mathf.Min(Length, Position);
         }
 
         public void WriteInt32(int value) => WriteUInt32((uint)value);
