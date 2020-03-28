@@ -31,7 +31,7 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(rpc.Parameters);
-
+            td.Methods.Add(rpc);
             return rpc;
         }
 
@@ -59,20 +59,7 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition rpc = new MethodDefinition("Call" + md.Name, MethodAttributes.Public |
-                    MethodAttributes.HideBySig,
-                    Weaver.voidType);
-
-            // add paramters
-            foreach (ParameterDefinition pd in md.Parameters)
-            {
-                rpc.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
-            }
-
-            // move the old body to the new function
-            MethodBody newBody = rpc.Body;
-            rpc.Body = md.Body;
-            md.Body = newBody;
+            MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
 
             ILProcessor rpcWorker = md.Body.GetILProcessor();
 
@@ -92,12 +79,15 @@ namespace Mirror.Weaver
             }
 
             // invoke SendInternal and return
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
+            // this
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldtoken, td));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference)); // invokerClass
+            // invokerClass
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
+            // writer
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, ca.GetField("channel", 0)));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(rpcWorker);

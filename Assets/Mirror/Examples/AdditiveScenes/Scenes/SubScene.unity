@@ -153,8 +153,8 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 21610633}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -267,6 +267,11 @@ PrefabInstance:
       propertyPath: m_SceneId
       value: 15452677
       objectReference: {fileID: 0}
+    - target: {fileID: 2648107611936813301, guid: e1971f4a8c7661546bc509b44bd91b80,
+        type: 3}
+      propertyPath: sceneId
+      value: 3231330715
+      objectReference: {fileID: 0}
     - target: {fileID: 5697694911122891659, guid: e1971f4a8c7661546bc509b44bd91b80,
         type: 3}
       propertyPath: castLayers.m_Bits
@@ -319,8 +324,8 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 222935521}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -396,8 +401,8 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 507729669}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -507,8 +512,8 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1722279648}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -626,6 +631,11 @@ PrefabInstance:
       propertyPath: m_SceneId
       value: 11893259
       objectReference: {fileID: 0}
+    - target: {fileID: 855244094988030911, guid: f6d08eb9a8e35d84fa30a7e3ae64181a,
+        type: 3}
+      propertyPath: sceneId
+      value: 1396685688
+      objectReference: {fileID: 0}
     - target: {fileID: 855244096231524078, guid: f6d08eb9a8e35d84fa30a7e3ae64181a,
         type: 3}
       propertyPath: m_CastShadows
@@ -669,6 +679,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SceneId
       value: 4733130
+      objectReference: {fileID: 0}
+    - target: {fileID: 5623359707189648404, guid: 4ff300cf6bb3c6342a9552c4f18788c8,
+        type: 3}
+      propertyPath: sceneId
+      value: 86995073
       objectReference: {fileID: 0}
     - target: {fileID: 5623359707189648405, guid: 4ff300cf6bb3c6342a9552c4f18788c8,
         type: 3}
@@ -833,6 +848,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SceneId
       value: 4633990
+      objectReference: {fileID: 0}
+    - target: {fileID: 6852530814182375318, guid: 12a4c14e672c00b4b840f937d824b890,
+        type: 3}
+      propertyPath: sceneId
+      value: 1889713496
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 12a4c14e672c00b4b840f937d824b890, type: 3}

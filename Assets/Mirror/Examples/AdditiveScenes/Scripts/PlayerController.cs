@@ -41,17 +41,18 @@ namespace Mirror.Examples.Additive
         public float maxTurnSpeed = 150f;
 
         [Header("Diagnostics")]
-        public float horizontal = 0f;
-        public float vertical = 0f;
-        public float turn = 0f;
-        public float jumpSpeed = 0f;
+        public float horizontal;
+        public float vertical;
+        public float turn;
+        public float jumpSpeed;
         public bool isGrounded = true;
-        public bool isFalling = false;
+        public bool isFalling;
         public Vector3 velocity;
 
         void Update()
         {
-            if (!isLocalPlayer) return;
+            if (!isLocalPlayer)
+                return;
 
             horizontal = Input.GetAxis("Horizontal");
             vertical = Input.GetAxis("Vertical");
@@ -80,7 +81,8 @@ namespace Mirror.Examples.Additive
 
         void FixedUpdate()
         {
-            if (!isLocalPlayer || characterController == null) return;
+            if (!isLocalPlayer || characterController == null)
+                return;
 
             transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);
 

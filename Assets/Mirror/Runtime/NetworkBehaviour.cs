@@ -35,6 +35,9 @@ namespace Mirror
         /// <summary>
         /// sync interval for OnSerialize (in seconds)
         /// </summary>
+        [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
+        // [0,2] should be enough. anything >2s is too laggy anyway.
+        [Range(0, 2)]
         [HideInInspector] public float syncInterval = 0.1f;
 
         /// <summary>
@@ -103,12 +106,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="syncObjects"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use syncObjects instead.")]
-        protected List<SyncObject> m_SyncObjects => syncObjects;
-
-        /// <summary>
         /// objects that can synchronize themselves, such as synclists
         /// </summary>
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
@@ -169,7 +166,7 @@ namespace Mirror
 
         #region Commands
 
-        static int GetMethodHash(Type invokeClass, string methodName)
+        internal static int GetMethodHash(Type invokeClass, string methodName)
         {
             // (invokeClass + ":" + cmdName).GetStableHashCode() would cause allocations.
             // so hash1 + hash2 is better.
@@ -209,8 +206,10 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = GetMethodHash(invokeClass, cmdName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArraySegment() // segment to avoid reader allocations
+                // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, cmdName),
+                // segment to avoid reader allocations
+                payload = writer.ToArraySegment()
             };
 
             ClientScene.readyConnection.Send(message, channelId);
@@ -251,8 +250,10 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = GetMethodHash(invokeClass, rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArraySegment() // segment to avoid reader allocations
+                // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, rpcName),
+                // segment to avoid reader allocations
+                payload = writer.ToArraySegment()
             };
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
@@ -290,8 +291,10 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = GetMethodHash(invokeClass, rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArraySegment() // segment to avoid reader allocations
+                // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, rpcName),
+                // segment to avoid reader allocations
+                payload = writer.ToArraySegment()
             };
 
             conn.Send(message, channelId);
@@ -325,8 +328,10 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = GetMethodHash(invokeClass, eventName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArraySegment() // segment to avoid reader allocations
+                // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, eventName),
+                // segment to avoid reader allocations
+                payload = writer.ToArraySegment()
             };
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
@@ -366,19 +371,22 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func)
         {
-            int cmdHash = GetMethodHash(invokeClass, cmdName); // type+func so Inventory.RpcUse != Equipment.RpcUse
+            // type+func so Inventory.RpcUse != Equipment.RpcUse
+            int cmdHash = GetMethodHash(invokeClass, cmdName);
 
             if (cmdHandlerDelegates.ContainsKey(cmdHash))
             {
                 // something already registered this hash
                 Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
-                if (oldInvoker.invokeClass == invokeClass && oldInvoker.invokeType == invokerType && oldInvoker.invokeFunction == func)
+                if (oldInvoker.invokeClass == invokeClass &&
+                    oldInvoker.invokeType == invokerType &&
+                    oldInvoker.invokeFunction == func)
                 {
                     // it's all right,  it was the same function
                     return;
                 }
 
-                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} have the same hash.  Please rename one of them");
+                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
             }
             Invoker invoker = new Invoker
             {
@@ -391,21 +399,28 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
+        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
         {
             RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
+        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
         {
             RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
+        public static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
         {
             RegisterDelegate(invokeClass, eventName, MirrorInvokeType.SyncEvent, func);
+        }
+
+        // we need a way to clean up delegates after tests
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal static void ClearDelegates()
+        {
+            cmdHandlerDelegates.Clear();
         }
 
         static bool GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType, out Invoker invoker)
@@ -436,13 +451,16 @@ namespace Mirror
             return false;
         }
 
+        [Obsolete("Use NetworkBehaviour.GetDelegate instead.")]
+        public static CmdDelegate GetRpcHandler(int cmdHash) => GetDelegate(cmdHash);
+
         /// <summary>
         /// Gets the handler function for a given hash
         /// Can be used by profilers and debuggers
         /// </summary>
         /// <param name="cmdHash">rpc function hash</param>
         /// <returns>The function delegate that will handle the command</returns>
-        public static CmdDelegate GetRpcHandler(int cmdHash)
+        public static CmdDelegate GetDelegate(int cmdHash)
         {
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
             {
@@ -456,6 +474,8 @@ namespace Mirror
         #region Helpers
 
         // helper function for [SyncVar] GameObjects.
+        // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver
+        //            can't resolve it
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
         {
@@ -499,7 +519,8 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
             SetDirtyBit(dirtyBit);
-            gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
+            // assign new one on the server, and in case we ever need it on client too
+            gameObjectField = newGameObject;
             netIdField = newNetId;
         }
 
@@ -522,6 +543,8 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] NetworkIdentities.
+        // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver
+        //            can't resolve it
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
         {
@@ -559,7 +582,8 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
             SetDirtyBit(dirtyBit);
             netIdField = newNetId;
-            identityField = newIdentity; // assign new one on the server, and in case we ever need it on client too
+            // assign new one on the server, and in case we ever need it on client too
+            identityField = newIdentity;
         }
 
         // helper function for [SyncVar] NetworkIdentities.
@@ -685,7 +709,7 @@ namespace Mirror
             }
         }
 
-        ulong DirtyObjectBits()
+        internal ulong DirtyObjectBits()
         {
             ulong dirtyObjects = 0;
             for (int i = 0; i < syncObjects.Count; i++)
@@ -729,7 +753,7 @@ namespace Mirror
             return dirty;
         }
 
-        void DeSerializeObjectsAll(NetworkReader reader)
+        internal void DeSerializeObjectsAll(NetworkReader reader)
         {
             for (int i = 0; i < syncObjects.Count; i++)
             {
@@ -738,7 +762,7 @@ namespace Mirror
             }
         }
 
-        void DeSerializeObjectsDelta(NetworkReader reader)
+        internal void DeSerializeObjectsDelta(NetworkReader reader)
         {
             ulong dirty = reader.ReadPackedUInt64();
             for (int i = 0; i < syncObjects.Count; i++)
@@ -801,9 +825,6 @@ namespace Mirror
         {
             return false;
         }
-
-        [Obsolete("Rename to OnSetHostVisibility instead.")]
-        public virtual void OnSetLocalVisibility(bool visible) { }
 
         /// <summary>
         /// Callback used by the visibility system for objects on a host.

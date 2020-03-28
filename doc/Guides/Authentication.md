@@ -44,7 +44,7 @@ Mirror includes a [Basic Authenticator](../Components/Authenticators/Basic.md) i
 
 Authenticators are derived from an `Authenticator` abstract class that allows you to implement any authentication scheme you need.
 
-To make your Authenticator, create a class that inherits from `Authenticator` and override the methods as needed. - When a client is successfully authenticated,  call `base.OnServerAuthenticated.Invoke(conn)` on the server and `base.OnClientAuthenticated.Invoke(conn)` on the client. Mirror is listening for these events to proceed with the connection sequence. Subscribe to OnServerAuthenticated and OnClientAuthenticated events if you wish to perform additional steps after authentication.
+From the Assets menu, click Create > Mirror > Network Authenticator to make your own custom Authenticator from our [Script Templates](../General/ScriptTemplates.md), and just fill in the messages and validation code to suit your needs. When a client is successfully authenticated,  call `base.OnServerAuthenticated.Invoke(conn)` on the server and `base.OnClientAuthenticated.Invoke(conn)` on the client. Mirror is listening for these events to proceed with the connection sequence. Subscribe to OnServerAuthenticated and OnClientAuthenticated events if you wish to perform additional steps after authentication.
 
 ### Tips
 
@@ -52,7 +52,7 @@ To make your Authenticator, create a class that inherits from `Authenticator` an
 -   Send a message to the client if authentication fails, especially if there's some issue they can resolve.
 -   Call the `Disconnect()` method of the `NetworkConnection` on the server and client when authentication fails. If you want to give the user a few tries to get their credentials right, you certainly can, but Mirror will not do the disconnect for you.
     -   Remember to put a small delay on the Disconnect call on the server if you send a failure message so that it has a chance to be delivered before the connection is dropped.
--   `NetworkConnection` has an `AuthenticationData` object where you can drop a class instance of any data you need to persist on the server related to the authentication, such as account id's, tokens, character selection, etc.
+-   `NetworkConnection` has an `authenticationData` object where you can drop any data you need to persist on the server related to the authentication, such as account id's, tokens, character selection, etc.
 
 Now that you have the foundation of a custom Authenticator component, the rest is up to you. You can exchange any number of custom messages between the server and client as necessary to complete your authentication process before approving the client.
 

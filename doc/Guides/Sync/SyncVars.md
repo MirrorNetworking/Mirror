@@ -8,7 +8,7 @@ The state of SyncVars is applied to game objects on clients before `OnStartClien
 
 SyncVars can use any [type supported by Mirror](../DataTypes.md). You can have up to 64 SyncVars on a single NetworkBehaviour script, including SyncLists (see next section, below).
 
-The server automatically sends SyncVar updates when the value of a SyncVar changes, so you do not need to track when they change or send information about the changes yourself.
+The server automatically sends SyncVar updates when the value of a SyncVar changes, so you do not need to track when they change or send information about the changes yourself. Changing a value in the inspector will not trigger an update.
 
 >   The [SyncVar hook](SyncVarHook.md) attribute can be used to specify a method to be called when the SyncVar changes value on the client.
 

@@ -1,0 +1,26 @@
+{
+    "name": "Mirror.Tests",
+    "references": [
+        "Mirror",
+        "Mirror.Weaver",
+        "Mirror.Components",
+        "Mirror.Tests.Common"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "NSubstitute.dll",
+        "Castle.Core.dll",
+        "System.Threading.Tasks.Extensions.dll",
+        "Mono.CecilX.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

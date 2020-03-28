@@ -1,4 +1,4 @@
-# NetworkManager
+# Network Manager
 
 The Network Manager is a component for managing the networking aspects of a multiplayer game.
 
@@ -120,7 +120,7 @@ There are virtual functions on the `NetworkManager` class that you can customize
         Define the default prefab Mirror should use to create player game objects on the server. Mirror creates Player game objects in the default handler for AddPlayer on the server. Implement OnServerAddPlayer to override this behavior.
 
     -   **autoCreatePlayer**  
-        Tick this checkbox if you want Mirror to automatically create player game objects on connect, and when the Scene changes. This checkbox is ticked by default. Note that if you are using the MigrationManager and you do not enable Auto Create Player, you need to call ClientScene.SendReconnectMessage when your client reconnects.
+        Tick this checkbox if you want Mirror to automatically create player game objects on connect, and when the Scene changes. This checkbox is ticked by default.
 
     -   **playerSpawnMethod**  
         Define how Mirror should decide where to spawn new player game objects. This is set to Random by default.

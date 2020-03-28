@@ -22,9 +22,7 @@ namespace Mirror
             OP_ADD,
             OP_CLEAR,
             OP_REMOVE,
-            OP_SET,
-            [Obsolete("SyncDictionaries now use OP_SET instead of OP_DIRTY")]
-            OP_DIRTY
+            OP_SET
         }
 
         struct Change
@@ -229,13 +227,14 @@ namespace Mirror
             {
                 if (ContainsKey(i))
                 {
+                    objects[i] = value;
                     AddOperation(Operation.OP_SET, i, value);
                 }
                 else
                 {
+                    objects[i] = value;
                     AddOperation(Operation.OP_ADD, i, value);
                 }
-                objects[i] = value;
             }
         }
 

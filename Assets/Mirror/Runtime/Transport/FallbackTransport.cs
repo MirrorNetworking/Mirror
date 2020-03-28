@@ -110,6 +110,10 @@ namespace Mirror
             }
         }
 
+        // right now this just returns the first available uri,
+        // should we return the list of all available uri?
+        public override Uri ServerUri() => available.ServerUri();
+
         public override bool ServerActive()
         {
             return available.ServerActive();
@@ -171,5 +175,6 @@ namespace Mirror
         {
             return available.ToString();
         }
+
     }
 }

@@ -1,4 +1,4 @@
-# MultiplexTransport
+# Multiplex Transport
 
 The MultiplexTransport is not a transport itself,  but it allows you to combine other transports so that your clients can connect to your servers via either one of them.
 

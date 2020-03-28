@@ -65,6 +65,9 @@
             "default",
             "templates/material"
         ],
+        "xrefService": [
+            "https://xref.docs.microsoft.com/query?uid={uid}"
+          ],
         "postProcessors": [],
         "markdownEngineName": "markdig",
         "noLangKeyword": false,

@@ -5,11 +5,14 @@
 The client and server can pass data to each other via [Remote methods](Communications/RemoteActions.md), [State Synchronization](Sync/index.md) or via [Network Messages](Communications/NetworkMessages.md)
 
 Mirror supports a number of data types you can use with these, including:
-- Basic c# types (byte, int, char, uint, float, string, UInt64, etc)
+- Basic c# types (byte, int, char, uint, UInt64, float, string, etc)
 - Built-in Unity math type (Vector3, Quaternion, Rect, Plane, Vector3Int, etc)
+- URI
 - NetworkIdentity
 - Game object with a NetworkIdentity component attached.
 - Structures with any of the above (it's recommended to implement IEquatable\<T\> to avoid boxing and to have the struct readonly, cause modifying one of fields doesn't cause a resync)
+- Classes as long as each field has a supported data type.
+- ScriptableObject as long as each field has a supported data type
 - Arrays of any of the above (not supported with syncvars or synclists)
 - ArraySegments of any of the above (not supported with syncvars or synclists)
 
@@ -140,3 +143,39 @@ public static class ItemSerializer
     }
 }
 ```
+
+## Scriptable Objects
+
+People often want to send scriptable objects from the client or server. For example, you may have a bunch of swords created as scriptable objects and you want put the equipped sword in a syncvar. This will work fine, Mirror will generate a reader and writer for scriptable objects by calling ScriptableObject.CreateInstance and copy all the data. 
+
+However the generated reader and writer are not suitable for every occasion. Scriptable objects often reference other assets such as textures, prefabs, or other types that can't be serialized. Scriptable objects are often saved in the in the Resources folder. Scriptable objects sometimes have a large amount of data in them. The generated reader and writers may not work or may be inneficient for these situations.
+
+Instead of passing the scriptable object data,  you can pass the name and the other side can lookup the same object by name. This way you can have any kind of data in your scriptable object. You can do that by providing a custom reader and writer.  Here is an example:
+
+```cs
+[CreateAssetMenu(fileName = "New Armor", menuName = "Armor Data")]
+class Armor : ScriptableObject
+{
+    public int Hitpoints;
+    public int Weight;
+    public string Description;
+    public Texture2D Icon;
+    // ...
+}
+
+public static class ArmorSerializer 
+{
+    public static void WriteArmor(this NetworkWriter writer, Armor armor)
+    {
+       // no need to serialize the data, just the name of the armor
+       writer.WriteString(armor.name);
+    }
+
+    public static Armor ReadArmor(this NetworkReader reader)
+    {
+        // load the same armor by name.  The data will come from the asset in Resources folder
+        return Resources.Load<Armor>(reader.ReadString());
+    }
+}
+```
+

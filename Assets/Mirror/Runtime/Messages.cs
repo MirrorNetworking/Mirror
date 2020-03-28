@@ -19,131 +19,6 @@ namespace Mirror
         public virtual void Serialize(NetworkWriter writer) { }
     }
 
-    #region General Typed Messages
-    [Obsolete("Create your own message class instead")]
-    public class StringMessage : MessageBase
-    {
-        public string value;
-
-        public StringMessage() { }
-
-        public StringMessage(string v)
-        {
-            value = v;
-        }
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadString();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WriteString(value);
-        }
-    }
-
-    [Obsolete("Create your own message class instead")]
-    public class ByteMessage : MessageBase
-    {
-        public byte value;
-
-        public ByteMessage() { }
-
-        public ByteMessage(byte v)
-        {
-            value = v;
-        }
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadByte();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WriteByte(value);
-        }
-    }
-
-    [Obsolete("Create your own message class instead")]
-    public class BytesMessage : MessageBase
-    {
-        public byte[] value;
-
-        public BytesMessage() { }
-
-        public BytesMessage(byte[] v)
-        {
-            value = v;
-        }
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadBytesAndSize();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WriteBytesAndSize(value);
-        }
-    }
-
-    [Obsolete("Create your own message class instead")]
-    public class IntegerMessage : MessageBase
-    {
-        public int value;
-
-        public IntegerMessage() { }
-
-        public IntegerMessage(int v)
-        {
-            value = v;
-        }
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadPackedInt32();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedInt32(value);
-        }
-    }
-
-    [Obsolete("Create your own message class instead")]
-    public class DoubleMessage : MessageBase
-    {
-        public double value;
-
-        public DoubleMessage() { }
-
-        public DoubleMessage(double v)
-        {
-            value = v;
-        }
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadDouble();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WriteDouble(value);
-        }
-    }
-
-    [Obsolete("Create your own message class instead")]
-    public class EmptyMessage : MessageBase
-    {
-        public override void Deserialize(NetworkReader reader) { }
-
-        public override void Serialize(NetworkWriter writer) { }
-    }
-    #endregion
-
     #region Public System Messages
     public struct ErrorMessage : IMessageBase
     {
@@ -181,29 +56,9 @@ namespace Mirror
 
     public struct AddPlayerMessage : IMessageBase
     {
-        /// <summary>
-        /// Obsolete: Create your own message instead. See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a>
-        /// </summary>
-        [Obsolete("Create your own message instead. See https://mirror-networking.com/docs/Guides/GameObjects/SpawnPlayerCustom.html")]
-        public byte[] value;
+        public void Deserialize(NetworkReader reader) { }
 
-        /// <summary>
-        /// Obsolete: Create your own message instead. See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a>
-        /// </summary>
-        [Obsolete("Create your own message instead. See https://mirror-networking.com/docs/Guides/GameObjects/SpawnPlayerCustom.html")]
-        public void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadBytesAndSize();
-        }
-
-        /// <summary>
-        /// Obsolete: Create your own message instead. See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a>
-        /// </summary>
-        [Obsolete("Create your own message instead. See https://mirror-networking.com/docs/Guides/GameObjects/SpawnPlayerCustom.html")]
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteBytesAndSize(value);
-        }
+        public void Serialize(NetworkWriter writer) { }
     }
 
     public struct RemovePlayerMessage : IMessageBase
@@ -230,7 +85,8 @@ namespace Mirror
     public struct SceneMessage : IMessageBase
     {
         public string sceneName;
-        public SceneOperation sceneOperation; // Normal = 0, LoadAdditive = 1, UnloadAdditive = 2
+        // Normal = 0, LoadAdditive = 1, UnloadAdditive = 2
+        public SceneOperation sceneOperation;
         public bool customHandling;
 
         public void Deserialize(NetworkReader reader)
@@ -271,7 +127,8 @@ namespace Mirror
         {
             netId = reader.ReadPackedUInt32();
             componentIndex = (int)reader.ReadPackedUInt32();
-            functionHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            functionHash = reader.ReadInt32();
             payload = reader.ReadBytesAndSizeSegment();
         }
 
@@ -297,7 +154,8 @@ namespace Mirror
         {
             netId = reader.ReadPackedUInt32();
             componentIndex = (int)reader.ReadPackedUInt32();
-            functionHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            functionHash = reader.ReadInt32();
             payload = reader.ReadBytesAndSizeSegment();
         }
 
@@ -323,7 +181,8 @@ namespace Mirror
         {
             netId = reader.ReadPackedUInt32();
             componentIndex = (int)reader.ReadPackedUInt32();
-            functionHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            functionHash = reader.ReadInt32();
             payload = reader.ReadBytesAndSizeSegment();
         }
 

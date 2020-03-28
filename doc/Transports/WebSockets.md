@@ -1,4 +1,4 @@
-# WebSockets
+# WebSockets Transport
 
 General description of WebSockets
 

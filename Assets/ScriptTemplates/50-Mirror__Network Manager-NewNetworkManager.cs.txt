@@ -58,15 +58,6 @@ public class #SCRIPTNAME# : NetworkManager
     }
 
     /// <summary>
-    /// This starts a network "host" - a server and client in the same application.
-    /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
-    /// </summary>
-    public override void StartHost()
-    {
-        base.StartHost();
-    }
-
-    /// <summary>
     /// called when quitting the application by closing the window / pressing stop in the editor
     /// <para>virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too</para>
     /// </summary>

@@ -1,5 +1,7 @@
 # SyncLists
 
+[![SyncList video tutorial](../../images/video_tutorial.png)](https://www.youtube.com/watch?v=-X7uUn9P_Tg&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=13)
+
 SyncLists are array based lists similar to C\# [List\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.2) that synchronize their contents from the server to the clients.
 
 A SyncList can contain any [supported mirror type](../DataTypes.md).
@@ -17,6 +19,7 @@ HLAPI also supports SyncLists, but we have redesigned them to better suit our ne
 Create a class that derives from SyncList for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncList field to your NetworkBehaviour class. For example:
 
 ```cs
+[System.Serializable]
 public struct Item
 {
     public string name;
@@ -24,9 +27,10 @@ public struct Item
     public Color32 color;
 }
 
-class SyncListItem : SyncList<Item> {}
+[System.Serializable]
+public class SyncListItem : SyncList<Item> {}
 
-class Player : NetworkBehaviour
+public class Player : NetworkBehaviour
 {
     readonly SyncListItem inventory = new SyncListItem();
 
@@ -92,19 +96,11 @@ class Player : NetworkBehaviour {
                 // index is where it got added in the list
                 // item is the new item
                 break;
-            case SyncListItem.Operation.OP_REMOVE:
-                // index is where it got removed in the list
-                // item is the item that was removed
-                break;
             case SyncListItem.Operation.OP_REMOVEAT:
                 // index is where it got removed in the list
                 // item is the item that was removed
                 break;
             case SyncListItem.Operation.OP_SET:
-                // index is the index of the item that was updated
-                // item is the previous item
-                break;
-            case SyncListItem.Operation.OP_DIRTY:
                 // index is the index of the item that was updated
                 // item is the previous item
                 break;

@@ -1,7 +1,8 @@
 {
     "name": "Mirror.Editor",
     "references": [
-        "Mirror"
+        "Mirror",
+        "Mirror.Weaver"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

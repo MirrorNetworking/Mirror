@@ -13,9 +13,9 @@ Start up to 4 built instances:  These will all be client players.
 
 Open the Offline scene in the Editor and press Play
 
-Click LAN Host in the editor: This will be host and the 5th player.  You can also use LAN Server if you prefer.
+Click Host (Server + Client) in the HUD: This will be host and the 5th player.  You can also use Server Only if you prefer.
 
-Click LAN Client in the built instances.
+Click Client in the built instances.
 
 Click Ready in each instance, and finally in the Editor (Host).
 

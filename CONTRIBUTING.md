@@ -8,7 +8,7 @@ Following these guidelines helps to communicate that you respect the time of the
 
 This is an open source project and we love to receive contributions from our community — you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the main project itself.
 
-If you haven't already, come find us in [Discord](https://discord.gg/wvesC6). We want you working on things you're excited about, and we can give you instant feedback.
+If you haven't already, come find us in [Discord](https://discord.gg/yTYe3h). We want you working on things you're excited about, and we can give you instant feedback.
 
 ### I don't want to read this whole thing I just have a question!!
 
@@ -79,6 +79,7 @@ Please send a [GitHub Pull Request](https://github.com/vis2k/Mirror/compare) wit
 When you send a pull request, we will love you forever if you include unit tests. 
 We can always use more test coverage. 
 
+* **Keep pull requests small** Never combine multiple things in the same pull request. It is an order of magnitude easier to review 10 small pull requests than 1 large pull request that combines all changes. A pull request with 300+ changed lines has almost 0% chance of getting merged even if it is the best code in the world.
 * **Use a clear and descriptive title** for the pull request to state the improvement you made to the code or the bug you solved.
 * **Provide a link to the related issue** if the pull request is a follow up of an existing bug report or enhancement suggestion.
 * **Comment why this pull request represents an enhancement** and give a rationale explaining why you did it that way and not another way.
@@ -95,12 +96,33 @@ $ git commit -m "A brief summary of the commit""
 > 
 > A paragraph describing what changed and its impact.
 ```
-
-Submit your pull requests to the right branch:
-* Submit against the 2018 branch when the change **only** applies to Unity 2018.2+
-* Submit against the master branch in all other cases
   
 If your pull request breaks any test,  it has no hope of being merged.
+
+Here are some more [good practices](https://blog.ploeh.dk/2015/01/15/10-tips-for-better-pull-requests/) to follow when submitting pull requests to any project.
+
+#### Optimizations
+
+There are generally 2 types of optimizations, micro-optimizations and macro-optimizations.  The distinction has nothing to do with how much they improve the program.
+
+Micro-optimizations try to improve the performance of an application by replacing instructions with equivalent but more efficient instructions.  Some example micro-optimizations include:
+* replace `i / 4` with `i >> 2`
+* eliminate an allocation.
+* replace `Vector3.Distance(a,b) < K` with `Vector3.SqrMagnitude(b - a) < K * K`
+* convert a class to struct
+
+Macro-optimizations try to improve the performance of an application by changing the algorithm.  Some examples include:
+* Serialize a message once O(1),  instead of for every single client O(n)
+* Change interest management algorithm,  as of this writing every object checks every other object O(n^2),  it could be replaced by a sweep and prune algorithm O(n log n)
+* When synchronizing movement,  instead of synchronizing every position change,  you could synchronize the velocity and let the other side predict the position.
+
+Macro-optimizations tend to change the **scalability** of mirror,  by changing an algorithm, you may now support 10x more customers on the same hardware, it is even possible for a macro optimization to make performance worse for small numbers. Macro optimization usually make a really big difference, but are much harder to make. 
+
+Micro-optimizations tend to change the performance of mirror in a linear way. There are some micro optimizations that make a huge impact on performance such as eliminating allocations in the hot path.
+
+We prefer readable code over optimal code. We do not like any kind of optimization if it makes the code less readable (they generally do).  For that reason,  we require that both micro and macro optimization pull requests come with screenshots profiling a real game or at least a synthetic **representative** test. It is not enough to show that one operation is faster than the other,  you must prove that this makes a significant difference in Mirror or in a real game using Mirror.
+
+If your optimization pull request does not come with profiling data showing real gains in a meaningful test is has no hope of getting merged.
 
 ## Coding conventions
 

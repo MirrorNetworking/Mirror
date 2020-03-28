@@ -27,15 +27,23 @@ namespace Mirror.Weaver
                 return foundFunc;
             }
 
+            MethodDefinition newReaderFunc;
+
+            // Arrays are special,  if we resolve them, we get teh element type,
+            // so the following ifs might choke on it for scriptable objects
+            // or other objects that require a custom serializer
+            // thus check if it is an array and skip all the checks.
+            if (variable.IsArray)
+            {
+                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
+                RegisterReadFunc(variable.FullName, newReaderFunc);
+                return newReaderFunc;
+            }
+
             TypeDefinition td = variable.Resolve();
             if (td == null)
             {
                 Weaver.Error($"{variable} is not a supported type");
-                return null;
-            }
-            if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
-            {
-                Weaver.Error($"Cannot generate reader for scriptable object {variable}. Use a supported type or provide a custom reader");
                 return null;
             }
             if (td.IsDerivedFrom(Weaver.ComponentType))
@@ -60,13 +68,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            MethodDefinition newReaderFunc;
-
-            if (variable.IsArray)
-            {
-                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
-            }
-            else if (td.IsEnum)
+            if (td.IsEnum)
             {
                 return GetReadFunc(td.GetEnumUnderlyingType(), recursionCount);
             }
@@ -76,7 +78,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                newReaderFunc = GenerateStructReadFunction(variable, recursionCount);
+                newReaderFunc = GenerateClassOrStructReadFunction(variable, recursionCount);
             }
 
             if (newReaderFunc == null)
@@ -258,15 +260,13 @@ namespace Mirror.Weaver
             // loop body
             Instruction labelBody = worker.Create(OpCodes.Nop);
             worker.Append(labelBody);
-            {
-                // value[i] = reader.ReadT();
-                worker.Append(worker.Create(OpCodes.Ldloc_1));
-                worker.Append(worker.Create(OpCodes.Ldloc_2));
-                worker.Append(worker.Create(OpCodes.Ldelema, elementType));
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Call, elementReadFunc));
-                worker.Append(worker.Create(OpCodes.Stobj, elementType));
-            }
+            // value[i] = reader.ReadT();
+            worker.Append(worker.Create(OpCodes.Ldloc_1));
+            worker.Append(worker.Create(OpCodes.Ldloc_2));
+            worker.Append(worker.Create(OpCodes.Ldelema, elementType));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Call, elementReadFunc));
+            worker.Append(worker.Create(OpCodes.Stobj, elementType));
 
             worker.Append(worker.Create(OpCodes.Ldloc_2));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
@@ -286,7 +286,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateStructReadFunction(TypeReference variable, int recursionCount)
+        static MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable, int recursionCount)
         {
             if (recursionCount > MaxRecursionCount)
             {
@@ -324,11 +324,31 @@ namespace Mirror.Weaver
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
+            TypeDefinition td = variable.Resolve();
+
+            CreateNew(variable, worker, td);
+            DeserializeFields(variable, recursionCount, worker);
+
+            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ret));
+            return readerFunc;
+        }
+
+        // Initialize the local variable with a new instance
+        private static void CreateNew(TypeReference variable, ILProcessor worker, TypeDefinition td)
+        {
             if (variable.IsValueType)
             {
                 // structs are created with Initobj
                 worker.Append(worker.Create(OpCodes.Ldloca, 0));
                 worker.Append(worker.Create(OpCodes.Initobj, variable));
+            }
+            else if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
+            {
+                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(Weaver.ScriptableObjectCreateInstanceMethod);
+                genericInstanceMethod.GenericArguments.Add(variable);
+                worker.Append(worker.Create(OpCodes.Call, genericInstanceMethod));
+                worker.Append(worker.Create(OpCodes.Stloc_0));
             }
             else
             {
@@ -337,14 +357,16 @@ namespace Mirror.Weaver
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
-                    Weaver.Error($"{variable} can't be deserialized bcause i has no default constructor");
-                    return null;
+                    Weaver.Error($"{variable} can't be deserialized because i has no default constructor");
                 }
 
                 worker.Append(worker.Create(OpCodes.Newobj, ctor));
                 worker.Append(worker.Create(OpCodes.Stloc_0));
             }
+        }
 
+        private static void DeserializeFields(TypeReference variable, int recursionCount, ILProcessor worker)
+        {
             uint fields = 0;
             foreach (FieldDefinition field in variable.Resolve().Fields)
             {
@@ -364,7 +386,6 @@ namespace Mirror.Weaver
                 else
                 {
                     Weaver.Error($"{field} has an unsupported type");
-                    return null;
                 }
 
                 worker.Append(worker.Create(OpCodes.Stfld, field));
@@ -374,10 +395,6 @@ namespace Mirror.Weaver
             {
                 Log.Warning($"{variable} has no public or non-static fields to deserialize");
             }
-
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Ret));
-            return readerFunc;
         }
 
     }

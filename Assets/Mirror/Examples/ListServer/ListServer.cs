@@ -12,13 +12,15 @@ namespace Mirror.Examples.ListServer
     public class ServerStatus
     {
         public string ip;
-        //public ushort port; // <- not all transports use a port. assume default port. feel free to also send a port if needed.
+        // not all transports use a port. assume default port. feel free to also send a port if needed.
+        //public ushort port;
         public string title;
         public ushort players;
         public ushort capacity;
 
         public int lastLatency = -1;
-#if !UNITY_WEBGL // Ping isn't known in WebGL builds
+#if !UNITY_WEBGL
+        // Ping isn't known in WebGL builds
         public Ping ping;
 #endif
         public ServerStatus(string ip, /*ushort port,*/ string title, ushort players, ushort capacity)
@@ -28,7 +30,8 @@ namespace Mirror.Examples.ListServer
             this.title = title;
             this.players = players;
             this.capacity = capacity;
-#if !UNITY_WEBGL // Ping isn't known in WebGL builds
+#if !UNITY_WEBGL
+            // Ping isn't known in WebGL builds
             ping = new Ping(ip);
 #endif
         }
@@ -204,7 +207,8 @@ namespace Mirror.Examples.ListServer
                             Debug.Log("[List Server] Client disconnected.");
                     }
 
-#if !UNITY_WEBGL // Ping isn't known in WebGL builds
+#if !UNITY_WEBGL
+                    // Ping isn't known in WebGL builds
                     // ping again if previous ping finished
                     foreach (ServerStatus server in list.Values)
                     {

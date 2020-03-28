@@ -50,39 +50,41 @@ namespace Mirror
                     //   (and only do SetActive if this was actually a scene object)
                     if (identity.sceneId != 0)
                     {
-                        // set scene hash
-                        identity.SetSceneIdSceneHashPartInternal();
-
-                        // disable it
-                        // note: NetworkIdentity.OnDisable adds itself to the
-                        //       spawnableObjects dictionary (only if sceneId != 0)
-                        identity.gameObject.SetActive(false);
-
-                        // safety check for prefabs with more than one NetworkIdentity
-#if UNITY_2018_2_OR_NEWER
-                        GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject) as GameObject;
-#else
-                        GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
-#endif
-                        if (prefabGO)
-                        {
-#if UNITY_2018_3_OR_NEWER
-                            GameObject prefabRootGO = prefabGO.transform.root.gameObject;
-#else
-                            GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
-#endif
-                            if (prefabRootGO)
-                            {
-                                if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
-                                {
-                                    Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
-                                }
-                            }
-                        }
+                        PrepareSceneObject(identity);
                     }
                     // throwing an exception would only show it for one object
                     // because this function would return afterwards.
                     else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
+                }
+            }
+        }
+
+        static void PrepareSceneObject(NetworkIdentity identity)
+        {
+            // set scene hash
+            identity.SetSceneIdSceneHashPartInternal();
+
+            // disable it
+            // note: NetworkIdentity.OnDisable adds itself to the
+            //       spawnableObjects dictionary (only if sceneId != 0)
+            identity.gameObject.SetActive(false);
+
+            // safety check for prefabs with more than one NetworkIdentity
+#if UNITY_2018_2_OR_NEWER
+            GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject);
+#else
+                        GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject);
+#endif
+            if (prefabGO)
+            {
+#if UNITY_2018_3_OR_NEWER
+                GameObject prefabRootGO = prefabGO.transform.root.gameObject;
+#else
+                            GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
+#endif
+                if (prefabRootGO != null && prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
+                {
+                    Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
                 }
             }
         }
