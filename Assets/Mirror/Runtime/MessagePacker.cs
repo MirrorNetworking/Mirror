@@ -38,7 +38,7 @@ namespace Mirror
             // this works because value types cannot be derived
             // if it is a reference type (for example IMessageBase),
             // ask the message for the real type
-            int msgType = GetId(typeof(T).IsValueType ? typeof(T) : message.GetType());
+            int msgType = GetId(default(T) != null ? typeof(T) : message.GetType());
             writer.WriteUInt16((ushort)msgType);
 
             // serialize message into writer
