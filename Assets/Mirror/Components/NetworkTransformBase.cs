@@ -48,7 +48,7 @@ namespace Mirror
         Vector3 lastPosition;
         Quaternion lastRotation;
         Vector3 lastScale;
-
+        
         // client
         public class DataPoint
         {
@@ -101,7 +101,7 @@ namespace Mirror
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
-            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetComponent.transform, syncInterval);
+            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetComponent.transform, (float)NetworkTime.rtt );
 
             // reassign start wisely
             // -> first ever data point? then make something up for previous one
@@ -110,7 +110,7 @@ namespace Mirror
             {
                 start = new DataPoint
                 {
-                    timeStamp = Time.time - syncInterval,
+                    timeStamp = Time.time - (float)NetworkTime.rtt,
                     // local position/rotation for VR support
                     localPosition = targetComponent.transform.localPosition,
                     localRotation = targetComponent.transform.localRotation,
@@ -200,9 +200,9 @@ namespace Mirror
                 // start, so elapsed time is based on:
                 float elapsed = Time.time - goal.timeStamp;
                 // avoid NaN
-                return difference > 0 ? elapsed / difference : 0;
+                return difference > 0 ? elapsed / difference : 1;
             }
-            return 0;
+            return 1;
         }
 
         static Vector3 InterpolatePosition(DataPoint start, DataPoint goal, Vector3 currentPosition)
@@ -252,7 +252,7 @@ namespace Mirror
         bool NeedsTeleport()
         {
             // calculate time between the two data points
-            float startTime = start != null ? start.timeStamp : Time.time - syncInterval;
+            float startTime = start != null ? start.timeStamp : Time.time - (float)NetworkTime.rtt * 0.5f;
             float goalTime = goal != null ? goal.timeStamp : Time.time;
             float difference = goalTime - startTime;
             float timeSinceGoalReceived = Time.time - goalTime;
@@ -321,33 +321,26 @@ namespace Mirror
                         lastClientSendTime = Time.time;
                     }
                 }
-
-                // apply interpolation on client for all players
-                // unless this client has authority over the object. could be
-                // himself or another object that he was assigned authority over
-                if (!IsClientWithAuthority)
+                else if (goal != null)
                 {
-                    // received one yet? (initialized?)
-                    if (goal != null)
+                    // teleport or interpolate
+                    if (NeedsTeleport())
                     {
-                        // teleport or interpolate
-                        if (NeedsTeleport())
-                        {
-                            // local position/rotation for VR support
-                            ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
+                        // local position/rotation for VR support
+                        ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
 
-                            // reset data points so we don't keep interpolating
-                            start = null;
-                            goal = null;
-                        }
-                        else
-                        {
-                            // local position/rotation for VR support
-                            ApplyPositionRotationScale(InterpolatePosition(start, goal, targetComponent.transform.localPosition),
-                                                       InterpolateRotation(start, goal, targetComponent.transform.localRotation),
-                                                       InterpolateScale(start, goal, targetComponent.transform.localScale));
-                        }
+                        // reset data points so we don't keep interpolating
+                        start = null;
+                        goal = null;
                     }
+                    else
+                    {
+                        // local position/rotation for VR support
+                        ApplyPositionRotationScale(InterpolatePosition(start, goal, targetComponent.transform.localPosition),
+                                                   InterpolateRotation(start, goal, targetComponent.transform.localRotation),
+                                                   InterpolateScale(start, goal, targetComponent.transform.localScale));
+                    }
+
                 }
             }
         }
