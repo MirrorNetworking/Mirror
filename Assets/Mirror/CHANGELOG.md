@@ -1,3 +1,12 @@
+## [29.0.3](https://github.com/MirrorNG/MirrorNG/compare/29.0.2-master...29.0.3-master) (2020-03-28)
+
+
+### Performance Improvements
+
+* faster NetworkWriter pooling ([#1616](https://github.com/MirrorNG/MirrorNG/issues/1616)) ([5128b12](https://github.com/MirrorNG/MirrorNG/commit/5128b122fe205f250d44ba5c7a88a50de2f3e4cd)), closes [#1614](https://github.com/MirrorNG/MirrorNG/issues/1614)
+* replace isValueType with faster alternative ([#1617](https://github.com/MirrorNG/MirrorNG/issues/1617)) ([61163ca](https://github.com/MirrorNG/MirrorNG/commit/61163cacb4cb2652aa8632f84be89212674436ff)), closes [/github.com/vis2k/Mirror/issues/1614#issuecomment-605443808](https://github.com//github.com/vis2k/Mirror/issues/1614/issues/issuecomment-605443808)
+* use byte[] directly instead of MemoryStream ([#1618](https://github.com/MirrorNG/MirrorNG/issues/1618)) ([166b8c9](https://github.com/MirrorNG/MirrorNG/commit/166b8c946736447a76c1886c4d1fb036f6e56e20))
+
 ## [29.0.2](https://github.com/MirrorNG/MirrorNG/compare/29.0.1-master...29.0.2-master) (2020-03-27)
 
 
