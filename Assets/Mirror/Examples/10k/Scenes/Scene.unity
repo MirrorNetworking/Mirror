@@ -29649,7 +29649,7 @@ GameObject:
   m_Component:
   - component: {fileID: 302512960}
   m_Layer: 0
-  m_Name: Monsters10x10
+  m_Name: Monsters10x10=100
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
