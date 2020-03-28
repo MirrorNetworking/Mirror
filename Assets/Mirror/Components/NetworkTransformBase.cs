@@ -79,6 +79,13 @@ namespace Mirror
             return elapsed > 0 ? delta.magnitude / elapsed : 0;
         }
 
+        [ClientRpc]
+        void RpcMove(Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            if (!isServer)
+                SetGoal(position, rotation, scale);
+        }
+
         // serialization is needed by OnSerialize and by manual sending from authority
         void SetGoal(Vector3 position, Quaternion rotation, Vector3 scale)
         {
@@ -86,14 +93,11 @@ namespace Mirror
             DataPoint temp = new DataPoint
             {
                 // deserialize position
-                localPosition = position
+                localPosition = position,
+                localRotation = rotation,
+                localScale = scale,
+                timeStamp = Time.time,
             };
-
-            // deserialize rotation & scale
-            temp.localRotation = rotation;
-            temp.localScale = scale;
-
-            temp.timeStamp = Time.time;
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
@@ -182,8 +186,7 @@ namespace Mirror
             if (isServer && !isClient)
                 ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
 
-            // set dirty so that OnSerialize broadcasts it
-            SetDirtyBit(1UL);
+            RpcMove(position, rotation, scale);
         }
 
         // where are we in the timeline between start and goal? [0,1]
@@ -294,17 +297,16 @@ namespace Mirror
             // if server then always sync to others.
             if (isServer)
             {
-                // just use OnSerialize via SetDirtyBit only sync when position
-                // changed. set dirty bits 0 or 1
-                SetDirtyBit(HasEitherMovedRotatedScaled() ? 1UL : 0UL);
+                // let the clients know that this has moved
+                if (HasEitherMovedRotatedScaled())
+                    RpcMove(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
             }
 
-            // no 'else if' since host mode would be both
             if (isClient)
             {
                 // send to server if we have local authority (and aren't the server)
                 // -> only if connectionToServer has been initialized yet too
-                if (!isServer && IsClientWithAuthority)
+                if (IsClientWithAuthority)
                 {
                     // check only each 'syncInterval'
                     if (Time.time - lastClientSendTime >= syncInterval)
