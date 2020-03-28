@@ -20,7 +20,8 @@ namespace Mirror
 
         int length = 0;
 
-        public int Length {
+        public int Length 
+        {
             get => length;
             private set
             {
