@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -12,11 +11,35 @@ namespace Mirror
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         // note: BinaryWriter allocates too much, so we only use a MemoryStream
-        readonly MemoryStream stream = new MemoryStream();
+        // => 1500 bytes by default because on average, most packets will be <= MTU
+        byte[] buffer = new byte[1500];
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
-        public int Position { get { return (int)stream.Position; } set { stream.Position = value; } }
+        public int Position;
+       
+        int length;
+
+        public int Length 
+        {
+            get => length;
+            private set
+            {
+                EnsureCapacity(value);
+                this.length = value;
+                if (Position > length)
+                    Position = length;
+            }
+        }
+
+        void EnsureCapacity(int value)
+        {
+            if (buffer.Length < value)
+            {
+                int capacity = Math.Max(value, buffer.Length * 2);
+                Array.Resize(ref buffer, capacity);
+            }
+        }
 
         // MemoryStream has 3 values: Position, Length and Capacity.
         // Position is used to indicate where we are writing
@@ -25,8 +48,9 @@ namespace Mirror
         // ToArray returns all the data we have written,  regardless of the current position
         public byte[] ToArray()
         {
-            stream.Flush();
-            return stream.ToArray();
+            byte[] data = new byte[Length];
+            Array.ConstrainedCopy(buffer, 0, data, 0, Length);
+            return data;
         }
 
         // Gets the serialized data in an ArraySegment<byte>
@@ -36,51 +60,64 @@ namespace Mirror
         // while you are using the ArraySegment
         public ArraySegment<byte> ToArraySegment()
         {
-            stream.Flush();
-            if (stream.TryGetBuffer(out ArraySegment<byte> data))
-            {
-                return data;
-            }
-            throw new Exception("Cannot expose contents of memory stream. Make sure that MemoryStream buffer is publicly visible (see MemoryStream source code).");
+            return new ArraySegment<byte>(buffer, 0, length);
         }
 
         // reset both the position and length of the stream,  but leaves the capacity the same
         // so that we can reuse this writer without extra allocations
-        public void SetLength(long value)
+        public void SetLength(int value)
         {
-            stream.SetLength(value);
+            this.Length = value;
         }
 
-        public void WriteByte(byte value) => stream.WriteByte(value);
+        public void WriteByte(byte value)
+        {
+            if (Position >= Length)
+            {
+                Length += 1;
+            }
+
+            buffer[Position++] = value;
+        }
+            
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
         public void WriteBytes(byte[] buffer, int offset, int count)
         {
             // no null check because we would need to write size info for that too (hence WriteBytesAndSize)
-            stream.Write(buffer, offset, count);
+            if (Position + count > Length)
+            {
+                Length = Position + count;
+            }
+            Array.ConstrainedCopy(buffer, offset, this.buffer, Position, count);
+            Position += count;
         }
 
         public void WriteUInt32(uint value)
         {
-            WriteByte((byte)value);
-            WriteByte((byte)(value >> 8));
-            WriteByte((byte)(value >> 16));
-            WriteByte((byte)(value >> 24));
+            EnsureCapacity(Position + 4);
+            buffer[Position++] = (byte)value;
+            buffer[Position++] = (byte)(value >> 8);
+            buffer[Position++] = (byte)(value >> 16);
+            buffer[Position++] = (byte)(value >> 24);
+            Length = Math.Max(Length, Position);
         }
 
         public void WriteInt32(int value) => WriteUInt32((uint)value);
 
         public void WriteUInt64(ulong value)
         {
-            WriteByte((byte)value);
-            WriteByte((byte)(value >> 8));
-            WriteByte((byte)(value >> 16));
-            WriteByte((byte)(value >> 24));
-            WriteByte((byte)(value >> 32));
-            WriteByte((byte)(value >> 40));
-            WriteByte((byte)(value >> 48));
-            WriteByte((byte)(value >> 56));
+            EnsureCapacity(Position + 8);
+            buffer[Position++] = (byte)value;
+            buffer[Position++] = (byte)(value >> 8);
+            buffer[Position++] = (byte)(value >> 16);
+            buffer[Position++] = (byte)(value >> 24);
+            buffer[Position++] = (byte)(value >> 32);
+            buffer[Position++] = (byte)(value >> 40);
+            buffer[Position++] = (byte)(value >> 48);
+            buffer[Position++] = (byte)(value >> 56);
+            Length = Math.Max(Length, Position);
         }
 
         public void WriteInt64(long value) => WriteUInt64((ulong)value);
