@@ -282,7 +282,7 @@ TextureImporter:
     21300554: colored_277
     21300556: colored_278
     21300558: colored_279
-    21300560: colored_280
+    21300560: player
     21300562: colored_281
     21300564: colored_282
     21300566: colored_283
@@ -6730,7 +6730,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: colored_280
+      name: player
       rect:
         serializedVersion: 2
         x: 408
