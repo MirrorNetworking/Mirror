@@ -14,7 +14,7 @@ namespace Mirror
         public const int MaxPoolSize = 10;
 
         static readonly PooledNetworkWriter[] pool = new PooledNetworkWriter[MaxPoolSize];
-        static int next = 0;
+        static int next = -1;
 
         public static PooledNetworkWriter GetWriter()
         {
