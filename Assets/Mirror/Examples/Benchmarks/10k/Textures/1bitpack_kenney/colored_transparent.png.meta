@@ -853,7 +853,7 @@ TextureImporter:
     21301696: colored_848
     21301698: colored_849
     21301700: colored_850
-    21301702: colored_851
+    21301702: smiley
     21301704: colored_852
     21301706: colored_853
     21301708: colored_854
@@ -18150,7 +18150,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: colored_851
+      name: smiley
       rect:
         serializedVersion: 2
         x: 323
