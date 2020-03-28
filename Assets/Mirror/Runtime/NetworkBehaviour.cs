@@ -104,7 +104,7 @@ namespace Mirror
         /// </summary>
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
 
-        public NetworkTime Time => isClient ? client.Time : server.Time;
+        public NetworkTime NetworkTime => isClient ? client.Time : server.Time;
 
         protected ulong syncVarDirtyBits { get; private set; }
         ulong syncVarHookGuard;
