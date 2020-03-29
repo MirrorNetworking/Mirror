@@ -10,14 +10,8 @@ namespace Mirror
     public class EnterPlayModeSettingsCheck : MonoBehaviour
     {
         [InitializeOnLoadMethod]
-        static void OnInitializeOnLoad()
+        public static void OnInitializeOnLoad()
         {
-#if UNITY_2019_3_OR_NEWER
-            // We can't support experimental "Enter Play Mode Options" mode
-            // Check immediately on load, and before entering play mode, and warn the user
-            CheckPlayModeOptions();
-#endif
-
             // Hook this event to see if we have a good weave every time
             // user attempts to enter play mode or tries to do a build
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
@@ -30,12 +24,6 @@ namespace Mirror
             if (state == PlayModeStateChange.ExitingEditMode)
             {
                 CheckSuccessfulWeave();
-
-#if UNITY_2019_3_OR_NEWER
-                // We can't support experimental "Enter Play Mode Options" mode
-                // Check and prevent entering play mode if enabled
-                CheckPlayModeOptions();
-#endif
             }
         }
 
@@ -58,17 +46,5 @@ namespace Mirror
                 }
             }
         }
-
-#if UNITY_2019_3_OR_NEWER
-        static void CheckPlayModeOptions()
-        {
-            // enabling the checkbox is enough. it controls all the other settings.
-            if (EditorSettings.enterPlayModeOptionsEnabled)
-            {
-                Debug.LogError("Enter Play Mode Options are not supported by Mirror. Please disable 'ProjectSettings -> Editor -> Enter Play Mode Settings (Experimental)'.");
-                EditorApplication.isPlaying = false;
-            }
-        }
-#endif
     }
 }
