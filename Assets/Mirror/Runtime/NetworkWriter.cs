@@ -4,7 +4,10 @@ using UnityEngine;
 
 namespace Mirror
 {
-    // Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
+    /// <summary>
+    /// Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
+    /// <para>Use <see cref="NetworkWriterPool.GetWriter">NetworkWriter.GetWriter</see> to reduce memory allocation</para>
+    /// </summary>
     public class NetworkWriter
     {
         public const int MaxStringLength = 1024 * 32;
