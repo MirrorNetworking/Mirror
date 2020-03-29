@@ -421,10 +421,7 @@ namespace Mirror.Weaver
         void DeserializeField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize)
         {
             // check for Hook function
-            if (!SyncVarProcessor.CheckForHookFunction(netBehaviourSubclass, syncVar, out MethodDefinition foundMethod))
-            {
-                return;
-            }
+            MethodDefinition hookMethod = SyncVarProcessor.GetHookMethod(netBehaviourSubclass, syncVar);
 
             // [SyncVar] GameObject/NetworkIdentity?
             /*
@@ -481,7 +478,7 @@ namespace Mirror.Weaver
                 // netId
                 serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
 
-                if (foundMethod != null)
+                if (hookMethod != null)
                 {
                     // call Hook(this.GetSyncVarGameObject/NetworkIdentity(reader.ReadPackedUInt32()))
                     // because we send/receive the netID, not the GameObject/NetworkIdentity
@@ -526,7 +523,7 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     // syncvar.get (finds current GO/NI from netId)
                     serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, foundMethod));
+                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, hookMethod));
 
                     // Generates: end if (!SyncVarEqual);
                     serWorker.Append(syncVarEqualLabel);
@@ -577,7 +574,7 @@ namespace Mirror.Weaver
                 // syncvar
                 serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
 
-                if (foundMethod != null)
+                if (hookMethod != null)
                 {
                     // call hook
                     // but only if SyncVar changed. otherwise a client would
@@ -610,7 +607,7 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     // syncvar.get
                     serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, foundMethod));
+                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, hookMethod));
 
                     // Generates: end if (!SyncVarEqual);
                     serWorker.Append(syncVarEqualLabel);

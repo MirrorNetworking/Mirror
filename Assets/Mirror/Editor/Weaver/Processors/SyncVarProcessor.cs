@@ -10,22 +10,20 @@ namespace Mirror.Weaver
         // ulong = 64 bytes
         const int SyncVarLimit = 64;
 
-        // returns false for error, not for no-hook-exists
-        public static bool CheckForHookFunction(TypeDefinition td, FieldDefinition syncVar, out MethodDefinition foundMethod)
+        // Get hook method if any
+        public static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar)
         {
-            foundMethod = null;
             CustomAttribute ca = syncVar.GetCustomAttribute(Weaver.SyncVarType.FullName);
 
             if (ca == null)
-                return true;
+                return null;
 
             string hookFunctionName = ca.GetField<string>("hook", null);
 
             if (hookFunctionName == null)
-                return true;
+                return null;
 
-            foundMethod = GetHookMethod(td, syncVar, hookFunctionName);
-            return foundMethod != null;
+            return GetHookMethod(td, syncVar, hookFunctionName);
         }
 
         private static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName)
@@ -198,7 +196,7 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Call, gm));
             }
 
-            CheckForHookFunction(td, fd, out MethodDefinition hookFunctionMethod);
+            MethodDefinition hookFunctionMethod = GetHookMethod(td, fd);
 
             if (hookFunctionMethod != null)
             {
