@@ -83,7 +83,6 @@ namespace Mirror.Tests
                 buffer.Write(writer.ToArraySegment());
             }
 
-
             string message1;
             string message2;
             ArraySegment<byte> package1 = buffer.GetNextPacket();
@@ -101,7 +100,6 @@ namespace Mirror.Tests
                 message2 = reader.ReadString();
             }
 
-
             Assert.That(message1, Is.EqualTo(expectedMessage1));
             Assert.That(message2, Is.EqualTo(expectedMessage2));
         }
@@ -113,7 +111,6 @@ namespace Mirror.Tests
 
             for (int i = 0; i < 5; i++)
             {
-
                 using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                 {
                     writer.WriteInt32(i);
