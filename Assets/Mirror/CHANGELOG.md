@@ -1,3 +1,11 @@
+## [30.1.2](https://github.com/MirrorNG/MirrorNG/compare/30.1.1-master...30.1.2-master) (2020-03-29)
+
+
+### Bug Fixes
+
+* client being disconnected twice ([#132](https://github.com/MirrorNG/MirrorNG/issues/132)) ([36bb3a2](https://github.com/MirrorNG/MirrorNG/commit/36bb3a2418bcf41fd63d1fc79e8a5173e4b0bc51))
+* client disconnected on server event never raised ([#133](https://github.com/MirrorNG/MirrorNG/issues/133)) ([9d9efa0](https://github.com/MirrorNG/MirrorNG/commit/9d9efa0e31cbea4d90d7408ae6b3742151b49a21))
+
 ## [30.1.1](https://github.com/MirrorNG/MirrorNG/compare/30.1.0-master...30.1.1-master) (2020-03-29)
 
 
