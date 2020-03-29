@@ -1,3 +1,15 @@
+# [30.0.0](https://github.com/MirrorNG/MirrorNG/compare/29.1.1-master...30.0.0-master) (2020-03-29)
+
+
+### Features
+
+* Server raises an event when it starts ([#126](https://github.com/MirrorNG/MirrorNG/issues/126)) ([d5b0a6f](https://github.com/MirrorNG/MirrorNG/commit/d5b0a6f0dd65f9dbb6c4848bce5e81f93772a235))
+
+
+### BREAKING CHANGES
+
+* NetworkManager no longer has OnServerStart virtual
+
 ## [29.1.1](https://github.com/MirrorNG/MirrorNG/compare/29.1.0-master...29.1.1-master) (2020-03-29)
 
 
