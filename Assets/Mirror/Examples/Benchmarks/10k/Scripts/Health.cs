@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Mirror.Examples
+﻿namespace Mirror.Examples
 {
     public class Health : NetworkBehaviour
     {
@@ -9,7 +7,7 @@ namespace Mirror.Examples
         [ServerCallback]
         public void Update()
         {
-            health = Random.Range(1, 10);
+            health = (health + 1) % 10;
         }
     }
 }
