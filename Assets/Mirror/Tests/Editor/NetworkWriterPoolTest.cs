@@ -5,6 +5,20 @@ namespace Mirror.Tests
 {
     public class NetworkWriterPoolTest
     {
+        int defaultCapacity;
+
+        [SetUp]
+        public void SetUp()
+        {
+            defaultCapacity = NetworkWriterPool.Capacity;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            NetworkWriterPool.Capacity = defaultCapacity;
+        }
+
         [Test]
         public void TestPoolRecycling()
         {
@@ -21,7 +35,6 @@ namespace Mirror.Tests
             }
         }
 
-
         [Test]
         public void PoolCanGetMoreWritersThanPoolSize()
         {
@@ -37,8 +50,6 @@ namespace Mirror.Tests
 
             // Make sure all writers are different
             Assert.That(writers.Distinct().Count(), Is.EqualTo(testWriterCount));
-
-            NetworkWriterPool.ResetCapacity();
         }
 
         [Test]

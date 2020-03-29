@@ -22,18 +22,9 @@ namespace Mirror
     public static class NetworkWriterPool
     {
         /// <summary>
-        /// Mirror usually only uses up to 4 writes in nested usings,
-        /// 100 is a good margin for edge cases when
-        /// users need a lot writers at the same time.
-        ///
-        /// <para>keep in mind, most entries of the pool will be null in most cases</para>
-        /// </summary>
-        const int PoolStartSize = 100;
-
-        /// <summary>
         /// Size of the pool
         /// <para>If pool is too small getting writers will causes memory allocation</para>
-        /// <para>Default value: <see cref="PoolStartSize">PoolStartSize</see> </para>
+        /// <para>Default value: <see cref="100">PoolStartSize</see> </para>
         /// </summary>
         public static int Capacity
         {
@@ -42,14 +33,13 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Used to reset pool after running tests
+        /// Mirror usually only uses up to 4 writes in nested usings,
+        /// 100 is a good margin for edge cases when users need a lot writers at
+        /// the same time.
+        ///
+        /// <para>keep in mind, most entries of the pool will be null in most cases</para>
         /// </summary>
-        internal static void ResetCapacity()
-        {
-            Array.Resize(ref pool, PoolStartSize);
-        }
-
-        static PooledNetworkWriter[] pool = new PooledNetworkWriter[PoolStartSize];
+        static PooledNetworkWriter[] pool = new PooledNetworkWriter[100];
 
         static int next = -1;
 
