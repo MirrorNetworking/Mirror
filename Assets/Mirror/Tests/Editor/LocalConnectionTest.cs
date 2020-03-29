@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using UnityEngine.TestTools;
+using UnityEngine;
 
 namespace Mirror.Tests
 {
+    [Category("LocalConnection")]
     public class LocalConnectionTest
     {
 
@@ -27,6 +27,24 @@ namespace Mirror.Tests
         public void Disconnect()
         {
             connectionToServer.Disconnect();
+        }
+
+        [Test]
+        public void LocalConnectionToClientAddressTest()
+        {
+            Assert.That(connectionToClient.address, Is.EqualTo("localhost"));
+        }
+
+        [Test]
+        public void LocalConnectionToServerAddressTest()
+        {
+            Assert.That(connectionToServer.address, Is.EqualTo("localhost"));
+        }
+
+        [Test]
+        public void ClientToServerFailTest()
+        {
+            Assert.Throws<InvalidMessageException>( () => connectionToServer.Send(new ArraySegment<byte>(new byte[0])));
         }
 
         /*[Test]

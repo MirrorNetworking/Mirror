@@ -1,3 +1,10 @@
+# [30.1.0](https://github.com/MirrorNG/MirrorNG/compare/30.0.0-master...30.1.0-master) (2020-03-29)
+
+
+### Features
+
+* allow Play mode options ([f9afb64](https://github.com/MirrorNG/MirrorNG/commit/f9afb6407b015c239975c5a1fba6609e12ab5c8f))
+
 # [30.0.0](https://github.com/MirrorNG/MirrorNG/compare/29.1.1-master...30.0.0-master) (2020-03-29)
 
 
