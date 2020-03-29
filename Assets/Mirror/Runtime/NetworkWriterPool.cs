@@ -69,7 +69,7 @@ namespace Mirror
         /// </summary>
         public static void Recycle(PooledNetworkWriter writer)
         {
-            if ((next + 1) < pool.Length)
+            if (next < pool.Length - 1)
             {
                 next++;
                 pool[next] = writer;
