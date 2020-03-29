@@ -190,16 +190,6 @@ namespace Mirror
             // start listening to network connections
             server.Listen();
 
-            // call OnStartServer AFTER Listen, so that NetworkServer.active is
-            // true and we can call NetworkServer.Spawn in OnStartServer
-            // overrides.
-            // (useful for loading & spawning stuff from database etc.)
-            //
-            // note: there is no risk of someone connecting after Listen() and
-            //       before OnStartServer() because this all runs in one thread
-            //       and we don't start processing connects until Update.
-            OnStartServer();
-
             isNetworkActive = true;
         }
 
@@ -906,18 +896,5 @@ namespace Mirror
 
         #endregion
 
-        #region Start & Stop callbacks
-
-        // Since there are multiple versions of StartServer, StartClient and StartHost, to reliably customize
-        // their functionality, users would need override all the versions. Instead these callbacks are invoked
-        // from all versions, so users only need to implement this one case.
-
-        /// <summary>
-        /// This is invoked when a server is started - including when a host is started.
-        /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
-        /// </summary>
-        public virtual void OnStartServer() { }
-
-        #endregion
     }
 }
