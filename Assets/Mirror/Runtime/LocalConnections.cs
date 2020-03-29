@@ -120,7 +120,6 @@ namespace Mirror
 
         internal void Update()
         {
-            Debug.Assert(connectionToClient != null);
             // process internal messages so they are applied at the correct time
             while (buffer.HasPackets())
             {
