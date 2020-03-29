@@ -836,13 +836,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Called on the server when a network error occurs for a client connection.
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
-        /// <param name="errorCode">Error code.</param>
-        public virtual void OnServerError(NetworkConnection conn, int errorCode) { }
-
-        /// <summary>
         /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
         /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
         /// </summary>
@@ -858,13 +851,6 @@ namespace Mirror
         #endregion
 
         #region Client System Callbacks
-
-        /// <summary>
-        /// Called on clients when a network error occurs.
-        /// </summary>
-        /// <param name="conn">Connection to a server.</param>
-        /// <param name="errorCode">Error code.</param>
-        public virtual void OnClientError(NetworkConnection conn, int errorCode) { }
 
         /// <summary>
         /// Called on clients when a servers tells the client it is no longer ready.
