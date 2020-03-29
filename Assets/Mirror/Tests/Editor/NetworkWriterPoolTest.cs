@@ -76,11 +76,11 @@ namespace Mirror.Tests
                         (!cReused &&  dReused));
         }
 
+        // if we shrink the capacity, the internal 'next' needs to be adjusted
+        // to the new capacity so we don't get a IndexOutOfRangeException
         [Test]
         public void ShrinkCapacity()
         {
-            // if we shrink the capacity, the internal 'next' needs to be adjusted
-            // to the new capacity so we don't get a NullReferenceException
             NetworkWriterPool.Capacity = 2;
 
             // get writer and recycle so we have 2 in there, hence 'next' is at limit
