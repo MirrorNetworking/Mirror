@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Mirror.Examples
+﻿namespace Mirror.Examples
 {
     public class Health : NetworkBehaviour
     {
