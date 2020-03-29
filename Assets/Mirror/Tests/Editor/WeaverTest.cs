@@ -17,7 +17,7 @@ namespace Mirror.Tests
         void HandleWeaverError(string msg)
         {
 #if LOG_WEAVER_OUTPUTS
-            Debug.LogError(msg);
+            MirrorLog.LogError(msg);
 #endif
             weaverErrors.Add(msg);
         }
@@ -26,7 +26,7 @@ namespace Mirror.Tests
         void HandleWeaverWarning(string msg)
         {
 #if LOG_WEAVER_OUTPUTS
-            Debug.LogWarning(msg);
+            MirrorLog.LogWarning(msg);
 #endif
             weaverWarnings.Add(msg);
         }

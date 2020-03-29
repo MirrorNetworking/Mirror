@@ -121,7 +121,7 @@ namespace Mirror.Examples.ListServer
                 // send it
                 gameServerToListenConnection.Send(((MemoryStream)writer.BaseStream).ToArray());
             }
-            else Debug.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
+            else MirrorLog.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
         }
 
         void TickGameServer()
@@ -138,7 +138,7 @@ namespace Mirror.Examples.ListServer
                 // (we may have just started the game)
                 else if (!gameServerToListenConnection.Connecting)
                 {
-                    Debug.Log("[List Server] GameServer connecting......");
+                    MirrorLog.Log("[List Server] GameServer connecting......");
                     gameServerToListenConnection.Connect(listServerIp, gameServerToListenPort);
                 }
             }
@@ -162,7 +162,7 @@ namespace Mirror.Examples.ListServer
             ushort capacity = reader.ReadUInt16();
             ushort titleLength = reader.ReadUInt16();
             string title = Encoding.UTF8.GetString(reader.ReadBytes(titleLength));
-            //Debug.Log("PARSED: ip=" + ip + /*" port=" + port +*/ " players=" + players + " capacity= " + capacity + " title=" + title);
+            //MirrorLog.Log("PARSED: ip=" + ip + /*" port=" + port +*/ " players=" + players + " capacity= " + capacity + " title=" + title);
 
             // build key
             string key = ip/* + ":" + port*/;
@@ -198,13 +198,13 @@ namespace Mirror.Examples.ListServer
                     {
                         // connected?
                         if (message.eventType == Telepathy.EventType.Connected)
-                            Debug.Log("[List Server] Client connected!");
+                            MirrorLog.Log("[List Server] Client connected!");
                         // data message?
                         else if (message.eventType == Telepathy.EventType.Data)
                             ParseMessage(message.data);
                         // disconnected?
                         else if (message.eventType == Telepathy.EventType.Disconnected)
-                            Debug.Log("[List Server] Client disconnected.");
+                            MirrorLog.Log("[List Server] Client disconnected.");
                     }
 
 #if !UNITY_WEBGL
@@ -224,7 +224,7 @@ namespace Mirror.Examples.ListServer
                 // (we may have just joined the menu/disconnect from game server)
                 else if (!clientToListenConnection.Connecting)
                 {
-                    Debug.Log("[List Server] Client connecting...");
+                    MirrorLog.Log("[List Server] Client connecting...");
                     clientToListenConnection.Connect(listServerIp, clientToListenPort);
                 }
             }

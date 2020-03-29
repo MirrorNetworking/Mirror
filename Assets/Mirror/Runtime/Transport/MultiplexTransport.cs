@@ -20,7 +20,7 @@ namespace Mirror
         {
             if (transports == null || transports.Length == 0)
             {
-                Debug.LogError("Multiplex transport requires at least 1 underlying transport");
+                MirrorLog.LogError("Multiplex transport requires at least 1 underlying transport");
             }
             InitClient();
             InitServer();

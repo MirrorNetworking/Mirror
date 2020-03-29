@@ -93,7 +93,7 @@ namespace Mirror.Websocket
                 listener = TcpListener.Create(port);
                 listener.Server.NoDelay = this.NoDelay;
                 listener.Start();
-                Debug.Log($"Websocket server started listening on port {port}");
+                MirrorLog.Log($"Websocket server started listening on port {port}");
                 while (true)
                 {
                     TcpClient tcpClient = await listener.AcceptTcpClientAsync();
@@ -139,7 +139,7 @@ namespace Mirror.Websocket
                 }
                 else
                 {
-                    Debug.Log("Http header contains no web socket upgrade request. Ignoring");
+                    MirrorLog.Log("Http header contains no web socket upgrade request. Ignoring");
                 }
 
             }
@@ -195,7 +195,7 @@ namespace Mirror.Websocket
 
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        Debug.Log($"Client initiated close. Status: {result.CloseStatus} Description: {result.CloseStatusDescription}");
+                        MirrorLog.Log($"Client initiated close. Status: {result.CloseStatus} Description: {result.CloseStatusDescription}");
                         break;
                     }
 
@@ -256,7 +256,7 @@ namespace Mirror.Websocket
             if (!Active)
                 return;
 
-            Debug.Log("Server: stopping...");
+            MirrorLog.Log("Server: stopping...");
             cancellation.Cancel();
 
             // stop listening to connections so that no one can connect while we
@@ -329,7 +329,7 @@ namespace Mirror.Websocket
                 clients.Remove(connectionId);
                 // just close it. client thread will take care of the rest.
                 client.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
-                Debug.Log("Server.Disconnect connectionId:" + connectionId);
+                MirrorLog.Log("Server.Disconnect connectionId:" + connectionId);
                 return true;
             }
             return false;

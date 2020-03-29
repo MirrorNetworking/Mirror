@@ -60,7 +60,7 @@ namespace Mirror
         /// <param name="address"></param>
         public static void Connect(string address)
         {
-            if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
+            if (LogFilter.Debug) MirrorLog.DebugLog("Client Connect: " + address);
 
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
@@ -80,7 +80,7 @@ namespace Mirror
         /// <param name="uri">Address of the server to connect to</param>
         public static void Connect(Uri uri)
         {
-            if (LogFilter.Debug) Debug.Log("Client Connect: " + uri);
+            if (LogFilter.Debug) MirrorLog.DebugLog("Client Connect: " + uri);
 
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
@@ -96,7 +96,7 @@ namespace Mirror
 
         internal static void ConnectHost()
         {
-            if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
+            if (LogFilter.Debug) MirrorLog.DebugLog("Client Connect Host to Server");
 
             RegisterSystemHandlers(true);
 
@@ -169,7 +169,7 @@ namespace Mirror
             {
                 connection.TransportReceive(data, channelId);
             }
-            else Debug.LogError("Skipped Data message handling because connection is null.");
+            else MirrorLog.LogError("Skipped Data message handling because connection is null.");
         }
 
         static void OnConnected()
@@ -185,7 +185,7 @@ namespace Mirror
                 NetworkTime.UpdateClient();
                 connection.InvokeHandler(new ConnectMessage(), -1);
             }
-            else Debug.LogError("Skipped Connect message handling because connection is null.");
+            else MirrorLog.LogError("Skipped Connect message handling because connection is null.");
         }
 
         /// <summary>
@@ -242,12 +242,12 @@ namespace Mirror
             {
                 if (connectState != ConnectState.Connected)
                 {
-                    Debug.LogError("NetworkClient Send when not connected to a server");
+                    MirrorLog.LogError("NetworkClient Send when not connected to a server");
                     return false;
                 }
                 return connection.Send(message, channelId);
             }
-            Debug.LogError("NetworkClient Send with no connection");
+            MirrorLog.LogError("NetworkClient Send with no connection");
             return false;
         }
 
@@ -312,7 +312,7 @@ namespace Mirror
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
-                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler + " - " + msgType);
+                if (LogFilter.Debug) MirrorLog.DebugLog("NetworkClient.RegisterHandler replacing " + handler + " - " + msgType);
             }
             handlers[msgType] = MessagePacker.MessageHandler(handler, requireAuthentication);
         }
@@ -346,7 +346,7 @@ namespace Mirror
         /// </summary>
         public static void Shutdown()
         {
-            if (LogFilter.Debug) Debug.Log("Shutting down client.");
+            if (LogFilter.Debug) MirrorLog.DebugLog("Shutting down client.");
             ClientScene.Shutdown();
             connectState = ConnectState.None;
             handlers.Clear();

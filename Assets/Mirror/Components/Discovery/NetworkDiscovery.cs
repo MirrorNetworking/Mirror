@@ -64,7 +64,7 @@ namespace Mirror.Discovery
             }
             catch (NotImplementedException)
             {
-                Debug.LogError($"Transport {transport} does not support network discovery");
+                MirrorLog.LogError($"Transport {transport} does not support network discovery");
                 throw;
             }
         }

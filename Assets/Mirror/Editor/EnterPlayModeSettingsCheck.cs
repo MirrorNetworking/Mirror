@@ -53,7 +53,7 @@ namespace Mirror
                 if (!SessionState.GetBool("MIRROR_WEAVE_SUCCESS", false))
                 {
                     // Nope, still failed, and console has the issues logged
-                    Debug.LogError("Can't enter play mode until weaver issues are resolved.");
+                    MirrorLog.LogError("Can't enter play mode until weaver issues are resolved.");
                     EditorApplication.isPlaying = false;
                 }
             }
@@ -65,7 +65,7 @@ namespace Mirror
             // enabling the checkbox is enough. it controls all the other settings.
             if (EditorSettings.enterPlayModeOptionsEnabled)
             {
-                Debug.LogError("Enter Play Mode Options are not supported by Mirror. Please disable 'ProjectSettings -> Editor -> Enter Play Mode Settings (Experimental)'.");
+                MirrorLog.LogError("Enter Play Mode Options are not supported by Mirror. Please disable 'ProjectSettings -> Editor -> Enter Play Mode Settings (Experimental)'.");
                 EditorApplication.isPlaying = false;
             }
         }

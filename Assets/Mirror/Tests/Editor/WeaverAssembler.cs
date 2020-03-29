@@ -153,7 +153,7 @@ namespace Mirror.Tests
 
             assemblyBuilder.buildStarted += delegate (string assemblyPath)
             {
-                //Debug.LogFormat("Assembly build started for {0}", assemblyPath);
+                //MirrorLog.Log("Assembly build started for {0}", assemblyPath);
             };
 
             assemblyBuilder.buildFinished += delegate (string assemblyPath, CompilerMessage[] compilerMessages)

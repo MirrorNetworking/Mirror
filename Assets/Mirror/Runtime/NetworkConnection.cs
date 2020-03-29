@@ -160,14 +160,14 @@ namespace Mirror
         {
             if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
+                MirrorLog.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
             if (segment.Count == 0)
             {
                 // zero length packets getting into the packet queues are bad.
-                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
+                MirrorLog.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
                 return false;
             }
 
@@ -219,7 +219,7 @@ namespace Mirror
                 msgDelegate(this, reader, channelId);
                 return true;
             }
-            if (Debug.isDebugBuild) Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+            if (Debug.isDebugBuild) MirrorLog.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
             return false;
         }
 
@@ -266,7 +266,7 @@ namespace Mirror
                 if (MessagePacker.UnpackMessage(networkReader, out int msgType))
                 {
                     // logging
-                    if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+                    if (logNetworkMessages) MirrorLog.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                     // try to invoke the handler for that message
                     if (InvokeHandler(msgType, networkReader, channelId))
@@ -276,7 +276,7 @@ namespace Mirror
                 }
                 else
                 {
-                    Debug.LogError("Closed connection: " + this + ". Invalid message header.");
+                    MirrorLog.LogError("Closed connection: " + this + ". Invalid message header.");
                     Disconnect();
                 }
             }

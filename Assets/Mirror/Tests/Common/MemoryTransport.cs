@@ -92,15 +92,15 @@ namespace Mirror.Tests
                 switch (message.eventType)
                 {
                     case EventType.Connected:
-                        Debug.Log("MemoryTransport Client Message: Connected");
+                        MirrorLog.Log("MemoryTransport Client Message: Connected");
                         OnClientConnected.Invoke();
                         break;
                     case EventType.Data:
-                        Debug.Log("MemoryTransport Client Message: Data: " + BitConverter.ToString(message.data));
+                        MirrorLog.Log("MemoryTransport Client Message: Data: " + BitConverter.ToString(message.data));
                         OnClientDataReceived.Invoke(new ArraySegment<byte>(message.data), 0);
                         break;
                     case EventType.Disconnected:
-                        Debug.Log("MemoryTransport Client Message: Disconnected");
+                        MirrorLog.Log("MemoryTransport Client Message: Disconnected");
                         OnClientDisconnected.Invoke();
                         break;
                 }
@@ -151,15 +151,15 @@ namespace Mirror.Tests
                 switch (message.eventType)
                 {
                     case EventType.Connected:
-                        Debug.Log("MemoryTransport Server Message: Connected");
+                        MirrorLog.Log("MemoryTransport Server Message: Connected");
                         OnServerConnected.Invoke(message.connectionId);
                         break;
                     case EventType.Data:
-                        Debug.Log("MemoryTransport Server Message: Data: " + BitConverter.ToString(message.data));
+                        MirrorLog.Log("MemoryTransport Server Message: Data: " + BitConverter.ToString(message.data));
                         OnServerDataReceived.Invoke(message.connectionId, new ArraySegment<byte>(message.data), 0);
                         break;
                     case EventType.Disconnected:
-                        Debug.Log("MemoryTransport Server Message: Disconnected");
+                        MirrorLog.Log("MemoryTransport Server Message: Disconnected");
                         OnServerDisconnected.Invoke(message.connectionId);
                         break;
                 }

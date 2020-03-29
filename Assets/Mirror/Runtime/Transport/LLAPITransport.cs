@@ -95,7 +95,7 @@ namespace Mirror
         void Awake()
         {
             NetworkTransport.Init(globalConfig);
-            Debug.Log("LLAPITransport initialized!");
+            MirrorLog.Log("LLAPITransport initialized!");
 
             // initialize send buffers
             clientSendBuffer = new byte[globalConfig.MaxPacketSize];
@@ -132,7 +132,7 @@ namespace Mirror
             NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
-                Debug.LogWarning("NetworkTransport.Connect failed: clientId=" + clientId + " address= " + address + " port=" + port + " error=" + error);
+                MirrorLog.LogWarning("NetworkTransport.Connect failed: clientId=" + clientId + " address= " + address + " port=" + port + " error=" + error);
                 clientConnectionId = -1;
             }
         }
@@ -163,7 +163,7 @@ namespace Mirror
                 Array.Copy(segment.Array, segment.Offset, clientSendBuffer, 0, segment.Count);
                 return NetworkTransport.Send(clientId, clientConnectionId, channelId, clientSendBuffer, segment.Count, out error);
             }
-            Debug.LogError("LLAPI.ClientSend: buffer( " + clientSendBuffer.Length + ") too small for: " + segment.Count);
+            MirrorLog.LogError("LLAPI.ClientSend: buffer( " + clientSendBuffer.Length + ") too small for: " + segment.Count);
             return false;
         }
 
@@ -247,13 +247,13 @@ namespace Mirror
             {
                 HostTopology topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
                 serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
-                //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+                //MirrorLog.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
             }
             else
             {
                 HostTopology topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
                 serverHostId = NetworkTransport.AddHost(topology, port);
-                //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+                //MirrorLog.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
             }
         }
 
@@ -276,7 +276,7 @@ namespace Mirror
                 }
                 return result;
             }
-            Debug.LogError("LLAPI.ServerSend: buffer( " + serverSendBuffer.Length + ") too small for: " + segment.Count);
+            MirrorLog.LogError("LLAPI.ServerSend: buffer( " + serverSendBuffer.Length + ") too small for: " + segment.Count);
             return false;
         }
 
@@ -344,7 +344,7 @@ namespace Mirror
         {
             NetworkTransport.RemoveHost(serverHostId);
             serverHostId = -1;
-            Debug.Log("LLAPITransport.ServerStop");
+            MirrorLog.Log("LLAPITransport.ServerStop");
         }
         #endregion
 
@@ -366,7 +366,7 @@ namespace Mirror
             NetworkTransport.Shutdown();
             serverHostId = -1;
             clientConnectionId = -1;
-            Debug.Log("LLAPITransport.Shutdown");
+            MirrorLog.Log("LLAPITransport.Shutdown");
         }
 
         public override int GetMaxPacketSize(int channelId)

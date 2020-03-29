@@ -949,7 +949,7 @@ namespace Mirror.Tests
             {
                 writer.WriteDecimal(weird);
             }
-            //Debug.Log(BitConverter.ToString(writer.ToArray()));
+            //MirrorLog.Log(BitConverter.ToString(writer.ToArray()));
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 

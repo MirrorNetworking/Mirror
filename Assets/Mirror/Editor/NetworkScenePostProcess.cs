@@ -34,7 +34,7 @@ namespace Mirror
                 // also there is no context about which scene this is in.
                 if (identity.GetComponent<NetworkManager>() != null)
                 {
-                    Debug.LogError("NetworkManager has a NetworkIdentity component. This will cause the NetworkManager object to be disabled, so it is not recommended.");
+                    MirrorLog.LogError("NetworkManager has a NetworkIdentity component. This will cause the NetworkManager object to be disabled, so it is not recommended.");
                 }
 
                 // not spawned before?
@@ -54,7 +54,7 @@ namespace Mirror
                     }
                     // throwing an exception would only show it for one object
                     // because this function would return afterwards.
-                    else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
+                    else MirrorLog.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
                 }
             }
         }

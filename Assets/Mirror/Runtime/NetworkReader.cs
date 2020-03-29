@@ -348,7 +348,7 @@ namespace Mirror
                 return identity;
             }
 
-            if (LogFilter.Debug) Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
+            if (LogFilter.Debug) MirrorLog.DebugLog("ReadNetworkIdentity netId:" + netId + " not found in spawned");
             return null;
         }
 

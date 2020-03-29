@@ -24,7 +24,7 @@ namespace Mirror
             InitClient();
             InitServer();
             available = GetAvailableTransport();
-            Debug.Log("FallbackTransport available: " + available.GetType());
+            MirrorLog.Log("FallbackTransport available: " + available.GetType());
         }
 
         // The client just uses the first transport available
