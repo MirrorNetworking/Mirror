@@ -22,34 +22,34 @@ namespace Mirror
     public static class NetworkWriterPool
     {
         /// <summary>
-        /// Mirror usually only uses up to 4 writes in nested usings,
-        /// 100 is a good margin for edge cases when
-        /// users need a lot writers at the same time.
-        ///
-        /// <para>keep in mind, most entries of the pool will be null in most cases</para>
-        /// </summary>
-        const int PoolStartSize = 100;
-
-        /// <summary>
         /// Size of the pool
         /// <para>If pool is too small getting writers will causes memory allocation</para>
-        /// <para>Default value: <see cref="PoolStartSize">PoolStartSize</see> </para>
+        /// <para>Default value: <see cref="100">PoolStartSize</see> </para>
         /// </summary>
         public static int Capacity
         {
             get => pool.Length;
-            set => Array.Resize(ref pool, value);
+            set
+            {
+                // resize the array
+                Array.Resize(ref pool, value);
+
+                // if capacity is smaller than before, then we need to adjust
+                // 'next' so it doesn't point to an index out of range
+                // -> if we set '0' then next = min(_, 0-1) => -1
+                // -> if we set '2' then next = min(_, 2-1) =>  1
+                next = Mathf.Min(next, pool.Length - 1);
+            }
         }
 
         /// <summary>
-        /// Used to reset pool after running tests
+        /// Mirror usually only uses up to 4 writes in nested usings,
+        /// 100 is a good margin for edge cases when users need a lot writers at
+        /// the same time.
+        ///
+        /// <para>keep in mind, most entries of the pool will be null in most cases</para>
         /// </summary>
-        internal static void ResetCapacity()
-        {
-            Array.Resize(ref pool, PoolStartSize);
-        }
-
-        static PooledNetworkWriter[] pool = new PooledNetworkWriter[PoolStartSize];
+        static PooledNetworkWriter[] pool = new PooledNetworkWriter[100];
 
         static int next = -1;
 
@@ -79,7 +79,7 @@ namespace Mirror
         /// </summary>
         public static void Recycle(PooledNetworkWriter writer)
         {
-            if ((next + 1) < pool.Length)
+            if (next < pool.Length - 1)
             {
                 next++;
                 pool[next] = writer;
