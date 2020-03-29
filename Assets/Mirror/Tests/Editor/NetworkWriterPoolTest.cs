@@ -97,5 +97,31 @@ namespace Mirror.Tests
             Assert.That(c, !Is.Null);
             Assert.That(c == a || c == b);
         }
+
+        // if we grow the capacity, things should still work fine
+        [Test]
+        public void GrowCapacity()
+        {
+            NetworkWriterPool.Capacity = 1;
+
+            // create and recycle one
+            PooledNetworkWriter a = NetworkWriterPool.GetWriter();
+            NetworkWriterPool.Recycle(a);
+
+            // grow capacity
+            NetworkWriterPool.Capacity = 2;
+
+            // get two
+            PooledNetworkWriter b = NetworkWriterPool.GetWriter();
+            PooledNetworkWriter c = NetworkWriterPool.GetWriter();
+            Assert.That(b, !Is.Null);
+            Assert.That(c, !Is.Null);
+
+            // exactly one should be reused, one should be new
+            bool bReused = b == a;
+            bool cReused = c == a;
+            Assert.That(( bReused && !cReused) ||
+                        (!bReused &&  cReused));
+        }
     }
 }
