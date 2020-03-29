@@ -1,3 +1,10 @@
+## [30.1.1](https://github.com/MirrorNG/MirrorNG/compare/30.1.0-master...30.1.1-master) (2020-03-29)
+
+
+### Performance Improvements
+
+* faster NetworkWriter pooling ([#1620](https://github.com/MirrorNG/MirrorNG/issues/1620)) ([4fa43a9](https://github.com/MirrorNG/MirrorNG/commit/4fa43a947132f89e5348c63e393dd3b80e1fe7e1))
+
 # [30.1.0](https://github.com/MirrorNG/MirrorNG/compare/30.0.0-master...30.1.0-master) (2020-03-29)
 
 
