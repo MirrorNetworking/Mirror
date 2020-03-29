@@ -24,7 +24,7 @@ namespace Mirror
         /// <summary>
         /// Size of the pool
         /// <para>If pool is too small getting writers will causes memory allocation</para>
-        /// <para>Default value: <see cref="100">PoolStartSize</see> </para>
+        /// <para>Default value: 100 </para>
         /// </summary>
         public static int Capacity
         {
