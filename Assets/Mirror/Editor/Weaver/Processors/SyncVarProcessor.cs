@@ -300,8 +300,6 @@ namespace Mirror.Weaver
             {
                 if (fd.HasCustomAttribute(Weaver.SyncVarType))
                 {
-                    TypeDefinition resolvedField = fd.FieldType.Resolve();
-
                     if ((fd.Attributes & FieldAttributes.Static) != 0)
                     {
                         Weaver.Error($"{fd} cannot be static");
