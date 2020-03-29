@@ -8,7 +8,6 @@ namespace Mirror
     class ULocalConnectionToClient : NetworkConnectionToClient
     {
         internal ULocalConnectionToServer connectionToServer;
-        internal LocalConnectionBuffer buffer;
 
         public ULocalConnectionToClient() : base(0)
         {
@@ -18,13 +17,7 @@ namespace Mirror
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
-            // TODO find better way to set this before merge
-            if (buffer == null)
-            {
-                buffer = connectionToServer.buffer;
-            }
-
-            buffer.Write(segment);
+            connectionToServer.buffer.Write(segment);
 
             return true;
         }
@@ -87,7 +80,7 @@ namespace Mirror
     internal class ULocalConnectionToServer : NetworkConnectionToServer
     {
         internal ULocalConnectionToClient connectionToClient;
-        internal LocalConnectionBuffer buffer = new LocalConnectionBuffer();
+        internal readonly LocalConnectionBuffer buffer = new LocalConnectionBuffer();
 
         public override string address => "localhost";
 
