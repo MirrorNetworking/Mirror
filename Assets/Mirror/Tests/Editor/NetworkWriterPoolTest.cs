@@ -75,5 +75,27 @@ namespace Mirror.Tests
             Assert.That(( cReused && !dReused) ||
                         (!cReused &&  dReused));
         }
+
+        [Test]
+        public void ShrinkCapacity()
+        {
+            // if we shrink the capacity, the internal 'next' needs to be adjusted
+            // to the new capacity so we don't get a NullReferenceException
+            NetworkWriterPool.Capacity = 2;
+
+            // get writer and recycle so we have 2 in there, hence 'next' is at limit
+            PooledNetworkWriter a = NetworkWriterPool.GetWriter();
+            PooledNetworkWriter b = NetworkWriterPool.GetWriter();
+            NetworkWriterPool.Recycle(a);
+            NetworkWriterPool.Recycle(b);
+
+            // shrink
+            NetworkWriterPool.Capacity = 1;
+
+            // get one. should return the only one which is still in there.
+            PooledNetworkWriter c = NetworkWriterPool.GetWriter();
+            Assert.That(c, !Is.Null);
+            Assert.That(c == a || c == b);
+        }
     }
 }
