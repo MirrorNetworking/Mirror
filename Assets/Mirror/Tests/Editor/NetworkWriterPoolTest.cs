@@ -53,49 +53,27 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [Ignore("WIP")]
         public void PoolReUsesWritersUpToSizeLimit()
         {
-            //NetworkWriterPool.ResizePool(5);
+            NetworkWriterPool.Capacity = 1;
 
-            //const int testWriterCount = 5;
-            //PooledNetworkWriter[] writers1 = new PooledNetworkWriter[testWriterCount];
-            //PooledNetworkWriter[] writers2 = new PooledNetworkWriter[testWriterCount];
-            //PooledNetworkWriter extra1;
-            //PooledNetworkWriter extra2;
+            // get 2 writers
+            PooledNetworkWriter a = NetworkWriterPool.GetWriter();
+            PooledNetworkWriter b = NetworkWriterPool.GetWriter();
 
-            //// simulate first update
-            //for (int i = 0; i < testWriterCount; i++)
-            //{
-            //    writers1[i] = NetworkWriterPool.GetWriter();
-            //}
-            //extra1 = NetworkWriterPool.GetWriter();
+            // recycle all
+            NetworkWriterPool.Recycle(a);
+            NetworkWriterPool.Recycle(b);
 
-            //for (int i = 0; i < testWriterCount; i++)
-            //{
-            //    writers1[i].Dispose();
-            //}
-            //extra1.Dispose();
+            // get 2 new ones
+            PooledNetworkWriter c = NetworkWriterPool.GetWriter();
+            PooledNetworkWriter d = NetworkWriterPool.GetWriter();
 
-
-            //// simulate second update
-            //for (int i = 0; i < testWriterCount; i++)
-            //{
-            //    writers2[i] = NetworkWriterPool.GetWriter();
-            //}
-            //extra2 = NetworkWriterPool.GetWriter();
-
-            //for (int i = 0; i < testWriterCount; i++)
-            //{
-            //    writers2[i].Dispose();
-            //}
-            //extra2.Dispose();
-
-
-            //Assert
-
-
-            //NetworkWriterPool.ResetPoolSize();
+            // exactly one should be reused, one should be new
+            bool cReused = c == a || c == b;
+            bool dReused = d == a || d == b;
+            Assert.That(( cReused && !dReused) ||
+                        (!cReused &&  dReused));
         }
     }
 }
