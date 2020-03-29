@@ -271,8 +271,6 @@ namespace Mirror
         /// </summary>
         public void Disconnect()
         {
-            connectState = ConnectState.Disconnected;
-
             // local or remote connection?
             if (isLocalClient)
             {
@@ -290,6 +288,9 @@ namespace Mirror
                     RemoveTransportHandlers();
                 }
             }
+            // set connectState as Disconnected after, otherwise Disconnected event is never raised
+            connectState = ConnectState.Disconnected;
+
             HandleClientDisconnect();
         }
 
