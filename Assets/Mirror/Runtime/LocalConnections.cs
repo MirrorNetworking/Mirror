@@ -89,12 +89,6 @@ namespace Mirror
         internal ULocalConnectionToClient connectionToClient;
         internal LocalConnectionBuffer buffer = new LocalConnectionBuffer();
 
-
-        // local client in host mode might call Cmds/Rpcs during Update, but we
-        // want to apply them in LateUpdate like all other Transport messages
-        // to avoid race conditions. keep packets in Queue until LateUpdate.
-        //internal Queue<byte[]> packetQueue = new Queue<byte[]>();
-
         public override string address => "localhost";
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
