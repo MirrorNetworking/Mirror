@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -16,12 +17,12 @@ namespace Mirror
     /// <summary>
     /// Pool of NetworkWriters
     /// <para>Use this pool instead of <see cref="NetworkWriter">NetworkWriter</see> to reduce memory allocation</para>
-    /// <para>Use <see cref="ResizePool">ResizePool</see> to change size of pool</para>
+    /// <para>Use <see cref="Capacity">Capacity</see> to change size of pool</para>
     /// </summary>
     public static class NetworkWriterPool
     {
         /// <summary>
-        /// Mirror only uses 4 writers at a time,
+        /// Mirror usually only uses up to 4 writes in nested usings,
         /// 100 is a good margin for edge cases when
         /// users need a lot writers at the same time.
         ///
@@ -30,18 +31,22 @@ namespace Mirror
         const int PoolStartSize = 100;
 
         /// <summary>
-        /// Current Size of Pool
+        /// Size of the pool
+        /// <para>If pool is too small getting writers will causes memory allocation</para>
+        /// <para>Default value: <see cref="PoolStartSize">PoolStartSize</see> </para>
         /// </summary>
-        public static int PoolSize => pool.Length;
+        public static int Capacity
+        {
+            get => pool.Length;
+            set => Array.Resize(ref pool, value);
+        }
 
         /// <summary>
-        /// Change size of pool
-        /// <para>If pool is too small getting writers will causes memory allocation</para>
+        /// Used to reset pool after running tests
         /// </summary>
-        /// <param name="newSize"></param>
-        public static void ResizePool(int newSize)
+        internal static void ResetCapacity()
         {
-            Array.Resize(ref pool, newSize);
+            Array.Resize(ref pool, PoolStartSize);
         }
 
         static PooledNetworkWriter[] pool = new PooledNetworkWriter[PoolStartSize];
@@ -70,7 +75,7 @@ namespace Mirror
 
         /// <summary>
         /// Puts writer back into pool
-        /// <para>If pool is full, the writer is left for the GC</para>
+        /// <para>When pool is full, the extra writer is left for the GC</para>
         /// </summary>
         public static void Recycle(PooledNetworkWriter writer)
         {
@@ -78,6 +83,10 @@ namespace Mirror
             {
                 next++;
                 pool[next] = writer;
+            }
+            else
+            {
+                if (LogFilter.Debug) { Debug.LogWarning("NetworkWriterPool.Recycle, Pool was full leaving extra writer for GC"); }
             }
         }
     }
