@@ -107,10 +107,6 @@ namespace Mirror
             // set not ready and handle client disconnect in any case
             // (might be client or host mode here)
             isReady = false;
-
-            // TODO: this does not work if there is no player yet
-            if (identity != null)
-                identity.client.HandleClientDisconnect();
         }
 
         /// <summary>
