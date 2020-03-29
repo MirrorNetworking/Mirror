@@ -65,6 +65,7 @@ namespace Mirror
 
         // local authority send time
         float lastClientSendTime;
+        float lastServerSendTime;
 
         // try to estimate movement speed for a data point based on how far it
         // moved since the previous one
@@ -101,7 +102,7 @@ namespace Mirror
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
-            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetComponent.transform, (float)NetworkTime.rtt );
+            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetComponent.transform, syncInterval );
 
             // reassign start wisely
             // -> first ever data point? then make something up for previous one
@@ -110,7 +111,7 @@ namespace Mirror
             {
                 start = new DataPoint
                 {
-                    timeStamp = Time.time - (float)NetworkTime.rtt,
+                    timeStamp = Time.time - syncInterval,
                     // local position/rotation for VR support
                     localPosition = targetComponent.transform.localPosition,
                     localRotation = targetComponent.transform.localRotation,
@@ -252,7 +253,7 @@ namespace Mirror
         bool NeedsTeleport()
         {
             // calculate time between the two data points
-            float startTime = start != null ? start.timeStamp : Time.time - (float)NetworkTime.rtt * 0.5f;
+            float startTime = start != null ? start.timeStamp : Time.time - syncInterval;
             float goalTime = goal != null ? goal.timeStamp : Time.time;
             float difference = goalTime - startTime;
             float timeSinceGoalReceived = Time.time - goalTime;
@@ -298,18 +299,21 @@ namespace Mirror
             if (isServer)
             {
                 // let the clients know that this has moved
-                if (HasEitherMovedRotatedScaled())
+                if (Time.time - lastServerSendTime >= syncInterval && HasEitherMovedRotatedScaled())
+                {
                     RpcMove(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+                    lastServerSendTime = Time.time;
+                }
             }
 
             if (isClient)
             {
                 // send to server if we have local authority (and aren't the server)
                 // -> only if connectionToServer has been initialized yet too
-                if (IsClientWithAuthority)
+                if ( IsClientWithAuthority)
                 {
                     // check only each 'syncInterval'
-                    if (Time.time - lastClientSendTime >= syncInterval)
+                    if (!isServer &&  Time.time - lastClientSendTime >= syncInterval)
                     {
                         if (HasEitherMovedRotatedScaled())
                         {
