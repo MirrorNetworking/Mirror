@@ -9,7 +9,7 @@ namespace Mirror.Examples
         [ServerCallback]
         public void Update()
         {
-            health = Random.Range(1, 10);
+            health = (health + 1) % 10;
         }
     }
 }
