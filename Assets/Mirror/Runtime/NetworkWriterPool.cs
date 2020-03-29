@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 
 namespace Mirror
 {
+    // a NetworkWriter that will recycle itself when disposed
     public class PooledNetworkWriter : NetworkWriter, IDisposable
     {
         public void Dispose()
@@ -9,36 +11,27 @@ namespace Mirror
             NetworkWriterPool.Recycle(this);
         }
     }
+
     public static class NetworkWriterPool
     {
-        public const int MaxPoolSize = 10;
-
-        static readonly PooledNetworkWriter[] pool = new PooledNetworkWriter[MaxPoolSize];
-        static int next = -1;
+        static readonly Stack<PooledNetworkWriter> pool = new Stack<PooledNetworkWriter>();
 
         public static PooledNetworkWriter GetWriter()
         {
-            if (next == -1)
+            if (pool.Count != 0)
             {
-                return new PooledNetworkWriter();
+                PooledNetworkWriter writer = pool.Pop();
+                // reset cached writer length and position
+                writer.SetLength(0);
+                return writer;
             }
 
-            PooledNetworkWriter writer = pool[next];
-            pool[next] = null;
-            next--;
-
-            // reset cached writer length and position
-            writer.SetLength(0);
-            return writer;
+            return new PooledNetworkWriter();
         }
 
         public static void Recycle(PooledNetworkWriter writer)
         {
-            if ((next + 1) < MaxPoolSize)
-            {
-                next++;
-                pool[next] = writer;
-            }
+            pool.Push(writer);
         }
     }
 }

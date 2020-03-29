@@ -74,7 +74,7 @@ namespace Mirror
 
         public override bool HasPreviewGUI()
         {
-            return target is GameObject gameObject && gameObject.GetComponent<NetworkIdentity>() != null;
+            return target is GameObject gameObject && gameObject != null && gameObject.GetComponent<NetworkIdentity>() != null;
         }
 
         public override void OnPreviewGUI(Rect r, GUIStyle background)
