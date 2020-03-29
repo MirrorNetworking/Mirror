@@ -252,7 +252,7 @@ namespace Mirror
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        protected abstract bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
+        internal abstract bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
 
         // cache the Send(connectionIds) list to avoid allocating each time
         static readonly List<int> connectionIdsCache = new List<int>();
