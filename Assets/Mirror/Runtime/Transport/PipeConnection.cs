@@ -65,6 +65,7 @@ namespace Mirror
             if (data.Count == 0)
                 return false;
 
+            buffer.SetLength(0);
             buffer.Write(data.Array, data.Offset, data.Count);
 
             if (reader.Position == reader.Length)
