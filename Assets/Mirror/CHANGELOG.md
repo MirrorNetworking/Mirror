@@ -1,3 +1,10 @@
+## [30.3.1](https://github.com/MirrorNG/MirrorNG/compare/30.3.0-master...30.3.1-master) (2020-03-30)
+
+
+### Bug Fixes
+
+* reset buffer every time ([a8a62a6](https://github.com/MirrorNG/MirrorNG/commit/a8a62a64b6fa67223505505c1225269d3a047a92))
+
 # [30.3.0](https://github.com/MirrorNG/MirrorNG/compare/30.2.0-master...30.3.0-master) (2020-03-30)
 
 
