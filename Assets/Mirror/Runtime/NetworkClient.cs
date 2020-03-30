@@ -373,6 +373,19 @@ namespace Mirror
         }
 
         /// <summary>
+        /// called when quitting the application by closing the window / pressing stop in the editor
+        /// <para>virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too</para>
+        /// </summary>
+        public virtual void OnApplicationQuit()
+        {
+            if (isConnected)
+            {
+                Shutdown();
+                print("OnApplicationQuit: stopped client");
+            }
+        }
+
+        /// <summary>
         /// Shut down a client.
         /// <para>This should be done when a client is no longer going to be used.</para>
         /// </summary>

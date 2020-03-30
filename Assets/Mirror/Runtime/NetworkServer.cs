@@ -97,6 +97,19 @@ namespace Mirror
         public readonly NetworkTime Time = new NetworkTime();
 
         /// <summary>
+        /// called when quitting the application by closing the window / pressing stop in the editor
+        /// <para>virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too</para>
+        /// </summary>
+        public virtual void OnApplicationQuit()
+        {
+            if (active)
+            {
+                Shutdown();
+                print("OnApplicationQuit: stopped server");
+            }
+        }
+
+        /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
         public void Shutdown()
