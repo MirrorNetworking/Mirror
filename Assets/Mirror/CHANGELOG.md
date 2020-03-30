@@ -1,3 +1,10 @@
+# [30.3.0](https://github.com/MirrorNG/MirrorNG/compare/30.2.0-master...30.3.0-master) (2020-03-30)
+
+
+### Features
+
+* Piped connection ([#138](https://github.com/MirrorNG/MirrorNG/issues/138)) ([471a881](https://github.com/MirrorNG/MirrorNG/commit/471a881cdae1c6e526b5aa2d552cc91dc27f793a))
+
 # [30.2.0](https://github.com/MirrorNG/MirrorNG/compare/30.1.2-master...30.2.0-master) (2020-03-30)
 
 
