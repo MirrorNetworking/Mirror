@@ -341,19 +341,6 @@ namespace Mirror
         /// </summary>
         public void DisconnectAll()
         {
-            DisconnectAllConnections();
-            localConnection = null;
-            localClient = null;
-            active = false;
-
-        }
-
-        /// <summary>
-        /// Disconnect all currently connected clients except the local connection.
-        /// <para>This can only be called on the server. Clients will receive the Disconnect message.</para>
-        /// </summary>
-        public void DisconnectAllConnections()
-        {
             foreach (NetworkConnectionToClient conn in connections.Values)
             {
                 conn.Disconnect();
@@ -363,6 +350,10 @@ namespace Mirror
                 conn.Dispose();
             }
             connections.Clear();
+
+            localConnection = null;
+            localClient = null;
+            active = false;
         }
 
         // The user should never need to pump the update loop manually

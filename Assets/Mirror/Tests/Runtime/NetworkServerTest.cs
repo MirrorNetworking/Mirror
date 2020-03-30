@@ -313,23 +313,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void DisconnectAllConnectionsTest()
-        {
-            // listen
-            server.Listen();
-            Assert.That(server.connections.Count, Is.EqualTo(0));
-
-            // add connection
-            var conn42 = new NetworkConnectionToClient(42);
-            server.AddConnection(conn42);
-            Assert.That(server.connections.Count, Is.EqualTo(1));
-
-            // disconnect all connections
-            server.DisconnectAllConnections();
-            Assert.That(server.connections.Count, Is.EqualTo(0));
-        }
-
-        [Test]
         public void DisconnectAllTest()
         {
             // listen
