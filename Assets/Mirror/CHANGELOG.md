@@ -1,3 +1,10 @@
+# [30.2.0](https://github.com/MirrorNG/MirrorNG/compare/30.1.2-master...30.2.0-master) (2020-03-30)
+
+
+### Features
+
+* allow more than one NetworkManager ([#135](https://github.com/MirrorNG/MirrorNG/issues/135)) ([92968e4](https://github.com/MirrorNG/MirrorNG/commit/92968e4e45a33fa5ab77ce2bfc9e8f826a888711))
+
 ## [30.1.2](https://github.com/MirrorNG/MirrorNG/compare/30.1.1-master...30.1.2-master) (2020-03-29)
 
 
