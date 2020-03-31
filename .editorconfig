@@ -38,7 +38,7 @@ dotnet_style_readonly_field = true:suggestion
 
 # Code-block preferences
 csharp_prefer_braces = when_multiline:suggestion
-csharp_prefer_simple_using_statement = true:suggestion
+csharp_prefer_simple_using_statement = false
 
 # Expression-level preferences 
 dotnet_style_object_initializer = true:suggestion 
