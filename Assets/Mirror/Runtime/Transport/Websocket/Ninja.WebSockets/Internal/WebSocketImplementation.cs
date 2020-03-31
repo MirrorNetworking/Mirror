@@ -539,7 +539,7 @@ namespace Ninja.WebSockets.Internal
                 {
                     while (_messageQueue.Count > 0)
                     {
-                        var _buf = _messageQueue.Dequeue();
+                        ArraySegment<byte> _buf = _messageQueue.Dequeue();
                         try
                         {
                             if (_stream != null && _stream.CanWrite)
