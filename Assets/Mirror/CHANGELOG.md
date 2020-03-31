@@ -1,3 +1,11 @@
+## [30.3.3](https://github.com/MirrorNG/MirrorNG/compare/30.3.2-master...30.3.3-master) (2020-03-31)
+
+
+### Bug Fixes
+
+* headless build ([7864e8d](https://github.com/MirrorNG/MirrorNG/commit/7864e8d6f4a0952ef3114daac11842e4ee0a7a58))
+* headless build ([ab47a45](https://github.com/MirrorNG/MirrorNG/commit/ab47a45d08f4e9a82a5cd26f913f4871d46dd484))
+
 ## [30.3.2](https://github.com/MirrorNG/MirrorNG/compare/30.3.1-master...30.3.2-master) (2020-03-31)
 
 
