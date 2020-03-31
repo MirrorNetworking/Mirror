@@ -30,7 +30,7 @@ namespace Mirror.Tests
 
         public override bool Available() => true;
         public override int GetMaxPacketSize(int channelId) => int.MaxValue;
-        public override void Shutdown() {}
+        public override void Shutdown() { }
         public override bool ClientConnected() => clientConnected;
         public override void ClientConnect(string address)
         {
