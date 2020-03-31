@@ -10,7 +10,7 @@ namespace Mirror
         {
         }
 
-        public override string address => Transport.activeTransport.ServerGetClientAddress(connectionId);
+        public override string Address => Transport.activeTransport.ServerGetClientAddress(connectionId);
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.

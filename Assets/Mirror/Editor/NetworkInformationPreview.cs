@@ -184,7 +184,7 @@ namespace Mirror
                 foreach (NetworkConnection conn in identity.observers)
                 {
 
-                    GUI.Label(observerRect, conn.address + ":" + conn, styles.ComponentName);
+                    GUI.Label(observerRect, conn.Address + ":" + conn, styles.ComponentName);
                     observerRect.y += observerRect.height;
                     Y = observerRect.y;
                 }

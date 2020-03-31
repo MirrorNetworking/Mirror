@@ -5,7 +5,7 @@ namespace Mirror
 {
     public class NetworkConnectionToServer : NetworkConnection
     {
-        public override string address => "";
+        public override string Address => "";
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {

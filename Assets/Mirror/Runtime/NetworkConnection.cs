@@ -59,7 +59,7 @@ namespace Mirror
         /// The IP address / URL / FQDN associated with the connection.
         /// Can be useful for a game master to do IP Bans etc.
         /// </summary>
-        public abstract string address { get; }
+        public abstract string Address { get; }
 
         /// <summary>
         /// The last time that a message was received on this connection.

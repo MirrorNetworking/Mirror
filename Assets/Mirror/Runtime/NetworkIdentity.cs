@@ -888,7 +888,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.Debug) Debug.Log("Added observer " + conn.address + " added for " + gameObject);
+            if (LogFilter.Debug) Debug.Log("Added observer " + conn.Address + " added for " + gameObject);
             observers.Add(conn);
             conn.AddToVisList(this);
         }

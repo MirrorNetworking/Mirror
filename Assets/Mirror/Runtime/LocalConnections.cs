@@ -14,7 +14,7 @@ namespace Mirror
         {
         }
 
-        public override string address => "localhost";
+        public override string Address => "localhost";
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
@@ -73,7 +73,7 @@ namespace Mirror
         // to avoid race conditions. keep packets in Queue until LateUpdate.
         internal Queue<byte[]> packetQueue = new Queue<byte[]>();
 
-        public override string address => "localhost";
+        public override string Address => "localhost";
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {

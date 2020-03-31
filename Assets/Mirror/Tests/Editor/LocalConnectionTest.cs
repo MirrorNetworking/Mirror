@@ -32,13 +32,13 @@ namespace Mirror.Tests
         [Test]
         public void LocalConnectionToClientAddressTest()
         {
-            Assert.That(connectionToClient.address, Is.EqualTo("localhost"));
+            Assert.That(connectionToClient.Address, Is.EqualTo("localhost"));
         }
 
         [Test]
         public void LocalConnectionToServerAddressTest()
         {
-            Assert.That(connectionToServer.address, Is.EqualTo("localhost"));
+            Assert.That(connectionToServer.Address, Is.EqualTo("localhost"));
         }
 
         [Test]
