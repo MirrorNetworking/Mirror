@@ -67,7 +67,7 @@ namespace Mirror.Tests
 
             // ClearDirtyComponents should do nothing since syncInterval is not
             // elapsed yet
-            player.netIdentity.ClearDirtyComponentsDirtyBits();
+            player.NetIdentity.ClearDirtyComponentsDirtyBits();
 
             // set lastSyncTime far enough back to be ready for syncing
             player.lastSyncTime = Time.time - player.syncInterval;
@@ -95,7 +95,7 @@ namespace Mirror.Tests
 
             // ClearAllComponents should clear dirty even if syncInterval not
             // elapsed yet
-            player.netIdentity.ClearAllComponentsDirtyBits();
+            player.NetIdentity.ClearAllComponentsDirtyBits();
 
             // set lastSyncTime far enough back to be ready for syncing
             player.lastSyncTime = Time.time - player.syncInterval;

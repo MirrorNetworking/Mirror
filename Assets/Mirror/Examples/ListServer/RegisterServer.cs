@@ -60,7 +60,7 @@ namespace Mirror.Examples.ListServer
         void Tick()
         {
             // connected yet?
-            if (isServer && gameServerToListenConnection != null)
+            if (IsServer && gameServerToListenConnection != null)
             {
                 SendStatus();
             }

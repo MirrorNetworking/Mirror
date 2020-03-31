@@ -20,7 +20,7 @@ namespace Mirror.Examples.Tanks
         void Update()
         {
             // movement for local player
-            if (!isLocalPlayer)
+            if (!IsLocalPlayer)
                 return;
 
             // rotate
@@ -45,7 +45,7 @@ namespace Mirror.Examples.Tanks
         void CmdFire()
         {
             GameObject projectile = Instantiate(projectilePrefab, projectileMount.position, transform.rotation);
-            server.Spawn(projectile);
+            Server.Spawn(projectile);
             RpcOnFire();
         }
 

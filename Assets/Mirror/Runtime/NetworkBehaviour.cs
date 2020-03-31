@@ -44,77 +44,77 @@ namespace Mirror
         /// Returns true if this object is active on an active server.
         /// <para>This is only true if the object has been spawned. This is different from NetworkServer.active, which is true if the server itself is active rather than this object being active.</para>
         /// </summary>
-        public bool isServer => netIdentity.isServer;
+        public bool IsServer => NetIdentity.isServer;
 
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
-        public bool isClient => netIdentity.isClient;
+        public bool IsClient => NetIdentity.isClient;
 
         /// <summary>
         /// Returns true if we're on host mode.
         /// </summary>
-        public bool isLocalClient => netIdentity.isLocalClient;
+        public bool IsLocalClient => NetIdentity.isLocalClient;
 
         /// <summary>
         /// This returns true if this object is the one that represents the player on the local machine.
         /// <para>In multiplayer games, there are multiple instances of the Player object. The client needs to know which one is for "themselves" so that only that player processes input and potentially has a camera attached. The IsLocalPlayer function will return true only for the player instance that belongs to the player on the local machine, so it can be used to filter out input for non-local players.</para>
         /// </summary>
-        public bool isLocalPlayer => netIdentity.isLocalPlayer;
+        public bool IsLocalPlayer => NetIdentity.isLocalPlayer;
 
         /// <summary>
         /// True if this object only exists on the server
         /// </summary>
-        public bool isServerOnly => isServer && !isClient;
+        public bool IsServerOnly => IsServer && !IsClient;
 
         /// <summary>
         /// True if this object exists on a client that is not also acting as a server
         /// </summary>
-        public bool isClientOnly => isClient && !isServer;
+        public bool IsClientOnly => IsClient && !IsServer;
 
         /// <summary>
         /// This returns true if this object is the authoritative version of the object in the distributed network application.
         /// <para>The <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server. For objects with <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> set, authority is held by the client of that player.</para>
         /// </summary>
-        public bool hasAuthority => netIdentity.hasAuthority;
+        public bool HasAuthority => NetIdentity.hasAuthority;
 
         /// <summary>
         /// The unique network Id of this object.
         /// <para>This is assigned at runtime by the network server and will be unique for all objects for that network session.</para>
         /// </summary>
-        public uint netId => netIdentity.netId;
+        public uint NetId => NetIdentity.netId;
 
         /// <summary>
         /// The <see cref="NetworkServer">NetworkClient</see> associated to this object.
         /// </summary>
-        public NetworkServer server => netIdentity.server;
+        public NetworkServer Server => NetIdentity.server;
 
         /// <summary>
         /// The <see cref="NetworkClient">NetworkClient</see> associated to this object.
         /// </summary>
-        public NetworkClient client => netIdentity.client;
+        public NetworkClient Client => NetIdentity.client;
 
         /// <summary>
         /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
         /// </summary>
-        public NetworkConnection connectionToServer => netIdentity.connectionToServer;
+        public NetworkConnection ConnectionToServer => NetIdentity.connectionToServer;
 
         /// <summary>
         /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
         /// </summary>
-        public NetworkConnection connectionToClient => netIdentity.connectionToClient;
+        public NetworkConnection ConnectionToClient => NetIdentity.connectionToClient;
 
-        public NetworkTime NetworkTime => isClient ? client.Time : server.Time;
+        public NetworkTime NetworkTime => IsClient ? Client.Time : Server.Time;
 
-        protected ulong syncVarDirtyBits { get; private set; }
+        protected ulong SyncVarDirtyBits { get; private set; }
         ulong syncVarHookGuard;
 
-        protected bool getSyncVarHookGuard(ulong dirtyBit)
+        protected bool GetSyncVarHookGuard(ulong dirtyBit)
         {
             return (syncVarHookGuard & dirtyBit) != 0UL;
         }
 
-        protected void setSyncVarHookGuard(ulong dirtyBit, bool value)
+        protected void SetSyncVarHookGuard(ulong dirtyBit, bool value)
         {
             if (value)
                 syncVarHookGuard |= dirtyBit;
@@ -135,7 +135,7 @@ namespace Mirror
         /// <summary>
         /// Returns the NetworkIdentity of this object
         /// </summary>
-        public NetworkIdentity netIdentity
+        public NetworkIdentity NetIdentity
         {
             get
             {
@@ -162,9 +162,9 @@ namespace Mirror
             get
             {
                 // note: FindIndex causes allocations, we search manually instead
-                for (int i = 0; i < netIdentity.NetworkBehaviours.Length; i++)
+                for (int i = 0; i < NetIdentity.NetworkBehaviours.Length; i++)
                 {
-                    NetworkBehaviour component = netIdentity.NetworkBehaviours[i];
+                    NetworkBehaviour component = NetIdentity.NetworkBehaviours[i];
                     if (component == this)
                         return i;
                 }
@@ -203,27 +203,27 @@ namespace Mirror
             // this was in Weaver before
             // NOTE: we could remove this later to allow calling Cmds on Server
             //       to avoid Wrapper functions. a lot of people requested this.
-            if (!client.Active)
+            if (!Client.Active)
             {
                 Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
                 return;
             }
 
             // local players can always send commands, regardless of authority, other objects must have authority.
-            if (!(isLocalPlayer || hasAuthority))
+            if (!(IsLocalPlayer || HasAuthority))
             {
                 throw new UnauthorizedAccessException($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
             }
 
-            if (client.Connection == null)
+            if (Client.Connection == null)
             {
-                throw new InvalidOperationException("Send command attempted with no client running [client=" + connectionToServer + "].");
+                throw new InvalidOperationException("Send command attempted with no client running [client=" + ConnectionToServer + "].");
             }
 
             // construct the message
             var message = new CommandMessage
             {
-                netId = netId,
+                netId = NetId,
                 componentIndex = ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = GetMethodHash(invokeClass, cmdName),
@@ -231,7 +231,7 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            client.Connection.Send(message, channelId);
+            Client.Connection.Send(message, channelId);
         }
 
         /// <summary>
@@ -249,16 +249,16 @@ namespace Mirror
 
         #region Client RPCs
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
+        protected void SendRpcInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
-            if (!server.active)
+            if (!Server.active)
             {
                 Debug.LogError("RPC Function " + rpcName + " called on Client.");
                 return;
             }
             // This cannot use NetworkServer.active, as that is not specific to this object.
-            if (!isServer)
+            if (!IsServer)
             {
                 Debug.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
@@ -267,7 +267,7 @@ namespace Mirror
             // construct the message
             var message = new RpcMessage
             {
-                netId = netId,
+                netId = NetId,
                 componentIndex = ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = GetMethodHash(invokeClass, rpcName),
@@ -275,14 +275,14 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            server.SendToReady(netIdentity, message, channelId);
+            Server.SendToReady(NetIdentity, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
+        protected void SendTargetRpcInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
-            if (!server.active)
+            if (!Server.active)
             {
                 Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
                 return;
@@ -290,7 +290,7 @@ namespace Mirror
             // connection parameter is optional. assign if null.
             if (conn == null)
             {
-                conn = connectionToClient;
+                conn = ConnectionToClient;
             }
             // this was in Weaver before
             if (conn is NetworkConnectionToServer)
@@ -299,7 +299,7 @@ namespace Mirror
                 return;
             }
             // This cannot use NetworkServer.active, as that is not specific to this object.
-            if (!isServer)
+            if (!IsServer)
             {
                 Debug.LogWarning("TargetRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
@@ -308,7 +308,7 @@ namespace Mirror
             // construct the message
             var message = new RpcMessage
             {
-                netId = netId,
+                netId = NetId,
                 componentIndex = ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = GetMethodHash(invokeClass, rpcName),
@@ -326,7 +326,7 @@ namespace Mirror
         /// <param name="reader">Parameters to pass to the RPC function.</param>
         /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeRPC(int rpcHash, NetworkReader reader)
+        public virtual bool InvokeRpc(int rpcHash, NetworkReader reader)
         {
             return InvokeHandlerDelegate(rpcHash, MirrorInvokeType.ClientRpc, reader);
         }
@@ -336,7 +336,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
         {
-            if (!server.active)
+            if (!Server.active)
             {
                 Debug.LogWarning("SendEvent no server?");
                 return;
@@ -345,7 +345,7 @@ namespace Mirror
             // construct the message
             var message = new SyncEventMessage
             {
-                netId = netId,
+                netId = NetId,
                 componentIndex = ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = GetMethodHash(invokeClass, eventName),
@@ -353,7 +353,7 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            server.SendToReady(netIdentity, message, channelId);
+            Server.SendToReady(NetIdentity, message, channelId);
         }
 
         /// <summary>
@@ -519,7 +519,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
         {
-            if (getSyncVarHookGuard(dirtyBit))
+            if (GetSyncVarHookGuard(dirtyBit))
                 return;
 
             uint newNetId = 0;
@@ -548,18 +548,18 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
         {
-            if (!isServer && !isClient)
+            if (!IsServer && !IsClient)
                 return gameObjectField;
 
             // server always uses the field
-            if (isServer)
+            if (IsServer)
             {
                 return gameObjectField;
             }
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
-            if (client.Spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
+            if (Client.Spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
                 return gameObjectField = identity.gameObject;
 
             return null;
@@ -589,7 +589,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
         {
-            if (getSyncVarHookGuard(dirtyBit))
+            if (GetSyncVarHookGuard(dirtyBit))
                 return;
 
             uint newNetId = 0;
@@ -615,14 +615,14 @@ namespace Mirror
         protected NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
         {
             // server always uses the field
-            if (isServer)
+            if (IsServer)
             {
                 return identityField;
             }
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
-            client.Spawned.TryGetValue(netId, out identityField);
+            Client.Spawned.TryGetValue(netId, out identityField);
             return identityField;
         }
 
@@ -649,7 +649,7 @@ namespace Mirror
         /// <param name="dirtyBit">Bit mask to set.</param>
         public void SetDirtyBit(ulong dirtyBit)
         {
-            syncVarDirtyBits |= dirtyBit;
+            SyncVarDirtyBits |= dirtyBit;
         }
 
         /// <summary>
@@ -659,7 +659,7 @@ namespace Mirror
         public void ClearAllDirtyBits()
         {
             lastSyncTime = Time.time;
-            syncVarDirtyBits = 0L;
+            SyncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
             // note: don't use List.ForEach here, this is a hot path
@@ -690,7 +690,7 @@ namespace Mirror
         {
             if (Time.time - lastSyncTime >= syncInterval)
             {
-                return syncVarDirtyBits != 0L || AnySyncObjectDirty();
+                return SyncVarDirtyBits != 0L || AnySyncObjectDirty();
             }
             return false;
         }

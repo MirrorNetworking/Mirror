@@ -9,7 +9,7 @@ namespace Mirror.Examples.Pong
 
         void Awake()
         {
-            netIdentity.OnStartServer.AddListener(OnStartServer);
+            NetIdentity.OnStartServer.AddListener(OnStartServer);
         }
 
         public void OnStartServer()

@@ -31,32 +31,32 @@ namespace Mirror.Tests
         [Test]
         public void IsServerOnly()
         {
-            Assert.That(component.isServerOnly, Is.False);
+            Assert.That(component.IsServerOnly, Is.False);
         }
 
         [Test]
         public void IsServer()
         {
-            Assert.That(component.isServer, Is.True);
+            Assert.That(component.IsServer, Is.True);
         }
 
         [Test]
         public void IsClient()
         {
-            Assert.That(component.isClient, Is.True);
+            Assert.That(component.IsClient, Is.True);
         }
 
         [Test]
         public void IsClientOnly()
         {
-            Assert.That(component.isClientOnly, Is.False);
+            Assert.That(component.IsClientOnly, Is.False);
         }
 
         [Test]
         public void PlayerHasAuthorityByDefault()
         {
             // no authority by default
-            Assert.That(component.hasAuthority, Is.True);
+            Assert.That(component.HasAuthority, Is.True);
         }
 
         #endregion
@@ -67,9 +67,9 @@ namespace Mirror.Tests
 
             public void OnStartServer()
             {
-                Assert.That(isClient, Is.True);
-                Assert.That(isLocalPlayer, Is.False);
-                Assert.That(isServer, Is.True);
+                Assert.That(IsClient, Is.True);
+                Assert.That(IsLocalPlayer, Is.False);
+                Assert.That(IsServer, Is.True);
                 called = true;
             }
         };
@@ -107,28 +107,28 @@ namespace Mirror.Tests
             client.Update();
 
             // no authority by default
-            Assert.That(behaviour2.hasAuthority, Is.False);
+            Assert.That(behaviour2.HasAuthority, Is.False);
         }
 
         [Test]
         public void HasIdentitysNetId()
         {
             identity.netId = 42;
-            Assert.That(component.netId, Is.EqualTo(42));
+            Assert.That(component.NetId, Is.EqualTo(42));
         }
 
         [Test]
         public void HasIdentitysConnectionToServer()
         {
             (identity.connectionToServer, _) = ULocalConnectionToClient.CreateLocalConnections();
-            Assert.That(component.connectionToServer, Is.EqualTo(identity.connectionToServer));
+            Assert.That(component.ConnectionToServer, Is.EqualTo(identity.connectionToServer));
         }
 
         [Test]
         public void HasIdentitysConnectionToClient()
         {
             (_, identity.connectionToClient) = ULocalConnectionToClient.CreateLocalConnections();
-            Assert.That(component.connectionToClient, Is.EqualTo(identity.connectionToClient));
+            Assert.That(component.ConnectionToClient, Is.EqualTo(identity.connectionToClient));
         }
 
         [Test]
@@ -442,15 +442,15 @@ namespace Mirror.Tests
                 ulong bit = 1ul << i;
 
                 // should be false by default
-                Assert.That(getSyncVarHookGuard(bit), Is.False);
+                Assert.That(GetSyncVarHookGuard(bit), Is.False);
 
                 // set true
-                setSyncVarHookGuard(bit, true);
-                Assert.That(getSyncVarHookGuard(bit), Is.True);
+                SetSyncVarHookGuard(bit, true);
+                Assert.That(GetSyncVarHookGuard(bit), Is.True);
 
                 // set false again
-                setSyncVarHookGuard(bit, false);
-                Assert.That(getSyncVarHookGuard(bit), Is.False);
+                SetSyncVarHookGuard(bit, false);
+                Assert.That(GetSyncVarHookGuard(bit), Is.False);
             }
         }
     }

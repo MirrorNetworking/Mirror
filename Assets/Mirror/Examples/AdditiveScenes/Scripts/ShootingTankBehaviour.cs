@@ -23,10 +23,10 @@ namespace Mirror.Examples.Additive
 
         void Update()
         {
-            if (isServer && netIdentity.observers.Count > 0)
+            if (IsServer && NetIdentity.observers.Count > 0)
                 ShootNearestPlayer();
 
-            if (isClient)
+            if (IsClient)
                 transform.rotation = Quaternion.Slerp(transform.rotation, rotation, turnSpeed);
         }
 
@@ -36,7 +36,7 @@ namespace Mirror.Examples.Additive
             GameObject target = null;
             float distance = 100f;
 
-            foreach (NetworkConnection networkConnection in netIdentity.observers)
+            foreach (NetworkConnection networkConnection in NetIdentity.observers)
             {
                 GameObject tempTarget = networkConnection.identity.gameObject;
                 float tempDistance = Vector3.Distance(tempTarget.transform.position, transform.position);

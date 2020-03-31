@@ -74,7 +74,7 @@ namespace MirrorTest
 
         public void TakeDamage(int amount)
         {
-            if (!isServer)
+            if (!IsServer)
                 return;
 
             health -= amount;

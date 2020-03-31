@@ -32,7 +32,7 @@ namespace Mirror
             currentScene = gameObject.scene;
             if (LogFilter.Debug) Debug.Log($"NetworkSceneChecker.Awake currentScene: {currentScene}");
 
-            netIdentity.OnStartServer.AddListener(OnStartServer);
+            NetIdentity.OnStartServer.AddListener(OnStartServer);
         }
 
         public void OnStartServer()
@@ -40,7 +40,7 @@ namespace Mirror
             if (!sceneCheckerObjects.ContainsKey(currentScene))
                 sceneCheckerObjects.Add(currentScene, new HashSet<NetworkIdentity>());
 
-            sceneCheckerObjects[currentScene].Add(netIdentity);
+            sceneCheckerObjects[currentScene].Add(NetIdentity);
         }
 
         [ServerCallback]
@@ -53,7 +53,7 @@ namespace Mirror
             // and the new scene need to rebuild their respective observers lists.
 
             // Remove this object from the hashset of the scene it just left
-            sceneCheckerObjects[currentScene].Remove(netIdentity);
+            sceneCheckerObjects[currentScene].Remove(NetIdentity);
 
             // RebuildObservers of all NetworkIdentity's in the scene this object just left
             RebuildSceneObservers();
@@ -66,7 +66,7 @@ namespace Mirror
                 sceneCheckerObjects.Add(currentScene, new HashSet<NetworkIdentity>());
 
             // Add this object to the hashset of the new scene
-            sceneCheckerObjects[currentScene].Add(netIdentity);
+            sceneCheckerObjects[currentScene].Add(NetIdentity);
 
             // RebuildObservers of all NetworkIdentity's in the scene this object just entered
             RebuildSceneObservers();

@@ -32,9 +32,9 @@ namespace Mirror.Examples.Basic
 
         void Awake()
         {
-            netIdentity.OnStartServer.AddListener(OnStartServer);
-            netIdentity.OnStartClient.AddListener(OnStartClient);
-            netIdentity.OnStartLocalPlayer.AddListener(OnStartLocalPlayer);
+            NetIdentity.OnStartServer.AddListener(OnStartServer);
+            NetIdentity.OnStartClient.AddListener(OnStartClient);
+            NetIdentity.OnStartLocalPlayer.AddListener(OnStartLocalPlayer);
         }
 
         // This is called by the hook of playerData SyncVar above

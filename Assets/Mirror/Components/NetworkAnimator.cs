@@ -46,7 +46,7 @@ namespace Mirror
         {
             get
             {
-                if (isServer)
+                if (IsServer)
                 {
                     if (!ClientAuthority)
                         return true;
@@ -56,11 +56,11 @@ namespace Mirror
                     //
                     // So we check here for a connectionToClient and if it is null we will
                     // let the server send animation data until we receive an owner.
-                    if (netIdentity != null && netIdentity.connectionToClient == null)
+                    if (NetIdentity != null && NetIdentity.connectionToClient == null)
                         return true;
                 }
 
-                return (hasAuthority && ClientAuthority);
+                return (HasAuthority && ClientAuthority);
             }
         }
 
@@ -152,11 +152,11 @@ namespace Mirror
 
         void SendAnimationMessage(int stateHash, float normalizedTime, int layerId, byte[] parameters)
         {
-            if (isServer)
+            if (IsServer)
             {
                 RpcOnAnimationClientMessage(stateHash, normalizedTime, layerId, parameters);
             }
-            else if (client.Connection != null)
+            else if (Client.Connection != null)
             {
                 CmdOnAnimationServerMessage(stateHash, normalizedTime, layerId, parameters);
             }
@@ -164,11 +164,11 @@ namespace Mirror
 
         void SendAnimationParametersMessage(byte[] parameters)
         {
-            if (isServer)
+            if (IsServer)
             {
                 RpcOnAnimationParametersClientMessage(parameters);
             }
-            else if (client.Connection != null)
+            else if (Client.Connection != null)
             {
                 CmdOnAnimationParametersServerMessage(parameters);
             }
@@ -176,7 +176,7 @@ namespace Mirror
 
         void HandleAnimMsg(int stateHash, float normalizedTime, int layerId, NetworkReader reader)
         {
-            if (hasAuthority && ClientAuthority)
+            if (HasAuthority && ClientAuthority)
                 return;
 
             // usually transitions will be triggered by parameters, if not, play anims directly.
@@ -192,7 +192,7 @@ namespace Mirror
 
         void HandleAnimParamsMsg(NetworkReader reader)
         {
-            if (hasAuthority && ClientAuthority)
+            if (HasAuthority && ClientAuthority)
                 return;
 
             ReadParameters(reader);
@@ -366,24 +366,24 @@ namespace Mirror
         {
             if (ClientAuthority)
             {
-                if (!isClient)
+                if (!IsClient)
                 {
                     Debug.LogWarning("Tried to set animation in the server for a client-controlled animator");
                     return;
                 }
 
-                if (!hasAuthority)
+                if (!HasAuthority)
                 {
                     Debug.LogWarning("Only the client with authority can set animations");
                     return;
                 }
 
-                if (client.Connection != null)
+                if (Client.Connection != null)
                     CmdOnAnimationTriggerServerMessage(hash);
             }
             else
             {
-                if (!isServer)
+                if (!IsServer)
                 {
                     Debug.LogWarning("Tried to set animation in the client for a server-controlled animator");
                     return;
@@ -411,24 +411,24 @@ namespace Mirror
         {
             if (ClientAuthority)
             {
-                if (!isClient)
+                if (!IsClient)
                 {
                     Debug.LogWarning("Tried to reset animation in the server for a client-controlled animator");
                     return;
                 }
 
-                if (!hasAuthority)
+                if (!HasAuthority)
                 {
                     Debug.LogWarning("Only the client with authority can reset animations");
                     return;
                 }
 
-                if (client.Connection != null)
+                if (Client.Connection != null)
                     CmdOnAnimationResetTriggerServerMessage(hash);
             }
             else
             {
-                if (!isServer)
+                if (!IsServer)
                 {
                     Debug.LogWarning("Tried to reset animation in the client for a server-controlled animator");
                     return;
@@ -447,7 +447,7 @@ namespace Mirror
             if (!ClientAuthority)
                 return;
 
-            if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
+            if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + NetId);
 
             // handle and broadcast
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(parameters))

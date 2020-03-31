@@ -29,7 +29,7 @@ namespace Mirror
 
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
-        bool IsClientWithAuthority => hasAuthority && ClientAuthority;
+        bool IsClientWithAuthority => HasAuthority && ClientAuthority;
 
         // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
@@ -208,7 +208,7 @@ namespace Mirror
 
             // server-only mode does no interpolation to save computations,
             // but let's set the position directly
-            if (isServer && !isClient)
+            if (IsServer && !IsClient)
                 ApplyPositionRotationScale(goal.LocalPosition, goal.LocalRotation, goal.LocalScale);
 
             // set dirty so that OnSerialize broadcasts it
@@ -321,7 +321,7 @@ namespace Mirror
         void Update()
         {
             // if server then always sync to others.
-            if (isServer)
+            if (IsServer)
             {
                 // just use OnSerialize via SetDirtyBit only sync when position
                 // changed. set dirty bits 0 or 1
@@ -329,11 +329,11 @@ namespace Mirror
             }
 
             // no 'else if' since host mode would be both
-            if (isClient)
+            if (IsClient)
             {
                 // send to server if we have local authority (and aren't the server)
                 // -> only if connectionToServer has been initialized yet too
-                if (!isServer && IsClientWithAuthority)
+                if (!IsServer && IsClientWithAuthority)
                 {
                     // check only each 'syncInterval'
                     if (Time.time - lastClientSendTime >= syncInterval)
