@@ -112,7 +112,7 @@ namespace Mirror.Weaver
                         if (methodRef.GenericParameters.Count == 1)
                         {
                             MethodReference tmp = scriptDef.MainModule.ImportReference(methodRef);
-                            GenericInstanceMethod gm = new GenericInstanceMethod(tmp);
+                            var gm = new GenericInstanceMethod(tmp);
                             gm.GenericArguments.Add(genericType);
                             if (gm.GenericArguments[0].FullName == genericType.FullName)
                             {

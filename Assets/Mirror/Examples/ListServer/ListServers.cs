@@ -145,9 +145,9 @@ namespace Mirror.Examples.ListServer
         void Tick()
         {
 
-#if !UNITY_WEBGL 
+#if !UNITY_WEBGL
             // Ping isn't known in WebGL builds
-            
+
             // receive client data from listen
             // connected yet?
             if (clientToListenConnection != null)

@@ -88,7 +88,7 @@ namespace Ninja.WebSockets.Internal
                 memoryStream.Write(maskKey, 0, maskKey.Length);
 
                 // mask the payload
-                ArraySegment<byte> maskKeyArraySegment = new ArraySegment<byte>(maskKey, 0, maskKey.Length);
+                var maskKeyArraySegment = new ArraySegment<byte>(maskKey, 0, maskKey.Length);
                 WebSocketFrameCommon.ToggleMask(maskKeyArraySegment, fromPayload);
             }
 

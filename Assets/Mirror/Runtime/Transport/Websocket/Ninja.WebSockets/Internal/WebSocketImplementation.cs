@@ -130,7 +130,7 @@ namespace Ninja.WebSockets.Internal
                 while (true)
                 {
                     // allow this operation to be cancelled from iniside OR outside this instance
-                    using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_internalReadCts.Token, cancellationToken))
+                    using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_internalReadCts.Token, cancellationToken))
                     {
                         WebSocketFrame frame = null;
                         try
@@ -173,11 +173,11 @@ namespace Ninja.WebSockets.Internal
                             case WebSocketOpCode.ConnectionClose:
                                 return await RespondToCloseFrame(frame, buffer, linkedCts.Token);
                             case WebSocketOpCode.Ping:
-                                ArraySegment<byte> pingPayload = new ArraySegment<byte>(buffer.Array, buffer.Offset, frame.Count);
+                                var pingPayload = new ArraySegment<byte>(buffer.Array, buffer.Offset, frame.Count);
                                 await SendPongAsync(pingPayload, linkedCts.Token);
                                 break;
                             case WebSocketOpCode.Pong:
-                                ArraySegment<byte> pongBuffer = new ArraySegment<byte>(buffer.Array, frame.Count, buffer.Offset);
+                                var pongBuffer = new ArraySegment<byte>(buffer.Array, frame.Count, buffer.Offset);
                                 Pong?.Invoke(this, new PongEventArgs(pongBuffer));
                                 break;
                             case WebSocketOpCode.TextFrame:
@@ -236,12 +236,12 @@ namespace Ninja.WebSockets.Internal
                     // NOTE: Compression is currently work in progress and should NOT be used in this library.
                     // The code below is very inefficient for small messages. Ideally we would like to have some sort of moving window
                     // of data to get the best compression. And we don't want to create new buffers which is bad for GC.
-                    using (MemoryStream temp = new MemoryStream())
+                    using (var temp = new MemoryStream())
                     {
-                        DeflateStream deflateStream = new DeflateStream(temp, CompressionMode.Compress);
+                        var deflateStream = new DeflateStream(temp, CompressionMode.Compress);
                         deflateStream.Write(buffer.Array, buffer.Offset, buffer.Count);
                         deflateStream.Flush();
-                        ArraySegment<byte> compressedBuffer = new ArraySegment<byte>(temp.ToArray());
+                        var compressedBuffer = new ArraySegment<byte>(temp.ToArray());
                         WebSocketFrameWriter.Write(opCode, compressedBuffer, stream, endOfMessage, _isClient);
                         Events.Log.SendingFrame(_guid, opCode, endOfMessage, compressedBuffer.Count, true);
                     }
@@ -351,7 +351,7 @@ namespace Ninja.WebSockets.Internal
             {
                 if (_state == WebSocketState.Open)
                 {
-                    CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                    var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
                     try
                     {
                         CloseOutputAsync(WebSocketCloseStatus.EndpointUnavailable, "Service is Disposed", cts.Token).Wait();
@@ -459,7 +459,7 @@ namespace Ninja.WebSockets.Internal
             {
                 // do not echo the close payload back to the client, there is no requirement for it in the spec.
                 // However, the same CloseStatus as recieved should be sent back.
-                ArraySegment<byte> closePayload = new ArraySegment<byte>(new byte[0], 0, 0);
+                var closePayload = new ArraySegment<byte>(new byte[0], 0, 0);
                 _state = WebSocketState.CloseReceived;
                 Events.Log.CloseHandshakeRespond(_guid, frame.CloseStatus, frame.CloseStatusDescription);
 
@@ -539,7 +539,7 @@ namespace Ninja.WebSockets.Internal
                 {
                     while (_messageQueue.Count > 0)
                     {
-                        var _buf = _messageQueue.Dequeue();
+                        ArraySegment<byte> _buf = _messageQueue.Dequeue();
                         try
                         {
                             if (_stream != null && _stream.CanWrite)
@@ -601,7 +601,7 @@ namespace Ninja.WebSockets.Internal
         /// <param name="ex">The exception (for logging)</param>
         async Task CloseOutputAutoTimeoutAsync(WebSocketCloseStatus closeStatus, string statusDescription, Exception ex)
         {
-            TimeSpan timeSpan = TimeSpan.FromSeconds(5);
+            var timeSpan = TimeSpan.FromSeconds(5);
             Events.Log.CloseOutputAutoTimeout(_guid, closeStatus, statusDescription, ex.ToString());
 
             try
@@ -612,7 +612,7 @@ namespace Ninja.WebSockets.Internal
                     statusDescription = statusDescription + "\r\n\r\n" + ex.ToString();
                 }
 
-                CancellationTokenSource autoCancel = new CancellationTokenSource(timeSpan);
+                var autoCancel = new CancellationTokenSource(timeSpan);
                 await CloseOutputAsync(closeStatus, statusDescription, autoCancel.Token);
             }
             catch (OperationCanceledException)

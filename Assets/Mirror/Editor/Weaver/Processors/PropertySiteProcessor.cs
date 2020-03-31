@@ -152,7 +152,7 @@ namespace Mirror.Weaver
                     //     var tmp = new MyStruct();
                     //     this.set_Networkxxxx(tmp);
                     ILProcessor worker = md.Body.GetILProcessor();
-                    VariableDefinition tmpVariable = new VariableDefinition(opField.FieldType);
+                    var tmpVariable = new VariableDefinition(opField.FieldType);
                     md.Body.Variables.Add(tmpVariable);
 
                     worker.InsertBefore(instr, worker.Create(OpCodes.Ldloca, tmpVariable));
@@ -190,7 +190,7 @@ namespace Mirror.Weaver
                 Instruction inst = md.Body.Instructions[iCount];
                 if (inst.OpCode == OpCodes.Ldfld)
                 {
-                    FieldReference opField = inst.Operand as FieldReference;
+                    var opField = inst.Operand as FieldReference;
 
                     // find replaceEvent with matching name
                     // NOTE: original weaver compared .Name, not just the MethodDefinition,

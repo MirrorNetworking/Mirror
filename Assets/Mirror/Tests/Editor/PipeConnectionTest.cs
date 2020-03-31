@@ -34,13 +34,13 @@ namespace Mirror.Tests
 
             Assert.That(receivedData, Is.EqualTo(receivedData));
         }
-            
+
         [UnityTest]
         public IEnumerator TestSendAndReceive()
         {
             return RunAsync(async () =>
             {
-                
+
                 await TestSendData(c1, c2);
             });
         }

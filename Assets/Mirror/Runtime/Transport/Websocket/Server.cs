@@ -125,14 +125,14 @@ namespace Mirror.Websocket
                 Stream stream = tcpClient.GetStream();
                 if (_secure)
                 {
-                    SslStream sslStream = new SslStream(stream, false, CertVerificationCallback);
+                    var sslStream = new SslStream(stream, false, CertVerificationCallback);
                     sslStream.AuthenticateAsServer(_sslConfig.Certificate, _sslConfig.ClientCertificateRequired, _sslConfig.EnabledSslProtocols, _sslConfig.CheckCertificateRevocation);
                     stream = sslStream;
                 }
                 WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(tcpClient, stream, token);
                 if (context.IsWebSocketRequest)
                 {
-                    WebSocketServerOptions options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
+                    var options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
 
                     WebSocket webSocket = await webSocketServerFactory.AcceptWebSocketAsync(context, options);
 
@@ -314,7 +314,7 @@ namespace Mirror.Websocket
             // find the connection
             if (clients.TryGetValue(connectionId, out WebSocket client))
             {
-                WebSocketImplementation wsClient = client as WebSocketImplementation;
+                var wsClient = client as WebSocketImplementation;
                 return wsClient.Context.Client.Client.RemoteEndPoint;
 
             }

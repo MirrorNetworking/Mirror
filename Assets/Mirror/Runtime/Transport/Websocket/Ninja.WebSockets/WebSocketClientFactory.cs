@@ -83,10 +83,10 @@ namespace Ninja.WebSockets
         /// <returns>A connected web socket instance</returns>
         public async Task<WebSocket> ConnectAsync(Uri uri, WebSocketClientOptions options, CancellationToken token = default(CancellationToken))
         {
-            Guid guid = Guid.NewGuid();
+            var guid = Guid.NewGuid();
             string host = uri.Host;
             int port = uri.Port;
-            TcpClient tcpClient = new TcpClient(AddressFamily.InterNetworkV6);
+            var tcpClient = new TcpClient(AddressFamily.InterNetworkV6);
             tcpClient.NoDelay = options.NoDelay;
             tcpClient.Client.DualMode = true;
             string uriScheme = uri.Scheme.ToLower();
@@ -121,7 +121,7 @@ namespace Ninja.WebSockets
         /// <returns></returns>
         public async Task<WebSocket> ConnectAsync(Stream responseStream, string secWebSocketKey, WebSocketClientOptions options, CancellationToken token = default(CancellationToken))
         {
-            Guid guid = Guid.NewGuid();
+            var guid = Guid.NewGuid();
             return await ConnectAsync(guid, responseStream, secWebSocketKey, options.KeepAliveInterval, options.SecWebSocketExtensions, options.IncludeExceptionInCloseResponse, token);
         }
 
@@ -150,7 +150,7 @@ namespace Ninja.WebSockets
         {
             // make sure we escape the accept string which could contain special regex characters
             string regexPattern = "Sec-WebSocket-Protocol: (.*)";
-            Regex regex = new Regex(regexPattern, RegexOptions.IgnoreCase);
+            var regex = new Regex(regexPattern, RegexOptions.IgnoreCase);
             Match match = regex.Match(response);
             if (match.Success)
             {
@@ -164,7 +164,7 @@ namespace Ninja.WebSockets
         {
             // make sure we escape the accept string which could contain special regex characters
             string regexPattern = "Sec-WebSocket-Accept: (.*)";
-            Regex regex = new Regex(regexPattern, RegexOptions.IgnoreCase);
+            var regex = new Regex(regexPattern, RegexOptions.IgnoreCase);
             string actualAcceptString = regex.Match(response).Groups[1].Value.Trim();
 
             // check the accept string
@@ -193,7 +193,7 @@ namespace Ninja.WebSockets
                     // if there is more to the message than just the header
                     if (string.IsNullOrWhiteSpace(lines[i]))
                     {
-                        StringBuilder builder = new StringBuilder();
+                        var builder = new StringBuilder();
                         for (int j = i + 1; j < lines.Length - 1; j++)
                         {
                             builder.AppendLine(lines[j]);
@@ -212,7 +212,7 @@ namespace Ninja.WebSockets
 
             if (isSecure)
             {
-                SslStream sslStream = new SslStream(stream, false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
+                var sslStream = new SslStream(stream, false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
                 Events.Log.AttemtingToSecureSslConnection(guid);
 
                 // This will throw an AuthenticationException if the certificate is not valid
@@ -252,7 +252,7 @@ namespace Ninja.WebSockets
             }
             else
             {
-                StringBuilder builder = new StringBuilder();
+                var builder = new StringBuilder();
                 foreach (KeyValuePair<string, string> pair in additionalHeaders)
                 {
                     builder.Append($"{pair.Key}: {pair.Value}\r\n");
@@ -264,7 +264,7 @@ namespace Ninja.WebSockets
 
         async Task<WebSocket> PerformHandshake(Guid guid, Uri uri, Stream stream, WebSocketClientOptions options, CancellationToken token)
         {
-            Random rand = new Random();
+            var rand = new Random();
             byte[] keyAsBytes = new byte[16];
             rand.NextBytes(keyAsBytes);
             string secWebSocketKey = Convert.ToBase64String(keyAsBytes);

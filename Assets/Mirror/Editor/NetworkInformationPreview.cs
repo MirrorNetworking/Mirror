@@ -85,7 +85,7 @@ namespace Mirror
             if (target == null)
                 return;
 
-            GameObject targetGameObject = target as GameObject;
+            var targetGameObject = target as GameObject;
 
             if (targetGameObject == null)
                 return;
@@ -243,7 +243,7 @@ namespace Mirror
 
         IEnumerable<NetworkIdentityInfo> GetNetworkIdentityInfo(NetworkIdentity identity)
         {
-            List<NetworkIdentityInfo> infos = new List<NetworkIdentityInfo>
+            var infos = new List<NetworkIdentityInfo>
             {
                 GetAssetId(identity),
                 GetString("Scene ID", identity.sceneId.ToString("X"))
@@ -262,7 +262,7 @@ namespace Mirror
 
         IEnumerable<NetworkBehaviourInfo> GetNetworkBehaviorInfo(NetworkIdentity identity)
         {
-            List<NetworkBehaviourInfo> behaviourInfos = new List<NetworkBehaviourInfo>();
+            var behaviourInfos = new List<NetworkBehaviourInfo>();
 
             NetworkBehaviour[] behaviours = identity.GetComponents<NetworkBehaviour>();
             foreach (NetworkBehaviour behaviour in behaviours)

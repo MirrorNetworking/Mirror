@@ -45,7 +45,7 @@ namespace Ninja.WebSockets.Internal
         public static async Task<WebSocketFrame> ReadAsync(Stream fromStream, ArraySegment<byte> intoBuffer, CancellationToken cancellationToken)
         {
             // allocate a small buffer to read small chunks of data from the stream
-            ArraySegment<byte> smallBuffer = new ArraySegment<byte>(new byte[8]);
+            var smallBuffer = new ArraySegment<byte>(new byte[8]);
 
             await BinaryReaderWriter.ReadExactly(2, fromStream, smallBuffer, cancellationToken);
             byte byte1 = smallBuffer.Array[0];
@@ -55,7 +55,7 @@ namespace Ninja.WebSockets.Internal
             byte finBitFlag = 0x80;
             byte opCodeFlag = 0x0F;
             bool isFinBitSet = (byte1 & finBitFlag) == finBitFlag;
-            WebSocketOpCode opCode = (WebSocketOpCode)(byte1 & opCodeFlag);
+            var opCode = (WebSocketOpCode)(byte1 & opCodeFlag);
 
             // read and process second byte
             byte maskFlag = 0x80;
@@ -68,10 +68,10 @@ namespace Ninja.WebSockets.Internal
                 // use the masking key to decode the data if needed
                 if (isMaskBitSet)
                 {
-                    ArraySegment<byte> maskKey = new ArraySegment<byte>(smallBuffer.Array, 0, WebSocketFrameCommon.MaskKeyLength);
+                    var maskKey = new ArraySegment<byte>(smallBuffer.Array, 0, WebSocketFrameCommon.MaskKeyLength);
                     await BinaryReaderWriter.ReadExactly(maskKey.Count, fromStream, maskKey, cancellationToken);
                     await BinaryReaderWriter.ReadExactly(count, fromStream, intoBuffer, cancellationToken);
-                    ArraySegment<byte> payloadToMask = new ArraySegment<byte>(intoBuffer.Array, intoBuffer.Offset, count);
+                    var payloadToMask = new ArraySegment<byte>(intoBuffer.Array, intoBuffer.Offset, count);
                     WebSocketFrameCommon.ToggleMask(maskKey, payloadToMask);
                 }
                 else
@@ -107,7 +107,7 @@ namespace Ninja.WebSockets.Internal
             {
                 // network byte order
                 Array.Reverse(buffer.Array, buffer.Offset, 2);
-                int closeStatusCode = (int)BitConverter.ToUInt16(buffer.Array, buffer.Offset);
+                int closeStatusCode = BitConverter.ToUInt16(buffer.Array, buffer.Offset);
                 if (Enum.IsDefined(typeof(WebSocketCloseStatus), closeStatusCode))
                 {
                     closeStatus = (WebSocketCloseStatus)closeStatusCode;

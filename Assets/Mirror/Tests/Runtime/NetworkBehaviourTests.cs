@@ -79,8 +79,8 @@ namespace Mirror.Tests
         public void OnStartServer()
         {
             var gameObject = new GameObject();
-            var netIdentity = gameObject.AddComponent<NetworkIdentity>();
-            var comp = gameObject.AddComponent<OnStartServerTestComponent>();
+            NetworkIdentity netIdentity = gameObject.AddComponent<NetworkIdentity>();
+            OnStartServerTestComponent comp = gameObject.AddComponent<OnStartServerTestComponent>();
             netIdentity.OnStartServer.AddListener(comp.OnStartServer);
 
             Assert.That(comp.called, Is.False);
@@ -244,7 +244,7 @@ namespace Mirror.Tests
             // better to return false here.
             // => we possibly return false so that resync doesn't happen when
             //    GO disappears? or not?
-            GameObject go = new GameObject();
+            var go = new GameObject();
             bool result = component.SyncVarGameObjectEqualExposed(go, 0);
             Assert.That(result, Is.True);
         }
@@ -257,7 +257,7 @@ namespace Mirror.Tests
             identity.netId = 42;
 
             // gameobject without networkidentity component should return false
-            GameObject go = new GameObject();
+            var go = new GameObject();
             bool result = component.SyncVarGameObjectEqualExposed(go, identity.netId);
             Assert.That(result, Is.False);
 
@@ -273,7 +273,7 @@ namespace Mirror.Tests
             identity.netId = 42;
 
             // gameobject with valid networkidentity and netid that is different
-            GameObject go = new GameObject();
+            var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             ni.netId = 43;
             bool result = component.SyncVarGameObjectEqualExposed(go, identity.netId);
@@ -291,7 +291,7 @@ namespace Mirror.Tests
             identity.netId = 42;
 
             // gameobject with valid networkidentity and netid that is different
-            GameObject go = new GameObject();
+            var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             ni.netId = 42;
             bool result = component.SyncVarGameObjectEqualExposed(go, identity.netId);
@@ -368,7 +368,7 @@ namespace Mirror.Tests
             identity.netId = 42;
 
             // gameobject with valid networkidentity and netid that is different
-            GameObject go = new GameObject();
+            var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             ni.netId = 43;
             bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);

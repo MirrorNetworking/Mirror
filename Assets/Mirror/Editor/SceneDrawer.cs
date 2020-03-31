@@ -21,7 +21,7 @@ namespace Mirror
                 {
                     Debug.LogError($"Could not find scene {property.stringValue} in {property.propertyPath}, assign the proper scenes in your NetworkManager");
                 }
-                SceneAsset scene = (SceneAsset)EditorGUI.ObjectField(position, label, sceneObject, typeof(SceneAsset), true);
+                var scene = (SceneAsset)EditorGUI.ObjectField(position, label, sceneObject, typeof(SceneAsset), true);
 
                 property.stringValue = AssetDatabase.GetAssetPath(scene);
             }

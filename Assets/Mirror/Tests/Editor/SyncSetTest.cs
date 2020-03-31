@@ -15,17 +15,17 @@ namespace Mirror.Tests
 
         void SerializeAllTo<T>(T fromList, T toList) where T : ISyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
             fromList.OnSerializeAll(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            var reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeAll(reader);
         }
 
         void SerializeDeltaTo<T>(T fromList, T toList) where T : ISyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
             fromList.OnSerializeDelta(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            var reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeDelta(reader);
             fromList.Flush();
         }
@@ -147,8 +147,8 @@ namespace Mirror.Tests
         [Test]
         public void ReadonlyTest()
         {
-            SyncSetString serverList = new SyncSetString();
-            SyncSetString clientList = new SyncSetString();
+            var serverList = new SyncSetString();
+            var clientList = new SyncSetString();
 
             // data has been flushed,  should go back to clear
             Assert.That(clientList.IsReadOnly, Is.False);

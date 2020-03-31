@@ -233,7 +233,7 @@ namespace Mirror
             mode = NetworkManagerMode.ClientOnly;
 
             isNetworkActive = true;
-            
+
             if (string.IsNullOrEmpty(serverIp))
             {
                 Debug.LogError("serverIp shouldn't be empty");

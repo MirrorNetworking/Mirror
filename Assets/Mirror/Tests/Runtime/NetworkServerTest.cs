@@ -152,7 +152,7 @@ namespace Mirror.Tests
             Assert.That(server.connections.Count, Is.EqualTo(1));
         }
 
-        
+
         [Test]
         public void DisconnectMessageHandlerTest()
         {
@@ -421,12 +421,12 @@ namespace Mirror.Tests
         public void SetAllClientsNotReadyTest()
         {
             // add first ready client
-            (_, var first) = ULocalConnectionToClient.CreateLocalConnections();
+            (_, ULocalConnectionToClient first) = ULocalConnectionToClient.CreateLocalConnections();
             first.isReady = true;
             server.connections[42] = first;
 
             // add second ready client
-            (_, var second) = ULocalConnectionToClient.CreateLocalConnections();
+            (_, ULocalConnectionToClient second) = ULocalConnectionToClient.CreateLocalConnections();
             second.isReady = true;
             server.connections[43] = second;
 

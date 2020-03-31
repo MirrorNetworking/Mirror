@@ -160,7 +160,7 @@ namespace Mirror.Weaver
         {
             if (!WasProcessed(td))
             {
-                MethodDefinition versionMethod = new MethodDefinition(ProcessedFunctionName, MethodAttributes.Private, Weaver.voidType);
+                var versionMethod = new MethodDefinition(ProcessedFunctionName, MethodAttributes.Private, Weaver.voidType);
                 ILProcessor worker = versionMethod.Body.GetILProcessor();
                 worker.Append(worker.Create(OpCodes.Ret));
                 td.Methods.Add(versionMethod);
@@ -296,7 +296,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            MethodDefinition serialize = new MethodDefinition("OnSerialize",
+            var serialize = new MethodDefinition("OnSerialize",
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.boolType);
 
@@ -307,7 +307,7 @@ namespace Mirror.Weaver
             serialize.Body.InitLocals = true;
 
             // loc_0,  this local variable is to determine if any variable was dirty
-            VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
+            var dirtyLocal = new VariableDefinition(Weaver.boolType);
             serialize.Body.Variables.Add(dirtyLocal);
 
             MethodReference baseSerialize = Resolvers.ResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, "OnSerialize");
@@ -453,14 +453,14 @@ namespace Mirror.Weaver
                 FieldDefinition netIdField = syncVarNetIds[syncVar];
 
                 // uint oldNetId = ___qNetId;
-                VariableDefinition oldNetId = new VariableDefinition(Weaver.uint32Type);
+                var oldNetId = new VariableDefinition(Weaver.uint32Type);
                 deserialize.Body.Variables.Add(oldNetId);
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, netIdField));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc, oldNetId));
 
                 // GameObject/NetworkIdentity oldSyncVar = syncvar.getter;
-                VariableDefinition oldSyncVar = new VariableDefinition(syncVar.FieldType);
+                var oldSyncVar = new VariableDefinition(syncVar.FieldType);
                 deserialize.Body.Variables.Add(oldSyncVar);
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
@@ -515,7 +515,7 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldflda, netIdField));
                     // call the function
-                    GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
+                    var syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
                     syncVarEqualGm.GenericArguments.Add(netIdField.FieldType);
                     serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
                     serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
@@ -556,7 +556,7 @@ namespace Mirror.Weaver
                 }
 
                 // T oldValue = value;
-                VariableDefinition oldValue = new VariableDefinition(syncVar.FieldType);
+                var oldValue = new VariableDefinition(syncVar.FieldType);
                 deserialize.Body.Variables.Add(oldValue);
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
@@ -599,7 +599,7 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar));
                     // call the function
-                    GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
+                    var syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
                     syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
                     serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
                     serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
@@ -634,7 +634,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            MethodDefinition serialize = new MethodDefinition("OnDeserialize",
+            var serialize = new MethodDefinition("OnDeserialize",
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
@@ -643,7 +643,7 @@ namespace Mirror.Weaver
             ILProcessor serWorker = serialize.Body.GetILProcessor();
             // setup local for dirty bits
             serialize.Body.InitLocals = true;
-            VariableDefinition dirtyBitsLocal = new VariableDefinition(Weaver.int64Type);
+            var dirtyBitsLocal = new VariableDefinition(Weaver.int64Type);
             serialize.Body.Variables.Add(dirtyBitsLocal);
 
             MethodReference baseDeserialize = Resolvers.ResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, "OnDeserialize");
@@ -800,10 +800,10 @@ namespace Mirror.Weaver
 
         void ProcessMethods()
         {
-            HashSet<string> names = new HashSet<string>();
+            var names = new HashSet<string>();
 
             // copy the list of methods because we will be adding methods in the loop
-            List<MethodDefinition> methods = new List<MethodDefinition>(netBehaviourSubclass.Methods);
+            var methods = new List<MethodDefinition>(netBehaviourSubclass.Methods);
             // find command and RPC functions
             foreach (MethodDefinition md in methods)
             {

@@ -13,8 +13,8 @@ namespace Mirror
             Vector2 syncVarIndicatorRect = EditorStyles.miniLabel.CalcSize(syncVarIndicatorContent);
             float valueWidth = position.width - syncVarIndicatorRect.x;
 
-            Rect valueRect = new Rect(position.x, position.y, valueWidth, position.height);
-            Rect labelRect = new Rect(position.x + valueWidth, position.y, syncVarIndicatorRect.x, position.height);
+            var valueRect = new Rect(position.x, position.y, valueWidth, position.height);
+            var labelRect = new Rect(position.x + valueWidth, position.y, syncVarIndicatorRect.x, position.height);
 
             EditorGUI.PropertyField(valueRect, property, true);
             GUI.Label(labelRect, syncVarIndicatorContent, EditorStyles.miniLabel);

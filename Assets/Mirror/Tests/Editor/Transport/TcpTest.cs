@@ -280,7 +280,7 @@ namespace Mirror.Tests
                 // then we should receive the data
                 await client.SendAsync(data);
 
-                var (rConnectionId, received) = await GetServerData();
+                (int rConnectionId, byte[] received) = await GetServerData();
 
                 string str = utf8.GetString(received);
                 Assert.That(str, Is.EqualTo("Hello world"));
@@ -288,7 +288,7 @@ namespace Mirror.Tests
                 // finally when the client disconnect,  we should get a disconnected message
                 client.Disconnect();
 
-                var disconnectId = await WaitForServerDisconnect();
+                int disconnectId = await WaitForServerDisconnect();
                 Assert.That(disconnectId, Is.EqualTo(id));
 
                 await WaitForClientDisconnect();
@@ -369,7 +369,7 @@ namespace Mirror.Tests
                 int id = await WaitForServerConnect();
 
                 // get server's connection info for that client
-                IPEndPoint address = (IPEndPoint)server.GetClientAddress(id);
+                var address = (IPEndPoint)server.GetClientAddress(id);
                 Assert.That(address.Address, Is.EqualTo(IPAddress.IPv6Loopback) | Is.EqualTo(IPAddress.Loopback) | Is.EqualTo(IPAddress.Loopback.MapToIPv6()));
 
                 client.Disconnect();
@@ -441,7 +441,7 @@ namespace Mirror.Tests
 
                 int id = await WaitForServerConnect();
 
-                var data = new byte[100000];
+                byte[] data = new byte[100000];
 
                 // Send largest allowed message
                 await client.SendAsync(new ArraySegment<byte>(data));

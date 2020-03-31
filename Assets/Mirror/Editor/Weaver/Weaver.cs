@@ -177,7 +177,7 @@ namespace Mirror.Weaver
                         objectType);
 
                 const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-                MethodDefinition method = new MethodDefinition(".ctor", methodAttributes, voidType);
+                var method = new MethodDefinition(".ctor", methodAttributes, voidType);
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(objectType, CurrentAssembly, ".ctor")));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
@@ -192,7 +192,7 @@ namespace Mirror.Weaver
             {
                 DLog(td, "Found NetworkBehaviour " + td.FullName);
 
-                NetworkBehaviourProcessor proc = new NetworkBehaviourProcessor(td);
+                var proc = new NetworkBehaviourProcessor(td);
                 proc.Process();
                 return true;
             }
@@ -217,8 +217,8 @@ namespace Mirror.Weaver
 
         static void SetupCorLib()
         {
-            AssemblyNameReference name = AssemblyNameReference.Parse("mscorlib");
-            ReaderParameters parameters = new ReaderParameters
+            var name = AssemblyNameReference.Parse("mscorlib");
+            var parameters = new ReaderParameters
             {
                 AssemblyResolver = CurrentAssembly.MainModule.AssemblyResolver
             };
@@ -373,7 +373,7 @@ namespace Mirror.Weaver
 
             // process this and base classes from parent to child order
 
-            List<TypeDefinition> behaviourClasses = new List<TypeDefinition>();
+            var behaviourClasses = new List<TypeDefinition>();
 
             TypeDefinition parent = td;
             while (parent != null)
@@ -475,7 +475,7 @@ namespace Mirror.Weaver
 
         static bool Weave(string assName, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
         {
-            using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+            using (var asmResolver = new DefaultAssemblyResolver())
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
             {
                 asmResolver.AddSearchDirectory(Path.GetDirectoryName(assName));
@@ -491,7 +491,7 @@ namespace Mirror.Weaver
                 }
 
                 SetupTargetTypes();
-                System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
+                var rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 ReaderWriterProcessor.ProcessReadersAndWriters(CurrentAssembly);
                 rwstopwatch.Stop();
                 Console.WriteLine("Find all reader and writers took " + rwstopwatch.ElapsedMilliseconds + " milliseconds");
@@ -505,7 +505,7 @@ namespace Mirror.Weaver
                 // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
                 for (int pass = 0; pass < 2; pass++)
                 {
-                    System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
                     foreach (TypeDefinition td in moduleDefinition.Types)
                     {
                         if (td.IsClass && td.BaseType.CanBeResolved())
@@ -558,7 +558,7 @@ namespace Mirror.Weaver
                     }
 
                     // write to outputDir if specified, otherwise perform in-place write
-                    WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
+                    var writeParams = new WriterParameters { WriteSymbols = true };
                     if (outputDir != null)
                     {
                         CurrentAssembly.Write(Helpers.DestinationFileFor(outputDir, assName), writeParams);

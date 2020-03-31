@@ -11,7 +11,7 @@ namespace Mirror.Tests
         {
             NetworkTransformChild networkTransformChild;
 
-            GameObject gameObject = new GameObject();
+            var gameObject = new GameObject();
             networkTransformChild = gameObject.AddComponent<NetworkTransformChild>();
 
             Assert.That(networkTransformChild.Target == null);

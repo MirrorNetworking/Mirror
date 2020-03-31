@@ -144,7 +144,7 @@ namespace Mirror.Tests
 
         static void BuildAssembly(bool wait)
         {
-            AssemblyBuilder assemblyBuilder = new AssemblyBuilder(OutputDirectory + OutputFile, SourceFiles.ToArray());
+            var assemblyBuilder = new AssemblyBuilder(OutputDirectory + OutputFile, SourceFiles.ToArray());
             assemblyBuilder.additionalReferences = ReferenceAssemblies.ToArray();
             if (AllowUnsafe)
             {

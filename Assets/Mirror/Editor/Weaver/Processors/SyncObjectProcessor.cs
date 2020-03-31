@@ -15,7 +15,7 @@ namespace Mirror.Weaver
         public static void GenerateSerialization(TypeDefinition td, int genericArgument, string serializeMethod, string deserializeMethod)
         {
             // find item type
-            GenericInstanceType gt = (GenericInstanceType)td.BaseType;
+            var gt = (GenericInstanceType)td.BaseType;
             if (gt.GenericArguments.Count <= genericArgument)
             {
                 Weaver.Error($"{td} should have {genericArgument} generic arguments");
@@ -47,7 +47,7 @@ namespace Mirror.Weaver
             if (existing != null)
                 return existing;
 
-            MethodDefinition serializeFunc = new MethodDefinition(methodName, MethodAttributes.Public |
+            var serializeFunc = new MethodDefinition(methodName, MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.Public |
                     MethodAttributes.HideBySig,
@@ -88,7 +88,7 @@ namespace Mirror.Weaver
             if (existing != null)
                 return existing;
 
-            MethodDefinition deserializeFunction = new MethodDefinition(methodName, MethodAttributes.Public |
+            var deserializeFunction = new MethodDefinition(methodName, MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.Public |
                     MethodAttributes.HideBySig,

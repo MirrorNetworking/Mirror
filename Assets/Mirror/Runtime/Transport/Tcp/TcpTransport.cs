@@ -121,7 +121,7 @@ namespace Mirror.Tcp
 
         public override Uri ServerUri()
         {
-            UriBuilder builder = new UriBuilder();
+            var builder = new UriBuilder();
             builder.Scheme = Scheme;
             builder.Host = Dns.GetHostName();
             builder.Port = port;

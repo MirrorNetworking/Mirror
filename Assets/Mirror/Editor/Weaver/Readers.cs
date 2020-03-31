@@ -125,7 +125,7 @@ namespace Mirror.Weaver
             }
 
             // create new reader for this type
-            MethodDefinition readerFunc = new MethodDefinition(functionName,
+            var readerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
@@ -198,7 +198,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateArraySegmentReadFunc(TypeReference variable, int recursionCount)
         {
-            GenericInstanceType genericInstance = (GenericInstanceType)variable;
+            var genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
 
             MethodReference elementReadFunc = GetReadFunc(elementType, recursionCount + 1);
@@ -218,7 +218,7 @@ namespace Mirror.Weaver
             }
 
             // create new reader for this type
-            MethodDefinition readerFunc = new MethodDefinition(functionName,
+            var readerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
@@ -310,7 +310,7 @@ namespace Mirror.Weaver
             }
 
             // create new reader for this type
-            MethodDefinition readerFunc = new MethodDefinition(functionName,
+            var readerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
@@ -345,7 +345,7 @@ namespace Mirror.Weaver
             }
             else if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
             {
-                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(Weaver.ScriptableObjectCreateInstanceMethod);
+                var genericInstanceMethod = new GenericInstanceMethod(Weaver.ScriptableObjectCreateInstanceMethod);
                 genericInstanceMethod.GenericArguments.Add(variable);
                 worker.Append(worker.Create(OpCodes.Call, genericInstanceMethod));
                 worker.Append(worker.Create(OpCodes.Stloc_0));

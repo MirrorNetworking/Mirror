@@ -57,11 +57,11 @@ namespace Mirror.Tests
         {
             // create server and client objects and sync inital values
 
-            GameObject gameObject1 = new GameObject();
+            var gameObject1 = new GameObject();
             netIdServer = gameObject1.AddComponent<NetworkIdentity>();
             serverTester = gameObject1.AddComponent<SyncVarHookTester>();
 
-            GameObject gameObject2 = new GameObject();
+            var gameObject2 = new GameObject();
             netIdClient = gameObject2.AddComponent<NetworkIdentity>();
             clientTester = gameObject2.AddComponent<SyncVarHookTester>();
 
@@ -74,14 +74,14 @@ namespace Mirror.Tests
         private void SyncValuesWithClient()
         {
             // serialize all the data as we would for the network
-            NetworkWriter ownerWriter = new NetworkWriter();
+            var ownerWriter = new NetworkWriter();
             // not really used in this Test
-            NetworkWriter observersWriter = new NetworkWriter();
+            var observersWriter = new NetworkWriter();
             (int ownerWritten, int observersWritten) = netIdServer.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
 
             // apply all the data from the server object
-            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            var reader = new NetworkReader(ownerWriter.ToArray());
             netIdClient.OnDeserializeAllSafely(reader, true);
         }
 
@@ -149,7 +149,7 @@ namespace Mirror.Tests
                 value2VirtualCalled = true;
             };
 
-            SyncVarHookTesterBase baseClass = clientTester as SyncVarHookTesterBase;
+            var baseClass = clientTester as SyncVarHookTesterBase;
             baseClass.onValue2Changed(1, 1);
 
             Assert.AreEqual(serverTester.value2, serverTester.value2);
@@ -174,7 +174,7 @@ namespace Mirror.Tests
                 value2VirtualCalled = true;
             };
 
-            SyncVarHookTesterBase baseClass = clientTester as SyncVarHookTesterBase;
+            var baseClass = clientTester as SyncVarHookTesterBase;
             baseClass.CallOnValue2Changed();
 
             Assert.AreEqual(serverTester.value2, serverTester.value2);

@@ -15,17 +15,17 @@ namespace Mirror.Tests
 
         void SerializeAllTo<T>(T fromList, T toList) where T : ISyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
             fromList.OnSerializeAll(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            var reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeAll(reader);
         }
 
         void SerializeDeltaTo<T>(T fromList, T toList) where T : ISyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
             fromList.OnSerializeDelta(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            var reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeDelta(reader);
             fromList.Flush();
         }
@@ -46,7 +46,7 @@ namespace Mirror.Tests
         [Test]
         public void TestInit()
         {
-            Dictionary<int, string> comparer = new Dictionary<int, string>
+            var comparer = new Dictionary<int, string>
             {
                 [0] = "Hello",
                 [1] = "World",
@@ -219,7 +219,7 @@ namespace Mirror.Tests
         [Test]
         public void CopyToTest()
         {
-            KeyValuePair<int, string>[] data = new KeyValuePair<int, string>[3];
+            var data = new KeyValuePair<int, string>[3];
 
             clientSyncDictionary.CopyTo(data, 0);
 
@@ -235,7 +235,7 @@ namespace Mirror.Tests
         [Test]
         public void CopyToOutOfRangeTest()
         {
-            KeyValuePair<int, string>[] data = new KeyValuePair<int, string>[3];
+            var data = new KeyValuePair<int, string>[3];
 
             Assert.Throws(typeof(ArgumentOutOfRangeException), delegate
             {
@@ -246,7 +246,7 @@ namespace Mirror.Tests
         [Test]
         public void CopyToOutOfBoundsTest()
         {
-            KeyValuePair<int, string>[] data = new KeyValuePair<int, string>[3];
+            var data = new KeyValuePair<int, string>[3];
 
             Assert.Throws(typeof(ArgumentException), delegate
             {
@@ -257,7 +257,7 @@ namespace Mirror.Tests
         [Test]
         public void TestRemovePair()
         {
-            KeyValuePair<int, string> data = new KeyValuePair<int, string>(0, "Hello");
+            var data = new KeyValuePair<int, string>(0, "Hello");
 
             serverSyncDictionary.Remove(data);
 
@@ -278,8 +278,8 @@ namespace Mirror.Tests
         [Test]
         public void DirtyTest()
         {
-            SyncDictionaryIntString serverList = new SyncDictionaryIntString();
-            SyncDictionaryIntString clientList = new SyncDictionaryIntString();
+            var serverList = new SyncDictionaryIntString();
+            var clientList = new SyncDictionaryIntString();
 
             // nothing to send
             Assert.That(serverList.IsDirty, Is.False);
@@ -296,8 +296,8 @@ namespace Mirror.Tests
         [Test]
         public void ReadonlyTest()
         {
-            SyncDictionaryIntString serverList = new SyncDictionaryIntString();
-            SyncDictionaryIntString clientList = new SyncDictionaryIntString();
+            var serverList = new SyncDictionaryIntString();
+            var clientList = new SyncDictionaryIntString();
 
             // data has been flushed,  should go back to clear
             Assert.That(clientList.IsReadOnly, Is.False);

@@ -7,7 +7,7 @@ namespace Mirror.Tests
         [Test]
         public void SyncVarAttributeTest()
         {
-            SyncVarAttribute attrib = new SyncVarAttribute();
+            var attrib = new SyncVarAttribute();
 
             Assert.That(string.IsNullOrEmpty(attrib.hook));
 
@@ -19,7 +19,7 @@ namespace Mirror.Tests
         [Test]
         public void CommandAttributeTest()
         {
-            CommandAttribute attrib = new CommandAttribute();
+            var attrib = new CommandAttribute();
 
             Assert.That(attrib.channel == Channels.DefaultReliable);
 
@@ -31,7 +31,7 @@ namespace Mirror.Tests
         [Test]
         public void ClientRPCAttributeTest()
         {
-            ClientRpcAttribute attrib = new ClientRpcAttribute();
+            var attrib = new ClientRpcAttribute();
 
             Assert.That(attrib.channel == Channels.DefaultReliable);
 
@@ -43,7 +43,7 @@ namespace Mirror.Tests
         [Test]
         public void TargetRPCAttributeTest()
         {
-            TargetRpcAttribute attrib = new TargetRpcAttribute();
+            var attrib = new TargetRpcAttribute();
 
             Assert.That(attrib.channel == Channels.DefaultReliable);
 
@@ -55,7 +55,7 @@ namespace Mirror.Tests
         [Test]
         public void SyncEventAttributeTest()
         {
-            SyncEventAttribute attrib = new SyncEventAttribute();
+            var attrib = new SyncEventAttribute();
 
             Assert.That(attrib.channel == Channels.DefaultReliable);
 

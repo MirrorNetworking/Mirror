@@ -44,7 +44,7 @@ namespace Ninja.WebSockets
         public static string CalculateWebSocketKey()
         {
             // this is not used for cryptography so doing something simple like he code below is op
-            Random rand = new Random((int)DateTime.Now.Ticks);
+            var rand = new Random((int)DateTime.Now.Ticks);
             byte[] keyAsBytes = new byte[16];
             rand.NextBytes(keyAsBytes);
             return Convert.ToBase64String(keyAsBytes);
@@ -111,13 +111,13 @@ namespace Ninja.WebSockets
         /// <returns>True if this is an http WebSocket upgrade response</returns>
         public static bool IsWebSocketUpgradeRequest(String header)
         {
-            Regex getRegex = new Regex(HTTP_GET_HEADER_REGEX, RegexOptions.IgnoreCase);
+            var getRegex = new Regex(HTTP_GET_HEADER_REGEX, RegexOptions.IgnoreCase);
             Match getRegexMatch = getRegex.Match(header);
 
             if (getRegexMatch.Success)
             {
                 // check if this is a web socket upgrade request
-                Regex webSocketUpgradeRegex = new Regex("Upgrade: websocket", RegexOptions.IgnoreCase);
+                var webSocketUpgradeRegex = new Regex("Upgrade: websocket", RegexOptions.IgnoreCase);
                 Match webSocketUpgradeRegexMatch = webSocketUpgradeRegex.Match(header);
                 return webSocketUpgradeRegexMatch.Success;
             }
@@ -132,7 +132,7 @@ namespace Ninja.WebSockets
         /// <returns>The path</returns>
         public static string GetPathFromHeader(string httpHeader)
         {
-            Regex getRegex = new Regex(HTTP_GET_HEADER_REGEX, RegexOptions.IgnoreCase);
+            var getRegex = new Regex(HTTP_GET_HEADER_REGEX, RegexOptions.IgnoreCase);
             Match getRegexMatch = getRegex.Match(httpHeader);
 
             if (getRegexMatch.Success)
@@ -146,7 +146,7 @@ namespace Ninja.WebSockets
 
         public static IList<string> GetSubProtocols(string httpHeader)
         {
-            Regex regex = new Regex(@"Sec-WebSocket-Protocol:(?<protocols>.+)", RegexOptions.IgnoreCase);
+            var regex = new Regex(@"Sec-WebSocket-Protocol:(?<protocols>.+)", RegexOptions.IgnoreCase);
             Match match = regex.Match(httpHeader);
 
             if (match.Success)
@@ -174,7 +174,7 @@ namespace Ninja.WebSockets
         /// <returns>the response code</returns>
         public static string ReadHttpResponseCode(string response)
         {
-            Regex getRegex = new Regex(@"HTTP\/1\.1 (.*)", RegexOptions.IgnoreCase);
+            var getRegex = new Regex(@"HTTP\/1\.1 (.*)", RegexOptions.IgnoreCase);
             Match getRegexMatch = getRegex.Match(response);
 
             if (getRegexMatch.Success)

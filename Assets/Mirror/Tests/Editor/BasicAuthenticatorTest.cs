@@ -22,7 +22,7 @@ namespace Mirror.Tests
         public void AuthRequestMessageTest()
         {
             // try setting value with constructor
-            AuthRequestMessage message = new AuthRequestMessage
+            var message = new AuthRequestMessage
             {
                 authUsername = "abc",
                 authPassword = "123"
@@ -31,12 +31,12 @@ namespace Mirror.Tests
             Assert.That(message.authPassword, Is.EqualTo("123"));
 
             // serialize
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
             message.Serialize(writer);
             byte[] writerData = writer.ToArray();
 
             // try deserialize
-            AuthRequestMessage fresh = new AuthRequestMessage();
+            var fresh = new AuthRequestMessage();
             fresh.Deserialize(new NetworkReader(writerData));
             Assert.That(fresh.authUsername, Is.EqualTo("abc"));
             Assert.That(fresh.authPassword, Is.EqualTo("123"));
@@ -46,7 +46,7 @@ namespace Mirror.Tests
         public void AuthResponseMessageTest()
         {
             // try setting value with constructor
-            AuthResponseMessage message = new AuthResponseMessage
+            var message = new AuthResponseMessage
             {
                 code = 123,
                 message = "abc"
@@ -55,12 +55,12 @@ namespace Mirror.Tests
             Assert.That(message.message, Is.EqualTo("abc"));
 
             // serialize
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
             message.Serialize(writer);
             byte[] writerData = writer.ToArray();
 
             // try deserialize
-            AuthResponseMessage fresh = new AuthResponseMessage();
+            var fresh = new AuthResponseMessage();
             fresh.Deserialize(new NetworkReader(writerData));
             Assert.That(fresh.code, Is.EqualTo(123));
             Assert.That(fresh.message, Is.EqualTo("abc"));

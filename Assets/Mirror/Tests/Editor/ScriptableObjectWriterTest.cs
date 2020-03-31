@@ -25,7 +25,7 @@ namespace Mirror.Tests
         [Test]
         public void TestWriteScriptableObject()
         {
-            ScriptableObjectMessage message = new ScriptableObjectMessage
+            var message = new ScriptableObjectMessage
             {
                 scriptableObject = ScriptableObject.CreateInstance<MyScriptableObject>()
             };

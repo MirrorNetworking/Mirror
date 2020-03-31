@@ -44,7 +44,7 @@ namespace Ninja.WebSockets.Internal
             {
                 int bytesRead = 0;
 
-                NetworkStream networkStream = stream as NetworkStream;
+                var networkStream = stream as NetworkStream;
                 if (networkStream != null && networkStream.DataAvailable)
                 {
                     // paul: if data is available read it immediatelly.

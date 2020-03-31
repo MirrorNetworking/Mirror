@@ -71,7 +71,7 @@ namespace Mirror.Websocket
 
             if (uri.IsDefaultPort)
             {
-                UriBuilder uriBuilder = new UriBuilder(uri);
+                var uriBuilder = new UriBuilder(uri);
                 uriBuilder.Port = port;
                 uri = uriBuilder.Uri;
             }
@@ -89,7 +89,7 @@ namespace Mirror.Websocket
 
         public override Uri ServerUri()
         {
-            UriBuilder builder = new UriBuilder();
+            var builder = new UriBuilder();
             builder.Scheme = Secure ? SecureScheme : Scheme;
             builder.Host = Dns.GetHostName();
             builder.Port = port;

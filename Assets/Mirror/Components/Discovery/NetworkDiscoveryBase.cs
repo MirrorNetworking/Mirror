@@ -167,7 +167,7 @@ namespace Mirror.Discovery
                     throw new ProtocolViolationException("Invalid handshake");
                 }
 
-                Request request = new Request();
+                var request = new Request();
                 request.Deserialize(networkReader);
 
                 ProcessClientRequest(request, udpReceiveResult.RemoteEndPoint);
@@ -198,7 +198,7 @@ namespace Mirror.Discovery
 
                     info.Serialize(writer);
 
-                    ArraySegment<byte> data = writer.ToArraySegment();
+                    var data = writer.ToArraySegment();
                     // signature matches
                     // send response
                     serverUdpClient.Send(data.Array, data.Count, endpoint);
@@ -297,7 +297,7 @@ namespace Mirror.Discovery
             if (clientUdpClient == null)
                 return;
 
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, serverBroadcastListenPort);
+            var endPoint = new IPEndPoint(IPAddress.Broadcast, serverBroadcastListenPort);
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
@@ -309,7 +309,7 @@ namespace Mirror.Discovery
 
                     request.Serialize(writer);
 
-                    ArraySegment<byte> data = writer.ToArraySegment();
+                    var data = writer.ToArraySegment();
 
                     clientUdpClient.SendAsync(data.Array, data.Count, endPoint);
                 }
@@ -341,7 +341,7 @@ namespace Mirror.Discovery
                 if (networkReader.ReadInt64() != secretHandshake)
                     return;
 
-                Response response = new Response();
+                var response = new Response();
                 response.Deserialize(networkReader);
 
                 ProcessResponse(response, udpReceiveResult.RemoteEndPoint);

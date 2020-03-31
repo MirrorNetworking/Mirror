@@ -71,7 +71,7 @@ namespace Mirror
                 if (id != msgType)
                     throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
 
-                T message = new T();
+                var message = new T();
                 message.Deserialize(networkReader);
 
                 return message;

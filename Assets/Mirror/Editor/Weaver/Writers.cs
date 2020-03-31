@@ -123,7 +123,7 @@ namespace Mirror.Weaver
                 functionName += "None";
             }
             // create new writer for this type
-            MethodDefinition writerFunc = new MethodDefinition(functionName,
+            var writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
@@ -190,7 +190,7 @@ namespace Mirror.Weaver
             }
 
             // create new writer for this type
-            MethodDefinition writerFunc = new MethodDefinition(functionName,
+            var writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
@@ -267,7 +267,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateArraySegmentWriteFunc(TypeReference variable, int recursionCount)
         {
-            GenericInstanceType genericInstance = (GenericInstanceType)variable;
+            var genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
 
@@ -287,7 +287,7 @@ namespace Mirror.Weaver
             }
 
             // create new writer for this type
-            MethodDefinition writerFunc = new MethodDefinition(functionName,
+            var writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
@@ -329,7 +329,7 @@ namespace Mirror.Weaver
             // loop body
             Instruction labelBody = worker.Create(OpCodes.Nop);
             worker.Append(labelBody);
-            
+
             // writer.Write(value.Array[i + value.Offset]);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
@@ -341,7 +341,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldelema, elementType));
             worker.Append(worker.Create(OpCodes.Ldobj, elementType));
             worker.Append(worker.Create(OpCodes.Call, elementWriteFunc));
-            
+
 
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));

@@ -503,7 +503,7 @@ namespace Mirror
                 Resources.FindObjectsOfTypeAll<NetworkIdentity>()
                                .Where(ConsiderForSpawning);
 
-            foreach (var obj in sceneObjects)
+            foreach (NetworkIdentity obj in sceneObjects)
             {
                 spawnableObjects.Add(obj.sceneId, obj);
             }

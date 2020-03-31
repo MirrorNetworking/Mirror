@@ -360,7 +360,7 @@ namespace Mirror
                 int msgType = MessagePacker.GetId(default(T) != null ? typeof(T) : msg.GetType());
 
                 MessagePacker.Pack(msg, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
+                var segment = writer.ToArraySegment();
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(segment))
                     return InvokeHandler(msgType, networkReader, channelId);
             }

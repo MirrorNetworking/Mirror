@@ -96,7 +96,7 @@ namespace Ninja.WebSockets
         /// <returns>A connected web socket</returns>
         public async Task<WebSocket> AcceptWebSocketAsync(WebSocketHttpContext context, WebSocketServerOptions options, CancellationToken token = default(CancellationToken))
         {
-            Guid guid = Guid.NewGuid();
+            var guid = Guid.NewGuid();
             Events.Log.AcceptWebSocketStarted(guid);
             await PerformHandshakeAsync(guid, context.HttpHeader, options.SubProtocol, context.Stream, token);
             Events.Log.ServerHandshakeSuccess(guid);
@@ -109,7 +109,7 @@ namespace Ninja.WebSockets
 
         static void CheckWebSocketVersion(string httpHeader)
         {
-            Regex webSocketVersionRegex = new Regex("Sec-WebSocket-Version: (.*)", RegexOptions.IgnoreCase);
+            var webSocketVersionRegex = new Regex("Sec-WebSocket-Version: (.*)", RegexOptions.IgnoreCase);
 
             // check the version. Support version 13 and above
             const int WebSocketVersion = 13;
@@ -132,7 +132,7 @@ namespace Ninja.WebSockets
         {
             try
             {
-                Regex webSocketKeyRegex = new Regex("Sec-WebSocket-Key: (.*)", RegexOptions.IgnoreCase);
+                var webSocketKeyRegex = new Regex("Sec-WebSocket-Key: (.*)", RegexOptions.IgnoreCase);
                 CheckWebSocketVersion(httpHeader);
 
                 Match match = webSocketKeyRegex.Match(httpHeader);

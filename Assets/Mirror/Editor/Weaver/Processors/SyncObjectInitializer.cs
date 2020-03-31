@@ -25,7 +25,7 @@ namespace Mirror.Weaver
             {
                 if (ins.OpCode.Code == Code.Stfld)
                 {
-                    FieldDefinition field = (FieldDefinition)ins.Operand;
+                    var field = (FieldDefinition)ins.Operand;
                     if (field.DeclaringType == fd.DeclaringType && field.Name == fd.Name)
                     {
                         // Already initialized by the user in the field definition, e.g:

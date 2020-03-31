@@ -18,8 +18,8 @@ namespace Mirror.Weaver
                 {
                     try
                     {
-                        using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-                        using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
+                        using (var asmResolver = new DefaultAssemblyResolver())
+                        using (var assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
                         {
                             ProcessAssemblyClasses(CurrentAssembly, assembly);
                         }

@@ -1126,12 +1126,12 @@ namespace Mirror.Tests
         public void TestWritingUri()
         {
 
-            Uri testUri = new Uri("https://www.mirror-networking.com?somthing=other");
+            var testUri = new Uri("https://www.mirror-networking.com?somthing=other");
 
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
             writer.WriteUri(testUri);
 
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            var reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadUri(), Is.EqualTo(testUri));
         }
     }

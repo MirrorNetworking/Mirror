@@ -44,7 +44,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
                 return null;
             }
-            
+
             Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
             return null;
         }
@@ -52,7 +52,7 @@ namespace Mirror.Weaver
         public static MethodDefinition ProcessSyncVarGet(FieldDefinition fd, string originalName, FieldDefinition netFieldId)
         {
             //Create the get method
-            MethodDefinition get = new MethodDefinition(
+            var get = new MethodDefinition(
                     "get_Network" + originalName, MethodAttributes.Public |
                     MethodAttributes.SpecialName |
                     MethodAttributes.HideBySig,
@@ -104,7 +104,7 @@ namespace Mirror.Weaver
         public static MethodDefinition ProcessSyncVarSet(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
         {
             //Create the set method
-            MethodDefinition set = new MethodDefinition("set_Network" + originalName, MethodAttributes.Public |
+            var set = new MethodDefinition("set_Network" + originalName, MethodAttributes.Public |
                     MethodAttributes.SpecialName |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
@@ -141,7 +141,7 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
                 setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
 
-                GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
+                var syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
                 syncVarEqualGm.GenericArguments.Add(fd.FieldType);
                 setWorker.Append(setWorker.Create(OpCodes.Call, syncVarEqualGm));
             }
@@ -150,7 +150,7 @@ namespace Mirror.Weaver
 
             // T oldValue = value;
             // TODO for GO/NI we need to backup the netId don't we?
-            VariableDefinition oldValue = new VariableDefinition(fd.FieldType);
+            var oldValue = new VariableDefinition(fd.FieldType);
             set.Body.Variables.Add(oldValue);
             setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
             setWorker.Append(setWorker.Create(OpCodes.Ldfld, fd));
@@ -189,7 +189,7 @@ namespace Mirror.Weaver
             else
             {
                 // make generic version of SetSyncVar with field type
-                GenericInstanceMethod gm = new GenericInstanceMethod(Weaver.setSyncVarReference);
+                var gm = new GenericInstanceMethod(Weaver.setSyncVarReference);
                 gm.GenericArguments.Add(fd.FieldType);
 
                 // invoke SetSyncVar
@@ -263,7 +263,7 @@ namespace Mirror.Weaver
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
-            PropertyDefinition propertyDefinition = new PropertyDefinition("Network" + originalName, PropertyAttributes.None, fd.FieldType)
+            var propertyDefinition = new PropertyDefinition("Network" + originalName, PropertyAttributes.None, fd.FieldType)
             {
                 GetMethod = get,
                 SetMethod = set
