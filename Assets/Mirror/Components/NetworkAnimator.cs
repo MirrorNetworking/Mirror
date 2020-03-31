@@ -156,7 +156,7 @@ namespace Mirror
             {
                 RpcOnAnimationClientMessage(stateHash, normalizedTime, layerId, parameters);
             }
-            else if (client.connection != null)
+            else if (client.Connection != null)
             {
                 CmdOnAnimationServerMessage(stateHash, normalizedTime, layerId, parameters);
             }
@@ -168,7 +168,7 @@ namespace Mirror
             {
                 RpcOnAnimationParametersClientMessage(parameters);
             }
-            else if (client.connection != null)
+            else if (client.Connection != null)
             {
                 CmdOnAnimationParametersServerMessage(parameters);
             }
@@ -378,7 +378,7 @@ namespace Mirror
                     return;
                 }
 
-                if (client.connection != null)
+                if (client.Connection != null)
                     CmdOnAnimationTriggerServerMessage(hash);
             }
             else
@@ -423,7 +423,7 @@ namespace Mirror
                     return;
                 }
 
-                if (client.connection != null)
+                if (client.Connection != null)
                     CmdOnAnimationResetTriggerServerMessage(hash);
             }
             else

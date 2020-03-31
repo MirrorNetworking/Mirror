@@ -48,9 +48,9 @@ namespace Mirror
                 return;
 
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
-            if (!manager.client.isConnected && !manager.server.active)
+            if (!manager.client.IsConnected && !manager.server.active)
             {
-                if (!manager.client.active)
+                if (!manager.client.Active)
                 {
                     // Server + Client
                     if (Application.platform != RuntimePlatform.WebGLPlayer)
@@ -98,7 +98,7 @@ namespace Mirror
                 {
                     GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
                 }
-                if (manager.client.isConnected)
+                if (manager.client.IsConnected)
                 {
                     GUILayout.Label("Client: address=" + serverIp);
                 }
@@ -106,7 +106,7 @@ namespace Mirror
 
 
             // stop
-            if (manager.server.active && manager.client.isConnected)
+            if (manager.server.active && manager.client.IsConnected)
             {
                 if (GUILayout.Button("Stop Host"))
                 {
@@ -114,7 +114,7 @@ namespace Mirror
                 }
             }
             // stop client if client-only
-            else if (manager.client.isConnected)
+            else if (manager.client.IsConnected)
             {
                 if (GUILayout.Button("Stop Client"))
                 {

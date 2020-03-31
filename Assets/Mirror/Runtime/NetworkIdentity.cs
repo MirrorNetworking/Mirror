@@ -58,7 +58,7 @@ namespace Mirror
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
-        public bool isClient => client != null && client.active && netId != 0 && !serverOnly;
+        public bool isClient => client != null && client.Active && netId != 0 && !serverOnly;
 
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
@@ -74,7 +74,7 @@ namespace Mirror
         /// This returns true if this object is the one that represents the player on the local machine.
         /// <para>This is set when the server has spawned an object for this particular client.</para>
         /// </summary>
-        public bool isLocalPlayer => client != null && client.localPlayer == this;
+        public bool isLocalPlayer => client != null && client.LocalPlayer == this;
 
         /// <summary>
         /// This returns true if this object is the authoritative player object on the client.

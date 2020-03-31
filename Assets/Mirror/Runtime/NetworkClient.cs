@@ -44,12 +44,12 @@ namespace Mirror
         /// <summary>
         /// The NetworkConnection object this client is using.
         /// </summary>
-        public NetworkConnectionToServer connection { get; internal set; }
+        public NetworkConnectionToServer Connection { get; internal set; }
 
         /// <summary>
         /// NetworkIdentity of the localPlayer
         /// </summary>
-        public NetworkIdentity localPlayer { get; private set; }
+        public NetworkIdentity LocalPlayer { get; private set; }
 
         internal ConnectState connectState = ConnectState.None;
 
@@ -57,12 +57,12 @@ namespace Mirror
         /// active is true while a client is connecting/connected
         /// (= while the network is active)
         /// </summary>
-        public bool active => connectState == ConnectState.Connecting || connectState == ConnectState.Connected;
+        public bool Active => connectState == ConnectState.Connecting || connectState == ConnectState.Connected;
 
         /// <summary>
         /// This gives the current connection status of the client.
         /// </summary>
-        public bool isConnected => connectState == ConnectState.Connected;
+        public bool IsConnected => connectState == ConnectState.Connected;
 
         /// <summary>
         /// List of prefabs that will be registered with the spawning system.
@@ -119,7 +119,7 @@ namespace Mirror
         /// <summary>
         /// NetworkClient can connect to local server in host mode too
         /// </summary>
-        public bool isLocalClient => hostServer != null;
+        public bool IsLocalClient => hostServer != null;
 
         void Start()
         {
@@ -144,8 +144,8 @@ namespace Mirror
             await Transport.activeTransport.ClientConnectAsync(serverIp);
 
             // setup all the handlers
-            connection = new NetworkConnectionToServer();
-            RegisterMessageHandlers(connection);
+            Connection = new NetworkConnectionToServer();
+            RegisterMessageHandlers(Connection);
             OnConnected();
         }
 
@@ -165,8 +165,8 @@ namespace Mirror
             await Transport.activeTransport.ClientConnectAsync(uri);
 
             // setup all the handlers
-            connection = new NetworkConnectionToServer();
-            RegisterMessageHandlers(connection);
+            Connection = new NetworkConnectionToServer();
+            RegisterMessageHandlers(Connection);
             OnConnected();
         }
 
@@ -179,8 +179,8 @@ namespace Mirror
             (ULocalConnectionToServer connectionToServer, ULocalConnectionToClient connectionToClient)
                 = ULocalConnectionToClient.CreateLocalConnections();
 
-            connection = connectionToServer;
-            RegisterHostHandlers(connection);
+            Connection = connectionToServer;
+            RegisterHostHandlers(Connection);
 
             // create server connection to local client
             server.SetLocalConnection(this, connectionToClient);
@@ -240,9 +240,9 @@ namespace Mirror
 
         internal void OnDataReceived(ArraySegment<byte> data, int channelId)
         {
-            if (connection != null)
+            if (Connection != null)
             {
-                connection.TransportReceive(data, channelId);
+                Connection.TransportReceive(data, channelId);
             }
             else throw new InvalidOperationException("Skipped Data message handling because connection is null.");
         }
@@ -256,7 +256,7 @@ namespace Mirror
             // thus we should set the connected state before calling the handler
             connectState = ConnectState.Connected;
             Time.UpdateClient(this);
-            Connected.Invoke((NetworkConnectionToServer)connection);
+            Connected.Invoke(Connection);
         }
 
         public void OnAuthenticated(NetworkConnectionToServer conn)
@@ -274,9 +274,9 @@ namespace Mirror
         public void Disconnect()
         {
             // local or remote connection?
-            if (isLocalClient)
+            if (IsLocalClient)
             {
-                if (isConnected)
+                if (IsConnected)
                 {
                     hostServer.Disconnected.Invoke(hostServer.localConnection);
                 }
@@ -284,9 +284,9 @@ namespace Mirror
             }
             else
             {
-                if (connection != null)
+                if (Connection != null)
                 {
-                    connection.Disconnect();
+                    Connection.Disconnect();
                     RemoveTransportHandlers();
                 }
             }
@@ -315,14 +315,14 @@ namespace Mirror
         /// <returns>True if message was sent.</returns>
         public bool Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            if (connection != null)
+            if (Connection != null)
             {
                 if (connectState != ConnectState.Connected)
                 {
                     Debug.LogError("NetworkClient Send when not connected to a server");
                     return false;
                 }
-                return connection.Send(message, channelId);
+                return Connection.Send(message, channelId);
             }
             Debug.LogError("NetworkClient Send with no connection");
             return false;
@@ -331,7 +331,7 @@ namespace Mirror
         internal void Update()
         {
             // local connection?
-            if (connection is ULocalConnectionToServer localConnection)
+            if (Connection is ULocalConnectionToServer localConnection)
             {
                 localConnection.Update();
             }
@@ -339,7 +339,7 @@ namespace Mirror
             else
             {
                 // only update things while connected
-                if (active && connectState == ConnectState.Connected)
+                if (Active && connectState == ConnectState.Connected)
                 {
                     Time.UpdateClient(this);
                 }
@@ -357,7 +357,7 @@ namespace Mirror
             connection.RegisterHandler<ObjectSpawnStartedMessage>(msg => { });
             connection.RegisterHandler<ObjectSpawnFinishedMessage>(msg => { });
             connection.RegisterHandler<UpdateVarsMessage>(msg => { });
-            connection.RegisterHandler<RpcMessage>(OnRPCMessage);
+            connection.RegisterHandler<RpcMessage>(OnRpcMessage);
             connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
@@ -370,7 +370,7 @@ namespace Mirror
             connection.RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
             connection.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
             connection.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
-            connection.RegisterHandler<RpcMessage>(OnRPCMessage);
+            connection.RegisterHandler<RpcMessage>(OnRpcMessage);
             connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
@@ -384,7 +384,7 @@ namespace Mirror
 
             ClearSpawners();
             DestroyAllClientObjects();
-            connection = null;
+            Connection = null;
             ready = false;
             isSpawnFinished = false;
 
@@ -415,16 +415,16 @@ namespace Mirror
         /// <returns>True if succcessful</returns>
         public bool RemovePlayer()
         {
-            if (LogFilter.Debug) Debug.Log("ClientScene.RemovePlayer() called with connection [" + connection + "]");
+            if (LogFilter.Debug) Debug.Log("ClientScene.RemovePlayer() called with connection [" + Connection + "]");
 
-            if (connection.identity != null)
+            if (Connection.identity != null)
             {
-                connection.Send(new RemovePlayerMessage());
+                Connection.Send(new RemovePlayerMessage());
 
-                Destroy(connection.identity.gameObject);
+                Destroy(Connection.identity.gameObject);
 
-                connection.identity = null;
-                localPlayer = null;
+                Connection.identity = null;
+                LocalPlayer = null;
 
                 return true;
             }
@@ -452,8 +452,8 @@ namespace Mirror
                 // Set these before sending the ReadyMessage, otherwise host client
                 // will fail in InternalAddPlayer with null readyConnection.
                 ready = true;
-                connection = conn;
-                connection.isReady = true;
+                Connection = conn;
+                Connection.isReady = true;
 
                 // Tell server we're ready to have a player object spawned
                 conn.Send(new ReadyMessage());
@@ -471,11 +471,11 @@ namespace Mirror
 
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
-            localPlayer = identity;
+            LocalPlayer = identity;
 
-            if (connection != null)
+            if (Connection != null)
             {
-                connection.identity = identity;
+                Connection.identity = identity;
             }
             else
             {
@@ -487,7 +487,7 @@ namespace Mirror
         {
             DestroyAllClientObjects();
             ready = false;
-            connection = null;
+            Connection = null;
 
             Disconnected.Invoke();
         }
@@ -980,7 +980,7 @@ namespace Mirror
             }
         }
 
-        internal void OnRPCMessage(RpcMessage msg)
+        internal void OnRpcMessage(RpcMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId);
 
@@ -1008,10 +1008,10 @@ namespace Mirror
 
         void CheckForLocalPlayer(NetworkIdentity identity)
         {
-            if (identity == localPlayer)
+            if (identity == LocalPlayer)
             {
                 // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
-                identity.connectionToServer = connection;
+                identity.connectionToServer = Connection;
                 identity.StartLocalPlayer();
 
                 if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);

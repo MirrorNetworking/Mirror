@@ -61,7 +61,7 @@ namespace Mirror
         /// <summary>
         /// True if there is a local client connected to this server (host mode)
         /// </summary>
-        public bool LocalClientActive => localClient != null && localClient.active;
+        public bool LocalClientActive => localClient != null && localClient.Active;
 
 
         /// <summary>

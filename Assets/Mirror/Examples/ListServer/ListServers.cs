@@ -99,8 +99,8 @@ namespace Mirror.Examples.ListServer
             }
         }
 
-        bool IsConnecting() => manager.client.active && !manager.client.ready;
-        bool FullyConnected() => manager.client.active && manager.client.ready;
+        bool IsConnecting() => manager.client.Active && !manager.client.ready;
+        bool FullyConnected() => manager.client.Active && manager.client.ready;
 
         // should we use the game server to listen connection?
         bool UseGameServerToListen()

@@ -203,7 +203,7 @@ namespace Mirror
             // this was in Weaver before
             // NOTE: we could remove this later to allow calling Cmds on Server
             //       to avoid Wrapper functions. a lot of people requested this.
-            if (!client.active)
+            if (!client.Active)
             {
                 Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
                 return;
@@ -215,7 +215,7 @@ namespace Mirror
                 throw new UnauthorizedAccessException($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
             }
 
-            if (client.connection == null)
+            if (client.Connection == null)
             {
                 throw new InvalidOperationException("Send command attempted with no client running [client=" + connectionToServer + "].");
             }
@@ -231,7 +231,7 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            client.connection.Send(message, channelId);
+            client.Connection.Send(message, channelId);
         }
 
         /// <summary>
