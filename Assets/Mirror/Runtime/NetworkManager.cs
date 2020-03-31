@@ -212,13 +212,13 @@ namespace Mirror
         /// </summary>
         public virtual void Awake()
         {
+            if (!InitializeSingleton()) return;
+
             Debug.Log("Thank you for using Mirror! https://mirror-networking.com");
 
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
             networkSceneName = offlineScene;
-
-            InitializeSingleton();
 
             // setup OnSceneLoaded callback
             SceneManager.sceneLoaded += OnSceneLoaded;
@@ -662,12 +662,9 @@ namespace Mirror
 #endif
         }
 
-        void InitializeSingleton()
+        bool InitializeSingleton()
         {
-            if (singleton != null && singleton == this)
-            {
-                return;
-            }
+            if (singleton != null && singleton == this) return true;
 
             // do this early
             LogFilter.Debug = showDebugMessages;
@@ -678,7 +675,7 @@ namespace Mirror
                 {
                     Debug.LogWarning("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will be destroyed.");
                     Destroy(gameObject);
-                    return;
+                    return false;
                 }
                 if (LogFilter.Debug) Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)");
                 singleton = this;
@@ -693,6 +690,8 @@ namespace Mirror
             // set active transport AFTER setting singleton.
             // so only if we didn't destroy ourselves.
             Transport.activeTransport = transport;
+
+            return true;
         }
 
         void RegisterServerMessages()
