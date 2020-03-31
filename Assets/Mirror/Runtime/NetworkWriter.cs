@@ -20,10 +20,10 @@ namespace Mirror
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position;
-       
+
         int length;
 
-        public int Length 
+        public int Length
         {
             get => length;
             private set
@@ -82,7 +82,7 @@ namespace Mirror
 
             buffer[Position++] = value;
         }
-            
+
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)

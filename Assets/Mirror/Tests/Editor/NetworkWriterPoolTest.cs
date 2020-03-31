@@ -72,8 +72,8 @@ namespace Mirror.Tests
             // exactly one should be reused, one should be new
             bool cReused = c == a || c == b;
             bool dReused = d == a || d == b;
-            Assert.That(( cReused && !dReused) ||
-                        (!cReused &&  dReused));
+            Assert.That((cReused && !dReused) ||
+                        (!cReused && dReused));
         }
 
         // if we shrink the capacity, the internal 'next' needs to be adjusted
@@ -120,8 +120,8 @@ namespace Mirror.Tests
             // exactly one should be reused, one should be new
             bool bReused = b == a;
             bool cReused = c == a;
-            Assert.That(( bReused && !cReused) ||
-                        (!bReused &&  cReused));
+            Assert.That((bReused && !cReused) ||
+                        (!bReused && cReused));
         }
     }
 }
