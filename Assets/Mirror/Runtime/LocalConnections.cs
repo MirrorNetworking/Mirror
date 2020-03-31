@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 
 namespace Mirror
@@ -14,7 +15,7 @@ namespace Mirror
         {
         }
 
-        public override string Address => "localhost";
+        public override EndPoint Address => new IPEndPoint(IPAddress.Loopback, 0);
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
@@ -73,7 +74,7 @@ namespace Mirror
         // to avoid race conditions. keep packets in Queue until LateUpdate.
         internal Queue<byte[]> packetQueue = new Queue<byte[]>();
 
-        public override string Address => "localhost";
+        public override EndPoint Address => new IPEndPoint(IPAddress.Loopback, 0);
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {

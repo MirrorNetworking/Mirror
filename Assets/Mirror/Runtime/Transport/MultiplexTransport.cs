@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -181,7 +182,7 @@ namespace Mirror
             return true;
         }
 
-        public override string ServerGetClientAddress(int connectionId)
+        public override EndPoint ServerGetClientAddress(int connectionId)
         {
             int baseConnectionId = ToBaseId(connectionId);
             int transportId = ToTransportId(connectionId);

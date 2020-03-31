@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Net.WebSockets;
@@ -308,13 +309,13 @@ namespace Mirror.Websocket
 
         // get connection info in case it's needed (IP etc.)
         // (we should never pass the TcpClient to the outside)
-        public string GetClientAddress(int connectionId)
+        public EndPoint GetClientAddress(int connectionId)
         {
             // find the connection
             if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 WebSocketImplementation wsClient = client as WebSocketImplementation;
-                return wsClient.Context.Client.Client.RemoteEndPoint.ToString();
+                return wsClient.Context.Client.Client.RemoteEndPoint;
 
             }
             return null;

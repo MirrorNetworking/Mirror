@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using UnityEngine;
 
 namespace Mirror
@@ -59,7 +60,7 @@ namespace Mirror
         /// The IP address / URL / FQDN associated with the connection.
         /// Can be useful for a game master to do IP Bans etc.
         /// </summary>
-        public abstract string Address { get; }
+        public abstract EndPoint Address { get; }
 
         /// <summary>
         /// The last time that a message was received on this connection.

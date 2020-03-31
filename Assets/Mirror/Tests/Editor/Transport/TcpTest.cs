@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -368,9 +369,8 @@ namespace Mirror.Tests
                 int id = await WaitForServerConnect();
 
                 // get server's connection info for that client
-                string address = server.GetClientAddress(id);
-                Debug.Log($"address {address}");
-                Assert.That(address == "127.0.0.1" || address == "::ffff:127.0.0.1");
+                IPEndPoint address = (IPEndPoint)server.GetClientAddress(id);
+                Assert.That(address.Address, Is.EqualTo(IPAddress.IPv6Loopback) | Is.EqualTo(IPAddress.Loopback) | Is.EqualTo(IPAddress.Loopback.MapToIPv6()));
 
                 client.Disconnect();
 

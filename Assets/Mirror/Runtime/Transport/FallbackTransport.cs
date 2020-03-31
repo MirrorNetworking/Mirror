@@ -3,6 +3,7 @@
 //          otherwise.
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -119,7 +120,7 @@ namespace Mirror
             return available.ServerActive();
         }
 
-        public override string ServerGetClientAddress(int connectionId)
+        public override EndPoint ServerGetClientAddress(int connectionId)
         {
             return available.ServerGetClientAddress(connectionId);
         }

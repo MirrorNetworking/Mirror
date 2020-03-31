@@ -270,12 +270,12 @@ namespace Mirror.Tcp
 
         // get connection info in case it's needed (IP etc.)
         // (we should never pass the TcpClient to the outside)
-        public string GetClientAddress(int connectionId)
+        public EndPoint GetClientAddress(int connectionId)
         {
             // find the connection
             if (clients.TryGetValue(connectionId, out TcpClient client))
             {
-                return ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+                return client.Client.RemoteEndPoint;
             }
             return null;
         }

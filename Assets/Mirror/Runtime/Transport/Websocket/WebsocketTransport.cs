@@ -132,7 +132,7 @@ namespace Mirror.Websocket
             server.Disconnect(connectionId);
         }
 
-        public override string ServerGetClientAddress(int connectionId)
+        public override EndPoint ServerGetClientAddress(int connectionId)
         {
             return server.GetClientAddress(connectionId);
         }

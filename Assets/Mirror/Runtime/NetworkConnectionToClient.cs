@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 
 namespace Mirror
@@ -10,7 +11,7 @@ namespace Mirror
         {
         }
 
-        public override string Address => Transport.activeTransport.ServerGetClientAddress(connectionId);
+        public override EndPoint Address => Transport.activeTransport.ServerGetClientAddress(connectionId);
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.

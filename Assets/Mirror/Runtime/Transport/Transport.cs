@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -156,7 +157,7 @@ namespace Mirror
         /// </summary>
         /// <param name="connectionId">id of the client</param>
         /// <returns>address of the client</returns>
-        public abstract string ServerGetClientAddress(int connectionId);
+        public abstract EndPoint ServerGetClientAddress(int connectionId);
 
         /// <summary>
         /// Stop listening for clients and disconnect all existing clients

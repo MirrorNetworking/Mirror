@@ -1,11 +1,12 @@
 using System;
+using System.Net;
 using UnityEngine;
 
 namespace Mirror
 {
     public class NetworkConnectionToServer : NetworkConnection
     {
-        public override string Address => "";
+        public override EndPoint Address => new IPEndPoint(IPAddress.Loopback, 0);
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
