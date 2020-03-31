@@ -514,8 +514,8 @@ namespace Mirror.Tests
         {
             // write 2 bytes
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteByte((byte)1);
-            writer.WriteByte((byte)2);
+            writer.WriteByte(1);
+            writer.WriteByte(2);
 
             // .ToArray() length is 2?
             Assert.That(writer.ToArray().Length, Is.EqualTo(2));
@@ -1063,25 +1063,25 @@ namespace Mirror.Tests
             // write all simple types once
             NetworkWriter writer = new NetworkWriter();
             writer.WriteChar((char)1);
-            writer.WriteByte((byte)2);
-            writer.WriteSByte((sbyte)3);
+            writer.WriteByte(2);
+            writer.WriteSByte(3);
             writer.WriteBoolean(true);
-            writer.WriteInt16((short)4);
-            writer.WriteUInt16((ushort)5);
+            writer.WriteInt16(4);
+            writer.WriteUInt16(5);
             writer.WriteInt32(6);
             writer.WriteUInt32(7U);
             writer.WriteInt64(8L);
             writer.WriteUInt64(9UL);
             writer.WriteSingle(10.0F);
             writer.WriteDouble(11.0D);
-            writer.WriteDecimal((decimal)12);
-            writer.WriteString((string)null);
+            writer.WriteDecimal(12);
+            writer.WriteString(null);
             writer.WriteString("");
             writer.WriteString("13");
             // just the byte array, no size info etc.
             writer.WriteBytes(new byte[] { 14, 15 }, 0, 2);
             // [SyncVar] struct values can have uninitialized byte arrays, null needs to be supported
-            writer.WriteBytesAndSize((byte[])null);
+            writer.WriteBytesAndSize(null);
             // buffer, no-offset, count
             writer.WriteBytesAndSize(new byte[] { 17, 18 }, 0, 2);
             // buffer, offset, count

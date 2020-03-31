@@ -141,7 +141,7 @@ namespace Mirror
 
         public static void WriteSByte(this NetworkWriter writer, sbyte value) => writer.WriteByte((byte)value);
 
-        public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteUInt16((ushort)value);
+        public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteUInt16(value);
 
         public static void WriteBoolean(this NetworkWriter writer, bool value) => writer.WriteByte((byte)(value ? 1 : 0));
 
@@ -192,7 +192,7 @@ namespace Mirror
             //        on the client)
             if (value == null)
             {
-                writer.WriteUInt16((ushort)0);
+                writer.WriteUInt16(0);
                 return;
             }
 
@@ -277,14 +277,14 @@ namespace Mirror
             }
             if (value <= 67823)
             {
-                writer.WriteByte((byte)249);
+                writer.WriteByte(249);
                 writer.WriteByte((byte)((value - 2288) >> 8));
                 writer.WriteByte((byte)(value - 2288));
                 return;
             }
             if (value <= 16777215)
             {
-                writer.WriteByte((byte)250);
+                writer.WriteByte(250);
                 writer.WriteByte((byte)value);
                 writer.WriteByte((byte)(value >> 8));
                 writer.WriteByte((byte)(value >> 16));
@@ -292,7 +292,7 @@ namespace Mirror
             }
             if (value <= 4294967295)
             {
-                writer.WriteByte((byte)251);
+                writer.WriteByte(251);
                 writer.WriteByte((byte)value);
                 writer.WriteByte((byte)(value >> 8));
                 writer.WriteByte((byte)(value >> 16));
@@ -301,7 +301,7 @@ namespace Mirror
             }
             if (value <= 1099511627775)
             {
-                writer.WriteByte((byte)252);
+                writer.WriteByte(252);
                 writer.WriteByte((byte)value);
                 writer.WriteByte((byte)(value >> 8));
                 writer.WriteByte((byte)(value >> 16));
@@ -311,7 +311,7 @@ namespace Mirror
             }
             if (value <= 281474976710655)
             {
-                writer.WriteByte((byte)253);
+                writer.WriteByte(253);
                 writer.WriteByte((byte)value);
                 writer.WriteByte((byte)(value >> 8));
                 writer.WriteByte((byte)(value >> 16));
@@ -322,7 +322,7 @@ namespace Mirror
             }
             if (value <= 72057594037927935)
             {
-                writer.WriteByte((byte)254);
+                writer.WriteByte(254);
                 writer.WriteByte((byte)value);
                 writer.WriteByte((byte)(value >> 8));
                 writer.WriteByte((byte)(value >> 16));
@@ -335,7 +335,7 @@ namespace Mirror
 
             // all others
             {
-                writer.WriteByte((byte)255);
+                writer.WriteByte(255);
                 writer.WriteByte((byte)value);
                 writer.WriteByte((byte)(value >> 8));
                 writer.WriteByte((byte)(value >> 16));

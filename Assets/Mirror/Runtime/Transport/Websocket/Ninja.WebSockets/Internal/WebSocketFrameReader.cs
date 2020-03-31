@@ -107,7 +107,7 @@ namespace Ninja.WebSockets.Internal
             {
                 // network byte order
                 Array.Reverse(buffer.Array, buffer.Offset, 2);
-                int closeStatusCode = (int)BitConverter.ToUInt16(buffer.Array, buffer.Offset);
+                int closeStatusCode = BitConverter.ToUInt16(buffer.Array, buffer.Offset);
                 if (Enum.IsDefined(typeof(WebSocketCloseStatus), closeStatusCode))
                 {
                     closeStatus = (WebSocketCloseStatus)closeStatusCode;
