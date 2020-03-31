@@ -53,7 +53,8 @@ namespace Mirror.Tests
             data[0] = 0x01;
             data[1] = 0x02;
 
-            Assert.Throws<FormatException>(() => {
+            Assert.Throws<FormatException>(() =>
+            {
                 SceneMessage unpacked = MessagePacker.Unpack<SceneMessage>(data);
             });
         }
@@ -78,7 +79,7 @@ namespace Mirror.Tests
 
         [Test]
         public void UnpackInvalidMessage()
-        { 
+        {
             // try an invalid message
             NetworkReader reader2 = new NetworkReader(new byte[0]);
             bool result2 = MessagePacker.UnpackMessage(reader2, out int msgType2);

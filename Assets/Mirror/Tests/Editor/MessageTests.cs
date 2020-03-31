@@ -95,7 +95,8 @@ namespace Mirror.Tests
             // try setting value with constructor
             NotReadyMessage message = new NotReadyMessage();
             byte[] arr = MessagePacker.Pack(message);
-            Assert.DoesNotThrow(() => { 
+            Assert.DoesNotThrow(() =>
+            {
                 NotReadyMessage fresh = MessagePacker.Unpack<NotReadyMessage>(arr);
             });
         }
@@ -132,7 +133,8 @@ namespace Mirror.Tests
             // try setting value with constructor
             ObjectSpawnFinishedMessage message = new ObjectSpawnFinishedMessage();
             byte[] arr = MessagePacker.Pack(message);
-            Assert.DoesNotThrow(() => {
+            Assert.DoesNotThrow(() =>
+            {
                 ObjectSpawnFinishedMessage fresh = MessagePacker.Unpack<ObjectSpawnFinishedMessage>(arr);
             });
         }
@@ -143,7 +145,8 @@ namespace Mirror.Tests
             // try setting value with constructor
             ObjectSpawnStartedMessage message = new ObjectSpawnStartedMessage();
             byte[] arr = MessagePacker.Pack(message);
-            Assert.DoesNotThrow(() => {
+            Assert.DoesNotThrow(() =>
+            {
                 ObjectSpawnStartedMessage fresh = MessagePacker.Unpack<ObjectSpawnStartedMessage>(arr);
             });
         }
@@ -154,7 +157,8 @@ namespace Mirror.Tests
             // try setting value with constructor
             ReadyMessage message = new ReadyMessage();
             byte[] arr = MessagePacker.Pack(message);
-            Assert.DoesNotThrow(() => {
+            Assert.DoesNotThrow(() =>
+            {
                 ReadyMessage fresh = MessagePacker.Unpack<ReadyMessage>(arr);
             });
         }
@@ -165,7 +169,8 @@ namespace Mirror.Tests
             // try setting value with constructor
             RemovePlayerMessage message = new RemovePlayerMessage();
             byte[] arr = MessagePacker.Pack(message);
-            Assert.DoesNotThrow(() => {
+            Assert.DoesNotThrow(() =>
+            {
                 RemovePlayerMessage fresh = MessagePacker.Unpack<RemovePlayerMessage>(arr);
             });
         }

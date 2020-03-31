@@ -18,7 +18,7 @@ namespace Mirror.Weaver
             {
                 if (fd.HasCustomAttribute(Weaver.SyncVarType))
                     Weaver.Error($"[SyncVar] {fd} must be inside a NetworkBehaviour.  {td} is not a NetworkBehaviour");
- 
+
                 if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
                 {
                     Weaver.Error($"{fd} is a SyncObject and must be inside a NetworkBehaviour.  {td} is not a NetworkBehaviour");

@@ -31,7 +31,7 @@ namespace Mirror.Weaver
         //  this returns the newly created method with all the user provided code
         public static MethodDefinition SubstituteMethod(TypeDefinition td, MethodDefinition md, string newName)
         {
-            MethodDefinition cmd = new MethodDefinition(newName,md.Attributes, md.ReturnType);
+            MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
             // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
