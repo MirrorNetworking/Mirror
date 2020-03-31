@@ -1,8 +1,8 @@
-using UnityEngine;
+using System;
 using System.Net;
 using System.Net.Sockets;
-using System;
 using System.Threading.Tasks;
+using UnityEngine;
 
 // Based on https://github.com/EnlightenedOne/MirrorNetworkDiscovery
 // forked from https://github.com/in0finite/MirrorNetworkDiscovery

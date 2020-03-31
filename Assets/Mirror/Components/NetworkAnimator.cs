@@ -1,6 +1,6 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
-using System.Linq;
 
 namespace Mirror
 {
