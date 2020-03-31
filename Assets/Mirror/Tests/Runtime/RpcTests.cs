@@ -46,7 +46,7 @@ namespace Mirror.Tests
         }
     }
 
-    public class RpcTests : HostTests<RpcComponent>
+    public class RpcTests : HostSetup<RpcComponent>
     {
         [Test]
         public void CommandWithoutAuthority()

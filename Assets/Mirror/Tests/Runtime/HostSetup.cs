@@ -8,7 +8,7 @@ namespace Mirror.Tests
 
     // set's up a host
 
-    public class HostTests<T> where T : NetworkBehaviour
+    public class HostSetup<T> where T : NetworkBehaviour
     {
 
         #region Setup

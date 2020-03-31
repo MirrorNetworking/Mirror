@@ -25,7 +25,7 @@ namespace Mirror.Tests
         public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) { }
     }
 
-    public class NetworkBehaviourTests : HostTests<SampleBehavior>
+    public class NetworkBehaviourTests : HostSetup<SampleBehavior>
     {
         #region Component flags
         [Test]
