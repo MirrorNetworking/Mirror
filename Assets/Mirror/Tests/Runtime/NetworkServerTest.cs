@@ -471,13 +471,13 @@ namespace Mirror.Tests
             // add an identity with a networkbehaviour to .spawned
             var go = new GameObject();
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
-            identity.netId = 42;
+            identity.NetId = 42;
             // for authority check
             //identity.connectionToClient = connection;
             OnStartClientTestNetworkBehaviour comp = go.AddComponent<OnStartClientTestNetworkBehaviour>();
             Assert.That(comp.called, Is.EqualTo(0));
             //connection.identity = identity;
-            server.spawned[identity.netId] = identity;
+            server.spawned[identity.NetId] = identity;
             identity.OnStartClient.AddListener(comp.OnStartClient);
 
             // ActivateHostScene
@@ -609,7 +609,7 @@ namespace Mirror.Tests
 
             // create a gameobject and networkidentity
             NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
-            identity.connectionToClient = connection;
+            identity.ConnectionToClient = connection;
 
             // send it to that player
             server.SendToClientOfPlayer(identity, message);
@@ -671,7 +671,7 @@ namespace Mirror.Tests
 
             // create a gameobject and networkidentity and some unique values
             NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
-            identity.connectionToClient = connection;
+            identity.ConnectionToClient = connection;
 
             // call ShowForConnection
             server.ShowForConnection(identity, connection);
@@ -712,7 +712,7 @@ namespace Mirror.Tests
 
             // create a gameobject and networkidentity
             NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
-            identity.connectionToClient = connection;
+            identity.ConnectionToClient = connection;
 
             // call HideForConnection
             server.HideForConnection(identity, connection);

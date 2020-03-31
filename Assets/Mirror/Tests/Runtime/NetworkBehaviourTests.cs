@@ -113,22 +113,22 @@ namespace Mirror.Tests
         [Test]
         public void HasIdentitysNetId()
         {
-            identity.netId = 42;
+            identity.NetId = 42;
             Assert.That(component.NetId, Is.EqualTo(42));
         }
 
         [Test]
         public void HasIdentitysConnectionToServer()
         {
-            (identity.connectionToServer, _) = ULocalConnectionToClient.CreateLocalConnections();
-            Assert.That(component.ConnectionToServer, Is.EqualTo(identity.connectionToServer));
+            (identity.ConnectionToServer, _) = ULocalConnectionToClient.CreateLocalConnections();
+            Assert.That(component.ConnectionToServer, Is.EqualTo(identity.ConnectionToServer));
         }
 
         [Test]
         public void HasIdentitysConnectionToClient()
         {
-            (_, identity.connectionToClient) = ULocalConnectionToClient.CreateLocalConnections();
-            Assert.That(component.ConnectionToClient, Is.EqualTo(identity.connectionToClient));
+            (_, identity.ConnectionToClient) = ULocalConnectionToClient.CreateLocalConnections();
+            Assert.That(component.ConnectionToClient, Is.EqualTo(identity.ConnectionToClient));
         }
 
         [Test]
@@ -227,10 +227,10 @@ namespace Mirror.Tests
         public void SyncVarGameObjectEqualNull()
         {
             // our identity should have a netid for comparing
-            identity.netId = 42;
+            identity.NetId = 42;
 
             // null should return false
-            bool result = component.SyncVarGameObjectEqualExposed(null, identity.netId);
+            bool result = component.SyncVarGameObjectEqualExposed(null, identity.NetId);
             Assert.That(result, Is.False);
         }
 
@@ -254,11 +254,11 @@ namespace Mirror.Tests
         public void SyncVarGameObjectEqualWithoutIdentityComponent()
         {
             // our identity should have a netid for comparing
-            identity.netId = 42;
+            identity.NetId = 42;
 
             // gameobject without networkidentity component should return false
             var go = new GameObject();
-            bool result = component.SyncVarGameObjectEqualExposed(go, identity.netId);
+            bool result = component.SyncVarGameObjectEqualExposed(go, identity.NetId);
             Assert.That(result, Is.False);
 
             // clean up
@@ -270,13 +270,13 @@ namespace Mirror.Tests
         public void SyncVarGameObjectEqualValidGOWithDifferentNetId()
         {
             // our identity should have a netid for comparing
-            identity.netId = 42;
+            identity.NetId = 42;
 
             // gameobject with valid networkidentity and netid that is different
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            ni.netId = 43;
-            bool result = component.SyncVarGameObjectEqualExposed(go, identity.netId);
+            ni.NetId = 43;
+            bool result = component.SyncVarGameObjectEqualExposed(go, identity.NetId);
             Assert.That(result, Is.False);
 
             // clean up
@@ -288,13 +288,13 @@ namespace Mirror.Tests
         public void SyncVarGameObjectEqualValidGOWithSameNetId()
         {
             // our identity should have a netid for comparing
-            identity.netId = 42;
+            identity.NetId = 42;
 
             // gameobject with valid networkidentity and netid that is different
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            ni.netId = 42;
-            bool result = component.SyncVarGameObjectEqualExposed(go, identity.netId);
+            ni.NetId = 42;
+            bool result = component.SyncVarGameObjectEqualExposed(go, identity.NetId);
             Assert.That(result, Is.True);
 
             // clean up
@@ -306,13 +306,13 @@ namespace Mirror.Tests
         public void SyncVarGameObjectEqualUnspawnedGO()
         {
             // our identity should have a netid for comparing
-            identity.netId = 42;
+            identity.NetId = 42;
 
             // gameobject with valid networkidentity and 0 netid that is unspawned
             var go = new GameObject();
             go.AddComponent<NetworkIdentity>();
             LogAssert.Expect(LogType.Warning, "SetSyncVarGameObject GameObject " + go + " has a zero netId. Maybe it is not spawned yet?");
-            bool result = component.SyncVarGameObjectEqualExposed(go, identity.netId);
+            bool result = component.SyncVarGameObjectEqualExposed(go, identity.NetId);
             Assert.That(result, Is.False);
 
             // clean up
@@ -353,10 +353,10 @@ namespace Mirror.Tests
         public void SyncVarNetworkIdentityEqualNull()
         {
             // our identity should have a netid for comparing
-            identity.netId = 42;
+            identity.NetId = 42;
 
             // null should return false
-            bool result = component.SyncVarGameObjectEqualExposed(null, identity.netId);
+            bool result = component.SyncVarGameObjectEqualExposed(null, identity.NetId);
             Assert.That(result, Is.False);
         }
 
@@ -365,13 +365,13 @@ namespace Mirror.Tests
         public void SyncVarNetworkIdentityEqualValidIdentityWithDifferentNetId()
         {
             // our identity should have a netid for comparing
-            identity.netId = 42;
+            identity.NetId = 42;
 
             // gameobject with valid networkidentity and netid that is different
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            ni.netId = 43;
-            bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
+            ni.NetId = 43;
+            bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.NetId);
             Assert.That(result, Is.False);
 
             // clean up
@@ -383,13 +383,13 @@ namespace Mirror.Tests
         public void SyncVarNetworkIdentityEqualValidIdentityWithSameNetId()
         {
             // our identity should have a netid for comparing
-            identity.netId = 42;
+            identity.NetId = 42;
 
             // gameobject with valid networkidentity and netid that is different
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            ni.netId = 42;
-            bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
+            ni.NetId = 42;
+            bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.NetId);
             Assert.That(result, Is.True);
 
             // clean up
@@ -401,13 +401,13 @@ namespace Mirror.Tests
         public void SyncVarNetworkIdentityEqualUnspawnedIdentity()
         {
             // our identity should have a netid for comparing
-            identity.netId = 42;
+            identity.NetId = 42;
 
             // gameobject with valid networkidentity and 0 netid that is unspawned
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             LogAssert.Expect(LogType.Warning, "SetSyncVarNetworkIdentity NetworkIdentity " + ni + " has a zero netId. Maybe it is not spawned yet?");
-            bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
+            bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.NetId);
             Assert.That(result, Is.False);
 
             // clean up

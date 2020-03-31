@@ -307,7 +307,7 @@ namespace Mirror
             visList.Add(identity);
 
             // spawn identity for this conn
-            identity.server.ShowForConnection(identity, this);
+            identity.Server.ShowForConnection(identity, this);
         }
 
         internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
@@ -317,7 +317,7 @@ namespace Mirror
             if (!isDestroyed)
             {
                 // hide identity for this conn
-                identity.server.HideForConnection(identity, this);
+                identity.Server.HideForConnection(identity, this);
             }
         }
 
@@ -419,7 +419,7 @@ namespace Mirror
             {
                 if (netIdentity != null)
                 {
-                    Identity.server.Destroy(netIdentity.gameObject);
+                    Identity.Server.Destroy(netIdentity.gameObject);
                 }
             }
 

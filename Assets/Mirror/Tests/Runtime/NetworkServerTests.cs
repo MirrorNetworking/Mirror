@@ -36,7 +36,7 @@ namespace Mirror.Tests
             gameObject.AddComponent<NetworkIdentity>();
             testServer.Spawn(gameObject);
 
-            Assert.That(gameObject.GetComponent<NetworkIdentity>().server == testServer);
+            Assert.That(gameObject.GetComponent<NetworkIdentity>().Server == testServer);
         }
 
 

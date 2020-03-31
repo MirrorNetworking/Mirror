@@ -277,8 +277,8 @@ namespace Mirror.Weaver
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
 
             NetworkBehaviourGetIdentity = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_NetIdentity");
-            NetworkIdentityGetServer = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_server");
-            NetworkIdentityGetClient = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_client");
+            NetworkIdentityGetServer = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_Server");
+            NetworkIdentityGetClient = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_Client");
 
             NetworkBehaviourIsServer = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsServer");
             NetworkBehaviourIsClient = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsClient");

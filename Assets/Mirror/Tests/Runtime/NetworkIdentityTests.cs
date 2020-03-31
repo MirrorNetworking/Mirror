@@ -62,31 +62,31 @@ namespace Mirror.Tests
         [Test]
         public void IsServer()
         {
-            Assert.That(identity.isServer, Is.False);
+            Assert.That(identity.IsServer, Is.False);
             // create a networkidentity with our test component
             server.Spawn(gameObject);
 
-            Assert.That(identity.isServer, Is.True);
+            Assert.That(identity.IsServer, Is.True);
         }
 
         [Test]
         public void IsClient()
         {
-            Assert.That(identity.isClient, Is.False);
+            Assert.That(identity.IsClient, Is.False);
             // create a networkidentity with our test component
             server.Spawn(gameObject);
 
-            Assert.That(identity.isClient, Is.True);
+            Assert.That(identity.IsClient, Is.True);
         }
 
         [Test]
         public void IsLocalPlayer()
         {
-            Assert.That(identity.isLocalPlayer, Is.False);
+            Assert.That(identity.IsLocalPlayer, Is.False);
             // create a networkidentity with our test component
             server.Spawn(gameObject);
 
-            Assert.That(identity.isLocalPlayer, Is.False);
+            Assert.That(identity.IsLocalPlayer, Is.False);
         }
 
         [Test]
@@ -120,7 +120,7 @@ namespace Mirror.Tests
         {
             // create a networkidentity with our test component
             server.Spawn(gameObject);
-            Assert.That(identity.connectionToClient, Is.Null);
+            Assert.That(identity.ConnectionToClient, Is.Null);
         }
 
         [Test]
@@ -130,14 +130,14 @@ namespace Mirror.Tests
             server.Spawn(gameObject);
             identity.AssignClientAuthority(server.localConnection);
 
-            Assert.That(identity.connectionToClient, Is.SameAs(server.localConnection));
+            Assert.That(identity.ConnectionToClient, Is.SameAs(server.localConnection));
         }
 
         [Test]
         public void SpawnWithAuthority()
         {
             server.Spawn(gameObject, server.localConnection);
-            Assert.That(identity.connectionToClient, Is.SameAs(server.localConnection));
+            Assert.That(identity.ConnectionToClient, Is.SameAs(server.localConnection));
         }
 
         [Test]
@@ -203,7 +203,7 @@ namespace Mirror.Tests
             server.Spawn(gameObject);
             identity.AssignClientAuthority(server.localConnection);
             identity.RemoveClientAuthority();
-            Assert.That(identity.connectionToClient, Is.Null);
+            Assert.That(identity.ConnectionToClient, Is.Null);
         }
 
     }

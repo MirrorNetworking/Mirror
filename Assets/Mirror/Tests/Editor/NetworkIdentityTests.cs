@@ -179,7 +179,7 @@ namespace Mirror.Tests
 
             gameObject = new GameObject();
             identity = gameObject.AddComponent<NetworkIdentity>();
-            identity.server = server;
+            identity.Server = server;
         }
 
         [TearDown]
@@ -214,10 +214,10 @@ namespace Mirror.Tests
         {
             // assign a guid
             var guid = new Guid(0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B);
-            identity.assetId = guid;
+            identity.AssetId = guid;
 
             // did it work?
-            Assert.That(identity.assetId, Is.EqualTo(guid));
+            Assert.That(identity.AssetId, Is.EqualTo(guid));
         }
 
         [Test]
@@ -226,7 +226,7 @@ namespace Mirror.Tests
             // SetClientOwner
             (_, ULocalConnectionToClient original) = ULocalConnectionToClient.CreateLocalConnections();
             identity.SetClientOwner(original);
-            Assert.That(identity.connectionToClient, Is.EqualTo(original));
+            Assert.That(identity.ConnectionToClient, Is.EqualTo(original));
         }
 
         [Test]
@@ -244,7 +244,7 @@ namespace Mirror.Tests
                 identity.SetClientOwner(overwrite);
             });
 
-            Assert.That(identity.connectionToClient, Is.EqualTo(original));
+            Assert.That(identity.ConnectionToClient, Is.EqualTo(original));
         }
 
         [Test]
@@ -309,7 +309,7 @@ namespace Mirror.Tests
         {
             // OnValidate will have been called. make sure that assetId was set
             // to 0 empty and not anything else, because this is a scene object
-            Assert.That(identity.assetId, Is.EqualTo(Guid.Empty));
+            Assert.That(identity.AssetId, Is.EqualTo(Guid.Empty));
         }
 
         [Test]
@@ -414,37 +414,37 @@ namespace Mirror.Tests
             identity.OnStopAuthority.AddListener(stopAuthFunc);
 
             // set authority from false to true, which should call OnStartAuthority
-            identity.hasAuthority = true;
+            identity.HasAuthority = true;
             identity.NotifyAuthority();
             // shouldn't be touched
-            Assert.That(identity.hasAuthority, Is.True);
+            Assert.That(identity.HasAuthority, Is.True);
             // start should be called
             startAuthFunc.Received(1).Invoke();
             stopAuthFunc.Received(0).Invoke();
 
             // set it to true again, should do nothing because already true
-            identity.hasAuthority = true;
+            identity.HasAuthority = true;
             identity.NotifyAuthority();
             // shouldn't be touched
-            Assert.That(identity.hasAuthority, Is.True);
+            Assert.That(identity.HasAuthority, Is.True);
             // same as before
             startAuthFunc.Received(1).Invoke();
             stopAuthFunc.Received(0).Invoke();
 
             // set it to false, should call OnStopAuthority
-            identity.hasAuthority = false;
+            identity.HasAuthority = false;
             identity.NotifyAuthority();
             // shouldn't be touched
-            Assert.That(identity.hasAuthority, Is.False);
+            Assert.That(identity.HasAuthority, Is.False);
             // same as before
             startAuthFunc.Received(1).Invoke();
             stopAuthFunc.Received(1).Invoke();
 
             // set it to false again, should do nothing because already false
-            identity.hasAuthority = false;
+            identity.HasAuthority = false;
             identity.NotifyAuthority();
             // shouldn't be touched
-            Assert.That(identity.hasAuthority, Is.False);
+            Assert.That(identity.HasAuthority, Is.False);
             // same as before
             startAuthFunc.Received(1).Invoke();
             stopAuthFunc.Received(1).Invoke();
@@ -704,7 +704,7 @@ namespace Mirror.Tests
         public void AddObserver()
         {
 
-            identity.server = server;
+            identity.Server = server;
             // create some connections
             var connection1 = new NetworkConnectionToClient(42);
             var connection2 = new NetworkConnectionToClient(43);
@@ -753,23 +753,23 @@ namespace Mirror.Tests
             // modify it a bit
             // creates .observers and generates a netId
             identity.StartServer();
-            uint netId = identity.netId;
-            identity.connectionToClient = new NetworkConnectionToClient(1);
-            identity.connectionToServer = new NetworkConnectionToServer();
+            uint netId = identity.NetId;
+            identity.ConnectionToClient = new NetworkConnectionToClient(1);
+            identity.ConnectionToServer = new NetworkConnectionToServer();
             identity.observers.Add(new NetworkConnectionToClient(2));
 
             // calling reset shouldn't do anything unless it was marked for reset
             identity.Reset();
-            Assert.That(identity.netId, Is.EqualTo(netId));
-            Assert.That(identity.connectionToClient, !Is.Null);
-            Assert.That(identity.connectionToServer, !Is.Null);
+            Assert.That(identity.NetId, Is.EqualTo(netId));
+            Assert.That(identity.ConnectionToClient, !Is.Null);
+            Assert.That(identity.ConnectionToServer, !Is.Null);
 
             // mark for reset and reset
             identity.MarkForReset();
             identity.Reset();
-            Assert.That(identity.netId, Is.EqualTo(0));
-            Assert.That(identity.connectionToClient, Is.Null);
-            Assert.That(identity.connectionToServer, Is.Null);
+            Assert.That(identity.NetId, Is.EqualTo(0));
+            Assert.That(identity.ConnectionToClient, Is.Null);
+            Assert.That(identity.ConnectionToServer, Is.Null);
         }
 
 
@@ -814,7 +814,7 @@ namespace Mirror.Tests
             owner.connectionToServer.isAuthenticated = true;
             int ownerCalled = 0;
             owner.connectionToServer.RegisterHandler<UpdateVarsMessage>(msg => ++ownerCalled);
-            identity.connectionToClient = owner;
+            identity.ConnectionToClient = owner;
 
             // add an observer connection that will receive the updates
             (_, ULocalConnectionToClient observer)
@@ -920,14 +920,14 @@ namespace Mirror.Tests
             // add own player connection
             (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
             connection.isReady = true;
-            identity.connectionToClient = connection;
+            identity.ConnectionToClient = connection;
 
             // call OnStartServer so that observers dict is created
             identity.StartServer();
 
             // rebuild should at least add own ready player
             identity.RebuildObservers(true);
-            Assert.That(identity.observers, Does.Contain(identity.connectionToClient));
+            Assert.That(identity.observers, Does.Contain(identity.ConnectionToClient));
         }
 
         // RebuildObservers should always add the own ready connection
@@ -941,14 +941,14 @@ namespace Mirror.Tests
 
             // add own player connection that isn't ready
             (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
-            identity.connectionToClient = connection;
+            identity.ConnectionToClient = connection;
 
             // call OnStartServer so that observers dict is created
             identity.StartServer();
 
             // rebuild shouldn't add own player because conn wasn't set ready
             identity.RebuildObservers(true);
-            Assert.That(identity.observers, Does.Not.Contains(identity.connectionToClient));
+            Assert.That(identity.observers, Does.Not.Contains(identity.ConnectionToClient));
         }
 
     }

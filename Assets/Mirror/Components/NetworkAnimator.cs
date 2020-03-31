@@ -56,7 +56,7 @@ namespace Mirror
                     //
                     // So we check here for a connectionToClient and if it is null we will
                     // let the server send animation data until we receive an owner.
-                    if (NetIdentity != null && NetIdentity.connectionToClient == null)
+                    if (NetIdentity != null && NetIdentity.ConnectionToClient == null)
                         return true;
                 }
 

@@ -135,9 +135,9 @@ namespace Mirror
                 // (looks in the object itself and then parents)
                 NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
                 // (if an object has a connectionToClient, it is a player)
-                if (identity != null && identity.connectionToClient != null)
+                if (identity != null && identity.ConnectionToClient != null)
                 {
-                    observers.Add(identity.connectionToClient);
+                    observers.Add(identity.ConnectionToClient);
                 }
             }
         }
@@ -155,9 +155,9 @@ namespace Mirror
                 // (looks in the object itself and then parents)
                 NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
                 // (if an object has a connectionToClient, it is a player)
-                if (identity != null && identity.connectionToClient != null)
+                if (identity != null && identity.ConnectionToClient != null)
                 {
-                    observers.Add(identity.connectionToClient);
+                    observers.Add(identity.ConnectionToClient);
                 }
             }
         }

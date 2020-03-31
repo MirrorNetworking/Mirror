@@ -58,30 +58,30 @@ namespace Mirror
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
-        public bool isClient => client != null && client.Active && netId != 0 && !serverOnly;
+        public bool IsClient => Client != null && Client.Active && NetId != 0 && !serverOnly;
 
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
         /// </summary>
-        public bool isServer => server != null && server.active && netId != 0;
+        public bool IsServer => Server != null && Server.active && NetId != 0;
 
         /// <summary>
         /// Returns true if we're on host mode.
         /// </summary>
-        public bool isLocalClient => server != null && server.LocalClientActive;
+        public bool IsLocalClient => Server != null && Server.LocalClientActive;
 
         /// <summary>
         /// This returns true if this object is the one that represents the player on the local machine.
         /// <para>This is set when the server has spawned an object for this particular client.</para>
         /// </summary>
-        public bool isLocalPlayer => client != null && client.LocalPlayer == this;
+        public bool IsLocalPlayer => Client != null && Client.LocalPlayer == this;
 
         /// <summary>
         /// This returns true if this object is the authoritative player object on the client.
         /// <para>This value is determined at runtime. For most objects, authority is held by the server.</para>
         /// <para>For objects that had their authority set by AssignClientAuthority on the server, this will be true on the client that owns the object. NOT on other clients.</para>
         /// </summary>
-        public bool hasAuthority { get; internal set; }
+        public bool HasAuthority { get; internal set; }
 
         /// <summary>
         /// The set of network connections (players) that can see this object.
@@ -93,7 +93,7 @@ namespace Mirror
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
         /// <para>This is a unique identifier for this particular GameObject instance. Use it to track GameObjects between networked clients and the server.</para>
         /// </summary>
-        public uint netId { get; internal set; }
+        public uint NetId { get; internal set; }
 
         /// <summary>
         /// A unique identifier for NetworkIdentity objects within a scene.
@@ -112,17 +112,17 @@ namespace Mirror
         /// <summary>
         /// The NetworkServer associated with this NetworkIdentity.
         /// </summary>
-        public NetworkServer server { get; internal set; }
+        public NetworkServer Server { get; internal set; }
 
         /// <summary>
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
         /// </summary>
-        public NetworkConnection connectionToServer { get; internal set; }
+        public NetworkConnection ConnectionToServer { get; internal set; }
 
         /// <summary>
         /// The NetworkClient associated with this NetworkIdentity.
         /// </summary>
-        public NetworkClient client { get; internal set; }
+        public NetworkClient Client { get; internal set; }
 
         NetworkConnectionToClient _connectionToClient;
 
@@ -130,7 +130,7 @@ namespace Mirror
         /// The NetworkConnection associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is valid for player and other owned objects in the server.
         /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
         /// </summary>
-        public NetworkConnectionToClient connectionToClient
+        public NetworkConnectionToClient ConnectionToClient
         {
             get => _connectionToClient;
 
@@ -160,7 +160,7 @@ namespace Mirror
         /// <summary>
         /// Unique identifier used to find the source assets when server spawns the on clients.
         /// </summary>
-        public Guid assetId
+        public Guid AssetId
         {
             get
             {
@@ -207,7 +207,7 @@ namespace Mirror
         public UnityEvent OnStartLocalPlayer = new UnityEvent();
 
         /// <summary>
-        /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see>.
+        /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.HasAuthority">NetworkIdentity.hasAuthority</see>.
         /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and before <see cref="OnStartClient">OnStartClient.</see></para>
         /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
         /// </summary>
@@ -237,13 +237,13 @@ namespace Mirror
         internal void SetClientOwner(NetworkConnection conn)
         {
             // do nothing if it already has an owner
-            if (connectionToClient != null && conn != connectionToClient)
+            if (ConnectionToClient != null && conn != ConnectionToClient)
             {
-                throw new InvalidOperationException($"Object {this} netId={netId} already has an owner. Use RemoveClientAuthority() first");
+                throw new InvalidOperationException($"Object {this} netId={NetId} already has an owner. Use RemoveClientAuthority() first");
             }
 
             // otherwise set the owner connection
-            connectionToClient = (NetworkConnectionToClient)conn;
+            ConnectionToClient = (NetworkConnectionToClient)conn;
         }
 
         static uint nextNetworkId = 1;
@@ -536,16 +536,16 @@ namespace Mirror
             // We cover their mistake by calling NetworkServer.Destroy for them.
             // If, however, they call NetworkServer.Destroy correctly, which leads to NetworkIdentity.MarkForReset,
             // then we don't need to call it again, so the check for reset is needed to prevent the doubling.
-            if (isServer && !reset)
+            if (IsServer && !reset)
             {
-                server.Destroy(gameObject);
+                Server.Destroy(gameObject);
             }
         }
 
         internal void StartServer()
         {
             // do nothing if already spawned
-            if (isServer)
+            if (IsServer)
                 return;
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
@@ -553,7 +553,7 @@ namespace Mirror
             //       check already checks netId. BUT this case here checks only
             //       netId, so it would still check cases where isServer=false
             //       but netId!=0.
-            if (netId != 0)
+            if (NetId != 0)
             {
                 // This object has already been spawned, this method might be called again
                 // if we try to respawn all objects.  This can happen when we add a scene
@@ -561,14 +561,14 @@ namespace Mirror
                 return;
             }
 
-            netId = GetNextNetworkId();
+            NetId = GetNextNetworkId();
             observers = new HashSet<NetworkConnection>();
 
-            if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
+            if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + NetId + " SceneId:" + sceneId);
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
-            server.spawned[netId] = this;
+            Server.spawned[NetId] = this;
 
             OnStartServer.Invoke();
         }
@@ -583,7 +583,7 @@ namespace Mirror
             OnStartClient.Invoke();
         }
 
-        static NetworkIdentity previousLocalPlayer = null;
+        static NetworkIdentity previousLocalPlayer;
         internal void StartLocalPlayer()
         {
             if (previousLocalPlayer == this)
@@ -596,11 +596,11 @@ namespace Mirror
         bool hadAuthority;
         internal void NotifyAuthority()
         {
-            if (!hadAuthority && hasAuthority)
+            if (!hadAuthority && HasAuthority)
                 StartAuthority();
-            if (hadAuthority && !hasAuthority)
+            if (hadAuthority && !HasAuthority)
                 StopAuthority();
-            hadAuthority = hasAuthority;
+            hadAuthority = HasAuthority;
         }
 
         internal void StartAuthority()
@@ -797,7 +797,7 @@ namespace Mirror
         {
             // hack needed so that we can deserialize gameobjects and NI
 
-            NetworkClient.Current = client;
+            NetworkClient.Current = Client;
             // read component dirty mask
             ulong dirtyComponentsMask = reader.ReadPackedUInt64();
 
@@ -819,14 +819,14 @@ namespace Mirror
         {
             if (gameObject == null)
             {
-                Debug.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + netId + "]");
+                Debug.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + NetId + "]");
                 return;
             }
 
             // hack sets the current client and server so that we can deserialize
             // gameobjects and network identities in the reader
-            NetworkClient.Current = client;
-            NetworkServer.Current = server;
+            NetworkClient.Current = Client;
+            NetworkServer.Current = Server;
 
             // find the right component to invoke the function on
             if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
@@ -834,12 +834,12 @@ namespace Mirror
                 NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
                 if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
                 {
-                    Debug.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
+                    Debug.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + NetId + "].");
                 }
             }
             else
             {
-                Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
+                Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + NetId + "]");
             }
         }
 
@@ -856,7 +856,7 @@ namespace Mirror
         }
 
         // happens on client
-        internal void HandleRPC(int componentIndex, int rpcHash, NetworkReader reader)
+        internal void HandleRpc(int componentIndex, int rpcHash, NetworkReader reader)
         {
             HandleRemoteCall(componentIndex, rpcHash, MirrorInvokeType.ClientRpc, reader);
         }
@@ -917,16 +917,16 @@ namespace Mirror
         internal void AddAllReadyServerConnectionsToObservers()
         {
             // add all server connections
-            foreach (NetworkConnection conn in server.connections.Values)
+            foreach (NetworkConnection conn in Server.connections.Values)
             {
                 if (conn.isReady)
                     AddObserver(conn);
             }
 
             // add local host connection (if any)
-            if (server.localConnection != null && server.localConnection.isReady)
+            if (Server.localConnection != null && Server.localConnection.isReady)
             {
-                AddObserver(server.localConnection);
+                AddObserver(Server.localConnection);
             }
         }
 
@@ -951,9 +951,9 @@ namespace Mirror
             // -> fixes https://github.com/vis2k/Mirror/issues/692 where a
             //    player might teleport out of the ProximityChecker's cast,
             //    losing the own connection as observer.
-            if (connectionToClient != null && connectionToClient.isReady)
+            if (ConnectionToClient != null && ConnectionToClient.isReady)
             {
-                newObservers.Add(connectionToClient);
+                newObservers.Add(ConnectionToClient);
             }
 
             // if no component implemented OnRebuildObservers, then add all
@@ -1031,7 +1031,7 @@ namespace Mirror
             //      iterating all identities in a special function in StartHost.
             if (initialize)
             {
-                if (!newObservers.Contains(server.localConnection))
+                if (!newObservers.Contains(Server.localConnection))
                 {
                     OnSetHostVisibility(false);
                 }
@@ -1046,7 +1046,7 @@ namespace Mirror
         /// <param name="conn">	The connection of the client to assign authority to.</param>
         public void AssignClientAuthority(NetworkConnection conn)
         {
-            if (!isServer)
+            if (!IsServer)
             {
                 throw new InvalidOperationException("AssignClientAuthority can only be called on the server for spawned objects");
             }
@@ -1056,7 +1056,7 @@ namespace Mirror
                 throw new InvalidOperationException("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead");
             }
 
-            if (connectionToClient != null && conn != connectionToClient)
+            if (ConnectionToClient != null && conn != ConnectionToClient)
             {
                 throw new InvalidOperationException("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first");
             }
@@ -1065,7 +1065,7 @@ namespace Mirror
 
             // The client will match to the existing object
             // update all variables and assign authority
-            server.SendSpawnMessage(this, conn);
+            Server.SendSpawnMessage(this, conn);
 
             clientAuthorityCallback?.Invoke(conn, this, true);
         }
@@ -1077,31 +1077,31 @@ namespace Mirror
         /// </summary>
         public void RemoveClientAuthority()
         {
-            if (!isServer)
+            if (!IsServer)
             {
                 throw new InvalidOperationException("RemoveClientAuthority can only be called on the server for spawned objects");
             }
 
-            if (connectionToClient?.Identity == this)
+            if (ConnectionToClient?.Identity == this)
             {
                 throw new InvalidOperationException("RemoveClientAuthority cannot remove authority for a player object");
             }
 
-            if (connectionToClient != null)
+            if (ConnectionToClient != null)
             {
-                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
+                clientAuthorityCallback?.Invoke(ConnectionToClient, this, false);
 
-                NetworkConnectionToClient previousOwner = connectionToClient;
+                NetworkConnectionToClient previousOwner = ConnectionToClient;
 
-                connectionToClient = null;
+                ConnectionToClient = null;
 
                 // we need to resynchronize the entire object
                 // so just spawn it again,
                 // the client will not create a new instance,  it will simply
                 // reset all variables and remove authority
-                server.SendSpawnMessage(this, previousOwner);
+                Server.SendSpawnMessage(this, previousOwner);
 
-                connectionToClient = null;
+                ConnectionToClient = null;
             }
         }
 
@@ -1122,11 +1122,11 @@ namespace Mirror
             clientStarted = false;
             reset = false;
 
-            netId = 0;
-            server = null;
-            client = null;
-            connectionToServer = null;
-            connectionToClient = null;
+            NetId = 0;
+            Server = null;
+            Client = null;
+            ConnectionToServer = null;
+            ConnectionToClient = null;
             networkBehavioursCache = null;
 
             ClearObservers();
@@ -1149,7 +1149,7 @@ namespace Mirror
                     if (ownerWritten > 0 || observersWritten > 0)
                     {
                         // populate cached UpdateVarsMessage and send
-                        varsMessage.netId = netId;
+                        varsMessage.netId = NetId;
 
                         // send ownerWriter to owner
                         // (only if we serialized anything for owner)
@@ -1159,8 +1159,8 @@ namespace Mirror
                         if (ownerWritten > 0)
                         {
                             varsMessage.payload = ownerWriter.ToArraySegment();
-                            if (connectionToClient != null && connectionToClient.isReady)
-                                server.SendToClientOfPlayer(this, varsMessage);
+                            if (ConnectionToClient != null && ConnectionToClient.isReady)
+                                Server.SendToClientOfPlayer(this, varsMessage);
                         }
 
                         // send observersWriter to everyone but owner
@@ -1168,7 +1168,7 @@ namespace Mirror
                         if (observersWritten > 0)
                         {
                             varsMessage.payload = observersWriter.ToArraySegment();
-                            server.SendToReady(this, varsMessage, false);
+                            Server.SendToReady(this, varsMessage, false);
                         }
 
                         // clear dirty bits only for the components that we serialized

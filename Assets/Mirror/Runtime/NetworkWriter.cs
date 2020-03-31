@@ -458,7 +458,7 @@ namespace Mirror
                 writer.WritePackedUInt32(0);
                 return;
             }
-            writer.WritePackedUInt32(value.netId);
+            writer.WritePackedUInt32(value.NetId);
         }
 
         public static void WriteTransform(this NetworkWriter writer, Transform value)
@@ -471,7 +471,7 @@ namespace Mirror
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
-                writer.WritePackedUInt32(identity.netId);
+                writer.WritePackedUInt32(identity.NetId);
             }
             else
             {
@@ -490,7 +490,7 @@ namespace Mirror
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
-                writer.WritePackedUInt32(identity.netId);
+                writer.WritePackedUInt32(identity.NetId);
             }
             else
             {

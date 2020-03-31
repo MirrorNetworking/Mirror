@@ -40,7 +40,7 @@ namespace Mirror
                 // not spawned before?
                 //  OnPostProcessScene is called after additive scene loads too,
                 //  and we don't want to set main scene's objects inactive again
-                if (!identity.isClient && !identity.isServer)
+                if (!identity.IsClient && !identity.IsServer)
                 {
                     // valid scene object?
                     //   otherwise it might be an unopened scene that still has null

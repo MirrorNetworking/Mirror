@@ -102,8 +102,8 @@ namespace Mirror
 
             // Add everything in the hashset for this object's current scene
             foreach (NetworkIdentity networkIdentity in sceneCheckerObjects[currentScene])
-                if (networkIdentity != null && networkIdentity.connectionToClient != null)
-                    observers.Add(networkIdentity.connectionToClient);
+                if (networkIdentity != null && networkIdentity.ConnectionToClient != null)
+                    observers.Add(networkIdentity.ConnectionToClient);
 
             return true;
         }

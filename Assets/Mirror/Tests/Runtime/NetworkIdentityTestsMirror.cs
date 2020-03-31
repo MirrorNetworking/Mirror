@@ -29,7 +29,7 @@ namespace Tests
         {
             // call OnStartServer so that isServer is true
             identity.StartServer();
-            Assert.That(identity.isServer, Is.True);
+            Assert.That(identity.IsServer, Is.True);
 
             // destroy it
             // note: we need runtime .Destroy instead of edit mode .DestroyImmediate
@@ -37,7 +37,7 @@ namespace Tests
             GameObject.Destroy(gameObject);
 
             // make sure that isServer is still true so we can save players etc.
-            Assert.That(identity.isServer, Is.EqualTo(true));
+            Assert.That(identity.IsServer, Is.EqualTo(true));
         }
     }
 }

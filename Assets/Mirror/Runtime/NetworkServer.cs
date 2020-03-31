@@ -261,9 +261,9 @@ namespace Mirror
         {
             foreach (NetworkIdentity identity in spawned.Values)
             {
-                if (!identity.isClient)
+                if (!identity.IsClient)
                 {
-                    if (LogFilter.Debug) Debug.Log("ActivateHostScene " + identity.netId + " " + identity);
+                    if (LogFilter.Debug) Debug.Log("ActivateHostScene " + identity.NetId + " " + identity);
 
                     identity.StartClient();
                 }
@@ -313,7 +313,7 @@ namespace Mirror
             foreach (NetworkConnection connection in identity.observers)
             {
 
-                bool isOwner = connection == identity.connectionToClient;
+                bool isOwner = connection == identity.ConnectionToClient;
                 if ((!isOwner || includeOwner) && connection.isReady)
                 {
                     connectionsCache.Add(connection);
@@ -490,7 +490,7 @@ namespace Mirror
         {
             if (identity != null)
             {
-                identity.connectionToClient.Send(msg, channelId);
+                identity.ConnectionToClient.Send(msg, channelId);
             }
             else
             {
@@ -512,7 +512,7 @@ namespace Mirror
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
-                identity.assetId = assetId;
+                identity.AssetId = assetId;
             }
             return InternalReplacePlayerForConnection(conn, client, player, keepAuthority);
         }
@@ -544,7 +544,7 @@ namespace Mirror
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
-                identity.assetId = assetId;
+                identity.AssetId = assetId;
             }
             return AddPlayerForConnection(conn, player);
         }
@@ -571,7 +571,7 @@ namespace Mirror
                 //TODO this is different
                 if (identity.gameObject.activeSelf)
                 {
-                    if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId + " sceneId=" + identity.sceneId);
+                    if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.NetId + " sceneId=" + identity.sceneId);
 
                     bool visible = identity.OnCheckObserver(conn);
                     if (visible)
@@ -617,9 +617,9 @@ namespace Mirror
             conn.Identity = identity;
 
             // set server to the NetworkIdentity
-            identity.server = this;
+            identity.Server = this;
 
-            identity.client = this.localClient;
+            identity.Client = this.localClient;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
@@ -627,14 +627,14 @@ namespace Mirror
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
             if (conn is ULocalConnectionToClient)
             {
-                identity.hasAuthority = true;
+                identity.HasAuthority = true;
                 this.localClient.InternalAddPlayer(identity);
             }
 
             // set ready if not set yet
             SetClientReady(conn);
 
-            if (LogFilter.Debug) Debug.Log("Adding new playerGameObject object netId: " + identity.netId + " asset ID " + identity.assetId);
+            if (LogFilter.Debug) Debug.Log("Adding new playerGameObject object netId: " + identity.NetId + " asset ID " + identity.AssetId);
 
             Respawn(identity);
             return true;
@@ -642,15 +642,15 @@ namespace Mirror
 
         void Respawn(NetworkIdentity identity)
         {
-            if (identity.netId == 0)
+            if (identity.NetId == 0)
             {
                 // If the object has not been spawned, then do a full spawn and update observers
-                Spawn(identity.gameObject, identity.connectionToClient);
+                Spawn(identity.gameObject, identity.ConnectionToClient);
             }
             else
             {
                 // otherwise just replace his data
-                SendSpawnMessage(identity, identity.connectionToClient);
+                SendSpawnMessage(identity, identity.ConnectionToClient);
             }
         }
 
@@ -663,7 +663,7 @@ namespace Mirror
                 return false;
             }
 
-            if (identity.connectionToClient != null && identity.connectionToClient != conn)
+            if (identity.ConnectionToClient != null && identity.ConnectionToClient != conn)
             {
                 Debug.LogError("Cannot replace player for connection. New player is already owned by a different connection" + player);
                 return false;
@@ -675,7 +675,7 @@ namespace Mirror
             NetworkIdentity previousPlayer = conn.Identity;
 
             conn.Identity = identity;
-            identity.client = client;
+            identity.Client = client;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
@@ -685,7 +685,7 @@ namespace Mirror
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
             if (conn is ULocalConnectionToClient)
             {
-                identity.hasAuthority = true;
+                identity.HasAuthority = true;
                 client.InternalAddPlayer(identity);
             }
 
@@ -696,7 +696,7 @@ namespace Mirror
             // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
             SpawnObserversForConnection(conn);
 
-            if (LogFilter.Debug) Debug.Log("Replacing playerGameObject object netId: " + player.GetComponent<NetworkIdentity>().netId + " asset ID " + player.GetComponent<NetworkIdentity>().assetId);
+            if (LogFilter.Debug) Debug.Log("Replacing playerGameObject object netId: " + player.GetComponent<NetworkIdentity>().NetId + " asset ID " + player.GetComponent<NetworkIdentity>().AssetId);
 
             Respawn(identity);
 
@@ -744,7 +744,7 @@ namespace Mirror
         {
             var msg = new ObjectHideMessage
             {
-                netId = identity.netId
+                netId = identity.NetId
             };
             conn.Send(msg);
         }
@@ -811,7 +811,7 @@ namespace Mirror
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            if (identity.connectionToClient != conn)
+            if (identity.ConnectionToClient != conn)
             {
                 Debug.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
                 return;
@@ -838,18 +838,18 @@ namespace Mirror
                 return;
             }
             identity.Reset();
-            identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
-            identity.server = this;
-            identity.client = localClient;
+            identity.ConnectionToClient = (NetworkConnectionToClient)ownerConnection;
+            identity.Server = this;
+            identity.Client = localClient;
 
             // special case to make sure hasAuthority is set
             // on start server in host mode
             if (ownerConnection is ULocalConnectionToClient)
-                identity.hasAuthority = true;
+                identity.HasAuthority = true;
 
             identity.StartServer();
 
-            if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
+            if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.NetId + " asset ID " + identity.AssetId);
 
             identity.RebuildObservers(true);
         }
@@ -860,7 +860,7 @@ namespace Mirror
                 return;
 
             // for easier debugging
-            if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId);
+            if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.NetId);
 
             // one writer for owner, one for observers
             using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
@@ -876,11 +876,11 @@ namespace Mirror
 
                 var msg = new SpawnMessage
                 {
-                    netId = identity.netId,
+                    netId = identity.NetId,
                     isLocalPlayer = conn.Identity == identity,
-                    isOwner = identity.connectionToClient == conn,
+                    isOwner = identity.ConnectionToClient == conn,
                     sceneId = identity.sceneId,
-                    assetId = identity.assetId,
+                    assetId = identity.AssetId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
@@ -953,13 +953,13 @@ namespace Mirror
                 return;
             }
 
-            if (identity.connectionToClient == null)
+            if (identity.ConnectionToClient == null)
             {
                 Debug.LogError("Player object is not a player.");
                 return;
             }
 
-            Spawn(obj, identity.connectionToClient);
+            Spawn(obj, identity.ConnectionToClient);
         }
 
         /// <summary>
@@ -976,7 +976,7 @@ namespace Mirror
             {
                 if (GetNetworkIdentity(obj, out NetworkIdentity identity))
                 {
-                    identity.assetId = assetId;
+                    identity.AssetId = assetId;
                 }
                 SpawnObject(obj, ownerConnection);
             }
@@ -999,14 +999,14 @@ namespace Mirror
 
         void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
         {
-            if (LogFilter.Debug) Debug.Log("DestroyObject instance:" + identity.netId);
-            spawned.Remove(identity.netId);
+            if (LogFilter.Debug) Debug.Log("DestroyObject instance:" + identity.NetId);
+            spawned.Remove(identity.NetId);
 
-            identity.connectionToClient?.RemoveOwnedObject(identity);
+            identity.ConnectionToClient?.RemoveOwnedObject(identity);
 
             var msg = new ObjectDestroyMessage
             {
-                netId = identity.netId
+                netId = identity.NetId
             };
             SendToObservers(identity, msg);
 
