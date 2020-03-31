@@ -72,7 +72,6 @@ namespace Mirror
             writer.SetLength(0);
             reader.Position = 0;
         }
-
     }
 
     // a localClient's connection TO a server.
