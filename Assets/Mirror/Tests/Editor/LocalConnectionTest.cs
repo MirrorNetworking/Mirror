@@ -33,13 +33,13 @@ namespace Mirror.Tests
         [Test]
         public void LocalConnectionToClientAddressTest()
         {
-            Assert.That(connectionToClient.Address, Is.EqualTo(IPAddress.Loopback) | Is.EqualTo(IPAddress.IPv6Loopback) | Is.EqualTo(IPAddress.Loopback.MapToIPv6()));
+            Assert.That(connectionToClient.Address, Is.EqualTo(new IPEndPoint(IPAddress.Loopback, 0)));
         }
 
         [Test]
         public void LocalConnectionToServerAddressTest()
         {
-            Assert.That(connectionToServer.Address, Is.EqualTo(IPAddress.Loopback) | Is.EqualTo(IPAddress.IPv6Loopback) | Is.EqualTo(IPAddress.Loopback.MapToIPv6()));
+            Assert.That(connectionToServer.Address, Is.EqualTo(new IPEndPoint(IPAddress.Loopback, 0)));
         }
     }
 
