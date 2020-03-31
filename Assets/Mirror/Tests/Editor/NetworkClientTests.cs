@@ -6,7 +6,7 @@ using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace  Mirror.Tests
+namespace Mirror.Tests
 {
     public class NetworkClientTests
     {
@@ -21,13 +21,13 @@ namespace  Mirror.Tests
             Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
 
             // we need a server to connect to
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
             NetworkServer.Listen(10);
 
             // setup client handlers too
-            NetworkClient.RegisterHandler<ConnectMessage>(msg => {}, false);
+            NetworkClient.RegisterHandler<ConnectMessage>(msg => { }, false);
         }
 
         [TearDown]

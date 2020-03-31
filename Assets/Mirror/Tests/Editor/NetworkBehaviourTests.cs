@@ -112,8 +112,8 @@ namespace Mirror.Tests
     // we need to inherit from networkbehaviour to test protected functions
     public class NetworkBehaviourDelegateComponent : NetworkBehaviour
     {
-        public static void Delegate(NetworkBehaviour comp, NetworkReader reader) {}
-        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) {}
+        public static void Delegate(NetworkBehaviour comp, NetworkReader reader) { }
+        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) { }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
@@ -324,10 +324,10 @@ namespace Mirror.Tests
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => { }, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
@@ -336,12 +336,14 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
 
             // create a connection from client to server and from server to client
-            ULocalConnectionToClient connection = new ULocalConnectionToClient {
+            ULocalConnectionToClient connection = new ULocalConnectionToClient
+            {
                 isReady = true,
                 // commands require authentication
                 isAuthenticated = true
             };
-            connection.connectionToServer = new ULocalConnectionToServer {
+            connection.connectionToServer = new ULocalConnectionToServer
+            {
                 isReady = true,
                 // commands require authentication
                 isAuthenticated = true
@@ -456,10 +458,10 @@ namespace Mirror.Tests
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => { }, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
@@ -541,10 +543,10 @@ namespace Mirror.Tests
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => { }, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
@@ -655,10 +657,10 @@ namespace Mirror.Tests
             // we need to start a server and connect a client in order to be
             // able to send events
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => { }, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
@@ -1464,7 +1466,7 @@ namespace Mirror.Tests
         [Test]
         public void ClearAllDirtyBitsClearsSyncVarDirtyBits()
         {
-             // set syncinterval so dirtybit works fine
+            // set syncinterval so dirtybit works fine
             emptyBehaviour.syncInterval = 0;
             Assert.That(emptyBehaviour.IsDirty(), Is.False);
 

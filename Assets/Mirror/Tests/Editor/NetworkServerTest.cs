@@ -89,9 +89,9 @@ namespace Mirror.Tests
         public void MaxConnectionsTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen with maxconnections=1
             NetworkServer.Listen(1);
@@ -115,8 +115,8 @@ namespace Mirror.Tests
             // message handlers
             bool connectCalled = false;
             NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { connectCalled = true; }, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -135,9 +135,9 @@ namespace Mirror.Tests
         {
             // message handlers
             bool disconnectCalled = false;
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
             NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { disconnectCalled = true; }, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -159,9 +159,9 @@ namespace Mirror.Tests
         public void ConnectionsDictTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(2);
@@ -198,9 +198,9 @@ namespace Mirror.Tests
             // <0 is never used
 
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(2);
@@ -225,9 +225,9 @@ namespace Mirror.Tests
         public void ConnectDuplicateConnectionIdsTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(2);
@@ -312,9 +312,9 @@ namespace Mirror.Tests
         public void AddConnectionTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -356,9 +356,9 @@ namespace Mirror.Tests
         public void RemoveConnectionTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -385,9 +385,9 @@ namespace Mirror.Tests
         public void DisconnectAllConnectionsTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -410,9 +410,9 @@ namespace Mirror.Tests
         public void DisconnectAllTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -441,15 +441,16 @@ namespace Mirror.Tests
         public void OnDataReceivedTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // add one custom message handler
             bool wasReceived = false;
             NetworkConnection connectionReceived = null;
             TestMessage messageReceived = new TestMessage();
-            NetworkServer.RegisterHandler<TestMessage>((conn, msg) => {
+            NetworkServer.RegisterHandler<TestMessage>((conn, msg) =>
+            {
                 wasReceived = true;
                 connectionReceived = conn;
                 messageReceived = msg;
@@ -465,7 +466,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // serialize a test message into an arraysegment
-            TestMessage testMessage = new TestMessage{IntValue = 13, DoubleValue = 14, StringValue = "15"};
+            TestMessage testMessage = new TestMessage { IntValue = 13, DoubleValue = 14, StringValue = "15" };
             NetworkWriter writer = new NetworkWriter();
             MessagePacker.Pack(testMessage, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
@@ -489,15 +490,16 @@ namespace Mirror.Tests
         public void OnDataReceivedInvalidConnectionIdTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // add one custom message handler
             bool wasReceived = false;
             NetworkConnection connectionReceived = null;
             TestMessage messageReceived = new TestMessage();
-            NetworkServer.RegisterHandler<TestMessage>((conn, msg) => {
+            NetworkServer.RegisterHandler<TestMessage>((conn, msg) =>
+            {
                 wasReceived = true;
                 connectionReceived = conn;
                 messageReceived = msg;
@@ -508,7 +510,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // serialize a test message into an arraysegment
-            TestMessage testMessage = new TestMessage{IntValue = 13, DoubleValue = 14, StringValue = "15"};
+            TestMessage testMessage = new TestMessage { IntValue = 13, DoubleValue = 14, StringValue = "15" };
             NetworkWriter writer = new NetworkWriter();
             MessagePacker.Pack(testMessage, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
@@ -632,7 +634,8 @@ namespace Mirror.Tests
             NetworkIdentity.spawned[identity.netId] = identity;
 
             // serialize a removeplayer message into an arraysegment
-            CommandMessage message = new CommandMessage {
+            CommandMessage message = new CommandMessage
+            {
                 componentIndex = 0,
                 functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
                 netId = identity.netId,
@@ -734,9 +737,9 @@ namespace Mirror.Tests
         public void SendToAllTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -747,14 +750,14 @@ namespace Mirror.Tests
             connection.connectionToServer = new ULocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
+            connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
             {
                 { MessagePacker.GetId<TestMessage>(), ((conn, reader, channelId) => ++called) }
             });
             NetworkServer.AddConnection(connection);
 
             // create a message
-            TestMessage message = new TestMessage{ IntValue = 1, DoubleValue = 2, StringValue = "3" };
+            TestMessage message = new TestMessage { IntValue = 1, DoubleValue = 2, StringValue = "3" };
 
             // send it to all
             bool result = NetworkServer.SendToAll(message);
@@ -774,9 +777,9 @@ namespace Mirror.Tests
         public void RegisterUnregisterClearHandlerTest()
         {
             // message handlers that are needed for the test
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
 
             // RegisterHandler(conn, msg) variant
@@ -822,7 +825,7 @@ namespace Mirror.Tests
             // unregister second handler via ClearHandlers to test that one too. send, should fail
             NetworkServer.ClearHandlers();
             // (only add this one to avoid disconnect error)
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
             writer = new NetworkWriter();
             MessagePacker.Pack(new TestMessage(), writer);
             // log error messages are expected
@@ -840,9 +843,9 @@ namespace Mirror.Tests
         public void SendToClientOfPlayer()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -853,14 +856,14 @@ namespace Mirror.Tests
             connection.connectionToServer = new ULocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
+            connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
             {
                 { MessagePacker.GetId<TestMessage>(), ((conn, reader, channelId) => ++called) }
             });
             NetworkServer.AddConnection(connection);
 
             // create a message
-            TestMessage message = new TestMessage{ IntValue = 1, DoubleValue = 2, StringValue = "3" };
+            TestMessage message = new TestMessage { IntValue = 1, DoubleValue = 2, StringValue = "3" };
 
             // create a gameobject and networkidentity
             NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
@@ -914,9 +917,9 @@ namespace Mirror.Tests
         public void ShowForConnection()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -929,7 +932,7 @@ namespace Mirror.Tests
             connection.connectionToServer = new ULocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
+            connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
             {
                 { MessagePacker.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++called) }
             });
@@ -966,9 +969,9 @@ namespace Mirror.Tests
         public void HideForConnection()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -981,7 +984,7 @@ namespace Mirror.Tests
             connection.connectionToServer = new ULocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int,NetworkMessageDelegate>()
+            connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
             {
                 { MessagePacker.GetId<ObjectHideMessage>(), ((conn, reader, channelId) => ++called) }
             });
@@ -1102,9 +1105,9 @@ namespace Mirror.Tests
         public void ShutdownCleanupTest()
         {
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => {}, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => {}, false);
+            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // listen
             NetworkServer.Listen(1);
