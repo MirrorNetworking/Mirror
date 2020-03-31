@@ -20,21 +20,29 @@ namespace Mirror.AsyncTcp
         #region Receiving
         public async Task<bool> ReceiveAsync(MemoryStream buffer)
         {
-            long position = buffer.Position;
+            try
+            {
+                buffer.SetLength(0);
+                long position = buffer.Position;
 
-            // read message size
-            if (!await ReadExactlyAsync(stream, buffer, 4))
+                // read message size
+                if (!await ReadExactlyAsync(stream, buffer, 4))
+                    return false;
+
+                // rewind so that we read it
+                buffer.Position = position;
+
+                int length = ReadInt(buffer);
+
+                // now read the message
+                buffer.Position = position;
+
+                return await ReadExactlyAsync(stream, buffer, length);
+            }
+            catch (ObjectDisposedException)
+            {
                 return false;
-
-            // rewind so that we read it
-            buffer.Position = position;
-
-            int length = ReadInt(buffer);
-
-            // now read the message
-            buffer.Position = position;
-
-            return await ReadExactlyAsync(stream, buffer, length);
+            }
         }
 
 

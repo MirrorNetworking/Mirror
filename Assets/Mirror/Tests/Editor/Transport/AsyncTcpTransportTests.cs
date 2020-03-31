@@ -177,6 +177,22 @@ namespace Mirror.Tests
             });
         }
 
+        [UnityTest]
+        public IEnumerator DisconnectClientTest2()
+        {
+            return RunAsync(async () =>
+            {
+                await transport.ListenAsync();
+                IConnection clientConnection = await transport.ConnectAsync(new Uri("tcp4://localhost:8798"));
+                IConnection serverConnection = await transport.AcceptAsync();
+
+                clientConnection.Disconnect();
+
+                var stream = new MemoryStream();
+                Assert.That(await clientConnection.ReceiveAsync(stream), Is.False);
+            });
+        }
+
         [Test]
         public void TestServerUri()
         {
