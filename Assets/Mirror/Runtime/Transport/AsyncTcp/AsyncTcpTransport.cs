@@ -44,8 +44,16 @@ namespace Mirror.AsyncTcp
 
         public override async Task<IConnection> AcceptAsync()
         {
-            TcpClient client = await listener.AcceptTcpClientAsync();
-            return new TcpConnection(client);
+            try
+            {
+                TcpClient client = await listener.AcceptTcpClientAsync();
+                return new TcpConnection(client);
+            }
+            catch (ObjectDisposedException)
+            {
+                // expected,  the connection was closed
+                return null;
+            }
         }
 
         public override Uri ServerUri()
