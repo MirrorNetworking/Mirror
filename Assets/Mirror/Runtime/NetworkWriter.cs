@@ -29,7 +29,7 @@ namespace Mirror
             private set
             {
                 EnsureCapacity(value);
-                this.length = value;
+                length = value;
                 if (Position > length)
                     Position = length;
             }
@@ -70,7 +70,7 @@ namespace Mirror
         // so that we can reuse this writer without extra allocations
         public void SetLength(int value)
         {
-            this.Length = value;
+            Length = value;
         }
 
         public void WriteByte(byte value)
