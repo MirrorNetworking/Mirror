@@ -4,8 +4,5 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes:
-  - enabled: 1
-    path: Assets/Mirror/Examples/AdditiveScenes/Scenes/SubScene.unity
-    guid: 7f4fd683fc6d866418c95f99977533a6
+  m_Scenes: []
   m_configObjects: {}
