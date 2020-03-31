@@ -1,4 +1,3 @@
-// add this component to the NetworkManager
 using System;
 using System.Collections.Generic;
 using System.IO;
