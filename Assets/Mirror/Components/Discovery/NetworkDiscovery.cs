@@ -1,6 +1,6 @@
-using UnityEngine;
-using System.Net;
 using System;
+using System.Net;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace Mirror.Discovery
