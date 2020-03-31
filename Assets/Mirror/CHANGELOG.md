@@ -1,3 +1,10 @@
+## [30.3.2](https://github.com/MirrorNG/MirrorNG/compare/30.3.1-master...30.3.2-master) (2020-03-31)
+
+
+### Bug Fixes
+
+* AsyncTcp now exits normally when client disconnects ([#141](https://github.com/MirrorNG/MirrorNG/issues/141)) ([8896c4a](https://github.com/MirrorNG/MirrorNG/commit/8896c4afa2f937839a54dc71fbe578b9c636f393))
+
 ## [30.3.1](https://github.com/MirrorNG/MirrorNG/compare/30.3.0-master...30.3.1-master) (2020-03-30)
 
 
