@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -32,14 +33,15 @@ namespace Mirror.Tests
         [Test]
         public void LocalConnectionToClientAddressTest()
         {
-            Assert.That(connectionToClient.Address, Is.EqualTo("localhost"));
+            Assert.That(connectionToClient.Address, Is.EqualTo(IPAddress.Loopback) | Is.EqualTo(IPAddress.IPv6Loopback) | Is.EqualTo(IPAddress.Loopback.MapToIPv6()));
         }
 
         [Test]
         public void LocalConnectionToServerAddressTest()
         {
-            Assert.That(connectionToServer.Address, Is.EqualTo("localhost"));
+            Assert.That(connectionToServer.Address, Is.EqualTo(IPAddress.Loopback) | Is.EqualTo(IPAddress.IPv6Loopback) | Is.EqualTo(IPAddress.Loopback.MapToIPv6()));
         }
+    }
 
         [Test]
         public void ClientToServerFailTest()
