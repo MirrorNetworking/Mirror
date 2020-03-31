@@ -124,6 +124,8 @@ namespace Mirror
         void Start()
         {
             InitializeAuthEvents();
+
+            Application.quitting += Shutdown;
         }
 
         /// <summary>

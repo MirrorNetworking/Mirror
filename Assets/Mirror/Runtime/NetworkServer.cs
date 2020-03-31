@@ -140,6 +140,8 @@ namespace Mirror
             initialized = true;
             if (LogFilter.Debug) Debug.Log("NetworkServer Created version " + Version.Current);
 
+            Application.quitting += Shutdown;
+
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
             Transport.activeTransport.OnServerDisconnected.AddListener(OnDisconnected);

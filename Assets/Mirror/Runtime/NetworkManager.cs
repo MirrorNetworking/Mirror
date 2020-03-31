@@ -405,29 +405,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// called when quitting the application by closing the window / pressing stop in the editor
-        /// <para>virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too</para>
-        /// </summary>
-        public virtual void OnApplicationQuit()
-        {
-            // stop client first
-            // (we want to send the quit packet to the server instead of waiting
-            //  for a timeout)
-            if (client.isConnected)
-            {
-                StopClient();
-                print("OnApplicationQuit: stopped client");
-            }
-
-            // stop server after stopping client (for proper host mode stopping)
-            if (server.active)
-            {
-                StopServer();
-                print("OnApplicationQuit: stopped server");
-            }
-        }
-
-        /// <summary>
         /// Set the frame rate for a headless server.
         /// <para>Override if you wish to disable the behavior or set your own tick rate.</para>
         /// </summary>
