@@ -89,7 +89,7 @@ namespace Mirror
             if (forceHidden)
                 return false;
 
-            return conn.identity.gameObject.scene == gameObject.scene;
+            return conn.Identity.gameObject.scene == gameObject.scene;
         }
 
         // Always return true when overriding OnRebuildObservers so that

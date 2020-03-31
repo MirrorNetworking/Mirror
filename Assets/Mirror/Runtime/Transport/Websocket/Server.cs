@@ -38,7 +38,7 @@ namespace Mirror.Websocket
         // (right now we only use it from one listener thread, but we might have
         //  multiple threads later in case of WebSockets etc.)
         // -> static so that another server instance doesn't start at 0 again.
-        static int counter = 0;
+        static int counter;
 
         // public next id function in case someone needs to reserve an id
         // (e.g. if hostMode should always have 0 connection and external
@@ -73,7 +73,7 @@ namespace Mirror.Websocket
             return clients[connectionId];
         }
 
-        public bool _secure = false;
+        public bool _secure;
 
         public SslConfiguration _sslConfig;
 
@@ -132,7 +132,7 @@ namespace Mirror.Websocket
                 WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(tcpClient, stream, token);
                 if (context.IsWebSocketRequest)
                 {
-                    var options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
+                    var options = new WebSocketServerOptions { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
 
                     WebSocket webSocket = await webSocketServerFactory.AcceptWebSocketAsync(context, options);
 

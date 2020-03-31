@@ -67,7 +67,7 @@ namespace Mirror.Examples.ListServer
 
         public async Task Start()
         {
-            if (NetworkManager.isHeadless)
+            if (NetworkManager.IsHeadless)
                 return;
 
             Connecting = true;

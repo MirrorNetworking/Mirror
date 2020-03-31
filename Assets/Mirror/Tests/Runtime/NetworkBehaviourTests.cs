@@ -63,7 +63,7 @@ namespace Mirror.Tests
 
         class OnStartServerTestComponent : NetworkBehaviour
         {
-            public bool called = false;
+            public bool called;
 
             public void OnStartServer()
             {

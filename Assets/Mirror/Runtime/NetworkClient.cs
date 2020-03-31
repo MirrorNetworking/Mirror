@@ -417,13 +417,13 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.RemovePlayer() called with connection [" + Connection + "]");
 
-            if (Connection.identity != null)
+            if (Connection.Identity != null)
             {
                 Connection.Send(new RemovePlayerMessage());
 
-                Destroy(Connection.identity.gameObject);
+                Destroy(Connection.Identity.gameObject);
 
-                Connection.identity = null;
+                Connection.Identity = null;
                 LocalPlayer = null;
 
                 return true;
@@ -475,7 +475,7 @@ namespace Mirror
 
             if (Connection != null)
             {
-                Connection.identity = identity;
+                Connection.Identity = identity;
             }
             else
             {

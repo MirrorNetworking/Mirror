@@ -88,7 +88,7 @@ namespace Mirror
             if (ForceHidden)
                 return false;
 
-            return Vector3.Distance(conn.identity.transform.position, transform.position) < VisibilityRange;
+            return Vector3.Distance(conn.Identity.transform.position, transform.position) < VisibilityRange;
         }
 
         /// <summary>

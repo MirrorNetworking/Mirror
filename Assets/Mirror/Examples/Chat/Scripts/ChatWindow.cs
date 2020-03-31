@@ -32,7 +32,7 @@ namespace Mirror.Examples.Chat
                 return;
 
             // get our player
-            Player player = client.Connection.identity.GetComponent<Player>();
+            Player player = client.Connection.Identity.GetComponent<Player>();
 
             // send a message
             player.CmdSend(chatMessage.text.Trim());

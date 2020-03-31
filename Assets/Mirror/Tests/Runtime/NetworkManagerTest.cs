@@ -53,7 +53,7 @@ namespace Mirror.Tests
             manager.StartServer();
 
             Assert.That(manager.isNetworkActive, Is.True);
-            Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.ServerOnly));
+            Assert.That(manager.Mode, Is.EqualTo(NetworkManagerMode.ServerOnly));
             Assert.That(manager.server.active, Is.True);
 
             manager.StopServer();
@@ -66,7 +66,7 @@ namespace Mirror.Tests
             manager.StopServer();
 
             Assert.That(manager.isNetworkActive, Is.False);
-            Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.Offline));
+            Assert.That(manager.Mode, Is.EqualTo(NetworkManagerMode.Offline));
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace Mirror.Tests
             manager.StartClient("localhost");
 
             Assert.That(manager.isNetworkActive, Is.True);
-            Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.ClientOnly));
+            Assert.That(manager.Mode, Is.EqualTo(NetworkManagerMode.ClientOnly));
 
             manager.StopClient();
         }
@@ -140,7 +140,7 @@ namespace Mirror.Tests
             manager.StopClient();
 
             Assert.That(manager.isNetworkActive, Is.False);
-            Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.Offline));
+            Assert.That(manager.Mode, Is.EqualTo(NetworkManagerMode.Offline));
         }
     }
 }

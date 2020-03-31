@@ -52,7 +52,6 @@ namespace Mirror.Tests
         public void CommandWithoutAuthority()
         {
             var gameObject2 = new GameObject();
-            NetworkIdentity identity2 = gameObject2.AddComponent<NetworkIdentity>();
             RpcComponent rpcComponent2 = gameObject2.AddComponent<RpcComponent>();
 
             // spawn it without client authority

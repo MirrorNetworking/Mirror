@@ -68,7 +68,7 @@ namespace Mirror
         /// Number of active player objects across all connections on the server.
         /// <para>This is only valid on the host / server.</para>
         /// </summary>
-        public int NumPlayers => connections.Count(kv => kv.Value.identity != null);
+        public int NumPlayers => connections.Count(kv => kv.Value.Identity != null);
 
         /// <summary>
         /// A list of local connections on the server.
@@ -606,7 +606,7 @@ namespace Mirror
             identity.Reset();
 
             // cannot have a player object in "Add" version
-            if (conn.identity != null)
+            if (conn.Identity != null)
             {
                 Debug.Log("AddPlayer: player object already exists");
                 return false;
@@ -614,7 +614,7 @@ namespace Mirror
 
             // make sure we have a controller before we call SetClientReady
             // because the observers will be rebuilt only if we have a controller
-            conn.identity = identity;
+            conn.Identity = identity;
 
             // set server to the NetworkIdentity
             identity.server = this;
@@ -672,9 +672,9 @@ namespace Mirror
             //NOTE: there can be an existing player
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer");
 
-            NetworkIdentity previousPlayer = conn.identity;
+            NetworkIdentity previousPlayer = conn.Identity;
 
-            conn.identity = identity;
+            conn.Identity = identity;
             identity.client = client;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
@@ -730,7 +730,7 @@ namespace Mirror
             conn.isReady = true;
 
             // client is ready to start spawning objects
-            if (conn.identity != null)
+            if (conn.Identity != null)
                 SpawnObserversForConnection(conn);
         }
 
@@ -788,10 +788,10 @@ namespace Mirror
         // default remove player handler
         void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg)
         {
-            if (conn.identity != null)
+            if (conn.Identity != null)
             {
-                Destroy(conn.identity.gameObject);
-                conn.identity = null;
+                Destroy(conn.Identity.gameObject);
+                conn.Identity = null;
             }
             else
             {
@@ -877,7 +877,7 @@ namespace Mirror
                 var msg = new SpawnMessage
                 {
                     netId = identity.netId,
-                    isLocalPlayer = conn.identity == identity,
+                    isLocalPlayer = conn.Identity == identity,
                     isOwner = identity.connectionToClient == conn,
                     sceneId = identity.sceneId,
                     assetId = identity.assetId,
@@ -905,10 +905,10 @@ namespace Mirror
             // destroy all objects owned by this connection
             conn.DestroyOwnedObjects();
 
-            if (conn.identity != null)
+            if (conn.Identity != null)
             {
-                DestroyObject(conn.identity, true);
-                conn.identity = null;
+                DestroyObject(conn.Identity, true);
+                conn.Identity = null;
             }
         }
 

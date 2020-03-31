@@ -40,7 +40,7 @@ namespace Mirror.Websocket
             // We are connecting from now until Connect succeeds or fails
             Connecting = true;
 
-            var options = new WebSocketClientOptions()
+            var options = new WebSocketClientOptions
             {
                 NoDelay = true,
                 KeepAliveInterval = TimeSpan.Zero,
