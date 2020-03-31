@@ -212,6 +212,7 @@ namespace Mirror
         /// </summary>
         public virtual void Awake()
         {
+            // Don't allow collision-destroyed second instance to continue.
             if (!InitializeSingleton()) return;
 
             Debug.Log("Thank you for using Mirror! https://mirror-networking.com");
