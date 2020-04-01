@@ -82,9 +82,9 @@ jobs:
   
       - name: SonarQube analysis
         if: always()
-        uses: MirrorNG/unity-sonarscanner@master
+        uses: MirrorNG/unity-runner@sonar
         with:
-          buildCommand: /opt/Unity/Editor/Data/NetCore/Sdk-2.2.107/dotnet build workspace.sln
+          entrypoint: /sonar-scanner.sh
           projectKey: vis2k_Mirror
           projectName: Mirror
           sonarOrganisation: vis2k
