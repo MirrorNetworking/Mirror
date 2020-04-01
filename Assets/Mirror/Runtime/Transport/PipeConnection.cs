@@ -58,6 +58,7 @@ namespace Mirror
             // wait for a message
             await MessageCount.WaitAsync();
 
+            buffer.SetLength(0);
             reader.buffer = writer.ToArraySegment();
 
             ArraySegment<byte> data = reader.ReadBytesAndSizeSegment();

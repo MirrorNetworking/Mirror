@@ -76,6 +76,8 @@ namespace Mirror
 
         bool isSpawnFinished;
 
+        public AsyncTransport Transport;
+
         /// <summary>
         /// Returns true when a client's connection has been set to ready.
         /// <para>A client that is ready recieves state updates from the server, while a client that is not ready does not. This useful when the state of the game is not normal, such as a scene change or end-of-game.</para>
@@ -121,34 +123,6 @@ namespace Mirror
         /// </summary>
         public bool IsLocalClient => hostServer != null;
 
-        void Start()
-        {
-            InitializeAuthEvents();
-
-            Application.quitting += Shutdown;
-        }
-
-        /// <summary>
-        /// Connect client to a NetworkServer instance.
-        /// </summary>
-        /// <param name="address"></param>
-        public async Task ConnectAsync(string serverIp)
-        {
-            if (LogFilter.Debug) Debug.Log("Client Connect: " + serverIp);
-
-            Transport.activeTransport.enabled = true;
-            InitializeTransportHandlers();
-            RegisterSpawnPrefabs();
-
-            connectState = ConnectState.Connecting;
-            await Transport.activeTransport.ClientConnectAsync(serverIp);
-
-            // setup all the handlers
-            Connection = new NetworkConnectionToServer();
-            RegisterMessageHandlers(Connection);
-            OnConnected();
-        }
-
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
@@ -157,55 +131,44 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + uri);
 
-            Transport.activeTransport.enabled = true;
-            InitializeTransportHandlers();
             RegisterSpawnPrefabs();
+            InitializeAuthEvents();
 
             connectState = ConnectState.Connecting;
-            await Transport.activeTransport.ClientConnectAsync(uri);
+            IConnection transportConnection = await Transport.ConnectAsync(uri);
 
             // setup all the handlers
-            Connection = new NetworkConnectionToServer();
+            Connection = new NetworkConnectionToServer(transportConnection);
+            Time.Reset();
+
             RegisterMessageHandlers(Connection);
-            OnConnected();
+            Time.UpdateClient(this);
+            _ = OnConnected();
         }
 
         internal void ConnectHost(NetworkServer server)
         {
+
             if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
             connectState = ConnectState.Connected;
 
+            InitializeAuthEvents();
+
             // create local connection objects and connect them
-            (ULocalConnectionToServer connectionToServer, ULocalConnectionToClient connectionToClient)
-                = ULocalConnectionToClient.CreateLocalConnections();
+            (IConnection c1, IConnection c2) = PipeConnection.CreatePipe();
 
-            Connection = connectionToServer;
-            RegisterHostHandlers(Connection);
-
-            // create server connection to local client
-            server.SetLocalConnection(this, connectionToClient);
-
-            Connected.Invoke(connectionToServer);
+            server.SetLocalConnection(this, c2);
             hostServer = server;
-        }
-
-        /// <summary>
-        /// connect host mode
-        /// </summary>
-        internal void ConnectLocalServer(NetworkServer server)
-        {
-            server.OnConnected(server.localConnection);
-        }
-
-        void InitializeTransportHandlers()
-        {
-            Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
-            Transport.activeTransport.OnClientDisconnected.AddListener(OnDisconnected);
-            Transport.activeTransport.OnClientError.AddListener(OnError);
+            Connection = new NetworkConnectionToServer(c1);
+            RegisterHostHandlers(Connection);
+            _ = OnConnected();
         }
 
         void InitializeAuthEvents()
         {
+            if (Transport == null)
+                Transport = GetComponent<AsyncTransport>();
+
             if (authenticator != null)
             {
                 authenticator.OnClientAuthenticated += OnAuthenticated;
@@ -219,17 +182,6 @@ namespace Mirror
             }
         }
 
-        void OnError(Exception exception)
-        {
-            Debug.LogException(exception);
-        }
-
-        void OnDisconnected()
-        {
-            connectState = ConnectState.Disconnected;
-            HandleClientDisconnect();
-        }
-
         /// <summary>
         /// client that received the message
         /// </summary>
@@ -238,25 +190,22 @@ namespace Mirror
         /// 
         internal static NetworkClient Current { get; set; }
 
-        internal void OnDataReceived(ArraySegment<byte> data, int channelId)
-        {
-            if (Connection != null)
-            {
-                Connection.TransportReceive(data, channelId);
-            }
-            else throw new InvalidOperationException("Skipped Data message handling because connection is null.");
-        }
-
-        void OnConnected()
+        async Task OnConnected()
         {
             // reset network time stats
-            Time.Reset();
+            
 
             // the handler may want to send messages to the client
             // thus we should set the connected state before calling the handler
             connectState = ConnectState.Connected;
-            Time.UpdateClient(this);
             Connected.Invoke(Connection);
+
+            // start processing messages
+            await Connection.ProcessMessagesAsync();
+            Cleanup();
+
+            Disconnected.Invoke();
+
         }
 
         public void OnAuthenticated(NetworkConnectionToServer conn)
@@ -273,35 +222,7 @@ namespace Mirror
         /// </summary>
         public void Disconnect()
         {
-            // local or remote connection?
-            if (IsLocalClient)
-            {
-                if (IsConnected)
-                {
-                    hostServer.Disconnected.Invoke(hostServer.localConnection);
-                }
-                hostServer.RemoveLocalConnection();
-            }
-            else
-            {
-                if (Connection != null)
-                {
-                    Connection.Disconnect();
-                    RemoveTransportHandlers();
-                }
-            }
-            // set connectState as Disconnected after, otherwise Disconnected event is never raised
-            connectState = ConnectState.Disconnected;
-
-            HandleClientDisconnect();
-        }
-
-        void RemoveTransportHandlers()
-        {
-            // so that we don't register them more than once
-            Transport.activeTransport.OnClientDataReceived.RemoveListener(OnDataReceived);
-            Transport.activeTransport.OnClientDisconnected.RemoveListener(OnDisconnected);
-            Transport.activeTransport.OnClientError.RemoveListener(OnError);
+            Connection?.Disconnect();
         }
 
         /// <summary>
@@ -313,36 +234,23 @@ namespace Mirror
         /// <param name="message"></param>
         /// <param name="channelId"></param>
         /// <returns>True if message was sent.</returns>
-        public bool Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public Task SendAsync<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            if (Connection != null)
-            {
-                if (connectState != ConnectState.Connected)
-                {
-                    Debug.LogError("NetworkClient Send when not connected to a server");
-                    return false;
-                }
-                return Connection.Send(message, channelId);
-            }
-            Debug.LogError("NetworkClient Send with no connection");
-            return false;
+            return Connection.SendAsync(message, channelId);
+        }
+
+        public void Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        {
+            _ = Connection.SendAsync(message, channelId);
         }
 
         internal void Update()
         {
             // local connection?
-            if (Connection is ULocalConnectionToServer localConnection)
-            {
-                localConnection.Update();
-            }
-            // remote connection?
-            else
+            if (!IsLocalClient && Active && connectState == ConnectState.Connected)
             {
                 // only update things while connected
-                if (Active && connectState == ConnectState.Connected)
-                {
-                    Time.UpdateClient(this);
-                }
+                Time.UpdateClient(this);
             }
         }
 
@@ -378,26 +286,29 @@ namespace Mirror
         /// Shut down a client.
         /// <para>This should be done when a client is no longer going to be used.</para>
         /// </summary>
-        public void Shutdown()
+        void Cleanup()
         {
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
 
             ClearSpawners();
             DestroyAllClientObjects();
-            Connection = null;
             ready = false;
             isSpawnFinished = false;
 
             connectState = ConnectState.None;
 
             if (authenticator != null)
+            { 
                 authenticator.OnClientAuthenticated -= OnAuthenticated;
 
-            // disconnect the client connection.
-            // we do NOT call Transport.Shutdown, because someone only called
-            // NetworkClient.Shutdown. we can't assume that the server is
-            // supposed to be shut down too!
-            Transport.activeTransport.ClientDisconnect();
+                Connected.RemoveListener(authenticator.OnClientAuthenticateInternal);
+            }
+            else
+            {
+                // if no authenticator, consider connection as authenticated
+                Connected.RemoveListener(OnAuthenticated);
+            }
+
         }
 
         static bool ConsiderForSpawning(NetworkIdentity identity)

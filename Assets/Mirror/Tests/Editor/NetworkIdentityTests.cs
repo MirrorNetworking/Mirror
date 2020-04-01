@@ -7,6 +7,8 @@ using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 using UnityEngine.Events;
 
+using static Mirror.Tests.LocalConnections;
+
 namespace Mirror.Tests
 {
     public class NetworkIdentityTests
@@ -167,19 +169,23 @@ namespace Mirror.Tests
         private NetworkClient client;
         private GameObject networkServerGameObject;
 
+        IConnection tconn42;
+        IConnection tconn43;
+
         [SetUp]
         public void SetUp()
         {
             networkServerGameObject = new GameObject();
+            networkServerGameObject.AddComponent<MockTransport>();
             server = networkServerGameObject.AddComponent<NetworkServer>();
             client = networkServerGameObject.AddComponent<NetworkClient>();
-            Transport.activeTransport = Substitute.For<Transport>();
-
-            Transport.activeTransport.GetMaxPacketSize().ReturnsForAnyArgs(1000);
 
             gameObject = new GameObject();
             identity = gameObject.AddComponent<NetworkIdentity>();
             identity.Server = server;
+
+            tconn42 = Substitute.For<IConnection>();
+            tconn43 = Substitute.For<IConnection>();
         }
 
         [TearDown]
@@ -189,7 +195,6 @@ namespace Mirror.Tests
             // DestroyImmediate is called internally, giving an error in Editor
             GameObject.DestroyImmediate(gameObject);
             Object.DestroyImmediate(networkServerGameObject);
-            Transport.activeTransport = null;
         }
 
         // A Test behaves as an ordinary method
@@ -224,7 +229,7 @@ namespace Mirror.Tests
         public void SetClientOwner()
         {
             // SetClientOwner
-            (_, ULocalConnectionToClient original) = ULocalConnectionToClient.CreateLocalConnections();
+            (_, NetworkConnectionToClient original) = PipedConnections();
             identity.SetClientOwner(original);
             Assert.That(identity.ConnectionToClient, Is.EqualTo(original));
         }
@@ -233,11 +238,11 @@ namespace Mirror.Tests
         public void SetOverrideClientOwner()
         {
             // SetClientOwner
-            (_, ULocalConnectionToClient original) = ULocalConnectionToClient.CreateLocalConnections();
+            (_, NetworkConnectionToClient original) = PipedConnections();
             identity.SetClientOwner(original);
 
             // setting it when it's already set shouldn't overwrite the original
-            (_, ULocalConnectionToClient overwrite) = ULocalConnectionToClient.CreateLocalConnections();
+            (_, NetworkConnectionToClient overwrite) = PipedConnections();
             // will log a warning
             Assert.Throws<InvalidOperationException>(() =>
             {
@@ -254,11 +259,11 @@ namespace Mirror.Tests
             identity.StartServer();
 
             // add an observer connection
-            var connection = new NetworkConnectionToClient(42);
+            var connection = new NetworkConnectionToClient(null);
             identity.observers.Add(connection);
 
             // RemoveObserverInternal with invalid connection should do nothing
-            identity.RemoveObserverInternal(new NetworkConnectionToClient(43));
+            identity.RemoveObserverInternal(new NetworkConnectionToClient(null));
             Assert.That(identity.observers.Count, Is.EqualTo(1));
 
             // RemoveObserverInternal with existing connection should remove it
@@ -483,7 +488,7 @@ namespace Mirror.Tests
             // add component
             CheckObserverExceptionNetworkBehaviour compExc = gameObject.AddComponent<CheckObserverExceptionNetworkBehaviour>();
 
-            NetworkConnection connection = new NetworkConnectionToClient(42);
+            NetworkConnection connection = new NetworkConnectionToClient(null);
 
             // an exception in OnCheckObserver should be caught, so that one
             // component's exception doesn't stop all other components from
@@ -706,8 +711,8 @@ namespace Mirror.Tests
 
             identity.Server = server;
             // create some connections
-            var connection1 = new NetworkConnectionToClient(42);
-            var connection2 = new NetworkConnectionToClient(43);
+            var connection1 = new NetworkConnectionToClient(null);
+            var connection2 = new NetworkConnectionToClient(null);
 
             // AddObserver should return early if called before .observers was
             // created
@@ -738,8 +743,8 @@ namespace Mirror.Tests
             identity.StartServer();
 
             // add some observers
-            identity.observers.Add(new NetworkConnectionToClient(42));
-            identity.observers.Add(new NetworkConnectionToClient(43));
+            identity.observers.Add(new NetworkConnectionToClient(null));
+            identity.observers.Add(new NetworkConnectionToClient(null));
 
             // call ClearObservers
             identity.ClearObservers();
@@ -754,9 +759,9 @@ namespace Mirror.Tests
             // creates .observers and generates a netId
             identity.StartServer();
             uint netId = identity.NetId;
-            identity.ConnectionToClient = new NetworkConnectionToClient(1);
-            identity.ConnectionToServer = new NetworkConnectionToServer();
-            identity.observers.Add(new NetworkConnectionToClient(2));
+            identity.ConnectionToClient = new NetworkConnectionToClient(null);
+            identity.ConnectionToServer = new NetworkConnectionToServer(null);
+            identity.observers.Add(new NetworkConnectionToClient(null));
 
             // calling reset shouldn't do anything unless it was marked for reset
             identity.Reset();
@@ -772,85 +777,14 @@ namespace Mirror.Tests
             Assert.That(identity.ConnectionToServer, Is.Null);
         }
 
-
-        [Test]
-        public void ServerUpdate()
-        {
-            // add components
-            SerializeTest1NetworkBehaviour compA = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            // test value
-            compA.value = 1337;
-            // set syncInterval so IsDirty passes the interval check
-            compA.syncInterval = 0;
-            // one needs to sync to owner
-            compA.syncMode = SyncMode.Owner;
-            SerializeTest2NetworkBehaviour compB = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
-            // test value
-            compB.value = "test";
-            // set syncInterval so IsDirty passes the interval check
-            compB.syncInterval = 0;
-            // one needs to sync to owner
-            compB.syncMode = SyncMode.Observers;
-
-            // call OnStartServer once so observers are created
-            identity.StartServer();
-
-            // set it dirty
-            compA.SetDirtyBit(ulong.MaxValue);
-            compB.SetDirtyBit(ulong.MaxValue);
-            Assert.That(compA.IsDirty(), Is.True);
-            Assert.That(compB.IsDirty(), Is.True);
-
-            // calling update without observers should clear all dirty bits.
-            // it would be spawned on new observers anyway.
-            identity.ServerUpdate();
-            Assert.That(compA.IsDirty(), Is.False);
-            Assert.That(compB.IsDirty(), Is.False);
-
-            (_, ULocalConnectionToClient owner)
-                = ULocalConnectionToClient.CreateLocalConnections();
-            owner.isReady = true;
-            owner.isAuthenticated = true;
-            owner.connectionToServer.isAuthenticated = true;
-            int ownerCalled = 0;
-            owner.connectionToServer.RegisterHandler<UpdateVarsMessage>(msg => ++ownerCalled);
-            identity.ConnectionToClient = owner;
-
-            // add an observer connection that will receive the updates
-            (_, ULocalConnectionToClient observer)
-                = ULocalConnectionToClient.CreateLocalConnections();
-            observer.isReady = true;
-            observer.isAuthenticated = true;
-            observer.connectionToServer.isAuthenticated = true;
-            int observerCalled = 0;
-            observer.connectionToServer.RegisterHandler<UpdateVarsMessage>(msg => ++observerCalled);
-            identity.observers.Add(observer);
-
-            // set components dirty again
-            compA.SetDirtyBit(ulong.MaxValue);
-            compB.SetDirtyBit(ulong.MaxValue);
-
-            // calling update should serialize all components and send them to
-            // owner/observers
-            identity.ServerUpdate();
-
-            // update connections once so that messages are processed
-            owner.connectionToServer.Update();
-            observer.connectionToServer.Update();
-
-            // was it received on the clients?
-            Assert.That(ownerCalled, Is.EqualTo(1));
-            Assert.That(observerCalled, Is.EqualTo(1));
-        }
-
         [Test]
         public void GetNewObservers()
         {
             // add components
             RebuildObserversNetworkBehaviour compA = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
-            compA.observer = new NetworkConnectionToClient(12);
+            compA.observer = new NetworkConnectionToClient(null);
             RebuildObserversNetworkBehaviour compB = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
-            compB.observer = new NetworkConnectionToClient(13);
+            compB.observer = new NetworkConnectionToClient(null);
 
             // get new observers
             var observers = new HashSet<NetworkConnection>();
@@ -867,7 +801,7 @@ namespace Mirror.Tests
             // get new observers. no observer components so it should just clear
             // it and not do anything else
             var observers = new HashSet<NetworkConnection>();
-            observers.Add(new NetworkConnectionToClient(42));
+            observers.Add(new NetworkConnectionToClient(null));
             identity.GetNewObservers(observers, true);
             Assert.That(observers.Count, Is.EqualTo(0));
         }
@@ -884,28 +818,27 @@ namespace Mirror.Tests
         [Test]
         public void AddAllReadyServerConnectionsToObservers()
         {
-            var connection1 = new NetworkConnectionToClient(12) { isReady = true };
-            var connection2 = new NetworkConnectionToClient(13) { isReady = false };
+            var connection1 = new NetworkConnectionToClient(tconn42) { isReady = true };
+            var connection2 = new NetworkConnectionToClient(tconn43) { isReady = false };
             // add some server connections
-            server.connections[12] = connection1;
-            server.connections[13] = connection2;
+            server.connections.Add(connection1);
+            server.connections.Add(connection2);
 
             // add a host connection
-            (_, ULocalConnectionToClient localConnection)
-                = ULocalConnectionToClient.CreateLocalConnections();
-            localConnection.isReady = true;
+            (_, var localConnection) = PipeConnection.CreatePipe();
+
             server.SetLocalConnection(client, localConnection);
+            server.localConnection.isReady = true;
 
             // call OnStartServer so that observers dict is created
             identity.StartServer();
 
             // add all to observers. should have the two ready connections then.
             identity.AddAllReadyServerConnectionsToObservers();
-            Assert.That(identity.observers, Is.EquivalentTo(new[] { connection1, localConnection }));
+            Assert.That(identity.observers, Is.EquivalentTo(new[] { connection1, server.localConnection }));
 
             // clean up
-            server.RemoveLocalConnection();
-            server.Shutdown();
+            server.Disconnect();
         }
 
         // RebuildObservers should always add the own ready connection
@@ -918,7 +851,7 @@ namespace Mirror.Tests
             gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
 
             // add own player connection
-            (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
+            (_, NetworkConnectionToClient connection) = PipedConnections();
             connection.isReady = true;
             identity.ConnectionToClient = connection;
 
@@ -940,7 +873,7 @@ namespace Mirror.Tests
             gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
 
             // add own player connection that isn't ready
-            (_, ULocalConnectionToClient connection) = ULocalConnectionToClient.CreateLocalConnections();
+            (_, NetworkConnectionToClient connection) = PipedConnections();
             identity.ConnectionToClient = connection;
 
             // call OnStartServer so that observers dict is created

@@ -57,7 +57,7 @@ namespace Mirror
                     {
                         if (GUILayout.Button("Host (Server + Client)"))
                         {
-                            manager.StartHost();
+                            _ = manager.StartHost();
                         }
                     }
 
@@ -78,7 +78,10 @@ namespace Mirror
                     }
                     else
                     {
-                        if (GUILayout.Button("Server Only")) manager.StartServer();
+                        if (GUILayout.Button("Server Only"))
+                        {
+                            _ = manager.StartServer();
+                        }
                     }
                 }
                 else
@@ -96,7 +99,7 @@ namespace Mirror
                 // server / client status message
                 if (manager.server.active)
                 {
-                    GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
+                    GUILayout.Label("Server: active. Transport: " + manager.server.transport);
                 }
                 if (manager.client.IsConnected)
                 {

@@ -2,6 +2,8 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
+using static Mirror.Tests.LocalConnections;
+
 namespace Mirror.Tests
 {
     public class SampleBehavior : NetworkBehaviour
@@ -120,14 +122,14 @@ namespace Mirror.Tests
         [Test]
         public void HasIdentitysConnectionToServer()
         {
-            (identity.ConnectionToServer, _) = ULocalConnectionToClient.CreateLocalConnections();
+            (identity.ConnectionToServer, _) = PipedConnections();
             Assert.That(component.ConnectionToServer, Is.EqualTo(identity.ConnectionToServer));
         }
 
         [Test]
         public void HasIdentitysConnectionToClient()
         {
-            (_, identity.ConnectionToClient) = ULocalConnectionToClient.CreateLocalConnections();
+            (_, identity.ConnectionToClient) = PipedConnections();
             Assert.That(component.ConnectionToClient, Is.EqualTo(identity.ConnectionToClient));
         }
 

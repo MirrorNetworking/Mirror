@@ -186,7 +186,7 @@ namespace Mirror.Examples.ListServer
         void OnUI()
         {
             // only show while client not connected and server not started
-            if (!manager.isNetworkActive || IsConnecting())
+            if (!manager.IsNetworkActive || IsConnecting())
             {
                 mainPanel.SetActive(true);
 

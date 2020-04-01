@@ -231,7 +231,7 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            Client.Connection.Send(message, channelId);
+            _ = Client.SendAsync(message, channelId);
         }
 
         /// <summary>

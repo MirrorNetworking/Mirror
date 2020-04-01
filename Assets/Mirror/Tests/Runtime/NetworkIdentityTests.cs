@@ -1,7 +1,10 @@
-using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using InvalidOperationException = System.InvalidOperationException;
+
+using static Mirror.Tests.AsyncUtil;
+using System.Collections;
 
 namespace Mirror.Tests
 {
@@ -11,27 +14,27 @@ namespace Mirror.Tests
         NetworkServer server;
         GameObject serverGO;
         NetworkClient client;
-        GameObject clientGO;
 
 
         GameObject gameObject;
         NetworkIdentity identity;
 
-        [SetUp]
-        public void SetUp()
+        [UnitySetUp]
+        public IEnumerator SetUp()
         {
-            Transport.activeTransport = Substitute.For<Transport>();
-            serverGO = new GameObject();
-            server = serverGO.AddComponent<NetworkServer>();
+            return RunAsync(async () =>
+            {
+                serverGO = new GameObject();
+                serverGO.AddComponent<MockTransport>();
+                server = serverGO.AddComponent<NetworkServer>();
+                client = serverGO.AddComponent<NetworkClient>();
+                await server.ListenAsync();
+                client.ConnectHost(server);
 
-            clientGO = new GameObject();
-            client = clientGO.AddComponent<NetworkClient>();
-            server.Listen();
-            client.ConnectHost(server);
 
-
-            gameObject = new GameObject();
-            identity = gameObject.AddComponent<NetworkIdentity>();
+                gameObject = new GameObject();
+                identity = gameObject.AddComponent<NetworkIdentity>();
+            });
         }
 
         [TearDown]
@@ -39,11 +42,8 @@ namespace Mirror.Tests
         {
             Object.DestroyImmediate(gameObject);
             // reset all state
-            server.Shutdown();
+            server.Disconnect();
             Object.DestroyImmediate(serverGO);
-            Object.DestroyImmediate(clientGO);
-            Transport.activeTransport = null;
-            server.Shutdown();
         }
         #endregion
 
@@ -152,7 +152,7 @@ namespace Mirror.Tests
             // another connection
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
             {
-                identity.AssignClientAuthority(new NetworkConnectionToClient(43));
+                identity.AssignClientAuthority(new NetworkConnectionToClient(null));
             });
             Assert.That(ex.Message, Is.EqualTo("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first"));
         }

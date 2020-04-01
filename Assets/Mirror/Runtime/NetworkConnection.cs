@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Mirror
@@ -29,14 +30,14 @@ namespace Mirror
         private readonly Dictionary<int, NetworkMessageDelegate> messageHandlers = new Dictionary<int, NetworkMessageDelegate>();
 
         /// <summary>
-        /// Unique identifier for this connection that is assigned by the transport layer.
+        /// Transport level connection
         /// </summary>
         /// <remarks>
         /// <para>On a server, this Id is unique for every connection on the server. On a client this Id is local to the client, it is not the same as the Id on the server for this connection.</para>
         /// <para>Transport layers connections begin at one. So on a client with a single connection to a server, the connectionId of that connection will be one. In NetworkServer, the connectionId of the local connection is zero.</para>
         /// <para>Clients do not know their connectionId on the server, and do not know the connectionId of other clients on the server.</para>
         /// </remarks>
-        public readonly int connectionId;
+        public readonly IConnection connection;
 
         /// <summary>
         /// Flag that indicates the client has been authenticated.
@@ -60,7 +61,7 @@ namespace Mirror
         /// The IP address / URL / FQDN associated with the connection.
         /// Can be useful for a game master to do IP Bans etc.
         /// </summary>
-        public abstract EndPoint Address { get; }
+        public virtual EndPoint Address => connection.GetEndPointAddress();
 
         /// <summary>
         /// The last time that a message was received on this connection.
@@ -103,9 +104,9 @@ namespace Mirror
         /// Creates a new NetworkConnection with the specified address and connectionId
         /// </summary>
         /// <param name="networkConnectionId"></param>
-        internal NetworkConnection(int networkConnectionId)
+        protected NetworkConnection(IConnection connection)
         {
-            connectionId = networkConnectionId;
+            this.connection = connection;
         }
 
         ~NetworkConnection()
@@ -133,7 +134,10 @@ namespace Mirror
         /// <summary>
         /// Disconnects this connection.
         /// </summary>
-        public abstract void Disconnect();
+        public virtual void Disconnect()
+        {
+            connection.Disconnect();
+        }
 
         private static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
             where T : IMessageBase, new()
@@ -232,74 +236,68 @@ namespace Mirror
             messageHandlers.Clear();
         }
 
+        /// <summary>
+        /// This sends a network message to the connection.
+        /// </summary>
+        /// <typeparam name="T">The message type</typeparam>
+        /// <param name="msg">The message to send</param>
+        /// <param name="channelId">The transport layer channel to send on.</param>
+        /// <returns></returns>
+        public virtual void Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        {
+            _ = SendAsync(msg, channelId);
+        }
 
         /// <summary>
-        /// This sends a network message with a message ID on the connection. This message is sent on channel zero, which by default is the reliable channel.
+        /// This sends a network message to the connection. You can await it to check for errors
         /// </summary>
-        /// <typeparam name="T">The message type to unregister.</typeparam>
+        /// <typeparam name="T">The message type</typeparam>
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public virtual Task SendAsync<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message and send allocation free
                 MessagePacker.Pack(msg, writer);
                 NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
-                return Send(writer.ToArraySegment(), channelId);
+                return SendAsync(writer.ToArraySegment(), channelId);
             }
         }
 
-        // internal because no one except Mirror should send bytes directly to
-        // the client. they would be detected as a message. send messages instead.
-        internal abstract bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
-
-        // cache the Send(connectionIds) list to avoid allocating each time
-        static readonly List<int> connectionIdsCache = new List<int>();
-
-        public static bool Send<T>(IEnumerable<NetworkConnection> connections, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public static void Send<T>(IEnumerable<NetworkConnection> connections, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message into byte[] once
                 MessagePacker.Pack(msg, writer);
                 var segment = writer.ToArraySegment();
-
-                // filter and then send to all internet connections at once
-                // -> makes code more complicated, but is HIGHLY worth it to
-                //    avoid allocations, allow for multicast, etc.
-                connectionIdsCache.Clear();
-                bool result = true;
                 int count = 0;
 
-                foreach (NetworkConnection connection in connections)
+                foreach (NetworkConnection conn in connections)
                 {
-                    // use local connection directly because it doesn't send via transport
-                    if (connection is ULocalConnectionToClient)
-                        result &= connection.Send(segment);
-                    // gather all internet connections
-                    else
-                        connectionIdsCache.Add(connection.connectionId);
-
+                    // send to all connections, but don't wait for them
+                    _ = conn.SendAsync(segment);
                     count++;
                 }
 
-                // send to all internet connections at once
-                if (connectionIdsCache.Count > 0)
-                {
-                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
-                }
-
                 NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
-
-                return result;
             }
+        }
+        
+        // internal because no one except Mirror should send bytes directly to
+        // the client. they would be detected as a message. send messages instead.
+        internal virtual Task SendAsync(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        {
+            if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
+
+            return connection.SendAsync(segment);
         }
 
         public override string ToString()
         {
-            return $"connection({connectionId})";
+            return $"connection({Address})";
         }
 
         internal void AddToVisList(NetworkIdentity identity)
@@ -425,6 +423,17 @@ namespace Mirror
 
             // clear the hashset because we destroyed them all
             clientOwnedObjects.Clear();
+        }
+
+        internal async Task ProcessMessagesAsync()
+        {
+            var buffer = new MemoryStream();
+
+            while (await connection.ReceiveAsync(buffer))
+            {
+                buffer.TryGetBuffer(out ArraySegment<byte> data);
+                TransportReceive(data, Channels.DefaultReliable);
+            }
         }
     }
 }

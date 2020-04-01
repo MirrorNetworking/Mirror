@@ -3,6 +3,8 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
+using static Mirror.Tests.AsyncUtil;
+
 namespace Mirror.Tests
 {
     public class Flags : NetworkBehaviour
@@ -50,17 +52,17 @@ namespace Mirror.Tests
         [UnitySetUp]
         public IEnumerator SetupNetworkServer()
         {
+            return RunAsync(async () =>
+            {
+                SetupServer();
+               
+                await manager.StartServer();
 
-            SetupServer();
-            // wait for manager to initialize
-            yield return null;
-
-            manager.StartServer();
-
-            playerGO = new GameObject();
-            playerGO.AddComponent<NetworkIdentity>();
-            behavior = playerGO.AddComponent<SampleBehavior>();
-            flags = playerGO.AddComponent<Flags>();
+                playerGO = new GameObject();
+                playerGO.AddComponent<NetworkIdentity>();
+                behavior = playerGO.AddComponent<SampleBehavior>();
+                flags = playerGO.AddComponent<Flags>();
+            });
         }
 
         public void SetupNetworkClient()

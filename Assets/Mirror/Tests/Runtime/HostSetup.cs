@@ -1,7 +1,10 @@
 using System.Collections;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+
+using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
@@ -24,35 +27,40 @@ namespace Mirror.Tests
         [UnitySetUp]
         public IEnumerator SetupHost()
         {
-            networkManagerGo = new GameObject();
-            manager = networkManagerGo.AddComponent<NetworkManager>();
-            manager.client = networkManagerGo.GetComponent<NetworkClient>();
-            manager.server = networkManagerGo.GetComponent<NetworkServer>();
-            server = manager.server;
-            client = manager.client;
-            manager.startOnHeadless = false;
+            return RunAsync(async() =>
+            {
+                networkManagerGo = new GameObject();
+                networkManagerGo.AddComponent<MockTransport>();
+                manager = networkManagerGo.AddComponent<NetworkManager>();
+                manager.client = networkManagerGo.GetComponent<NetworkClient>();
+                manager.server = networkManagerGo.GetComponent<NetworkServer>();
+                server = manager.server;
+                client = manager.client;
+                manager.startOnHeadless = false;
 
-            // wait for manager to Start()
-            yield return null;
+                // wait for client and server to initialize themselves
+                await Task.Delay(1);
 
-            manager.StartHost();
+                // now start the host
+                await manager.StartHost();
 
+                playerGO = new GameObject();
+                identity = playerGO.AddComponent<NetworkIdentity>();
+                component = playerGO.AddComponent<T>();
 
-            playerGO = new GameObject();
-            identity = playerGO.AddComponent<NetworkIdentity>();
-            component = playerGO.AddComponent<T>();
+                server.AddPlayerForConnection(server.localConnection, playerGO);
 
-            server.AddPlayerForConnection(server.localConnection, playerGO);
+                client.Update();
 
-            client.Update();
+            });
         }
 
         [TearDown]
         public void ShutdownHost()
         {
-            GameObject.DestroyImmediate(playerGO);
+            Object.DestroyImmediate(playerGO);
             manager.StopHost();
-            GameObject.DestroyImmediate(networkManagerGo);
+            Object.DestroyImmediate(networkManagerGo);
         }
 
         #endregion

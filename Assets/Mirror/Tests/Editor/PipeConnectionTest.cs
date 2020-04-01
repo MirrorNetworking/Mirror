@@ -22,35 +22,29 @@ namespace Mirror.Tests
             (c1, c2) = PipeConnection.CreatePipe();
         }
 
-        private static async Task TestSendData(IConnection c1, IConnection c2)
+        private static Task SendData(IConnection c, byte[] data)
         {
-            byte[] data = { 1, 2, 3, 4 };
-
-            await c1.SendAsync(new ArraySegment<byte>(data));
-            var memoryStream = new MemoryStream();
-            Assert.That(await c2.ReceiveAsync(memoryStream));
-
-            memoryStream.TryGetBuffer(out ArraySegment<byte> receivedData);
-
-            Assert.That(receivedData, Is.EqualTo(receivedData));
+            return c.SendAsync(new ArraySegment<byte>(data));
         }
 
+
+        private static async Task ExpectData(IConnection c, byte[] expected)
+        {
+            var memoryStream = new MemoryStream();
+            Assert.That(await c.ReceiveAsync(memoryStream));
+
+            memoryStream.TryGetBuffer(out ArraySegment<byte> receivedData);
+            Assert.That(receivedData, Is.EqualTo(new ArraySegment<byte>(expected)));
+        }
+   
         [UnityTest]
         public IEnumerator TestSendAndReceive()
         {
             return RunAsync(async () =>
             {
+                await SendData(c1, new byte [] { 1, 2, 3, 4 });
 
-                await TestSendData(c1, c2);
-            });
-        }
-
-        [UnityTest]
-        public IEnumerator TestSendAndReceiveBackwards()
-        {
-            return RunAsync(async () =>
-            {
-                await TestSendData(c2, c1);
+                await ExpectData(c2, new byte[] { 1, 2, 3, 4 });
             });
         }
 
@@ -59,8 +53,11 @@ namespace Mirror.Tests
         {
             return RunAsync(async () =>
             {
-                await TestSendData(c1, c2);
-                await TestSendData(c1, c2);
+                await SendData(c1, new byte[] { 1, 2, 3, 4 });
+                await SendData(c1, new byte[] { 5, 6, 7, 8 });
+
+                await ExpectData(c2, new byte[] { 1, 2, 3, 4 });
+                await ExpectData(c2, new byte[] { 5, 6, 7,8 });
             });
         }
 

@@ -17,7 +17,7 @@ namespace Mirror.Discovery
         public long ServerId { get; private set; }
 
         [Tooltip("Transport to be advertised during discovery")]
-        public Transport transport;
+        public AsyncTransport transport;
 
         [Tooltip("Invoked when a server is found")]
         public ServerFoundUnityEvent OnServerFound;
@@ -25,12 +25,6 @@ namespace Mirror.Discovery
         public override void Start()
         {
             ServerId = RandomLong();
-
-            // active transport gets initialized in awake
-            // so make sure we set it here in Start()  (after awakes)
-            // Or just let the user assign it in the inspector
-            if (transport == null)
-                transport = Transport.activeTransport;
 
             base.Start();
         }
