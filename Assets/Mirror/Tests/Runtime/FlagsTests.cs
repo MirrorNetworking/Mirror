@@ -50,20 +50,17 @@ namespace Mirror.Tests
         Flags flags;
 
         [UnitySetUp]
-        public IEnumerator SetupNetworkServer()
+        public IEnumerator SetupNetworkServer() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                SetupServer();
-               
-                await manager.StartServer();
+            SetupServer();
 
-                playerGO = new GameObject();
-                playerGO.AddComponent<NetworkIdentity>();
-                behavior = playerGO.AddComponent<SampleBehavior>();
-                flags = playerGO.AddComponent<Flags>();
-            });
-        }
+            await manager.StartServer();
+
+            playerGO = new GameObject();
+            playerGO.AddComponent<NetworkIdentity>();
+            behavior = playerGO.AddComponent<SampleBehavior>();
+            flags = playerGO.AddComponent<Flags>();
+        });
 
         public void SetupNetworkClient()
         {

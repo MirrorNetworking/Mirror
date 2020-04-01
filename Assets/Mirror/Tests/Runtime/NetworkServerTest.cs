@@ -90,33 +90,30 @@ namespace Mirror.Tests
         TaskCompletionSource<bool> tconn43Receive;
 
         [UnitySetUp]
-        public IEnumerator SetUp()
+        public IEnumerator SetUp() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                serverGO = new GameObject();
-                transport = serverGO.AddComponent<MockTransport>();
-                server = serverGO.AddComponent<NetworkServer>();
-                client = serverGO.AddComponent<NetworkClient>();
+            serverGO = new GameObject();
+            transport = serverGO.AddComponent<MockTransport>();
+            server = serverGO.AddComponent<NetworkServer>();
+            client = serverGO.AddComponent<NetworkClient>();
 
-                gameObject = new GameObject();
-                identity = gameObject.AddComponent<NetworkIdentity>();
+            gameObject = new GameObject();
+            identity = gameObject.AddComponent<NetworkIdentity>();
 
-                tconn42 = Substitute.For<IConnection>();
-                tconn43 = Substitute.For<IConnection>();
+            tconn42 = Substitute.For<IConnection>();
+            tconn43 = Substitute.For<IConnection>();
 
-                tconn42Receive = new TaskCompletionSource<bool>();
-                tconn43Receive = new TaskCompletionSource<bool>();
+            tconn42Receive = new TaskCompletionSource<bool>();
+            tconn43Receive = new TaskCompletionSource<bool>();
 
-                Task<bool> task42 = tconn42Receive.Task;
-                Task<bool> task43 = tconn42Receive.Task;
+            Task<bool> task42 = tconn42Receive.Task;
+            Task<bool> task43 = tconn42Receive.Task;
 
-                tconn42.ReceiveAsync(null).ReturnsForAnyArgs(task42);
-                tconn43.ReceiveAsync(null).ReturnsForAnyArgs(task43);
+            tconn42.ReceiveAsync(null).ReturnsForAnyArgs(task42);
+            tconn43.ReceiveAsync(null).ReturnsForAnyArgs(task43);
 
-                await server.ListenAsync();
-            });
-        }
+            await server.ListenAsync();
+        });
 
         [TearDown]
         public void TearDown()

@@ -25,35 +25,32 @@ namespace Mirror.Tests
         protected T component;
 
         [UnitySetUp]
-        public IEnumerator SetupHost()
+        public IEnumerator SetupHost() => RunAsync(async () =>
         {
-            return RunAsync(async() =>
-            {
-                networkManagerGo = new GameObject();
-                networkManagerGo.AddComponent<MockTransport>();
-                manager = networkManagerGo.AddComponent<NetworkManager>();
-                manager.client = networkManagerGo.GetComponent<NetworkClient>();
-                manager.server = networkManagerGo.GetComponent<NetworkServer>();
-                server = manager.server;
-                client = manager.client;
-                manager.startOnHeadless = false;
+            networkManagerGo = new GameObject();
+            networkManagerGo.AddComponent<MockTransport>();
+            manager = networkManagerGo.AddComponent<NetworkManager>();
+            manager.client = networkManagerGo.GetComponent<NetworkClient>();
+            manager.server = networkManagerGo.GetComponent<NetworkServer>();
+            server = manager.server;
+            client = manager.client;
+            manager.startOnHeadless = false;
 
-                // wait for client and server to initialize themselves
-                await Task.Delay(1);
+            // wait for client and server to initialize themselves
+            await Task.Delay(1);
 
-                // now start the host
-                await manager.StartHost();
+            // now start the host
+            await manager.StartHost();
 
-                playerGO = new GameObject();
-                identity = playerGO.AddComponent<NetworkIdentity>();
-                component = playerGO.AddComponent<T>();
+            playerGO = new GameObject();
+            identity = playerGO.AddComponent<NetworkIdentity>();
+            component = playerGO.AddComponent<T>();
 
-                server.AddPlayerForConnection(server.localConnection, playerGO);
+            server.AddPlayerForConnection(server.localConnection, playerGO);
 
-                client.Update();
+            client.Update();
 
-            });
-        }
+        });
 
         [TearDown]
         public void ShutdownHost()

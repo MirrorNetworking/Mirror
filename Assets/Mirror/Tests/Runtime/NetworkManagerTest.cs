@@ -54,39 +54,32 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator StartServerTest()
+        public IEnumerator StartServerTest() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                Assert.That(manager.server.active, Is.False);
+            Assert.That(manager.server.active, Is.False);
 
-                await manager.StartServer();
+            await manager.StartServer();
 
-                Assert.That(manager.IsNetworkActive, Is.True);
-                Assert.That(manager.server.active, Is.True);
+            Assert.That(manager.IsNetworkActive, Is.True);
+            Assert.That(manager.server.active, Is.True);
 
-                manager.StopServer();
-            });
-
-        }
+            manager.StopServer();
+        });
 
         [UnityTest]
-        public IEnumerator StopServerTest()
+        public IEnumerator StopServerTest() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                // wait for NetworkManager to initialize
-                await Task.Delay(1);
+            // wait for NetworkManager to initialize
+            await Task.Delay(1);
 
-                await manager.StartServer();
-                manager.StopServer();
+            await manager.StartServer();
+            manager.StopServer();
 
-                // wait for manager to stop
-                await Task.Delay(1);
+            // wait for manager to stop
+            await Task.Delay(1);
 
-                Assert.That(manager.IsNetworkActive, Is.False);
-            });
-        }
+            Assert.That(manager.IsNetworkActive, Is.False);
+        });
 
         [Test]
         public void StartClientTest()
@@ -99,89 +92,74 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator ConnectedClientTest()
+        public IEnumerator ConnectedClientTest() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                await manager.StartServer();
-                UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
-                manager.client.Connected.AddListener(func);
+            await manager.StartServer();
+            UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
+            manager.client.Connected.AddListener(func);
 
-                await manager.client.ConnectAsync(new System.Uri("tcp4://localhost"));
-                func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
-                manager.client.Disconnect();
-                manager.StopServer();
-            });
-        }
+            await manager.client.ConnectAsync(new System.Uri("tcp4://localhost"));
+            func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
+            manager.client.Disconnect();
+            manager.StopServer();
+        });
 
         [UnityTest]
-        public IEnumerator ConnectedClientUriTest()
+        public IEnumerator ConnectedClientUriTest() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                await manager.StartServer();
-                UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
-                manager.client.Connected.AddListener(func);
-                await manager.client.ConnectAsync(new System.Uri("tcp4://localhost"));
-                func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
-                manager.client.Disconnect();
-                manager.StopServer();
-                await Task.Delay(1);
+            await manager.StartServer();
+            UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
+            manager.client.Connected.AddListener(func);
+            await manager.client.ConnectAsync(new System.Uri("tcp4://localhost"));
+            func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
+            manager.client.Disconnect();
+            manager.StopServer();
+            await Task.Delay(1);
 
-            });
-        }
+        });
 
         [UnityTest]
-        public IEnumerator ConnectedHostTest()
+        public IEnumerator ConnectedHostTest() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                await manager.StartServer();
-                UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
-                manager.client.Connected.AddListener(func);
-                manager.client.ConnectHost(manager.server);
-                func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
-                manager.client.Disconnect();
-                manager.StopServer();
+            await manager.StartServer();
+            UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
+            manager.client.Connected.AddListener(func);
+            manager.client.ConnectHost(manager.server);
+            func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
+            manager.client.Disconnect();
+            manager.StopServer();
 
-                await Task.Delay(1);
-            });
-        }
+            await Task.Delay(1);
+        });
 
         [UnityTest]
-        public IEnumerator ConnectionRefusedTest()
+        public IEnumerator ConnectionRefusedTest() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
+            try
             {
-                try
-                {
-                    await manager.StartClient("localhost");
-                    Assert.Fail("If server is not available, it should throw exception");
-                }
-                catch (SocketException)
-                {
-                    // Good
-                }
-            });
-        }
-
-        [UnityTest]
-        public IEnumerator StopClientTest()
-        {
-            return RunAsync(async () =>
-            {
-                await manager.StartServer();
-
                 await manager.StartClient("localhost");
+                Assert.Fail("If server is not available, it should throw exception");
+            }
+            catch (SocketException)
+            {
+                // Good
+            }
+        });
 
-                manager.StopClient();
-                manager.StopServer();
+        [UnityTest]
+        public IEnumerator StopClientTest() => RunAsync(async () =>
+        {
+            await manager.StartServer();
 
-                // wait until manager shuts down
-                await Task.Delay(1);
+            await manager.StartClient("localhost");
 
-                Assert.That(manager.IsNetworkActive, Is.False);
-            });
-        }
+            manager.StopClient();
+            manager.StopServer();
+
+            // wait until manager shuts down
+            await Task.Delay(1);
+
+            Assert.That(manager.IsNetworkActive, Is.False);
+        });
     }
 }

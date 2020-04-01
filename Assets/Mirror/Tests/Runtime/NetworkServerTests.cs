@@ -21,35 +21,32 @@ namespace Mirror.Tests
         NetworkIdentity identity;
 
         [UnitySetUp]
-        public IEnumerator SetupNetworkServer()
+        public IEnumerator SetupNetworkServer() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
+            serverGO = new GameObject();
+            var transport = serverGO.AddComponent<LoopbackTransport>();
+            server = serverGO.AddComponent<NetworkServer>();
+            await server.ListenAsync();
+
+            IConnection tconn = await transport.ConnectAsync(new System.Uri("tcp4://localhost"));
+
+            connectionToClient = server.connections.First();
+            connectionToServer = new NetworkConnectionToServer(tconn);
+
+            connectionToClient.isAuthenticated = true;
+            connectionToServer.isAuthenticated = true;
+
+            message = new WovenTestMessage
             {
-                serverGO = new GameObject();
-                var transport = serverGO.AddComponent<LoopbackTransport>();
-                server = serverGO.AddComponent<NetworkServer>();
-                await server.ListenAsync();
+                IntValue = 1,
+                DoubleValue = 1.0,
+                StringValue = "hello"
+            };
 
-                IConnection tconn = await transport.ConnectAsync(new System.Uri("tcp4://localhost"));
+            identity = new GameObject().AddComponent<NetworkIdentity>();
+            identity.ConnectionToClient = connectionToClient;
 
-                connectionToClient = server.connections.First();
-                connectionToServer = new NetworkConnectionToServer(tconn);
-
-                connectionToClient.isAuthenticated = true;
-                connectionToServer.isAuthenticated = true;
-
-                message = new WovenTestMessage
-                {
-                    IntValue = 1,
-                    DoubleValue = 1.0,
-                    StringValue = "hello"
-                };
-
-                identity = new GameObject().AddComponent<NetworkIdentity>();
-                identity.ConnectionToClient = connectionToClient;
-
-            });
-        }
+        });
 
         [TearDown]
         public void ShutdownNetworkServer()

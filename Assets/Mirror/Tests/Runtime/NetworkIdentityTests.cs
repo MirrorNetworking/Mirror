@@ -20,22 +20,19 @@ namespace Mirror.Tests
         NetworkIdentity identity;
 
         [UnitySetUp]
-        public IEnumerator SetUp()
+        public IEnumerator SetUp() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                serverGO = new GameObject();
-                serverGO.AddComponent<MockTransport>();
-                server = serverGO.AddComponent<NetworkServer>();
-                client = serverGO.AddComponent<NetworkClient>();
-                await server.ListenAsync();
-                client.ConnectHost(server);
+            serverGO = new GameObject();
+            serverGO.AddComponent<MockTransport>();
+            server = serverGO.AddComponent<NetworkServer>();
+            client = serverGO.AddComponent<NetworkClient>();
+            await server.ListenAsync();
+            client.ConnectHost(server);
 
 
-                gameObject = new GameObject();
-                identity = gameObject.AddComponent<NetworkIdentity>();
-            });
-        }
+            gameObject = new GameObject();
+            identity = gameObject.AddComponent<NetworkIdentity>();
+        });
 
         [TearDown]
         public void TearDown()

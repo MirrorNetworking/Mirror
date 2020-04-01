@@ -36,58 +36,46 @@ namespace Mirror.Tests
             memoryStream.TryGetBuffer(out ArraySegment<byte> receivedData);
             Assert.That(receivedData, Is.EqualTo(new ArraySegment<byte>(expected)));
         }
-   
-        [UnityTest]
-        public IEnumerator TestSendAndReceive()
-        {
-            return RunAsync(async () =>
-            {
-                await SendData(c1, new byte [] { 1, 2, 3, 4 });
-
-                await ExpectData(c2, new byte[] { 1, 2, 3, 4 });
-            });
-        }
 
         [UnityTest]
-        public IEnumerator TestSendAndReceiveMultiple()
+        public IEnumerator TestSendAndReceive() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                await SendData(c1, new byte[] { 1, 2, 3, 4 });
-                await SendData(c1, new byte[] { 5, 6, 7, 8 });
+            await SendData(c1, new byte[] { 1, 2, 3, 4 });
 
-                await ExpectData(c2, new byte[] { 1, 2, 3, 4 });
-                await ExpectData(c2, new byte[] { 5, 6, 7,8 });
-            });
-        }
+            await ExpectData(c2, new byte[] { 1, 2, 3, 4 });
+        });
 
         [UnityTest]
-        public IEnumerator TestDisconnectC1()
+        public IEnumerator TestSendAndReceiveMultiple() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                // disconnecting c1 should disconnect both
-                c1.Disconnect();
+            await SendData(c1, new byte[] { 1, 2, 3, 4 });
+            await SendData(c1, new byte[] { 5, 6, 7, 8 });
 
-                var memoryStream = new MemoryStream();
-                Assert.That(await c1.ReceiveAsync(memoryStream), Is.False);
-                Assert.That(await c2.ReceiveAsync(memoryStream), Is.False);
-            });
-        }
+            await ExpectData(c2, new byte[] { 1, 2, 3, 4 });
+            await ExpectData(c2, new byte[] { 5, 6, 7, 8 });
+        });
 
         [UnityTest]
-        public IEnumerator TestDisconnectC2()
+        public IEnumerator TestDisconnectC1() => RunAsync(async () =>
         {
-            return RunAsync(async () =>
-            {
-                // disconnecting c1 should disconnect both
-                c2.Disconnect();
+            // disconnecting c1 should disconnect both
+            c1.Disconnect();
 
-                var memoryStream = new MemoryStream();
-                Assert.That(await c1.ReceiveAsync(memoryStream), Is.False);
-                Assert.That(await c2.ReceiveAsync(memoryStream), Is.False);
-            });
-        }
+            var memoryStream = new MemoryStream();
+            Assert.That(await c1.ReceiveAsync(memoryStream), Is.False);
+            Assert.That(await c2.ReceiveAsync(memoryStream), Is.False);
+        });
+
+        [UnityTest]
+        public IEnumerator TestDisconnectC2() => RunAsync(async () =>
+        {
+            // disconnecting c1 should disconnect both
+            c2.Disconnect();
+
+            var memoryStream = new MemoryStream();
+            Assert.That(await c1.ReceiveAsync(memoryStream), Is.False);
+            Assert.That(await c2.ReceiveAsync(memoryStream), Is.False);
+        });
 
         [Test]
         public void TestAddressC1()
