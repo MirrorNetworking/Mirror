@@ -68,7 +68,7 @@ jobs:
           args: -runTests -testPlatform editmode -testResults Tests/editmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
 
       - name: Run play Tests
-        uses: MirrorNG/unity-runner@master
+        uses: MirrorNG/unity-runner@sonar
         with:
           args: -runTests -testPlatform playmode -testResults Tests/playmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
           
