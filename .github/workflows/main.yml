@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Request manual activation file
-        uses: MirrorNG/unity-runner@master
+        uses: MirrorNG/unity-runner@sonar
         id: getManualLicenseFile
         with:
             entrypoint: /request_activation.sh
@@ -51,19 +51,19 @@ jobs:
           target: Packages/manifest.json
 
       - name: Activate license
-        uses: MirrorNG/unity-runner@master
+        uses: MirrorNG/unity-runner@sonar
         with:
           entrypoint: /activate.sh
           
       - name: Generate Solution
-        uses: MirrorNG/unity-runner@master
+        uses: MirrorNG/unity-runner@sonar
         with:
           # Arguments to pass to unity
           args: -buildTarget StandaloneWindows64 -customBuildName MirrorNG -customBuildPath ./build/StandaloneWindows64 -projectPath . -executeMethod  UnityEditor.SyncVS.SyncSolution -quit
   
       # Configure test runner
       - name: Run editor Tests
-        uses: MirrorNG/unity-runner@master
+        uses: MirrorNG/unity-runner@sonar
         with:
           args: -runTests -testPlatform editmode -testResults Tests/editmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
 
