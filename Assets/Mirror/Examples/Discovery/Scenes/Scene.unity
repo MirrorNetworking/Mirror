@@ -150,7 +150,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!4 &62199028
 Transform:
   m_ObjectHideFlags: 0
@@ -194,7 +193,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!4 &441913362
 Transform:
   m_ObjectHideFlags: 0
@@ -238,7 +236,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!4 &919124425
 Transform:
   m_ObjectHideFlags: 0
@@ -282,7 +279,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!4 &970214388
 Transform:
   m_ObjectHideFlags: 0
@@ -392,10 +388,10 @@ GameObject:
   - component: {fileID: 1556883245}
   - component: {fileID: 1556883248}
   - component: {fileID: 1556883246}
-  - component: {fileID: 1556883251}
   - component: {fileID: 1556883250}
   - component: {fileID: 1556883249}
   - component: {fileID: 1556883244}
+  - component: {fileID: 1556883252}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -440,12 +436,14 @@ MonoBehaviour:
   serverTickRate: 30
   server: {fileID: 1556883250}
   client: {fileID: 1556883249}
-  transport: {fileID: 1556883251}
-  playerSpawnMethod: 0
+  transport: {fileID: 1556883252}
+  OnStartHost:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopHost:
+    m_PersistentCalls:
+      m_Calls: []
   networkSceneName: 
-  startPositionIndex: 0
-  startPositions: []
-  autoCreatePlayer: 1
 --- !u!114 &1556883246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -489,7 +487,7 @@ MonoBehaviour:
   secretHandshake: 1558261479176021378
   serverBroadcastListenPort: 47777
   ActiveDiscoveryInterval: 3
-  transport: {fileID: 1556883251}
+  transport: {fileID: 0}
   OnServerFound:
     m_PersistentCalls:
       m_Calls:
@@ -530,6 +528,7 @@ MonoBehaviour:
   - {fileID: 9081919128954505657, guid: ecd52c53a6ef7496693343d3e32dace1, type: 3}
   - {fileID: 9081919128954505657, guid: ecd52c53a6ef7496693343d3e32dace1, type: 3}
   - {fileID: 9081919128954505657, guid: ecd52c53a6ef7496693343d3e32dace1, type: 3}
+  Transport: {fileID: 0}
 --- !u!114 &1556883250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -543,6 +542,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxConnections: 4
+  Started:
+    m_PersistentCalls:
+      m_Calls: []
   Connected:
     m_PersistentCalls:
       m_Calls: []
@@ -557,7 +559,8 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
---- !u!114 &1556883251
+  transport: {fileID: 0}
+--- !u!114 &1556883252
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -566,32 +569,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1556883243}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21a14f7f321be46e2bb911c1147e8c9e, type: 3}
+  m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnClientDataReceived:
-    m_PersistentCalls:
-      m_Calls: []
-  OnClientError:
-    m_PersistentCalls:
-      m_Calls: []
-  OnClientDisconnected:
-    m_PersistentCalls:
-      m_Calls: []
-  OnServerConnected:
-    m_PersistentCalls:
-      m_Calls: []
-  OnServerDataReceived:
-    m_PersistentCalls:
-      m_Calls: []
-  OnServerError:
-    m_PersistentCalls:
-      m_Calls: []
-  OnServerDisconnected:
-    m_PersistentCalls:
-      m_Calls: []
-  port: 7777
-  NoDelay: 1
+  Port: 7777
 --- !u!1 &1611696151
 GameObject:
   m_ObjectHideFlags: 0
@@ -621,7 +602,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!4 &1611696153
 Transform:
   m_ObjectHideFlags: 0
@@ -757,7 +737,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!4 &1911023978
 Transform:
   m_ObjectHideFlags: 0
@@ -801,7 +780,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!4 &1958729890
 Transform:
   m_ObjectHideFlags: 0
@@ -845,7 +823,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!4 &2054361116
 Transform:
   m_ObjectHideFlags: 0
