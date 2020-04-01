@@ -1,3 +1,10 @@
+# [31.2.0](https://github.com/MirrorNG/MirrorNG/compare/31.1.0-master...31.2.0-master) (2020-04-01)
+
+
+### Features
+
+* Add fallback transport ([1b02796](https://github.com/MirrorNG/MirrorNG/commit/1b02796c1468c1e1650eab0f278cd9a11cc597c7))
+
 # [31.1.0](https://github.com/MirrorNG/MirrorNG/compare/31.0.0-master...31.1.0-master) (2020-04-01)
 
 
