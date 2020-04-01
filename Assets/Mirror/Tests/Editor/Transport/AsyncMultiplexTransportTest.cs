@@ -98,7 +98,7 @@ namespace Mirror.Tests
             await transport.ListenAsync();
 
             _ = transport1.Received().ListenAsync();
-            _ = transport1.Received().ListenAsync();
+            _ = transport2.Received().ListenAsync();
 
         });
 
