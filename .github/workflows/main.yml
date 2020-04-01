@@ -85,6 +85,7 @@ jobs:
         if: always()
         with:
           path: "Tests/*.xml"
+          access-token: ${{ secrets.GITHUB_TOKEN }}
   
       - name: SonarQube analysis
         if: always()
