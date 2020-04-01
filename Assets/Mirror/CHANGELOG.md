@@ -1,3 +1,20 @@
+# [31.3.0](https://github.com/MirrorNG/MirrorNG/compare/31.2.1-master...31.3.0-master) (2020-04-01)
+
+
+### Bug Fixes
+
+* Destroyed NetMan due to singleton collision must not continue. ([#1636](https://github.com/MirrorNG/MirrorNG/issues/1636)) ([d2a58a4](https://github.com/MirrorNG/MirrorNG/commit/d2a58a4c251c97cdb38c88c9a381496b3078adf8))
+
+
+### Features
+
+* logging api ([#1611](https://github.com/MirrorNG/MirrorNG/issues/1611)) ([f2ccb59](https://github.com/MirrorNG/MirrorNG/commit/f2ccb59ae6db90bc84f8a36802bfe174b4493127))
+
+
+### Performance Improvements
+
+* faster NetworkReader pooling ([#1623](https://github.com/MirrorNG/MirrorNG/issues/1623)) ([1ae0381](https://github.com/MirrorNG/MirrorNG/commit/1ae038172ac7f5e18e0e09b0081f7f42fa0eff7a))
+
 ## [31.2.1](https://github.com/MirrorNG/MirrorNG/compare/31.2.0-master...31.2.1-master) (2020-04-01)
 
 
