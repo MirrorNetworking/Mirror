@@ -1,3 +1,10 @@
+# [31.1.0](https://github.com/MirrorNG/MirrorNG/compare/31.0.0-master...31.1.0-master) (2020-04-01)
+
+
+### Features
+
+* async multiplex transport ([#145](https://github.com/MirrorNG/MirrorNG/issues/145)) ([c0e7e92](https://github.com/MirrorNG/MirrorNG/commit/c0e7e9280931a5996f595e41aa516bef20208b6f))
+
 # [31.0.0](https://github.com/MirrorNG/MirrorNG/compare/30.3.3-master...31.0.0-master) (2020-04-01)
 
 
