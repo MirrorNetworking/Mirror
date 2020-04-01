@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.574817, a: 1}
+  m_IndirectSpecularColor: {r: 0.4465934, g: 0.49642956, b: 0.57482487, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2995,9 +2995,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1783103026}
   - component: {fileID: 1783103025}
-  - component: {fileID: 1783103023}
   - component: {fileID: 1783103028}
   - component: {fileID: 1783103027}
+  - component: {fileID: 1783103024}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -3005,7 +3005,7 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1783103023
+--- !u!114 &1783103024
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3014,32 +3014,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1783103022}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21a14f7f321be46e2bb911c1147e8c9e, type: 3}
+  m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnClientDataReceived:
-    m_PersistentCalls:
-      m_Calls: []
-  OnClientError:
-    m_PersistentCalls:
-      m_Calls: []
-  OnClientDisconnected:
-    m_PersistentCalls:
-      m_Calls: []
-  OnServerConnected:
-    m_PersistentCalls:
-      m_Calls: []
-  OnServerDataReceived:
-    m_PersistentCalls:
-      m_Calls: []
-  OnServerError:
-    m_PersistentCalls:
-      m_Calls: []
-  OnServerDisconnected:
-    m_PersistentCalls:
-      m_Calls: []
-  port: 7777
-  NoDelay: 1
+  Port: 7777
 --- !u!114 &1783103025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3058,12 +3036,14 @@ MonoBehaviour:
   serverTickRate: 30
   server: {fileID: 1783103028}
   client: {fileID: 1783103027}
-  transport: {fileID: 1783103023}
-  playerSpawnMethod: 0
+  transport: {fileID: 1783103024}
+  OnStartHost:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopHost:
+    m_PersistentCalls:
+      m_Calls: []
   networkSceneName: 
-  startPositionIndex: 0
-  startPositions: []
-  autoCreatePlayer: 0
   chatWindow: {fileID: 75861000}
   playerPrefab: {fileID: 718303009120396421, guid: e5905ffa27de84009b346b49d518ba03,
     type: 3}
@@ -3105,6 +3085,7 @@ MonoBehaviour:
       m_Calls: []
   spawnPrefabs:
   - {fileID: 5075528875289742095, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
+  Transport: {fileID: 0}
 --- !u!114 &1783103028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3118,6 +3099,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxConnections: 4
+  Started:
+    m_PersistentCalls:
+      m_Calls: []
   Connected:
     m_PersistentCalls:
       m_Calls: []
@@ -3132,6 +3116,7 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
+  transport: {fileID: 0}
 --- !u!1 &1863915624
 GameObject:
   m_ObjectHideFlags: 0
@@ -3412,9 +3397,9 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 1783103025}
+      - m_Target: {fileID: 1499096253}
         m_MethodName: StartHost
         m_Mode: 1
         m_Arguments:
