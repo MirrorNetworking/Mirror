@@ -1,3 +1,10 @@
+## [31.2.1](https://github.com/MirrorNG/MirrorNG/compare/31.2.0-master...31.2.1-master) (2020-04-01)
+
+
+### Bug Fixes
+
+* pass the correct connection to TargetRpcs ([#146](https://github.com/MirrorNG/MirrorNG/issues/146)) ([9df2f79](https://github.com/MirrorNG/MirrorNG/commit/9df2f798953f78de113ef6fa9fea111b03a52cd0))
+
 # [31.2.0](https://github.com/MirrorNG/MirrorNG/compare/31.1.0-master...31.2.0-master) (2020-04-01)
 
 
