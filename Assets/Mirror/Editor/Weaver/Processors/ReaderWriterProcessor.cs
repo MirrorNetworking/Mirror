@@ -1,6 +1,6 @@
+using System.IO;
 using Mono.CecilX;
 using UnityEditor.Compilation;
-using System.IO;
 
 namespace Mirror.Weaver
 {

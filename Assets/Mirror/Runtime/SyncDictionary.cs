@@ -90,7 +90,7 @@ namespace Mirror
         {
             if (IsReadOnly)
             {
-                throw new System.InvalidOperationException("SyncDictionaries can only be modified by the server");
+                throw new InvalidOperationException("SyncDictionaries can only be modified by the server");
             }
 
             var change = new Change

@@ -137,6 +137,7 @@ namespace Mirror
         /// </summary>
         public virtual void Start()
         {
+
             Debug.Log("Thank you for using Mirror! https://mirror-networking.com");
 
             // Set the networkSceneName to prevent a scene reload
@@ -220,7 +221,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + serverIp);
 
-            UriBuilder builder = new UriBuilder
+            var builder = new UriBuilder
             {
                 Host = serverIp,
                 Scheme = "tcp4",

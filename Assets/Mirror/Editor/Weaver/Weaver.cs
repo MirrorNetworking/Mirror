@@ -37,9 +37,6 @@ namespace Mirror.Weaver
         public static bool WeavingFailed { get; private set; }
         public static bool GenerateLogErrors { get; set; }
 
-        // private properties
-        const bool DebugLogEnabled = true;
-
         // Network types
         public static TypeReference NetworkBehaviourType;
         public static TypeReference NetworkBehaviourType2;

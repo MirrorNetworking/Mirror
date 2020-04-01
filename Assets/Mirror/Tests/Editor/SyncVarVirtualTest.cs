@@ -27,7 +27,7 @@ namespace Mirror.Tests
 
         public void CallOnValue2Changed()
         {
-            this.onValue2Changed(1, 1);
+            onValue2Changed(1, 1);
         }
     }
 

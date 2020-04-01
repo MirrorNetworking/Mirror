@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
 
@@ -8,7 +9,30 @@ namespace Mirror.Tests
 {
     public class WeaverAssembler : MonoBehaviour
     {
-        public const string OutputDirectory = "Assets/Mirror/Tests/Editor/WeaverTests~/";
+        static string _outputDirectory;
+        public static string OutputDirectory
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_outputDirectory))
+                {
+                    string[] guidsFound = AssetDatabase.FindAssets($"t:Script " + nameof(WeaverAssembler));
+                    if (guidsFound.Length == 1 && !string.IsNullOrEmpty(guidsFound[0]))
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(guidsFound[0]);
+                        string dir = Path.GetDirectoryName(path);
+                        // Path in mirror project
+                        //"Assets/Mirror/Tests/Editor/WeaverTests~/";
+                        _outputDirectory = Path.Combine(dir, "WeaverTests~/");
+                    }
+                    else
+                    {
+                        Debug.LogError("Could not find WeaverAssembler for Weaver Tests");
+                    }
+                }
+                return _outputDirectory;
+            }
+        }
         public static string OutputFile { get; set; }
         public static HashSet<string> SourceFiles { get; private set; }
         public static HashSet<string> ReferenceAssemblies { get; private set; }
@@ -88,7 +112,9 @@ namespace Mirror.Tests
         {
             // "x.dll" shortest possible dll name
             if (OutputFile.Length < 5)
+            {
                 return;
+            }
 
             string projPathFile = OutputDirectory + OutputFile;
 

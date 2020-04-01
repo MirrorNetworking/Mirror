@@ -16,6 +16,10 @@ namespace Mirror
     // Note: This class is intended to be extremely pedantic, and
     // throw exceptions whenever stuff is going slightly wrong.
     // The exceptions will be handled in NetworkServer/NetworkClient.
+    /// <summary>
+    /// Binary stream Reader. Supports simple types, buffers, arrays, structs, and nested types
+    /// <para>Use <see cref="NetworkReaderPool.GetReader">NetworkReaderPool.GetReader</see> to reduce memory allocation</para>
+    /// </summary>
     public class NetworkReader
     {
         // internal buffer
