@@ -13,22 +13,28 @@ using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
 {
-    public class AsyncTcpTransportTests
+    [TestFixture(typeof(AsyncTcpTransport), "tcp4://localhost", 7777)]
+    public class AsyncTcpTransportTests<T> where T: AsyncTransport
     {
         #region SetUp
 
-        private AsyncTransport transport;
+        private T transport;
         private GameObject transportObj;
+        private Uri uri;
+        private int port;
+
+        public AsyncTcpTransportTests(string uri, int port)
+        {
+            this.uri = new Uri(uri);
+            this.port = port;
+        }
 
         [SetUp]
         public void Setup()
         {
             transportObj = new GameObject();
 
-            AsyncTcpTransport tcpTransport = transportObj.AddComponent<AsyncTcpTransport>();
-            tcpTransport.Port = 8798;
-
-            transport = tcpTransport;
+            transport = transportObj.AddComponent<T>();
         }
 
         [TearDown]
@@ -43,7 +49,7 @@ namespace Mirror.Tests
         public IEnumerator ClientToServerTest() => RunAsync(async () =>
         {
             await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(new Uri("tcp4://localhost:8798"));
+            IConnection clientConnection = await transport.ConnectAsync(uri);
             IConnection serverConnection = await transport.AcceptAsync();
 
             Encoding utf8 = Encoding.UTF8;
@@ -63,7 +69,7 @@ namespace Mirror.Tests
         public IEnumerator EndpointAddress() => RunAsync(async () =>
         {
             await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(new Uri("tcp4://localhost:8798"));
+            IConnection clientConnection = await transport.ConnectAsync(uri);
             IConnection serverConnection = await transport.AcceptAsync();
 
             // should give either IPv4 or IPv6 local address
@@ -80,14 +86,14 @@ namespace Mirror.Tests
             }
 
             Assert.That(IPAddress.IsLoopback(ipAddress), "Expected loopback address but got {0}", ipAddress);
-            Assert.That(endPoint.Port, Is.EqualTo(8798));
+            Assert.That(endPoint.Port, Is.EqualTo(this.port));
         });
 
         [UnityTest]
         public IEnumerator ClientToServerMultipleTest() => RunAsync(async () =>
         {
             await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(new Uri("tcp4://localhost:8798"));
+            IConnection clientConnection = await transport.ConnectAsync(uri);
             IConnection serverConnection = await transport.AcceptAsync();
 
             Encoding utf8 = Encoding.UTF8;
@@ -117,7 +123,7 @@ namespace Mirror.Tests
         public IEnumerator ServerToClientTest() => RunAsync(async () =>
         {
             await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(new Uri("tcp4://localhost:8798"));
+            IConnection clientConnection = await transport.ConnectAsync(uri);
             IConnection serverConnection = await transport.AcceptAsync();
 
             Encoding utf8 = Encoding.UTF8;
@@ -137,7 +143,7 @@ namespace Mirror.Tests
         public IEnumerator DisconnectServerTest() => RunAsync(async () =>
         {
             await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(new Uri("tcp4://localhost:8798"));
+            IConnection clientConnection = await transport.ConnectAsync(uri);
             IConnection serverConnection = await transport.AcceptAsync();
 
             serverConnection.Disconnect();
@@ -150,7 +156,7 @@ namespace Mirror.Tests
         public IEnumerator DisconnectClientTest() => RunAsync(async () =>
         {
             await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(new Uri("tcp4://localhost:8798"));
+            IConnection clientConnection = await transport.ConnectAsync(uri);
             IConnection serverConnection = await transport.AcceptAsync();
 
             clientConnection.Disconnect();
@@ -163,7 +169,7 @@ namespace Mirror.Tests
         public IEnumerator DisconnectClientTest2() => RunAsync(async () =>
         {
             await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(new Uri("tcp4://localhost:8798"));
+            IConnection clientConnection = await transport.ConnectAsync(uri);
             IConnection serverConnection = await transport.AcceptAsync();
 
             clientConnection.Disconnect();
@@ -175,11 +181,11 @@ namespace Mirror.Tests
         [Test]
         public void TestServerUri()
         {
-            Uri uri = transport.ServerUri();
+            Uri serverUri = transport.ServerUri();
 
-            Assert.That(uri.Port, Is.EqualTo(8798));
-            Assert.That(uri.Host, Is.EqualTo(Dns.GetHostName()).IgnoreCase);
-            Assert.That(uri.Scheme, Is.EqualTo("tcp4"));
+            Assert.That(serverUri.Port, Is.EqualTo(port));
+            Assert.That(serverUri.Host, Is.EqualTo(Dns.GetHostName()).IgnoreCase);
+            Assert.That(serverUri.Scheme, Is.EqualTo(uri.Scheme));
 
         }
 
