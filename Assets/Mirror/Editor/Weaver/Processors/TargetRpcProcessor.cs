@@ -37,7 +37,7 @@ namespace Mirror.Weaver
             {
                 //client.connection
                 rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
-                rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.ReadyConnectionReference));
+                rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.BehaviorConnectionToServerReference));
             }
 
             // process reader parameters and skip first one if first one is NetworkConnection
@@ -114,7 +114,7 @@ namespace Mirror.Weaver
             // invoke SendInternal and return
             // this
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
-            if (HasNetworkConnectionParameter(md))
+            if (hasNetworkConnection)
             {
                 // connection
                 rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_1));

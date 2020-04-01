@@ -39,10 +39,12 @@ namespace Mirror.Tests
 
         public int targetRpcArg1;
         public string targetRpcArg2;
+        public NetworkConnection targetRpcConn;
 
         [TargetRpc]
         public void TargetRpcTest(NetworkConnection conn, int arg1, string arg2)
         {
+            this.targetRpcConn = conn;
             this.targetRpcArg1 = arg1;
             this.targetRpcArg2 = arg2;
         }
@@ -108,6 +110,7 @@ namespace Mirror.Tests
             // process spawn message from server
             yield return null;
 
+            Assert.That(component.targetRpcConn, Is.SameAs(manager.client.Connection));
             Assert.That(component.targetRpcArg1, Is.EqualTo(1));
             Assert.That(component.targetRpcArg2, Is.EqualTo("hello"));
         }
