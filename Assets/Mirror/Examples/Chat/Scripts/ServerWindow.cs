@@ -14,11 +14,6 @@ namespace Mirror.Examples.Chat
             NetworkManager.StartClient(serverIp);
         }
 
-        public void StartHost()
-        {
-            _ = NetworkManager.StartHost();
-        }
-
         public void SetServerIp(string serverIp)
         {
             this.serverIp = serverIp;

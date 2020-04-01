@@ -2420,9 +2420,9 @@ MeshCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 4
+  serializedVersion: 3
   m_Convex: 0
-  m_CookingOptions: 30
+  m_CookingOptions: 14
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!33 &1107091655
 MeshFilter:
@@ -2478,6 +2478,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1282001518}
   - component: {fileID: 1282001520}
+  - component: {fileID: 1282001524}
   - component: {fileID: 1282001523}
   - component: {fileID: 1282001519}
   - component: {fileID: 1282001521}
@@ -2529,7 +2530,6 @@ MonoBehaviour:
   - {fileID: 1916082411674582, guid: 6f43bf5488a7443d19ab2a83c6b91f35, type: 3}
   - {fileID: 2011878188}
   - {fileID: 9081919128954505657, guid: ecd52c53a6ef7496693343d3e32dace1, type: 3}
-  Transport: {fileID: 0}
 --- !u!114 &1282001520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2548,14 +2548,12 @@ MonoBehaviour:
   serverTickRate: 30
   server: {fileID: 1282001523}
   client: {fileID: 1282001519}
-  transport: {fileID: 1282001521}
-  OnStartHost:
-    m_PersistentCalls:
-      m_Calls: []
-  OnStopHost:
-    m_PersistentCalls:
-      m_Calls: []
+  transport: {fileID: 1282001524}
+  playerSpawnMethod: 1
   networkSceneName: 
+  startPositionIndex: 0
+  startPositions: []
+  autoCreatePlayer: 1
 --- !u!114 &1282001521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2568,7 +2566,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Port: 7777
+  Port: 7779
 --- !u!114 &1282001522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2601,9 +2599,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxConnections: 4
-  Started:
-    m_PersistentCalls:
-      m_Calls: []
   Connected:
     m_PersistentCalls:
       m_Calls: []
@@ -2618,7 +2613,41 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  transport: {fileID: 0}
+--- !u!114 &1282001524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282001517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21a14f7f321be46e2bb911c1147e8c9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnClientDataReceived:
+    m_PersistentCalls:
+      m_Calls: []
+  OnClientError:
+    m_PersistentCalls:
+      m_Calls: []
+  OnClientDisconnected:
+    m_PersistentCalls:
+      m_Calls: []
+  OnServerConnected:
+    m_PersistentCalls:
+      m_Calls: []
+  OnServerDataReceived:
+    m_PersistentCalls:
+      m_Calls: []
+  OnServerError:
+    m_PersistentCalls:
+      m_Calls: []
+  OnServerDisconnected:
+    m_PersistentCalls:
+      m_Calls: []
+  port: 7777
+  NoDelay: 1
 --- !u!1 &1291804677
 GameObject:
   m_ObjectHideFlags: 0
