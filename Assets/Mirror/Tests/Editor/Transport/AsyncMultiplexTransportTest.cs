@@ -135,5 +135,26 @@ namespace Mirror.Tests
 
             Assert.That(accepted1, Is.SameAs(conn2));
         });
+
+        [UnityTest]
+        public IEnumerator CannotConnect() => RunAsync(async () =>
+        {
+            transport1.ConnectAsync(Arg.Any<Uri>())
+                .Returns(Task.FromException<IConnection>(new ArgumentException("Invalid protocol")));
+
+            // transport2 gives a connection
+            transport2.ConnectAsync(Arg.Any<Uri>())
+                .Returns(Task.FromException<IConnection>(new ArgumentException("Invalid protocol")));
+
+            try
+            {
+                _ = await transport.ConnectAsync(new Uri("tcp4://localhost"));
+                Assert.Fail("Should not be able to connect if none of the transports can connect");
+            }
+            catch (ArgumentException)
+            {
+                // ok
+            }
+        });
     }
 }
