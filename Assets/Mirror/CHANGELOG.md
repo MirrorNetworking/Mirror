@@ -1,3 +1,22 @@
+# [31.0.0](https://github.com/MirrorNG/MirrorNG/compare/30.3.3-master...31.0.0-master) (2020-04-01)
+
+
+### Bug Fixes
+
+* chat example ([e6e10a7](https://github.com/MirrorNG/MirrorNG/commit/e6e10a7108bc01e3bd0c208734c97c945003ff86))
+* missing meta ([87ace4d](https://github.com/MirrorNG/MirrorNG/commit/87ace4dda09331968cc9d0185ce1de655f5dfb15))
+
+
+### Features
+
+* asynchronous transport ([#134](https://github.com/MirrorNG/MirrorNG/issues/134)) ([0e84f45](https://github.com/MirrorNG/MirrorNG/commit/0e84f451e822fe7c1ca1cd04e052546ed273cfce))
+
+
+### BREAKING CHANGES
+
+* connecition Id is gone
+* websocket transport does not work,  needs to be replaced.
+
 ## [30.3.3](https://github.com/MirrorNG/MirrorNG/compare/30.3.2-master...30.3.3-master) (2020-03-31)
 
 
