@@ -14,7 +14,7 @@ using Object = UnityEngine.Object;
 namespace Mirror.Tests
 {
     [TestFixture(typeof(AsyncTcpTransport), "tcp4://localhost", 7777)]
-    public class AsyncTcpTransportTests<T> where T: AsyncTransport
+    public class AsyncTransportTests<T> where T: AsyncTransport
     {
         #region SetUp
 
@@ -23,7 +23,7 @@ namespace Mirror.Tests
         private Uri uri;
         private int port;
 
-        public AsyncTcpTransportTests(string uri, int port)
+        public AsyncTransportTests(string uri, int port)
         {
             this.uri = new Uri(uri);
             this.port = port;
