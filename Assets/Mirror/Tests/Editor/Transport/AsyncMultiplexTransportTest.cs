@@ -82,8 +82,8 @@ namespace Mirror.Tests
             // transport2 task never ends
             transport2.AcceptAsync().Returns(x => Task.FromResult(conn2), x => Task.FromResult<IConnection>(null));
 
-            var accepted1 = await transport.AcceptAsync();
-            var accepted2 = await transport.AcceptAsync();
+            IConnection accepted1 = await transport.AcceptAsync();
+            IConnection accepted2 = await transport.AcceptAsync();
 
             Assert.That(new[] { accepted1, accepted2 }, Is.EquivalentTo( new [] { conn1, conn2}));
 
@@ -129,7 +129,7 @@ namespace Mirror.Tests
             transport2.ConnectAsync(Arg.Any<Uri>())
                 .Returns(Task.FromResult(conn2));
 
-            var accepted1 = await transport.ConnectAsync(new Uri("tcp4://localhost"));
+            IConnection accepted1 = await transport.ConnectAsync(new Uri("tcp4://localhost"));
 
             Assert.That(accepted1, Is.SameAs(conn2));
         });
