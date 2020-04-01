@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEngine.SceneManagement;
 #if UNITY_2018_3_OR_NEWER
 using UnityEditor.Experimental.SceneManagement;
 #endif
@@ -238,8 +239,15 @@ namespace Mirror
             observers?.Remove(conn.connectionId);
         }
 
+
+        static bool addedSceneManager;
+        static ulong sceneListIndex;
         void Awake()
         {
+            if (!addedSceneManager)
+            {
+                SceneManager.sceneLoaded += (s, m) => { sceneListIndex++; };
+            }
             // detect runtime sceneId duplicates, e.g. if a user tries to
             // Instantiate a sceneId object at runtime. if we don't detect it,
             // then the client won't know which of the two objects to use for a
@@ -254,6 +262,8 @@ namespace Mirror
             // see also: https://github.com/vis2k/Mirror/issues/384
             if (Application.isPlaying && sceneId != 0)
             {
+                sceneId += sceneListIndex;
+
                 if (sceneIds.TryGetValue(sceneId, out NetworkIdentity existing) && existing != this)
                 {
                     Debug.LogError(name + "'s sceneId: " + sceneId.ToString("X") + " is already taken by: " + existing.name + ". Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects). Otherwise the client won't know which object to use for a SpawnSceneObject message.");
