@@ -542,6 +542,7 @@ namespace Ninja.WebSockets.Internal
                         _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
                 }
                 await writeTask;
+                await _stream.FlushAsync();
             }
             else
             {
