@@ -532,8 +532,15 @@ namespace Ninja.WebSockets.Internal
             ArraySegment<byte> buffer = GetBuffer(stream);
             if (_stream is SslStream)
             {
-                writeTask = writeTask.ContinueWith((prevTask) =>
-                    _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
+                if (writeTask.IsCompleted)
+                {
+                    writeTask = _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken);
+                }
+                else
+                {
+                    writeTask = writeTask.ContinueWith((prevTask) =>
+                        _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
+                }
                 await writeTask;
             }
             else
