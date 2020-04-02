@@ -39,7 +39,7 @@ For the latest improvements, [Download Mirror](https://github.com/vis2k/Mirror/r
 ## Examples
 We included several smaller example projects in Mirror.
 
-For a fully polished, complete project example, consider [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212) or [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015).
+For a fully polished, complete project example, consider [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-components-edition-159401) or [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015).
 
 ## Transports
 Mirror supports many different low level networking transports:
