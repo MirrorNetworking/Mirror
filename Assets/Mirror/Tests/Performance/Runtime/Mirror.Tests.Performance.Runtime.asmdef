@@ -1,0 +1,23 @@
+{
+    "name": "Mirror.Tests.Performance.Runtime",
+    "references": [
+        "Unity.PerformanceTesting",
+        "Mirror",
+        "Mirror.Components",
+        "Mirror.Tests.Common",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": []
+}
