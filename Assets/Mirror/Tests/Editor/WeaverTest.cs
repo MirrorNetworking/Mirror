@@ -10,6 +10,7 @@ using NUnit.Framework;
 namespace Mirror.Tests
 {
     [TestFixture]
+    [Category("Weaver")]
     public class WeaverTest
     {
         #region Private
