@@ -1,4 +1,4 @@
-#if UNITY_2019_2_OR_NEWER
+//#if UNITY_2019_2_OR_NEWER
 using System;
 using System.Collections;
 using Mirror;
@@ -47,7 +47,11 @@ namespace Tests
             yield return Disconnect();
         }
         [UnityTest]
+#if UNITY_2019_2_OR_NEWER
         [Performance]
+#else
+        [PerformanceUnityTest]
+#endif
         [Version("11.4.1")]
         public IEnumerator ULocalConnectionPerformanceWithEnumeratorPasses()
         {
@@ -104,4 +108,4 @@ namespace Tests
         }
     }
 }
-#endif
+//#endif

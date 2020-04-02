@@ -7,7 +7,11 @@ namespace Mirror.Tests.WindowScripts
 {
     public class PerformanceTestsWindow : EditorWindow
     {
+#if UNITY_2019_2_OR_NEWER
         static string resultPath => Path.Combine(Application.persistentDataPath, "TestResults.xml");
+#else
+        static string resultPath => Path.Combine(Application.streamingAssetsPath, "TestResults.xml");
+#endif
         static string settingsPath => Path.Combine(Application.persistentDataPath, "PerformanceTestsWindowSettings.json");
 
         [SerializeField] RunSettings settings;

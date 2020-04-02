@@ -8,6 +8,9 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -18,6 +21,5 @@
     "autoReferenced": false,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
-    ],
-    "versionDefines": []
+    ]
 }
