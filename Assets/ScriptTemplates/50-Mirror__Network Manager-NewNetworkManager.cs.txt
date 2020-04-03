@@ -59,7 +59,6 @@ public class #SCRIPTNAME# : NetworkManager
 
     /// <summary>
     /// called when quitting the application by closing the window / pressing stop in the editor
-    /// <para>virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too</para>
     /// </summary>
     public override void OnApplicationQuit()
     {
@@ -78,6 +77,38 @@ public class #SCRIPTNAME# : NetworkManager
     public override void ServerChangeScene(string newSceneName)
     {
         base.ServerChangeScene(newSceneName);
+    }
+
+    /// <summary>
+    /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
+    /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
+    /// </summary>
+    /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
+    public override void OnServerChangeScene(string newSceneName) { }
+
+    /// <summary>
+    /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ServerChangeScene().
+    /// </summary>
+    /// <param name="sceneName">The name of the new scene.</param>
+    public override void OnServerSceneChanged(string sceneName) { }
+
+    /// <summary>
+    /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
+    /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
+    /// </summary>
+    /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
+    /// <param name="sceneOperation">Scene operation that's about to happen</param>
+    /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
+    public override void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) { }
+
+    /// <summary>
+    /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
+    /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
+    /// </summary>
+    /// <param name="conn">The network connection that the scene change message arrived on.</param>
+    public override void OnClientSceneChanged(NetworkConnection conn)
+    {
+        base.OnClientSceneChanged(conn);
     }
 
     #endregion
@@ -139,19 +170,6 @@ public class #SCRIPTNAME# : NetworkManager
     /// <param name="errorCode">Error code.</param>
     public override void OnServerError(NetworkConnection conn, int errorCode) { }
 
-    /// <summary>
-    /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
-    /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
-    /// </summary>
-    /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-    public override void OnServerChangeScene(string newSceneName) { }
-
-    /// <summary>
-    /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ServerChangeScene().
-    /// </summary>
-    /// <param name="sceneName">The name of the new scene.</param>
-    public override void OnServerSceneChanged(string sceneName) { }
-
     #endregion
 
     #region Client System Callbacks
@@ -189,25 +207,6 @@ public class #SCRIPTNAME# : NetworkManager
     /// </summary>
     /// <param name="conn">Connection to the server.</param>
     public override void OnClientNotReady(NetworkConnection conn) { }
-
-    /// <summary>
-    /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
-    /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
-    /// </summary>
-    /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-    /// <param name="sceneOperation">Scene operation that's about to happen</param>
-    /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
-    public override void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) { }
-
-    /// <summary>
-    /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
-    /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
-    /// </summary>
-    /// <param name="conn">The network connection that the scene change message arrived on.</param>
-    public override void OnClientSceneChanged(NetworkConnection conn)
-    {
-        base.OnClientSceneChanged(conn);
-    }
 
     #endregion
 

@@ -1132,10 +1132,6 @@ namespace Mirror
             ClearObservers();
         }
 
-        // MirrorUpdate is a hot path. Caching the vars msg is really worth it to
-        // avoid large amounts of allocations.
-        static UpdateVarsMessage varsMessage = new UpdateVarsMessage();
-
         // invoked by NetworkServer during Update()
         internal void ServerUpdate()
         {
@@ -1148,8 +1144,10 @@ namespace Mirror
                     (int ownerWritten, int observersWritten) = OnSerializeAllSafely(false, ownerWriter, observersWriter);
                     if (ownerWritten > 0 || observersWritten > 0)
                     {
-                        // populate cached UpdateVarsMessage and send
-                        varsMessage.netId = NetId;
+                        var varsMessage = new UpdateVarsMessage
+                        {
+                            netId = NetId
+                        };
 
                         // send ownerWriter to owner
                         // (only if we serialized anything for owner)
