@@ -4,9 +4,7 @@
         "Unity.PerformanceTesting",
         "Mirror",
         "Mirror.Components",
-        "Mirror.Tests.Common",
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "Mirror.Tests.Common"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
@@ -14,11 +12,9 @@
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": true,
-    "precompiledReferences": [
-        "nunit.framework.dll"
-    ],
-    "autoReferenced": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ]
