@@ -100,9 +100,12 @@ namespace Mirror.Tests.WindowScripts
                 }
             }
 
-            if (GUILayout.Button("Build and Open Report"))
+            if (GUILayout.Button("Build Report"))
             {
                 BuildReport();
+            }
+            if (GUILayout.Button("Open Report folder"))
+            {
                 OpenReport();
             }
 
@@ -154,7 +157,7 @@ namespace Mirror.Tests.WindowScripts
 
         private void OpenReport()
         {
-            //throw new NotImplementedException();
+            System.Diagnostics.Process.Start(string.Format("{0}/UnityPerformanceBenchmark", settings.output));
         }
 
         private void DrawResultsLine(SerializedProperty prop)
