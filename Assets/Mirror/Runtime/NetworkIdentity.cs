@@ -729,9 +729,7 @@ namespace Mirror
             // write placeholder length bytes
             // (jumping back later is WAY faster than allocating a temporary
             //  writer for the payload, then writing payload.size, payload)
-            int headerPosition = writer.Position;
-            writer.WriteInt32(0);
-            int contentPosition = writer.Position;
+            int headerPosition = writer.StartMessageLength();
 
             // write payload
             bool result = false;
@@ -744,14 +742,11 @@ namespace Mirror
                 // show a detailed error and let the user know what went wrong
                 Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + "\n\n" + e);
             }
-            int endPosition = writer.Position;
 
-            // fill in length now
-            writer.Position = headerPosition;
-            writer.WriteInt32(endPosition - contentPosition);
-            writer.Position = endPosition;
+            writer.EndMessageLength(headerPosition);
 
-            if (LogFilter.Debug) Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition));
+            if (LogFilter.Debug) Debug.Log($"OnSerializeSafely written for object={comp.name} component={comp.GetType()} sceneId={sceneId.ToString("X")} header@{headerPosition} content@{headerPosition + 4} end@{writer.Position} contentSize={writer.Position - (headerPosition + 4)}");
+
 
             return result;
         }

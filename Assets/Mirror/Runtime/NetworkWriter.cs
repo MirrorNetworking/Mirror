@@ -124,8 +124,38 @@ namespace Mirror
         }
 
         public void WriteInt64(long value) => WriteUInt64((ulong)value);
-    }
 
+
+        /// <summary>
+        /// Returns current position and writes placeholder length
+        /// </summary>
+        /// <returns>headerPosition</returns>
+        public int StartMessageLength()
+        {
+            // write placeholder length bytes
+            // (jumping back later is WAY faster than allocating a temporary
+            //  writer for the payload, then writing payload.size, payload)
+            int headerPosition = Position;
+            WriteInt32(0);
+
+            return headerPosition;
+        }
+
+        /// <summary>
+        /// Writes length to placeholder at headerPosition
+        /// </summary>
+        public void EndMessageLength(int headerPosition)
+        {
+            int contentEnd = Position;
+            int contentStart = headerPosition + 4;
+            int contentLength = contentEnd - contentStart;
+
+            // fill in length now
+            Position = headerPosition;
+            WriteInt32(contentLength);
+            Position = contentEnd;
+        }
+    }
 
     // Mirror's Weaver automatically detects all NetworkWriter function types,
     // but they do all need to be extensions.
