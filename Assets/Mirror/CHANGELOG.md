@@ -1,3 +1,10 @@
+## [31.3.1](https://github.com/MirrorNG/MirrorNG/compare/31.3.0-master...31.3.1-master) (2020-04-03)
+
+
+### Performance Improvements
+
+* Adding buffer for local connection ([#1621](https://github.com/MirrorNG/MirrorNG/issues/1621)) ([4d5cee8](https://github.com/MirrorNG/MirrorNG/commit/4d5cee893d0104c0070a0b1814c8c84f11f24f18))
+
 # [31.3.0](https://github.com/MirrorNG/MirrorNG/compare/31.2.1-master...31.3.0-master) (2020-04-01)
 
 
