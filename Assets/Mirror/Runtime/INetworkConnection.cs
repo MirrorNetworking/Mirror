@@ -22,7 +22,5 @@ namespace Mirror
         Task SendAsync<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase;
 
         string ToString();
-
-        bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase;
     }
 }

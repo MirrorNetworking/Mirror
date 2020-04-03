@@ -339,31 +339,6 @@ namespace Mirror
             return false;
         }
 
-        /// <summary>
-        /// This function invokes the registered handler function for a message.
-        /// <para>Network connections used by the NetworkClient and NetworkServer use this function for handling network messages.</para>
-        /// </summary>
-        /// <typeparam name="T">The message type to unregister.</typeparam>
-        /// <param name="msg">The message object to process.</param>
-        /// <returns></returns>
-        public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
-        {
-            // get writer from pool
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                // if it is a value type,  just use typeof(T) to avoid boxing
-                // this works because value types cannot be derived
-                // if it is a reference type (for example IMessageBase),
-                // ask the message for the real type
-                int msgType = MessagePacker.GetId(default(T) != null ? typeof(T) : msg.GetType());
-
-                MessagePacker.Pack(msg, writer);
-                var segment = writer.ToArraySegment();
-                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(segment))
-                    return InvokeHandler(msgType, networkReader, channelId);
-            }
-        }
-
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
         //       anymore because NetworkServer/NetworkClient Update both use while loops to handle >1 data events per
         //       frame already.
