@@ -4,7 +4,7 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
-## Version 11.x.x - In Progress
+## Version 11.4.2 - 2020-Apr-03
 - Added: SyncVar hooks can be virtual now, and overriden in a derived class.
 - Added: Virtual OnRoomStopServer to NetworkRoomManager and Script Template
 - Added: 10K Networked Objects Benchmark Example
