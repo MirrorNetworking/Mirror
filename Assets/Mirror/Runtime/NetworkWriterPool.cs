@@ -72,7 +72,7 @@ namespace Mirror
             next--;
 
             // reset cached writer length and position
-            writer.SetLength(0);
+            writer.Position = 0;
             return writer;
         }
 

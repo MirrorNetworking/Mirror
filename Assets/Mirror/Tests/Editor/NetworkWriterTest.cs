@@ -109,11 +109,11 @@ namespace Mirror.Tests
             writer.WriteInt64(0xA_FADED_DEAD_EEL);
             writer.WriteString("and ate it");
             int position = writer.Position;
-            writer.SetLength(10);
+            writer.Position = 10;
             // Setting length should set position too
             Assert.That(writer.Position, Is.EqualTo(10));
             // lets grow it back and check there's zeroes now.
-            writer.SetLength(position);
+            writer.Position = position;
             byte[] data = writer.ToArray();
             for (int i = position; i < data.Length; i++)
                 Assert.That(data[i], Is.EqualTo(0), $"index {i} should have value 0");
@@ -123,9 +123,7 @@ namespace Mirror.Tests
         public void TestSetLengthInitialization()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.SetLength(10);
-            // Setting length should leave position at 0
-            Assert.That(writer.Position, Is.EqualTo(0));
+            writer.Position = 10;
             byte[] data = writer.ToArray();
             for (int i = 0; i < data.Length; i++)
                 Assert.That(data[i], Is.EqualTo(0), $"index {i} should have value 0");
@@ -504,7 +502,7 @@ namespace Mirror.Tests
         {
             NetworkWriter writer = new NetworkWriter();
             writer.WriteString("a string longer than 10 bytes");
-            writer.SetLength(10);
+            writer.Position = 10;
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.Throws<System.IO.EndOfStreamException>(() => reader.ReadString());
         }
@@ -523,8 +521,8 @@ namespace Mirror.Tests
             // set position back by one
             writer.Position = 1;
 
-            // Changing the position should not alter the size of the data
-            Assert.That(writer.ToArray().Length, Is.EqualTo(2));
+            // Changing the position should alter the size of the data
+            Assert.That(writer.ToArray().Length, Is.EqualTo(1));
         }
 
         [Test]

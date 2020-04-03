@@ -71,7 +71,7 @@ namespace Mirror
 
         public void ResetBuffer()
         {
-            writer.SetLength(0);
+            writer.Position = 0;
             reader.Position = 0;
         }
     }
