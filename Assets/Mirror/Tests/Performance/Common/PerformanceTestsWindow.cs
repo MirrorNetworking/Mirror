@@ -107,7 +107,7 @@ namespace Mirror.Tests.WindowScripts
             }
             if (GUILayout.Button("Open Report folder"))
             {
-                OpenReport();
+                OpenReportFolder();
             }
 
             so.ApplyModifiedProperties();
@@ -156,9 +156,9 @@ namespace Mirror.Tests.WindowScripts
             });
         }
 
-        void OpenReport()
+        void OpenReportFolder()
         {
-            System.Diagnostics.Process.Start(string.Format("{0}/UnityPerformanceBenchmark", settings.output));
+            System.Diagnostics.Process.Start(string.Format("{0}/UnityPerformanceBenchmark/", Path.GetFullPath(settings.output)));
         }
 
         static void DrawResultsLine(SerializedProperty prop)
