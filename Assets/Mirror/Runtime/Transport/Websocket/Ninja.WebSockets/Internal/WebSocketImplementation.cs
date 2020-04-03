@@ -21,7 +21,6 @@
 // ---------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Security;
@@ -63,8 +62,6 @@ namespace Ninja.WebSockets.Internal
 
         public event EventHandler<PongEventArgs> Pong;
 
-        Queue<ArraySegment<byte>> _messageQueue = new Queue<ArraySegment<byte>>();
-        SemaphoreSlim _sendSemaphore = new SemaphoreSlim(1, 1);
         public WebSocketHttpContext Context { get; set; }
 
         internal WebSocketImplementation(Guid guid, Func<MemoryStream> recycledStreamFactory, Stream stream, TimeSpan keepAliveInterval, string secWebSocketExtensions, bool includeExceptionInCloseResponse, bool isClient, string subProtocol)
@@ -524,6 +521,8 @@ namespace Ninja.WebSockets.Internal
 #endif
         }
 
+        Task writeTask = Task.CompletedTask;
+
         /// <summary>
         /// Puts data on the wire
         /// </summary>
@@ -533,34 +532,17 @@ namespace Ninja.WebSockets.Internal
             ArraySegment<byte> buffer = GetBuffer(stream);
             if (_stream is SslStream)
             {
-                _messageQueue.Enqueue(buffer);
-                await _sendSemaphore.WaitAsync();
-                try
+                if (writeTask.IsCompleted)
                 {
-                    while (_messageQueue.Count > 0)
-                    {
-                        ArraySegment<byte> _buf = _messageQueue.Dequeue();
-                        try
-                        {
-                            if (_stream != null && _stream.CanWrite)
-                            {
-                                await _stream.WriteAsync(_buf.Array, _buf.Offset, _buf.Count, cancellationToken).ConfigureAwait(false);
-                            }
-                        }
-                        catch (IOException)
-                        {
-                            // do nothing, the socket is not connected
-                        }
-                        catch (SocketException)
-                        {
-                            // do nothing, the socket is not connected
-                        }
-                    }
+                    writeTask = _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken);
                 }
-                finally
+                else
                 {
-                    _sendSemaphore.Release();
+                    writeTask = writeTask.ContinueWith((prevTask) =>
+                        _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
                 }
+                await writeTask;
+                await _stream.FlushAsync();
             }
             else
             {
