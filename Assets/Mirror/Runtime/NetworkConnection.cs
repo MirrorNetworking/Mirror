@@ -171,12 +171,6 @@ namespace Mirror
                     message = default(T) != null ? default(T) : new T();
                     message.Deserialize(reader);
                 }
-                catch (Exception exception)
-                {
-                    Debug.LogError("Closed connection: " + conn + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
-                    conn.Disconnect();
-                    return;
-                }
                 finally
                 {
                     NetworkDiagnostics.OnReceive(message, channelId, reader.Length);
@@ -366,7 +360,7 @@ namespace Mirror
                         lastMessageTime = Time.time;
                     }
                 }
-                catch (IOException ex)
+                catch (Exception ex)
                 {
                     Debug.LogError("Closed connection: " + this + ". Invalid message " + ex);
                     Disconnect();
