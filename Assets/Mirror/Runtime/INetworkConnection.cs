@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Mirror
 {
-    public interface INetworkConnection : IDisposable
+    public interface INetworkConnection
     {
         void Disconnect();
 

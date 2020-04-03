@@ -109,28 +109,6 @@ namespace Mirror
             this.connection = connection;
         }
 
-        ~NetworkConnection()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Disposes of this connection, releasing channel buffers that it holds.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            // Take yourself off the Finalization queue
-            // to prevent finalization code for this object
-            // from executing a second time.
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            clientOwnedObjects.Clear();
-        }
-
         /// <summary>
         /// Disconnects this connection.
         /// </summary>
