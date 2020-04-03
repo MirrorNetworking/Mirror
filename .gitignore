@@ -40,7 +40,6 @@ Library
 Temp
 UnityPackageManager
 CodeCoverage
-Packages
 Logs
 Obj
 *.mdb
