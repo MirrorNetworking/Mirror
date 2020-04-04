@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
@@ -336,8 +337,7 @@ namespace Mirror.Tests
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
 
             // GetNetworkIdentity
-            bool result = server.GetNetworkIdentity(go, out NetworkIdentity value);
-            Assert.That(result, Is.True);
+            NetworkIdentity value = server.GetNetworkIdentity(go);
             Assert.That(value, Is.EqualTo(identity));
         }
 
@@ -349,11 +349,10 @@ namespace Mirror.Tests
 
             // GetNetworkIdentity for GO without identity
             // (error log is expected)
-            LogAssert.ignoreFailingMessages = true;
-            bool result = server.GetNetworkIdentity(goWithout, out NetworkIdentity valueNull);
-            Assert.That(result, Is.False);
-            Assert.That(valueNull, Is.Null);
-            LogAssert.ignoreFailingMessages = false;
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                _ = server.GetNetworkIdentity(goWithout);
+            });
 
             // clean up
             Object.DestroyImmediate(goWithout);

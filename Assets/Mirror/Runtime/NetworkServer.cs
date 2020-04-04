@@ -470,10 +470,8 @@ namespace Mirror
         /// <returns></returns>
         public bool ReplacePlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player, Guid assetId, bool keepAuthority = false)
         {
-            if (GetNetworkIdentity(player, out NetworkIdentity identity))
-            {
-                identity.AssetId = assetId;
-            }
+            NetworkIdentity identity = GetNetworkIdentity(player);
+            identity.AssetId = assetId;
             return InternalReplacePlayerForConnection(conn, client, player, keepAuthority);
         }
 
@@ -502,10 +500,8 @@ namespace Mirror
         /// <returns></returns>
         public bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            if (GetNetworkIdentity(player, out NetworkIdentity identity))
-            {
-                identity.AssetId = assetId;
-            }
+            NetworkIdentity identity = GetNetworkIdentity(player);
+            identity.AssetId = assetId;
             return AddPlayerForConnection(conn, player);
         }
 
@@ -666,15 +662,14 @@ namespace Mirror
             return true;
         }
 
-        internal bool GetNetworkIdentity(GameObject go, out NetworkIdentity identity)
+        internal NetworkIdentity GetNetworkIdentity(GameObject go)
         {
-            identity = go.GetComponent<NetworkIdentity>();
+            NetworkIdentity identity = go.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("GameObject " + go.name + " doesn't have NetworkIdentity.");
-                return false;
+                throw new InvalidOperationException("Gameobject does not have NetworkIdentity " + go);
             }
-            return true;
+            return identity;
         }
 
         /// <summary>
@@ -934,10 +929,8 @@ namespace Mirror
         {
             if (VerifyCanSpawn(obj))
             {
-                if (GetNetworkIdentity(obj, out NetworkIdentity identity))
-                {
-                    identity.AssetId = assetId;
-                }
+                NetworkIdentity identity = GetNetworkIdentity(obj);
+                identity.AssetId = assetId;
                 SpawnObject(obj, ownerConnection);
             }
         }
@@ -997,10 +990,8 @@ namespace Mirror
                 return;
             }
 
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
-            {
-                DestroyObject(identity, true);
-            }
+            NetworkIdentity identity = GetNetworkIdentity(obj);
+            DestroyObject(identity, true);
         }
 
         /// <summary>
@@ -1017,10 +1008,8 @@ namespace Mirror
                 return;
             }
 
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
-            {
-                DestroyObject(identity, false);
-            }
+            NetworkIdentity identity = GetNetworkIdentity(obj);
+            DestroyObject(identity, false);
         }
 
         internal bool ValidateSceneObject(NetworkIdentity identity)
