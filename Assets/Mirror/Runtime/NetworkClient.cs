@@ -131,19 +131,33 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + uri);
 
-            RegisterSpawnPrefabs();
-            InitializeAuthEvents();
+            AsyncTransport transport = Transport;
+            if (transport == null)
+                transport = GetComponent<AsyncTransport>();
 
             connectState = ConnectState.Connecting;
-            IConnection transportConnection = await Transport.ConnectAsync(uri);
 
-            // setup all the handlers
-            Connection = new NetworkConnectionToServer(transportConnection);
-            Time.Reset();
+            try
+            {
+                IConnection transportConnection = await transport.ConnectAsync(uri);
 
-            RegisterMessageHandlers(Connection);
-            Time.UpdateClient(this);
-            _ = OnConnected();
+                
+                RegisterSpawnPrefabs();
+                InitializeAuthEvents();
+
+                // setup all the handlers
+                Connection = new NetworkConnectionToServer(transportConnection);
+                Time.Reset();
+           
+                RegisterMessageHandlers(Connection);
+                Time.UpdateClient(this);
+                _ = OnConnected();
+            }
+            catch (Exception)
+            {
+                connectState = ConnectState.Disconnected;
+                throw;
+            }
         }
 
         internal void ConnectHost(NetworkServer server)
@@ -166,9 +180,6 @@ namespace Mirror
 
         void InitializeAuthEvents()
         {
-            if (Transport == null)
-                Transport = GetComponent<AsyncTransport>();
-
             if (authenticator != null)
             {
                 authenticator.OnClientAuthenticated += OnAuthenticated;
@@ -201,10 +212,20 @@ namespace Mirror
             Connected.Invoke(Connection);
 
             // start processing messages
-            await Connection.ProcessMessagesAsync();
-            Cleanup();
+            try
+            {
+                await Connection.ProcessMessagesAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+            finally
+            {
+                Cleanup();
 
-            Disconnected.Invoke();
+                Disconnected.Invoke();
+            }
 
         }
 

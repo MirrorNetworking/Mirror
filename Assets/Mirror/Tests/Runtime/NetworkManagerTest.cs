@@ -81,12 +81,13 @@ namespace Mirror.Tests
             Assert.That(manager.IsNetworkActive, Is.False);
         });
 
-        [Test]
-        public void StartClientTest()
+        [UnityTest]
+        public IEnumerator StartClientTest()
         {
             manager.StartClient("localhost");
 
-            Assert.That(manager.IsNetworkActive, Is.True);
+            yield return null;
+            Assert.That(manager.IsNetworkActive, Is.False);
 
             manager.StopClient();
         }

@@ -393,9 +393,18 @@ namespace Mirror
 
             // now process messages until the connection closes
 
-            await conn.ProcessMessagesAsync();
-
-            OnDisconnected(conn);
+            try
+            {
+                await conn.ProcessMessagesAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+            finally
+            {
+                OnDisconnected(conn);
+            }
         }
 
 
