@@ -1,0 +1,23 @@
+{
+    "name": "Mirror.Tests.Performance",
+    "references": [
+        "Unity.PerformanceTesting",
+        "Mirror",
+        "Mirror.Components",
+        "Mirror.Tests.Common"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ]
+}
