@@ -1,3 +1,15 @@
+# [31.4.0](https://github.com/MirrorNG/MirrorNG/compare/31.3.1-master...31.4.0-master) (2020-04-04)
+
+
+### Bug Fixes
+
+* disconnect even if there is an exception ([#152](https://github.com/MirrorNG/MirrorNG/issues/152)) ([2eb9de6](https://github.com/MirrorNG/MirrorNG/commit/2eb9de6b470579b6de75853ba161b3e7a36de698))
+
+
+### Features
+
+* spawning invalid object now gives exception ([e2fc829](https://github.com/MirrorNG/MirrorNG/commit/e2fc8292400aae8b3b8b972ff5824b8d9cdd6b88))
+
 ## [31.3.1](https://github.com/MirrorNG/MirrorNG/compare/31.3.0-master...31.3.1-master) (2020-04-03)
 
 
