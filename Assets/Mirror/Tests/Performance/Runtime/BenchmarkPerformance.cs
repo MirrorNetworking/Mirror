@@ -94,6 +94,31 @@ namespace Tests
 #endif
         public IEnumerator Benchmark10k()
         {
+            Health.idle = false;
+
+            // warmup
+            yield return new WaitForSecondsRealtime(Warmup);
+
+            captureMeasurement = true;
+
+            for (int i = 0; i < MeasureCount; i++)
+            {
+                yield return null;
+            }
+
+            captureMeasurement = false;
+        }
+
+        [UnityTest]
+#if UNITY_2019_2_OR_NEWER
+        [Performance]
+#else
+        [PerformanceUnityTest]
+#endif
+        public IEnumerator Benchmark10kIdle()
+        {
+            Health.idle = true;
+
             // warmup
             yield return new WaitForSecondsRealtime(Warmup);
 
