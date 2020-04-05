@@ -756,9 +756,10 @@ namespace Mirror
             return result;
         }
 
+
         // serialize all components (or only dirty ones if not initial state)
         // -> check ownerWritten/observersWritten to know if anything was written
-        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
+        internal void OnSerializeAllSafely(bool initialState, ulong dirtyComponentsMask, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
         {
             // clear 'written' variables
             ownerWritten = observersWritten = 0;
@@ -768,10 +769,9 @@ namespace Mirror
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
                 return;
             }
-            ulong dirtyComponentsMask = GetDirtyMask(initialState);
-
             if (dirtyComponentsMask == 0L)
                 return;
+
 
             // calculate syncMode mask at runtime. this allows users to change
             // component.syncMode while the game is running, which can be a huge
@@ -1238,11 +1238,15 @@ namespace Mirror
         {
             if (observers != null && observers.Count > 0)
             {
+                ulong dirtyComponentsMask = GetDirtyMask(false);
+                if (dirtyComponentsMask == 0L)
+                    return;
+
                 // one writer for owner, one for observers
                 using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
                 {
                     // serialize all the dirty components and send (if any were dirty)
-                    OnSerializeAllSafely(false, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                    OnSerializeAllSafely(false, dirtyComponentsMask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
                     if (ownerWritten > 0 || observersWritten > 0)
                     {
                         UpdateVarsMessage varsMessage = new UpdateVarsMessage

@@ -123,7 +123,7 @@ namespace Mirror.Tests
             NetworkWriter ownerWriter = new NetworkWriter();
             // not really used in this Test
             NetworkWriter observersWriter = new NetworkWriter();
-            identity1.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity1.OnSerializeAllSafely(true, identity1.GetDirtyMask(true), ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // set up a "client" object
             GameObject gameObject2 = new GameObject();

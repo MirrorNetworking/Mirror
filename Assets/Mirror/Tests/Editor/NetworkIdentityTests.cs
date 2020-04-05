@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
@@ -860,7 +860,7 @@ namespace Mirror.Tests
             NetworkWriter observersWriter = new NetworkWriter();
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, identity.GetDirtyMask(true), ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
             LogAssert.ignoreFailingMessages = false;
 
             // owner should have written all components
@@ -914,7 +914,7 @@ namespace Mirror.Tests
             NetworkWriter observersWriter = new NetworkWriter();
             // error log is expected because of too many components
             LogAssert.ignoreFailingMessages = true;
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, identity.GetDirtyMask(true), ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
             LogAssert.ignoreFailingMessages = false;
 
             // shouldn't have written anything because too many components
@@ -944,7 +944,7 @@ namespace Mirror.Tests
             // serialize
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, identity.GetDirtyMask(true), ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // reset component values
             comp1.value = 0;
