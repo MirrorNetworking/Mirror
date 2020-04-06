@@ -693,6 +693,14 @@ namespace Mirror
             {
                 return SerializeObjectsDelta(writer);
             }
+
+            // SyncVar are writen here in subclass
+
+            // if initialState
+            //   write all SyncVars
+            // else
+            //   write syncVarDirtyBits
+            //   write dirty SyncVars
         }
 
         /// <summary>
@@ -710,6 +718,14 @@ namespace Mirror
             {
                 DeSerializeObjectsDelta(reader);
             }
+
+            // SyncVars are read here in subclass
+
+            // if initialState
+            //   read all SyncVars
+            // else
+            //   read syncVarDirtyBits
+            //   read dirty SyncVars
         }
 
         internal ulong DirtyObjectBits()
