@@ -685,23 +685,21 @@ namespace Mirror
         /// <returns>True if data was written.</returns>
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
         {
+            bool objectWriten = false;
             if (initialState)
             {
-                return SerializeObjectsAll(writer);
+                objectWriten = SerializeObjectsAll(writer);
             }
             else
             {
-                return SerializeObjectsDelta(writer);
+                objectWriten = SerializeObjectsDelta(writer);
             }
 
-            // SyncVar are writen here in subclass
+            bool syncVarWriten = SerializeSyncVars(writer, initialState);
 
-            // if initialState
-            //   write all SyncVars
-            // else
-            //   write syncVarDirtyBits
-            //   write dirty SyncVars
+            return objectWriten || syncVarWriten;
         }
+
 
         /// <summary>
         /// Virtual function to override to receive custom serialization data. The corresponding function to send serialization data is OnSerialize().
@@ -719,6 +717,23 @@ namespace Mirror
                 DeSerializeObjectsDelta(reader);
             }
 
+            DeserializeSyncVars(reader, initialState);
+        }
+
+        public virtual bool SerializeSyncVars(NetworkWriter writer, bool initialState)
+        {
+            return false;
+
+            // SyncVar are writen here in subclass
+
+            // if initialState
+            //   write all SyncVars
+            // else
+            //   write syncVarDirtyBits
+            //   write dirty SyncVars
+        }
+        public virtual void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        {
             // SyncVars are read here in subclass
 
             // if initialState
