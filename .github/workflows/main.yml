@@ -10,7 +10,6 @@ on:
       - '*.md'
   
 jobs:
-
   requestActivationFile:
     runs-on: ubuntu-latest
     if: false
@@ -30,8 +29,8 @@ jobs:
             name: Manual Activation File
             path: ${{ steps.getManualLicenseFile.outputs.filePath }}
     
-  testRunnerInAllModes:
-    name: Unity test
+  build:
+    name: Main
     runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -81,13 +80,20 @@ jobs:
           args: -runTests -testPlatform playmode -testResults Tests/playmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
           
       # Upload artifacts
-      - name: Publish test results
+      - name: Archive test results
         uses: actions/upload-artifact@v1
         if: always()
         with:
           name: Test results (editor mode)
           path: Tests
-  
+
+      - name: Publish test results
+        uses: MirrorNG/nunit-reporter@1.0.0
+        if: always()
+        with:
+          path: "Tests/*.xml"
+          access-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: SonarQube analysis
         if: always()
         uses: MirrorNG/unity-runner@2.0.0
@@ -112,3 +118,4 @@ jobs:
           branch: master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

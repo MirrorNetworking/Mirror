@@ -3,7 +3,7 @@ name: Docs
 on: [push]
 
 jobs:
-  build:
+  build_doc:
 
     runs-on: ubuntu-latest
 
