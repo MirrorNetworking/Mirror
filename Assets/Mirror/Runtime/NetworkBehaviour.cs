@@ -689,7 +689,10 @@ namespace Mirror
             {
                 return SerializeObjectsAll(writer);
             }
-            return SerializeObjectsDelta(writer);
+            else
+            {
+                return SerializeObjectsDelta(writer);
+            }
         }
 
         /// <summary>
