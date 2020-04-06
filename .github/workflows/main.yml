@@ -73,12 +73,19 @@ jobs:
           args: -runTests -testPlatform playmode -testResults Tests/playmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
           
       # Upload artifacts
-      - name: Publish test results
+      - name: Archive test results
         uses: actions/upload-artifact@v1
         if: always()
         with:
           name: Test results (editor mode)
           path: Tests
+
+      - name: Publish test results
+        uses: MirrorNG/nunit-reporter@1.0.1
+        if: always()
+        with:
+          path: "Tests/*.xml"
+          access-token: ${{ secrets.GITHUB_TOKEN }}
   
       - name: SonarQube analysis
         if: always()
