@@ -4,8 +4,7 @@
         "Unity.PerformanceTesting",
         "Mirror",
         "Mirror.Components",
-        "Mirror.Tests.Common",
-        "Mirror.Examples"
+        "Mirror.Tests.Common"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
