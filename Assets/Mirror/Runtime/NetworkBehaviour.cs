@@ -21,7 +21,7 @@ namespace Mirror
     [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.com/docs/Guides/NetworkBehaviour.html")]
-    public class NetworkBehaviour : MonoBehaviour
+    public abstract class NetworkBehaviour : MonoBehaviour
     {
         internal float lastSyncTime;
 
