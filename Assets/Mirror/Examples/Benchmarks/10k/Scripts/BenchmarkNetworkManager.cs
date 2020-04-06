@@ -1,5 +1,4 @@
-﻿using System;
-using Mirror;
+using System;
 
 namespace Mirror.Examples
 {
