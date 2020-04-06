@@ -54,7 +54,6 @@ namespace Tests
 #else
         [PerformanceUnityTest]
 #endif
-        [Version("11.4.1")]
         public IEnumerator ULocalConnectionPerformanceWithEnumeratorPasses()
         {
             yield return SetUpConnections();

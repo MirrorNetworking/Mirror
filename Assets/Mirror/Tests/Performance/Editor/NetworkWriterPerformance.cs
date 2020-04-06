@@ -14,7 +14,6 @@ namespace Tests
 #else
         [PerformanceTest]
 #endif
-        [Version("2")]
         public void WritePackedInt32()
         {
             Measure.Method(WriteInt32)
