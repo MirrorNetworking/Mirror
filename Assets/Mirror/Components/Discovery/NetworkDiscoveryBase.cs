@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 // Based on https://github.com/EnlightenedOne/MirrorNetworkDiscovery
 // forked from https://github.com/in0finite/MirrorNetworkDiscovery
@@ -63,7 +64,7 @@ namespace Mirror.Discovery
         public virtual void Start()
         {
             // headless mode? then start advertising
-            if (NetworkManager.IsHeadless)
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
             {
                 AdvertiseServer();
             }

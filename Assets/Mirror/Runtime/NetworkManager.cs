@@ -74,11 +74,6 @@ namespace Mirror
         public bool clientLoadedScene;
 
         /// <summary>
-        /// headless mode detection
-        /// </summary>
-        public static bool IsHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
-
-        /// <summary>
         /// This is invoked when a host is started.
         /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
         /// </summary>
@@ -154,7 +149,7 @@ namespace Mirror
             // some transports might not be ready until Start.
             //
             // (tick rate is applied in StartServer!)
-            if (IsHeadless && startOnHeadless)
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
             {
                 _ = StartServer();
             }
@@ -373,7 +368,7 @@ namespace Mirror
             // * if not in Editor (it doesn't work in the Editor)
             // * if not in Host mode
 #if !UNITY_EDITOR
-            if (!client.Active && IsHeadless)
+            if (!client.Active && SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
             {
                 Application.targetFrameRate = serverTickRate;
                 Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");

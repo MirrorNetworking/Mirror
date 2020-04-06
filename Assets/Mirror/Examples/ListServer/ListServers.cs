@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 namespace Mirror.Examples.ListServer
@@ -67,7 +68,7 @@ namespace Mirror.Examples.ListServer
 
         public async Task Start()
         {
-            if (NetworkManager.IsHeadless)
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
                 return;
 
             Connecting = true;
