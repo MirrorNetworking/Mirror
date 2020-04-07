@@ -1,3 +1,13 @@
+# [32.0.0](https://github.com/MirrorNG/MirrorNG/compare/31.4.0-master...32.0.0-master) (2020-04-07)
+
+
+* Remove NetworkConnectionToClient (#155) ([bd95cea](https://github.com/MirrorNG/MirrorNG/commit/bd95cea4d639753335b21c48781603acd758a9e7)), closes [#155](https://github.com/MirrorNG/MirrorNG/issues/155)
+
+
+### BREAKING CHANGES
+
+* NetworkConnectionToClient and networkConnectionToServer are gone
+
 # [31.4.0](https://github.com/MirrorNG/MirrorNG/compare/31.3.1-master...31.4.0-master) (2020-04-04)
 
 
