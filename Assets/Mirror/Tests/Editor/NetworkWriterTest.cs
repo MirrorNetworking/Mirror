@@ -142,7 +142,7 @@ namespace Mirror.Tests
             Assert.That(writer.Length, Is.EqualTo(0));
 
             byte[] data = writer.ToArray();
-            Assert.That(data.Length, Is.EqualTo(0));
+            Assert.That(data, Is.Empty);
         }
 
         [Test]
