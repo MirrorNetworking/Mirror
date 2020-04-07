@@ -50,28 +50,24 @@ namespace Mirror
         /// <summary>
         /// Sets length, moves position if it is greater than new length
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="newLength"></param>
         /// <remarks>
         /// Zeros out any extra length created by setlength
         /// </remarks>
-        public void SetLength(int value)
+        public void SetLength(int newLength)
         {
             int oldLength = length;
-            
+
             // use EnsureCapacity 
-            EnsureLength(value);
+            EnsureLength(newLength);
 
             // zero out new length
-            if (oldLength < value)
+            if (oldLength < newLength)
             {
-                for (int i = oldLength; i < value; i++)
-                {
-                    buffer[i] = 0;
-                }
+                Array.Clear(buffer, oldLength, newLength - oldLength);
             }
 
-
-            length = value;
+            length = newLength;
             position = Mathf.Min(position, length);
         }
 
