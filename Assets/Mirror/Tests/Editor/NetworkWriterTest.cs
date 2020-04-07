@@ -112,12 +112,14 @@ namespace Mirror.Tests
 
             writer.SetLength(10);
             Assert.That(writer.Position, Is.EqualTo(10), "Decreasing length should move position");
-        
+
             // lets grow it back and check there's zeroes now.
             writer.SetLength(position);
             byte[] data = writer.ToArray();
             for (int i = 10; i < data.Length; i++)
+            {
                 Assert.That(data[i], Is.EqualTo(0), $"index {i} should have value 0");
+            }
         }
 
         [Test]
