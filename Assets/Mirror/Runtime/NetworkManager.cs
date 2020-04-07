@@ -623,12 +623,12 @@ namespace Mirror
 
         void RegisterServerMessages(NetworkConnection connection)
         {
-            connection.RegisterHandler<NetworkConnectionToClient, ReadyMessage>(OnServerReadyMessageInternal);
-            connection.RegisterHandler<NetworkConnectionToClient, RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
+            connection.RegisterHandler<NetworkConnection, ReadyMessage>(OnServerReadyMessageInternal);
+            connection.RegisterHandler<NetworkConnection, RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
         }
 
         // called after successful authentication
-        void OnServerAuthenticated(NetworkConnectionToClient conn)
+        void OnServerAuthenticated(NetworkConnection conn)
         {
             // a connection has been established,  register for our messages
             RegisterServerMessages(conn);

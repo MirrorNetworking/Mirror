@@ -124,13 +124,13 @@ namespace Mirror
         /// </summary>
         public NetworkClient Client { get; internal set; }
 
-        NetworkConnectionToClient _connectionToClient;
+        NetworkConnection _connectionToClient;
 
         /// <summary>
         /// The NetworkConnection associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is valid for player and other owned objects in the server.
         /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
         /// </summary>
-        public NetworkConnectionToClient ConnectionToClient
+        public NetworkConnection ConnectionToClient
         {
             get => _connectionToClient;
 
@@ -243,7 +243,7 @@ namespace Mirror
             }
 
             // otherwise set the owner connection
-            ConnectionToClient = (NetworkConnectionToClient)conn;
+            ConnectionToClient = conn;
         }
 
         static uint nextNetworkId = 1;
@@ -1091,7 +1091,7 @@ namespace Mirror
             {
                 clientAuthorityCallback?.Invoke(ConnectionToClient, this, false);
 
-                NetworkConnectionToClient previousOwner = ConnectionToClient;
+                NetworkConnection previousOwner = ConnectionToClient;
 
                 ConnectionToClient = null;
 

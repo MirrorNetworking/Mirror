@@ -149,7 +149,7 @@ namespace Mirror.Tests
             // another connection
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
             {
-                identity.AssignClientAuthority(new NetworkConnectionToClient(null));
+                identity.AssignClientAuthority(new NetworkConnection(null));
             });
             Assert.That(ex.Message, Is.EqualTo("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first"));
         }

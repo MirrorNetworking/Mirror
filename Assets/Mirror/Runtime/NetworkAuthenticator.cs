@@ -12,7 +12,7 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers on the server when a client is authenticated
         /// </summary>
-        public event Action<NetworkConnectionToClient> OnServerAuthenticated;
+        public event Action<NetworkConnection> OnServerAuthenticated;
 
         /// <summary>
         /// Notify subscribers on the client when the client is authenticated
@@ -22,7 +22,7 @@ namespace Mirror
         #region server
 
         // This will get more code in the near future
-        internal void OnServerAuthenticateInternal(NetworkConnectionToClient conn)
+        internal void OnServerAuthenticateInternal(NetworkConnection conn)
         {
             OnServerAuthenticate(conn);
         }
@@ -31,7 +31,7 @@ namespace Mirror
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection to client.</param>
-        public virtual void OnServerAuthenticate(NetworkConnectionToClient conn)
+        public virtual void OnServerAuthenticate(NetworkConnection conn)
         {
             OnServerAuthenticated?.Invoke(conn);
         }

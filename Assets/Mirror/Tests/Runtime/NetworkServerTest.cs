@@ -150,19 +150,19 @@ namespace Mirror.Tests
         [Test]
         public void ConnectedEventTest()
         {
-            UnityAction<NetworkConnectionToClient> func = Substitute.For<UnityAction<NetworkConnectionToClient>>();
+            UnityAction<NetworkConnection> func = Substitute.For<UnityAction<NetworkConnection>>();
             server.Connected.AddListener(func);
 
             transport.AcceptCompletionSource.SetResult(tconn42);
 
-            func.Received().Invoke(Arg.Any<NetworkConnectionToClient>());
+            func.Received().Invoke(Arg.Any<NetworkConnection>());
         }
 
         [Test]
         public void ConnectionTest()
         {
             transport.AcceptCompletionSource.SetResult(tconn42);
-            NetworkConnectionToClient conn = server.connections.First();
+            NetworkConnection conn = server.connections.First();
             Assert.That(conn.isAuthenticated);
         }
 
@@ -187,7 +187,7 @@ namespace Mirror.Tests
         public void DisconnectMessageHandlerTest()
         {
             // subscribe to disconnected
-            UnityAction<NetworkConnectionToClient> func = Substitute.For<UnityAction<NetworkConnectionToClient>>();
+            UnityAction<NetworkConnection> func = Substitute.For<UnityAction<NetworkConnection>>();
             server.Disconnected.AddListener(func);
 
             // accept a connection and disconnect
@@ -195,7 +195,7 @@ namespace Mirror.Tests
             tconn42Receive.SetResult(false);
 
             // make sure the callback got invoked
-            func.Received().Invoke(Arg.Any<NetworkConnectionToClient>());
+            func.Received().Invoke(Arg.Any<NetworkConnection>());
         }
 
         [Test]
@@ -223,12 +223,12 @@ namespace Mirror.Tests
         public void AddConnectionTest()
         {
             // add first connection
-            var conn42 = new NetworkConnectionToClient(tconn42);
+            var conn42 = new NetworkConnection(tconn42);
             server.AddConnection(conn42);
             Assert.That(server.connections, Is.EquivalentTo(new[] { conn42 }));
 
             // add second connection
-            var conn43 = new NetworkConnectionToClient(tconn43);
+            var conn43 = new NetworkConnection(tconn43);
             server.AddConnection(conn43);
             Assert.That(server.connections, Is.EquivalentTo(new[] { conn42, conn43 }));
 
@@ -240,7 +240,7 @@ namespace Mirror.Tests
         [Test]
         public void RemoveConnectionTest()
         {
-            var conn42 = new NetworkConnectionToClient(tconn42);
+            var conn42 = new NetworkConnection(tconn42);
             server.AddConnection(conn42);
 
             // remove connection
@@ -270,7 +270,7 @@ namespace Mirror.Tests
         [Test]
         public void SetClientReadyAndNotReadyTest()
         {
-            (_, NetworkConnectionToClient connection) = PipedConnections();
+            (_, NetworkConnection connection) = PipedConnections();
             Assert.That(connection.isReady, Is.False);
 
             server.SetClientReady(connection);
@@ -284,12 +284,12 @@ namespace Mirror.Tests
         public void SetAllClientsNotReadyTest()
         {
             // add first ready client
-            (_, NetworkConnectionToClient first) = PipedConnections();
+            (_, NetworkConnection first) = PipedConnections();
             first.isReady = true;
             server.connections.Add(first);
 
             // add second ready client
-            (_, NetworkConnectionToClient second) = PipedConnections();
+            (_, NetworkConnection second) = PipedConnections();
             second.isReady = true;
             server.connections.Add(second);
 
@@ -363,7 +363,7 @@ namespace Mirror.Tests
         {
             // add connection
 
-            NetworkConnectionToClient connectionToClient = Substitute.For<NetworkConnectionToClient>((IConnection) null);
+            NetworkConnection connectionToClient = Substitute.For<NetworkConnection>((IConnection) null);
 
             NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
 

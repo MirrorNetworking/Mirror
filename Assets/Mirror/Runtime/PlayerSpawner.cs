@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -34,10 +34,10 @@ namespace Mirror
             client.RegisterPrefab(playerPrefab.gameObject);
         }
 
-        private void OnServerAuthenticated(NetworkConnectionToClient connection)
+        private void OnServerAuthenticated(NetworkConnection connection)
         {
             // wait for client to send us an AddPlayerMessage
-            connection.RegisterHandler<NetworkConnectionToClient, AddPlayerMessage>(OnServerAddPlayerInternal);
+            connection.RegisterHandler<NetworkConnection, AddPlayerMessage>(OnServerAddPlayerInternal);
         }
 
         /// <summary>

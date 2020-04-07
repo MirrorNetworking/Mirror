@@ -16,7 +16,7 @@ namespace Mirror.Tests
 
         NetworkConnectionToServer connectionToServer;
 
-        NetworkConnectionToClient connectionToClient;
+        NetworkConnection connectionToClient;
         WovenTestMessage message;
         NetworkIdentity identity;
 
@@ -180,9 +180,9 @@ namespace Mirror.Tests
         public IEnumerator RegisterMessage2()
         {
 
-            Action<NetworkConnectionToClient, WovenTestMessage> func = Substitute.For<Action<NetworkConnectionToClient, WovenTestMessage>>();
+            Action<NetworkConnection, WovenTestMessage> func = Substitute.For<Action<NetworkConnection, WovenTestMessage>>();
 
-            connectionToClient.RegisterHandler<NetworkConnectionToClient, WovenTestMessage> (func);
+            connectionToClient.RegisterHandler<NetworkConnection, WovenTestMessage> (func);
 
             connectionToServer.Send(message);
 

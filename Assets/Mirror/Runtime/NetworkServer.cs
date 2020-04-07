@@ -23,7 +23,7 @@ namespace Mirror
     {
         bool initialized;
 
-        [Serializable] public class NetworkConnectionEvent : UnityEvent<NetworkConnectionToClient> { }
+        [Serializable] public class NetworkConnectionEvent : UnityEvent<NetworkConnection> { }
 
         /// <summary>
         /// The maximum number of concurrent network connections to support.
@@ -54,7 +54,7 @@ namespace Mirror
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for backwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConnection now!
-        public NetworkConnectionToClient localConnection { get; private set; }
+        public NetworkConnection localConnection { get; private set; }
 
         // The host client for this server 
         public NetworkClient localClient { get; private set; }
@@ -74,7 +74,7 @@ namespace Mirror
         /// <summary>
         /// A list of local connections on the server.
         /// </summary>
-        public readonly HashSet<NetworkConnectionToClient> connections = new HashSet<NetworkConnectionToClient>();
+        public readonly HashSet<NetworkConnection> connections = new HashSet<NetworkConnection>();
 
         /// <summary>
         /// <para>If you enable this, the server will not listen for incoming connections on the regular network port.</para>
@@ -106,7 +106,7 @@ namespace Mirror
         /// </summary>
         public void Disconnect()
         {
-            foreach (NetworkConnectionToClient conn in connections)
+            foreach (INetworkConnection conn in connections)
             {
                 conn.Disconnect();
             }
@@ -142,12 +142,12 @@ namespace Mirror
         }
 
 
-        internal void RegisterMessageHandlers(NetworkConnectionToClient connection)
+        internal void RegisterMessageHandlers(NetworkConnection connection)
         {
-            connection.RegisterHandler<NetworkConnectionToClient, ReadyMessage>(OnClientReadyMessage);
-            connection.RegisterHandler<NetworkConnectionToClient, CommandMessage>(OnCommandMessage);
-            connection.RegisterHandler<NetworkConnectionToClient, RemovePlayerMessage>(OnRemovePlayerMessage);
-            connection.RegisterHandler<NetworkConnectionToClient, NetworkPingMessage>(Time.OnServerPing, false);
+            connection.RegisterHandler<NetworkConnection, ReadyMessage>(OnClientReadyMessage);
+            connection.RegisterHandler<NetworkConnection, CommandMessage>(OnCommandMessage);
+            connection.RegisterHandler<NetworkConnection, RemovePlayerMessage>(OnRemovePlayerMessage);
+            connection.RegisterHandler<NetworkConnection, NetworkPingMessage>(Time.OnServerPing, false);
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace Mirror
 
                 while ((connection = await transport.AcceptAsync()) != null)
                 {
-                    NetworkConnectionToClient networkConnectionToClient = new NetworkConnectionToClient(connection);
+                    NetworkConnection networkConnectionToClient = new NetworkConnection(connection);
 
                     _ = ConnectionAcceptedAsync(networkConnectionToClient);
                 }
@@ -229,7 +229,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Network connection to add.</param>
         /// <returns>True if added.</returns>
-        public void AddConnection(NetworkConnectionToClient conn)
+        public void AddConnection(NetworkConnection conn)
         {
             if (!connections.Contains(conn))
             {
@@ -245,7 +245,7 @@ namespace Mirror
         /// </summary>
         /// <param name="connectionId">The id of the connection to remove.</param>
         /// <returns>True if the removal succeeded</returns>
-        public void RemoveConnection(NetworkConnectionToClient conn)
+        public void RemoveConnection(NetworkConnection conn)
         {
             connections.Remove(conn);
         }
@@ -259,7 +259,7 @@ namespace Mirror
                 return;
             }
 
-            NetworkConnectionToClient conn = new NetworkConnectionToClient(tconn);
+            NetworkConnection conn = new NetworkConnection(tconn);
             localConnection = conn;
             localClient = client;
 
@@ -369,7 +369,7 @@ namespace Mirror
             }
         }
 
-        async Task ConnectionAcceptedAsync(NetworkConnectionToClient conn)
+        async Task ConnectionAcceptedAsync(NetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("Server accepted client:" + conn);
 
@@ -408,7 +408,7 @@ namespace Mirror
         }
 
 
-        void OnDisconnected(NetworkConnectionToClient connection)
+        void OnDisconnected(NetworkConnection connection)
         {
             if (LogFilter.Debug) Debug.Log("Server disconnect client:" + connection);
 
@@ -422,7 +422,7 @@ namespace Mirror
                 localConnection = null;
         }
 
-        internal void OnAuthenticated(NetworkConnectionToClient conn)
+        internal void OnAuthenticated(NetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("Server authenticate client:" + conn);
 
@@ -793,7 +793,7 @@ namespace Mirror
                 return;
             }
             identity.Reset();
-            identity.ConnectionToClient = (NetworkConnectionToClient)ownerConnection;
+            identity.ConnectionToClient = ownerConnection;
             identity.Server = this;
             identity.Client = localClient;
 
