@@ -86,6 +86,15 @@ namespace Tests
             }
         }
 
+        static void EnableHealth(bool value)
+        {
+            Health[] all = Health.FindObjectsOfType<Health>();
+            foreach (Health health in all)
+            {
+                health.enabled = value;
+            }
+        }
+
         [UnityTest]
 #if UNITY_2019_2_OR_NEWER
         [Performance]
@@ -94,8 +103,7 @@ namespace Tests
 #endif
         public IEnumerator Benchmark10k()
         {
-            Health.idle = false;
-
+            EnableHealth(true);
             // warmup
             yield return new WaitForSecondsRealtime(Warmup);
 
@@ -117,7 +125,7 @@ namespace Tests
 #endif
         public IEnumerator Benchmark10kIdle()
         {
-            Health.idle = true;
+            EnableHealth(false);
 
             // warmup
             yield return new WaitForSecondsRealtime(Warmup);
