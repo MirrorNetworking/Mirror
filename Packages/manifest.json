@@ -3,6 +3,7 @@
     "com.unity.ext.nunit": "1.0.0",
     "com.unity.ide.vscode": "1.1.4",
     "com.unity.test-framework": "1.1.13",
+    "com.unity.test-framework.performance": "2.0.9-preview",
     "com.unity.testtools.codecoverage": "0.2.3-preview",
     "com.unity.textmeshpro": "2.0.1",
     "com.unity.ugui": "1.0.0",
@@ -37,5 +38,9 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  }
+  },
+
+  "testables": [
+    "com.unity.test-framework.performance"
+  ]
 }

@@ -51,12 +51,6 @@ jobs:
       - name: Install filter-repo
         run: pip3 install git-filter-repo
         
-      - name: Add Coverage Plugin
-        uses: canastro/copy-action@0.0.2
-        with:
-          source: Packages/manifest-coverage.json
-          target: Packages/manifest.json
-
       - name: Activate license
         uses: MirrorNG/unity-runner@2.0.0
         with:
@@ -88,12 +82,12 @@ jobs:
           path: Tests
 
       - name: Publish test results
-        uses: MirrorNG/nunit-reporter@1.0.0
+        uses: MirrorNG/nunit-reporter@1.0.2
         if: always()
         with:
           path: "Tests/*.xml"
           access-token: ${{ secrets.GITHUB_TOKEN }}
-
+  
       - name: SonarQube analysis
         if: always()
         uses: MirrorNG/unity-runner@2.0.0

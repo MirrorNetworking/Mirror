@@ -21,7 +21,7 @@ namespace Mirror
     [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.com/docs/Guides/NetworkBehaviour.html")]
-    public class NetworkBehaviour : MonoBehaviour
+    public abstract class NetworkBehaviour : MonoBehaviour
     {
         internal float lastSyncTime;
 
@@ -712,7 +712,18 @@ namespace Mirror
             {
                 return SerializeObjectsAll(writer);
             }
-            return SerializeObjectsDelta(writer);
+            else
+            {
+                return SerializeObjectsDelta(writer);
+            }
+
+            // SyncVar are writen here in subclass
+
+            // if initialState
+            //   write all SyncVars
+            // else
+            //   write syncVarDirtyBits
+            //   write dirty SyncVars
         }
 
         /// <summary>
@@ -730,6 +741,14 @@ namespace Mirror
             {
                 DeSerializeObjectsDelta(reader);
             }
+
+            // SyncVars are read here in subclass
+
+            // if initialState
+            //   read all SyncVars
+            // else
+            //   read syncVarDirtyBits
+            //   read dirty SyncVars
         }
 
         internal ulong DirtyObjectBits()

@@ -1,0 +1,16 @@
+{
+    "name": "Mirror.Examples",
+    "references": [
+        "GUID:2adcab1eb5bd5499a9969522e1b8dcb2",
+        "GUID:30817c1a0e6d646d99c048fc403f5979"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
