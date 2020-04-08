@@ -14,6 +14,7 @@ namespace Mirror.AsyncTcp
         public override Task ListenAsync()
         {
             listener = TcpListener.Create(Port);
+            listener.Server.NoDelay = true;
             listener.Start();
             return Task.CompletedTask;
         }

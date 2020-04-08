@@ -104,7 +104,10 @@ namespace Ninja.WebSockets
 
             token.ThrowIfCancellationRequested();
             Stream stream = GetStream(guid, tcpClient, useSsl, host);
-            return await PerformHandshake(guid, uri, stream, options, token);
+            var websocket =  await PerformHandshake(guid, uri, stream, options, token) as WebSocketImplementation;
+            websocket.TcpClient = tcpClient;
+
+            return websocket;
         }
 
         /// <summary>

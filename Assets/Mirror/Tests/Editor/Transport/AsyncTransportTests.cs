@@ -10,10 +10,13 @@ using System.Net;
 using static Mirror.Tests.AsyncUtil;
 using System;
 using Object = UnityEngine.Object;
+using Mirror.Websocket;
+using System.Threading.Tasks;
 
 namespace Mirror.Tests
 {
     [TestFixture(typeof(AsyncTcpTransport), "tcp4://localhost", 7777)]
+    [TestFixture(typeof(AsyncWsTransport), "ws://localhost", 7778)]
     public class AsyncTransportTests<T> where T: AsyncTransport
     {
         #region SetUp
@@ -29,29 +32,39 @@ namespace Mirror.Tests
             this.port = port;
         }
 
-        [SetUp]
-        public void Setup()
+        IConnection clientConnection;
+        IConnection serverConnection;
+
+        [UnitySetUp]
+        public IEnumerator Setup() => RunAsync(async () =>
         {
             transportObj = new GameObject();
 
             transport = transportObj.AddComponent<T>();
-        }
+
+            await transport.ListenAsync();
+            Task<IConnection> connectTask = transport.ConnectAsync(uri);
+            Task<IConnection> acceptTask = transport.AcceptAsync();
+
+            clientConnection = await connectTask;
+            serverConnection = await acceptTask;
+        });
+
 
         [TearDown]
         public void TearDown()
         {
+            clientConnection.Disconnect();
+            serverConnection.Disconnect();
             transport.Disconnect();
             Object.DestroyImmediate(transportObj);
         }
+
         #endregion
 
         [UnityTest]
         public IEnumerator ClientToServerTest() => RunAsync(async () =>
         {
-            await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(uri);
-            IConnection serverConnection = await transport.AcceptAsync();
-
             Encoding utf8 = Encoding.UTF8;
             string message = "Hello from the client";
             byte[] data = utf8.GetBytes(message);
@@ -65,15 +78,11 @@ namespace Mirror.Tests
             Assert.That(received, Is.EqualTo(data));
         });
 
-        [UnityTest]
-        public IEnumerator EndpointAddress() => RunAsync(async () =>
+        [Test]
+        public void EndpointAddress()
         {
-            await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(uri);
-            IConnection serverConnection = await transport.AcceptAsync();
-
             // should give either IPv4 or IPv6 local address
-            var endPoint = (IPEndPoint)clientConnection.GetEndPointAddress();
+            var endPoint = (IPEndPoint)serverConnection.GetEndPointAddress();
 
             IPAddress ipAddress = endPoint.Address;
 
@@ -86,16 +95,12 @@ namespace Mirror.Tests
             }
 
             Assert.That(IPAddress.IsLoopback(ipAddress), "Expected loopback address but got {0}", ipAddress);
-            Assert.That(endPoint.Port, Is.EqualTo(this.port));
-        });
+            // random port
+        }
 
         [UnityTest]
         public IEnumerator ClientToServerMultipleTest() => RunAsync(async () =>
         {
-            await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(uri);
-            IConnection serverConnection = await transport.AcceptAsync();
-
             Encoding utf8 = Encoding.UTF8;
             string message = "Hello from the client 1";
             byte[] data = utf8.GetBytes(message);
@@ -122,10 +127,6 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator ServerToClientTest() => RunAsync(async () =>
         {
-            await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(uri);
-            IConnection serverConnection = await transport.AcceptAsync();
-
             Encoding utf8 = Encoding.UTF8;
             string message = "Hello from the server";
             byte[] data = utf8.GetBytes(message);
@@ -142,10 +143,6 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator DisconnectServerTest() => RunAsync(async () =>
         {
-            await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(uri);
-            IConnection serverConnection = await transport.AcceptAsync();
-
             serverConnection.Disconnect();
 
             var stream = new MemoryStream();
@@ -155,10 +152,6 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator DisconnectClientTest() => RunAsync(async () =>
         {
-            await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(uri);
-            IConnection serverConnection = await transport.AcceptAsync();
-
             clientConnection.Disconnect();
 
             var stream = new MemoryStream();
@@ -168,10 +161,6 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator DisconnectClientTest2() => RunAsync(async () =>
         {
-            await transport.ListenAsync();
-            IConnection clientConnection = await transport.ConnectAsync(uri);
-            IConnection serverConnection = await transport.AcceptAsync();
-
             clientConnection.Disconnect();
 
             var stream = new MemoryStream();
@@ -186,10 +175,7 @@ namespace Mirror.Tests
             Assert.That(serverUri.Port, Is.EqualTo(port));
             Assert.That(serverUri.Host, Is.EqualTo(Dns.GetHostName()).IgnoreCase);
             Assert.That(serverUri.Scheme, Is.EqualTo(uri.Scheme));
-
         }
-
     }
-
 }
 

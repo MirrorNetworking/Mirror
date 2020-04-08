@@ -62,8 +62,6 @@ namespace Ninja.WebSockets.Internal
 
         public event EventHandler<PongEventArgs> Pong;
 
-        public WebSocketHttpContext Context { get; set; }
-
         internal WebSocketImplementation(Guid guid, Func<MemoryStream> recycledStreamFactory, Stream stream, TimeSpan keepAliveInterval, string secWebSocketExtensions, bool includeExceptionInCloseResponse, bool isClient, string subProtocol)
         {
             _guid = guid;
@@ -112,6 +110,7 @@ namespace Ninja.WebSockets.Internal
         public override string SubProtocol => _subProtocol;
 
         public TimeSpan KeepAliveInterval { get; private set; }
+        public TcpClient TcpClient { get; internal set; }
 
         /// <summary>
         /// Receive web socket result
@@ -607,6 +606,12 @@ namespace Ninja.WebSockets.Internal
                 // do not throw an exception because that will mask the original exception
                 Events.Log.CloseOutputAutoTimeoutError(_guid, closeException.ToString(), closeStatus, statusDescription, ex.ToString());
             }
+        }
+
+        // Closes the socket,  no handshake
+        public void Close()
+        {
+            _stream.Close();
         }
     }
 }
