@@ -1,3 +1,10 @@
+# [33.1.0](https://github.com/MirrorNG/MirrorNG/compare/33.0.0-master...33.1.0-master) (2020-04-08)
+
+
+### Features
+
+* new websocket transport ([#156](https://github.com/MirrorNG/MirrorNG/issues/156)) ([23c7b0d](https://github.com/MirrorNG/MirrorNG/commit/23c7b0d1b32684d4f959495fe96b2d16a68bd356))
+
 # [33.0.0](https://github.com/MirrorNG/MirrorNG/compare/32.0.1-master...33.0.0-master) (2020-04-08)
 
 
