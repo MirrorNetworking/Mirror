@@ -35,7 +35,7 @@ namespace Mirror
         readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
         readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
-        [Serializable] public class NetworkConnectionEvent : UnityEvent<NetworkConnectionToServer> { }
+        [Serializable] public class NetworkConnectionEvent : UnityEvent<NetworkConnection> { }
 
         public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
@@ -44,7 +44,7 @@ namespace Mirror
         /// <summary>
         /// The NetworkConnection object this client is using.
         /// </summary>
-        public NetworkConnectionToServer Connection { get; internal set; }
+        public NetworkConnection Connection { get; internal set; }
 
         /// <summary>
         /// NetworkIdentity of the localPlayer
@@ -146,7 +146,7 @@ namespace Mirror
                 InitializeAuthEvents();
 
                 // setup all the handlers
-                Connection = new NetworkConnectionToServer(transportConnection);
+                Connection = new NetworkConnection(transportConnection);
                 Time.Reset();
            
                 RegisterMessageHandlers(Connection);
@@ -173,7 +173,7 @@ namespace Mirror
 
             server.SetLocalConnection(this, c2);
             hostServer = server;
-            Connection = new NetworkConnectionToServer(c1);
+            Connection = new NetworkConnection(c1);
             RegisterHostHandlers(Connection);
             _ = OnConnected();
         }
@@ -229,7 +229,7 @@ namespace Mirror
 
         }
 
-        public void OnAuthenticated(NetworkConnectionToServer conn)
+        public void OnAuthenticated(NetworkConnection conn)
         {
             // set connection to authenticated
             conn.isAuthenticated = true;
@@ -369,7 +369,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">The client connection which is ready.</param>
         /// <returns>True if succcessful</returns>
-        public bool Ready(NetworkConnectionToServer conn)
+        public bool Ready(NetworkConnection conn)
         {
             if (ready)
             {

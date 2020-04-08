@@ -96,11 +96,11 @@ namespace Mirror.Tests
         public IEnumerator ConnectedClientTest() => RunAsync(async () =>
         {
             await manager.StartServer();
-            UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
+            UnityAction<NetworkConnection> func = Substitute.For<UnityAction<NetworkConnection>>();
             manager.client.Connected.AddListener(func);
 
             await manager.client.ConnectAsync(new System.Uri("tcp4://localhost"));
-            func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
+            func.Received().Invoke(Arg.Any<NetworkConnection>());
             manager.client.Disconnect();
             manager.StopServer();
         });
@@ -109,10 +109,10 @@ namespace Mirror.Tests
         public IEnumerator ConnectedClientUriTest() => RunAsync(async () =>
         {
             await manager.StartServer();
-            UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
+            UnityAction<NetworkConnection> func = Substitute.For<UnityAction<NetworkConnection>>();
             manager.client.Connected.AddListener(func);
             await manager.client.ConnectAsync(new System.Uri("tcp4://localhost"));
-            func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
+            func.Received().Invoke(Arg.Any<NetworkConnection>());
             manager.client.Disconnect();
             manager.StopServer();
             await Task.Delay(1);
@@ -123,10 +123,10 @@ namespace Mirror.Tests
         public IEnumerator ConnectedHostTest() => RunAsync(async () =>
         {
             await manager.StartServer();
-            UnityAction<NetworkConnectionToServer> func = Substitute.For<UnityAction<NetworkConnectionToServer>>();
+            UnityAction<NetworkConnection> func = Substitute.For<UnityAction<NetworkConnection>>();
             manager.client.Connected.AddListener(func);
             manager.client.ConnectHost(manager.server);
-            func.Received().Invoke(Arg.Any<NetworkConnectionToServer>());
+            func.Received().Invoke(Arg.Any<NetworkConnection>());
             manager.client.Disconnect();
             manager.StopServer();
 

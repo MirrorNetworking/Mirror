@@ -21,7 +21,7 @@ namespace Mirror.Authenticators
             Authenticator.OnServerAuthenticated += base.OnServerAuthenticate;
         }
 
-        public override void OnClientAuthenticate(NetworkConnectionToServer conn)
+        public override void OnClientAuthenticate(NetworkConnection conn)
         {
             Authenticator.OnClientAuthenticate(conn);
             if (Timeout > 0)

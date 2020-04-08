@@ -14,7 +14,7 @@ namespace Mirror.Tests
         NetworkServer server;
         GameObject serverGO;
 
-        NetworkConnectionToServer connectionToServer;
+        NetworkConnection connectionToServer;
 
         NetworkConnection connectionToClient;
         WovenTestMessage message;
@@ -31,7 +31,7 @@ namespace Mirror.Tests
             IConnection tconn = await transport.ConnectAsync(new System.Uri("tcp4://localhost"));
 
             connectionToClient = server.connections.First();
-            connectionToServer = new NetworkConnectionToServer(tconn);
+            connectionToServer = new NetworkConnection(tconn);
 
             connectionToClient.isAuthenticated = true;
             connectionToServer.isAuthenticated = true;

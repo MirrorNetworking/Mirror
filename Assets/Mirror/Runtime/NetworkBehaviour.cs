@@ -287,17 +287,13 @@ namespace Mirror
                 Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
                 return;
             }
+
             // connection parameter is optional. assign if null.
             if (conn == null)
             {
                 conn = ConnectionToClient;
             }
-            // this was in Weaver before
-            if (conn is NetworkConnectionToServer)
-            {
-                Debug.LogError("TargetRPC Function " + rpcName + " called on connection to server");
-                return;
-            }
+
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!IsServer)
             {

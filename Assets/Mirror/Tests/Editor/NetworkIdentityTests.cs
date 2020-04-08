@@ -760,7 +760,7 @@ namespace Mirror.Tests
             identity.StartServer();
             uint netId = identity.NetId;
             identity.ConnectionToClient = new NetworkConnection(null);
-            identity.ConnectionToServer = new NetworkConnectionToServer(null);
+            identity.ConnectionToServer = new NetworkConnection(null);
             identity.observers.Add(new NetworkConnection(null));
 
             // calling reset shouldn't do anything unless it was marked for reset

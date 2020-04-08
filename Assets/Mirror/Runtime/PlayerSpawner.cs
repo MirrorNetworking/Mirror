@@ -45,7 +45,7 @@ namespace Mirror
         /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
         /// </summary>
         /// <param name="conn">Connection to the server.</param>
-        private void OnClientAuthenticated(NetworkConnectionToServer connection)
+        private void OnClientAuthenticated(NetworkConnection connection)
         {
             // OnClientConnect by default calls AddPlayer but it should not do
             // that when we have online/offline scenes. so we need the

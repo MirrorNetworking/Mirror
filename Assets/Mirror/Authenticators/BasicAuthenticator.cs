@@ -33,9 +33,9 @@ namespace Mirror.Authenticators
             conn.RegisterHandler<NetworkConnection, AuthRequestMessage>(OnAuthRequestMessage, false);
         }
 
-        public override void OnClientAuthenticate(NetworkConnectionToServer conn)
+        public override void OnClientAuthenticate(NetworkConnection conn)
         {
-            conn.RegisterHandler<NetworkConnectionToServer, AuthResponseMessage>(OnAuthResponseMessage, false);
+            conn.RegisterHandler<NetworkConnection, AuthResponseMessage>(OnAuthResponseMessage, false);
 
             var authRequestMessage = new AuthRequestMessage
             {
@@ -90,7 +90,7 @@ namespace Mirror.Authenticators
             conn.Disconnect();
         }
 
-        public void OnAuthResponseMessage(NetworkConnectionToServer conn, AuthResponseMessage msg)
+        public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg)
         {
             if (msg.Code == 100)
             {
