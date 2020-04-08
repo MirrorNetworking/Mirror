@@ -1,3 +1,10 @@
+## [32.0.1](https://github.com/MirrorNG/MirrorNG/compare/32.0.0-master...32.0.1-master) (2020-04-08)
+
+
+### Performance Improvements
+
+* Use continuewith to queue up ssl messages ([#1640](https://github.com/MirrorNG/MirrorNG/issues/1640)) ([84b2c8c](https://github.com/MirrorNG/MirrorNG/commit/84b2c8cf2671728baecf734487ddaa7fab9943a0))
+
 # [32.0.0](https://github.com/MirrorNG/MirrorNG/compare/31.4.0-master...32.0.0-master) (2020-04-07)
 
 
