@@ -87,7 +87,7 @@ namespace Mirror
         /// The set of network connections (players) that can see this object.
         /// <para>null until OnStartServer was called. this is necessary for SendTo* to work properly in server-only mode.</para>
         /// </summary>
-        public HashSet<NetworkConnection> observers;
+        public readonly HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
 
         /// <summary>
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
@@ -272,7 +272,7 @@ namespace Mirror
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
         {
-            observers?.Remove(conn);
+            observers.Remove(conn);
         }
 
         void Awake()
@@ -562,7 +562,6 @@ namespace Mirror
             }
 
             NetId = GetNextNetworkId();
-            observers = new HashSet<NetworkConnection>();
 
             if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + NetId + " SceneId:" + sceneId);
 
@@ -863,24 +862,15 @@ namespace Mirror
 
         internal void ClearObservers()
         {
-            if (observers != null)
+            foreach (NetworkConnection conn in observers)
             {
-                foreach (NetworkConnection conn in observers)
-                {
-                    conn.RemoveFromVisList(this, true);
-                }
-                observers.Clear();
+                conn.RemoveFromVisList(this, true);
             }
+            observers.Clear();
         }
 
         internal void AddObserver(NetworkConnection conn)
         {
-            if (observers == null)
-            {
-                Debug.LogError("AddObserver for " + gameObject + " observer list is null");
-                return;
-            }
-
             if (observers.Contains(conn))
             {
                 // if we try to add a connectionId that was already added, then
@@ -938,10 +928,6 @@ namespace Mirror
         /// <param name="initialize">True if this is the first time.</param>
         public void RebuildObservers(bool initialize)
         {
-            // observers are null until OnStartServer creates them
-            if (observers == null)
-                return;
-
             bool changed = false;
 
             // call OnRebuildObservers function in all components
@@ -1135,7 +1121,7 @@ namespace Mirror
         // invoked by NetworkServer during Update()
         internal void ServerUpdate()
         {
-            if (observers != null && observers.Count > 0)
+            if (observers.Count > 0)
             {
                 // one writer for owner, one for observers
                 using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())

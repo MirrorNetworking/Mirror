@@ -286,7 +286,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + typeof(T));
 
-            if (identity.observers != null)
+            if (identity.observers.Count > 0)
                 NetworkConnection.Send(identity.observers, msg, channelId);
         }
 
