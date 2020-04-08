@@ -1,3 +1,13 @@
+# [33.0.0](https://github.com/MirrorNG/MirrorNG/compare/32.0.1-master...33.0.0-master) (2020-04-08)
+
+
+* Simplify RegisterHandler (#160) ([f4f5167](https://github.com/MirrorNG/MirrorNG/commit/f4f516791b8390f0babf8a7aefa19254427d4145)), closes [#160](https://github.com/MirrorNG/MirrorNG/issues/160)
+
+
+### BREAKING CHANGES
+
+* NetworkConneciton.RegisterHandler only needs message class
+
 ## [32.0.1](https://github.com/MirrorNG/MirrorNG/compare/32.0.0-master...32.0.1-master) (2020-04-08)
 
 
