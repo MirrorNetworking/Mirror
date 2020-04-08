@@ -7,9 +7,8 @@ namespace Mirror
     {
         void Disconnect();
 
-        void RegisterHandler<C, T>(Action<C, T> handler, bool requireAuthentication = true)
-                where T : IMessageBase, new()
-                where C : NetworkConnection;
+        void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
+                where T : IMessageBase, new();
 
         void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new();
 

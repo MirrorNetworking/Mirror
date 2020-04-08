@@ -159,9 +159,8 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
-        public void RegisterHandler<C, T>(Action<C, T> handler, bool requireAuthentication = true)
+        public void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : IMessageBase, new()
-            where C : NetworkConnection
         {
             int msgType = MessagePacker.GetId<T>();
             if (LogFilter.Debug && messageHandlers.ContainsKey(msgType))
@@ -180,7 +179,7 @@ namespace Mirror
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
         public void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
-            RegisterHandler<NetworkConnection, T>((_, value) => { handler(value); }, requireAuthentication);
+            RegisterHandler<T>((_, value) => { handler(value); }, requireAuthentication);
         }
 
         /// <summary>

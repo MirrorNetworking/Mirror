@@ -623,8 +623,8 @@ namespace Mirror
 
         void RegisterServerMessages(NetworkConnection connection)
         {
-            connection.RegisterHandler<NetworkConnection, ReadyMessage>(OnServerReadyMessageInternal);
-            connection.RegisterHandler<NetworkConnection, RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
+            connection.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
+            connection.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
         }
 
         // called after successful authentication
@@ -668,8 +668,8 @@ namespace Mirror
 
         void RegisterClientMessages(NetworkConnection connection)
         {
-            connection.RegisterHandler<NetworkConnection, NotReadyMessage>(OnClientNotReadyMessageInternal);
-            connection.RegisterHandler<NetworkConnection, SceneMessage>(OnClientSceneInternal, false);
+            connection.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
+            connection.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
         }
 
         // called after successful authentication

@@ -182,7 +182,7 @@ namespace Mirror.Tests
 
             Action<NetworkConnection, WovenTestMessage> func = Substitute.For<Action<NetworkConnection, WovenTestMessage>>();
 
-            connectionToClient.RegisterHandler<NetworkConnection, WovenTestMessage> (func);
+            connectionToClient.RegisterHandler<WovenTestMessage> (func);
 
             connectionToServer.Send(message);
 

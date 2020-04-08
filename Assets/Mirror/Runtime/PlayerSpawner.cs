@@ -37,7 +37,7 @@ namespace Mirror
         private void OnServerAuthenticated(NetworkConnection connection)
         {
             // wait for client to send us an AddPlayerMessage
-            connection.RegisterHandler<NetworkConnection, AddPlayerMessage>(OnServerAddPlayerInternal);
+            connection.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
         }
 
         /// <summary>

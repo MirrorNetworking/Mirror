@@ -144,10 +144,10 @@ namespace Mirror
 
         internal void RegisterMessageHandlers(NetworkConnection connection)
         {
-            connection.RegisterHandler<NetworkConnection, ReadyMessage>(OnClientReadyMessage);
-            connection.RegisterHandler<NetworkConnection, CommandMessage>(OnCommandMessage);
-            connection.RegisterHandler<NetworkConnection, RemovePlayerMessage>(OnRemovePlayerMessage);
-            connection.RegisterHandler<NetworkConnection, NetworkPingMessage>(Time.OnServerPing, false);
+            connection.RegisterHandler<ReadyMessage>(OnClientReadyMessage);
+            connection.RegisterHandler<CommandMessage>(OnCommandMessage);
+            connection.RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
+            connection.RegisterHandler<NetworkPingMessage>(Time.OnServerPing, false);
         }
 
         /// <summary>

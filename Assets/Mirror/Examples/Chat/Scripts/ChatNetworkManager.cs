@@ -23,7 +23,7 @@ namespace Mirror.Examples.Chat
 
         public override void OnServerConnect(NetworkConnection conn)
         {
-            conn.RegisterHandler<NetworkConnection, CreatePlayerMessage>(OnCreatePlayer);
+            conn.RegisterHandler<CreatePlayerMessage>(OnCreatePlayer);
         }
 
         public void OnAuthenticated(NetworkConnection conn)

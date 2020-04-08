@@ -30,12 +30,12 @@ namespace Mirror.Authenticators
         public override void OnServerAuthenticate(NetworkConnection conn)
         {
             // wait for AuthRequestMessage from client
-            conn.RegisterHandler<NetworkConnection, AuthRequestMessage>(OnAuthRequestMessage, false);
+            conn.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage, false);
         }
 
         public override void OnClientAuthenticate(NetworkConnection conn)
         {
-            conn.RegisterHandler<NetworkConnection, AuthResponseMessage>(OnAuthResponseMessage, false);
+            conn.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
 
             var authRequestMessage = new AuthRequestMessage
             {
