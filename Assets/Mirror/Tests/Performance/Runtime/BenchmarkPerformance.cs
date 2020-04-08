@@ -79,7 +79,7 @@ namespace Tests
             Scene scene = SceneManager.GetSceneByPath(ScenePath);
             yield return SceneManager.UnloadSceneAsync(scene);
 
-            GameObject.Destroy(benchmarker);
+            GameObject.Destroy(benchmarker.gameObject);
         }
 
         [UnityTest]

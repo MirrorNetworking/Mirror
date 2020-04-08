@@ -22,11 +22,13 @@ namespace Tests
         [UnitySetUp]
         public IEnumerator SetUp() => RunAsync(async () =>
         {
-
-            GameObject go = new GameObject();
+            var go = new GameObject();
             server = go.AddComponent<NetworkServer>();
             client = go.AddComponent<NetworkClient>();
             manager = go.AddComponent<NetworkManager>();
+            manager.client = client;
+            manager.server = server;
+            manager.startOnHeadless = false;
 
             playerPrefab = new GameObject("testPlayerPrefab", typeof(NetworkIdentity));
 
