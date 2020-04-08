@@ -24,7 +24,7 @@ namespace Mirror
 
 
         // internal so it can be tested
-        internal readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
+        private readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         // message handlers for this connection
         private readonly Dictionary<int, NetworkMessageDelegate> messageHandlers = new Dictionary<int, NetworkMessageDelegate>();
