@@ -166,7 +166,7 @@ Because `OnStartLocalPlayer` is only called for the client’s local player game
 
 ## Spawning Game Objects with Client Authority
 
-To spawn game objects and assign authority of those game objects to a particular client, use `NetworkServer.SpawnWithClientAuthority`, which takes as an argument the `NetworkConnection` of the client that is to be made the authority.
+To spawn game objects and assign authority of those game objects to a particular client, use `NetworkServer.Spawn`, which takes as an argument the `NetworkConnection` of the client that is to be made the authority.
 
 For these game objects, the property `hasAuthority` is true on the client with authority, and `OnStartAuthority` is called on the client with authority. That client can issue commands for that game object. On other clients (and on the host), `hasAuthority` is false.
 
@@ -184,7 +184,7 @@ void SpawnTrees(NetworkConnection conn)
         Tree tree = treeGo.GetComponent<Tree>();
         tree.numLeaves = Random.Range(10,200);
         Debug.Log("Spawning leaf with leaf count " + tree.numLeaves);
-        NetworkServer.SpawnWithClientAuthority(treeGo, conn);
+        NetworkServer.Spawn(treeGo, conn);
     }
 }
 ```

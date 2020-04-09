@@ -44,7 +44,7 @@ public class Player : NetworkBehaviour
 
 Be careful of sending commands from the client every frame! This can cause a lot of network traffic.
 
-It is possible to send commands from non-player objects that have client authority. These objects must have been spawned with `NetworkServer.SpawnWithClientAuthority` or have authority set with `NetworkIdentity.AssignClientAuthority`. Commands sent from these object are run on the server instance of the object, not on the associated player object for the client.
+It is possible to send commands from non-player objects that have client authority. These objects must have been spawned with client authority or have authority set with `NetworkIdentity.AssignClientAuthority`. Commands sent from these object are run on the server instance of the object, not on the associated player object for the client.
 
 ## ClientRpc Calls
 
