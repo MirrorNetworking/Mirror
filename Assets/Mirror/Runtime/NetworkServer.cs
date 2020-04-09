@@ -414,9 +414,9 @@ namespace Mirror
 
             RemoveConnection(connection);
 
-            DestroyPlayerForConnection(connection);
-
             Disconnected.Invoke(connection);
+
+            DestroyPlayerForConnection(connection);
 
             if (connection == localConnection)
                 localConnection = null;
