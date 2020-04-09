@@ -4,7 +4,8 @@
         "Mirror",
         "Mirror.Tests.Common",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "Mirror.Authenticators"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
