@@ -1,5 +1,6 @@
 //#if UNITY_2019_2_OR_NEWER
 using System.Collections;
+using System.Threading.Tasks;
 using Mirror;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
@@ -85,9 +86,8 @@ namespace Tests
                     //      assume sync var has changed its value to 10
                     writer.WritePackedInt32(10);
 
-
                     // send message
-                    server.LocalClient.Send(new UpdateVarsMessage
+                    server.LocalConnection.Send(new UpdateVarsMessage
                     {
                         netId = i,
                         payload = writer.ToArraySegment()
