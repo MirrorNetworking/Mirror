@@ -1,3 +1,10 @@
+## [33.1.1](https://github.com/MirrorNG/MirrorNG/compare/33.1.0-master...33.1.1-master) (2020-04-09)
+
+
+### Bug Fixes
+
+* Invoke server.Disconnected before identity is removed for its conn ([#165](https://github.com/MirrorNG/MirrorNG/issues/165)) ([b749c4b](https://github.com/MirrorNG/MirrorNG/commit/b749c4ba126266a1799059f7fb407b6bcaa2bbd9))
+
 # [33.1.0](https://github.com/MirrorNG/MirrorNG/compare/33.0.0-master...33.1.0-master) (2020-04-08)
 
 
