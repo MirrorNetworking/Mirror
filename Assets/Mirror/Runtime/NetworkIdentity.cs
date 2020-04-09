@@ -48,6 +48,8 @@ namespace Mirror
     public sealed class NetworkIdentity : MonoBehaviour
     {
         // configuration
+        // NonSerialized stops unity serializing this for the debug inspector 
+        [System.NonSerialized]
         NetworkBehaviour[] networkBehavioursCache;
 
         // member used to mark a identity for future reset
