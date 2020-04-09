@@ -78,12 +78,17 @@ namespace Mirror
             {
                 length = value;
 
-                // EnsureCapacity
-                if (buffer.Length < value)
-                {
-                    int capacity = Math.Max(value, buffer.Length * 2);
-                    Array.Resize(ref buffer, capacity);
-                }
+                EnsureCapacity(value);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureCapacity(int value)
+        {
+            if (buffer.Length < value)
+            {
+                int capacity = Math.Max(value, buffer.Length * 2);
+                Array.Resize(ref buffer, capacity);
             }
         }
 
