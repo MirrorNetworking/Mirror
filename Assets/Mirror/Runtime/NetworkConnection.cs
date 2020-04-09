@@ -37,7 +37,7 @@ namespace Mirror
         /// <para>Transport layers connections begin at one. So on a client with a single connection to a server, the connectionId of that connection will be one. In NetworkServer, the connectionId of the local connection is zero.</para>
         /// <para>Clients do not know their connectionId on the server, and do not know the connectionId of other clients on the server.</para>
         /// </remarks>
-        public readonly IConnection connection;
+        private readonly IConnection connection;
 
         /// <summary>
         /// Flag that indicates the client has been authenticated.
