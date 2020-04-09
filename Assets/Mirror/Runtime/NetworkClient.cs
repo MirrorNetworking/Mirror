@@ -349,18 +349,20 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.RemovePlayer() called with connection [" + Connection + "]");
 
-            if (Connection.Identity != null)
-            {
-                Connection.Send(new RemovePlayerMessage());
+            if (Connection == null)
+                throw new InvalidOperationException("RemovePlayer() failed. NetworkClient is not connected");
 
-                Destroy(Connection.Identity.gameObject);
+            if (Connection.Identity == null)
+                return false;
 
-                Connection.Identity = null;
-                LocalPlayer = null;
+            Connection.Send(new RemovePlayerMessage());
 
-                return true;
-            }
-            return false;
+            Destroy(Connection.Identity.gameObject);
+
+            Connection.Identity = null;
+            LocalPlayer = null;
+
+            return true;
         }
 
         /// <summary>
@@ -413,15 +415,6 @@ namespace Mirror
             {
                 Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
             }
-        }
-
-        internal void HandleClientDisconnect()
-        {
-            DestroyAllClientObjects();
-            ready = false;
-            Connection = null;
-
-            Disconnected.Invoke();
         }
 
         /// <summary>

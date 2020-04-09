@@ -72,6 +72,16 @@ namespace Mirror.Tests
         }
     }
 
+    public class TestServerAuthenticator : NetworkAuthenticator
+    {
+        public int called;
+
+        public override void OnServerAuthenticate(NetworkConnection conn)
+        {
+            ++called;
+        }
+    }
+
     [TestFixture]
     public class NetworkServerTest
     {
@@ -489,5 +499,18 @@ namespace Mirror.Tests
             Assert.That(compB.IsDirty(), Is.False);
         }
 
+        [UnityTest]
+        public IEnumerable AuthenticatorTest()
+        {
+            Assert.That(client.authenticator == null);
+            TestServerAuthenticator comp = serverGO.AddComponent<TestServerAuthenticator>();
+
+            yield return null;
+
+            Assert.That(client.authenticator != null);
+            client.ConnectHost(server);
+
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
     }
 }
