@@ -87,7 +87,7 @@ namespace Tests
 
 
                     // send message
-                    server.localConnection.Send(new UpdateVarsMessage
+                    server.LocalClient.Send(new UpdateVarsMessage
                     {
                         netId = i,
                         payload = writer.ToArraySegment()

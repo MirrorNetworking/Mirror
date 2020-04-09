@@ -49,7 +49,7 @@ namespace Mirror.Tests
         {
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
             {
-                identity.AssignClientAuthority(server.localConnection);
+                identity.AssignClientAuthority(server.LocalConnection);
             });
 
             Assert.That(ex.Message, Is.EqualTo("AssignClientAuthority can only be called on the server for spawned objects"));
@@ -105,7 +105,7 @@ namespace Mirror.Tests
             NetworkIdentity.clientAuthorityCallback += Callback;
 
             // assign authority
-            identity.AssignClientAuthority(server.localConnection);
+            identity.AssignClientAuthority(server.LocalConnection);
 
             Assert.That(callbackCalled, Is.EqualTo(1));
 
@@ -125,16 +125,16 @@ namespace Mirror.Tests
         {
             // create a networkidentity with our test component
             server.Spawn(gameObject);
-            identity.AssignClientAuthority(server.localConnection);
+            identity.AssignClientAuthority(server.LocalConnection);
 
-            Assert.That(identity.ConnectionToClient, Is.SameAs(server.localConnection));
+            Assert.That(identity.ConnectionToClient, Is.SameAs(server.LocalConnection));
         }
 
         [Test]
         public void SpawnWithAuthority()
         {
-            server.Spawn(gameObject, server.localConnection);
-            Assert.That(identity.ConnectionToClient, Is.SameAs(server.localConnection));
+            server.Spawn(gameObject, server.LocalConnection);
+            Assert.That(identity.ConnectionToClient, Is.SameAs(server.LocalConnection));
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace Mirror.Tests
             // create a networkidentity with our test component
             server.Spawn(gameObject);
             // assign authority
-            identity.AssignClientAuthority(server.localConnection);
+            identity.AssignClientAuthority(server.LocalConnection);
 
             // shouldn't be able to assign authority while already owned by
             // another connection
@@ -184,7 +184,7 @@ namespace Mirror.Tests
         [Test]
         public void RemoveClientAuthorityOfOwner()
         {
-            server.AddPlayerForConnection(server.localConnection, gameObject);
+            server.AddPlayerForConnection(server.LocalConnection, gameObject);
 
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
             {
@@ -198,7 +198,7 @@ namespace Mirror.Tests
         public void RemoveClientAuthority()
         {
             server.Spawn(gameObject);
-            identity.AssignClientAuthority(server.localConnection);
+            identity.AssignClientAuthority(server.LocalConnection);
             identity.RemoveClientAuthority();
             Assert.That(identity.ConnectionToClient, Is.Null);
         }

@@ -63,7 +63,7 @@ namespace Mirror
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
         /// </summary>
-        public bool IsServer => Server != null && Server.active && NetId != 0;
+        public bool IsServer => Server != null && Server.Active && NetId != 0;
 
         /// <summary>
         /// Returns true if we're on host mode.
@@ -431,7 +431,6 @@ namespace Mirror
                 if (!duplicate)
                 {
                     sceneId = randomId;
-                    //Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
                 }
             }
 
@@ -498,7 +497,6 @@ namespace Mirror
                 {
                     // force 0 for prefabs
                     sceneId = 0;
-                    //Debug.Log(name + " @ scene: " + gameObject.scene.name + " sceneid reset to 0 because CurrentPrefabStage=" + PrefabStageUtility.GetCurrentPrefabStage() + " PrefabStage=" + PrefabStageUtility.GetPrefabStage(gameObject));
                     // NOTE: might make sense to use GetPrefabStage for asset
                     //       path, but let's not touch it while it works.
                     string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
@@ -658,14 +656,13 @@ namespace Mirror
         // -> OnDeserialize carefully extracts each data, then deserializes the barrier and check it
         //    -> If we read too many or too few bytes,  the barrier is very unlikely to match
         //    -> we can properly track down errors
-        bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
+        void OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
             bool result = comp.OnSerialize(writer, initialState);
             if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId); }
 
             // serialize a barrier to be checked by the deserializer
             writer.WriteByte(Barrier);
-            return result;
         }
 
         // serialize all components (or only dirty ones if not initial state)
@@ -914,9 +911,9 @@ namespace Mirror
             }
 
             // add local host connection (if any)
-            if (Server.localConnection != null && Server.localConnection.isReady)
+            if (Server.LocalConnection != null && Server.LocalConnection.isReady)
             {
-                AddObserver(Server.localConnection);
+                AddObserver(Server.LocalConnection);
             }
         }
 
@@ -1017,7 +1014,7 @@ namespace Mirror
             //      iterating all identities in a special function in StartHost.
             if (initialize)
             {
-                if (!newObservers.Contains(Server.localConnection))
+                if (!newObservers.Contains(Server.LocalConnection))
                 {
                     OnSetHostVisibility(false);
                 }

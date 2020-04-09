@@ -819,14 +819,14 @@ namespace Mirror.Tests
             (_, var localConnection) = PipeConnection.CreatePipe();
 
             server.SetLocalConnection(client, localConnection);
-            server.localConnection.isReady = true;
+            server.LocalConnection.isReady = true;
 
             // call OnStartServer so that observers dict is created
             identity.StartServer();
 
             // add all to observers. should have the two ready connections then.
             identity.AddAllReadyServerConnectionsToObservers();
-            Assert.That(identity.observers, Is.EquivalentTo(new[] { connection1, server.localConnection }));
+            Assert.That(identity.observers, Is.EquivalentTo(new[] { connection1, server.LocalConnection }));
 
             // clean up
             server.Disconnect();

@@ -37,10 +37,10 @@ namespace Mirror.Discovery
 
         void OnGUI()
         {
-            if (networkManager.server.active || networkManager.client.Active)
+            if (networkManager.server.Active || networkManager.client.Active)
                 return;
 
-            if (!networkManager.client.IsConnected && !networkManager.server.active && !networkManager.client.Active)
+            if (!networkManager.client.IsConnected && !networkManager.server.Active && !networkManager.client.Active)
                 DrawGUI();
         }
 

@@ -54,15 +54,15 @@ namespace Mirror
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for backwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConnection now!
-        public NetworkConnection localConnection { get; private set; }
+        public NetworkConnection LocalConnection { get; private set; }
 
         // The host client for this server 
-        public NetworkClient localClient { get; private set; }
+        public NetworkClient LocalClient { get; private set; }
 
         /// <summary>
         /// True if there is a local client connected to this server (host mode)
         /// </summary>
-        public bool LocalClientActive => localClient != null && localClient.Active;
+        public bool LocalClientActive => LocalClient != null && LocalClient.Active;
 
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Mirror
         /// <para>Checks if the server has been started.</para>
         /// <para>This will be true after NetworkServer.Listen() has been called.</para>
         /// </summary>
-        public bool active { get; private set; }
+        public bool Active { get; private set; }
 
         public readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
@@ -166,7 +166,7 @@ namespace Mirror
                 if (LogFilter.Debug) Debug.Log("Server started listening");
             }
 
-            active = true;
+            Active = true;
 
             // call OnStartServer AFTER Listen, so that NetworkServer.active is
             // true and we can call NetworkServer.Spawn in OnStartServer
@@ -220,7 +220,7 @@ namespace Mirror
 
             Stopped.Invoke();
             initialized = false;
-            active = false;
+            Active = false;
         }
 
         /// <summary>
@@ -253,15 +253,15 @@ namespace Mirror
         // called by LocalClient to add itself. dont call directly.
         internal void SetLocalConnection(NetworkClient client, IConnection tconn)
         {
-            if (localConnection != null)
+            if (LocalConnection != null)
             {
                 Debug.LogError("Local Connection already exists");
                 return;
             }
 
             NetworkConnection conn = new NetworkConnection(tconn);
-            localConnection = conn;
-            localClient = client;
+            LocalConnection = conn;
+            LocalClient = client;
 
             _ = ConnectionAcceptedAsync(conn);
 
@@ -350,7 +350,7 @@ namespace Mirror
         // The user should never need to pump the update loop manually
         internal void Update()
         {
-            if (!active)
+            if (!Active)
                 return;
 
             // update all server objects
@@ -418,8 +418,8 @@ namespace Mirror
 
             DestroyPlayerForConnection(connection);
 
-            if (connection == localConnection)
-                localConnection = null;
+            if (connection == LocalConnection)
+                LocalConnection = null;
         }
 
         internal void OnAuthenticated(NetworkConnection conn)
@@ -575,16 +575,16 @@ namespace Mirror
             // set server to the NetworkIdentity
             identity.Server = this;
 
-            identity.Client = this.localClient;
+            identity.Client = this.LocalClient;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
 
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn == localConnection)
+            if (conn == LocalConnection)
             {
                 identity.HasAuthority = true;
-                this.localClient.InternalAddPlayer(identity);
+                this.LocalClient.InternalAddPlayer(identity);
             }
 
             // set ready if not set yet
@@ -639,7 +639,7 @@ namespace Mirror
             //NOTE: DONT set connection ready.
 
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn == localConnection)
+            if (conn == LocalConnection)
             {
                 identity.HasAuthority = true;
                 client.InternalAddPlayer(identity);
@@ -780,7 +780,7 @@ namespace Mirror
 
         internal void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
         {
-            if (!active)
+            if (!Active)
             {
                 Debug.LogError("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server.");
                 return;
@@ -795,11 +795,11 @@ namespace Mirror
             identity.Reset();
             identity.ConnectionToClient = ownerConnection;
             identity.Server = this;
-            identity.Client = localClient;
+            identity.Client = LocalClient;
 
             // special case to make sure hasAuthority is set
             // on start server in host mode
-            if (ownerConnection == localConnection)
+            if (ownerConnection == LocalConnection)
                 identity.HasAuthority = true;
 
             identity.StartServer();
@@ -1036,7 +1036,7 @@ namespace Mirror
         public bool SpawnObjects()
         {
             // only if server active
-            if (!active)
+            if (!Active)
                 return false;
 
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();

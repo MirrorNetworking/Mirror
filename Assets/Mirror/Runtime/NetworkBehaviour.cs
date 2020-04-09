@@ -252,7 +252,7 @@ namespace Mirror
         protected void SendRpcInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
-            if (!Server.active)
+            if (!Server.Active)
             {
                 Debug.LogError("RPC Function " + rpcName + " called on Client.");
                 return;
@@ -282,7 +282,7 @@ namespace Mirror
         protected void SendTargetRpcInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
-            if (!Server.active)
+            if (!Server.Active)
             {
                 Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
                 return;
@@ -332,7 +332,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
         {
-            if (!Server.active)
+            if (!Server.Active)
             {
                 Debug.LogWarning("SendEvent no server?");
                 return;

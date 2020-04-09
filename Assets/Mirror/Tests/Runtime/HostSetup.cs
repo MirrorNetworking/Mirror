@@ -46,7 +46,7 @@ namespace Mirror.Tests
             identity = playerGO.AddComponent<NetworkIdentity>();
             component = playerGO.AddComponent<T>();
 
-            server.AddPlayerForConnection(server.localConnection, playerGO);
+            server.AddPlayerForConnection(server.LocalConnection, playerGO);
 
             client.Update();
 

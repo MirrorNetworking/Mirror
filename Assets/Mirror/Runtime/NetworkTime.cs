@@ -162,13 +162,13 @@ namespace Mirror
         /// Measurement of the variance of time.
         /// <para>The higher the variance, the less accurate the time is</para>
         /// </summary>
-        public double timeVar => _offset.Var;
+        public double TimeVar => _offset.Var;
 
         /// <summary>
         /// standard deviation of time.
         /// <para>The higher the variance, the less accurate the time is</para>
         /// </summary>
-        public double timeSd => Math.Sqrt(timeVar);
+        public double TimeSd => Math.Sqrt(TimeVar);
 
         /// <summary>
         /// Clock difference in seconds between the client and the server
@@ -176,24 +176,24 @@ namespace Mirror
         /// <remarks>
         /// Note this value is always 0 at the server
         /// </remarks>
-        public double offset => _offset.Value;
+        public double Offset => _offset.Value;
 
         /// <summary>
         /// how long in seconds does it take for a message to go
         /// to the server and come back
         /// </summary>
-        public double rtt => _rtt.Value;
+        public double Rtt => _rtt.Value;
 
         /// <summary>
         /// measure variance of rtt
         /// the higher the number,  the less accurate rtt is
         /// </summary>
-        public double rttVar => _rtt.Var;
+        public double RttVar => _rtt.Var;
 
         /// <summary>
         /// Measure the standard deviation of rtt
         /// the higher the number,  the less accurate rtt is
         /// </summary>
-        public double rttSd => Math.Sqrt(rttVar);
+        public double RttSd => Math.Sqrt(RttVar);
     }
 }

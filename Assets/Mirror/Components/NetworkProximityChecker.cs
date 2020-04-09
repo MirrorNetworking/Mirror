@@ -68,7 +68,7 @@ namespace Mirror
 
         void Update()
         {
-            if (!Server.active)
+            if (!Server.Active)
                 return;
 
             if (Time.time - lastUpdateTime > VisibilityUpdateInterval)

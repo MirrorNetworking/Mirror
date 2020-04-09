@@ -64,7 +64,7 @@ namespace Mirror
         /// True if the server or client is started and running
         /// <para>This is set True in StartServer / StartClient, and set False in StopServer / StopClient</para>
         /// </summary>
-        public bool IsNetworkActive => server.active || client.Active;
+        public bool IsNetworkActive => server.Active || client.Active;
 
         /// <summary>
         /// This is true if the client loaded a new scene when connecting to the server.
@@ -508,7 +508,7 @@ namespace Mirror
         {
             if (mode == LoadSceneMode.Additive)
             {
-                if (server.active)
+                if (server.Active)
                 {
                     // TODO only respawn the server objects from that scene later!
                     server.SpawnObjects();
@@ -545,7 +545,7 @@ namespace Mirror
                 FinishLoadSceneHost();
             }
             // server-only mode?
-            else if (server.active)
+            else if (server.Active)
             {
                 FinishLoadSceneServerOnly();
             }
@@ -698,7 +698,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
-            if (client.IsConnected && !server.active)
+            if (client.IsConnected && !server.Active)
             {
                 ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
             }

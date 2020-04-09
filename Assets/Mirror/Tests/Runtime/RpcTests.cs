@@ -106,7 +106,7 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator TargetRpc()
         {
-            component.TargetRpcTest(manager.server.localConnection, 1, "hello");
+            component.TargetRpcTest(manager.server.LocalConnection, 1, "hello");
             // process spawn message from server
             yield return null;
 
@@ -129,8 +129,8 @@ namespace Mirror.Tests
 
             // state cleared?
             Assert.That(server.connections, Is.Empty);
-            Assert.That(server.active, Is.False);
-            Assert.That(server.localConnection, Is.Null);
+            Assert.That(server.Active, Is.False);
+            Assert.That(server.LocalConnection, Is.Null);
             Assert.That(server.LocalClientActive, Is.False);
         }
 

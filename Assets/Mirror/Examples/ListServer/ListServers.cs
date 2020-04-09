@@ -106,7 +106,7 @@ namespace Mirror.Examples.ListServer
         // should we use the game server to listen connection?
         bool UseGameServerToListen()
         {
-            return manager.server.active;
+            return manager.server.Active;
         }
 
         void ParseMessage(byte[] bytes)
