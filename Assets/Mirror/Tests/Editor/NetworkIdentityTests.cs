@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -901,7 +902,34 @@ namespace Mirror.Tests
         // OnSerializeAllSafely supports at max 64 components, because our
         // dirty mask is ulong and can only handle so many bits.
         [Test]
-        public void OnSerializeAllSafelyShouldDetectTooManyComponents()
+        public void OnSerializeAllSafelyShouldNotLogErrorsForTooManyComponents()
+        {
+            // add 65 components
+            for (int i = 0; i < 65; ++i)
+            {
+                gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            }
+            // ingore error from creating cache (has its own test)
+            LogAssert.ignoreFailingMessages = true;
+            _ = identity.NetworkBehaviours;
+            LogAssert.ignoreFailingMessages = false;
+
+
+            // try to serialize
+            NetworkWriter ownerWriter = new NetworkWriter();
+            NetworkWriter observersWriter = new NetworkWriter();
+
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+
+            // Should still write with too mnay Components because NetworkBehavioursCache should handle the error
+            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
+            Assert.That(observersWriter.Position, Is.GreaterThan(0));
+            Assert.That(ownerWritten, Is.GreaterThan(0));
+            Assert.That(observersWritten, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void CreatingNetworkBehavioursCacheShouldLogErrorForTooComponents()
         {
             // add 65 components
             for (int i = 0; i < 65; ++i)
@@ -909,19 +937,9 @@ namespace Mirror.Tests
                 gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             }
 
-            // try to serialize
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
-            // error log is expected because of too many components
-            LogAssert.ignoreFailingMessages = true;
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
-            LogAssert.ignoreFailingMessages = false;
-
-            // shouldn't have written anything because too many components
-            Assert.That(ownerWriter.Position, Is.EqualTo(0));
-            Assert.That(observersWriter.Position, Is.EqualTo(0));
-            Assert.That(ownerWritten, Is.EqualTo(0));
-            Assert.That(observersWritten, Is.EqualTo(0));
+            // call NetworkBehaviours property to create the cache
+            LogAssert.Expect(LogType.Error, new Regex("Only 64 NetworkBehaviour components are allowed for NetworkIdentity.+"));
+            _ = identity.NetworkBehaviours;
         }
 
         // OnDeserializeSafely should be able to detect and handle serialization
