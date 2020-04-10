@@ -804,8 +804,8 @@ namespace Mirror.Tests
         [Test]
         public void AddAllReadyServerConnectionsToObservers()
         {
-            var connection1 = new NetworkConnection(tconn42) { isReady = true };
-            var connection2 = new NetworkConnection(tconn43) { isReady = false };
+            var connection1 = new NetworkConnection(tconn42) { IsReady = true };
+            var connection2 = new NetworkConnection(tconn43) { IsReady = false };
             // add some server connections
             server.connections.Add(connection1);
             server.connections.Add(connection2);
@@ -814,7 +814,7 @@ namespace Mirror.Tests
             (_, IConnection localConnection) = PipeConnection.CreatePipe();
 
             server.SetLocalConnection(client, localConnection);
-            server.LocalConnection.isReady = true;
+            server.LocalConnection.IsReady = true;
 
             // call OnStartServer so that observers dict is created
             identity.StartServer();
@@ -838,7 +838,7 @@ namespace Mirror.Tests
 
             // add own player connection
             (_, NetworkConnection connection) = PipedConnections();
-            connection.isReady = true;
+            connection.IsReady = true;
             identity.ConnectionToClient = connection;
 
             // call OnStartServer so that observers dict is created

@@ -80,7 +80,7 @@ namespace Mirror.Tests
             yield return null;
 
             // ready?
-            Assert.That(connectionToClient.isReady, Is.True);
+            Assert.That(connectionToClient.IsReady, Is.True);
         }
 
         [UnityTest]
@@ -125,7 +125,7 @@ namespace Mirror.Tests
             Action<SpawnMessage> func = Substitute.For<Action<SpawnMessage>>();
             connectionToServer.RegisterHandler(func);
 
-            connectionToClient.isReady = true;
+            connectionToClient.IsReady = true;
 
             // call ShowForConnection
             server.ShowForConnection(identity, connectionToClient);

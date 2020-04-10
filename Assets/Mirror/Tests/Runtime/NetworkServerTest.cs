@@ -279,13 +279,13 @@ namespace Mirror.Tests
         public void SetClientReadyAndNotReadyTest()
         {
             (_, NetworkConnection connection) = PipedConnections();
-            Assert.That(connection.isReady, Is.False);
+            Assert.That(connection.IsReady, Is.False);
 
             server.SetClientReady(connection);
-            Assert.That(connection.isReady, Is.True);
+            Assert.That(connection.IsReady, Is.True);
 
             server.SetClientNotReady(connection);
-            Assert.That(connection.isReady, Is.False);
+            Assert.That(connection.IsReady, Is.False);
         }
 
         [Test]
@@ -293,18 +293,18 @@ namespace Mirror.Tests
         {
             // add first ready client
             (_, NetworkConnection first) = PipedConnections();
-            first.isReady = true;
+            first.IsReady = true;
             server.connections.Add(first);
 
             // add second ready client
             (_, NetworkConnection second) = PipedConnections();
-            second.isReady = true;
+            second.IsReady = true;
             server.connections.Add(second);
 
             // set all not ready
             server.SetAllClientsNotReady();
-            Assert.That(first.isReady, Is.False);
-            Assert.That(second.isReady, Is.False);
+            Assert.That(first.IsReady, Is.False);
+            Assert.That(second.IsReady, Is.False);
         }
 
         [Test]

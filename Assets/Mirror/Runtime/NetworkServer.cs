@@ -323,7 +323,7 @@ namespace Mirror
             {
 
                 bool isOwner = connection == identity.ConnectionToClient;
-                if ((!isOwner || includeOwner) && connection.isReady)
+                if ((!isOwner || includeOwner) && connection.IsReady)
                 {
                     connectionsCache.Add(connection);
                 }
@@ -508,7 +508,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Spawning " + spawned.Count + " objects for conn " + conn);
 
-            if (!conn.isReady)
+            if (!conn.IsReady)
             {
                 // client needs to finish initializing before we can spawn objects
                 // otherwise it would not find them.
@@ -681,7 +681,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("SetClientReadyInternal for conn:" + conn);
 
             // set ready
-            conn.isReady = true;
+            conn.IsReady = true;
 
             // client is ready to start spawning objects
             if (conn.Identity != null)
@@ -690,7 +690,7 @@ namespace Mirror
 
         internal void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
-            if (conn.isReady)
+            if (conn.IsReady)
                 SendSpawnMessage(identity, conn);
         }
 
@@ -722,10 +722,10 @@ namespace Mirror
         /// <param name="conn">The connection of the client to make not ready.</param>
         public void SetClientNotReady(NetworkConnection conn)
         {
-            if (conn.isReady)
+            if (conn.IsReady)
             {
                 if (LogFilter.Debug) Debug.Log("PlayerNotReady " + conn);
-                conn.isReady = false;
+                conn.IsReady = false;
                 conn.RemoveObservers();
 
                 conn.Send(new NotReadyMessage());

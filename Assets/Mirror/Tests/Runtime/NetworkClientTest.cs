@@ -108,7 +108,7 @@ namespace Mirror.Tests
 
             client.Ready(client.Connection);
             Assert.That(client.ready);
-            Assert.That(client.Connection.isReady);
+            Assert.That(client.Connection.IsReady);
         }
 
         [Test]

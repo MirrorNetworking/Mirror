@@ -384,7 +384,7 @@ namespace Mirror
             // will fail in InternalAddPlayer with null readyConnection.
             ready = true;
             Connection = conn;
-            Connection.isReady = true;
+            Connection.IsReady = true;
 
             // Tell server we're ready to have a player object spawned
             conn.Send(new ReadyMessage());
