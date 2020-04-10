@@ -1408,15 +1408,15 @@ namespace Mirror.Tests
         public void GetNewObservers()
         {
             // add components
-            RebuildObserversNetworkBehaviour compA = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
-            compA.observer = new NetworkConnectionToClient(12);
+            RebuildObserversNetworkBehaviour comp = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            comp.observer = new NetworkConnectionToClient(12);
 
             // get new observers
             HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
             bool result = identity.GetNewObservers(observers, true);
             Assert.That(result, Is.True);
             Assert.That(observers.Count, Is.EqualTo(1));
-            Assert.That(observers.Contains(compA.observer), Is.True);
+            Assert.That(observers.Contains(comp.observer), Is.True);
         }
 
         [Test]
