@@ -39,10 +39,10 @@ namespace Mirror.Tests
 
         public int targetRpcArg1;
         public string targetRpcArg2;
-        public NetworkConnection targetRpcConn;
+        public INetworkConnection targetRpcConn;
 
         [TargetRpc]
-        public void TargetRpcTest(NetworkConnection conn, int arg1, string arg2)
+        public void TargetRpcTest(INetworkConnection conn, int arg1, string arg2)
         {
             this.targetRpcConn = conn;
             this.targetRpcArg1 = arg1;

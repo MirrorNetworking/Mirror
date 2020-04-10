@@ -23,7 +23,7 @@ namespace Mirror
     {
         bool initialized;
 
-        [Serializable] public class NetworkConnectionEvent : UnityEvent<NetworkConnection> { }
+        [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
 
         /// <summary>
         /// The maximum number of concurrent network connections to support.
@@ -54,7 +54,7 @@ namespace Mirror
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for backwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConnection now!
-        public NetworkConnection LocalConnection { get; private set; }
+        public INetworkConnection LocalConnection { get; private set; }
 
         // The host client for this server 
         public NetworkClient LocalClient { get; private set; }
@@ -74,7 +74,7 @@ namespace Mirror
         /// <summary>
         /// A list of local connections on the server.
         /// </summary>
-        public readonly HashSet<NetworkConnection> connections = new HashSet<NetworkConnection>();
+        public readonly HashSet<INetworkConnection> connections = new HashSet<INetworkConnection>();
 
         /// <summary>
         /// <para>If you enable this, the server will not listen for incoming connections on the regular network port.</para>
@@ -92,7 +92,7 @@ namespace Mirror
 
         // just a cached memory area where we can collect connections
         // for broadcasting messages
-        private static readonly List<NetworkConnection> connectionsCache = new List<NetworkConnection>();
+        private static readonly List<INetworkConnection> connectionsCache = new List<INetworkConnection>();
 
         // Time kept in this server
         public readonly NetworkTime Time = new NetworkTime();
@@ -142,7 +142,7 @@ namespace Mirror
         }
 
 
-        internal void RegisterMessageHandlers(NetworkConnection connection)
+        internal void RegisterMessageHandlers(INetworkConnection connection)
         {
             connection.RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             connection.RegisterHandler<CommandMessage>(OnCommandMessage);
@@ -189,7 +189,7 @@ namespace Mirror
 
                 while ((connection = await transport.AcceptAsync()) != null)
                 {
-                    NetworkConnection networkConnectionToClient = new NetworkConnection(connection);
+                    var networkConnectionToClient = new NetworkConnection(connection);
 
                     _ = ConnectionAcceptedAsync(networkConnectionToClient);
                 }
@@ -228,7 +228,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Network connection to add.</param>
         /// <returns>True if added.</returns>
-        public void AddConnection(NetworkConnection conn)
+        public void AddConnection(INetworkConnection conn)
         {
             if (!connections.Contains(conn))
             {
@@ -244,7 +244,7 @@ namespace Mirror
         /// </summary>
         /// <param name="connectionId">The id of the connection to remove.</param>
         /// <returns>True if the removal succeeded</returns>
-        public void RemoveConnection(NetworkConnection conn)
+        public void RemoveConnection(INetworkConnection conn)
         {
             connections.Remove(conn);
         }
@@ -258,7 +258,7 @@ namespace Mirror
                 return;
             }
 
-            NetworkConnection conn = new NetworkConnection(tconn);
+            var conn = new NetworkConnection(tconn);
             LocalConnection = conn;
             LocalClient = client;
 
@@ -319,7 +319,7 @@ namespace Mirror
 
             connectionsCache.Clear();
 
-            foreach (NetworkConnection connection in identity.observers)
+            foreach (INetworkConnection connection in identity.observers)
             {
 
                 bool isOwner = connection == identity.ConnectionToClient;
@@ -368,7 +368,7 @@ namespace Mirror
             }
         }
 
-        async Task ConnectionAcceptedAsync(NetworkConnection conn)
+        async Task ConnectionAcceptedAsync(INetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("Server accepted client:" + conn);
 
@@ -407,7 +407,7 @@ namespace Mirror
         }
 
 
-        void OnDisconnected(NetworkConnection connection)
+        void OnDisconnected(INetworkConnection connection)
         {
             if (LogFilter.Debug) Debug.Log("Server disconnect client:" + connection);
 
@@ -421,7 +421,7 @@ namespace Mirror
                 LocalConnection = null;
         }
 
-        internal void OnAuthenticated(NetworkConnection conn)
+        internal void OnAuthenticated(INetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("Server authenticate client:" + conn);
 
@@ -467,7 +467,7 @@ namespace Mirror
         /// <param name="assetId"></param>
         /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
         /// <returns></returns>
-        public bool ReplacePlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player, Guid assetId, bool keepAuthority = false)
+        public bool ReplacePlayerForConnection(INetworkConnection conn, NetworkClient client, GameObject player, Guid assetId, bool keepAuthority = false)
         {
             NetworkIdentity identity = GetNetworkIdentity(player);
             identity.AssetId = assetId;
@@ -483,7 +483,7 @@ namespace Mirror
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
         /// <returns></returns>
-        public bool ReplacePlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player, bool keepAuthority = false)
+        public bool ReplacePlayerForConnection(INetworkConnection conn, NetworkClient client, GameObject player, bool keepAuthority = false)
         {
             return InternalReplacePlayerForConnection(conn, client, player, keepAuthority);
         }
@@ -497,14 +497,14 @@ namespace Mirror
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="assetId"></param>
         /// <returns></returns>
-        public bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
+        public bool AddPlayerForConnection(INetworkConnection conn, GameObject player, Guid assetId)
         {
             NetworkIdentity identity = GetNetworkIdentity(player);
             identity.AssetId = assetId;
             return AddPlayerForConnection(conn, player);
         }
 
-        void SpawnObserversForConnection(NetworkConnection conn)
+        void SpawnObserversForConnection(INetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("Spawning " + spawned.Count + " objects for conn " + conn);
 
@@ -550,7 +550,7 @@ namespace Mirror
         /// <param name="client">Client associated to the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
         /// <returns></returns>
-        public bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
+        public bool AddPlayerForConnection(INetworkConnection conn, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -609,7 +609,7 @@ namespace Mirror
             }
         }
 
-        internal bool InternalReplacePlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player, bool keepAuthority)
+        internal bool InternalReplacePlayerForConnection(INetworkConnection conn, NetworkClient client, GameObject player, bool keepAuthority)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -676,7 +676,7 @@ namespace Mirror
         /// <para>When a client has signaled that it is ready, this method tells the server that the client is ready to receive spawned objects and state synchronization updates. This is usually called in a handler for the SYSTEM_READY message. If there is not specific action a game needs to take for this message, relying on the default ready handler function is probably fine, so this call wont be needed.</para>
         /// </summary>
         /// <param name="conn">The connection of the client to make ready.</param>
-        public void SetClientReady(NetworkConnection conn)
+        public void SetClientReady(INetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("SetClientReadyInternal for conn:" + conn);
 
@@ -688,13 +688,13 @@ namespace Mirror
                 SpawnObserversForConnection(conn);
         }
 
-        internal void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
+        internal void ShowForConnection(NetworkIdentity identity, INetworkConnection conn)
         {
             if (conn.IsReady)
                 SendSpawnMessage(identity, conn);
         }
 
-        internal void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
+        internal void HideForConnection(NetworkIdentity identity, INetworkConnection conn)
         {
             var msg = new ObjectHideMessage
             {
@@ -709,7 +709,7 @@ namespace Mirror
         /// </summary>
         public void SetAllClientsNotReady()
         {
-            foreach (NetworkConnection conn in connections)
+            foreach (INetworkConnection conn in connections)
             {
                 SetClientNotReady(conn);
             }
@@ -720,7 +720,7 @@ namespace Mirror
         /// <para>Clients that are not ready do not receive spawned objects or state synchronization updates. They client can be made ready again by calling SetClientReady().</para>
         /// </summary>
         /// <param name="conn">The connection of the client to make not ready.</param>
-        public void SetClientNotReady(NetworkConnection conn)
+        public void SetClientNotReady(INetworkConnection conn)
         {
             if (conn.IsReady)
             {
@@ -733,14 +733,14 @@ namespace Mirror
         }
 
         // default ready handler.
-        void OnClientReadyMessage(NetworkConnection conn, ReadyMessage msg)
+        void OnClientReadyMessage(INetworkConnection conn, ReadyMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("Default handler for ready message from " + conn);
             SetClientReady(conn);
         }
 
         // default remove player handler
-        void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg)
+        void OnRemovePlayerMessage(INetworkConnection conn, RemovePlayerMessage msg)
         {
             if (conn.Identity != null)
             {
@@ -754,7 +754,7 @@ namespace Mirror
         }
 
         // Handle command from specific player, this could be one of multiple players on a single client
-        void OnCommandMessage(NetworkConnection conn, CommandMessage msg)
+        void OnCommandMessage(INetworkConnection conn, CommandMessage msg)
         {
             if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
@@ -777,7 +777,7 @@ namespace Mirror
                 identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader);
         }
 
-        internal void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
+        internal void SpawnObject(GameObject obj, INetworkConnection ownerConnection)
         {
             if (!Active)
             {
@@ -808,7 +808,7 @@ namespace Mirror
             identity.RebuildObservers(true);
         }
 
-        internal void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
+        internal void SendSpawnMessage(NetworkIdentity identity, INetworkConnection conn)
         {
             if (identity.serverOnly)
                 return;
@@ -850,11 +850,11 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This destroys all the player objects associated with a NetworkConnections on a server.
+        /// This destroys all the player objects associated with a INetworkConnections on a server.
         /// <para>This is used when a client disconnects, to remove the players for that client. This also destroys non-player objects that have client authority set for this connection.</para>
         /// </summary>
         /// <param name="conn">The connections object to clean up for.</param>
-        public void DestroyPlayerForConnection(NetworkConnection conn)
+        public void DestroyPlayerForConnection(INetworkConnection conn)
         {
             // destroy all objects owned by this connection
             conn.DestroyOwnedObjects();
@@ -924,7 +924,7 @@ namespace Mirror
         /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
         /// <param name="client">The client associated to the object.</param>
         /// <param name="ownerConnection">The connection that has authority over the object</param>
-        public void Spawn(GameObject obj, Guid assetId, NetworkConnection ownerConnection = null)
+        public void Spawn(GameObject obj, Guid assetId, INetworkConnection ownerConnection = null)
         {
             if (VerifyCanSpawn(obj))
             {
@@ -941,7 +941,7 @@ namespace Mirror
         /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
         /// <param name="client">Client associated to the object.</param>
         /// <param name="ownerConnection">The connection that has authority over the object</param>
-        public void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
+        public void Spawn(GameObject obj, INetworkConnection ownerConnection = null)
         {
             if (VerifyCanSpawn(obj))
             {

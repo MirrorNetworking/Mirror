@@ -12,6 +12,6 @@ namespace MirrorTest
         }
 
         [TargetRpc]
-        public void TargetRpcCantHaveParamAbstract(NetworkConnection monkeyCon, AbstractClass monkeys) { }
+        public void TargetRpcCantHaveParamAbstract(INetworkConnection monkeyCon, AbstractClass monkeys) { }
     }
 }

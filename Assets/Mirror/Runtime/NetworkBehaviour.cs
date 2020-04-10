@@ -97,12 +97,12 @@ namespace Mirror
         /// <summary>
         /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
         /// </summary>
-        public NetworkConnection ConnectionToServer => NetIdentity.ConnectionToServer;
+        public INetworkConnection ConnectionToServer => NetIdentity.ConnectionToServer;
 
         /// <summary>
         /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
         /// </summary>
-        public NetworkConnection ConnectionToClient => NetIdentity.ConnectionToClient;
+        public INetworkConnection ConnectionToClient => NetIdentity.ConnectionToClient;
 
         public NetworkTime NetworkTime => IsClient ? Client.Time : Server.Time;
 
@@ -279,7 +279,7 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRpcInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
+        protected void SendTargetRpcInternal(INetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
             if (!Server.Active)
@@ -820,7 +820,7 @@ namespace Mirror
         /// <param name="observers">The new set of observers for this object.</param>
         /// <param name="initialize">True if the set of observers is being built for the first time.</param>
         /// <returns>true when overwriting so that Mirror knows that we wanted to rebuild observers ourselves. otherwise it uses built in rebuild.</returns>
-        public virtual bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+        public virtual bool OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize)
         {
             return false;
         }
@@ -838,7 +838,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Network connection of a player.</param>
         /// <returns>True if the player can see this object.</returns>
-        public virtual bool OnCheckObserver(NetworkConnection conn)
+        public virtual bool OnCheckObserver(INetworkConnection conn)
         {
             return true;
         }

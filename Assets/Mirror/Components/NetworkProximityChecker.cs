@@ -83,7 +83,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">NetworkConnection of player object</param>
         /// <returns>True if object is within visible range</returns>
-        public override bool OnCheckObserver(NetworkConnection conn)
+        public override bool OnCheckObserver(INetworkConnection conn)
         {
             if (ForceHidden)
                 return false;
@@ -97,7 +97,7 @@ namespace Mirror
         /// <param name="observers">List of players to be updated.  Modify this set with all the players that can see this object</param>
         /// <param name="initialize">True if this is the first time the method is called for this object</param>
         /// <returns>True if this component calculated the list of observers</returns>
-        public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+        public override bool OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize)
         {
             // if force hidden then return without adding any observers.
             if (ForceHidden)
@@ -122,7 +122,7 @@ namespace Mirror
             return true;
         }
 
-        void Add3DHits(HashSet<NetworkConnection> observers)
+        void Add3DHits(HashSet<INetworkConnection> observers)
         {
             // cast without allocating GC for maximum performance
             int hitCount = Physics.OverlapSphereNonAlloc(transform.position, VisibilityRange, hitsBuffer3D, CastLayers);
@@ -142,7 +142,7 @@ namespace Mirror
             }
         }
 
-        void Add2DHits(HashSet<NetworkConnection> observers)
+        void Add2DHits(HashSet<INetworkConnection> observers)
         {
             // cast without allocating GC for maximum performance
             int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, VisibilityRange, hitsBuffer2D, CastLayers);

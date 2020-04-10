@@ -181,7 +181,7 @@ namespace Mirror
                 observerRect.x += 20;
                 observerRect.y += observerRect.height;
 
-                foreach (NetworkConnection conn in identity.observers)
+                foreach (INetworkConnection conn in identity.observers)
                 {
 
                     GUI.Label(observerRect, conn.Address + ":" + conn, styles.ComponentName);

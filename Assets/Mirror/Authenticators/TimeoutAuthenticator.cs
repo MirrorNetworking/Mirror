@@ -22,21 +22,21 @@ namespace Mirror.Authenticators
             Authenticator.OnServerAuthenticated += HandleServerAuthenticated;
         }
 
-        private readonly HashSet<NetworkConnection> pendingAuthentication = new HashSet<NetworkConnection>();
+        private readonly HashSet<INetworkConnection> pendingAuthentication = new HashSet<INetworkConnection>();
 
-        private void HandleServerAuthenticated(NetworkConnection connection)
+        private void HandleServerAuthenticated(INetworkConnection connection)
         {
             pendingAuthentication.Remove(connection);
             base.OnClientAuthenticate(connection);
         }
 
-        private void HandleClientAuthenticated(NetworkConnection connection)
+        private void HandleClientAuthenticated(INetworkConnection connection)
         {
             pendingAuthentication.Remove(connection);
             base.OnServerAuthenticate(connection);
         }
 
-        public override void OnClientAuthenticate(NetworkConnection conn)
+        public override void OnClientAuthenticate(INetworkConnection conn)
         {
             pendingAuthentication.Add(conn);
             Authenticator.OnClientAuthenticate(conn);
@@ -45,7 +45,7 @@ namespace Mirror.Authenticators
                 StartCoroutine(BeginAuthentication(conn));
         }
 
-        public override void OnServerAuthenticate(NetworkConnection conn)
+        public override void OnServerAuthenticate(INetworkConnection conn)
         {
             pendingAuthentication.Add(conn);
             Authenticator.OnServerAuthenticate(conn);
@@ -53,7 +53,7 @@ namespace Mirror.Authenticators
                 StartCoroutine(BeginAuthentication(conn));
         }
 
-        IEnumerator BeginAuthentication(NetworkConnection conn)
+        IEnumerator BeginAuthentication(INetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log($"Authentication countdown started {conn} {Timeout}");
 

@@ -14,9 +14,9 @@ namespace Mirror.Tests
         NetworkServer server;
         GameObject serverGO;
 
-        NetworkConnection connectionToServer;
+        INetworkConnection connectionToServer;
 
-        NetworkConnection connectionToClient;
+        INetworkConnection connectionToClient;
         WovenTestMessage message;
         NetworkIdentity identity;
 
@@ -177,7 +177,7 @@ namespace Mirror.Tests
         public IEnumerator RegisterMessage2()
         {
 
-            Action<NetworkConnection, WovenTestMessage> func = Substitute.For<Action<NetworkConnection, WovenTestMessage>>();
+            Action<INetworkConnection, WovenTestMessage> func = Substitute.For<Action<INetworkConnection, WovenTestMessage>>();
 
             connectionToClient.RegisterHandler<WovenTestMessage>(func);
 

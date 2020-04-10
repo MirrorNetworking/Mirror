@@ -279,14 +279,14 @@ namespace Mirror.Tests
         public void NetworkBehaviourTargetRpcParamOut()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamOut(Mirror.NetworkConnection,System.Int32&) cannot have out parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamOut(Mirror.INetworkConnection,System.Int32&) cannot have out parameters"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcParamOptional()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamOptional(Mirror.NetworkConnection,System.Int32) cannot have optional parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamOptional(Mirror.INetworkConnection,System.Int32) cannot have optional parameters"));
         }
 
         [Test]
@@ -384,7 +384,7 @@ namespace Mirror.Tests
         public void NetworkBehaviourClientRpcParamNetworkConnection()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamOptional(Mirror.NetworkConnection) has invalid parameer monkeyCon. Cannot pass NeworkConnections"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamOptional(Mirror.INetworkConnection) has invalid parameer monkeyCon. Cannot pass NeworkConnections"));
         }
 
         [Test]
@@ -433,7 +433,7 @@ namespace Mirror.Tests
         public void NetworkBehaviourCmdParamNetworkConnection()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamOptional(Mirror.NetworkConnection) has invalid parameer monkeyCon. Cannot pass NeworkConnections"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamOptional(Mirror.INetworkConnection) has invalid parameer monkeyCon. Cannot pass NeworkConnections"));
         }
 
         [Test]

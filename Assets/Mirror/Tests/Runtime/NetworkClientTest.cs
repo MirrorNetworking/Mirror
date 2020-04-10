@@ -13,7 +13,7 @@ namespace Mirror.Tests
     {
         public int called;
 
-        public override void OnClientAuthenticate(NetworkConnection conn)
+        public override void OnClientAuthenticate(INetworkConnection conn)
         {
             ++called;
         }

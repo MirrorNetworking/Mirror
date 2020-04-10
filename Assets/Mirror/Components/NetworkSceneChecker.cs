@@ -84,7 +84,7 @@ namespace Mirror
         /// </summary>
         /// <param name="newObserver">NetworkConnection of player object</param>
         /// <returns>True if object is in the same scene</returns>
-        public override bool OnCheckObserver(NetworkConnection conn)
+        public override bool OnCheckObserver(INetworkConnection conn)
         {
             if (forceHidden)
                 return false;
@@ -94,7 +94,7 @@ namespace Mirror
 
         // Always return true when overriding OnRebuildObservers so that
         // Mirror knows not to use the built in rebuild method.
-        public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+        public override bool OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize)
         {
             // If forceHidden then return true without adding any observers.
             if (forceHidden)

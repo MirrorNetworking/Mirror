@@ -48,8 +48,8 @@ namespace Mirror.Tests
         class CheckObserverExceptionNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public NetworkConnection valuePassed;
-            public override bool OnCheckObserver(NetworkConnection conn)
+            public INetworkConnection valuePassed;
+            public override bool OnCheckObserver(INetworkConnection conn)
             {
                 ++called;
                 valuePassed = conn;
@@ -60,7 +60,7 @@ namespace Mirror.Tests
         class CheckObserverTrueNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override bool OnCheckObserver(NetworkConnection conn)
+            public override bool OnCheckObserver(INetworkConnection conn)
             {
                 ++called;
                 return true;
@@ -70,7 +70,7 @@ namespace Mirror.Tests
         class CheckObserverFalseNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override bool OnCheckObserver(NetworkConnection conn)
+            public override bool OnCheckObserver(INetworkConnection conn)
             {
                 ++called;
                 return false;
@@ -136,7 +136,7 @@ namespace Mirror.Tests
         class RebuildObserversNetworkBehaviour : NetworkBehaviour
         {
             public NetworkConnection observer;
-            public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+            public override bool OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize)
             {
                 observers.Add(observer);
                 return true;
@@ -145,7 +145,7 @@ namespace Mirror.Tests
 
         class RebuildEmptyObserversNetworkBehaviour : NetworkBehaviour
         {
-            public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+            public override bool OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize)
             {
                 // return true so that caller knows we implemented
                 // OnRebuildObservers, but return no observers
@@ -771,7 +771,7 @@ namespace Mirror.Tests
             compB.observer = new NetworkConnection(null);
 
             // get new observers
-            var observers = new HashSet<NetworkConnection>();
+            var observers = new HashSet<INetworkConnection>();
             bool result = identity.GetNewObservers(observers, true);
             Assert.That(result, Is.True);
             Assert.That(observers.Count, Is.EqualTo(2));
@@ -784,7 +784,7 @@ namespace Mirror.Tests
         {
             // get new observers. no observer components so it should just clear
             // it and not do anything else
-            var observers = new HashSet<NetworkConnection>
+            var observers = new HashSet<INetworkConnection>
             {
                 new NetworkConnection(null)
             };
@@ -796,7 +796,7 @@ namespace Mirror.Tests
         public void GetNewObserversFalseIfNoComponents()
         {
             // get new observers. no observer components so it should be false
-            var observers = new HashSet<NetworkConnection>();
+            var observers = new HashSet<INetworkConnection>();
             bool result = identity.GetNewObservers(observers, true);
             Assert.That(result, Is.False);
         }

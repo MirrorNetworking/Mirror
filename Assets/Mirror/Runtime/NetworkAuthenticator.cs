@@ -12,17 +12,17 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers on the server when a client is authenticated
         /// </summary>
-        public event Action<NetworkConnection> OnServerAuthenticated;
+        public event Action<INetworkConnection> OnServerAuthenticated;
 
         /// <summary>
         /// Notify subscribers on the client when the client is authenticated
         /// </summary>
-        public event Action<NetworkConnection> OnClientAuthenticated;
+        public event Action<INetworkConnection> OnClientAuthenticated;
 
         #region server
 
         // This will get more code in the near future
-        internal void OnServerAuthenticateInternal(NetworkConnection conn)
+        internal void OnServerAuthenticateInternal(INetworkConnection conn)
         {
             OnServerAuthenticate(conn);
         }
@@ -31,7 +31,7 @@ namespace Mirror
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection to client.</param>
-        public virtual void OnServerAuthenticate(NetworkConnection conn)
+        public virtual void OnServerAuthenticate(INetworkConnection conn)
         {
             OnServerAuthenticated?.Invoke(conn);
         }
@@ -41,7 +41,7 @@ namespace Mirror
         #region client
 
         // This will get more code in the near future
-        internal void OnClientAuthenticateInternal(NetworkConnection conn)
+        internal void OnClientAuthenticateInternal(INetworkConnection conn)
         {
             OnClientAuthenticate(conn);
         }
@@ -50,7 +50,7 @@ namespace Mirror
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection of the client.</param>
-        public virtual void OnClientAuthenticate(NetworkConnection conn)
+        public virtual void OnClientAuthenticate(INetworkConnection conn)
         {
             OnClientAuthenticated?.Invoke(conn);
         }

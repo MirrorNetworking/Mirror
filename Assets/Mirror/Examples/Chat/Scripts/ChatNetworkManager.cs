@@ -21,18 +21,18 @@ namespace Mirror.Examples.Chat
             public string name;
         }
 
-        public override void OnServerConnect(NetworkConnection conn)
+        public override void OnServerConnect(INetworkConnection conn)
         {
             conn.RegisterHandler<CreatePlayerMessage>(OnCreatePlayer);
         }
 
-        public void OnAuthenticated(NetworkConnection conn)
+        public void OnAuthenticated(INetworkConnection conn)
         {
             // tell the server to create a player with this name
             conn.Send(new CreatePlayerMessage { name = PlayerName });
         }
 
-        private void OnCreatePlayer(NetworkConnection connection, CreatePlayerMessage createPlayerMessage)
+        private void OnCreatePlayer(INetworkConnection connection, CreatePlayerMessage createPlayerMessage)
         {
             // create a gameobject using the name supplied by client
             GameObject playergo = Instantiate(playerPrefab).gameObject;

@@ -95,7 +95,7 @@ namespace Mirror.Tests
             // test the callback too
             int callbackCalled = 0;
 
-            void Callback(NetworkConnection conn, NetworkIdentity networkIdentity, bool state)
+            void Callback(INetworkConnection conn, NetworkIdentity networkIdentity, bool state)
             {
                 ++callbackCalled;
                 Assert.That(networkIdentity, Is.EqualTo(identity));

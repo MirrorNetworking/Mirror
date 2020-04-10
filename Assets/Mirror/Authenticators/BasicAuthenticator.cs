@@ -27,13 +27,13 @@ namespace Mirror.Authenticators
             public string Message;
         }
 
-        public override void OnServerAuthenticate(NetworkConnection conn)
+        public override void OnServerAuthenticate(INetworkConnection conn)
         {
             // wait for AuthRequestMessage from client
             conn.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage);
         }
 
-        public override void OnClientAuthenticate(NetworkConnection conn)
+        public override void OnClientAuthenticate(INetworkConnection conn)
         {
             conn.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage);
 
@@ -46,7 +46,7 @@ namespace Mirror.Authenticators
             conn.Send(authRequestMessage);
         }
 
-        public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
+        public void OnAuthRequestMessage(INetworkConnection conn, AuthRequestMessage msg)
         {
             Debug.LogFormat("Authentication Request: {0} {1}", msg.AuthUsername, msg.AuthPassword);
 
@@ -81,13 +81,13 @@ namespace Mirror.Authenticators
             }
         }
 
-        public IEnumerator DelayedDisconnect(NetworkConnection conn, float waitTime)
+        public IEnumerator DelayedDisconnect(INetworkConnection conn, float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
             conn.Disconnect();
         }
 
-        public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg)
+        public void OnAuthResponseMessage(INetworkConnection conn, AuthResponseMessage msg)
         {
             if (msg.Code == 100)
             {

@@ -34,7 +34,7 @@ namespace Mirror
             client.RegisterPrefab(playerPrefab.gameObject);
         }
 
-        private void OnServerAuthenticated(NetworkConnection connection)
+        private void OnServerAuthenticated(INetworkConnection connection)
         {
             // wait for client to send us an AddPlayerMessage
             connection.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
@@ -45,7 +45,7 @@ namespace Mirror
         /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
         /// </summary>
         /// <param name="conn">Connection to the server.</param>
-        private void OnClientAuthenticated(NetworkConnection connection)
+        private void OnClientAuthenticated(INetworkConnection connection)
         {
             // OnClientConnect by default calls AddPlayer but it should not do
             // that when we have online/offline scenes. so we need the
@@ -57,7 +57,7 @@ namespace Mirror
             client.Send(new AddPlayerMessage());
         }
 
-        void OnServerAddPlayerInternal(NetworkConnection conn, AddPlayerMessage msg)
+        void OnServerAddPlayerInternal(INetworkConnection conn, AddPlayerMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
 
@@ -77,7 +77,7 @@ namespace Mirror
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public virtual void OnServerAddPlayer(NetworkConnection conn)
+        public virtual void OnServerAddPlayer(INetworkConnection conn)
         {
             Transform startPos = GetStartPosition();
             NetworkIdentity player = startPos != null

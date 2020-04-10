@@ -628,14 +628,14 @@ namespace Mirror
 
         #region Server Internal Message Handlers
 
-        void RegisterServerMessages(NetworkConnection connection)
+        void RegisterServerMessages(INetworkConnection connection)
         {
             connection.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             connection.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
         }
 
         // called after successful authentication
-        void OnServerAuthenticated(NetworkConnection conn)
+        void OnServerAuthenticated(INetworkConnection conn)
         {
             // a connection has been established,  register for our messages
             RegisterServerMessages(conn);
@@ -652,13 +652,13 @@ namespace Mirror
             OnServerConnect(conn);
         }
 
-        void OnServerReadyMessageInternal(NetworkConnection conn, ReadyMessage msg)
+        void OnServerReadyMessageInternal(INetworkConnection conn, ReadyMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerReadyMessageInternal");
             OnServerReady(conn);
         }
 
-        void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
+        void OnServerRemovePlayerMessageInternal(INetworkConnection conn, RemovePlayerMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
 
@@ -673,14 +673,14 @@ namespace Mirror
 
         #region Client Internal Message Handlers
 
-        void RegisterClientMessages(NetworkConnection connection)
+        void RegisterClientMessages(INetworkConnection connection)
         {
             connection.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
             connection.RegisterHandler<SceneMessage>(OnClientSceneInternal);
         }
 
         // called after successful authentication
-        void OnClientAuthenticated(NetworkConnection conn)
+        void OnClientAuthenticated(INetworkConnection conn)
         {
             RegisterClientMessages(conn);
 
@@ -691,7 +691,7 @@ namespace Mirror
             client.Connection = conn;
         }
 
-        void OnClientNotReadyMessageInternal(NetworkConnection conn, NotReadyMessage msg)
+        void OnClientNotReadyMessageInternal(INetworkConnection conn, NotReadyMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientNotReadyMessageInternal");
 
@@ -701,7 +701,7 @@ namespace Mirror
             // NOTE: clientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
         }
 
-        void OnClientSceneInternal(NetworkConnection conn, SceneMessage msg)
+        void OnClientSceneInternal(INetworkConnection conn, SceneMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
@@ -720,7 +720,7 @@ namespace Mirror
         /// <para>Unity calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public virtual void OnServerConnect(NetworkConnection conn) { }
+        public virtual void OnServerConnect(INetworkConnection conn) { }
 
 
         /// <summary>
@@ -728,7 +728,7 @@ namespace Mirror
         /// <para>The default implementation of this function calls NetworkServer.SetClientReady() to continue the network setup process.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public virtual void OnServerReady(NetworkConnection conn)
+        public virtual void OnServerReady(INetworkConnection conn)
         {
             if (conn.Identity == null)
             {
@@ -745,7 +745,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">The connection to remove the player from.</param>
         /// <param name="player">The player identity to remove.</param>
-        public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
+        public virtual void OnServerRemovePlayer(INetworkConnection conn, NetworkIdentity player)
         {
             if (player.gameObject != null)
             {
@@ -775,7 +775,7 @@ namespace Mirror
         /// <para>This is commonly used when switching scenes.</para>
         /// </summary>
         /// <param name="conn">Connection to the server.</param>
-        public virtual void OnClientNotReady(NetworkConnection conn) { }
+        public virtual void OnClientNotReady(INetworkConnection conn) { }
 
         /// <summary>
         /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
@@ -791,7 +791,7 @@ namespace Mirror
         /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
         /// </summary>
         /// <param name="conn">The network connection that the scene change message arrived on.</param>
-        public virtual void OnClientSceneChanged(NetworkConnection conn)
+        public virtual void OnClientSceneChanged(INetworkConnection conn)
         {
             // always become ready.
             if (!client.ready)

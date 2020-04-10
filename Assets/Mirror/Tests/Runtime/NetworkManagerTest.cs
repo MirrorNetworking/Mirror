@@ -96,7 +96,7 @@ namespace Mirror.Tests
         public IEnumerator ConnectedClientTest() => RunAsync(async () =>
         {
             await manager.StartServer();
-            UnityAction<NetworkConnection> func = Substitute.For<UnityAction<NetworkConnection>>();
+            UnityAction<INetworkConnection> func = Substitute.For<UnityAction<INetworkConnection>>();
             manager.client.Connected.AddListener(func);
 
             await manager.client.ConnectAsync(new System.Uri("tcp4://localhost"));
@@ -109,7 +109,7 @@ namespace Mirror.Tests
         public IEnumerator ConnectedClientUriTest() => RunAsync(async () =>
         {
             await manager.StartServer();
-            UnityAction<NetworkConnection> func = Substitute.For<UnityAction<NetworkConnection>>();
+            UnityAction<INetworkConnection> func = Substitute.For<UnityAction<INetworkConnection>>();
             manager.client.Connected.AddListener(func);
             await manager.client.ConnectAsync(new System.Uri("tcp4://localhost"));
             func.Received().Invoke(Arg.Any<NetworkConnection>());
@@ -123,7 +123,7 @@ namespace Mirror.Tests
         public IEnumerator ConnectedHostTest() => RunAsync(async () =>
         {
             await manager.StartServer();
-            UnityAction<NetworkConnection> func = Substitute.For<UnityAction<NetworkConnection>>();
+            UnityAction<INetworkConnection> func = Substitute.For<UnityAction<INetworkConnection>>();
             manager.client.Connected.AddListener(func);
             manager.client.ConnectHost(manager.server);
             func.Received().Invoke(Arg.Any<NetworkConnection>());

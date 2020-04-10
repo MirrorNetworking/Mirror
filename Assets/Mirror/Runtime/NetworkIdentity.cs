@@ -87,7 +87,7 @@ namespace Mirror
         /// The set of network connections (players) that can see this object.
         /// <para>null until OnStartServer was called. this is necessary for SendTo* to work properly in server-only mode.</para>
         /// </summary>
-        public readonly HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
+        public readonly HashSet<INetworkConnection> observers = new HashSet<INetworkConnection>();
 
         /// <summary>
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
@@ -117,20 +117,20 @@ namespace Mirror
         /// <summary>
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
         /// </summary>
-        public NetworkConnection ConnectionToServer { get; internal set; }
+        public INetworkConnection ConnectionToServer { get; internal set; }
 
         /// <summary>
         /// The NetworkClient associated with this NetworkIdentity.
         /// </summary>
         public NetworkClient Client { get; internal set; }
 
-        NetworkConnection _connectionToClient;
+        INetworkConnection _connectionToClient;
 
         /// <summary>
         /// The NetworkConnection associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is valid for player and other owned objects in the server.
         /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
         /// </summary>
-        public NetworkConnection ConnectionToClient
+        public INetworkConnection ConnectionToClient
         {
             get => _connectionToClient;
 
@@ -248,7 +248,7 @@ namespace Mirror
         public static NetworkIdentity GetSceneIdentity(ulong id) => sceneIds[id];
 
         // used when adding players
-        internal void SetClientOwner(NetworkConnection conn)
+        internal void SetClientOwner(INetworkConnection conn)
         {
             // do nothing if it already has an owner
             if (ConnectionToClient != null && conn != ConnectionToClient)
@@ -274,7 +274,7 @@ namespace Mirror
         /// <param name="conn">The network connection that is gaining or losing authority.</param>
         /// <param name="identity">The object whose client authority status is being changed.</param>
         /// <param name="authorityState">The new state of client authority of the object for the connection.</param>
-        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
+        public delegate void ClientAuthorityCallback(INetworkConnection conn, NetworkIdentity identity, bool authorityState);
 
         /// <summary>
         /// A callback that can be populated to be notified when the client-authority state of objects changes.
@@ -284,7 +284,7 @@ namespace Mirror
         public static event ClientAuthorityCallback clientAuthorityCallback;
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
-        internal void RemoveObserverInternal(NetworkConnection conn)
+        internal void RemoveObserverInternal(INetworkConnection conn)
         {
             observers.Remove(conn);
         }
@@ -639,7 +639,7 @@ namespace Mirror
             }
         }
 
-        internal bool OnCheckObserver(NetworkConnection conn)
+        internal bool OnCheckObserver(INetworkConnection conn)
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -867,14 +867,14 @@ namespace Mirror
 
         internal void ClearObservers()
         {
-            foreach (NetworkConnection conn in observers)
+            foreach (INetworkConnection conn in observers)
             {
                 conn.RemoveFromVisList(this);
             }
             observers.Clear();
         }
 
-        internal void AddObserver(NetworkConnection conn)
+        internal void AddObserver(INetworkConnection conn)
         {
             if (observers.Contains(conn))
             {
@@ -896,7 +896,7 @@ namespace Mirror
         // -> returns true if any of the components implemented
         //    OnRebuildObservers, false otherwise
         // -> initialize is true on first rebuild, false on consecutive rebuilds
-        internal bool GetNewObservers(HashSet<NetworkConnection> observersSet, bool initialize)
+        internal bool GetNewObservers(HashSet<INetworkConnection> observersSet, bool initialize)
         {
             bool rebuildOverwritten = false;
             observersSet.Clear();
@@ -915,7 +915,7 @@ namespace Mirror
         internal void AddAllReadyServerConnectionsToObservers()
         {
             // add all server connections
-            foreach (NetworkConnection conn in Server.connections)
+            foreach (INetworkConnection conn in Server.connections)
             {
                 if (conn.IsReady)
                     AddObserver(conn);
@@ -928,7 +928,7 @@ namespace Mirror
             }
         }
 
-        static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
+        static readonly HashSet<INetworkConnection> newObservers = new HashSet<INetworkConnection>();
 
         /// <summary>
         /// This causes the set of players that can see this object to be rebuild. The OnRebuildObservers callback function will be invoked on each NetworkBehaviour.
@@ -964,7 +964,7 @@ namespace Mirror
             }
 
             // add all newObservers that aren't in .observers yet
-            foreach (NetworkConnection conn in newObservers)
+            foreach (INetworkConnection conn in newObservers)
             {
                 // only add ready connections.
                 // otherwise the player might not be in the world yet or anymore
@@ -983,7 +983,7 @@ namespace Mirror
             }
 
             // remove all old .observers that aren't in newObservers anymore
-            foreach (NetworkConnection conn in observers)
+            foreach (INetworkConnection conn in observers)
             {
                 if (!newObservers.Contains(conn))
                 {
@@ -999,7 +999,7 @@ namespace Mirror
             if (changed)
             {
                 observers.Clear();
-                foreach (NetworkConnection conn in newObservers)
+                foreach (INetworkConnection conn in newObservers)
                 {
                     if (conn != null && conn.IsReady)
                         observers.Add(conn);
@@ -1042,7 +1042,7 @@ namespace Mirror
         /// <para>Authority can be removed with RemoveClientAuthority. Only one client can own an object at any time. This does not need to be called for player objects, as their authority is setup automatically.</para>
         /// </summary>
         /// <param name="conn">	The connection of the client to assign authority to.</param>
-        public void AssignClientAuthority(NetworkConnection conn)
+        public void AssignClientAuthority(INetworkConnection conn)
         {
             if (!IsServer)
             {
@@ -1089,7 +1089,7 @@ namespace Mirror
             {
                 clientAuthorityCallback?.Invoke(ConnectionToClient, this, false);
 
-                NetworkConnection previousOwner = ConnectionToClient;
+                INetworkConnection previousOwner = ConnectionToClient;
 
                 ConnectionToClient = null;
 

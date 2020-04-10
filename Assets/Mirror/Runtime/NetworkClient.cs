@@ -35,7 +35,7 @@ namespace Mirror
         readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
         readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
-        [Serializable] public class NetworkConnectionEvent : UnityEvent<NetworkConnection> { }
+        [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
 
         public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
@@ -44,7 +44,7 @@ namespace Mirror
         /// <summary>
         /// The NetworkConnection object this client is using.
         /// </summary>
-        public NetworkConnection Connection { get; internal set; }
+        public INetworkConnection Connection { get; internal set; }
 
         /// <summary>
         /// NetworkIdentity of the localPlayer
@@ -229,7 +229,7 @@ namespace Mirror
 
         }
 
-        public void OnAuthenticated(NetworkConnection conn)
+        public void OnAuthenticated(INetworkConnection conn)
         {
             Authenticated?.Invoke(conn);
         }
@@ -272,7 +272,7 @@ namespace Mirror
             }
         }
 
-        internal void RegisterHostHandlers(NetworkConnection connection)
+        internal void RegisterHostHandlers(INetworkConnection connection)
         {
             connection.RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
             connection.RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
@@ -287,7 +287,7 @@ namespace Mirror
             connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
-        internal void RegisterMessageHandlers(NetworkConnection connection)
+        internal void RegisterMessageHandlers(INetworkConnection connection)
         {
             connection.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
             connection.RegisterHandler<ObjectHideMessage>(OnObjectHide);
@@ -367,7 +367,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">The client connection which is ready.</param>
         /// <returns>True if succcessful</returns>
-        public void Ready(NetworkConnection conn)
+        public void Ready(INetworkConnection conn)
         {
             if (ready)
             {

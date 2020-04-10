@@ -75,7 +75,7 @@ namespace Mirror.Tests
     {
         public int called;
 
-        public override void OnServerAuthenticate(NetworkConnection conn)
+        public override void OnServerAuthenticate(INetworkConnection conn)
         {
             ++called;
         }
@@ -159,12 +159,12 @@ namespace Mirror.Tests
         [Test]
         public void ConnectedEventTest()
         {
-            UnityAction<NetworkConnection> func = Substitute.For<UnityAction<NetworkConnection>>();
+            UnityAction<INetworkConnection> func = Substitute.For<UnityAction<INetworkConnection>>();
             server.Connected.AddListener(func);
 
             transport.AcceptCompletionSource.SetResult(tconn42);
 
-            func.Received().Invoke(Arg.Any<NetworkConnection>());
+            func.Received().Invoke(Arg.Any<INetworkConnection>());
         }
 
         [Test]
@@ -195,7 +195,7 @@ namespace Mirror.Tests
         public void DisconnectMessageHandlerTest()
         {
             // subscribe to disconnected
-            UnityAction<NetworkConnection> func = Substitute.For<UnityAction<NetworkConnection>>();
+            UnityAction<INetworkConnection> func = Substitute.For<UnityAction<INetworkConnection>>();
             server.Disconnected.AddListener(func);
 
             // accept a connection and disconnect

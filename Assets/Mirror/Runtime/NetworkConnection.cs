@@ -20,7 +20,7 @@ namespace Mirror
     public class NetworkConnection : INetworkConnection
     {
         // Handles network messages on client and server
-        private delegate void NetworkMessageDelegate(NetworkConnection conn, NetworkReader reader, int channelId);
+        private delegate void NetworkMessageDelegate(INetworkConnection conn, NetworkReader reader, int channelId);
 
 
         // internal so it can be tested
@@ -61,7 +61,7 @@ namespace Mirror
         /// <summary>
         /// The NetworkIdentity for this connection.
         /// </summary>
-        public NetworkIdentity Identity { get; internal set; }
+        public NetworkIdentity Identity { get; set; }
 
         /// <summary>
         /// A list of the NetworkIdentity objects owned by this connection. This list is read-only.
@@ -89,10 +89,10 @@ namespace Mirror
             connection.Disconnect();
         }
 
-        private static NetworkMessageDelegate MessageHandler<T>(Action<NetworkConnection, T> handler)
+        private static NetworkMessageDelegate MessageHandler<T>(Action<INetworkConnection, T> handler)
             where T : IMessageBase, new()
         {
-            void AdapterFunction(NetworkConnection conn, NetworkReader reader, int channelId)
+            void AdapterFunction(INetworkConnection conn, NetworkReader reader, int channelId)
             {
                 // protect against DOS attacks if attackers try to send invalid
                 // data packets to crash the server/client. there are a thousand
@@ -128,7 +128,7 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
-        public void RegisterHandler<T>(Action<NetworkConnection, T> handler)
+        public void RegisterHandler<T>(Action<INetworkConnection, T> handler)
             where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
@@ -199,7 +199,7 @@ namespace Mirror
             }
         }
 
-        public static void Send<T>(IEnumerable<NetworkConnection> connections, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public static void Send<T>(IEnumerable<INetworkConnection> connections, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
@@ -208,10 +208,17 @@ namespace Mirror
                 var segment = writer.ToArraySegment();
                 int count = 0;
 
-                foreach (NetworkConnection conn in connections)
+                foreach (INetworkConnection conn in connections)
                 {
-                    // send to all connections, but don't wait for them
-                    _ = conn.SendAsync(segment);
+                    if (conn is NetworkConnection networkConnection)
+                    {
+                        // send to all connections, but don't wait for them
+                        _ = networkConnection.SendAsync(segment, channelId);
+                    }
+                    else
+                    {
+                        _ = conn.SendAsync(msg, channelId);
+                    }
                     count++;
                 }
 
@@ -231,17 +238,17 @@ namespace Mirror
             return $"connection({Address})";
         }
 
-        internal void AddToVisList(NetworkIdentity identity)
+        public void AddToVisList(NetworkIdentity identity)
         {
             visList.Add(identity);
         }
 
-        internal void RemoveFromVisList(NetworkIdentity identity)
+        public void RemoveFromVisList(NetworkIdentity identity)
         {
             visList.Remove(identity);
         }
 
-        internal void RemoveObservers()
+        public void RemoveObservers()
         {
             foreach (NetworkIdentity identity in visList)
             {
@@ -289,17 +296,17 @@ namespace Mirror
             }
         }
 
-        internal void AddOwnedObject(NetworkIdentity obj)
+        public void AddOwnedObject(NetworkIdentity networkIdentity)
         {
-            clientOwnedObjects.Add(obj);
+            clientOwnedObjects.Add(networkIdentity);
         }
 
-        internal void RemoveOwnedObject(NetworkIdentity obj)
+        public void RemoveOwnedObject(NetworkIdentity networkIdentity)
         {
-            clientOwnedObjects.Remove(obj);
+            clientOwnedObjects.Remove(networkIdentity);
         }
 
-        internal void DestroyOwnedObjects()
+        public void DestroyOwnedObjects()
         {
             // create a copy because the list might be modified when destroying
             var tmp = new HashSet<NetworkIdentity>(clientOwnedObjects);
@@ -315,7 +322,7 @@ namespace Mirror
             clientOwnedObjects.Clear();
         }
 
-        internal async Task ProcessMessagesAsync()
+        public async Task ProcessMessagesAsync()
         {
             var buffer = new MemoryStream();
 

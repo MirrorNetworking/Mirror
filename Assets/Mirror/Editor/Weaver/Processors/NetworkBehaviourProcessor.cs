@@ -788,7 +788,7 @@ namespace Mirror.Weaver
                     return false;
                 }
                 // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
-                if (p.ParameterType.FullName == Weaver.NetworkConnectionType.FullName &&
+                if (p.ParameterType.FullName == Weaver.INetworkConnectionType.FullName &&
                     !(ca.AttributeType.FullName == Weaver.TargetRpcType.FullName && i == 0))
                 {
                     Weaver.Error($"{md} has invalid parameer {p}. Cannot pass NeworkConnections");

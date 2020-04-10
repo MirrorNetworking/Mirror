@@ -42,7 +42,7 @@ namespace Mirror.Weaver
         public static TypeReference NetworkBehaviourType2;
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
-        public static TypeReference NetworkConnectionType;
+        public static TypeReference INetworkConnectionType;
 
         public static TypeReference MessageBaseType;
         public static TypeReference IMessageBaseType;
@@ -271,7 +271,8 @@ namespace Mirror.Weaver
 
             NetworkBehaviourType = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
             NetworkBehaviourType2 = CurrentAssembly.MainModule.ImportReference(NetworkBehaviourType);
-            NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
+            INetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.INetworkConnection");
+            INetworkConnectionType = CurrentAssembly.MainModule.ImportReference(INetworkConnectionType);
 
             NetworkBehaviourGetIdentity = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_NetIdentity");
             NetworkIdentityGetServer = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_Server");
@@ -288,8 +289,6 @@ namespace Mirror.Weaver
                 ScriptableObjectType, CurrentAssembly,
                 md => md.Name == "CreateInstance" && md.HasGenericParameters);
 
-            NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
-            NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
 
             MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
             IMessageBaseType = NetAssembly.MainModule.GetType("Mirror.IMessageBase");
