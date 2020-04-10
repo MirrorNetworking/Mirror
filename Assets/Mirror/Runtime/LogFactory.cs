@@ -12,6 +12,11 @@ namespace Mirror
             return GetLogger(typeof(T).Name);
         }
 
+        public static ILogger GetLogger(System.Type type)
+        {
+            return GetLogger(type);
+        }
+
         public static ILogger GetLogger(string loggerName)
         {
             if (loggers.TryGetValue(loggerName, out ILogger logger ))
