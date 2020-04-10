@@ -853,16 +853,24 @@ namespace Mirror
                     if (!SceneManager.GetSceneByName(newSceneName).IsValid())
                         loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, LoadSceneMode.Additive);
                     else
+                    {
                         Debug.LogWarningFormat("Scene {0} is already loaded", newSceneName);
+                        Transport.activeTransport.enabled = true;
+                    }
                     break;
                 case SceneOperation.UnloadAdditive:
                     if (SceneManager.GetSceneByName(newSceneName).IsValid())
                     {
                         if (SceneManager.GetSceneByName(newSceneName) != null)
                             loadingSceneAsync = SceneManager.UnloadSceneAsync(newSceneName, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+                        else
+                            Transport.activeTransport.enabled = true;
                     }
                     else
+                    {
                         Debug.LogWarning("Cannot unload the active scene with UnloadAdditive operation");
+                        Transport.activeTransport.enabled = true;
+                    }
                     break;
             }
 
