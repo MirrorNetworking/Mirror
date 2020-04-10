@@ -58,7 +58,7 @@ namespace Mirror
         {
             int oldLength = length;
 
-            // use EnsureCapacity 
+            // ensure length & capacity
             EnsureLength(newLength);
 
             // zero out new length
@@ -77,13 +77,12 @@ namespace Mirror
             if (length < value)
             {
                 length = value;
-
                 EnsureCapacity(value);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureCapacity(int value)
+        void EnsureCapacity(int value)
         {
             if (buffer.Length < value)
             {
