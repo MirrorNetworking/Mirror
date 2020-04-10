@@ -35,9 +35,9 @@ I have worked on Mirror for over a year, I am the one that came up with the name
 
 However, the project is not moving forward as fast as I would like. There is a big emphasis on keeping backwards compatiblity, which is really good for many users, but it is seriously slowing me down.
 
-Mirror relies heavily on manual testing.  Manual testing does not scale. I can cover so much more code with automated tests, and have much more confidence on my changes. This will require large breaking changes that will be hard to swallow for many people,  but at the end of the day I should be able to reduce the amount of defects significantly.
+Mirror relies heavily on manual testing.  Manual testing does not scale. I can cover so much more code with automated tests, and have much more confidence on my changes. This will require large breaking changes that will be hard to swallow for many people,  but at the end of the day I should be able to reduce the amount of defects significantly. While there has been signficiant progress in improving test coverage in Mirror, the code is not designed to be tested, which which limits how much can be done.  This can be fixed, but not without breaking changes.
 
-Mirror makes heavy use of singletons, which is considered an [anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons.
+Mirror makes heavy use of singletons, which is considered an [anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons. 
 
 Mirror has very poor error handling. Many methods return true/false to indicate success/failure and use Debug.LogError to report errors. Debug.LogError is not testable,  there is no way to write a test to make sure errors are detected. Since day 1, C# has had a much better mechanism to handle abnormal conditions: Exceptions. Methods in MirrorNG should either succeed or throw exceptions if something is wrong with full explanation. This lets the developer catch the exception and take action:  display an error message to the user, report it to your servers, report it to google play, etc...
 
@@ -47,9 +47,11 @@ There is not a whole lot of innovation in Mirror anymore.  Just bug fixes. I hav
 
 I want to adhere as much as possible to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID). Many things in Mirror do not.
 
+Mirror is all about simple code. Yet many things are unnecesarily complicated. The code can be a lot simpler by using modern C#: Exceptions, async/await, events.  We have already significantly reduced [cognitive complexity](https://sonarcloud.io/project/activity?custom_metrics=cognitive_complexity&graph=custom&id=MirrorNG_MirrorNG).
+
 Mirror has it's own code conventions based on personal preferences.  I would rather follow official [C# code conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).  Anybody that speaks C# should feel right at home with this code.
 
-Code review takes too long in Mirror.  I think code reviews are top priority.
+Code review takes too long in Mirror. I think code reviews are top priority.
 
 ## Changelog
 
