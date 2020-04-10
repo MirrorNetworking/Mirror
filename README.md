@@ -94,9 +94,9 @@ MirrorNG supports many different low level networking transports:
 ## The MirrorNG Mantra
 So many quotes to chose from.  This one in particular really encapsulates why this exists:
 
-> _“All code is guilty, until proven innocent.” – Anonymous
+> “All code is guilty, until proven innocent.” – Anonymous
 
-I assume every line of code I write is broken in some random obscure corner case. The only way to ensure it's quality is by testing. I don't have time to test my software,  I would rather the machine tested it for me while I work on something else. So the big theme of MirrorNG is to improve on automated testing. 
+I assume every line of code I write is broken in some random obscure corner case. The only way to ensure it's quality is by testing. I don't have time to test my software,  I would rather the machine tested it for me while I work on something else. So the big theme of MirrorNG is to improve on automated testing. I am a big proponent of [Test Driven Development](https://www.guru99.com/test-driven-development.html) and I want to bring this practice to Unity networking.
 
 ## Contributing
 
