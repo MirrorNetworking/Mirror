@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -7,6 +8,8 @@ namespace Mirror
     // maybe rename it later.
     //
     // note: we inherit from NetworkBehaviour so we can reuse .netIdentity, etc.
+    // note: unlike UNET, we only allow 1 proximity checker per NetworkIdentity.
+    [DisallowMultipleComponent]
     public abstract class NetworkProximityCheck : NetworkBehaviour
     {
         /// <summary>
