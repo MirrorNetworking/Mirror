@@ -59,12 +59,6 @@ namespace Mirror
         public virtual EndPoint Address => connection.GetEndPointAddress();
 
         /// <summary>
-        /// The last time that a message was received on this connection.
-        /// <para>This includes internal system messages (such as Commands and ClientRpc calls) and user messages.</para>
-        /// </summary>
-        public float lastMessageTime;
-
-        /// <summary>
         /// The NetworkIdentity for this connection.
         /// </summary>
         public NetworkIdentity Identity { get; internal set; }
@@ -278,15 +272,13 @@ namespace Mirror
             visList.Clear();
         }
 
-        internal bool InvokeHandler(int msgType, NetworkReader reader, int channelId)
+        internal void InvokeHandler(int msgType, NetworkReader reader, int channelId)
         {
             if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
                 msgDelegate(this, reader, channelId);
-                return true;
             }
-            if (Debug.isDebugBuild) Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
-            return false;
+            else if (Debug.isDebugBuild) Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
         }
 
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
@@ -311,10 +303,7 @@ namespace Mirror
                     if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                     // try to invoke the handler for that message
-                    if (InvokeHandler(msgType, networkReader, channelId))
-                    {
-                        lastMessageTime = Time.time;
-                    }
+                    InvokeHandler(msgType, networkReader, channelId);
                 }
                 catch (Exception ex)
                 {
