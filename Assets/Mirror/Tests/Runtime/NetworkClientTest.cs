@@ -130,12 +130,10 @@ namespace Mirror.Tests
 
             yield return null;
 
-            Assert.That(client.Connection.Identity != null);
             Assert.That(client.LocalPlayer != null);
 
             Assert.That(client.RemovePlayer());
             Assert.That(identity == null);
-            Assert.That(client.Connection.Identity == null);
             Assert.That(client.LocalPlayer == null);
         }
 
