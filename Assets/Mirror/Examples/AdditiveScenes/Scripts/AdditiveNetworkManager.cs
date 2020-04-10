@@ -45,7 +45,7 @@ namespace Mirror.Examples.Additive
             if (LogFilter.Debug) Debug.Log("Unloading Subscenes");
 
             foreach (string sceneName in subScenes)
-                if (SceneManager.GetSceneByName(sceneName).IsValid())
+                if (SceneManager.GetSceneByName(sceneName).IsValid() || SceneManager.GetSceneByPath(sceneName).IsValid())
                 {
                     yield return SceneManager.UnloadSceneAsync(sceneName);
                     if (LogFilter.Debug) Debug.Log($"Unloaded {sceneName}");
