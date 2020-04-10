@@ -1,3 +1,19 @@
+# [34.0.0](https://github.com/MirrorNG/MirrorNG/compare/33.1.1-master...34.0.0-master) (2020-04-10)
+
+
+* remove NetworkConnection.isAuthenticated (#167) ([8a0e0b3](https://github.com/MirrorNG/MirrorNG/commit/8a0e0b3af37e8b0c74a8b97f12ec29cf202715ea)), closes [#167](https://github.com/MirrorNG/MirrorNG/issues/167)
+
+
+### BREAKING CHANGES
+
+* Remove isAuthenticated
+
+* Fix typo
+
+* Fix smells
+
+* Remove smells
+
 ## [33.1.1](https://github.com/MirrorNG/MirrorNG/compare/33.1.0-master...33.1.1-master) (2020-04-09)
 
 
