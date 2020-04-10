@@ -49,7 +49,7 @@ namespace Mirror
         /// <summary>
         /// NetworkIdentity of the localPlayer
         /// </summary>
-        public NetworkIdentity LocalPlayer { get; private set; }
+        public NetworkIdentity LocalPlayer => Connection?.Identity;
 
         internal ConnectState connectState = ConnectState.None;
 
@@ -357,7 +357,6 @@ namespace Mirror
             Destroy(Connection.Identity.gameObject);
 
             Connection.Identity = null;
-            LocalPlayer = null;
 
             return true;
         }
@@ -399,10 +398,6 @@ namespace Mirror
         internal void InternalAddPlayer(NetworkIdentity identity)
         {
             if (LogFilter.Debug) Debug.LogWarning("ClientScene.InternalAddPlayer");
-
-            // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
-            // But, the player structures are not cleaned up, we'll just replace the old player
-            LocalPlayer = identity;
 
             if (Connection != null)
             {
