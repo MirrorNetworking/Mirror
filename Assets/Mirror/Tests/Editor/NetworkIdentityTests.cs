@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -489,7 +488,7 @@ namespace Mirror.Tests
             // add component
             CheckObserverExceptionNetworkBehaviour compExc = gameObject.AddComponent<CheckObserverExceptionNetworkBehaviour>();
 
-            NetworkConnection connection = new NetworkConnection(null);
+            var connection = new NetworkConnection(null);
 
             // an exception in OnCheckObserver should be caught, so that one
             // component's exception doesn't stop all other components from
@@ -785,8 +784,10 @@ namespace Mirror.Tests
         {
             // get new observers. no observer components so it should just clear
             // it and not do anything else
-            var observers = new HashSet<NetworkConnection>();
-            observers.Add(new NetworkConnection(null));
+            var observers = new HashSet<NetworkConnection>
+            {
+                new NetworkConnection(null)
+            };
             identity.GetNewObservers(observers, true);
             Assert.That(observers.Count, Is.EqualTo(0));
         }
@@ -810,7 +811,7 @@ namespace Mirror.Tests
             server.connections.Add(connection2);
 
             // add a host connection
-            (_, var localConnection) = PipeConnection.CreatePipe();
+            (_, IConnection localConnection) = PipeConnection.CreatePipe();
 
             server.SetLocalConnection(client, localConnection);
             server.LocalConnection.isReady = true;
