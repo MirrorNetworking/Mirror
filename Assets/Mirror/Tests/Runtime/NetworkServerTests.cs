@@ -33,9 +33,6 @@ namespace Mirror.Tests
             connectionToClient = server.connections.First();
             connectionToServer = new NetworkConnection(tconn);
 
-            connectionToClient.isAuthenticated = true;
-            connectionToServer.isAuthenticated = true;
-
             message = new WovenTestMessage
             {
                 IntValue = 1,
@@ -182,7 +179,7 @@ namespace Mirror.Tests
 
             Action<NetworkConnection, WovenTestMessage> func = Substitute.For<Action<NetworkConnection, WovenTestMessage>>();
 
-            connectionToClient.RegisterHandler<WovenTestMessage> (func);
+            connectionToClient.RegisterHandler<WovenTestMessage>(func);
 
             connectionToServer.Send(message);
 

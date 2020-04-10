@@ -147,7 +147,6 @@ namespace Mirror
             connection.RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             connection.RegisterHandler<CommandMessage>(OnCommandMessage);
             connection.RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
-            connection.RegisterHandler<NetworkPingMessage>(Time.OnServerPing, false);
         }
 
         /// <summary>
@@ -208,7 +207,7 @@ namespace Mirror
         {
 
             if (authenticator != null)
-            { 
+            {
                 authenticator.OnServerAuthenticated -= OnAuthenticated;
                 Connected.RemoveListener(authenticator.OnServerAuthenticateInternal);
             }
@@ -236,7 +235,7 @@ namespace Mirror
                 // connection cannot be null here or conn.connectionId
                 // would throw NRE
                 connections.Add(conn);
-                RegisterMessageHandlers(conn);
+                conn.RegisterHandler<NetworkPingMessage>(Time.OnServerPing);
             }
         }
 
@@ -426,8 +425,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server authenticate client:" + conn);
 
-            // set connection to authenticated
-            conn.isAuthenticated = true;
+            // connection has been authenticated,  now we can handle other messages
+            RegisterMessageHandlers(conn);
 
             Authenticated?.Invoke(conn);
         }

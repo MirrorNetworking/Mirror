@@ -30,12 +30,12 @@ namespace Mirror.Authenticators
         public override void OnServerAuthenticate(NetworkConnection conn)
         {
             // wait for AuthRequestMessage from client
-            conn.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage, false);
+            conn.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage);
         }
 
         public override void OnClientAuthenticate(NetworkConnection conn)
         {
-            conn.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
+            conn.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage);
 
             var authRequestMessage = new AuthRequestMessage
             {
@@ -76,9 +76,6 @@ namespace Mirror.Authenticators
 
                 conn.Send(authResponseMessage);
 
-                // must set NetworkConnection isAuthenticated = false
-                conn.isAuthenticated = false;
-
                 // disconnect the client after 1 second so that response message gets delivered
                 StartCoroutine(DelayedDisconnect(conn, 1));
             }
@@ -102,9 +99,6 @@ namespace Mirror.Authenticators
             else
             {
                 Debug.LogErrorFormat("Authentication Response: {0}", msg.Message);
-
-                // Set this on the client for local reference
-                conn.isAuthenticated = false;
 
                 // disconnect the client
                 conn.Disconnect();

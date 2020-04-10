@@ -669,7 +669,7 @@ namespace Mirror
         void RegisterClientMessages(NetworkConnection connection)
         {
             connection.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            connection.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
+            connection.RegisterHandler<SceneMessage>(OnClientSceneInternal);
         }
 
         // called after successful authentication

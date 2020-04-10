@@ -40,11 +40,6 @@ namespace Mirror
         private readonly IConnection connection;
 
         /// <summary>
-        /// Flag that indicates the client has been authenticated.
-        /// </summary>
-        public bool isAuthenticated;
-
-        /// <summary>
         /// General purpose object to hold authentication data, character selection, tokens, etc.
         /// associated with the connection for reference after Authentication completes.
         /// </summary>
@@ -110,7 +105,7 @@ namespace Mirror
             connection.Disconnect();
         }
 
-        private static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
+        private static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler)
             where T : IMessageBase, new()
             where C : NetworkConnection
         {
@@ -128,18 +123,9 @@ namespace Mirror
                 //
                 // let's catch them all and then disconnect that connection to avoid
                 // further attacks.
-                T message = default;
+                T message = default(T) != null ? default(T) : new T();
                 try
-                {
-                    if (requireAuthenication && !conn.isAuthenticated)
-                    {
-                        // message requires authentication, but the connection was not authenticated
-                        Debug.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
-                        conn.Disconnect();
-                        return;
-                    }
-
-                    message = default(T) != null ? default(T) : new T();
+                {                    
                     message.Deserialize(reader);
                 }
                 finally
@@ -159,7 +145,7 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
-        public void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
+        public void RegisterHandler<T>(Action<NetworkConnection, T> handler)
             where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
@@ -167,7 +153,7 @@ namespace Mirror
             {
                 Debug.Log("NetworkServer.RegisterHandler replacing " + msgType);
             }
-            messageHandlers[msgType] = MessageHandler(handler, requireAuthentication);
+            messageHandlers[msgType] = MessageHandler(handler);
         }
 
         /// <summary>
@@ -177,9 +163,9 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
-        public void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
+        public void RegisterHandler<T>(Action<T> handler) where T : IMessageBase, new()
         {
-            RegisterHandler<T>((_, value) => { handler(value); }, requireAuthentication);
+            RegisterHandler<T>((_, value) => { handler(value); });
         }
 
         /// <summary>

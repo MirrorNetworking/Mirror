@@ -231,9 +231,6 @@ namespace Mirror
 
         public void OnAuthenticated(NetworkConnection conn)
         {
-            // set connection to authenticated
-            conn.isAuthenticated = true;
-
             Authenticated?.Invoke(conn);
         }
 
@@ -279,7 +276,7 @@ namespace Mirror
         {
             connection.RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
             connection.RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
-            connection.RegisterHandler<NetworkPongMessage>(msg => { }, false);
+            connection.RegisterHandler<NetworkPongMessage>(msg => { });
             connection.RegisterHandler<SpawnMessage>(OnHostClientSpawn);
             // host mode reuses objects in the server
             // so we don't need to spawn them
@@ -294,7 +291,7 @@ namespace Mirror
         {
             connection.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
             connection.RegisterHandler<ObjectHideMessage>(OnObjectHide);
-            connection.RegisterHandler<NetworkPongMessage>(Time.OnClientPong, false);
+            connection.RegisterHandler<NetworkPongMessage>(Time.OnClientPong);
             connection.RegisterHandler<SpawnMessage>(OnSpawn);
             connection.RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
             connection.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);

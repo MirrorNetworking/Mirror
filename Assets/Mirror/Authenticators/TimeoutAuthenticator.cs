@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror.Authenticators
@@ -17,19 +18,36 @@ namespace Mirror.Authenticators
 
         public void Awake()
         {
-            Authenticator.OnClientAuthenticated += base.OnClientAuthenticate;
-            Authenticator.OnServerAuthenticated += base.OnServerAuthenticate;
+            Authenticator.OnClientAuthenticated += HandleClientAuthenticated;
+            Authenticator.OnServerAuthenticated += HandleServerAuthenticated;
+        }
+
+        private readonly HashSet<NetworkConnection> pendingAuthentication = new HashSet<NetworkConnection>();
+
+        private void HandleServerAuthenticated(NetworkConnection connection)
+        {
+            pendingAuthentication.Remove(connection);
+            base.OnClientAuthenticate(connection);
+        }
+
+        private void HandleClientAuthenticated(NetworkConnection connection)
+        {
+            pendingAuthentication.Remove(connection);
+            base.OnServerAuthenticate(connection);
         }
 
         public override void OnClientAuthenticate(NetworkConnection conn)
         {
+            pendingAuthentication.Add(conn);
             Authenticator.OnClientAuthenticate(conn);
+            
             if (Timeout > 0)
                 StartCoroutine(BeginAuthentication(conn));
         }
 
         public override void OnServerAuthenticate(NetworkConnection conn)
         {
+            pendingAuthentication.Add(conn);
             Authenticator.OnServerAuthenticate(conn);
             if (Timeout > 0)
                 StartCoroutine(BeginAuthentication(conn));
@@ -41,10 +59,11 @@ namespace Mirror.Authenticators
 
             yield return new WaitForSecondsRealtime(Timeout);
 
-            if (!conn.isAuthenticated)
+            if (pendingAuthentication.Contains(conn))
             {
                 if (LogFilter.Debug) Debug.Log($"Authentication Timeout {conn}");
 
+                pendingAuthentication.Remove(conn);
                 conn.Disconnect();
             }
         }
