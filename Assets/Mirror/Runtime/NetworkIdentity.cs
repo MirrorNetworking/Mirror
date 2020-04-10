@@ -1056,7 +1056,7 @@ namespace Mirror
 
             bool changed = false;
 
-            // call OnRebuildObservers function in all components
+            // call OnRebuildObservers function
             bool rebuildOverwritten = GetNewObservers(newObservers, initialize);
 
             // if player connection: ensure player always see himself no matter what.
