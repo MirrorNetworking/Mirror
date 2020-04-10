@@ -89,9 +89,8 @@ namespace Mirror
             connection.Disconnect();
         }
 
-        private static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler)
+        private static NetworkMessageDelegate MessageHandler<T>(Action<NetworkConnection, T> handler)
             where T : IMessageBase, new()
-            where C : NetworkConnection
         {
             void AdapterFunction(NetworkConnection conn, NetworkReader reader, int channelId)
             {
@@ -117,7 +116,7 @@ namespace Mirror
                     NetworkDiagnostics.OnReceive(message, channelId, reader.Length);
                 }
 
-                handler((C)conn, message);
+                handler(conn, message);
             }
             return AdapterFunction;
         }
