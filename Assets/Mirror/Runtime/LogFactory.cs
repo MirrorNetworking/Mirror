@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
 {
     public static class LogFactory
     {
-        private static readonly Dictionary<string, ILogger> loggers = new Dictionary<string, ILogger>();
+        internal static readonly Dictionary<string, ILogger> loggers = new Dictionary<string, ILogger>();
 
         public static ILogger GetLogger<T>()
         {
