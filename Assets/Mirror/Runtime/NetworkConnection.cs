@@ -106,7 +106,7 @@ namespace Mirror
                 //
                 // let's catch them all and then disconnect that connection to avoid
                 // further attacks.
-                T message = default(T) != null ? default(T) : new T();
+                T message = default(T) != null ? default : new T();
                 try
                 {                    
                     message.Deserialize(reader);
