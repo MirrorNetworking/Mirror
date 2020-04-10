@@ -73,16 +73,6 @@ namespace Mirror
         public readonly HashSet<NetworkIdentity> clientOwnedObjects = new HashSet<NetworkIdentity>();
 
         /// <summary>
-        /// Setting this to true will log the contents of network message to the console.
-        /// </summary>
-        /// <remarks>
-        /// <para>Warning: this can be a lot of data and can be very slow. Both incoming and outgoing messages are logged. The format of the logs is:</para>
-        /// <para>ConnectionSend con:1 bytes:11 msgId:5 FB59D743FD120000000000 ConnectionRecv con:1 bytes:27 msgId:8 14F21000000000016800AC3FE090C240437846403CDDC0BD3B0000</para>
-        /// <para>Note that these are application-level network messages, not protocol-level packets. There will typically be multiple network messages combined in a single protocol packet.</para>
-        /// </remarks>
-        public bool logNetworkMessages;
-
-        /// <summary>
         /// Creates a new NetworkConnection with the specified address and connectionId
         /// </summary>
         /// <param name="networkConnectionId"></param>
@@ -234,8 +224,6 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         internal virtual Task SendAsync(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
-            if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
-
             return connection.SendAsync(segment);
         }
 
@@ -299,8 +287,6 @@ namespace Mirror
                 try
                 {
                     int msgType = MessagePacker.UnpackId(networkReader);
-                    // logging
-                    if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                     // try to invoke the handler for that message
                     InvokeHandler(msgType, networkReader, channelId);
