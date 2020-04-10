@@ -122,7 +122,7 @@ namespace Mirror
             return true;
         }
 
-        private void Add3DHits(HashSet<NetworkConnection> observers)
+        void Add3DHits(HashSet<NetworkConnection> observers)
         {
             // cast without allocating GC for maximum performance
             int hitCount = Physics.OverlapSphereNonAlloc(transform.position, VisibilityRange, hitsBuffer3D, CastLayers);
@@ -142,7 +142,7 @@ namespace Mirror
             }
         }
 
-        private void Add2DHits(HashSet<NetworkConnection> observers)
+        void Add2DHits(HashSet<NetworkConnection> observers)
         {
             // cast without allocating GC for maximum performance
             int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, VisibilityRange, hitsBuffer2D, CastLayers);

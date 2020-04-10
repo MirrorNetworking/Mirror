@@ -144,7 +144,21 @@ namespace Mirror
             }
         }
 
-        public NetworkBehaviour[] NetworkBehaviours => networkBehavioursCache = networkBehavioursCache ?? GetComponents<NetworkBehaviour>();
+        public NetworkBehaviour[] NetworkBehaviours
+        {
+            get
+            {
+                if (networkBehavioursCache != null)
+                    return networkBehavioursCache;
+
+                var components = GetComponents<NetworkBehaviour>();
+                if (components.Length > 64)
+                    throw new InvalidOperationException("Only 64 NetworkBehaviour per gameobject allowed");
+
+                networkBehavioursCache = components;
+                return networkBehavioursCache;
+            }
+        }
 
         [SerializeField, HideInInspector] string m_AssetId;
 
@@ -264,7 +278,7 @@ namespace Mirror
 
         /// <summary>
         /// A callback that can be populated to be notified when the client-authority state of objects changes.
-        /// <para>Whenever an object is spawned using SpawnWithClientAuthority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
+        /// <para>Whenever an object is spawned with client authority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
         /// <para>This callback is only invoked on the server.</para>
         /// </summary>
         public static event ClientAuthorityCallback clientAuthorityCallback;
@@ -669,12 +683,6 @@ namespace Mirror
         // -> check ownerWritten/observersWritten to know if anything was written
         internal (int ownerWritten, int observersWritten) OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
-
-            if (NetworkBehaviours.Length > 64)
-            {
-                throw new InvalidOperationException("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
-            }
-
             ulong dirtyComponentsMask = GetDirtyMask(initialState);
 
             if (dirtyComponentsMask == 0L)

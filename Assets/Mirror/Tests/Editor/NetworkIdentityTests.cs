@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -587,25 +588,18 @@ namespace Mirror.Tests
         // OnSerializeAllSafely supports at max 64 components, because our
         // dirty mask is ulong and can only handle so many bits.
         [Test]
-        public void OnSerializeAllSafelyShouldDetectTooManyComponents()
+        public void NoMoreThan64Components()
         {
             // add 65 components
             for (int i = 0; i < 65; ++i)
             {
                 gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             }
-
-            // try to serialize
-            var ownerWriter = new NetworkWriter();
-            var observersWriter = new NetworkWriter();
+            // ingore error from creating cache (has its own test)
             Assert.Throws<InvalidOperationException>(() =>
             {
-                _ = identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+                _ = identity.NetworkBehaviours;
             });
-
-            // shouldn't have written anything because too many components
-            Assert.That(ownerWriter.Position, Is.EqualTo(0));
-            Assert.That(observersWriter.Position, Is.EqualTo(0));
         }
 
         // OnDeserializeSafely should be able to detect and handle serialization

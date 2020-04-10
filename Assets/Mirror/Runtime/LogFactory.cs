@@ -12,6 +12,11 @@ namespace Mirror
             return GetLogger(typeof(T).Name);
         }
 
+        public static ILogger GetLogger(System.Type type)
+        {
+            return GetLogger(type.Name);
+        }
+
         public static ILogger GetLogger(string loggerName)
         {
             if (loggers.TryGetValue(loggerName, out ILogger logger ))
@@ -28,5 +33,21 @@ namespace Mirror
             loggers[loggerName] = logger;
             return logger;
         }
+    }
+
+
+    public static class ILoggerExtensions
+    {
+        public static void LogError(this ILogger logger, object message)
+        {
+            logger.LogError(null, message);
+        }
+
+        public static void LogWarning(this ILogger logger, object message)
+        {
+            logger.LogWarning(null, message);
+        }
+
+        public static bool LogEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Log);
     }
 }

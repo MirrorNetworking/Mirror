@@ -474,19 +474,26 @@ namespace Mirror
                     loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
                     break;
                 case SceneOperation.LoadAdditive:
-                    if (!SceneManager.GetSceneByName(newSceneName).IsValid())
+                    // Ensure additive scene is not already loaded on client by name or path
+                    // since we don't know which was passed in the Scene message
+                    if (!SceneManager.GetSceneByName(newSceneName).IsValid() && !SceneManager.GetSceneByPath(newSceneName).IsValid())
                         loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, LoadSceneMode.Additive);
                     else
-                        Debug.LogWarningFormat("Scene {0} is already loaded", newSceneName);
+                    {
+                        Debug.LogWarning($"Scene {newSceneName} is already loaded");
+
+                    }
                     break;
                 case SceneOperation.UnloadAdditive:
-                    if (SceneManager.GetSceneByName(newSceneName).IsValid())
-                    {
-                        if (SceneManager.GetSceneByName(newSceneName) != null)
-                            loadingSceneAsync = SceneManager.UnloadSceneAsync(newSceneName, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
-                    }
+                    // Ensure additive scene is actually loaded on client by name or path
+                    // since we don't know which was passed in the Scene message
+                    if (SceneManager.GetSceneByName(newSceneName).IsValid() || SceneManager.GetSceneByPath(newSceneName).IsValid())
+                        loadingSceneAsync = SceneManager.UnloadSceneAsync(newSceneName, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
                     else
-                        Debug.LogWarning("Cannot unload the active scene with UnloadAdditive operation");
+                    {
+                        Debug.LogWarning($"Cannot unload {newSceneName} with UnloadAdditive operation");
+
+                    }
                     break;
             }
 
