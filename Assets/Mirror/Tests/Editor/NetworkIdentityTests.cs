@@ -762,6 +762,23 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void ResetNextNetworkIdTest()
+        {
+            //Generate some Ids
+            NetworkIdentity.GetNextNetworkId();
+            NetworkIdentity.GetNextNetworkId();
+            NetworkIdentity.GetNextNetworkId();
+            NetworkIdentity.GetNextNetworkId();
+
+            uint cache = NetworkIdentity.GetNextNetworkId();
+            Assert.That(cache, Is.GreaterThan(1));
+
+            NetworkIdentity.ResetNextNetworkId();
+            cache = NetworkIdentity.GetNextNetworkId();
+            Assert.That(cache, Is.EqualTo(1));
+        }
+
+        [Test]
         public void GetNewObservers()
         {
             // add components
