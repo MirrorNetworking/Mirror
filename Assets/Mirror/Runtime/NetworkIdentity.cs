@@ -147,6 +147,21 @@ namespace Mirror
 
         public NetworkBehaviour[] NetworkBehaviours => networkBehavioursCache = networkBehavioursCache ?? GetComponents<NetworkBehaviour>();
 
+
+        // NetworkProximityChecker caching
+        NetworkProximityCheck proximityCheckCache;
+        public NetworkProximityCheck proximityCheck
+        {
+            get
+            {
+                if (proximityCheckCache == null)
+                {
+                    proximityCheckCache = GetComponent<NetworkProximityCheck>();
+                }
+                return proximityCheckCache;
+            }
+        }
+
         [SerializeField, HideInInspector] string m_AssetId;
 
         // the AssetId trick:
@@ -668,11 +683,11 @@ namespace Mirror
 
         internal void OnSetHostVisibility(bool visible)
         {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            if (proximityCheck != null)
             {
                 try
                 {
-                    comp.OnSetHostVisibility(visible);
+                    proximityCheck.OnSetHostVisibility(visible);
                 }
                 catch (Exception e)
                 {
@@ -681,14 +696,17 @@ namespace Mirror
             }
         }
 
+        // check if observer can be seen by connection.
+        // * returns true if seen.
+        // * returns true if we have no proximity checker, so by default all are
+        //   seen.
         internal bool OnCheckObserver(NetworkConnection conn)
         {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            if (proximityCheck != null)
             {
                 try
                 {
-                    if (!comp.OnCheckObserver(conn))
-                        return false;
+                    return proximityCheck.OnCheckObserver(conn);
                 }
                 catch (Exception e)
                 {
@@ -988,20 +1006,21 @@ namespace Mirror
 
         // helper function to call OnRebuildObservers in all components
         // -> HashSet is passed in so we can cache it!
-        // -> returns true if any of the components implemented
-        //    OnRebuildObservers, false otherwise
+        // -> returns true if we have a proxchecker, false otherwise
         // -> initialize is true on first rebuild, false on consecutive rebuilds
         internal bool GetNewObservers(HashSet<NetworkConnection> observersSet, bool initialize)
         {
-            bool rebuildOverwritten = false;
             observersSet.Clear();
 
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            if (proximityCheck != null)
             {
-                rebuildOverwritten |= comp.OnRebuildObservers(observersSet, initialize);
+                proximityCheck.OnRebuildObservers(observersSet, initialize);
+                return true;
             }
 
-            return rebuildOverwritten;
+            // we have no proximity checker. return false to indicate that we
+            // should use the default implementation.
+            return false;
         }
 
         // helper function to add all server connections as observers.
