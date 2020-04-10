@@ -15,23 +15,21 @@
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=code_smells)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG)
 
 
-Mirror is a **high level** Networking API for Unity, built on top of the **low level** [Telepathy](https://github.com/vis2k/Telepathy) library.
+MirrorNG is a **high level** Networking API for Unity.
 
-Mirror is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **MMO Scale** Networking by the developers of [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212), [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015) and [Cubica](https://cubica.net).
+MirrorNG is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **MMO Scale** Networking by the developers of  [Cubica](https://cubica.net).
 
-Mirror is optimized for **ease of use** and **probability of success**. Projects that use Mirror are small, concise and maintainable. uMMORPG was possible with <6000 lines of code. We needed a networking library that allows us to [launch our games](https://mirror-networking.com/showcase/), period.
+MirrorNG is optimized for **ease of use** and **probability of success**. Projects that use MirrorNG are small, concise and maintainable.
 
-With Mirror, the **Server & Client are ONE** project _(hence the name)_. Instead of having one code base for the server and one for the client, we simply use the same code for both of them.
+With MirrorNG, the **Server & Client are ONE** project _(hence the name)_. Instead of having one code base for the server and one for the client, we simply use the same code for both of them.
 * `[Server]` / `[Client]` tags can be used for the server-only and client-only parts.
 * `[Command]` are used for Client->Server, and `[ClientRpc]` / `[TargetRpc]` for Server->Client communication.
 * `[SyncVar]`s and `SyncList`s are used to automatically synchronize state.
 
 What previously required **10.000** lines of code, now takes **1.000** lines of code. Therein lies the **magic of Mirror**.
 
-_Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
-
 ## Why fork Mirror?
-I have worked on Mirror for over a year, I am the one that came up with the name and the second contributor. It has served me well and there are some really smart people working on it.
+I have worked on [Mirror](https://github.com/vis2k/Mirror) for over a year, I am the one that came up with the name and the second contributor. It has served me well and there are some really smart people working on it.
 
 However, the project is not moving forward as fast as I would like. There is a big emphasis on keeping backwards compatiblity, which is really good for many users, but it is seriously slowing me down.
 
@@ -90,8 +88,7 @@ We included several small example projects.
 ## Transports
 MirrorNG supports many different low level networking transports:
 
-* (built in) https://github.com/vis2k/Telepathy (Telepathy)
-* (built in) Unity's LLAPI
+* (built in) Tcp
 * (built in) https://github.com/ninjasource/Ninja.WebSockets (Websockets)
 
 ## The MirrorNG Mantra
@@ -117,5 +114,7 @@ When contributing code, please keep these things in mind:
 * [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle. Everything needs to be **as simple as possible**. 
 * An API is like a joke,  if you have to explain it is not a good one.  Do not require people to read the documentation if you can avoid it.
 * Follow [C# code conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).
+* Follow [SOLID principles](https://en.wikipedia.org/wiki/SOLID) as much as possible. 
+* Keep your pull requests small and obvious,  if a PR can be split into several small ones, do so.
 
 Pull Requests for bug fixes are always highly appreciated. New features will be considered very carefully and will only be merged if they are the most simple solution to the given problem.
