@@ -828,16 +828,13 @@ namespace Mirror.Tests
             Assert.That(result, Is.True);
             Assert.That(compTrue.called, Is.EqualTo(1));
 
-            // create a networkidentity with a component that returns true and
-            // one component that returns false.
-            // result should still be false if any one returns false.
+            // create a networkidentity with a component that returns false and
+            // result should be false.
             GameObject gameObjectFalse = new GameObject();
             NetworkIdentity identityFalse = gameObjectFalse.AddComponent<NetworkIdentity>();
-            compTrue = gameObjectFalse.AddComponent<CheckObserverTrueNetworkBehaviour>();
             CheckObserverFalseNetworkBehaviour compFalse = gameObjectFalse.AddComponent<CheckObserverFalseNetworkBehaviour>();
             result = identityFalse.OnCheckObserver(connection);
             Assert.That(result, Is.False);
-            Assert.That(compTrue.called, Is.EqualTo(1));
             Assert.That(compFalse.called, Is.EqualTo(1));
 
             // clean up
@@ -1367,16 +1364,13 @@ namespace Mirror.Tests
             // add components
             RebuildObserversNetworkBehaviour compA = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
             compA.observer = new NetworkConnectionToClient(12);
-            RebuildObserversNetworkBehaviour compB = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
-            compB.observer = new NetworkConnectionToClient(13);
 
             // get new observers
             HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
             bool result = identity.GetNewObservers(observers, true);
             Assert.That(result, Is.True);
-            Assert.That(observers.Count, Is.EqualTo(2));
+            Assert.That(observers.Count, Is.EqualTo(1));
             Assert.That(observers.Contains(compA.observer), Is.True);
-            Assert.That(observers.Contains(compB.observer), Is.True);
         }
 
         [Test]
