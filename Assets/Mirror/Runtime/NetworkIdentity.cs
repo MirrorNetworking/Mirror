@@ -157,7 +157,7 @@ namespace Mirror
             }
         }
 
-        private void CreateNetworkBehavioursCache()
+        void CreateNetworkBehavioursCache()
         {
             networkBehavioursCache = GetComponents<NetworkBehaviour>();
             if (NetworkBehaviours.Length > 64)
