@@ -145,7 +145,28 @@ namespace Mirror
         /// </summary>
         public static readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
-        public NetworkBehaviour[] NetworkBehaviours => networkBehavioursCache = networkBehavioursCache ?? GetComponents<NetworkBehaviour>();
+        public NetworkBehaviour[] NetworkBehaviours
+        {
+            get
+            {
+                if (networkBehavioursCache == null)
+                {
+                    CreateNetworkBehavioursCache();
+                }
+                return networkBehavioursCache;
+            }
+        }
+
+        void CreateNetworkBehavioursCache()
+        {
+            networkBehavioursCache = GetComponents<NetworkBehaviour>();
+            if (NetworkBehaviours.Length > 64)
+            {
+                Debug.LogError($"Only 64 NetworkBehaviour components are allowed for NetworkIdentity: {name} because of the dirtyComponentMask", this);
+                // Log error once then resize array so that NetworkIdentity does not throw exceptions later
+                Array.Resize(ref networkBehavioursCache, 64);
+            }
+        }
 
         [SerializeField, HideInInspector] string m_AssetId;
 
@@ -763,11 +784,6 @@ namespace Mirror
             // clear 'written' variables
             ownerWritten = observersWritten = 0;
 
-            if (NetworkBehaviours.Length > 64)
-            {
-                Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
-                return;
-            }
             ulong dirtyComponentsMask = GetDirtyMask(initialState);
 
             if (dirtyComponentsMask == 0L)
