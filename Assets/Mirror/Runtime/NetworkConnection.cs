@@ -43,7 +43,7 @@ namespace Mirror
         /// General purpose object to hold authentication data, character selection, tokens, etc.
         /// associated with the connection for reference after Authentication completes.
         /// </summary>
-        public object authenticationData;
+        public object AuthenticationData { get ; set; }
 
         /// <summary>
         /// Flag that tells if the connection has been marked as "ready" by a client calling ClientScene.Ready().
