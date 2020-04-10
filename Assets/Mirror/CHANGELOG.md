@@ -1,3 +1,22 @@
+# [34.1.0](https://github.com/MirrorNG/MirrorNG/compare/34.0.0-master...34.1.0-master) (2020-04-10)
+
+
+### Bug Fixes
+
+* Check SceneManager GetSceneByName and GetSceneByPath ([#1684](https://github.com/MirrorNG/MirrorNG/issues/1684)) ([e7cfd5a](https://github.com/MirrorNG/MirrorNG/commit/e7cfd5a498c7359636cd109fe586fce1771bada2))
+* Re-enable transport if aborting additive load/unload ([#1683](https://github.com/MirrorNG/MirrorNG/issues/1683)) ([bc37497](https://github.com/MirrorNG/MirrorNG/commit/bc37497ac963bb0f2820b103591afd05177d078d))
+* stack overflow getting logger ([55e075c](https://github.com/MirrorNG/MirrorNG/commit/55e075c872a076f524ec62f44d81df17819e81ba))
+
+
+### Features
+
+* logger factory works for static classes by passing the type ([f9328c7](https://github.com/MirrorNG/MirrorNG/commit/f9328c771cfb0974ce4765dc0d5af01440d838c0))
+
+
+### Performance Improvements
+
+* Increasing Network Writer performance ([#1674](https://github.com/MirrorNG/MirrorNG/issues/1674)) ([f057983](https://github.com/MirrorNG/MirrorNG/commit/f0579835ca52270de424e81691f12c02022c3909))
+
 # [34.0.0](https://github.com/MirrorNG/MirrorNG/compare/33.1.1-master...34.0.0-master) (2020-04-10)
 
 
