@@ -51,7 +51,7 @@ namespace Mirror
             // that when we have online/offline scenes. so we need the
             // clientLoadedScene flag to prevent it.
             // Ready/AddPlayer is usually triggered by a scene load completing. if no scene was loaded, then Ready/AddPlayer it here instead.
-            if (!client.Ready)
+            if (!client.ready)
                 client.Ready(connection);
 
             client.Send(new AddPlayerMessage());
