@@ -234,20 +234,11 @@ namespace Mirror
         internal void AddToVisList(NetworkIdentity identity)
         {
             visList.Add(identity);
-
-            // spawn identity for this conn
-            identity.Server.ShowForConnection(identity, this);
         }
 
-        internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
+        internal void RemoveFromVisList(NetworkIdentity identity)
         {
             visList.Remove(identity);
-
-            if (!isDestroyed)
-            {
-                // hide identity for this conn
-                identity.Server.HideForConnection(identity, this);
-            }
         }
 
         internal void RemoveObservers()

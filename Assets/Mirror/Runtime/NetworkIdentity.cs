@@ -861,7 +861,7 @@ namespace Mirror
         {
             foreach (NetworkConnection conn in observers)
             {
-                conn.RemoveFromVisList(this, true);
+                conn.RemoveFromVisList(this);
             }
             observers.Clear();
         }
@@ -878,6 +878,9 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Added observer " + conn.Address + " added for " + gameObject);
             observers.Add(conn);
             conn.AddToVisList(this);
+
+            // spawn identity for this conn
+            Server.ShowForConnection(this, conn);
         }
 
         // helper function to call OnRebuildObservers in all components
@@ -963,6 +966,8 @@ namespace Mirror
                     {
                         // new observer
                         conn.AddToVisList(this);
+                        // spawn identity for this conn
+                        Server.ShowForConnection(this, conn);
                         if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
                         changed = true;
                     }
@@ -975,7 +980,9 @@ namespace Mirror
                 if (!newObservers.Contains(conn))
                 {
                     // removed observer
-                    conn.RemoveFromVisList(this, false);
+                    conn.RemoveFromVisList(this);
+                    Server.HideForConnection(this, conn);
+
                     if (LogFilter.Debug) Debug.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
