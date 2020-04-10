@@ -6,7 +6,7 @@ namespace Mirror
 {
     public class LogLevelWindow : EditorWindow
     {
-        private void OnGUI()
+        void OnGUI()
         {
             EditorGUILayout.BeginVertical();
             EditorGUILayout.Space();
@@ -18,12 +18,12 @@ namespace Mirror
             EditorGUILayout.BeginVertical(EditorStyles.inspectorDefaultMargins);
             foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
             {
-                drawLoggerField(item);
+                DrawLoggerField(item);
             }
             EditorGUILayout.EndVertical();
         }
 
-        private static void drawLoggerField(KeyValuePair<string, ILogger> item)
+        static void DrawLoggerField(KeyValuePair<string, ILogger> item)
         {
             ILogger logger = item.Value;
             string name = item.Key;
@@ -32,7 +32,7 @@ namespace Mirror
         }
 
 
-        [MenuItem("Window/Mirror Log Levels", priority = 20002)]
+        [MenuItem("Window/Analysis/Mirror Log Levels", priority = 20002)]
         public static void ShowWindow()
         {
             LogLevelWindow window = GetWindow<LogLevelWindow>();
