@@ -104,48 +104,57 @@ namespace Mirror.Tests
             public override void OnNetworkDestroy() { ++called; }
         }
 
-        class SetHostVisibilityExceptionNetworkBehaviour : NetworkBehaviour
+        class SetHostVisibilityExceptionNetworkBehaviour : NetworkProximityCheck
         {
             public int called;
             public bool valuePassed;
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override bool OnCheckObserver(NetworkConnection conn) { return true; }
             public override void OnSetHostVisibility(bool visible)
             {
                 ++called;
                 valuePassed = visible;
                 throw new Exception("some exception");
             }
+
         }
 
-        class CheckObserverExceptionNetworkBehaviour : NetworkBehaviour
+        class CheckObserverExceptionNetworkBehaviour : NetworkProximityCheck
         {
             public int called;
             public NetworkConnection valuePassed;
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
             public override bool OnCheckObserver(NetworkConnection conn)
             {
                 ++called;
                 valuePassed = conn;
                 throw new Exception("some exception");
             }
+            public override void OnSetHostVisibility(bool visible) {}
         }
 
-        class CheckObserverTrueNetworkBehaviour : NetworkBehaviour
+        class CheckObserverTrueNetworkBehaviour : NetworkProximityCheck
         {
             public int called;
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
             public override bool OnCheckObserver(NetworkConnection conn)
             {
                 ++called;
                 return true;
             }
+            public override void OnSetHostVisibility(bool visible) {}
         }
 
-        class CheckObserverFalseNetworkBehaviour : NetworkBehaviour
+        class CheckObserverFalseNetworkBehaviour : NetworkProximityCheck
         {
             public int called;
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
             public override bool OnCheckObserver(NetworkConnection conn)
             {
                 ++called;
                 return false;
             }
+            public override void OnSetHostVisibility(bool visible) {}
         }
 
         class SerializeTest1NetworkBehaviour : NetworkBehaviour
@@ -204,25 +213,21 @@ namespace Mirror.Tests
             }
         }
 
-        class RebuildObserversNetworkBehaviour : NetworkBehaviour
+        class RebuildObserversNetworkBehaviour : NetworkProximityCheck
         {
             public NetworkConnection observer;
-            public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+            public override bool OnCheckObserver(NetworkConnection conn) { return true; }
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
             {
                 observers.Add(observer);
-                return true;
             }
+            public override void OnSetHostVisibility(bool visible) {}
         }
 
-        class RebuildEmptyObserversNetworkBehaviour : NetworkBehaviour
+        class RebuildEmptyObserversNetworkBehaviour : NetworkProximityCheck
         {
-            public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
-            {
-                // return true so that caller knows we implemented
-                // OnRebuildObservers, but return no observers
-                return true;
-            }
-
+            public override bool OnCheckObserver(NetworkConnection conn) { return true; }
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
             public int hostVisibilityCalled;
             public bool hostVisibilityValue;
             public override void OnSetHostVisibility(bool visible)

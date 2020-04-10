@@ -304,7 +304,7 @@ namespace Mirror.Tests
         [Test]
         public void OnCheckObserverTrueByDefault()
         {
-            Assert.That(emptyBehaviour.OnCheckObserver(null), Is.True);
+            Assert.That(identity.OnCheckObserver(null), Is.True);
         }
 
         [Test]
