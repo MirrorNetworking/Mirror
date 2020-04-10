@@ -796,7 +796,7 @@ namespace Mirror.Tests
             GameObject.DestroyImmediate(transportGO);
         }
 
-        [Test]
+        /*[Test]
         public void OnCheckObserver()
         {
             // add component
@@ -840,6 +840,52 @@ namespace Mirror.Tests
             // clean up
             GameObject.DestroyImmediate(gameObjectFalse);
             GameObject.DestroyImmediate(gameObjectTrue);
+        }*/
+
+        [Test]
+        public void OnCheckObserverCatchesException()
+        {
+            // add component
+            CheckObserverExceptionNetworkBehaviour compExc = gameObject.AddComponent<CheckObserverExceptionNetworkBehaviour>();
+
+            NetworkConnection connection = new NetworkConnectionToClient(42);
+
+            // an exception in OnCheckObserver should be caught
+            // (an error log is expected)
+            LogAssert.ignoreFailingMessages = true;
+            // should catch the exception internally and not throw it
+            bool result = identity.OnCheckObserver(connection);
+            Assert.That(result, Is.True);
+            Assert.That(compExc.called, Is.EqualTo(1));
+            LogAssert.ignoreFailingMessages = false;
+
+            // let's also make sure that the correct connection was passed, just
+            // to be sure
+            Assert.That(compExc.valuePassed, Is.EqualTo(connection));
+        }
+
+        [Test]
+        public void OnCheckObserverTrue()
+        {
+            // create a networkidentity with a component that returns true
+            // result should be true.
+            CheckObserverTrueNetworkBehaviour compTrue = gameObject.AddComponent<CheckObserverTrueNetworkBehaviour>();
+            NetworkConnection connection = new NetworkConnectionToClient(42);
+            bool result = identity.OnCheckObserver(connection);
+            Assert.That(result, Is.True);
+            Assert.That(compTrue.called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void OnCheckObserverFalse()
+        {
+            // create a networkidentity with a component that returns false
+            // result should be false.
+            CheckObserverFalseNetworkBehaviour compFalse = gameObject.AddComponent<CheckObserverFalseNetworkBehaviour>();
+            NetworkConnection connection = new NetworkConnectionToClient(42);
+            bool result = identity.OnCheckObserver(connection);
+            Assert.That(result, Is.False);
+            Assert.That(compFalse.called, Is.EqualTo(1));
         }
 
         [Test]
