@@ -102,12 +102,12 @@ namespace Mirror.Tests
         [Test]
         public void ReadyTest()
         {
-            Assert.That(!client.ready);
+            Assert.That(!client.Ready);
 
             client.ConnectHost(server);
 
             Assert.That(client.Ready(client.Connection));
-            Assert.That(client.ready);
+            Assert.That(client.Ready);
             Assert.That(client.Connection.isReady);
         }
 

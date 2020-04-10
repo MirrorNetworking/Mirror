@@ -84,7 +84,7 @@ namespace Mirror
         /// <para>This is read-only. To change the ready state of a client, use ClientScene.Ready(). The server is able to set the ready state of clients using NetworkServer.SetClientReady(), NetworkServer.SetClientNotReady() and NetworkServer.SetAllClientsNotReady().</para>
         /// <para>This is done when changing scenes so that clients don't receive state update messages during scene loading.</para>
         /// </summary>
-        public bool ready { get; internal set; }
+        public bool Ready { get; internal set; }
 
         /// <summary>
         /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
@@ -310,7 +310,7 @@ namespace Mirror
 
             ClearSpawners();
             DestroyAllClientObjects();
-            ready = false;
+            Ready = false;
             isSpawnFinished = false;
 
             connectState = ConnectState.None;
@@ -369,7 +369,7 @@ namespace Mirror
         /// <returns>True if succcessful</returns>
         public bool Ready(NetworkConnection conn)
         {
-            if (ready)
+            if (Ready)
             {
                 Debug.LogError("A connection has already been set as ready. There can only be one.");
                 return false;
@@ -381,7 +381,7 @@ namespace Mirror
             {
                 // Set these before sending the ReadyMessage, otherwise host client
                 // will fail in InternalAddPlayer with null readyConnection.
-                ready = true;
+                Ready = true;
                 Connection = conn;
                 Connection.isReady = true;
 
