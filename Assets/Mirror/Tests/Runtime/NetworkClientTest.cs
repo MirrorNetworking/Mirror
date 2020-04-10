@@ -106,9 +106,33 @@ namespace Mirror.Tests
 
             client.ConnectHost(server);
 
-            Assert.That(client.Ready(client.Connection));
+            client.Ready(client.Connection);
             Assert.That(client.ready);
             Assert.That(client.Connection.isReady);
+        }
+
+        [Test]
+        public void ReadyTwiceTest()
+        {
+            client.ConnectHost(server);
+
+            client.Ready(client.Connection);
+
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                client.Ready(client.Connection);
+            });
+        }
+
+        [Test]
+        public void ReadyNull()
+        {
+            client.ConnectHost(server);
+
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                client.Ready(null);
+            });
         }
 
         [UnityTest]

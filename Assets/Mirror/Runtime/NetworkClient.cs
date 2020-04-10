@@ -367,31 +367,27 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">The client connection which is ready.</param>
         /// <returns>True if succcessful</returns>
-        public bool Ready(NetworkConnection conn)
+        public void Ready(NetworkConnection conn)
         {
             if (ready)
             {
-                Debug.LogError("A connection has already been set as ready. There can only be one.");
-                return false;
+                throw new InvalidOperationException("A connection has already been set as ready. There can only be one.");
             }
+
+            if (conn == null)
+                throw new InvalidOperationException("Ready() called with invalid connection object: conn=null");
 
             if (LogFilter.Debug) Debug.Log("ClientScene.Ready() called with connection [" + conn + "]");
 
-            if (conn != null)
-            {
-                // Set these before sending the ReadyMessage, otherwise host client
-                // will fail in InternalAddPlayer with null readyConnection.
-                ready = true;
-                Connection = conn;
-                Connection.isReady = true;
+            
+            // Set these before sending the ReadyMessage, otherwise host client
+            // will fail in InternalAddPlayer with null readyConnection.
+            ready = true;
+            Connection = conn;
+            Connection.isReady = true;
 
-                // Tell server we're ready to have a player object spawned
-                conn.Send(new ReadyMessage());
-
-                return true;
-            }
-            Debug.LogError("Ready() called with invalid connection object: conn=null");
-            return false;
+            // Tell server we're ready to have a player object spawned
+            conn.Send(new ReadyMessage());
         }
 
         // this is called from message handler for Owner message
