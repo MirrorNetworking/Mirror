@@ -193,7 +193,7 @@ namespace Mirror.Tests
         {
             // set isServer is false. otherwise Destroy instead of
             // DestroyImmediate is called internally, giving an error in Editor
-            GameObject.DestroyImmediate(gameObject);
+            Object.DestroyImmediate(gameObject);
             Object.DestroyImmediate(networkServerGameObject);
         }
 
@@ -527,8 +527,8 @@ namespace Mirror.Tests
             Assert.That(compFalse.called, Is.EqualTo(1));
 
             // clean up
-            GameObject.DestroyImmediate(gameObjectFalse);
-            GameObject.DestroyImmediate(gameObjectTrue);
+            Object.DestroyImmediate(gameObjectFalse);
+            Object.DestroyImmediate(gameObjectTrue);
         }
 
         [Test]
