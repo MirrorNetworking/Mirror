@@ -6,57 +6,13 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-
-    public class RpcComponent : NetworkBehaviour
-    {
-        public int cmdArg1;
-        public string cmdArg2;
-
-        [Command]
-        public void CmdTest(int arg1, string arg2)
-        {
-            this.cmdArg1 = arg1;
-            this.cmdArg2 = arg2;
-        }
-
-        public NetworkIdentity cmdNi;
-
-        [Command]
-        public void CmdNetworkIdentity(NetworkIdentity ni)
-        {
-            this.cmdNi = ni;
-        }
-
-        public int rpcArg1;
-        public string rpcArg2;
-
-        [ClientRpc]
-        public void RpcTest(int arg1, string arg2)
-        {
-            this.rpcArg1 = arg1;
-            this.rpcArg2 = arg2;
-        }
-
-        public int targetRpcArg1;
-        public string targetRpcArg2;
-        public INetworkConnection targetRpcConn;
-
-        [TargetRpc]
-        public void TargetRpcTest(INetworkConnection conn, int arg1, string arg2)
-        {
-            this.targetRpcConn = conn;
-            this.targetRpcArg1 = arg1;
-            this.targetRpcArg2 = arg2;
-        }
-    }
-
-    public class RpcTests : HostSetup<RpcComponent>
+    public class HostComponentTests : HostSetup<MockComponent>
     {
         [Test]
         public void CommandWithoutAuthority()
         {
             var gameObject2 = new GameObject();
-            RpcComponent rpcComponent2 = gameObject2.AddComponent<RpcComponent>();
+            MockComponent rpcComponent2 = gameObject2.AddComponent<MockComponent>();
 
             // spawn it without client authority
             server.Spawn(gameObject2);
