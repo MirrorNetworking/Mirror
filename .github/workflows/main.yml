@@ -30,7 +30,7 @@ jobs:
             name: Manual Activation File
             path: ${{ steps.getManualLicenseFile.outputs.filePath }}
     
-  testRunnerInAllModes:
+  CI:
     name: Unity test
     runs-on: ubuntu-latest
     env:
@@ -43,15 +43,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
- 
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.1.100'
-
-      - name: Install unity-packer
-        run: dotnet tool install -g unity-packer
-  
+   
       - name: Add Coverage Plugin
         uses: canastro/copy-action@0.0.2
         with:
@@ -109,6 +101,25 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+
+  CD:
+    runs-on: windows-latest
+    
+    needs: CI
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup dotnet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.100'
+  
+      - name: Install unity-packer
+        run: dotnet tool install -g unity-packer
+  
       - name: Unity Package
         run: |
           rm -rf Assets/Mirror/Tests Assets/Mirror/Tests.Meta
