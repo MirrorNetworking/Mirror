@@ -1,8 +1,7 @@
-using Mirror;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
 
-namespace Tests
+namespace Mirror.Tests.Performance
 {
     [Category("Performance")]
     public class NetworkWriterPerformance

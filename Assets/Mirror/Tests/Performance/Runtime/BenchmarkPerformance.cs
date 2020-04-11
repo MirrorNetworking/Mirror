@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Diagnostics;
-using Mirror;
 using Mirror.Examples;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
@@ -9,7 +8,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Tests
+namespace Mirror.Tests.Performance
 {
     [Category("Performance")]
     [Category("Benchmark")]
