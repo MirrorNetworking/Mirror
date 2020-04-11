@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-    if: true
+    if: false
     steps:
   
       # Checkout repository (required to test local actions)
@@ -101,11 +101,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
-  CD:
+  Release:
     runs-on: windows-latest
-    
-    needs: CI
+    # needs: CI
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -120,8 +118,11 @@ jobs:
       - name: Install unity-packer
         run: dotnet tool install -g unity-packer
   
-      - name: Unity Package
+      - name: Cleanup
         run: |
           rm -rf Assets/Mirror/Tests Assets/Mirror/Tests.Meta
           rm -rf Assets/Mirror/Examples Assets/Mirror/Examples.Meta
-          unity-packer pack pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
+
+      - name: Package
+        run: |
+          dotnet tool run unity-packer pack pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
