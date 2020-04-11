@@ -100,3 +100,15 @@ jobs:
           FrameworkPathOverride: /opt/Unity/Editor/Data/MonoBleedingEdge/
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.100'
+
+      - name: Unity Package
+        run: |
+          dotnet tool install -g unity-packer
+          rm -rf Assets/Mirror/Tests Assets/Mirror/Tests.Meta
+          rm -rf Assets/Mirror/Examples Assets/Mirror/Examples.Meta
+          unity-packer pack pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
