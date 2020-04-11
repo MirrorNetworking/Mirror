@@ -264,16 +264,17 @@ namespace Mirror.Tests
             identity.StartServer();
 
             // add an observer connection
-            var connection = new NetworkConnection(null);
+            INetworkConnection connection = Substitute.For<INetworkConnection>();
             identity.observers.Add(connection);
 
+            INetworkConnection connection2 = Substitute.For<INetworkConnection>();
             // RemoveObserverInternal with invalid connection should do nothing
-            identity.RemoveObserverInternal(new NetworkConnection(null));
-            Assert.That(identity.observers.Count, Is.EqualTo(1));
+            identity.RemoveObserverInternal(connection2);
+            Assert.That(identity.observers, Is.EquivalentTo (new[] { connection }));
 
             // RemoveObserverInternal with existing connection should remove it
             identity.RemoveObserverInternal(connection);
-            Assert.That(identity.observers.Count, Is.EqualTo(0));
+            Assert.That(identity.observers, Is.Empty);
         }
 
         [Test]
@@ -466,25 +467,10 @@ namespace Mirror.Tests
             // add component
             SetHostVisibilityExceptionNetworkBehaviour comp = gameObject.AddComponent<SetHostVisibilityExceptionNetworkBehaviour>();
 
-            // make sure that comp.OnSetHostVisibility was called and make sure that
-            // the exception was caught and not thrown in here.
-            // an exception in OnSetHostVisibility should be caught, so that one
-            // component's exception doesn't stop all other components from
-            // being initialized
-            // (an error log is expected though)
-            LogAssert.ignoreFailingMessages = true;
-
-            // should catch the exception internally and not throw it
-            identity.OnSetHostVisibility(true);
-            Assert.That(comp.called, Is.EqualTo(1));
-            Assert.That(comp.valuePassed, Is.True);
-
-            // should catch the exception internally and not throw it
-            identity.OnSetHostVisibility(false);
-            Assert.That(comp.called, Is.EqualTo(2));
-            Assert.That(comp.valuePassed, Is.False);
-
-            LogAssert.ignoreFailingMessages = false;
+            Assert.Throws<Exception>(() =>
+            {
+               identity.OnSetHostVisibility(true);
+            });
         }
 
         [Test]
@@ -495,18 +481,11 @@ namespace Mirror.Tests
 
             var connection = new NetworkConnection(null);
 
-            // an exception in OnCheckObserver should be caught
-            // (an error log is expected)
-            LogAssert.ignoreFailingMessages = true;
             // should catch the exception internally and not throw it
-            bool result = identity.OnCheckObserver(connection);
-            Assert.That(result, Is.True);
-            Assert.That(compExc.called, Is.EqualTo(1));
-            LogAssert.ignoreFailingMessages = false;
-
-            // let's also make sure that the correct connection was passed, just
-            // to be sure
-            Assert.That(compExc.valuePassed, Is.EqualTo(connection));
+            Assert.Throws<Exception>(() =>
+            {
+                bool result = identity.OnCheckObserver(connection);
+            });
         }
 
         [Test]
