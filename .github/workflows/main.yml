@@ -118,10 +118,15 @@ jobs:
       - name: Install unity-packer
         run: dotnet tool install -g unity-packer
   
-      - name: Remove Tests & Examples
+      - name: Delete Tests
         run: |
-          rm -rf Assets/Mirror/Tests Assets/Mirror/Tests.Meta
-          rm -rf Assets/Mirror/Examples Assets/Mirror/Examples.Meta
+        - RMDIR /Q /S Assets\Mirror\Tests
+        - del /F /Q Assets\Mirror\Tests.meta
+
+      - name: Delete Examples
+        run: |
+        - RMDIR /Q /S Assets\Mirror\Examples
+        - del /F /Q Assets\Mirror\Examples.meta
 
       - name: Package
         run: |
