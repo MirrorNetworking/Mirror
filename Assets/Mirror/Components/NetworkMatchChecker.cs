@@ -12,7 +12,7 @@ namespace Mirror
     [AddComponentMenu("Network/NetworkMatchChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkMatchChecker.html")]
-    public class NetworkMatchChecker : NetworkBehaviour
+    public class NetworkMatchChecker : NetworkVisibility
     {
         static readonly Dictionary<Guid, HashSet<NetworkIdentity>> matchPlayers = new Dictionary<Guid, HashSet<NetworkIdentity>>();
 
@@ -97,15 +97,13 @@ namespace Mirror
         /// <param name="observers">The new set of observers for this object.</param>
         /// <param name="initialize">True if the set of observers is being built for the first time.</param>
         /// <returns>true when overwriting so that Mirror knows that we wanted to rebuild observers ourselves. otherwise it uses built in rebuild.</returns>
-        public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+        public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
-            if (currentMatch == Guid.Empty) return true;
+            if (currentMatch == Guid.Empty) return;
 
             foreach (NetworkIdentity networkIdentity in matchPlayers[currentMatch])
                 if (networkIdentity != null && networkIdentity.connectionToClient != null)
                     observers.Add(networkIdentity.connectionToClient);
-
-            return true;
         }
 
         /// <summary>
