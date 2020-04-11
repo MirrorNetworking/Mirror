@@ -43,7 +43,15 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+ 
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.100'
 
+        - name: Install unity-packer
+          run: dotnet tool install -g unity-packer
+  
       - name: Add Coverage Plugin
         uses: canastro/copy-action@0.0.2
         with:
@@ -101,14 +109,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.1.100'
-
       - name: Unity Package
         run: |
-          dotnet tool install -g unity-packer
           rm -rf Assets/Mirror/Tests Assets/Mirror/Tests.Meta
           rm -rf Assets/Mirror/Examples Assets/Mirror/Examples.Meta
           unity-packer pack pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
