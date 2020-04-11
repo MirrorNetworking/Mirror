@@ -1,13 +1,12 @@
 //#if UNITY_2019_2_OR_NEWER
 using System.Collections;
-using Mirror;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
 using UnityEngine;
 using UnityEngine.TestTools;
 
 
-namespace Tests
+namespace Mirror.Tests.Performance
 {
     class NetworkManagerTest : NetworkManager
     {
