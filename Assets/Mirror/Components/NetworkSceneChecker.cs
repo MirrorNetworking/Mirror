@@ -12,7 +12,7 @@ namespace Mirror
     [AddComponentMenu("Network/NetworkSceneChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkSceneChecker.html")]
-    public class NetworkSceneChecker : NetworkBehaviour
+    public class NetworkSceneChecker : NetworkVisibility
     {
         /// <summary>
         /// Flag to force this object to be hidden from all observers.
@@ -92,18 +92,16 @@ namespace Mirror
 
         // Always return true when overriding OnRebuildObservers so that
         // Mirror knows not to use the built in rebuild method.
-        public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+        public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
-            // If forceHidden then return true without adding any observers.
+            // If forceHidden then return without adding any observers.
             if (forceHidden)
-                return true;
+                return;
 
             // Add everything in the hashset for this object's current scene
             foreach (NetworkIdentity networkIdentity in sceneCheckerObjects[currentScene])
                 if (networkIdentity != null && networkIdentity.connectionToClient != null)
                     observers.Add(networkIdentity.connectionToClient);
-
-            return true;
         }
 
         /// <summary>
