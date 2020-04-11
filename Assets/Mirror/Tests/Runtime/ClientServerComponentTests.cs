@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using NUnit.Framework;
-using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace Mirror.Tests
