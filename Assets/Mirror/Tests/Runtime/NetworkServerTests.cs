@@ -9,6 +9,14 @@ using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
+    public class SimpleNetworkServer : NetworkServer
+    {
+        public void SpawnObjectExpose(GameObject obj, INetworkConnection ownerConnection)
+        {
+            SpawnObject(obj, ownerConnection);
+        }
+    }
+
     public class NetworkServerTests
     {
         NetworkServer server;
@@ -70,6 +78,59 @@ namespace Mirror.Tests
             server.Spawn(gameObject);
 
             Assert.That(gameObject.GetComponent<NetworkIdentity>().Server, Is.SameAs(server));
+        }
+
+        [Test]
+        public void SendToClientOfPlayerExceptionTest()
+        {
+            GameObject gameObject = new GameObject();
+            SimpleNetworkServer comp = gameObject.AddComponent<SimpleNetworkServer>();
+
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                comp.SendToClientOfPlayer<CommandMessage>(null, new CommandMessage());
+            });
+        }
+
+        [Test]
+        public void SpawnObjectExposeExceptionTest()
+        {
+            GameObject gameObject = new GameObject();
+            SimpleNetworkServer comp = gameObject.AddComponent<SimpleNetworkServer>();
+
+            GameObject obj = new GameObject();
+
+            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                comp.SpawnObjectExpose(obj, connectionToServer);
+            });
+
+            Assert.That(ex.Message, Is.EqualTo("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server."));
+        }
+
+        [Test]
+        public void SpawnNoIdentExceptionTest()
+        {
+            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                server.Spawn(new GameObject(), new GameObject());
+            });
+
+            Assert.That(ex.Message, Is.EqualTo("Player object has no NetworkIdentity"));
+        }
+
+        [Test]
+        public void SpawnNotPlayerExceptionTest()
+        {
+            GameObject player = new GameObject();
+            player.AddComponent<NetworkIdentity>();
+
+            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                server.Spawn(new GameObject(), player);
+            });
+
+            Assert.That(ex.Message, Is.EqualTo("Player object is not a " + nameof(player) + "."));
         }
 
         [UnityTest]
