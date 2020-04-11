@@ -48,67 +48,82 @@ namespace Mirror
                 return;
 
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
+
             if (!manager.client.IsConnected && !manager.server.Active)
             {
-                if (!manager.client.Active)
+                StartButtons();
+            }
+            else
+            {
+                StatusLabels();
+                StopButtons();
+            }
+
+            GUILayout.EndArea();
+        }
+
+        void StartButtons()
+        {
+            if (!manager.client.Active)
+            {
+                // Server + Client
+                if (Application.platform != RuntimePlatform.WebGLPlayer)
                 {
-                    // Server + Client
-                    if (Application.platform != RuntimePlatform.WebGLPlayer)
+                    if (GUILayout.Button("Host (Server + Client)"))
                     {
-                        if (GUILayout.Button("Host (Server + Client)"))
-                        {
-                            _ = manager.StartHost();
-                        }
+                        _ = manager.StartHost();
                     }
+                }
 
-                    // Client + IP
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("Client"))
-                    {
-                        manager.StartClient(serverIp);
-                    }
-                    serverIp = GUILayout.TextField(serverIp);
-                    GUILayout.EndHorizontal();
+                // Client + IP
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Client"))
+                {
+                    manager.StartClient(serverIp);
+                }
+                serverIp = GUILayout.TextField(serverIp);
+                GUILayout.EndHorizontal();
 
-                    // Server Only
-                    if (Application.platform == RuntimePlatform.WebGLPlayer)
-                    {
-                        // cant be a server in webgl build
-                        GUILayout.Box("(  WebGL cannot be server  )");
-                    }
-                    else
-                    {
-                        if (GUILayout.Button("Server Only"))
-                        {
-                            _ = manager.StartServer();
-                        }
-                    }
+                // Server Only
+                if (Application.platform == RuntimePlatform.WebGLPlayer)
+                {
+                    // cant be a server in webgl build
+                    GUILayout.Box("(  WebGL cannot be server  )");
                 }
                 else
                 {
-                    // Connecting
-                    GUILayout.Label("Connecting to " + serverIp + "..");
-                    if (GUILayout.Button("Cancel Connection Attempt"))
+                    if (GUILayout.Button("Server Only"))
                     {
-                        manager.StopClient();
+                        _ = manager.StartServer();
                     }
                 }
             }
             else
             {
-                // server / client status message
-                if (manager.server.Active)
+                // Connecting
+                GUILayout.Label("Connecting to " + serverIp + "..");
+                if (GUILayout.Button("Cancel Connection Attempt"))
                 {
-                    GUILayout.Label("Server: active. Transport: " + manager.server.transport);
-                }
-                if (manager.client.IsConnected)
-                {
-                    GUILayout.Label("Client: address=" + serverIp);
+                    manager.StopClient();
                 }
             }
+        }
 
+        void StatusLabels()
+        {
+            // server / client status message
+            if (manager.server.Active)
+            {
+                GUILayout.Label("Server: active. Transport: " + manager.server.transport);
+            }
+            if (manager.client.IsConnected)
+            {
+                GUILayout.Label("Client: address=" + serverIp);
+            }
+        }
 
-            // stop
+        void StopButtons()
+        {
             if (manager.server.Active && manager.client.IsConnected)
             {
                 if (GUILayout.Button("Stop Host"))
@@ -132,8 +147,6 @@ namespace Mirror
                     manager.StopServer();
                 }
             }
-
-            GUILayout.EndArea();
         }
     }
 }
