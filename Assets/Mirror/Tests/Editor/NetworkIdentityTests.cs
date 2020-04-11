@@ -921,9 +921,9 @@ namespace Mirror.Tests
         [Test]
         public void RebuildObserversAddsReadyServerConnectionsIfNotImplemented()
         {
-            var readyConnection = Substitute.For<INetworkConnection>();
+            INetworkConnection readyConnection = Substitute.For<INetworkConnection>();
             readyConnection.IsReady.Returns(true);
-            var notReadyConnection = Substitute.For<INetworkConnection>();
+            INetworkConnection notReadyConnection = Substitute.For<INetworkConnection>();
             notReadyConnection.IsReady.Returns(false);
 
             // add some server connections
