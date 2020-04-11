@@ -163,7 +163,7 @@ namespace Mirror
 
         // NetworkProximityChecker caching
         NetworkVisibility visibilityCache;
-        public NetworkVisibility visibility
+        public NetworkVisibility Visibility
         {
             get
             {
@@ -441,7 +441,7 @@ namespace Mirror
                 // => throw an exception to cancel the build and let the user
                 //    know how to fix it!
                 if (BuildPipeline.isBuildingPlayer)
-                    throw new Exception("Scene " + gameObject.scene.path + " needs to be opened and resaved before building, because the scene object " + name + " has no valid sceneId yet.");
+                    throw new InvalidOperationException("Scene " + gameObject.scene.path + " needs to be opened and resaved before building, because the scene object " + name + " has no valid sceneId yet.");
 
                 // if we generate the sceneId then we MUST be sure to set dirty
                 // in order to save the scene object properly. otherwise it
@@ -641,9 +641,9 @@ namespace Mirror
 
         internal void OnSetHostVisibility(bool visible)
         {
-            if (visibility != null)
+            if (Visibility != null)
             {
-                visibility.OnSetHostVisibility(visible);
+                Visibility.OnSetHostVisibility(visible);
             }
         }
 
@@ -653,9 +653,9 @@ namespace Mirror
         //   seen.
         internal bool OnCheckObserver(INetworkConnection conn)
         {
-            if (visibility != null)
+            if (Visibility != null)
             {
-                return visibility.OnCheckObserver(conn);
+                return Visibility.OnCheckObserver(conn);
             }
             return true;
         }
@@ -903,9 +903,9 @@ namespace Mirror
         {
             observersSet.Clear();
 
-            if (visibility != null)
+            if (Visibility != null)
             {
-                visibility.OnRebuildObservers(observersSet, initialize);
+                Visibility.OnRebuildObservers(observersSet, initialize);
                 return true;
             }
 

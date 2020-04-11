@@ -323,63 +323,66 @@ namespace Mirror
             // if server then always sync to others.
             if (IsServer)
             {
-                // just use OnSerialize via SetDirtyBit only sync when position
-                // changed. set dirty bits 0 or 1
-                SetDirtyBit(HasEitherMovedRotatedScaled() ? 1UL : 0UL);
+                UpdateServer();
             }
 
             // no 'else if' since host mode would be both
             if (IsClient)
             {
-                // send to server if we have local authority (and aren't the server)
-                // -> only if connectionToServer has been initialized yet too
-                if (!IsServer && IsClientWithAuthority)
-                {
-                    // check only each 'syncInterval'
-                    if (Time.time - lastClientSendTime >= syncInterval)
-                    {
-                        if (HasEitherMovedRotatedScaled())
-                        {
-                            // serialize
-                            // local position/rotation for VR support
-                            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-                            {
-                                SerializeIntoWriter(writer, TargetComponent.transform.localPosition, TargetComponent.transform.localRotation, TargetComponent.transform.localScale);
+                UpdateClient();
+            }
+        }
 
-                                // send to server
-                                CmdClientToServerSync(writer.ToArray());
-                            }
-                        }
-                        lastClientSendTime = Time.time;
+        void UpdateServer()
+        {
+            // just use OnSerialize via SetDirtyBit only sync when position
+            // changed. set dirty bits 0 or 1
+            SetDirtyBit(HasEitherMovedRotatedScaled() ? 1UL : 0UL);
+        }
+
+        void UpdateClient()
+        {
+            // send to server if we have local authority (and aren't the server)
+            // -> only if connectionToServer has been initialized yet too
+            // check only each 'syncInterval'
+            if (!IsServer && IsClientWithAuthority && Time.time - lastClientSendTime >= syncInterval)
+            {
+                if (HasEitherMovedRotatedScaled())
+                {
+                    // serialize
+                    // local position/rotation for VR support
+                    using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+                    {
+                        SerializeIntoWriter(writer, TargetComponent.transform.localPosition, TargetComponent.transform.localRotation, TargetComponent.transform.localScale);
+
+                        // send to server
+                        CmdClientToServerSync(writer.ToArray());
                     }
                 }
+                lastClientSendTime = Time.time;
+            }
 
-                // apply interpolation on client for all players
-                // unless this client has authority over the object. could be
-                // himself or another object that he was assigned authority over
-                if (!IsClientWithAuthority)
+            // apply interpolation on client for all players
+            // unless this client has authority over the object. could be
+            // himself or another object that he was assigned authority over
+            if (!IsClientWithAuthority && goal != null)
+            {
+                // teleport or interpolate
+                if (NeedsTeleport())
                 {
-                    // received one yet? (initialized?)
-                    if (goal != null)
-                    {
-                        // teleport or interpolate
-                        if (NeedsTeleport())
-                        {
-                            // local position/rotation for VR support
-                            ApplyPositionRotationScale(goal.LocalPosition, goal.LocalRotation, goal.LocalScale);
+                    // local position/rotation for VR support
+                    ApplyPositionRotationScale(goal.LocalPosition, goal.LocalRotation, goal.LocalScale);
 
-                            // reset data points so we don't keep interpolating
-                            start = null;
-                            goal = null;
-                        }
-                        else
-                        {
-                            // local position/rotation for VR support
-                            ApplyPositionRotationScale(InterpolatePosition(start, goal, TargetComponent.transform.localPosition),
-                                                       InterpolateRotation(start, goal, TargetComponent.transform.localRotation),
-                                                       InterpolateScale(start, goal, TargetComponent.transform.localScale));
-                        }
-                    }
+                    // reset data points so we don't keep interpolating
+                    start = null;
+                    goal = null;
+                }
+                else
+                {
+                    // local position/rotation for VR support
+                    ApplyPositionRotationScale(InterpolatePosition(start, goal, TargetComponent.transform.localPosition),
+                                                InterpolateRotation(start, goal, TargetComponent.transform.localRotation),
+                                                InterpolateScale(start, goal, TargetComponent.transform.localScale));
                 }
             }
         }
