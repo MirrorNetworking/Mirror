@@ -81,7 +81,7 @@ jobs:
           path: Tests
 
       - name: Publish test results
-        uses: MirrorNG/nunit-reporter@1.0.3
+        uses: MirrorNG/nunit-reporter@1.0.6
         if: always()
         with:
           path: "Tests/*.xml"
