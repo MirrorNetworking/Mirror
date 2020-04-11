@@ -120,13 +120,13 @@ jobs:
   
       - name: Delete Tests
         run: |
-        - RMDIR /Q /S Assets\Mirror\Tests
-        - del /F /Q Assets\Mirror\Tests.meta
+          RMDIR /Q /S Assets\Mirror\Tests
+          del /F /Q Assets\Mirror\Tests.meta
 
       - name: Delete Examples
         run: |
-        - RMDIR /Q /S Assets\Mirror\Examples
-        - del /F /Q Assets\Mirror\Examples.meta
+          RMDIR /Q /S Assets\Mirror\Examples
+          del /F /Q Assets\Mirror\Examples.meta
 
       - name: Package
         run: |
