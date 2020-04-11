@@ -1,3 +1,4 @@
+#if !UNITY_2019_2_OR_NEWER || UNITY_PERFORMANCE_TESTS_1_OR_OLDER
 using NUnit.Framework;
 using Unity.PerformanceTesting;
 
@@ -36,3 +37,4 @@ namespace Mirror.Tests.Performance
         }
     }
 }
+#endif
