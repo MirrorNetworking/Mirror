@@ -14,6 +14,8 @@ These core components are included in Mirror:
     Network Discovery uses a UDP broadcast on the LAN enabling clients to find the running server and connect to it.
 -   [Network Proximity Checker](NetworkProximityChecker.md)  
     The Network Proximity Checker component controls the visibility of game objects for network clients, based on proximity to players.
+-   [Network Scene Checker](NetworkSceneChecker.md)  
+    The Network Scene Checker component controls visibility of networked objects between scenes.
 -   [Network Room Manager](NetworkRoomManager.md)  
     The Network Room Manager is an extension component of Network Manager that provides a basic functional room.
 -   [Network Room Player](NetworkRoomPlayer.md)  

@@ -152,12 +152,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnCheckObserverTrueByDefault()
-        {
-            Assert.That(component.OnCheckObserver(null), Is.True);
-        }
-
-        [Test]
         public void RegisterDelegateDoesntOverwrite()
         {
             // registerdelegate is protected, but we can use

@@ -33,48 +33,57 @@ namespace Mirror.Tests
             }
         }
 
-        class SetHostVisibilityExceptionNetworkBehaviour : NetworkBehaviour
+        class SetHostVisibilityExceptionNetworkBehaviour : NetworkVisibility
         {
             public int called;
             public bool valuePassed;
+            public override void OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize) {}
+            public override bool OnCheckObserver(INetworkConnection conn) { return true; }
             public override void OnSetHostVisibility(bool visible)
             {
                 ++called;
                 valuePassed = visible;
                 throw new Exception("some exception");
             }
+
         }
 
-        class CheckObserverExceptionNetworkBehaviour : NetworkBehaviour
+        class CheckObserverExceptionNetworkBehaviour : NetworkVisibility
         {
             public int called;
             public INetworkConnection valuePassed;
+            public override void OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize) {}
             public override bool OnCheckObserver(INetworkConnection conn)
             {
                 ++called;
                 valuePassed = conn;
                 throw new Exception("some exception");
             }
+            public override void OnSetHostVisibility(bool visible) {}
         }
 
-        class CheckObserverTrueNetworkBehaviour : NetworkBehaviour
+        class CheckObserverTrueNetworkBehaviour : NetworkVisibility
         {
             public int called;
+            public override void OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize) {}
             public override bool OnCheckObserver(INetworkConnection conn)
             {
                 ++called;
                 return true;
             }
+            public override void OnSetHostVisibility(bool visible) {}
         }
 
-        class CheckObserverFalseNetworkBehaviour : NetworkBehaviour
+        class CheckObserverFalseNetworkBehaviour : NetworkVisibility
         {
             public int called;
+            public override void OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize) {}
             public override bool OnCheckObserver(INetworkConnection conn)
             {
                 ++called;
                 return false;
             }
+            public override void OnSetHostVisibility(bool visible) {}
         }
 
         class SerializeTest1NetworkBehaviour : NetworkBehaviour
@@ -133,25 +142,21 @@ namespace Mirror.Tests
             }
         }
 
-        class RebuildObserversNetworkBehaviour : NetworkBehaviour
+        class RebuildObserversNetworkBehaviour : NetworkVisibility
         {
-            public NetworkConnection observer;
-            public override bool OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize)
+            public INetworkConnection observer;
+            public override bool OnCheckObserver(INetworkConnection conn) { return true; }
+            public override void OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize)
             {
                 observers.Add(observer);
-                return true;
             }
+            public override void OnSetHostVisibility(bool visible) {}
         }
 
-        class RebuildEmptyObserversNetworkBehaviour : NetworkBehaviour
+        class RebuildEmptyObserversNetworkBehaviour : NetworkVisibility
         {
-            public override bool OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize)
-            {
-                // return true so that caller knows we implemented
-                // OnRebuildObservers, but return no observers
-                return true;
-            }
-
+            public override bool OnCheckObserver(INetworkConnection conn) { return true; }
+            public override void OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize) {}
             public int hostVisibilityCalled;
             public bool hostVisibilityValue;
             public override void OnSetHostVisibility(bool visible)
@@ -483,17 +488,15 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnCheckObserver()
+        public void OnCheckObserverCatchesException()
         {
             // add component
             CheckObserverExceptionNetworkBehaviour compExc = gameObject.AddComponent<CheckObserverExceptionNetworkBehaviour>();
 
             var connection = new NetworkConnection(null);
 
-            // an exception in OnCheckObserver should be caught, so that one
-            // component's exception doesn't stop all other components from
-            // being checked
-            // (an error log is expected though)
+            // an exception in OnCheckObserver should be caught
+            // (an error log is expected)
             LogAssert.ignoreFailingMessages = true;
             // should catch the exception internally and not throw it
             bool result = identity.OnCheckObserver(connection);
@@ -504,31 +507,33 @@ namespace Mirror.Tests
             // let's also make sure that the correct connection was passed, just
             // to be sure
             Assert.That(compExc.valuePassed, Is.EqualTo(connection));
+        }
 
+        [Test]
+        public void OnCheckObserverTrue()
+        {
             // create a networkidentity with a component that returns true
             // result should still be true.
             var gameObjectTrue = new GameObject();
             NetworkIdentity identityTrue = gameObjectTrue.AddComponent<NetworkIdentity>();
             CheckObserverTrueNetworkBehaviour compTrue = gameObjectTrue.AddComponent<CheckObserverTrueNetworkBehaviour>();
-            result = identityTrue.OnCheckObserver(connection);
-            Assert.That(result, Is.True);
+            var connection = new NetworkConnection(null);
+            Assert.That(identityTrue.OnCheckObserver(connection), Is.True);
             Assert.That(compTrue.called, Is.EqualTo(1));
+        }
 
+        [Test]
+        public void OnCheckObserverFalse()
+        {
             // create a networkidentity with a component that returns true and
             // one component that returns false.
             // result should still be false if any one returns false.
             var gameObjectFalse = new GameObject();
             NetworkIdentity identityFalse = gameObjectFalse.AddComponent<NetworkIdentity>();
-            compTrue = gameObjectFalse.AddComponent<CheckObserverTrueNetworkBehaviour>();
             CheckObserverFalseNetworkBehaviour compFalse = gameObjectFalse.AddComponent<CheckObserverFalseNetworkBehaviour>();
-            result = identityFalse.OnCheckObserver(connection);
-            Assert.That(result, Is.False);
-            Assert.That(compTrue.called, Is.EqualTo(1));
+            var connection = new NetworkConnection(null);
+            Assert.That(identityFalse.OnCheckObserver(connection), Is.False);
             Assert.That(compFalse.called, Is.EqualTo(1));
-
-            // clean up
-            Object.DestroyImmediate(gameObjectFalse);
-            Object.DestroyImmediate(gameObjectTrue);
         }
 
         [Test]
@@ -782,18 +787,15 @@ namespace Mirror.Tests
         public void GetNewObservers()
         {
             // add components
-            RebuildObserversNetworkBehaviour compA = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
-            compA.observer = new NetworkConnection(null);
-            RebuildObserversNetworkBehaviour compB = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
-            compB.observer = new NetworkConnection(null);
+            RebuildObserversNetworkBehaviour comp = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            comp.observer = new NetworkConnection(null);
 
             // get new observers
             var observers = new HashSet<INetworkConnection>();
             bool result = identity.GetNewObservers(observers, true);
             Assert.That(result, Is.True);
-            Assert.That(observers.Count, Is.EqualTo(2));
-            Assert.That(observers.Contains(compA.observer), Is.True);
-            Assert.That(observers.Contains(compB.observer), Is.True);
+            Assert.That(observers.Count, Is.EqualTo(1));
+            Assert.That(observers.Contains(comp.observer), Is.True);
         }
 
         [Test]
@@ -885,6 +887,53 @@ namespace Mirror.Tests
             // rebuild shouldn't add own player because conn wasn't set ready
             identity.RebuildObservers(true);
             Assert.That(identity.observers, Does.Not.Contains(identity.ConnectionToClient));
+        }
+
+        [Test]
+        public void RebuildObserversAddsReadyConnectionsIfImplemented() { 
+
+            // add a proximity checker
+            // one with a ready connection, one with no ready connection, one with null connection
+            RebuildObserversNetworkBehaviour comp = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            comp.observer = Substitute.For<INetworkConnection>();
+            comp.observer.IsReady.Returns(true);
+
+            // rebuild observers should add all component's ready observers
+            identity.RebuildObservers(true);
+            Assert.That(identity.observers, Is.EquivalentTo( new[] { comp.observer }));
+        }
+
+
+        [Test]
+        public void RebuildObserversDoesntAddNotReadyConnectionsIfImplemented()
+        {
+            // add a proximity checker
+            // one with a ready connection, one with no ready connection, one with null connection
+            RebuildObserversNetworkBehaviour comp = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
+            comp.observer = Substitute.For<INetworkConnection>();
+            comp.observer.IsReady.Returns(false);
+
+            // rebuild observers should add all component's ready observers
+            identity.RebuildObservers(true);
+            Assert.That(identity.observers, Is.Empty);
+        }
+
+        [Test]
+        public void RebuildObserversAddsReadyServerConnectionsIfNotImplemented()
+        {
+            var readyConnection = Substitute.For<INetworkConnection>();
+            readyConnection.IsReady.Returns(true);
+            var notReadyConnection = Substitute.For<INetworkConnection>();
+            notReadyConnection.IsReady.Returns(false);
+
+            // add some server connections
+            server.connections.Add(readyConnection);
+            server.connections.Add(notReadyConnection);
+
+            // rebuild observers should add all ready server connections
+            // because no component implements OnRebuildObservers
+            identity.RebuildObservers(true);
+            Assert.That(identity.observers, Is.EquivalentTo(new[] { readyConnection }));
         }
 
     }

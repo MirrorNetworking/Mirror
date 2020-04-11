@@ -812,35 +812,5 @@ namespace Mirror
                 }
             }
         }
-
-        /// <summary>
-        /// Callback used by the visibility system to (re)construct the set of observers that can see this object.
-        /// <para>Implementations of this callback should add network connections of players that can see this object to the observers set.</para>
-        /// </summary>
-        /// <param name="observers">The new set of observers for this object.</param>
-        /// <param name="initialize">True if the set of observers is being built for the first time.</param>
-        /// <returns>true when overwriting so that Mirror knows that we wanted to rebuild observers ourselves. otherwise it uses built in rebuild.</returns>
-        public virtual bool OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize)
-        {
-            return false;
-        }
-
-        /// <summary>
-        /// Callback used by the visibility system for objects on a host.
-        /// <para>Objects on a host (with a local client) cannot be disabled or destroyed when they are not visibile to the local client. So this function is called to allow custom code to hide these objects. A typical implementation will disable renderer components on the object. This is only called on local clients on a host.</para>
-        /// </summary>
-        /// <param name="visible">New visibility state.</param>
-        public virtual void OnSetHostVisibility(bool visible) { }
-
-        /// <summary>
-        /// Callback used by the visibility system to determine if an observer (player) can see this object.
-        /// <para>If this function returns true, the network connection will be added as an observer.</para>
-        /// </summary>
-        /// <param name="conn">Network connection of a player.</param>
-        /// <returns>True if the player can see this object.</returns>
-        public virtual bool OnCheckObserver(INetworkConnection conn)
-        {
-            return true;
-        }
     }
 }
