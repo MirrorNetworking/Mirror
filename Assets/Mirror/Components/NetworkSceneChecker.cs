@@ -12,7 +12,7 @@ namespace Mirror
     [AddComponentMenu("Network/NetworkSceneChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkSceneChecker.html")]
-    public class NetworkSceneChecker : NetworkProximityCheck
+    public class NetworkSceneChecker : NetworkVisibility
     {
         /// <summary>
         /// Flag to force this object to be hidden from all observers.

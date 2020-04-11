@@ -149,16 +149,16 @@ namespace Mirror
 
 
         // NetworkProximityChecker caching
-        NetworkProximityCheck proximityCheckCache;
-        public NetworkProximityCheck proximityCheck
+        NetworkVisibility visibilityCache;
+        public NetworkVisibility visibility
         {
             get
             {
-                if (proximityCheckCache == null)
+                if (visibilityCache == null)
                 {
-                    proximityCheckCache = GetComponent<NetworkProximityCheck>();
+                    visibilityCache = GetComponent<NetworkVisibility>();
                 }
-                return proximityCheckCache;
+                return visibilityCache;
             }
         }
 
@@ -683,11 +683,11 @@ namespace Mirror
 
         internal void OnSetHostVisibility(bool visible)
         {
-            if (proximityCheck != null)
+            if (visibility != null)
             {
                 try
                 {
-                    proximityCheck.OnSetHostVisibility(visible);
+                    visibility.OnSetHostVisibility(visible);
                 }
                 catch (Exception e)
                 {
@@ -702,11 +702,11 @@ namespace Mirror
         //   seen.
         internal bool OnCheckObserver(NetworkConnection conn)
         {
-            if (proximityCheck != null)
+            if (visibility != null)
             {
                 try
                 {
-                    return proximityCheck.OnCheckObserver(conn);
+                    return visibility.OnCheckObserver(conn);
                 }
                 catch (Exception e)
                 {
@@ -1012,9 +1012,9 @@ namespace Mirror
         {
             observersSet.Clear();
 
-            if (proximityCheck != null)
+            if (visibility != null)
             {
-                proximityCheck.OnRebuildObservers(observersSet, initialize);
+                visibility.OnRebuildObservers(observersSet, initialize);
                 return true;
             }
 

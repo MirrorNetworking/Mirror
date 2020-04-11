@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace Mirror
 {
-    // unfortunately the name NetworkProximityChecker is already used by our
-    // component that does sphere casts.
-    // maybe rename it later.
+    // the name NetworkProximityCheck implies that it's only about objects in
+    // proximity to the player. But we might have room based, guild based,
+    // instanced based checks too, so NetworkVisibility is more fitting.
     //
     // note: we inherit from NetworkBehaviour so we can reuse .netIdentity, etc.
     // note: unlike UNET, we only allow 1 proximity checker per NetworkIdentity.
     [DisallowMultipleComponent]
-    public abstract class NetworkProximityCheck : NetworkBehaviour
+    public abstract class NetworkVisibility : NetworkBehaviour
     {
         /// <summary>
         /// Callback used by the visibility system to (re)construct the set of observers that can see this object.

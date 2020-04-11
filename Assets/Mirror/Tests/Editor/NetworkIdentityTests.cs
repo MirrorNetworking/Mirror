@@ -104,7 +104,7 @@ namespace Mirror.Tests
             public override void OnNetworkDestroy() { ++called; }
         }
 
-        class SetHostVisibilityExceptionNetworkBehaviour : NetworkProximityCheck
+        class SetHostVisibilityExceptionNetworkBehaviour : NetworkVisibility
         {
             public int called;
             public bool valuePassed;
@@ -119,7 +119,7 @@ namespace Mirror.Tests
 
         }
 
-        class CheckObserverExceptionNetworkBehaviour : NetworkProximityCheck
+        class CheckObserverExceptionNetworkBehaviour : NetworkVisibility
         {
             public int called;
             public NetworkConnection valuePassed;
@@ -133,7 +133,7 @@ namespace Mirror.Tests
             public override void OnSetHostVisibility(bool visible) {}
         }
 
-        class CheckObserverTrueNetworkBehaviour : NetworkProximityCheck
+        class CheckObserverTrueNetworkBehaviour : NetworkVisibility
         {
             public int called;
             public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
@@ -145,7 +145,7 @@ namespace Mirror.Tests
             public override void OnSetHostVisibility(bool visible) {}
         }
 
-        class CheckObserverFalseNetworkBehaviour : NetworkProximityCheck
+        class CheckObserverFalseNetworkBehaviour : NetworkVisibility
         {
             public int called;
             public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
@@ -213,7 +213,7 @@ namespace Mirror.Tests
             }
         }
 
-        class RebuildObserversNetworkBehaviour : NetworkProximityCheck
+        class RebuildObserversNetworkBehaviour : NetworkVisibility
         {
             public NetworkConnection observer;
             public override bool OnCheckObserver(NetworkConnection conn) { return true; }
@@ -224,7 +224,7 @@ namespace Mirror.Tests
             public override void OnSetHostVisibility(bool visible) {}
         }
 
-        class RebuildEmptyObserversNetworkBehaviour : NetworkProximityCheck
+        class RebuildEmptyObserversNetworkBehaviour : NetworkVisibility
         {
             public override bool OnCheckObserver(NetworkConnection conn) { return true; }
             public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
