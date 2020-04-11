@@ -1,3 +1,10 @@
+# [34.2.0](https://github.com/MirrorNG/MirrorNG/compare/34.1.0-master...34.2.0-master) (2020-04-11)
+
+
+### Features
+
+* Use logger framework for NetworkClient ([#1685](https://github.com/MirrorNG/MirrorNG/issues/1685)) ([6e92bf5](https://github.com/MirrorNG/MirrorNG/commit/6e92bf5616d0d2486ce86497128094c4e33b5a3f))
+
 # [34.1.0](https://github.com/MirrorNG/MirrorNG/compare/34.0.0-master...34.1.0-master) (2020-04-10)
 
 
