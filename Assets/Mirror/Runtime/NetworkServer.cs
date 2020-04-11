@@ -254,8 +254,7 @@ namespace Mirror
         {
             if (LocalConnection != null)
             {
-                Debug.LogError("Local Connection already exists");
-                return;
+                throw new InvalidOperationException("Local Connection already exists");
             }
 
             var conn = new NetworkConnection(tconn);
@@ -453,7 +452,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + identity);
+                throw new InvalidOperationException("SendToClientOfPlayer: player has no NetworkIdentity: " + identity);
             }
         }
 
@@ -749,7 +748,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogError("Received remove player message but connection has no player");
+                throw new InvalidOperationException("Received remove player message but connection has no player");
             }
         }
 
@@ -781,15 +780,13 @@ namespace Mirror
         {
             if (!Active)
             {
-                Debug.LogError("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server.");
-                return;
+                throw new InvalidOperationException("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server.");
             }
 
             NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
-                return;
+                throw new InvalidOperationException("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
             }
             identity.Reset();
             identity.ConnectionToClient = ownerConnection;
@@ -903,14 +900,12 @@ namespace Mirror
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("Player object has no NetworkIdentity");
-                return;
+                throw new InvalidOperationException("Player object has no NetworkIdentity");
             }
 
             if (identity.ConnectionToClient == null)
             {
-                Debug.LogError("Player object is not a player.");
-                return;
+                throw new InvalidOperationException("Player object is not a " + nameof(player) + ".");
             }
 
             Spawn(obj, identity.ConnectionToClient);

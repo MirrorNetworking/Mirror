@@ -205,8 +205,7 @@ namespace Mirror
             //       to avoid Wrapper functions. a lot of people requested this.
             if (!Client.Active)
             {
-                Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
-                return;
+                throw new InvalidOperationException("Command Function " + cmdName + " called on server without an active client.");
             }
 
             // local players can always send commands, regardless of authority, other objects must have authority.
@@ -254,8 +253,7 @@ namespace Mirror
             // this was in Weaver before
             if (!Server.Active)
             {
-                Debug.LogError("RPC Function " + rpcName + " called on Client.");
-                return;
+                throw new InvalidOperationException("RPC Function " + rpcName + " called on Client.");
             }
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!IsServer)
@@ -284,8 +282,7 @@ namespace Mirror
             // this was in Weaver before
             if (!Server.Active)
             {
-                Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
-                return;
+                throw new InvalidOperationException("TargetRPC Function " + rpcName + " called on client.");
             }
 
             // connection parameter is optional. assign if null.

@@ -427,8 +427,7 @@ namespace Mirror
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
-                Debug.LogError("ServerChangeScene empty scene name");
-                return;
+                throw new ArgumentNullException(nameof(newSceneName), "ServerChangeScene: " + nameof(newSceneName) + " cannot be empty or null");
             }
 
             if (LogFilter.Debug) Debug.Log("ServerChangeScene " + newSceneName);
@@ -448,8 +447,7 @@ namespace Mirror
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
-                Debug.LogError("ClientChangeScene empty scene name");
-                return;
+                throw new ArgumentNullException(nameof(newSceneName), "ClientChangeScene: " + nameof(newSceneName) + " cannot be empty or null");
             }
 
             if (LogFilter.Debug) Debug.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
@@ -481,7 +479,6 @@ namespace Mirror
                     else
                     {
                         Debug.LogWarning($"Scene {newSceneName} is already loaded");
-
                     }
                     break;
                 case SceneOperation.UnloadAdditive:
@@ -492,7 +489,6 @@ namespace Mirror
                     else
                     {
                         Debug.LogWarning($"Cannot unload {newSceneName} with UnloadAdditive operation");
-
                     }
                     break;
             }
