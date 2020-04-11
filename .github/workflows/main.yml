@@ -118,7 +118,7 @@ jobs:
       - name: Install unity-packer
         run: dotnet tool install -g unity-packer
   
-      - name: Cleanup
+      - name: Remove Tests & Examples
         run: |
           rm -rf Assets/Mirror/Tests Assets/Mirror/Tests.Meta
           rm -rf Assets/Mirror/Examples Assets/Mirror/Examples.Meta
