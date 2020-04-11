@@ -1,3 +1,4 @@
+#if !UNITY_2019_2_OR_NEWER || UNITY_PERFORMANCE_TESTS_1_OR_OLDER
 using System.Collections;
 using System.Diagnostics;
 using Mirror.Examples;
@@ -140,3 +141,4 @@ namespace Mirror.Tests.Performance
         }
     }
 }
+#endif
