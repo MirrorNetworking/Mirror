@@ -10,7 +10,7 @@ namespace Mirror
     [AddComponentMenu("Network/NetworkProximityChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkProximityChecker.html")]
-    public class NetworkProximityChecker : NetworkBehaviour
+    public class NetworkProximityChecker : NetworkVisibility
     {
         /// <summary>
         /// Enumeration of methods to use to check proximity.
@@ -96,14 +96,11 @@ namespace Mirror
         /// </summary>
         /// <param name="observers">List of players to be updated.  Modify this set with all the players that can see this object</param>
         /// <param name="initialize">True if this is the first time the method is called for this object</param>
-        /// <returns>True if this component calculated the list of observers</returns>
-        public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
+        public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
             // if force hidden then return without adding any observers.
             if (forceHidden)
-                // always return true when overwriting OnRebuildObservers so that
-                // Mirror knows not to use the built in rebuild method.
-                return true;
+                return;
 
             // find players within range
             switch (checkMethod)
@@ -116,10 +113,6 @@ namespace Mirror
                     Add2DHits(observers);
                     break;
             }
-
-            // always return true when overwriting OnRebuildObservers so that
-            // Mirror knows not to use the built in rebuild method.
-            return true;
         }
 
         void Add3DHits(HashSet<NetworkConnection> observers)
