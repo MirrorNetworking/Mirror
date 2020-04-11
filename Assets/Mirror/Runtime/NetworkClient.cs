@@ -20,7 +20,7 @@ namespace Mirror
     /// </summary>
     public static class NetworkClient
     {
-        private static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkClient));
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkClient));
 
         /// <summary>
         /// The registered network message handlers.
