@@ -1103,8 +1103,6 @@ namespace Mirror
                 // the client will not create a new instance,  it will simply
                 // reset all variables and remove authority
                 Server.SendSpawnMessage(this, previousOwner);
-
-                ConnectionToClient = null;
             }
         }
 

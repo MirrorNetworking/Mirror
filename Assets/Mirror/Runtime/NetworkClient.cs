@@ -480,7 +480,7 @@ namespace Mirror
             }
             else
             {
-                logger.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
+                throw new InvalidOperationException("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
             }
         }
 
@@ -508,7 +508,7 @@ namespace Mirror
             }
             else
             {
-                logger.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
+                throw new InvalidOperationException("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
             }
         }
 
@@ -540,20 +540,17 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                logger.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
-                return;
+                throw new InvalidOperationException("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
             }
 
             if (spawnHandler == null || unspawnHandler == null)
             {
-                logger.LogError("RegisterPrefab custom spawn function null for " + identity.AssetId);
-                return;
+                throw new InvalidOperationException("RegisterPrefab custom spawn function null for " + identity.AssetId);
             }
 
             if (identity.AssetId == Guid.Empty)
             {
-                logger.LogError("RegisterPrefab game object " + prefab.name + " has no prefab. Use RegisterSpawnHandler() instead?");
-                return;
+                throw new InvalidOperationException("RegisterPrefab game object " + prefab.name + " has no " + nameof(prefab) + ". Use RegisterSpawnHandler() instead?");
             }
 
             if (logger.LogEnabled()) logger.Log("Registering custom prefab '" + prefab.name + "' as asset:" + identity.AssetId + " " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName());
@@ -571,8 +568,7 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                logger.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component");
-                return;
+                throw new InvalidOperationException("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component");
             }
             spawnHandlers.Remove(identity.AssetId);
             unspawnHandlers.Remove(identity.AssetId);
@@ -605,8 +601,7 @@ namespace Mirror
         {
             if (spawnHandler == null || unspawnHandler == null)
             {
-                logger.LogError("RegisterSpawnHandler custom spawn function null for " + assetId);
-                return;
+                throw new InvalidOperationException("RegisterSpawnHandler custom spawn function null for " + assetId);
             }
 
             if (logger.LogEnabled()) logger.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName());
@@ -723,8 +718,7 @@ namespace Mirror
         {
             if (msg.assetId == Guid.Empty && msg.sceneId == 0)
             {
-                logger.LogError("OnObjSpawn netId: " + msg.netId + " has invalid asset Id");
-                return;
+                throw new InvalidOperationException("OnObjSpawn netId: " + msg.netId + " has invalid asset Id");
             }
             if (logger.LogEnabled()) logger.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId} pos={msg.position}");
 
@@ -738,8 +732,7 @@ namespace Mirror
 
             if (identity == null)
             {
-                logger.LogError($"Could not spawn assetId={msg.assetId} scene={msg.sceneId} netId={msg.netId}");
-                return;
+                throw new InvalidOperationException($"Could not spawn assetId={msg.assetId} scene={msg.sceneId} netId={msg.netId}");
             }
 
             ApplySpawnPayload(identity, msg);
