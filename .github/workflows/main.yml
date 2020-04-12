@@ -130,4 +130,4 @@ jobs:
   
       - name: Package
         run: |
-          dotnet tool run unity-packer pack pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
+          unity-packer pack pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
