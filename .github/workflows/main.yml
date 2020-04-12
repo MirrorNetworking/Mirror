@@ -31,7 +31,7 @@ jobs:
             path: ${{ steps.getManualLicenseFile.outputs.filePath }}
     
   CI:
-    name: Unity test
+    name: Test
     runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
