@@ -27,7 +27,7 @@ namespace Mirror.Weaver
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
     }
 
-    internal class Weaver
+    internal static class Weaver
     {
         public static WeaverLists WeaveLists { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }
@@ -487,46 +487,14 @@ namespace Mirror.Weaver
                 ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
                 Console.WriteLine("Script Module: {0}", moduleDefinition.Name);
 
-                // Process each NetworkBehaviour
-                bool didWork = false;
+                bool modified = WeaveModule(moduleDefinition);
 
-                // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
-                for (int pass = 0; pass < 2; pass++)
+                if (WeavingFailed)
                 {
-                    System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
-                    foreach (TypeDefinition td in moduleDefinition.Types)
-                    {
-                        if (td.IsClass && td.BaseType.CanBeResolved())
-                        {
-                            try
-                            {
-                                if (pass == 0)
-                                {
-                                    didWork |= CheckSyncList(td);
-                                }
-                                else
-                                {
-                                    didWork |= CheckNetworkBehaviour(td);
-                                    didWork |= CheckMessageBase(td);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Error(ex.ToString());
-                                throw ex;
-                            }
-                        }
-
-                        if (WeavingFailed)
-                        {
-                            return false;
-                        }
-                    }
-                    watch.Stop();
-                    Console.WriteLine("Pass: " + pass + " took " + watch.ElapsedMilliseconds + " milliseconds");
+                    return false;
                 }
 
-                if (didWork)
+                if (modified)
                 {
                     // this must be done for ALL code, not just NetworkBehaviours
                     try
@@ -559,6 +527,47 @@ namespace Mirror.Weaver
             }
 
             return true;
+        }
+
+        private static bool WeaveModule(ModuleDefinition moduleDefinition)
+        {
+            // Process each NetworkBehaviour
+            bool modified = false;
+
+            // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
+            for (int pass = 0; pass < 2; pass++)
+            {
+                System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+                foreach (TypeDefinition td in moduleDefinition.Types)
+                {
+                    if (td.IsClass && td.BaseType.CanBeResolved())
+                    {
+                        try
+                        {
+                            if (pass == 0)
+                            {
+                                modified |= CheckSyncList(td);
+                            }
+                            else
+                            {
+                                modified |= CheckNetworkBehaviour(td);
+                                modified |= CheckMessageBase(td);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Error(ex.ToString());
+                            throw ex;
+                        }
+                    }
+
+                }
+
+                watch.Stop();
+                Console.WriteLine("Pass: " + pass + " took " + watch.ElapsedMilliseconds + " milliseconds");
+            }
+
+            return modified;
         }
 
         public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
