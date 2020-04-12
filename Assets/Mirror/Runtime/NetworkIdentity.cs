@@ -609,12 +609,12 @@ namespace Mirror
             OnStartClient.Invoke();
         }
 
-        static NetworkIdentity previousLocalPlayer;
+        bool localPlayerStarted;
         internal void StartLocalPlayer()
         {
-            if (previousLocalPlayer == this)
+            if (localPlayerStarted)
                 return;
-            previousLocalPlayer = this;
+            localPlayerStarted = true;
 
             OnStartLocalPlayer.Invoke();
         }
@@ -1121,6 +1121,7 @@ namespace Mirror
                 return;
 
             clientStarted = false;
+            localPlayerStarted = false;
             reset = false;
 
             NetId = 0;
