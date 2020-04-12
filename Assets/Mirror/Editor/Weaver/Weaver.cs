@@ -531,43 +531,41 @@ namespace Mirror.Weaver
 
         private static bool WeaveModule(ModuleDefinition moduleDefinition)
         {
-            // Process each NetworkBehaviour
-            bool modified = false;
-
-            // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
-            for (int pass = 0; pass < 2; pass++)
+            try
             {
+                bool modified = false;
+
+                // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
                 System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
                 foreach (TypeDefinition td in moduleDefinition.Types)
                 {
                     if (td.IsClass && td.BaseType.CanBeResolved())
                     {
-                        try
-                        {
-                            if (pass == 0)
-                            {
-                                modified |= CheckSyncList(td);
-                            }
-                            else
-                            {
-                                modified |= CheckNetworkBehaviour(td);
-                                modified |= CheckMessageBase(td);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Error(ex.ToString());
-                            throw ex;
-                        }
+                        modified |= CheckSyncList(td);
                     }
-
                 }
-
                 watch.Stop();
-                Console.WriteLine("Pass: " + pass + " took " + watch.ElapsedMilliseconds + " milliseconds");
-            }
+                Console.WriteLine("Weave sync objects took " + watch.ElapsedMilliseconds + " milliseconds");
 
-            return modified;
+                watch.Start();
+                foreach (TypeDefinition td in moduleDefinition.Types)
+                {
+                    if (td.IsClass && td.BaseType.CanBeResolved())
+                    {
+                        modified |= CheckNetworkBehaviour(td);
+                        modified |= CheckMessageBase(td);
+                    }
+                }
+                watch.Stop();
+                Console.WriteLine("Weave behaviours and messages took" + watch.ElapsedMilliseconds + " milliseconds");
+
+                return modified;
+            }
+            catch (Exception ex)
+            {
+                Error(ex.ToString());
+                throw ex;
+            }
         }
 
         public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
