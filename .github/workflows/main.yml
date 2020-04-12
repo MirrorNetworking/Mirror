@@ -110,6 +110,16 @@ jobs:
         with:
           fetch-depth: 0
 
+        - name: Delete Tests
+          run: |
+          Remove-Item -Recurse -Force Assets\Mirror\Tests
+          Remove-Item -Recurse -Force Assets\Mirror\Tests.meta
+          
+        - name: Delete Examples
+          run: |
+          Remove-Item -Recurse -Force Assets\Mirror\Examples
+          Remove-Item -Recurse -Force Assets\Mirror\Examples.meta
+          
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
         with:
@@ -118,16 +128,6 @@ jobs:
       - name: Install unity-packer
         run: dotnet tool install -g unity-packer
   
-      - name: Delete Tests
-        run: |
-          RMDIR /S Assets\Mirror\Tests
-          del /F Assets\Mirror\Tests.meta
-
-      - name: Delete Examples
-        run: |
-          RMDIR /S Assets\Mirror\Examples
-          del /F Assets\Mirror\Examples.meta
-
       - name: Package
         run: |
           dotnet tool run unity-packer pack pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
