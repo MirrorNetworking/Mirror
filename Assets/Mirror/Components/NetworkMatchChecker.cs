@@ -22,6 +22,9 @@ namespace Mirror
         [SyncVar]
         public string currentMatchDebug;
 
+        /// <summary>
+        /// Set this to the same value on all networked objects that belong to a given match
+        /// </summary>
         public Guid matchId
         {
             get { return currentMatch; }
@@ -96,7 +99,6 @@ namespace Mirror
         /// </summary>
         /// <param name="observers">The new set of observers for this object.</param>
         /// <param name="initialize">True if the set of observers is being built for the first time.</param>
-        /// <returns>true when overwriting so that Mirror knows that we wanted to rebuild observers ourselves. otherwise it uses built in rebuild.</returns>
         public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
             if (currentMatch == Guid.Empty) return;
@@ -107,9 +109,8 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Callback used by the visibility system for objects on a host. This is only called on local clients on a host.
-        /// <para>Objects on a host (with a local client) cannot be disabled or destroyed when they are not visibile to the local client.
-        /// <para>This function is called to allow custom code to hide these objects. A typical implementation will disable renderer components on the object.</para>
+        /// Callback used by the visibility system for objects on a host.
+        /// <para>Objects on a host (with a local client) cannot be disabled or destroyed when they are not visible to the local client. So this function is called to allow custom code to hide these objects. A typical implementation will disable renderer components on the object. This is only called on local clients on a host.</para>
         /// </summary>
         /// <param name="visible">New visibility state.</param>
         public override void OnSetHostVisibility(bool visible)
