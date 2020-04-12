@@ -21,6 +21,7 @@ namespace Mirror.Tests.Performance
 
         readonly SampleGroupDefinition NetworkManagerSample = new SampleGroupDefinition("NetworkManagerLateUpdate", SampleUnit.Millisecond, AggregationType.Average);
         readonly Stopwatch stopwatch = new Stopwatch();
+
         bool captureMeasurement;
         void BeforeLateUpdate()
         {
@@ -68,18 +69,32 @@ namespace Mirror.Tests.Performance
             benchmarker.AfterLateUpdate = AfterLateUpdate;
         }
 
+        IEnumerator RunBenchmark()
+        {
+            // warmup
+            yield return new WaitForSecondsRealtime(Warmup);
+
+            // run benchmark
+            // capture frames and LateUpdate time
+
+            captureMeasurement = true;
+
+            yield return Measure.Frames().MeasurementCount(MeasureCount).Run();
+
+            captureMeasurement = false;
+        }
+
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            // run benchmark
-            yield return Measure.Frames().MeasurementCount(MeasureCount).Run();
-
             // shutdown
             GameObject go = NetworkManager.singleton.gameObject;
             NetworkManager.Shutdown();
             // unload scene
             Scene scene = SceneManager.GetSceneByPath(ScenePath);
             yield return SceneManager.UnloadSceneAsync(scene);
+
+            // we must destroy networkmanager because it is marked as DontDestroyOnLoad
             if (go != null)
             {
                 UnityEngine.Object.Destroy(go);
@@ -104,17 +119,8 @@ namespace Mirror.Tests.Performance
         public IEnumerator Benchmark10k()
         {
             EnableHealth(true);
-            // warmup
-            yield return new WaitForSecondsRealtime(Warmup);
 
-            captureMeasurement = true;
-
-            for (int i = 0; i < MeasureCount; i++)
-            {
-                yield return null;
-            }
-
-            captureMeasurement = false;
+            yield return RunBenchmark();
         }
 
         [UnityTest]
@@ -127,17 +133,7 @@ namespace Mirror.Tests.Performance
         {
             EnableHealth(false);
 
-            // warmup
-            yield return new WaitForSecondsRealtime(Warmup);
-
-            captureMeasurement = true;
-
-            for (int i = 0; i < MeasureCount; i++)
-            {
-                yield return null;
-            }
-
-            captureMeasurement = false;
+            yield return RunBenchmark();
         }
     }
 }
