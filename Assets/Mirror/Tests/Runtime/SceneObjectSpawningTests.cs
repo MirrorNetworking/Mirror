@@ -11,10 +11,9 @@ namespace Mirror.Tests
     public class SceneObjectSpawningTests
     {
         const string ScenePath = "Assets/Mirror/Tests/Runtime/Scenes/SceneObjectSpawningTestsScene.unity";
+        readonly Regex errorMessage = new Regex(".*Don't call Instantiate for NetworkIdentities that were in the scene since the beginning \\(aka scene objects\\).*");
 
-        private NetworkIdentity sceneObject;
-
-        private readonly Regex errorMessage = new Regex(".*Don't call Instantiate for NetworkIdentities that were in the scene since the beginning \\(aka scene objects\\).*");
+        NetworkIdentity sceneObject;
 
         [UnitySetUp]
         public IEnumerator Setup()

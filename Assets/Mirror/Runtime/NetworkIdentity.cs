@@ -271,7 +271,7 @@ namespace Mirror
             observers?.Remove(conn.connectionId);
         }
 
-        // hasSpawned should always be false
+        // hasSpawned should always be false before runtime
         [SerializeField, HideInInspector] bool hasSpawned;
         public bool SpawnedFromInstantiate { get; private set; }
 
@@ -291,7 +291,7 @@ namespace Mirror
         void OnValidate()
         {
             // OnValidate is not called when using Instantiate, so we can use
-            // it make sure that hasSpawned is false
+            // it to make sure that hasSpawned is false
             hasSpawned = false;
 
 #if UNITY_EDITOR
