@@ -4,7 +4,7 @@ using NUnit.Framework;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Tests
+namespace Mirror.Tests
 {
     public class NetworkManagerTests
     {
