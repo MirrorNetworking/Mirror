@@ -346,7 +346,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static bool CheckNetworkBehaviour(TypeDefinition td)
+        static bool WeaveNetworkBehavior(TypeDefinition td)
         {
             if (!td.IsClass)
                 return false;
@@ -389,7 +389,7 @@ namespace Mirror.Weaver
             return didWork;
         }
 
-        static bool CheckMessageBase(TypeDefinition td)
+        static bool WeaveMessage(TypeDefinition td)
         {
             if (!td.IsClass)
                 return false;
@@ -405,13 +405,13 @@ namespace Mirror.Weaver
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
-                didWork |= CheckMessageBase(embedded);
+                didWork |= WeaveMessage(embedded);
             }
 
             return didWork;
         }
 
-        static bool CheckSyncList(TypeDefinition td)
+        static bool WeaveSyncObject(TypeDefinition td)
         {
             if (!td.IsClass)
                 return false;
@@ -455,7 +455,7 @@ namespace Mirror.Weaver
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
-                didWork |= CheckSyncList(embedded);
+                didWork |= WeaveSyncObject(embedded);
             }
 
             return didWork;
@@ -541,7 +541,7 @@ namespace Mirror.Weaver
                 {
                     if (td.IsClass && td.BaseType.CanBeResolved())
                     {
-                        modified |= CheckSyncList(td);
+                        modified |= WeaveSyncObject(td);
                     }
                 }
                 watch.Stop();
@@ -552,8 +552,8 @@ namespace Mirror.Weaver
                 {
                     if (td.IsClass && td.BaseType.CanBeResolved())
                     {
-                        modified |= CheckNetworkBehaviour(td);
-                        modified |= CheckMessageBase(td);
+                        modified |= WeaveNetworkBehavior(td);
+                        modified |= WeaveMessage(td);
                     }
                 }
                 watch.Stop();
