@@ -509,7 +509,6 @@ namespace Mirror.Weaver
 
                     if (WeavingFailed)
                     {
-                        //Log.Error("Failed phase II.");
                         return false;
                     }
 
