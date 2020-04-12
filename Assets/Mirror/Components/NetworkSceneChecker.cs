@@ -78,10 +78,11 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Called when a new player enters the scene
+        /// Callback used by the visibility system to determine if an observer (player) can see this object.
+        /// <para>If this function returns true, the network connection will be added as an observer.</para>
         /// </summary>
-        /// <param name="newObserver">NetworkConnection of player object</param>
-        /// <returns>True if object is in the same scene</returns>
+        /// <param name="conn">Network connection of a player.</param>
+        /// <returns>True if the player can see this object.</returns>
         public override bool OnCheckObserver(NetworkConnection conn)
         {
             if (forceHidden)
@@ -90,8 +91,12 @@ namespace Mirror
             return conn.identity.gameObject.scene == gameObject.scene;
         }
 
-        // Always return true when overriding OnRebuildObservers so that
-        // Mirror knows not to use the built in rebuild method.
+        /// <summary>
+        /// Callback used by the visibility system to (re)construct the set of observers that can see this object.
+        /// <para>Implementations of this callback should add network connections of players that can see this object to the observers set.</para>
+        /// </summary>
+        /// <param name="observers">The new set of observers for this object.</param>
+        /// <param name="initialize">True if the set of observers is being built for the first time.</param>
         public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
             // If forceHidden then return without adding any observers.
@@ -105,12 +110,10 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Called when hiding and showing objects on the host.
-        /// On regular clients, objects simply spawn/despawn.
-        /// On host, objects need to remain in scene because the host is also the server.
-        /// In that case, we simply hide/show meshes for the host player.
+        /// Callback used by the visibility system for objects on a host.
+        /// <para>Objects on a host (with a local client) cannot be disabled or destroyed when they are not visible to the local client. So this function is called to allow custom code to hide these objects. A typical implementation will disable renderer components on the object. This is only called on local clients on a host.</para>
         /// </summary>
-        /// <param name="visible"></param>
+        /// <param name="visible">New visibility state.</param>
         public override void OnSetHostVisibility(bool visible)
         {
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())
