@@ -381,12 +381,12 @@ namespace Mirror.Weaver
                 }
             }
 
-            bool didWork = false;
+            bool modified = false;
             foreach (TypeDefinition behaviour in behaviourClasses)
             {
-                didWork |= ProcessNetworkBehaviourType(behaviour);
+                modified |= ProcessNetworkBehaviourType(behaviour);
             }
-            return didWork;
+            return modified;
         }
 
         static bool WeaveMessage(TypeDefinition td)
@@ -394,21 +394,21 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
-            bool didWork = false;
+            bool modified = false;
 
             if (td.ImplementsInterface(IMessageBaseType))
             {
                 MessageClassProcessor.Process(td);
-                didWork = true;
+                modified = true;
             }
 
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
-                didWork |= WeaveMessage(embedded);
+                modified |= WeaveMessage(embedded);
             }
 
-            return didWork;
+            return modified;
         }
 
         static bool WeaveSyncObject(TypeDefinition td)
@@ -416,7 +416,7 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
-            bool didWork = false;
+            bool modified = false;
 
             // are ANY parent classes SyncListStruct
             TypeReference parent = td.BaseType;
@@ -425,19 +425,19 @@ namespace Mirror.Weaver
                 if (parent.FullName.StartsWith(SyncListType.FullName, StringComparison.Ordinal))
                 {
                     SyncListProcessor.Process(td);
-                    didWork = true;
+                    modified = true;
                     break;
                 }
                 if (parent.FullName.StartsWith(SyncSetType.FullName, StringComparison.Ordinal))
                 {
                     SyncListProcessor.Process(td);
-                    didWork = true;
+                    modified = true;
                     break;
                 }
                 if (parent.FullName.StartsWith(SyncDictionaryType.FullName, StringComparison.Ordinal))
                 {
                     SyncDictionaryProcessor.Process(td);
-                    didWork = true;
+                    modified = true;
                     break;
                 }
                 try
@@ -455,10 +455,10 @@ namespace Mirror.Weaver
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
-                didWork |= WeaveSyncObject(embedded);
+                modified |= WeaveSyncObject(embedded);
             }
 
-            return didWork;
+            return modified;
         }
 
         static bool Weave(string assName, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
