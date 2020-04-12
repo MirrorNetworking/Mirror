@@ -63,9 +63,6 @@ The built-in callbacks are:
 -   **OnNetworkDestroy** called on clients when the server destroys the game object
 -   **OnStartLocalPlayer** called on clients for player game objects on the local client (only)
 -   **OnStartAuthority** called on clients for behaviours that have authority, based on context and hasAuthority.
--   **OnRebuildObservers** called on the server when the set of observers for a game objects is rebuilt
--   **OnSetLocalVisibility** called on the client and/or server when the visibility of a game object changes for the local client
--   **OnCheckObserver** called on the server to check visibility state for a new client
 
 Note that in a peer-hosted setup, when one of the clients is acting as both host and client, both `OnStartServer` and `OnStartClient` are called on the same game object. Both these functions are useful for actions that are specific to either the client or server, such as suppressing effects on a server, or setting up client-side events.
 
@@ -124,5 +121,3 @@ You can use events to build powerful networked game systems that can be extended
 SyncEvent is the base class that Commands and ClientRpc calls are derived from. You can use the SyncEvent attribute on your own functions to make your own event-driven networked game play code. Using SyncEvent, you can extend Mirror’s Multiplayer features to better fit your own programming patterns.
 
 See [SyncEvents](Sync/SyncEvent.md) for more details.
-
- 

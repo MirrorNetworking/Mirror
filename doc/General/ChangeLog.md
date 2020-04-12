@@ -4,6 +4,9 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
+## Version 12.x.x -- In Progress
+- Changed: **Breaking** NetworkBehaviour: `OnRebuildObservers`, `OnCheckObserver`, and `OnSetHostVisibility` were moved to a separate class called `NetworkVisibility`
+
 ## Version 11.4.2 - 2020-Apr-03
 - Added: SyncVar hooks can be virtual now, and overriden in a derived class.
 - Added: Virtual OnRoomStopServer to NetworkRoomManager and Script Template
