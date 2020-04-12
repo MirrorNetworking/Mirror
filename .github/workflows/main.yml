@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-    if: false
+    if: true
     steps:
   
       # Checkout repository (required to test local actions)
@@ -103,7 +103,7 @@ jobs:
 
   Release:
     runs-on: windows-latest
-    # needs: CI
+    needs: CI
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
