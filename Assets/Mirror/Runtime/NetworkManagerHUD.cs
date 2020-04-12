@@ -45,58 +45,11 @@ namespace Mirror
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
             if (!NetworkClient.isConnected && !NetworkServer.active)
             {
-                if (!NetworkClient.active)
-                {
-                    // Server + Client
-                    if (Application.platform != RuntimePlatform.WebGLPlayer)
-                    {
-                        if (GUILayout.Button("Host (Server + Client)"))
-                        {
-                            manager.StartHost();
-                        }
-                    }
-
-                    // Client + IP
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("Client"))
-                    {
-                        manager.StartClient();
-                    }
-                    manager.networkAddress = GUILayout.TextField(manager.networkAddress);
-                    GUILayout.EndHorizontal();
-
-                    // Server Only
-                    if (Application.platform == RuntimePlatform.WebGLPlayer)
-                    {
-                        // cant be a server in webgl build
-                        GUILayout.Box("(  WebGL cannot be server  )");
-                    }
-                    else
-                    {
-                        if (GUILayout.Button("Server Only")) manager.StartServer();
-                    }
-                }
-                else
-                {
-                    // Connecting
-                    GUILayout.Label("Connecting to " + manager.networkAddress + "..");
-                    if (GUILayout.Button("Cancel Connection Attempt"))
-                    {
-                        manager.StopClient();
-                    }
-                }
+                StartButtons();
             }
             else
             {
-                // server / client status message
-                if (NetworkServer.active)
-                {
-                    GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
-                }
-                if (NetworkClient.isConnected)
-                {
-                    GUILayout.Label("Client: address=" + manager.networkAddress);
-                }
+                StatusLabels();
             }
 
             // client ready
@@ -113,6 +66,70 @@ namespace Mirror
                 }
             }
 
+            StopButtons();
+
+            GUILayout.EndArea();
+        }
+
+        void StartButtons()
+        {
+            if (!NetworkClient.active)
+            {
+                // Server + Client
+                if (Application.platform != RuntimePlatform.WebGLPlayer)
+                {
+                    if (GUILayout.Button("Host (Server + Client)"))
+                    {
+                        manager.StartHost();
+                    }
+                }
+
+                // Client + IP
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Client"))
+                {
+                    manager.StartClient();
+                }
+                manager.networkAddress = GUILayout.TextField(manager.networkAddress);
+                GUILayout.EndHorizontal();
+
+                // Server Only
+                if (Application.platform == RuntimePlatform.WebGLPlayer)
+                {
+                    // cant be a server in webgl build
+                    GUILayout.Box("(  WebGL cannot be server  )");
+                }
+                else
+                {
+                    if (GUILayout.Button("Server Only")) manager.StartServer();
+                }
+            }
+            else
+            {
+                // Connecting
+                GUILayout.Label("Connecting to " + manager.networkAddress + "..");
+                if (GUILayout.Button("Cancel Connection Attempt"))
+                {
+                    manager.StopClient();
+                }
+            }
+        }
+
+        void StatusLabels()
+        {
+            // server / client status message
+            if (NetworkServer.active)
+            {
+                GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
+            }
+            if (NetworkClient.isConnected)
+            {
+                GUILayout.Label("Client: address=" + manager.networkAddress);
+            }
+        }
+
+        void StopButtons()
+        {
             // stop host if host mode
             if (NetworkServer.active && NetworkClient.isConnected)
             {
@@ -137,8 +154,6 @@ namespace Mirror
                     manager.StopServer();
                 }
             }
-
-            GUILayout.EndArea();
         }
     }
 }
