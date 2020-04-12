@@ -109,7 +109,7 @@ jobs:
           python-version: "3.8"
 
       - name: Install filter-repo
-          run: pip3 install git-filter-repo
+        run: pip3 install git-filter-repo
   
       - name: Release
         uses: cycjimmy/semantic-release-action@v2
