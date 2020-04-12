@@ -30,8 +30,8 @@ jobs:
             name: Manual Activation File
             path: ${{ steps.getManualLicenseFile.outputs.filePath }}
     
-  testRunnerInAllModes:
-    name: Unity test
+  CI:
+    name: Test
     runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
+   
       - name: Add Coverage Plugin
         uses: canastro/copy-action@0.0.2
         with:
@@ -99,4 +99,51 @@ jobs:
         env:
           FrameworkPathOverride: /opt/Unity/Editor/Data/MonoBleedingEdge/
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  Release:
+    runs-on: windows-latest
+    needs: CI
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Delete Tests
+        run: |
+          Remove-Item -Recurse -Force Assets\Mirror\Tests
+          Remove-Item -Recurse -Force Assets\Mirror\Tests.meta
+        
+      - name: Delete Examples
+        run: |
+          Remove-Item -Recurse -Force Assets\Mirror\Examples
+          Remove-Item -Recurse -Force Assets\Mirror\Examples.meta
+          
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.100'
+  
+      - name: Install unity-packer
+        run: dotnet tool install -g unity-packer
+  
+      - name: Package
+        run: |
+          unity-packer pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Mirror.unitypackage
+          path: Mirror.unitypackage
+
+      - name: Release
+        uses: cycjimmy/semantic-release-action@v2
+        with:
+          extra_plugins: |
+            @semantic-release/exec
+            @semantic-release/changelog
+            @semantic-release/git
+          branch: master
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
