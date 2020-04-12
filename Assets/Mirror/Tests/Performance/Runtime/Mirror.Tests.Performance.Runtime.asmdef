@@ -19,6 +19,11 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
-    "noEngineReferences": false
+    "versionDefines": [
+        {
+            "name": "com.unity.test-framework.performance",
+            "expression": "(,2.0)",
+            "define": "UNITY_PERFORMANCE_TESTS_1_OR_OLDER"
+        }
+    ]
 }

@@ -29,8 +29,8 @@ jobs:
             name: Manual Activation File
             path: ${{ steps.getManualLicenseFile.outputs.filePath }}
     
-  build:
-    name: Main
+  CI:
+    name: Test
     runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -82,7 +82,7 @@ jobs:
           path: Tests
 
       - name: Publish test results
-        uses: MirrorNG/nunit-reporter@1.0.3
+        uses: MirrorNG/nunit-reporter@v1.0.6
         if: always()
         with:
           path: "Tests/*.xml"
@@ -102,6 +102,15 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  Release:
+    runs-on: windows-latest
+    needs: CI
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          
       - name: Release
         uses: cycjimmy/semantic-release-action@v2
         with:
@@ -112,4 +121,3 @@ jobs:
           branch: master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

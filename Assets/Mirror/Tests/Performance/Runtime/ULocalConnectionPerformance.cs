@@ -1,4 +1,4 @@
-//#if UNITY_2019_2_OR_NEWER
+#if !UNITY_2019_2_OR_NEWER || UNITY_PERFORMANCE_TESTS_1_OR_OLDER
 using System.Collections;
 using System.Threading.Tasks;
 using Mirror;
@@ -9,8 +9,26 @@ using UnityEngine.TestTools;
 
 using static Mirror.Tests.AsyncUtil;
 
-namespace Tests
+namespace Mirror.Tests.Performance
 {
+
+    class NetworkManagerTest : NetworkManager
+    {
+        public override void Awake()
+        {
+            transport = gameObject.AddComponent<TelepathyTransport>();
+            playerPrefab = new GameObject("testPlayerPrefab", typeof(NetworkIdentity));
+            base.Awake();
+        }
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            // clean up new object created in awake
+            Destroy(playerPrefab);
+        }
+    }
+
     [Category("Performance")]
     public class ULocalConnectionPerformance
     {
@@ -97,4 +115,4 @@ namespace Tests
         }
     }
 }
-//#endif
+#endif

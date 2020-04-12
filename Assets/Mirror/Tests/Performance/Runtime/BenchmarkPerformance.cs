@@ -1,3 +1,4 @@
+#if !UNITY_2019_2_OR_NEWER || UNITY_PERFORMANCE_TESTS_1_OR_OLDER
 using System.Collections;
 using System.Diagnostics;
 using Mirror.Examples;
@@ -8,7 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Tests
+namespace Mirror.Tests.Performance
 {
     [Category("Performance")]
     [Category("Benchmark")]
@@ -20,6 +21,7 @@ namespace Tests
 
         readonly SampleGroup NetworkManagerSample = new SampleGroup("NetworkManagerLateUpdate", SampleUnit.Millisecond);
         readonly Stopwatch stopwatch = new Stopwatch();
+
         bool captureMeasurement;
         private BenchmarkNetworkManager benchmarker;
 
@@ -67,12 +69,24 @@ namespace Tests
             benchmarker.AfterLateUpdate = AfterLateUpdate;
         }
 
+        IEnumerator RunBenchmark()
+        {
+            // warmup
+            yield return new WaitForSecondsRealtime(Warmup);
+
+            // run benchmark
+            // capture frames and LateUpdate time
+
+            captureMeasurement = true;
+
+            yield return Measure.Frames().MeasurementCount(MeasureCount).Run();
+
+            captureMeasurement = false;
+        }
+
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            // run benchmark
-            yield return Measure.Frames().MeasurementCount(MeasureCount).Run();
-
             // shutdown
             benchmarker.StopHost();
             // unload scene
@@ -96,17 +110,8 @@ namespace Tests
         public IEnumerator Benchmark10k()
         {
             EnableHealth(true);
-            // warmup
-            yield return new WaitForSecondsRealtime(Warmup);
 
-            captureMeasurement = true;
-
-            for (int i = 0; i < MeasureCount; i++)
-            {
-                yield return null;
-            }
-
-            captureMeasurement = false;
+            yield return RunBenchmark();
         }
 
         [UnityTest]
@@ -119,17 +124,8 @@ namespace Tests
         {
             EnableHealth(false);
 
-            // warmup
-            yield return new WaitForSecondsRealtime(Warmup);
-
-            captureMeasurement = true;
-
-            for (int i = 0; i < MeasureCount; i++)
-            {
-                yield return null;
-            }
-
-            captureMeasurement = false;
+            yield return RunBenchmark();
         }
     }
 }
+#endif

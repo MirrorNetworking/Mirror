@@ -30,7 +30,7 @@ When a player moves within the world, the set of network-visible game objects ch
 
 The host shares the same Scene as the server, because it acts as both the server and the client to the player hosting the game. For this reason, it cannot destroy game objects that are not visible to the local player.
 
-Instead, there is the virtual method OnSetLocalVisibility on the NetworkBehaviour class that is invoked. This method is invoked on all `NetworkBehaviour` scripts on game objects that change visibility state on the host.
+Instead, there is the virtual method OnSetLocalVisibility in the NetworkVisibility class that is invoked. This method is invoked on all scripts that inherit from `NetworkVisibility` on game objects that change visibility state on the host.
 
 The default implementation of `OnSetLocalVisibility` disables or enables all renderer components on the game object. If you want to customize this implementation, you can override the method in your script, and provide a new behavior for how the host (and therefore the local client) should respond when a game object becomes network-visible or invisible (such as disabling HUD elements or renderers).
 
@@ -46,7 +46,7 @@ The Network Proximity Checker is implemented using the public visibility interfa
 
 The Network Proximity Checker calls the `RebuildObservers` method on the Network Identity component at a fixed interval (set using the “Vis Update Interval” value in the inspector), so that the set of network-visible game objects for each player is updated as they move around.
 
-On the `NetworkBehaviour`class (which your networked scripts inherit from), there are some virtual functions for determining visibility. These are:
+In the `NetworkVisibility` class (which your custom observer scripts inherit from), there are some virtual functions for determining visibility. These are:
 -   **OnCheckObserver**  
     This method is called on the server, on each networked game object when a new player enters the game. If it returns true, that player is added to the object’s observers. The Network Proximity Checker does a simple distance check in its implementation of this function, and uses `Physics.OverlapSphereNonAlloc` to find the players that are within the visibility distance for this object.
 -   **OnRebuildObservers**  
