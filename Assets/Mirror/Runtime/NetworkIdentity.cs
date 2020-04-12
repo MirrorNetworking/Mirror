@@ -271,8 +271,29 @@ namespace Mirror
             observers?.Remove(conn.connectionId);
         }
 
+        // hasSpawned should always be false
+        [SerializeField, HideInInspector] bool hasSpawned;
+        public bool SpawnedFromInstantiate { get; private set; }
+
+        void Awake()
+        {
+            if (hasSpawned)
+            {
+                Debug.LogError($"{name} has already spawned. Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects).  Otherwise the client won't know which object to use for a SpawnSceneObject message.");
+
+                SpawnedFromInstantiate = true;
+                Destroy(gameObject);
+            }
+
+            hasSpawned = true;
+        }
+
         void OnValidate()
         {
+            // OnValidate is not called when using Instantiate, so we can use
+            // it make sure that hasSpawned is false
+            hasSpawned = false;
+
 #if UNITY_EDITOR
             SetupIDs();
 #endif
@@ -490,6 +511,11 @@ namespace Mirror
         // That means we cannot have any warning or logging in this method.
         void OnDestroy()
         {
+            // Objects spawned from Instantiate are not allowed so are destroyed right away
+            // we don't want to call NetworkServer.Destroy if this is the case
+            if (SpawnedFromInstantiate)
+                return;
+                
             // If false the object has already been unspawned
             // if it is still true, then we need to unspawn it
             if (isServer)
@@ -1237,6 +1263,7 @@ namespace Mirror
             // make sure to call this before networkBehavioursCache is cleared below
             ResetSyncObjects();
 
+            hasSpawned = false;
             clientStarted = false;
             isClient = false;
             isServer = false;
