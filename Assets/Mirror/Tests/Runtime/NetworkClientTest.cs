@@ -170,6 +170,47 @@ namespace Mirror.Tests
             Assert.That(gameObject.GetComponent<NetworkIdentity>().AssetId == guid);
         }
 
+        [Test]
+        public void RegisterPrefabExceptionTest()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                client.RegisterPrefab(new GameObject());
+            });
+        }
+
+        [Test]
+        public void RegisterPrefabGuidExceptionTest()
+        {
+            Guid guid = Guid.NewGuid();
+
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                client.RegisterPrefab(new GameObject(), guid);
+            });
+        }
+
+        [Test]
+        public void OnSpawnAssetSceneIDFailureExceptionTest()
+        {
+            SpawnMessage msg = new SpawnMessage();
+            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                client.OnSpawn(msg);
+            });
+
+            Assert.That(ex.Message, Is.EqualTo("OnObjSpawn netId: " + msg.netId + " has invalid asset Id"));
+        }
+
+        [Test]
+        public void UnregisterPrefabExceptionTest()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                client.UnregisterPrefab(new GameObject());
+            });
+        }
+
         [UnityTest]
         public IEnumerable GetPrefabTest()
         {

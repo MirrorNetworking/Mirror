@@ -48,6 +48,7 @@ namespace Mirror
                 return;
 
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
+
             if (!manager.client.IsConnected && !manager.server.Active)
             {
                 StartButtons();
@@ -55,9 +56,8 @@ namespace Mirror
             else
             {
                 StatusLabels();
+                StopButtons();
             }
-
-            StopButtons();
 
             GUILayout.EndArea();
         }
@@ -118,7 +118,7 @@ namespace Mirror
             }
             if (manager.client.IsConnected)
             {
-                GUILayout.Label("Client: address=" + manager.client.Connection);
+                GUILayout.Label("Client: address=" + serverIp);
             }
         }
 

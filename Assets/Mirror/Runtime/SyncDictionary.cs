@@ -327,7 +327,7 @@ namespace Mirror
             }
             if (array.Length - arrayIndex < Count)
             {
-                throw new ArgumentException("The number of items in the SyncDictionary is greater than the available space from arrayIndex to the end of the destination array");
+                throw new ArgumentException("The number of items in the SyncDictionary is greater than the available space from " + nameof(arrayIndex) + " to the end of the destination array");
             }
 
             int i = arrayIndex;

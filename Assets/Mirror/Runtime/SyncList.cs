@@ -330,7 +330,7 @@ namespace Mirror
 
         public bool Contains(T item) => IndexOf(item) >= 0;
 
-        public void CopyTo(T[] array, int index) => objects.CopyTo(array, index);
+        public void CopyTo(T[] array, int arrayIndex) => objects.CopyTo(array, arrayIndex);
 
         public int IndexOf(T item)
         {

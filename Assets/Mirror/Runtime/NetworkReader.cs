@@ -299,7 +299,7 @@ namespace Mirror
                 return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40) + (((ulong)a7) << 48) + (((ulong)a8) << 56);
             }
 
-            throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
+            throw new DataMisalignedException("ReadPackedUInt64() failure: " + a0);
         }
 
         public static Vector2 ReadVector2(this NetworkReader reader) => new Vector2(reader.ReadSingle(), reader.ReadSingle());
