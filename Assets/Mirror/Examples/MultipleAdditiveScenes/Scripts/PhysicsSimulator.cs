@@ -11,10 +11,12 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         {
             if (NetworkServer.active)
             {
-                enabled = true;
-
                 physicsScene = gameObject.scene.GetPhysicsScene();
                 physicsScene2D = gameObject.scene.GetPhysicsScene2D();
+            }
+            else
+            {
+                enabled = false;
             }
         }
 
