@@ -29,6 +29,8 @@ namespace Mirror
                 "MIRROR_12_0_OR_NEWER"
             };
 
+            // only touch PlayerSettings if we actually modified it.
+            // otherwise it shows up as changed in git each time.
             string newDefines = string.Join(";", defines);
             if (newDefines != currentDefines)
             {
