@@ -735,6 +735,8 @@ namespace Mirror
             //   write syncVarDirtyBits
             //   write dirty SyncVars
         }
+
+        // Don't rename. Weaver uses this exact function name.
         public virtual void DeserializeSyncVars(NetworkReader reader, bool initialState)
         {
             // SyncVars are read here in subclass
