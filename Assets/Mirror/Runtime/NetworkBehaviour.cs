@@ -687,7 +687,7 @@ namespace Mirror
         {
             bool objectWritten = false;
             // if initialState: write all SyncVars.
-            // otherwise write dirtyBits+dirty SyncVars//
+            // otherwise write dirtyBits+dirty SyncVars
             if (initialState)
             {
                 objectWritten = SerializeObjectsAll(writer);
