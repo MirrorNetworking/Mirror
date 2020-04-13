@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Weaver.Tests
 {
     public class WeaverAssembler : MonoBehaviour
     {
