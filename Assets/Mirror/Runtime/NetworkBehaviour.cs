@@ -688,7 +688,7 @@ namespace Mirror
             bool objectWritten = false;
             if (initialState)
             {
-                objectWriten = SerializeObjectsAll(writer);
+                objectWritten = SerializeObjectsAll(writer);
             }
             else
             {
