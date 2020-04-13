@@ -692,7 +692,7 @@ namespace Mirror
             }
             else
             {
-                objectWriten = SerializeObjectsDelta(writer);
+                objectWritten = SerializeObjectsDelta(writer);
             }
 
             bool syncVarWritten = SerializeSyncVars(writer, initialState);
