@@ -1,3 +1,10 @@
+# [34.3.0](https://github.com/MirrorNG/MirrorNG/compare/34.2.0-master...34.3.0-master) (2020-04-13)
+
+
+### Features
+
+* Authenticators can now provide AuthenticationData ([310ce81](https://github.com/MirrorNG/MirrorNG/commit/310ce81c8378707e044108b94faac958e35cbca6))
+
 # [34.2.0](https://github.com/MirrorNG/MirrorNG/compare/34.1.0-master...34.2.0-master) (2020-04-11)
 
 
