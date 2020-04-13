@@ -1678,5 +1678,67 @@ namespace Mirror.Tests
             identity.RebuildObservers(true);
             Assert.That(identity.observers, Is.Null);
         }
+
+        [Test]
+        public void GetIntialComponentsMaskShouldReturn1BitPerNetworkBehaviour()
+        {
+            gameObject.AddComponent<MyTestComponent>();
+            gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+
+            ulong mask = identity.GetIntialComponentsMask();
+
+            // 1 + 2 + 4 = 7
+            Assert.That(mask, Is.EqualTo(7UL));
+        }
+
+        [Test]
+        public void GetIntialComponentsMaskShouldReturnZeroWhenNoNetworkBehaviours()
+        {
+            ulong mask = identity.GetIntialComponentsMask();
+
+            Assert.That(mask, Is.EqualTo(0UL));
+        }
+
+        [Test]
+        public void GetDirtyComponentsMaskShouldReturn1BitOnlyForDirtyComponents()
+        {
+            MyTestComponent comp1 = gameObject.AddComponent<MyTestComponent>();
+            SerializeTest1NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            SerializeTest2NetworkBehaviour comp3 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+
+
+            // mark comps 1 and 3 as dirty
+
+            comp1.syncInterval = 0;
+            comp3.syncInterval = 0;
+
+            comp1.SetDirtyBit(1UL);
+            comp2.ClearAllDirtyBits();
+            comp3.SetDirtyBit(1UL);
+
+
+            ulong mask = identity.GetDirtyComponentsMask();
+
+            // 1 + 4 = 5
+            Assert.That(mask, Is.EqualTo(5UL));
+        }
+
+        [Test]
+        public void GetDirtyComponentsMaskShouldReturnZeroWhenNoDirtyComponents()
+        {
+            MyTestComponent comp1 = gameObject.AddComponent<MyTestComponent>();
+            SerializeTest1NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            SerializeTest2NetworkBehaviour comp3 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+
+            comp1.ClearAllDirtyBits();
+            comp2.ClearAllDirtyBits();
+            comp3.ClearAllDirtyBits();
+
+            ulong mask = identity.GetDirtyComponentsMask();
+
+            Assert.That(mask, Is.EqualTo(0UL));
+        }
+
     }
 }
