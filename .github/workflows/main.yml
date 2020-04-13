@@ -95,7 +95,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   Release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     needs: CI
     steps:
       - name: Checkout repository
