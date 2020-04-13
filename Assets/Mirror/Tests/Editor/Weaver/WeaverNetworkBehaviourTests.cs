@@ -1,6 +1,4 @@
-﻿//#define LOG_WEAVER_OUTPUTS
-
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
@@ -236,7 +234,5 @@ namespace Mirror.Weaver.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Duplicate Command name [MirrorTest.MirrorTestPlayer:CmdCantHaveSameName]"));
         }
-
-
     }
 }
