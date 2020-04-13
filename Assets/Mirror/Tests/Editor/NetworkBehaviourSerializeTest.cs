@@ -47,6 +47,20 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         public Vector3 anotherSyncField;
     }
 
+
+    class MiddleClassWithSyncVar : AbstractBehaviour
+    {
+        // class with sync var
+        [SyncVar]
+        public string syncFieldInMiddle;
+    }
+    class SubClassFromSyncVar : MiddleClassWithSyncVar
+    {
+        // class with sync var
+        // this is to make sure that override works correctly if base class doesnt have sync vars
+        [SyncVar]
+        public Vector3 syncFieldInSub;
+    }
     #endregion
 
     #region OnSerialize/OnDeserialize override
@@ -221,7 +235,29 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
             Assert.That(target.anotherSyncField, Is.EqualTo(new Vector3(40, 20, 10)));
         }
 
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void SubClassFromSyncVarTest(bool initialState)
+        {
+            SubClassFromSyncVar source = CreateBehaviour<SubClassFromSyncVar>();
+            SubClassFromSyncVar target = CreateBehaviour<SubClassFromSyncVar>();
 
+            source.SyncFieldInAbstract = 10;
+            source.syncListInAbstract.Add(true);
+
+            source.syncFieldInMiddle = "Hello World!";
+            source.syncFieldInSub = new Vector3(40, 20, 10);
+
+            SyncNetworkBehaviour(source, target, initialState);
+
+            Assert.That(target.SyncFieldInAbstract, Is.EqualTo(10));
+            Assert.That(target.syncListInAbstract.Count, Is.EqualTo(1));
+            Assert.That(target.syncListInAbstract[0], Is.True);
+
+            Assert.That(target.syncFieldInMiddle, Is.EqualTo("Hello World!"));
+            Assert.That(target.syncFieldInSub, Is.EqualTo(new Vector3(40, 20, 10)));
+        }
 
 
 
