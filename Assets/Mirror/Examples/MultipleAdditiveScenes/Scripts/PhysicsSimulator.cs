@@ -1,37 +1,32 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-
+﻿using UnityEngine;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
     public class PhysicsSimulator : MonoBehaviour
     {
         public PhysicsScene physicsScene;
-        private float timer;
+        public PhysicsScene2D physicsScene2D;
 
-        private void Awake()
+        void Awake()
         {
-            enabled = (NetworkServer.active);
-            physicsScene = gameObject.scene.GetPhysicsScene();
+            if (NetworkServer.active)
+            {
+                enabled = true;
+
+                physicsScene = gameObject.scene.GetPhysicsScene();
+                physicsScene2D = gameObject.scene.GetPhysicsScene2D();
+            }
         }
 
-        void Update()
+        void FixedUpdate()
         {
-            if (!physicsScene.IsValid())
-                return; // do nothing if the physics Scene is not valid.
+            if (!NetworkServer.active) return;
 
-            timer += Time.deltaTime;
-
-            // Catch up with the game time.
-            // Advance the physics simulation in portions of Time.fixedDeltaTime
-            // Note that generally, we don't want to pass variable delta to Simulate as that leads to unstable results.
-            while (timer >= Time.fixedDeltaTime)
-            {
-                timer -= Time.fixedDeltaTime;
+            if (physicsScene.IsValid() && physicsScene != Physics.defaultPhysicsScene)
                 physicsScene.Simulate(Time.fixedDeltaTime);
-            }
+
+            if (physicsScene2D.IsValid() && physicsScene2D != Physics2D.defaultPhysicsScene)
+                physicsScene2D.Simulate(Time.fixedDeltaTime);
         }
     }
 }
