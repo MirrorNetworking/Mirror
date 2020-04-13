@@ -56,6 +56,8 @@ namespace Mirror
     {
         bool IsReady { get; set; }
         EndPoint Address { get; }
+        object AuthenticationData { get; set; }
+
         void Disconnect();
     }
 }
