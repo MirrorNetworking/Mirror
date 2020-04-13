@@ -11,7 +11,8 @@ namespace Mirror
         [InitializeOnLoadMethod]
         public static void AddDefineSymbols()
         {
-            HashSet<string> defines = new HashSet<string>(PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup).Split(';'))
+            string currentDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+            HashSet<string> defines = new HashSet<string>(currentDefines.Split(';'))
             {
                 "MIRROR",
                 "MIRROR_1726_OR_NEWER",
@@ -27,7 +28,14 @@ namespace Mirror
                 "MIRROR_11_0_OR_NEWER",
                 "MIRROR_12_0_OR_NEWER"
             };
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, string.Join(";", defines));
+
+            // only touch PlayerSettings if we actually modified it.
+            // otherwise it shows up as changed in git each time.
+            string newDefines = string.Join(";", defines);
+            if (newDefines != currentDefines)
+            {
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, newDefines);
+            }
         }
     }
 }

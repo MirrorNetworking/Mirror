@@ -16,6 +16,13 @@ namespace Mirror.Tests.Performance
             playerPrefab = new GameObject("testPlayerPrefab", typeof(NetworkIdentity));
             base.Awake();
         }
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            // clean up new object created in awake
+            Destroy(playerPrefab);
+        }
     }
     [Category("Performance")]
     public class ULocalConnectionPerformance
