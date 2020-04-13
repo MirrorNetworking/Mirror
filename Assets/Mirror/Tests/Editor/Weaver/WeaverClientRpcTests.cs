@@ -2,7 +2,7 @@
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverClientRpcTests : WeaverTests
+    public class WeaverClientRpcTests : WeaverTestsBuildFromTestName
     {
         [Test]
         public void ClientRpcValid()

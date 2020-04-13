@@ -2,7 +2,7 @@
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverMonoBehaviourTests : WeaverTests
+    public class WeaverMonoBehaviourTests : WeaverTestsBuildFromTestName
     {
         [Test]
         public void MonoBehaviourValid()

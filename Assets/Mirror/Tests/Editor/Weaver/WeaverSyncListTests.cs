@@ -2,7 +2,7 @@
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverSyncListTests : WeaverTests
+    public class WeaverSyncListTests : WeaverTestsBuildFromTestName
     {
         [Test]
         public void SyncListValid()

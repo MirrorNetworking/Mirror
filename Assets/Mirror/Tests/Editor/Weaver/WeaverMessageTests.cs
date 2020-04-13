@@ -2,7 +2,7 @@
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverMessageTests : WeaverTests
+    public class WeaverMessageTests : WeaverTestsBuildFromTestName
     {
         [Test]
         public void MessageValid()

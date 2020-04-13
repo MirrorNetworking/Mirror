@@ -5,6 +5,14 @@ using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
+    public abstract class WeaverTestsBuildFromTestName : WeaverTests
+    {
+        [SetUp]
+        public void TestSetup()
+        {
+            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
+        }
+    }
     [TestFixture]
     [Category("Weaver")]
     public abstract class WeaverTests
@@ -40,8 +48,6 @@ namespace Mirror.Weaver.Tests
             }
         }
 
-
-
         [OneTimeSetUp]
         public void FixtureSetup()
         {
@@ -57,12 +63,6 @@ namespace Mirror.Weaver.Tests
         public void FixtureCleanup()
         {
             CompilationFinishedHook.UnityLogEnabled = true;
-        }
-
-        [SetUp]
-        public void TestSetup()
-        {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
         }
 
         [TearDown]

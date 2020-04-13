@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverClientServerAttributeTests : WeaverTests
+    public class WeaverClientServerAttributeTests : WeaverTestsBuildFromTestName
     {
         [Test]
         public void NetworkBehaviourServer()
