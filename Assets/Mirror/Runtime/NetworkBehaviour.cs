@@ -686,6 +686,8 @@ namespace Mirror
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             bool objectWritten = false;
+            // if initialState: write all SyncVars.
+            // otherwise write dirtyBits+dirty SyncVars//
             if (initialState)
             {
                 objectWritten = SerializeObjectsAll(writer);
