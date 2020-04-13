@@ -685,7 +685,7 @@ namespace Mirror
         /// <returns>True if data was written.</returns>
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            bool objectWriten = false;
+            bool objectWritten = false;
             if (initialState)
             {
                 objectWriten = SerializeObjectsAll(writer);
