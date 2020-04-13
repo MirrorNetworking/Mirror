@@ -722,6 +722,7 @@ namespace Mirror
             DeserializeSyncVars(reader, initialState);
         }
 
+        // Don't rename. Weaver uses this exact function name.
         public virtual bool SerializeSyncVars(NetworkWriter writer, bool initialState)
         {
             return false;
