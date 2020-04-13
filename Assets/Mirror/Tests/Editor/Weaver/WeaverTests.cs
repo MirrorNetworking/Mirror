@@ -74,6 +74,5 @@ namespace Mirror.Weaver.Tests
             weaverWarnings.Clear();
             weaverErrors.Clear();
         }
-
     }
 }

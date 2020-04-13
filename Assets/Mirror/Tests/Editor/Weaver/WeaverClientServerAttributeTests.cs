@@ -1,5 +1,3 @@
-﻿//#define LOG_WEAVER_OUTPUTS
-
 using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -59,7 +57,5 @@ namespace Mirror.Weaver.Tests
                 Assert.AreEqual(top.Operand.ToString(), addedString);
             }
         }
-
-
     }
 }

@@ -1,6 +1,4 @@
-﻿//#define LOG_WEAVER_OUTPUTS
-
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
@@ -47,7 +45,5 @@ namespace Mirror.Weaver.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncEventDelegate`1<System.Int32> MirrorTest.MirrorTestPlayer::EventDoCoolThingsWithExcitingPeople must not have generic parameters.  Consider creating a new class that inherits from MirrorTest.MirrorTestPlayer/MySyncEventDelegate`1<System.Int32> instead"));
         }
-
-
     }
 }
