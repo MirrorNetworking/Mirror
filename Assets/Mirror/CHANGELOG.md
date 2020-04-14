@@ -1,3 +1,10 @@
+# [34.4.0](https://github.com/MirrorNG/MirrorNG/compare/34.3.0-master...34.4.0-master) (2020-04-14)
+
+
+### Features
+
+* Button to register all prefabs in NetworkClient ([#179](https://github.com/MirrorNG/MirrorNG/issues/179)) ([9f5f0b2](https://github.com/MirrorNG/MirrorNG/commit/9f5f0b27f8857bf55bf4f5ffbd436247f99cf390))
+
 # [34.3.0](https://github.com/MirrorNG/MirrorNG/compare/34.2.0-master...34.3.0-master) (2020-04-13)
 
 
