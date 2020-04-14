@@ -143,10 +143,12 @@ namespace Mirror.Weaver
                 MethodReference writeFunc = GetWriteFunc(field.FieldType, recursionCount + 1);
                 if (writeFunc != null)
                 {
+                    FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
+
                     fields++;
                     worker.Append(worker.Create(OpCodes.Ldarg_0));
                     worker.Append(worker.Create(OpCodes.Ldarg_1));
-                    worker.Append(worker.Create(OpCodes.Ldfld, field));
+                    worker.Append(worker.Create(OpCodes.Ldfld, fieldRef));
                     worker.Append(worker.Create(OpCodes.Call, writeFunc));
                 }
                 else
