@@ -30,18 +30,18 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             for (int index = 0; index < subScenes.Count; index++)
                 yield return SceneManager.UnloadSceneAsync(subScenes[index]);
 
-            yield return Resources.UnloadUnusedAssets();
-
             subScenes.Clear();
+
+            yield return Resources.UnloadUnusedAssets();
         }
 
         #region Server System Callbacks
 
-        /// <summary>
-        /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
-        /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
+                /// <summary>
+                /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
+                /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
+                /// </summary>
+                /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
             // This delay is really for the host player that loads too fast for the server to have subscene loaded
