@@ -62,6 +62,8 @@ namespace Mirror.Weaver.Tests
         [OneTimeTearDown]
         public void FixtureCleanup()
         {
+            CompilationFinishedHook.OnWeaverError -= HandleWeaverError;
+            CompilationFinishedHook.OnWeaverWarning -= HandleWeaverWarning;
             CompilationFinishedHook.UnityLogEnabled = true;
         }
 
