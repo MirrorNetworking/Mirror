@@ -387,8 +387,9 @@ namespace Mirror.Weaver
                 {
                     Weaver.Error($"{field} has an unsupported type");
                 }
+                var fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
 
-                worker.Append(worker.Create(OpCodes.Stfld, field));
+                worker.Append(worker.Create(OpCodes.Stfld, fieldRef));
                 fields++;
             }
             if (fields == 0)
