@@ -90,7 +90,12 @@ namespace Mirror
         /// <returns>True if the player can see this object.</returns>
         public override bool OnCheckObserver(NetworkConnection conn)
         {
-            return conn.identity.GetComponent<NetworkMatchChecker>().matchId == matchId;
+            NetworkMatchChecker networkMatchChecker = conn.identity.GetComponent<NetworkMatchChecker>();
+
+            if (networkMatchChecker == null)
+                return false;
+
+            return networkMatchChecker.matchId == matchId;
         }
 
         /// <summary>
@@ -106,17 +111,6 @@ namespace Mirror
             foreach (NetworkIdentity networkIdentity in matchPlayers[currentMatch])
                 if (networkIdentity != null && networkIdentity.connectionToClient != null)
                     observers.Add(networkIdentity.connectionToClient);
-        }
-
-        /// <summary>
-        /// Callback used by the visibility system for objects on a host.
-        /// <para>Objects on a host (with a local client) cannot be disabled or destroyed when they are not visible to the local client. So this function is called to allow custom code to hide these objects. A typical implementation will disable renderer components on the object. This is only called on local clients on a host.</para>
-        /// </summary>
-        /// <param name="visible">New visibility state.</param>
-        public override void OnSetHostVisibility(bool visible)
-        {
-            foreach (Renderer rend in GetComponentsInChildren<Renderer>())
-                rend.enabled = visible;
         }
 
         #endregion
