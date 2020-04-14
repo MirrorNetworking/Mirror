@@ -7,10 +7,21 @@ using System.Collections.Generic;
 	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkBehaviour.html
 */
 
-public class #SCRIPTNAME# : NetworkBehaviour
+public class #SCRIPTNAME# : NetworkVisibility
 {
     #region Observers
 
+    /// <summary>
+    /// Callback used by the visibility system to determine if an observer (player) can see this object.
+    /// <para>If this function returns true, the network connection will be added as an observer.</para>
+    /// </summary>
+    /// <param name="conn">Network connection of a player.</param>
+    /// <returns>True if the player can see this object.</returns>
+    public override bool OnCheckObserver(NetworkConnection conn)
+    {
+        return base.OnCheckObserver(conn);
+    }
+    
     /// <summary>
     /// Callback used by the visibility system to (re)construct the set of observers that can see this object.
     /// <para>Implementations of this callback should add network connections of players that can see this object to the observers set.</para>
@@ -26,16 +37,5 @@ public class #SCRIPTNAME# : NetworkBehaviour
     /// <param name="visible">New visibility state.</param>
     public override void OnSetHostVisibility(bool visible) { }
 
-    /// <summary>
-    /// Callback used by the visibility system to determine if an observer (player) can see this object.
-    /// <para>If this function returns true, the network connection will be added as an observer.</para>
-    /// </summary>
-    /// <param name="conn">Network connection of a player.</param>
-    /// <returns>True if the player can see this object.</returns>
-    public override bool OnCheckObserver(NetworkConnection conn)
-    {
-        return base.OnCheckObserver(conn);
-    }
-    
     #endregion
 }
