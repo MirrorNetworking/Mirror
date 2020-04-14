@@ -292,6 +292,17 @@ namespace Mirror
             return -1;
         }
 
+        public T Find(Predicate<T> match) => objects[FindIndex(match)];
+
+        public List<T> FindAll(Predicate<T> match)
+        {
+            List<T> results = new List<T>();
+            for (int i = 0; i < objects.Count; ++i)
+                if (match(objects[i]))
+                    results.Add(objects[i]);
+            return results;
+        }
+
         public void Insert(int index, T item)
         {
             objects.Insert(index, item);
