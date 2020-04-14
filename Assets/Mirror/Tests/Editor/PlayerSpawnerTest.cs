@@ -1,6 +1,8 @@
-﻿using NUnit.Framework;
+using System;
+using NUnit.Framework;
 using UnityEngine;
 
+using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
 {
@@ -46,6 +48,16 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void StartExceptionTest()
+        {
+            spawner.playerPrefab = null;
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                spawner.Start();
+            });
+        }
+
+        [Test]
         public void AutoConfigureClient()
         {
             spawner.Start();
@@ -79,6 +91,14 @@ namespace Mirror.Tests
             spawner.playerSpawnMethod = PlayerSpawner.PlayerSpawnMethod.Random;
             Assert.That(spawner.GetStartPosition(), Is.SameAs(pos1.transform) | Is.SameAs(pos2.transform));
         }
-    }
 
+        [Test]
+        public void GetStartPositionNullTest()
+        {
+            spawner.Start();
+
+            spawner.startPositions.Clear();
+            Assert.That(spawner.GetStartPosition(), Is.SameAs(null));
+        }
+    }
 }
