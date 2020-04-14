@@ -685,23 +685,23 @@ namespace Mirror
         /// <returns>True if data was written.</returns>
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
         {
+            bool objectWritten = false;
+            // if initialState: write all SyncVars.
+            // otherwise write dirtyBits+dirty SyncVars
             if (initialState)
             {
-                return SerializeObjectsAll(writer);
+                objectWritten = SerializeObjectsAll(writer);
             }
             else
             {
-                return SerializeObjectsDelta(writer);
+                objectWritten = SerializeObjectsDelta(writer);
             }
 
-            // SyncVar are writen here in subclass
+            bool syncVarWritten = SerializeSyncVars(writer, initialState);
 
-            // if initialState
-            //   write all SyncVars
-            // else
-            //   write syncVarDirtyBits
-            //   write dirty SyncVars
+            return objectWritten || syncVarWritten;
         }
+
 
         /// <summary>
         /// Virtual function to override to receive custom serialization data. The corresponding function to send serialization data is OnSerialize().
@@ -719,6 +719,26 @@ namespace Mirror
                 DeSerializeObjectsDelta(reader);
             }
 
+            DeserializeSyncVars(reader, initialState);
+        }
+
+        // Don't rename. Weaver uses this exact function name.
+        public virtual bool SerializeSyncVars(NetworkWriter writer, bool initialState)
+        {
+            return false;
+
+            // SyncVar are writen here in subclass
+
+            // if initialState
+            //   write all SyncVars
+            // else
+            //   write syncVarDirtyBits
+            //   write dirty SyncVars
+        }
+
+        // Don't rename. Weaver uses this exact function name.
+        public virtual void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        {
             // SyncVars are read here in subclass
 
             // if initialState
