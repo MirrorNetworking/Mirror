@@ -6,7 +6,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "MirrorNG",
-        "Mirror.Tests.Common"
+        "Mirror.Tests.Common",
+        "Mirror.Editor"
     ],
     "includePlatforms": [
         "Editor"
