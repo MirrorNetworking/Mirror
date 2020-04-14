@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
@@ -30,6 +31,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             {
                 Camera.main.orthographic = true;
                 Camera.main.transform.SetParent(null);
+                SceneManager.MoveGameObjectToScene(Camera.main.gameObject, SceneManager.GetActiveScene());
                 Camera.main.transform.localPosition = new Vector3(0f, 70f, 0f);
                 Camera.main.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
             }
