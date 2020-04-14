@@ -108,11 +108,6 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (!Weaver.IsValidTypeToGenerate(variable.Resolve()))
-            {
-                return null;
-            }
-
             string functionName = "_Write" + variable.Name + "_";
             if (variable.DeclaringType != null)
             {

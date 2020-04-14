@@ -294,11 +294,6 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (!Weaver.IsValidTypeToGenerate(variable.Resolve()))
-            {
-                return null;
-            }
-
             string functionName = "_Read" + variable.Name + "_";
             if (variable.DeclaringType != null)
             {
@@ -387,7 +382,7 @@ namespace Mirror.Weaver
                 {
                     Weaver.Error($"{field} has an unsupported type");
                 }
-                var fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
+                FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
 
                 worker.Append(worker.Create(OpCodes.Stfld, fieldRef));
                 fields++;
