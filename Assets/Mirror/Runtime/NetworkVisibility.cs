@@ -13,6 +13,14 @@ namespace Mirror
     public abstract class NetworkVisibility : NetworkBehaviour
     {
         /// <summary>
+        /// Callback used by the visibility system to determine if an observer (player) can see this object.
+        /// <para>If this function returns true, the network connection will be added as an observer.</para>
+        /// </summary>
+        /// <param name="conn">Network connection of a player.</param>
+        /// <returns>True if the player can see this object.</returns>
+        public abstract bool OnCheckObserver(NetworkConnection conn);
+
+        /// <summary>
         /// Callback used by the visibility system to (re)construct the set of observers that can see this object.
         /// <para>Implementations of this callback should add network connections of players that can see this object to the observers set.</para>
         /// </summary>
@@ -26,13 +34,5 @@ namespace Mirror
         /// </summary>
         /// <param name="visible">New visibility state.</param>
         public abstract void OnSetHostVisibility(bool visible);
-
-        /// <summary>
-        /// Callback used by the visibility system to determine if an observer (player) can see this object.
-        /// <para>If this function returns true, the network connection will be added as an observer.</para>
-        /// </summary>
-        /// <param name="conn">Network connection of a player.</param>
-        /// <returns>True if the player can see this object.</returns>
-        public abstract bool OnCheckObserver(NetworkConnection conn);
     }
 }
