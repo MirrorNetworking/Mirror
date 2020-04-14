@@ -62,16 +62,6 @@ namespace Mirror.Tests
             flags = playerGO.AddComponent<Flags>();
         });
 
-        public void SetupNetworkClient()
-        {
-            SetupClient();
-
-            playerGO2 = new GameObject();
-            playerGO2.AddComponent<NetworkIdentity>();
-            behavior2 = playerGO2.AddComponent<SampleBehavior>();
-            flags = playerGO2.AddComponent<Flags>();
-        }
-
         [TearDown]
         public void ShutdownNetworkServer()
         {
@@ -80,12 +70,6 @@ namespace Mirror.Tests
             ShutdownServer();
         }
 
-        public void ShutdownNetworkClient()
-        {
-            GameObject.DestroyImmediate(playerGO2);
-
-            ShutdownClient();
-        }
         #endregion
 
         [Test]

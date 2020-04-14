@@ -26,40 +26,10 @@ namespace Mirror.Tests
             manager.startOnHeadless = false;
         }
 
-        public void SetupClient(string hostname = "localhost")
-        {
-            clientNetworkManagerGo = new GameObject();
-            clientManager = clientNetworkManagerGo.AddComponent<NetworkManager>();
-            clientManager.client = clientNetworkManagerGo.GetComponent<NetworkClient>();
-            clientManager.server = clientNetworkManagerGo.GetComponent<NetworkServer>();
-            server2 = clientManager.server;
-            client2 = clientManager.client;
-
-            clientManager.StartClient(hostname);
-        }
-
-        public void SetupClient(System.Uri uri)
-        {
-            clientNetworkManagerGo = new GameObject();
-            clientManager = clientNetworkManagerGo.AddComponent<NetworkManager>();
-            clientManager.client = clientNetworkManagerGo.GetComponent<NetworkClient>();
-            clientManager.server = clientNetworkManagerGo.GetComponent<NetworkServer>();
-            server2 = clientManager.server;
-            client2 = clientManager.client;
-
-            clientManager.StartClient(uri);
-        }
-
         public void ShutdownServer()
         {
             manager.StopServer();
             GameObject.DestroyImmediate(networkManagerGo);
-        }
-
-        public void ShutdownClient()
-        {
-            clientManager.StopClient();
-            GameObject.DestroyImmediate(clientNetworkManagerGo);
         }
 
         #endregion
