@@ -10,9 +10,7 @@ using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
 {
-
     // set's up a host
-
     public class ClientServerSetup<T> where T : NetworkBehaviour
     {
 
@@ -52,7 +50,6 @@ namespace Mirror.Tests
             playerPrefab.GetComponent<NetworkIdentity>().AssetId = Guid.NewGuid();
             client.RegisterPrefab(playerPrefab);
 
-
             // wait for client and server to initialize themselves
             await Task.Delay(1);
 
@@ -66,7 +63,6 @@ namespace Mirror.Tests
             connectionToServer = client.Connection;
             connectionToClient = server.connections.First();
 
-
             // create a player object in the server
             serverPlayerGO = GameObject.Instantiate(playerPrefab);
             serverIdentity = serverPlayerGO.GetComponent<NetworkIdentity>();
@@ -79,8 +75,6 @@ namespace Mirror.Tests
             clientPlayerGO = connectionToServer.Identity.gameObject;
             clientIdentity = clientPlayerGO.GetComponent<NetworkIdentity>();
             clientComponent = clientPlayerGO.GetComponent<T>();
-
-
         });
 
         [UnityTearDown]

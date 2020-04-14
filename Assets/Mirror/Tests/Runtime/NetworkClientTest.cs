@@ -4,9 +4,6 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-using static Mirror.Tests.AsyncUtil;
-using Object = UnityEngine.Object;
-
 namespace Mirror.Tests
 {
     public class TestClientAuthenticator : NetworkAuthenticator
@@ -20,57 +17,17 @@ namespace Mirror.Tests
     }
 
     [TestFixture]
-    public class NetworkClientTest
+    public class NetworkClientTest : HostSetup<MockComponent>
     {
-        NetworkServer server;
-        GameObject serverGO;
-        NetworkClient client;
-
-        GameObject gameObject;
-        NetworkIdentity identity;
-
-        [UnitySetUp]
-        public IEnumerator SetUp() => RunAsync(async () =>
-        {
-            serverGO = new GameObject();
-            serverGO.AddComponent<MockTransport>();
-
-            server = serverGO.AddComponent<NetworkServer>();
-            client = serverGO.AddComponent<NetworkClient>();
-
-            gameObject = new GameObject();
-            identity = gameObject.AddComponent<NetworkIdentity>();
-
-            await server.ListenAsync();
-        });
-
-        [TearDown]
-        public void TearDown()
-        {
-            Object.DestroyImmediate(gameObject);
-
-            // reset all state
-            server.Disconnect();
-            Object.DestroyImmediate(serverGO);
-        }
-
         [Test]
         public void IsConnectedTest()
         {
-            Assert.That(!client.IsConnected);
-
-            client.ConnectHost(server);
-
             Assert.That(client.IsConnected);
         }
 
         [Test]
         public void ConnectionTest()
         {
-            Assert.That(client.Connection == null);
-
-            client.ConnectHost(server);
-
             Assert.That(client.Connection != null);
         }
 
@@ -79,7 +36,7 @@ namespace Mirror.Tests
         {
             Assert.That(client.LocalPlayer == null);
 
-            PlayerSpawner spawner = serverGO.AddComponent<PlayerSpawner>();
+            PlayerSpawner spawner = networkManagerGo.AddComponent<PlayerSpawner>();
 
             spawner.server = server;
             spawner.client = client;
@@ -102,10 +59,6 @@ namespace Mirror.Tests
         [Test]
         public void ReadyTest()
         {
-            Assert.That(!client.ready);
-
-            client.ConnectHost(server);
-
             client.Ready(client.Connection);
             Assert.That(client.ready);
             Assert.That(client.Connection.IsReady);
@@ -114,8 +67,6 @@ namespace Mirror.Tests
         [Test]
         public void ReadyTwiceTest()
         {
-            client.ConnectHost(server);
-
             client.Ready(client.Connection);
 
             Assert.Throws<InvalidOperationException>(() =>
@@ -127,8 +78,6 @@ namespace Mirror.Tests
         [Test]
         public void ReadyNull()
         {
-            client.ConnectHost(server);
-
             Assert.Throws<InvalidOperationException>(() =>
             {
                 client.Ready(null);
@@ -143,7 +92,7 @@ namespace Mirror.Tests
                 _ = client.RemovePlayer();
             });
 
-            PlayerSpawner spawner = serverGO.AddComponent<PlayerSpawner>();
+            PlayerSpawner spawner = networkManagerGo.AddComponent<PlayerSpawner>();
 
             spawner.server = server;
             spawner.client = client;
@@ -159,15 +108,6 @@ namespace Mirror.Tests
             Assert.That(client.RemovePlayer());
             Assert.That(identity == null);
             Assert.That(client.LocalPlayer == null);
-        }
-
-        [Test]
-        public void RegisterPrefabTest()
-        {
-            Guid guid = Guid.NewGuid();
-            client.RegisterPrefab(gameObject, guid);
-
-            Assert.That(gameObject.GetComponent<NetworkIdentity>().AssetId == guid);
         }
 
         [Test]
@@ -215,7 +155,7 @@ namespace Mirror.Tests
         public IEnumerable GetPrefabTest()
         {
             Guid guid = Guid.NewGuid();
-            client.RegisterPrefab(gameObject, guid);
+            client.RegisterPrefab(networkManagerGo, guid);
 
             yield return null;
 
@@ -229,7 +169,7 @@ namespace Mirror.Tests
         public IEnumerable AuthenticatorTest()
         {
             Assert.That(client.authenticator == null);
-            TestClientAuthenticator comp = serverGO.AddComponent<TestClientAuthenticator>();
+            TestClientAuthenticator comp = networkManagerGo.AddComponent<TestClientAuthenticator>();
 
             yield return null;
 

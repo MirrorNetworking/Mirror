@@ -8,9 +8,7 @@ using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
-
     // set's up a host
-
     public class HostSetup<T> where T : NetworkBehaviour
     {
 
@@ -49,7 +47,6 @@ namespace Mirror.Tests
             server.AddPlayerForConnection(server.LocalConnection, playerGO);
 
             client.Update();
-
         });
 
         [TearDown]
