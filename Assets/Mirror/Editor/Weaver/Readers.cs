@@ -352,7 +352,7 @@ namespace Mirror.Weaver
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
-                    Weaver.Error($"{variable} can't be deserialized because i has no default constructor");
+                    Weaver.Error($"{variable} can't be deserialized because it has no default constructor");
                 }
 
                 MethodReference ctorRef = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);
