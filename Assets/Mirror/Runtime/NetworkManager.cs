@@ -182,7 +182,6 @@ namespace Mirror
 
         /// <summary>
         /// This starts a new server.
-        /// <para>This uses the networkPort property as the listen port.</para>
         /// </summary>
         /// <returns></returns>
         public async Task StartServer()
@@ -209,7 +208,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This starts a network client. It uses the networkAddress and networkPort properties as the address to connect to.
+        /// This starts a network client. It uses the networkAddress property as the address to connect to.
         /// <para>This makes the newly created client connect to the server immediately.</para>
         /// </summary>
         public Task StartClient(string serverIp)
@@ -226,7 +225,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This starts a network client. It uses the networkAddress and networkPort properties as the address to connect to.
+        /// This starts a network client. It uses the Uri parameter as the address to connect to.
         /// <para>This makes the newly created client connect to the server immediately.</para>
         /// </summary>
         /// <param name="uri">location of the server to connect to</param>
