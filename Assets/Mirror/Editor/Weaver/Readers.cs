@@ -355,7 +355,9 @@ namespace Mirror.Weaver
                     Weaver.Error($"{variable} can't be deserialized because i has no default constructor");
                 }
 
-                worker.Append(worker.Create(OpCodes.Newobj, ctor));
+                MethodReference ctorRef = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);
+
+                worker.Append(worker.Create(OpCodes.Newobj, ctorRef));
                 worker.Append(worker.Create(OpCodes.Stloc_0));
             }
         }
