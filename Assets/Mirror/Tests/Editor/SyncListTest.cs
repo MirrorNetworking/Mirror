@@ -119,9 +119,13 @@ namespace Mirror.Tests
         {
             string element = serverSyncList.Find(entry => entry == "World");
             Assert.That(element, Is.EqualTo("World"));
-
+        }
+        
+        [Test]
+        public void TestNoFind()
+        {
             string nonexistent = serverSyncList.Find(entry => entry == "yay");
-            Assert.That(nonexistent, Is.EqualTo(default(string)));
+            Assert.That(nonexistent, Is.Null);
         }
 
         [Test]
@@ -129,7 +133,11 @@ namespace Mirror.Tests
         {
             List<string> results = serverSyncList.FindAll(entry => entry.Contains("l"));
             Assert.That(results.Count, Is.EqualTo(2));
-
+        }
+        
+        [Test]
+        public void TestFindAllNonExistent()
+        {
             List<string> nonexistent = serverSyncList.FindAll(entry => entry == "yay");
             Assert.That(nonexistent, Is.Empty);
         }
