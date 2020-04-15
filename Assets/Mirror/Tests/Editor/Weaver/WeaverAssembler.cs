@@ -156,19 +156,7 @@ namespace Mirror.Weaver.Tests
             DeleteOutputOnClear = false;
         }
 
-        // build synchronously
         public static void Build()
-        {
-            BuildAssembly(true);
-        }
-
-        // build asynchronously - this isn't currently used
-        public static void BuildAsync()
-        {
-            BuildAssembly(false);
-        }
-
-        static void BuildAssembly(bool wait)
         {
             AssemblyBuilder assemblyBuilder = new AssemblyBuilder(OutputDirectory + OutputFile, SourceFiles.ToArray());
             assemblyBuilder.additionalReferences = ReferenceAssemblies.ToArray();
@@ -206,13 +194,10 @@ namespace Mirror.Weaver.Tests
                 return;
             }
 
-            if (wait)
+            while (assemblyBuilder.status != AssemblyBuilderStatus.Finished)
             {
-                while (assemblyBuilder.status != AssemblyBuilderStatus.Finished)
-                {
-                    System.Threading.Thread.Sleep(10);
-                }
-            }
+                System.Threading.Thread.Sleep(10);
+            }            
         }
     }
 }
