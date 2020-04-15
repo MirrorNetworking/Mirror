@@ -20,7 +20,7 @@ namespace Mirror.Weaver.Tests
                     if (guidsFound.Length == 1 && !string.IsNullOrEmpty(guidsFound[0]))
                     {
                         string path = AssetDatabase.GUIDToAssetPath(guidsFound[0]);
-                        return Path.GetDirectoryName(path);
+                        _outputDirectory = Path.GetDirectoryName(path);
                     }
                     else
                     {
@@ -194,7 +194,7 @@ namespace Mirror.Weaver.Tests
             while (assemblyBuilder.status != AssemblyBuilderStatus.Finished)
             {
                 System.Threading.Thread.Sleep(10);
-            }            
+            }
         }
     }
 }
