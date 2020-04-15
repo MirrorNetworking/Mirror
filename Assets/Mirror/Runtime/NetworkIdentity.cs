@@ -868,7 +868,7 @@ namespace Mirror
                 NetworkBehaviour comp = components[i];
                 if (comp.IsDirty())
                 {
-                    dirtyComponentsMask |= (ulong)(1L << i);
+                    dirtyComponentsMask |= 1UL << i;
                 }
             }
 
@@ -948,7 +948,7 @@ namespace Mirror
             for (int i = 0; i < components.Length; ++i)
             {
                 // is the dirty bit at position 'i' set to 1?
-                ulong dirtyBit = (ulong)(1L << i);
+                ulong dirtyBit = 1UL << i;
                 if ((dirtyComponentsMask & dirtyBit) != 0L)
                 {
                     OnDeserializeSafely(components[i], reader, initialState);
