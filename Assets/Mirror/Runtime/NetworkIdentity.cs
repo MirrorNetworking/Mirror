@@ -795,13 +795,15 @@ namespace Mirror
             return result;
         }
 
-        // serialize all components (or only dirty ones if not initial state)
+        // serialize all components using dirtyComponentsMask
         // -> check ownerWritten/observersWritten to know if anything was written
+        // We pass dirtyComponentsMask into this function so that we can check if any Components are dirty before creating writers
         internal void OnSerializeAllSafely(bool initialState, ulong dirtyComponentsMask, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
         {
             // clear 'written' variables
             ownerWritten = observersWritten = 0;
 
+            // dirtyComponentsMask should be changed before tyhis function is called
             Debug.Assert(dirtyComponentsMask != 0UL, "OnSerializeAllSafely Should not be given a zero dirtyComponentsMask", this);
 
             // calculate syncMode mask at runtime. this allows users to change
@@ -1303,7 +1305,7 @@ namespace Mirror
             // one writer for owner, one for observers
             using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
             {
-                // serialize all the dirty components and send (if any were dirty)
+                // serialize all the dirty components and send
                 OnSerializeAllSafely(false, dirtyComponentsMask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
                 if (ownerWritten > 0 || observersWritten > 0)
                 {
