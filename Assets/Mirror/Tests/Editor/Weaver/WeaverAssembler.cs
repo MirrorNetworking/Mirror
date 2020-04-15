@@ -54,7 +54,7 @@ namespace Mirror.Weaver.Tests
         {
             foreach (string src in sourceFiles)
             {
-                SourceFiles.Add(OutputDirectory + src);
+                SourceFiles.Add(Path.Combine(OutputDirectory, src));
             }
         }
 
@@ -116,7 +116,7 @@ namespace Mirror.Weaver.Tests
                 return;
             }
 
-            string projPathFile = OutputDirectory + OutputFile;
+            string projPathFile = Path.Combine(OutputDirectory, OutputFile);
 
             try
             {
@@ -158,7 +158,7 @@ namespace Mirror.Weaver.Tests
 
         public static void Build()
         {
-            AssemblyBuilder assemblyBuilder = new AssemblyBuilder(OutputDirectory + OutputFile, SourceFiles.ToArray());
+            AssemblyBuilder assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray());
             assemblyBuilder.additionalReferences = ReferenceAssemblies.ToArray();
             if (AllowUnsafe)
             {
