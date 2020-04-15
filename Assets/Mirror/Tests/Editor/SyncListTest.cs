@@ -132,7 +132,7 @@ namespace Mirror.Tests
         public void TestFindAll()
         {
             List<string> results = serverSyncList.FindAll(entry => entry.Contains("l"));
-            Assert.That(results.Count, Is.EqualTo(2));
+            Assert.That(results, Is.EquivalentTo( new [] {"Hello", "World"}));
         }
         
         [Test]
