@@ -20,10 +20,7 @@ namespace Mirror.Weaver.Tests
                     if (guidsFound.Length == 1 && !string.IsNullOrEmpty(guidsFound[0]))
                     {
                         string path = AssetDatabase.GUIDToAssetPath(guidsFound[0]);
-                        string dir = Path.GetDirectoryName(path);
-                        // Path in mirror project
-                        //"Assets/Mirror/Tests/Editor/WeaverTests~/";
-                        _outputDirectory = Path.Combine(dir, "WeaverTests~/");
+                        return Path.GetDirectoryName(path);
                     }
                     else
                     {
