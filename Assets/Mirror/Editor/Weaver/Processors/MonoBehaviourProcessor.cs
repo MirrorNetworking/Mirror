@@ -1,5 +1,5 @@
 // this class only shows warnings in case we use SyncVars etc. for MonoBehaviour.
-using Mono.CecilX;
+using Mono.Cecil;
 
 namespace Mirror.Weaver
 {

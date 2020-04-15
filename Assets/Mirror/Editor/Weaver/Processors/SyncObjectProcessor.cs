@@ -1,5 +1,5 @@
-using Mono.CecilX;
-using Mono.CecilX.Cil;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
