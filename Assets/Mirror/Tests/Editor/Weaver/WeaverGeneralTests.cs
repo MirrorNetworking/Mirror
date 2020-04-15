@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverGeneralTests : WeaverTests
+    public class WeaverGeneralTests : WeaverTestsBuildFromTestName
     {
         [Test]
         public void RecursionCount()

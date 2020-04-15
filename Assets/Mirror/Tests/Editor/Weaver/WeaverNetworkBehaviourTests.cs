@@ -2,7 +2,7 @@
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverNetworkBehaviourTests : WeaverTests
+    public class WeaverNetworkBehaviourTests : WeaverTestsBuildFromTestName
     {
         [Test]
         public void NetworkBehaviourValid()
