@@ -1,7 +1,6 @@
-//#define LOG_WEAVER_OUTPUTS
-
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mirror.Weaver.Tests
 {
@@ -17,21 +16,19 @@ namespace Mirror.Weaver.Tests
     [Category("Weaver")]
     public abstract class WeaverTests
     {
+        public static readonly ILogger logger = LogFactory.GetLogger<WeaverTests>();
+
         protected List<string> weaverErrors = new List<string>();
         void HandleWeaverError(string msg)
         {
-#if LOG_WEAVER_OUTPUTS
-            Debug.LogError(msg);
-#endif
+            logger.Log(msg);
             weaverErrors.Add(msg);
         }
 
         protected List<string> weaverWarnings = new List<string>();
         void HandleWeaverWarning(string msg)
         {
-#if LOG_WEAVER_OUTPUTS
-            Debug.LogWarning(msg);
-#endif
+            logger.Log(msg);
             weaverWarnings.Add(msg);
         }
 
