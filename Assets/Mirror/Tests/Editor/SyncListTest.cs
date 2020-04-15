@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -111,6 +112,26 @@ namespace Mirror.Tests
         {
             int index = serverSyncList.FindIndex(entry => entry == "World");
             Assert.That(index, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void TestFind()
+        {
+            string element = serverSyncList.Find(entry => entry == "World");
+            Assert.That(element, Is.EqualTo("World"));
+
+            string nonexistent = serverSyncList.Find(entry => entry == "yay");
+            Assert.That(nonexistent, Is.EqualTo(default(string)));
+        }
+
+        [Test]
+        public void TestFindAll()
+        {
+            List<string> results = serverSyncList.FindAll(entry => entry.Contains("l"));
+            Assert.That(results.Count, Is.EqualTo(2));
+
+            List<string> nonexistent = serverSyncList.FindAll(entry => entry == "yay");
+            Assert.That(nonexistent, Is.Empty);
         }
 
         [Test]

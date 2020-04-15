@@ -292,7 +292,11 @@ namespace Mirror
             return -1;
         }
 
-        public T Find(Predicate<T> match) => objects[FindIndex(match)];
+        public T Find(Predicate<T> match)
+        {
+            int i = FindIndex(match);
+            return (i != -1) ? objects[i] : default;
+        }
 
         public List<T> FindAll(Predicate<T> match)
         {
