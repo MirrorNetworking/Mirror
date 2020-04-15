@@ -68,6 +68,10 @@ namespace Mirror
         /// </summary>
         [Tooltip("Diagnostic flag indicating all players are ready to play")]
         public bool allPlayersReady;
+        /// <summary>
+        /// Let new players join a game already in progress
+        /// </summary>
+        public bool allowMidGameJoin;
 
         /// <summary>
         /// These slots track players that enter the room.
@@ -163,6 +167,7 @@ namespace Mirror
                 gamePlayer = startPos != null
                     ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
                     : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+                gamePlayer.name = playerPrefab.name;
             }
 
             if (!OnRoomServerSceneLoadedForPlayer(conn, roomPlayer, gamePlayer))
@@ -227,11 +232,14 @@ namespace Mirror
                 return;
             }
 
-            // cannot join game in progress
-            if (!IsSceneActive(RoomScene))
+            if (allowMidGameJoin == false)
             {
-                conn.Disconnect();
-                return;
+                // cannot join game in progress
+                if (!IsSceneActive(RoomScene))
+                {
+                    conn.Disconnect();
+                    return;
+                }
             }
 
             base.OnServerConnect(conn);
