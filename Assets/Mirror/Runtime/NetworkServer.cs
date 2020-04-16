@@ -410,7 +410,7 @@ namespace Mirror
                 return;
 
             // Check for dead clients
-            foreach (NetworkConnection conn in connections.Values)
+            foreach (NetworkConnectionToClient conn in connections.Values)
                 conn.CheckForActivity();
 
             // update all server objects
