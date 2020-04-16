@@ -32,22 +32,22 @@ namespace Mirror
             {
                 if (currentMatch == value) return;
 
-                bool leftMatch = false;
-                if (currentMatch != Guid.Empty)
-                {
-                    // Remove this object from the hashset of the match it just left
-                    matchPlayers[currentMatch].Remove(netIdentity);
+                // cache previous match so observers in that match can be rebuilt
+                Guid previousMatch = currentMatch;
 
-                    // RebuildObservers of all NetworkIdentity's in the match this object just left
-                    RebuildMatchObservers();
-
-                    leftMatch = true;
-                }
-
-                // Set this to the new match this object just entered
+                // Set this to the new match this object just entered ...
                 currentMatch = value;
                 // ... and copy the string for the inspector because Unity can't show Guid directly
                 currentMatchDebug = currentMatch.ToString();
+
+                if (previousMatch != Guid.Empty)
+                {
+                    // Remove this object from the hashset of the match it just left
+                    matchPlayers[previousMatch].Remove(netIdentity);
+
+                    // RebuildObservers of all NetworkIdentity's in the match this object just left
+                    RebuildMatchObservers(previousMatch);
+                }
 
                 if (currentMatch != Guid.Empty)
                 {
@@ -59,11 +59,11 @@ namespace Mirror
                     matchPlayers[currentMatch].Add(netIdentity);
 
                     // RebuildObservers of all NetworkIdentity's in the match this object just entered
-                    RebuildMatchObservers();
+                    RebuildMatchObservers(currentMatch);
                 }
-                else if (leftMatch)
+                else
                 {
-                    // if player leaves match it's observers need to be cleared
+                    // Not in any match now...RebuildObservers will clear and add self
                     netIdentity.RebuildObservers(false);
                 }
             }
@@ -77,13 +77,14 @@ namespace Mirror
                 matchPlayers.Add(currentMatch, new HashSet<NetworkIdentity>());
 
             matchPlayers[currentMatch].Add(netIdentity);
+
+            // No need to rebuild anything here.
+            // identity.RebuildObservers is called right after this from NetworkServer.SpawnObject
         }
 
-        void RebuildMatchObservers()
+        void RebuildMatchObservers(Guid specificMatch)
         {
-            if (currentMatch == Guid.Empty) return;
-
-            foreach (NetworkIdentity networkIdentity in matchPlayers[currentMatch])
+            foreach (NetworkIdentity networkIdentity in matchPlayers[specificMatch])
                 if (networkIdentity != null)
                     networkIdentity.RebuildObservers(false);
         }
