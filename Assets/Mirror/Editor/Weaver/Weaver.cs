@@ -331,15 +331,6 @@ namespace Mirror.Weaver
             return td.IsDerivedFrom(NetworkBehaviourType);
         }
 
-        public static bool IsValidTypeToGenerate(TypeDefinition variable)
-        {
-            // a valid type is a simple class or struct. so we generate only code for types we dont know, and if they are not inside
-            // this assembly it must mean that we are trying to serialize a variable outside our scope. and this will fail.
-            // no need to report an error here, the caller will report a better error
-            string assembly = CurrentAssembly.MainModule.Name;
-            return variable.Module.Name == assembly;
-        }
-
         static void CheckMonoBehaviour(TypeDefinition td)
         {
             if (td.IsDerivedFrom(MonoBehaviourType))
