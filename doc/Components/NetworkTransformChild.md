@@ -6,7 +6,7 @@ The Network Transform Child component synchronizes the position and rotation of 
 
 To use the Network Transform Child component, attach it to the same parent game object as the Network Transform, and use the Target field to define which child game object to apply the component settings to. You can have multiple Network Transform Child components on one parent game object .
 
-![The Network Transform Child component](NetworkTransformChild.png)
+![The Network Transform Child component](NetworkTransform.png)
 
 You can modify **Compress Rotation** to save some bandwidth when synchronizing the rotation. You can use the **Network Sync Interval** to specify how often it syncs (in seconds).
 
