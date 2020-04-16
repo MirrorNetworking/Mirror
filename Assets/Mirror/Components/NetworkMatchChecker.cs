@@ -90,6 +90,10 @@ namespace Mirror
         /// <returns>True if the player can see this object.</returns>
         public override bool OnCheckObserver(NetworkConnection conn)
         {
+            // Not Visible if not in a match
+            if (matchId == Guid.Empty)
+                return false;
+
             NetworkMatchChecker networkMatchChecker = conn.identity.GetComponent<NetworkMatchChecker>();
 
             if (networkMatchChecker == null)
