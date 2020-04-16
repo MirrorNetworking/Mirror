@@ -22,6 +22,11 @@ namespace Mirror
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
         /// <summary>
+        /// Number of seconds of no messages from client after which server will auto-disconnect
+        /// </summary>
+        public float serverIdleTimeout = 30;
+
+        /// <summary>
         /// Unique identifier for this connection that is assigned by the transport layer.
         /// </summary>
         /// <remarks>
@@ -131,6 +136,12 @@ namespace Mirror
         internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
         {
             messageHandlers = handlers;
+        }
+
+        internal void CheckForActivity()
+        {
+            if (Time.time - serverIdleTimeout > lastMessageTime)
+                Disconnect();
         }
 
         /// <summary>

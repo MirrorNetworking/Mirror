@@ -409,6 +409,10 @@ namespace Mirror
             if (!active)
                 return;
 
+            // Check for dead clients
+            foreach (NetworkConnection conn in connections.Values)
+                conn.CheckForActivity();
+
             // update all server objects
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
