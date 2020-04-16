@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -14,10 +16,16 @@ namespace Mirror.Tests
         private NetworkConnection player1Connection;
         private NetworkConnection player2Connection;
         private NetworkConnection player3Connection;
+        private GameObject transportGO;
+        static int nextConnectionId;
+        private Dictionary<Guid, HashSet<NetworkIdentity>> matchPlayers;
 
         [SetUp]
         public void Setup()
         {
+            transportGO = new GameObject("transportGO");
+            Transport.activeTransport = transportGO.AddComponent<TelepathyTransport>();
+
             player1 = new GameObject("TestPlayer1", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
             player2 = new GameObject("TestPlayer2", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
             player3 = new GameObject("TestPlayer3", typeof(NetworkIdentity));
@@ -29,12 +37,24 @@ namespace Mirror.Tests
             player1Connection = CreateNetworkConnection(player1);
             player2Connection = CreateNetworkConnection(player2);
             player3Connection = CreateNetworkConnection(player3);
+            Dictionary<Guid, HashSet<NetworkIdentity>> g = GetMatchPlayersDictionary();
+            matchPlayers = g;
         }
-        static int next;
+
+        private static Dictionary<Guid, HashSet<NetworkIdentity>> GetMatchPlayersDictionary()
+        {
+            Type type = typeof(NetworkMatchChecker);
+            FieldInfo fieldInfo = type.GetField("matchPlayers", BindingFlags.Static | BindingFlags.NonPublic);
+            return (Dictionary<Guid, HashSet<NetworkIdentity>>)fieldInfo.GetValue(null);
+        }
+
         static NetworkConnection CreateNetworkConnection(GameObject player)
         {
-            NetworkConnection connection = new NetworkConnectionToClient(++next);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(++nextConnectionId);
             connection.identity = player.GetComponent<NetworkIdentity>();
+            connection.identity.connectionToClient = connection;
+            connection.identity.observers = new Dictionary<int, NetworkConnection>();
+            connection.isReady = true;
             return connection;
         }
 
@@ -44,12 +64,16 @@ namespace Mirror.Tests
             UnityEngine.Object.DestroyImmediate(player1);
             UnityEngine.Object.DestroyImmediate(player2);
             UnityEngine.Object.DestroyImmediate(player3);
+            UnityEngine.Object.DestroyImmediate(transportGO);
+
+            matchPlayers.Clear();
+            matchPlayers = null;
         }
 
         static void SetMatchId(NetworkMatchChecker target, Guid guid)
         {
             // set using reflection so bypass property
-            System.Reflection.FieldInfo field = typeof(NetworkMatchChecker).GetField("currentMatch", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            FieldInfo field = typeof(NetworkMatchChecker).GetField("currentMatch", BindingFlags.Instance | BindingFlags.NonPublic);
             field.SetValue(target, guid);
         }
 
@@ -115,6 +139,58 @@ namespace Mirror.Tests
 
             bool player2Visable = player1MatchChecker.OnCheckObserver(player2Connection);
             Assert.IsFalse(player2Visable);
+        }
+
+        [Test]
+        public void SettingMatchIdShouldRebuildObservers()
+        {
+            string guidMatch1 = Guid.NewGuid().ToString();
+
+            // make players join same match
+            player1MatchChecker.matchId = new Guid(guidMatch1);
+            player2MatchChecker.matchId = new Guid(guidMatch1);
+
+            // check player1's observers contains player 2
+            Assert.IsTrue(player1MatchChecker.netIdentity.observers.ContainsValue(player2MatchChecker.connectionToClient));
+            // check player2's observers contains player 1
+            Assert.IsTrue(player2MatchChecker.netIdentity.observers.ContainsValue(player1MatchChecker.connectionToClient));
+        }
+
+        [Test]
+        public void ChangingMatchIdShouldRebuildObservers()
+        {
+            string guidMatch1 = Guid.NewGuid().ToString();
+            string guidMatch2 = Guid.NewGuid().ToString();
+
+            // make players join same match
+            player1MatchChecker.matchId = new Guid(guidMatch1);
+            player2MatchChecker.matchId = new Guid(guidMatch1);
+
+            // make player2 join different match
+            player2MatchChecker.matchId = new Guid(guidMatch2);
+
+            // check player1's observers does NOT contain player 2
+            Assert.IsFalse(player1MatchChecker.netIdentity.observers.ContainsValue(player2MatchChecker.connectionToClient));
+            // check player2's observers does NOT contain player 1
+            Assert.IsFalse(player2MatchChecker.netIdentity.observers.ContainsValue(player1MatchChecker.connectionToClient));
+        }
+
+        [Test]
+        public void ClearingMatchIdShouldRebuildObservers()
+        {
+            string guidMatch1 = Guid.NewGuid().ToString();
+
+            // make players join same match
+            player1MatchChecker.matchId = new Guid(guidMatch1);
+            player2MatchChecker.matchId = new Guid(guidMatch1);
+
+            // make player 2 leave match
+            player2MatchChecker.matchId = Guid.Empty;
+
+            // check player1's observers does NOT contain player 2
+            Assert.IsFalse(player1MatchChecker.netIdentity.observers.ContainsValue(player2MatchChecker.connectionToClient));
+            // check player2's observers does NOT contain player 1
+            Assert.IsFalse(player2MatchChecker.netIdentity.observers.ContainsValue(player1MatchChecker.connectionToClient));
         }
     }
 }
