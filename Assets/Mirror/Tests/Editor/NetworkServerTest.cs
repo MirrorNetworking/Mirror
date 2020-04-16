@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
@@ -69,10 +69,11 @@ namespace Mirror.Tests
         [TearDown]
         public void TearDown()
         {
-            Transport.activeTransport = null;
-
             // reset all state
+            // shutdown should be called before setting activeTransport to null
             NetworkServer.Shutdown();
+
+            Transport.activeTransport = null;
         }
 
         [Test]
@@ -104,9 +105,6 @@ namespace Mirror.Tests
             // connect second: should fail
             Transport.activeTransport.OnServerConnected.Invoke(43);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -125,9 +123,6 @@ namespace Mirror.Tests
             // connect
             Transport.activeTransport.OnServerConnected.Invoke(42);
             Assert.That(connectCalled, Is.True);
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -150,9 +145,6 @@ namespace Mirror.Tests
             // disconnect
             Transport.activeTransport.OnServerDisconnected.Invoke(42);
             Assert.That(disconnectCalled, Is.True);
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -185,9 +177,6 @@ namespace Mirror.Tests
             // disconnect first
             Transport.activeTransport.OnServerDisconnected.Invoke(42);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -216,9 +205,6 @@ namespace Mirror.Tests
             Transport.activeTransport.OnServerConnected.Invoke(-1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             LogAssert.ignoreFailingMessages = false;
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -242,9 +228,6 @@ namespace Mirror.Tests
             Transport.activeTransport.OnServerConnected.Invoke(42);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections[42], Is.EqualTo(original));
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -265,9 +248,6 @@ namespace Mirror.Tests
             NetworkServer.SetLocalConnection(overwrite);
             Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
             LogAssert.ignoreFailingMessages = false;
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -288,9 +268,6 @@ namespace Mirror.Tests
             // remove local connection
             NetworkServer.RemoveLocalConnection();
             Assert.That(NetworkServer.localConnection, Is.Null);
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -303,9 +280,6 @@ namespace Mirror.Tests
             // set local connection
             NetworkServer.SetLocalConnection(new ULocalConnectionToClient());
             Assert.That(NetworkServer.localClientActive, Is.True);
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -347,9 +321,6 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
             Assert.That(NetworkServer.connections.ContainsKey(43), Is.True);
             Assert.That(NetworkServer.connections[43], Is.EqualTo(conn43));
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -376,9 +347,6 @@ namespace Mirror.Tests
             bool resultRemove = NetworkServer.RemoveConnection(42);
             Assert.That(resultRemove, Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -401,9 +369,6 @@ namespace Mirror.Tests
             // disconnect all connections
             NetworkServer.DisconnectAllConnections();
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -432,9 +397,6 @@ namespace Mirror.Tests
             NetworkServer.DisconnectAll();
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.localConnection, Is.Null);
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -481,9 +443,6 @@ namespace Mirror.Tests
             Assert.That(wasReceived, Is.True);
             Assert.That(connectionReceived, Is.EqualTo(connection));
             Assert.That(messageReceived, Is.EqualTo(testMessage));
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -524,9 +483,6 @@ namespace Mirror.Tests
             // message handler should never be called
             Assert.That(wasReceived, Is.False);
             Assert.That(connectionReceived, Is.Null);
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -592,9 +548,6 @@ namespace Mirror.Tests
 
             // ready?
             Assert.That(connection.isReady, Is.True);
-
-            // shutdown
-            NetworkServer.Shutdown();
         }
 
         // this runs a command all the way:
@@ -768,9 +721,6 @@ namespace Mirror.Tests
 
             // was it send to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -834,9 +784,6 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = false;
             // still 1, not 2
             Assert.That(variant2Called, Is.EqualTo(1));
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         [Test]
