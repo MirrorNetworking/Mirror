@@ -32,6 +32,7 @@ namespace Mirror
             {
                 if (currentMatch == value) return;
 
+                bool leftMatch = false;
                 if (currentMatch != Guid.Empty)
                 {
                     // Remove this object from the hashset of the match it just left
@@ -39,6 +40,8 @@ namespace Mirror
 
                     // RebuildObservers of all NetworkIdentity's in the match this object just left
                     RebuildMatchObservers();
+
+                    leftMatch = true;
                 }
 
                 // Set this to the new match this object just entered
@@ -57,6 +60,11 @@ namespace Mirror
 
                     // RebuildObservers of all NetworkIdentity's in the match this object just entered
                     RebuildMatchObservers();
+                }
+                else if (leftMatch)
+                {
+                    // if player leaves match it's observers need to be cleared
+                    netIdentity.RebuildObservers(false);
                 }
             }
         }
