@@ -795,17 +795,16 @@ namespace Mirror
             return result;
         }
 
-        // serialize all components (or only dirty ones if not initial state)
+        // serialize all components using dirtyComponentsMask
         // -> check ownerWritten/observersWritten to know if anything was written
-        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
+        // We pass dirtyComponentsMask into this function so that we can check if any Components are dirty before creating writers
+        internal void OnSerializeAllSafely(bool initialState, ulong dirtyComponentsMask, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
         {
             // clear 'written' variables
             ownerWritten = observersWritten = 0;
 
-            ulong dirtyComponentsMask = GetDirtyMask(initialState);
-
-            if (dirtyComponentsMask == 0L)
-                return;
+            // dirtyComponentsMask should be changed before tyhis function is called
+            Debug.Assert(dirtyComponentsMask != 0UL, "OnSerializeAllSafely Should not be given a zero dirtyComponentsMask", this);
 
             // calculate syncMode mask at runtime. this allows users to change
             // component.syncMode while the game is running, which can be a huge
@@ -859,7 +858,7 @@ namespace Mirror
             }
         }
 
-        internal ulong GetDirtyMask(bool initialState)
+        internal ulong GetDirtyComponentsMask()
         {
             // loop through all components only once and then write dirty+payload into the writer afterwards
             ulong dirtyComponentsMask = 0L;
@@ -867,14 +866,26 @@ namespace Mirror
             for (int i = 0; i < components.Length; ++i)
             {
                 NetworkBehaviour comp = components[i];
-                if (initialState || comp.IsDirty())
+                if (comp.IsDirty())
                 {
-                    dirtyComponentsMask |= (ulong)(1L << i);
+                    dirtyComponentsMask |= 1UL << i;
                 }
             }
 
             return dirtyComponentsMask;
         }
+        internal ulong GetIntialComponentsMask()
+        {
+            // loop through all components only once and then write dirty+payload into the writer afterwards
+            ulong dirtyComponentsMask = 0UL;
+            for (int i = 0; i < NetworkBehaviours.Length; ++i)
+            {
+                dirtyComponentsMask |= 1UL << i;
+            }
+
+            return dirtyComponentsMask;
+        }
+
 
         // a mask that contains all the components with SyncMode.Observers
         internal ulong GetSyncModeObserversMask()
@@ -937,7 +948,7 @@ namespace Mirror
             for (int i = 0; i < components.Length; ++i)
             {
                 // is the dirty bit at position 'i' set to 1?
-                ulong dirtyBit = (ulong)(1L << i);
+                ulong dirtyBit = 1UL << i;
                 if ((dirtyComponentsMask & dirtyBit) != 0L)
                 {
                     OnDeserializeSafely(components[i], reader, initialState);
@@ -1273,47 +1284,12 @@ namespace Mirror
         {
             if (observers != null && observers.Count > 0)
             {
-                // one writer for owner, one for observers
-                using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
+                ulong dirtyComponentsMask = GetDirtyComponentsMask();
+
+                // AnyComponentsDirty
+                if (dirtyComponentsMask != 0UL)
                 {
-                    // serialize all the dirty components and send (if any were dirty)
-                    OnSerializeAllSafely(false, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
-                    if (ownerWritten > 0 || observersWritten > 0)
-                    {
-                        UpdateVarsMessage varsMessage = new UpdateVarsMessage
-                        {
-                            netId = netId
-                        };
-
-                        // send ownerWriter to owner
-                        // (only if we serialized anything for owner)
-                        // (only if there is a connection (e.g. if not a monster),
-                        //  and if connection is ready because we use SendToReady
-                        //  below too)
-                        if (ownerWritten > 0)
-                        {
-                            varsMessage.payload = ownerWriter.ToArraySegment();
-                            if (connectionToClient != null && connectionToClient.isReady)
-                                NetworkServer.SendToClientOfPlayer(this, varsMessage);
-                        }
-
-                        // send observersWriter to everyone but owner
-                        // (only if we serialized anything for observers)
-                        if (observersWritten > 0)
-                        {
-                            varsMessage.payload = observersWriter.ToArraySegment();
-                            NetworkServer.SendToReady(this, varsMessage, false);
-                        }
-
-                        // clear dirty bits only for the components that we serialized
-                        // DO NOT clean ALL component's dirty bits, because
-                        // components can have different syncIntervals and we don't
-                        // want to reset dirty bits for the ones that were not
-                        // synced yet.
-                        // (we serialized only the IsDirty() components, or all of
-                        //  them if initialState. clearing the dirty ones is enough.)
-                        ClearDirtyComponentsDirtyBits();
-                    }
+                    SendUpdateVarsMessage(dirtyComponentsMask);
                 }
             }
             else
@@ -1323,6 +1299,53 @@ namespace Mirror
                 ClearAllComponentsDirtyBits();
             }
         }
+
+        void SendUpdateVarsMessage(ulong dirtyComponentsMask)
+        {
+            // one writer for owner, one for observers
+            using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
+            {
+                // serialize all the dirty components and send
+                OnSerializeAllSafely(false, dirtyComponentsMask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                if (ownerWritten > 0 || observersWritten > 0)
+                {
+                    UpdateVarsMessage varsMessage = new UpdateVarsMessage
+                    {
+                        netId = netId
+                    };
+
+                    // send ownerWriter to owner
+                    // (only if we serialized anything for owner)
+                    // (only if there is a connection (e.g. if not a monster),
+                    //  and if connection is ready because we use SendToReady
+                    //  below too)
+                    if (ownerWritten > 0)
+                    {
+                        varsMessage.payload = ownerWriter.ToArraySegment();
+                        if (connectionToClient != null && connectionToClient.isReady)
+                            NetworkServer.SendToClientOfPlayer(this, varsMessage);
+                    }
+
+                    // send observersWriter to everyone but owner
+                    // (only if we serialized anything for observers)
+                    if (observersWritten > 0)
+                    {
+                        varsMessage.payload = observersWriter.ToArraySegment();
+                        NetworkServer.SendToReady(this, varsMessage, false);
+                    }
+
+                    // clear dirty bits only for the components that we serialized
+                    // DO NOT clean ALL component's dirty bits, because
+                    // components can have different syncIntervals and we don't
+                    // want to reset dirty bits for the ones that were not
+                    // synced yet.
+                    // (we serialized only the IsDirty() components, or all of
+                    //  them if initialState. clearing the dirty ones is enough.)
+                    ClearDirtyComponentsDirtyBits();
+                }
+            }
+        }
+
 
         // clear all component's dirty bits no matter what
         internal void ClearAllComponentsDirtyBits()

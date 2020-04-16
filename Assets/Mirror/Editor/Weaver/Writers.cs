@@ -58,6 +58,16 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate writer for component type {variable}. Use a supported type or provide a custom writer");
                 return null;
             }
+            if (variable.FullName == Weaver.ObjectType.FullName)
+            {
+                Weaver.Error($"Cannot generate writer for {variable}. Use a supported type or provide a custom writer");
+                return null;
+            }
+            if (variable.FullName == Weaver.ScriptableObjectType.FullName)
+            {
+                Weaver.Error($"Cannot generate writer for {variable}. Use a supported type or provide a custom writer");
+                return null;
+            }
             if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
             {
                 Weaver.Error($"Cannot generate writer for generic type {variable}. Use a concrete type or provide a custom writer");
@@ -108,11 +118,6 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (!Weaver.IsValidTypeToGenerate(variable.Resolve()))
-            {
-                return null;
-            }
-
             string functionName = "_Write" + variable.Name + "_";
             if (variable.DeclaringType != null)
             {
@@ -143,10 +148,12 @@ namespace Mirror.Weaver
                 MethodReference writeFunc = GetWriteFunc(field.FieldType, recursionCount + 1);
                 if (writeFunc != null)
                 {
+                    FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
+
                     fields++;
                     worker.Append(worker.Create(OpCodes.Ldarg_0));
                     worker.Append(worker.Create(OpCodes.Ldarg_1));
-                    worker.Append(worker.Create(OpCodes.Ldfld, field));
+                    worker.Append(worker.Create(OpCodes.Ldfld, fieldRef));
                     worker.Append(worker.Create(OpCodes.Call, writeFunc));
                 }
                 else

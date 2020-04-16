@@ -281,7 +281,8 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(netBehaviourSubclass, "  GenerateSerialization");
 
-            if (netBehaviourSubclass.GetMethod("OnSerialize") != null)
+            const string SerializeMethodName = "SerializeSyncVars";
+            if (netBehaviourSubclass.GetMethod(SerializeMethodName) != null)
                 return;
 
             if (syncVars.Count == 0)
@@ -290,7 +291,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            MethodDefinition serialize = new MethodDefinition("OnSerialize",
+            MethodDefinition serialize = new MethodDefinition(SerializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.boolType);
 
@@ -304,7 +305,7 @@ namespace Mirror.Weaver
             VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
             serialize.Body.Variables.Add(dirtyLocal);
 
-            MethodReference baseSerialize = Resolvers.ResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, "OnSerialize");
+            MethodReference baseSerialize = Resolvers.ResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, SerializeMethodName);
             if (baseSerialize != null)
             {
                 // base
@@ -619,7 +620,8 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(netBehaviourSubclass, "  GenerateDeSerialization");
 
-            if (netBehaviourSubclass.GetMethod("OnDeserialize") != null)
+            const string DeserializeMethodName = "DeserializeSyncVars";
+            if (netBehaviourSubclass.GetMethod(DeserializeMethodName) != null)
                 return;
 
             if (syncVars.Count == 0)
@@ -628,7 +630,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            MethodDefinition serialize = new MethodDefinition("OnDeserialize",
+            MethodDefinition serialize = new MethodDefinition(DeserializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
@@ -640,7 +642,7 @@ namespace Mirror.Weaver
             VariableDefinition dirtyBitsLocal = new VariableDefinition(Weaver.int64Type);
             serialize.Body.Variables.Add(dirtyBitsLocal);
 
-            MethodReference baseDeserialize = Resolvers.ResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, "OnDeserialize");
+            MethodReference baseDeserialize = Resolvers.ResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, DeserializeMethodName);
             if (baseDeserialize != null)
             {
                 // base
