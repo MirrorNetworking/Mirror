@@ -16,6 +16,17 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         readonly List<int> singleConnectionId = new List<int> { -1 };
 
+        /// <summary>
+        /// Number of seconds of no messages from client after which server will auto-disconnect
+        /// </summary>
+        public float serverIdleTimeout = 30f;
+
+        internal void CheckForActivity()
+        {
+            if (Time.time - serverIdleTimeout > lastMessageTime)
+                Disconnect();
+        }
+
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
