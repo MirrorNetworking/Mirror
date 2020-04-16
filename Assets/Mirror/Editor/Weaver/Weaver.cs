@@ -73,6 +73,7 @@ namespace Mirror.Weaver
         public static MethodReference ReadyConnectionReference;
 
         public static TypeReference ComponentType;
+        public static TypeReference ObjectType;
 
         public static TypeReference CmdDelegateReference;
         public static MethodReference CmdDelegateConstructor;
@@ -294,6 +295,7 @@ namespace Mirror.Weaver
             RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, CurrentAssembly, "Recycle");
 
             ComponentType = UnityAssembly.MainModule.GetType("UnityEngine.Component");
+            ObjectType = UnityAssembly.MainModule.GetType("UnityEngine.Object");
             ClientSceneType = NetAssembly.MainModule.GetType("Mirror.ClientScene");
             ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, CurrentAssembly, "get_readyConnection");
 
@@ -327,15 +329,6 @@ namespace Mirror.Weaver
         public static bool IsNetworkBehaviour(TypeDefinition td)
         {
             return td.IsDerivedFrom(NetworkBehaviourType);
-        }
-
-        public static bool IsValidTypeToGenerate(TypeDefinition variable)
-        {
-            // a valid type is a simple class or struct. so we generate only code for types we dont know, and if they are not inside
-            // this assembly it must mean that we are trying to serialize a variable outside our scope. and this will fail.
-            // no need to report an error here, the caller will report a better error
-            string assembly = CurrentAssembly.MainModule.Name;
-            return variable.Module.Name == assembly;
         }
 
         static void CheckMonoBehaviour(TypeDefinition td)

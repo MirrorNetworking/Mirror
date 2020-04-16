@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
@@ -16,21 +16,6 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.PrefabClone has field $MirrorTest.PrefabClone MirrorTest.PrefabClone::selfReference that references itself"));
-        }
-
-        [Test]
-        public void MessageInvalidSerializeFieldType()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.AccessViolationException MirrorTest.PrefabClone::invalidField has unsupported type"));
-        }
-
-        [Test]
-        public void MessageInvalidDeserializeFieldType()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.AccessViolationException is not a supported type"));
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.AccessViolationException MirrorTest.PrefabClone::invalidField has unsupported type"));
         }
 
         [Test]
