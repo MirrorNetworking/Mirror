@@ -20,7 +20,7 @@
         "Castle.Core.dll",
         "System.Threading.Tasks.Extensions.dll",
         "nunit.framework.dll",
-        "Mono.CecilX.dll"
+        "Mono.Cecil.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

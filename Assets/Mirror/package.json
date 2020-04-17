@@ -1,13 +1,16 @@
 {
     "name": "com.mirrorng.mirrorng",
     "displayName": "MirrorNG",
-    "version": "34.4.0",
+    "version": "34.4.1",
     "unity": "2019.1",
     "description": "MirrorNG is a high level Networking API for Unity, supporting different low level Transports.",
     "author": "Paul Pacheco",
     "repository": {
         "type": "git",
         "url": "https://github.com/MirrorNG/MirrorNG.git#upm"
+    },
+    "dependencies": {
+        "nuget.mono-cecil": "0.1.6-preview"
     },
     "samples": [
         {

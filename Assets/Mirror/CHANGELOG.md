@@ -1,3 +1,10 @@
+## [34.4.1](https://github.com/MirrorNG/MirrorNG/compare/34.4.0-master...34.4.1-master) (2020-04-15)
+
+
+### Bug Fixes
+
+* Fixing SyncVars not serializing when OnSerialize is overridden ([#1671](https://github.com/MirrorNG/MirrorNG/issues/1671)) ([c66c5a6](https://github.com/MirrorNG/MirrorNG/commit/c66c5a6dcc6837c840e6a51435b88fde10322297))
+
 # [34.4.0](https://github.com/MirrorNG/MirrorNG/compare/34.3.0-master...34.4.0-master) (2020-04-14)
 
 

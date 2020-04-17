@@ -1,6 +1,6 @@
 // all the [Rpc] code from NetworkBehaviourProcessor in one place
-using Mono.CecilX;
-using Mono.CecilX.Cil;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 namespace Mirror.Weaver
 {
     public static class RpcProcessor
