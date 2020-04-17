@@ -114,10 +114,12 @@ namespace Mirror.Tests
         [Test]
         public void RegisterPrefabExceptionTest()
         {
+            var gameObject = new GameObject();
             Assert.Throws<InvalidOperationException>(() =>
             {
-                client.RegisterPrefab(new GameObject());
+                client.RegisterPrefab(gameObject);
             });
+            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
