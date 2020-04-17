@@ -1,3 +1,4 @@
+using System;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -10,7 +11,8 @@ namespace Mirror.Tests
     {
         GameObject gameObject;
         NetworkAuthenticator testAuthenticator;
-        int count;
+
+        class NetworkAuthenticationImpl : NetworkAuthenticator { };
 
         [SetUp]
         public void SetupTest()
@@ -19,60 +21,57 @@ namespace Mirror.Tests
 
             client = gameObject.AddComponent<NetworkClient>();
             server = gameObject.AddComponent<NetworkServer>();
-            testAuthenticator = gameObject.AddComponent<NetworkAuthenticator>();
+            testAuthenticator = gameObject.AddComponent<NetworkAuthenticationImpl>();
         }
 
         [TearDown]
         public void TearDown()
         {
             Object.Destroy(gameObject);
-            count = 0;
         }
-
         
-        void InvokedMethod(INetworkConnection conn)
-        {
-            count++;
-        }
-
         [Test]
         public void OnServerAuthenticateTest()
         {
-            testAuthenticator.OnServerAuthenticated += InvokedMethod;
+            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
+            testAuthenticator.OnServerAuthenticated += mockMethod;
 
             testAuthenticator.OnServerAuthenticate(Substitute.For<INetworkConnection>());
 
-            Assert.That(count, Is.EqualTo(1));
+            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
 
         [Test]
         public void OnServerAuthenticateInternalTest()
         {
-            testAuthenticator.OnServerAuthenticated += InvokedMethod;
+            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
+            testAuthenticator.OnServerAuthenticated += mockMethod;
 
             testAuthenticator.OnServerAuthenticateInternal(Substitute.For<INetworkConnection>());
 
-            Assert.That(count, Is.EqualTo(1));
+            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
 
         [Test]
         public void OnClientAuthenticateTest()
         {
-            testAuthenticator.OnClientAuthenticated += InvokedMethod;
+            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
+            testAuthenticator.OnClientAuthenticated += mockMethod;
 
             testAuthenticator.OnClientAuthenticate(Substitute.For<INetworkConnection>());
 
-            Assert.That(count, Is.EqualTo(1));
+            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
 
         [Test]
         public void OnClientAuthenticateInternalTest()
         {
-            testAuthenticator.OnClientAuthenticated += InvokedMethod;
+            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
+            testAuthenticator.OnClientAuthenticated += mockMethod;
 
             testAuthenticator.OnClientAuthenticateInternal(Substitute.For<INetworkConnection>());
 
-            Assert.That(count, Is.EqualTo(1));
+            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
 
         [Test]
