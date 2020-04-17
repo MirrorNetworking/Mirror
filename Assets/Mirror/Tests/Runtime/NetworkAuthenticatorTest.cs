@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
@@ -17,7 +19,7 @@ namespace Mirror.Tests
         [SetUp]
         public void SetupTest()
         {
-            gameObject = new GameObject();
+            gameObject = new GameObject("networkTest", typeof(LoopbackTransport));
 
             client = gameObject.AddComponent<NetworkClient>();
             server = gameObject.AddComponent<NetworkServer>();
@@ -29,7 +31,7 @@ namespace Mirror.Tests
         {
             Object.Destroy(gameObject);
         }
-        
+
         [Test]
         public void OnServerAuthenticateTest()
         {
@@ -84,6 +86,21 @@ namespace Mirror.Tests
         public void ServerOnValidateTest()
         {
             Assert.That(server.authenticator, Is.EqualTo(testAuthenticator));
+        }
+
+        [UnityTest]
+        public IEnumerator NetworkClientCallsAuthenticator()
+        {
+            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
+            testAuthenticator.OnClientAuthenticated += mockMethod;
+
+            yield return null;
+
+            client.ConnectHost(server);
+
+            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
+
+            client.Disconnect();
         }
     }
 }
