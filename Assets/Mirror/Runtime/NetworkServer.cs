@@ -986,14 +986,9 @@ namespace Mirror
         /// <param name="conn">The connections object to clean up for.</param>
         public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
-            // destroy all objects owned by this connection
+            // destroy all objects owned by this connection, including the player object
             conn.DestroyOwnedObjects();
-
-            if (conn.identity != null)
-            {
-                DestroyObject(conn.identity, true);
-                conn.identity = null;
-            }
+            conn.identity = null;
         }
 
         /// <summary>
