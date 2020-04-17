@@ -7,16 +7,6 @@ using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
 {
-    public class TestClientAuthenticator : NetworkAuthenticator
-    {
-        public int called;
-
-        public override void OnClientAuthenticate(INetworkConnection conn)
-        {
-            ++called;
-        }
-    }
-
     [TestFixture]
     public class NetworkClientTest : HostSetup<MockComponent>
     {
@@ -175,18 +165,5 @@ namespace Mirror.Tests
             Object.Destroy(prefabObject);
         }
 
-        [UnityTest]
-        public IEnumerator AuthenticatorTest()
-        {
-            Assert.That(client.authenticator == null);
-            TestClientAuthenticator comp = networkManagerGo.AddComponent<TestClientAuthenticator>();
-
-            yield return null;
-
-            Assert.That(client.authenticator != null);
-            client.ConnectHost(server);
-
-            Assert.That(comp.called, Is.EqualTo(1));
-        }
     }
 }
