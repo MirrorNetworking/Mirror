@@ -169,6 +169,8 @@ namespace Mirror.Tests
             client.GetPrefab(guid, out GameObject result);
 
             Assert.That(result, Is.SameAs(prefabObject));
+
+            Object.Destroy(prefabObject);
         }
 
         [UnityTest]
