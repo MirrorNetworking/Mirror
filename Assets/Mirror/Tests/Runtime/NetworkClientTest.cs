@@ -138,7 +138,7 @@ namespace Mirror.Tests
         [Test]
         public void OnSpawnAssetSceneIDFailureExceptionTest()
         {
-            SpawnMessage msg = new SpawnMessage();
+            var msg = new SpawnMessage();
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
             {
                 client.OnSpawn(msg);
@@ -161,8 +161,8 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator GetPrefabTest()
         {
-            Guid guid = Guid.NewGuid();
-            GameObject prefabObject = new GameObject("prefab", typeof(NetworkIdentity));
+            var guid = Guid.NewGuid();
+            var prefabObject = new GameObject("prefab", typeof(NetworkIdentity));
 
             client.RegisterPrefab(prefabObject, guid);
 
