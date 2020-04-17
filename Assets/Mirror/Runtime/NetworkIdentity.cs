@@ -686,8 +686,11 @@ namespace Mirror
 
         // serialize all components using dirtyComponentsMask
         // -> check ownerWritten/observersWritten to know if anything was written
-        internal (int ownerWritten, int observersWritten) OnSerializeAllSafely(bool initialState, ulong dirtyComponentsMask, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        internal (int ownerWritten, int observersWritten) OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
+
+            ulong dirtyComponentsMask = initialState ? GetIntialComponentsMask() : GetDirtyComponentsMask();
+
             // calculate syncMode mask at runtime. this allows users to change
             // component.syncMode while the game is running, which can be a huge
             // advantage over syncvar-based sync modes. e.g. if a player decides
@@ -1155,9 +1158,8 @@ namespace Mirror
         {
             if (observers.Count > 0)
             {
-                ulong dirtyComponentsMask = GetDirtyComponentsMask();
-
-                SendUpdateVarsMessage(dirtyComponentsMask);
+                
+                SendUpdateVarsMessage();
             }
             else
             {
@@ -1167,13 +1169,13 @@ namespace Mirror
             }
         }
 
-        void SendUpdateVarsMessage(ulong dirtyComponentsMask)
+        void SendUpdateVarsMessage()
         {
             // one writer for owner, one for observers
             using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
             {
                 // serialize all the dirty components and send
-                (int ownerWritten, int observersWritten) = OnSerializeAllSafely(false, dirtyComponentsMask, ownerWriter, observersWriter);
+                (int ownerWritten, int observersWritten) = OnSerializeAllSafely(false, ownerWriter, observersWriter);
                 if (ownerWritten > 0 || observersWritten > 0)
                 {
                     UpdateVarsMessage varsMessage = new UpdateVarsMessage

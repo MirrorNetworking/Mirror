@@ -121,8 +121,7 @@ namespace Mirror.Tests
             var ownerWriter = new NetworkWriter();
             // not really used in this Test
             var observersWriter = new NetworkWriter();
-            ulong dirtyMask = identity1.GetIntialComponentsMask();
-            (int ownerWritten, int observersWritten) = identity1.OnSerializeAllSafely(true, dirtyMask, ownerWriter, observersWriter);
+            identity1.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // set up a "client" object
             var gameObject2 = new GameObject();

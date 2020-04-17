@@ -850,8 +850,7 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            ulong dirtyComponentsMask = identity.GetIntialComponentsMask();
-            identity.OnSerializeAllSafely(true, dirtyComponentsMask, ownerWriter, observersWriter);
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // use owner segment if 'conn' owns this identity, otherwise
             // use observers segment

@@ -537,12 +537,7 @@ namespace Mirror.Tests
             // serialize should propagate exceptions
             Assert.Throws<Exception>(() =>
             {
-                ulong dirtyMask = identity.GetIntialComponentsMask();
-                (int ownerWritten, int observersWritten) = identity.OnSerializeAllSafely(true, dirtyMask, ownerWriter, observersWriter);
-                // owner should have written all components
-                Assert.That(ownerWritten, Is.EqualTo(3));
-                // observers should have written only the observers components
-                Assert.That(observersWritten, Is.EqualTo(2));
+                identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
             });
 
             // reset component values
@@ -606,8 +601,7 @@ namespace Mirror.Tests
             // serialize
             var ownerWriter = new NetworkWriter();
             var observersWriter = new NetworkWriter();
-            ulong dirtyMask = identity.GetIntialComponentsMask();
-            identity.OnSerializeAllSafely(true, dirtyMask, ownerWriter, observersWriter);
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // reset component values
             comp1.value = 0;
