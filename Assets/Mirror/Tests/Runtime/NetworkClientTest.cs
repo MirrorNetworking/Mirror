@@ -155,14 +155,15 @@ namespace Mirror.Tests
         public IEnumerator GetPrefabTest()
         {
             Guid guid = Guid.NewGuid();
-            client.RegisterPrefab(networkManagerGo, guid);
+            GameObject prefabObject = new GameObject("prefab", typeof(NetworkIdentity));
+
+            client.RegisterPrefab(prefabObject, guid);
 
             yield return null;
 
             client.GetPrefab(guid, out GameObject result);
 
-            Assert.That(result != null);
-            Assert.That(result.GetComponent<NetworkIdentity>().AssetId == guid);
+            Assert.That(result, Is.SameAs(prefabObject));
         }
 
         [UnityTest]
