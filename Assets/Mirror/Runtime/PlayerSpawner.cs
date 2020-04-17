@@ -69,7 +69,6 @@ namespace Mirror
             OnServerAddPlayer(conn);
         }
 
-
         /// <summary>
         /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
@@ -107,7 +106,6 @@ namespace Mirror
             }
         }
 
-
         public int startPositionIndex;
 
         /// <summary>
@@ -126,5 +124,4 @@ namespace Mirror
         [Tooltip("Round Robin or Random order of Start Position selection")]
         public PlayerSpawnMethod playerSpawnMethod;
     }
-
 }
