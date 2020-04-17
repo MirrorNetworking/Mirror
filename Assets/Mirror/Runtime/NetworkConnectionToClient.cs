@@ -16,16 +16,16 @@ namespace Mirror
 
         internal float lastMessageTime2;
 
-        internal void CheckForActivity()
+        public override void CheckForActivity()
         {
-            if ((Time.time - serverIdleTimeout) > lastMessageTime2)
+            if ((Time.time - serverIdleTimeout) > lastMessageTime)
             {
-                Debug.LogError($"{Time.time} {lastMessageTime} {lastMessageTime2}");
+                Debug.LogError($"{Time.time} {lastMessageTime} {lastMessageTime}");
                 Disconnect();
             }
         }
 
-        internal override void OnMessageReceived(int msgType)
+        public override void OnMessageReceived(int msgType)
         {
             lastMessageTime = Time.time;
             lastMessageTime2 = Time.time;

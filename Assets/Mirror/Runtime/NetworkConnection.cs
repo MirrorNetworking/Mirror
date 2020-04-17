@@ -289,16 +289,9 @@ namespace Mirror
             }
         }
 
-        //internal void CheckForActivity()
-        //{
-        //    if ((Time.time - serverIdleTimeout) > lastMessageTime)
-        //    {
-        //        Debug.LogError($"{Time.time} {serverIdleTimeout} {lastMessageTime}");
-        //        Disconnect();
-        //    }
-        //}
+        public virtual void OnMessageReceived(int msgType) { }
 
-        internal virtual void OnMessageReceived(int msgType) { }
+        public virtual void CheckForActivity() { }
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {
