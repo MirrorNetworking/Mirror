@@ -748,7 +748,7 @@ namespace Mirror
             return (ownerWritten, observersWritten);
         }
 
-        internal ulong GetDirtyComponentsMask()
+        private ulong GetDirtyComponentsMask()
         {
             // loop through all components only once and then write dirty+payload into the writer afterwards
             ulong dirtyComponentsMask = 0L;
@@ -764,18 +764,14 @@ namespace Mirror
 
             return dirtyComponentsMask;
         }
-        internal ulong GetIntialComponentsMask()
+
+        private ulong GetIntialComponentsMask()
         {
-            // loop through all components only once and then write dirty+payload into the writer afterwards
-            ulong dirtyComponentsMask = 0UL;
-            for (int i = 0; i < NetworkBehaviours.Length; ++i)
-            {
-                dirtyComponentsMask |= 1UL << i;
-            }
-
-            return dirtyComponentsMask;
+            // set a bit for every behaviour
+            return NetworkBehaviours.Length == 64
+                ? ulong.MaxValue
+                : (1UL << NetworkBehaviours.Length) - 1;
         }
-
 
         // a mask that contains all the components with SyncMode.Observers
         internal ulong GetSyncModeObserversMask()
