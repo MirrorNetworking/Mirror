@@ -150,10 +150,12 @@ namespace Mirror.Tests
         [Test]
         public void UnregisterPrefabExceptionTest()
         {
+            var gameObject = new GameObject();
             Assert.Throws<InvalidOperationException>(() =>
             {
-                client.UnregisterPrefab(new GameObject());
+                client.UnregisterPrefab(gameObject);
             });
+            Object.DestroyImmediate(gameObject);
         }
 
         [UnityTest]
