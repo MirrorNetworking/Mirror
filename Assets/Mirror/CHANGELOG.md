@@ -1,3 +1,16 @@
+# [34.5.0](https://github.com/MirrorNG/MirrorNG/compare/34.4.1-master...34.5.0-master) (2020-04-17)
+
+
+### Features
+
+* Added SyncList.Find and SyncList.FindAll ([#1716](https://github.com/MirrorNG/MirrorNG/issues/1716)) ([0fe6328](https://github.com/MirrorNG/MirrorNG/commit/0fe6328800daeef8680a19a394260295b7241442)), closes [#1710](https://github.com/MirrorNG/MirrorNG/issues/1710)
+* Weaver can now automatically create Reader/Writer for types in a different assembly ([#1708](https://github.com/MirrorNG/MirrorNG/issues/1708)) ([b1644ae](https://github.com/MirrorNG/MirrorNG/commit/b1644ae481497d4347f404543c8200d2754617b9)), closes [#1570](https://github.com/MirrorNG/MirrorNG/issues/1570)
+
+
+### Performance Improvements
+
+* Adding dirty check before update sync var ([#1702](https://github.com/MirrorNG/MirrorNG/issues/1702)) ([58219c8](https://github.com/MirrorNG/MirrorNG/commit/58219c8f726cd65f8987c9edd747987057967ea4))
+
 ## [34.4.1](https://github.com/MirrorNG/MirrorNG/compare/34.4.0-master...34.4.1-master) (2020-04-15)
 
 
