@@ -452,7 +452,7 @@ namespace Mirror
             // are more connections allowed? if not, kick
             // (it's easier to handle this in Mirror, so Transports can have
             //  less code and third party transport might not do that anyway)
-            // (this way we could also send a custom 'tooFull' message later,                                               
+            // (this way we could also send a custom 'tooFull' message later,
             //  Transport can't do that)
             if (connections.Count < maxConnections)
             {
