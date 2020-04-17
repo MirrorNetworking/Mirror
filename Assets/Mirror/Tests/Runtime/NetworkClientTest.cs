@@ -22,25 +22,6 @@ namespace Mirror.Tests
             Assert.That(client.Connection != null);
         }
 
-        [UnityTest]
-        public IEnumerator LocalPlayerTest()
-        {
-            Assert.That(client.LocalPlayer == null);
-
-            PlayerSpawner spawner = networkManagerGo.AddComponent<PlayerSpawner>();
-
-            spawner.server = server;
-            spawner.client = client;
-            spawner.playerPrefab = identity;
-            spawner.Start();
-
-            client.ConnectHost(server);
-
-            yield return null;
-
-            Assert.That(client.LocalPlayer != null);
-        }
-
         [Test]
         public void CurrentTest()
         {
