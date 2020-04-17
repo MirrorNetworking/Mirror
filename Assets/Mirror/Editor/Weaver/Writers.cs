@@ -145,6 +145,9 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate)
                     continue;
 
+                if (field.IsNotSerialized)
+                    continue;
+
                 MethodReference writeFunc = GetWriteFunc(field.FieldType, recursionCount + 1);
                 if (writeFunc != null)
                 {
