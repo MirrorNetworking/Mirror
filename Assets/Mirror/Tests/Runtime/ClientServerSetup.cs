@@ -32,6 +32,11 @@ namespace Mirror.Tests
         protected INetworkConnection connectionToServer;
         protected INetworkConnection connectionToClient;
 
+        public virtual void ExtraSetup()
+        {
+
+        }
+
         [UnitySetUp]
         public IEnumerator Setup() => RunAsync(async () =>
         {
@@ -44,6 +49,8 @@ namespace Mirror.Tests
             server = manager.server;
             client = manager.client;
             manager.startOnHeadless = false;
+
+            ExtraSetup();
 
             // create and register a prefab
             playerPrefab = new GameObject("serverPlayer", typeof(NetworkIdentity), typeof(T));

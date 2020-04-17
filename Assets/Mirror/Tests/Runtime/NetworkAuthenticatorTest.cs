@@ -11,25 +11,15 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkAuthenticatorTest : ClientServerSetup<MockComponent>
     {
-        GameObject gameObject;
         NetworkAuthenticator testAuthenticator;
 
         class NetworkAuthenticationImpl : NetworkAuthenticator { };
 
-        [SetUp]
-        public void SetupTest()
+        public override void ExtraSetup()
         {
-            gameObject = new GameObject("networkTest", typeof(LoopbackTransport));
-
-            client = gameObject.AddComponent<NetworkClient>();
-            server = gameObject.AddComponent<NetworkServer>();
-            testAuthenticator = gameObject.AddComponent<NetworkAuthenticationImpl>();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            Object.Destroy(gameObject);
+            testAuthenticator = networkManagerGo.AddComponent<NetworkAuthenticationImpl>();
+            server.authenticator = testAuthenticator;
+            client.authenticator = testAuthenticator;
         }
 
         [Test]
@@ -97,6 +87,23 @@ namespace Mirror.Tests
             yield return null;
 
             client.ConnectHost(server);
+
+            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
+
+            client.Disconnect();
+        }
+
+        [UnityTest]
+        public IEnumerator NetworkServerCallsAuthenticator()
+        {
+            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
+            testAuthenticator.OnServerAuthenticated += mockMethod;
+
+            yield return null;
+
+            client.ConnectHost(server);
+
+            yield return null;
 
             mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
 

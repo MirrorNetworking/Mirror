@@ -19,7 +19,7 @@ namespace Mirror.Tests
     {
         WovenTestMessage message;
 
-        void InitializeMessage()
+        public override void ExtraSetup()
         {
             message = new WovenTestMessage
             {
@@ -27,6 +27,7 @@ namespace Mirror.Tests
                 DoubleValue = 1.0,
                 StringValue = "hello"
             };
+
         }
 
         [Test]
@@ -103,8 +104,6 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator SendToAll()
         {
-            InitializeMessage();
-
             Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
 
             connectionToServer.RegisterHandler(func);
@@ -123,8 +122,6 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator SendToClientOfPlayer()
         {
-            InitializeMessage();
-
             Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
 
             connectionToServer.RegisterHandler(func);
@@ -182,8 +179,6 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator RegisterMessage1()
         {
-            InitializeMessage();
-
             Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
 
             connectionToClient.RegisterHandler(func);
@@ -199,8 +194,6 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator RegisterMessage2()
         {
-            InitializeMessage();
-
             Action<INetworkConnection, WovenTestMessage> func = Substitute.For<Action<INetworkConnection, WovenTestMessage>>();
 
             connectionToClient.RegisterHandler<WovenTestMessage>(func);
@@ -218,8 +211,6 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator UnRegisterMessage1()
         {
-            InitializeMessage();
-
             Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
 
             connectionToClient.RegisterHandler(func);
