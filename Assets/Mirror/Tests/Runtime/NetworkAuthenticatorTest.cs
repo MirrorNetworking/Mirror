@@ -5,24 +5,11 @@ using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
 {
-    public class TestAuthenticator : NetworkAuthenticator
-    {
-        public void OnServerAuthenticateInternalExpose(INetworkConnection conn)
-        {
-            OnServerAuthenticateInternal(conn);
-        }
-
-        public void OnClientAuthenticateInternalExpose(INetworkConnection conn)
-        {
-            OnClientAuthenticateInternal(conn);
-        }
-    }
-
     [TestFixture]
     public class NetworkAuthenticatorTest : ClientServerSetup<MockComponent>
     {
         GameObject gameObject;
-        TestAuthenticator testAuthenticator;
+        NetworkAuthenticator testAuthenticator;
         int count;
 
         [SetUp]
@@ -32,7 +19,7 @@ namespace Mirror.Tests
 
             client = gameObject.AddComponent<NetworkClient>();
             server = gameObject.AddComponent<NetworkServer>();
-            testAuthenticator = gameObject.AddComponent<TestAuthenticator>();
+            testAuthenticator = gameObject.AddComponent<NetworkAuthenticator>();
         }
 
         [TearDown]
@@ -63,7 +50,7 @@ namespace Mirror.Tests
         {
             testAuthenticator.OnServerAuthenticated += InvokedMethod;
 
-            testAuthenticator.OnServerAuthenticateInternalExpose(Substitute.For<INetworkConnection>());
+            testAuthenticator.OnServerAuthenticateInternal(Substitute.For<INetworkConnection>());
 
             Assert.That(count, Is.EqualTo(1));
         }
@@ -83,7 +70,7 @@ namespace Mirror.Tests
         {
             testAuthenticator.OnClientAuthenticated += InvokedMethod;
 
-            testAuthenticator.OnClientAuthenticateInternalExpose(Substitute.For<INetworkConnection>());
+            testAuthenticator.OnClientAuthenticateInternal(Substitute.For<INetworkConnection>());
 
             Assert.That(count, Is.EqualTo(1));
         }
