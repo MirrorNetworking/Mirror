@@ -22,6 +22,11 @@ namespace Mirror
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
         /// <summary>
+        /// Number of seconds of no messages from client after which server will auto-disconnect
+        /// </summary>
+        public float serverIdleTimeout = 10f;
+
+        /// <summary>
         /// Unique identifier for this connection that is assigned by the transport layer.
         /// </summary>
         /// <remarks>
@@ -272,6 +277,8 @@ namespace Mirror
                     if (InvokeHandler(msgType, networkReader, channelId))
                     {
                         lastMessageTime = Time.time;
+                        Debug.Log(lastMessageTime);
+                        OnMessageReceived(msgType);
                     }
                 }
                 else
@@ -281,6 +288,17 @@ namespace Mirror
                 }
             }
         }
+
+        //internal void CheckForActivity()
+        //{
+        //    if ((Time.time - serverIdleTimeout) > lastMessageTime)
+        //    {
+        //        Debug.LogError($"{Time.time} {serverIdleTimeout} {lastMessageTime}");
+        //        Disconnect();
+        //    }
+        //}
+
+        internal virtual void OnMessageReceived(int msgType) { }
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {

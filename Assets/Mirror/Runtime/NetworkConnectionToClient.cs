@@ -6,9 +6,7 @@ namespace Mirror
 {
     public class NetworkConnectionToClient : NetworkConnection
     {
-        public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId)
-        {
-        }
+        public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId) { }
 
         public override string address => Transport.activeTransport.ServerGetClientAddress(connectionId);
 
@@ -16,15 +14,22 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         readonly List<int> singleConnectionId = new List<int> { -1 };
 
-        /// <summary>
-        /// Number of seconds of no messages from client after which server will auto-disconnect
-        /// </summary>
-        public float serverIdleTimeout = 30f;
+        internal float lastMessageTime2;
 
         internal void CheckForActivity()
         {
-            if (Time.time - serverIdleTimeout > lastMessageTime)
+            if ((Time.time - serverIdleTimeout) > lastMessageTime2)
+            {
+                Debug.LogError($"{Time.time} {lastMessageTime} {lastMessageTime2}");
                 Disconnect();
+            }
+        }
+
+        internal override void OnMessageReceived(int msgType)
+        {
+            lastMessageTime = Time.time;
+            lastMessageTime2 = Time.time;
+            Debug.LogWarning($"{lastMessageTime} {lastMessageTime2}");
         }
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)

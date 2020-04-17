@@ -9,11 +9,28 @@ namespace Mirror
     {
         internal ULocalConnectionToServer connectionToServer;
 
-        public ULocalConnectionToClient() : base(0)
-        {
-        }
+        public ULocalConnectionToClient() : base(0) { }
 
         public override string address => "localhost";
+
+        internal float lastMessageTime3;
+
+        //internal void CheckForActivity()
+        //{
+        //    if ((Time.time - serverIdleTimeout) > lastMessageTime3)
+        //    {
+        //        Debug.LogError($"{Time.time} {serverIdleTimeout} {lastMessageTime} {lastMessageTime3}");
+        //        Disconnect();
+        //    }
+        //}
+
+        internal override void OnMessageReceived(int msgType)
+        {
+            lastMessageTime = Time.time;
+            lastMessageTime2 = Time.time;
+            lastMessageTime3 = Time.time;
+            Debug.LogWarning($"{lastMessageTime} {lastMessageTime2} {lastMessageTime3}");
+        }
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
