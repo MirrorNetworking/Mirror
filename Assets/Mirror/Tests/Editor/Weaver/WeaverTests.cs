@@ -1,7 +1,8 @@
-//#define LOG_WEAVER_OUTPUTS
-
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mirror.Weaver.Tests
 {
@@ -10,35 +11,36 @@ namespace Mirror.Weaver.Tests
         [SetUp]
         public void TestSetup()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
+            string className = TestContext.CurrentContext.Test.ClassName.Split('.').Last();
+
+            BuildAndWeaveTestAssembly(className, TestContext.CurrentContext.Test.Name);
         }
     }
     [TestFixture]
     [Category("Weaver")]
     public abstract class WeaverTests
     {
+        public static readonly ILogger logger = LogFactory.GetLogger<WeaverTests>();
+
         protected List<string> weaverErrors = new List<string>();
         void HandleWeaverError(string msg)
         {
-#if LOG_WEAVER_OUTPUTS
-            Debug.LogError(msg);
-#endif
+            logger.Log(msg);
             weaverErrors.Add(msg);
         }
 
         protected List<string> weaverWarnings = new List<string>();
         void HandleWeaverWarning(string msg)
         {
-#if LOG_WEAVER_OUTPUTS
-            Debug.LogWarning(msg);
-#endif
+            logger.Log(msg);
             weaverWarnings.Add(msg);
         }
 
-        protected void BuildAndWeaveTestAssembly(string baseName)
+        protected void BuildAndWeaveTestAssembly(string className, string testName)
         {
-            WeaverAssembler.OutputFile = baseName + ".dll";
-            WeaverAssembler.AddSourceFiles(new string[] { baseName + ".cs" });
+            string testSourceDirectory = className + "~";
+            WeaverAssembler.OutputFile = Path.Combine(testSourceDirectory, testName + ".dll");
+            WeaverAssembler.AddSourceFiles(new string[] { Path.Combine(testSourceDirectory, testName + ".cs") });
             WeaverAssembler.Build();
 
             Assert.That(WeaverAssembler.CompilerErrors, Is.False);

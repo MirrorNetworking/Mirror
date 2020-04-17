@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
@@ -92,7 +92,7 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourTargetRpcParamAbstract()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized because i has no default constructor"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized because it has no default constructor"));
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourClientRpcParamAbstract()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized because i has no default constructor"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized because it has no default constructor"));
         }
 
         [Test]
@@ -211,7 +211,7 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourCmdParamAbstract()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized because i has no default constructor"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized because it has no default constructor"));
         }
 
         [Test]

@@ -77,8 +77,9 @@ namespace Mirror.Tests
             var ownerWriter = new NetworkWriter();
             // not really used in this Test
             var observersWriter = new NetworkWriter();
-            (int ownerWritten, int observersWritten) = netIdServer.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+            ulong dirtyMask = netIdServer.GetIntialComponentsMask();
 
+            (int ownerWritten, int observersWritten) = netIdServer.OnSerializeAllSafely(true, dirtyMask, ownerWriter, observersWriter);
 
             // apply all the data from the server object
             var reader = new NetworkReader(ownerWriter.ToArray());

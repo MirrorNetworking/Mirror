@@ -816,34 +816,50 @@ namespace Mirror
             // one writer for owner, one for observers
             using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
             {
-                // serialize all components with initialState = true
-                // (can be null if has none)
-                (int ownerWritten, int observersWritten) = identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+                bool isOwner = identity.ConnectionToClient == conn;
 
-                // convert to ArraySegment to avoid reader allocations
-                // (need to handle null case too)
-                ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
-                ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
+                ArraySegment<byte> payload = CreateSpawnMessagePayload(isOwner, identity, ownerWriter, observersWriter);
 
                 var msg = new SpawnMessage
                 {
                     netId = identity.NetId,
                     isLocalPlayer = conn.Identity == identity,
-                    isOwner = identity.ConnectionToClient == conn,
+                    isOwner = isOwner,
                     sceneId = identity.sceneId,
                     assetId = identity.AssetId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
-                    scale = identity.transform.localScale
+                    scale = identity.transform.localScale,
+
+                    payload = payload,
                 };
 
-                // use owner segment if 'conn' owns this identity, otherwise
-                // use observers segment
-                msg.payload = msg.isOwner ? ownerSegment : observersSegment;
 
                 conn.Send(msg);
             }
+        }
+
+        static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, PooledNetworkWriter ownerWriter, PooledNetworkWriter observersWriter)
+        {
+            // Only call OnSerializeAllSafely if there are NetworkBehaviours
+            if (identity.NetworkBehaviours.Length == 0)
+            {
+                return default;
+            }
+
+            // serialize all components with initialState = true
+            // (can be null if has none)
+            ulong dirtyComponentsMask = identity.GetIntialComponentsMask();
+            identity.OnSerializeAllSafely(true, dirtyComponentsMask, ownerWriter, observersWriter);
+
+            // use owner segment if 'conn' owns this identity, otherwise
+            // use observers segment
+            ArraySegment<byte> payload = isOwner ? 
+                ownerWriter.ToArraySegment() : 
+                observersWriter.ToArraySegment();
+
+            return payload;
         }
 
         /// <summary>

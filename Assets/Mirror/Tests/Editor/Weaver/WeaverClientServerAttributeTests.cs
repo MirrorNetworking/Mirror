@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -44,7 +45,7 @@ namespace Mirror.Weaver.Tests
         {
             string className = "MirrorTest.MirrorTestPlayer";
 
-            string assemblyName = WeaverAssembler.OutputDirectory + WeaverAssembler.OutputFile;
+            string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory,  WeaverAssembler.OutputFile);
             using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(assemblyName))
             {
                 TypeDefinition type = assembly.MainModule.GetType(className);

@@ -294,11 +294,6 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (!Weaver.IsValidTypeToGenerate(variable.Resolve()))
-            {
-                return null;
-            }
-
             string functionName = "_Read" + variable.Name + "_";
             if (variable.DeclaringType != null)
             {
@@ -357,10 +352,12 @@ namespace Mirror.Weaver
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
-                    Weaver.Error($"{variable} can't be deserialized because i has no default constructor");
+                    Weaver.Error($"{variable} can't be deserialized because it has no default constructor");
                 }
 
-                worker.Append(worker.Create(OpCodes.Newobj, ctor));
+                MethodReference ctorRef = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);
+
+                worker.Append(worker.Create(OpCodes.Newobj, ctorRef));
                 worker.Append(worker.Create(OpCodes.Stloc_0));
             }
         }
@@ -387,8 +384,9 @@ namespace Mirror.Weaver
                 {
                     Weaver.Error($"{field} has an unsupported type");
                 }
+                FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
 
-                worker.Append(worker.Create(OpCodes.Stfld, field));
+                worker.Append(worker.Create(OpCodes.Stfld, fieldRef));
                 fields++;
             }
             if (fields == 0)

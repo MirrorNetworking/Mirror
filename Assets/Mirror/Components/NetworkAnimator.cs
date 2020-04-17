@@ -60,7 +60,7 @@ namespace Mirror
                         return true;
                 }
 
-                return (HasAuthority && ClientAuthority);
+                return HasAuthority && ClientAuthority;
             }
         }
 
