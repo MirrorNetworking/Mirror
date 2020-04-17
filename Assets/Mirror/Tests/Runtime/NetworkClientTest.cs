@@ -59,26 +59,9 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator RemovePlayerTest()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                _ = client.RemovePlayer();
-            });
-
-            PlayerSpawner spawner = networkManagerGo.AddComponent<PlayerSpawner>();
-
-            spawner.server = server;
-            spawner.client = client;
-            spawner.playerPrefab = identity;
-            spawner.Start();
-
-            client.ConnectHost(server);
-
+            Assert.That(client.RemovePlayer(), Is.True);
             yield return null;
 
-            Assert.That(client.LocalPlayer != null);
-
-            Assert.That(client.RemovePlayer());
-            Assert.That(identity == null);
             Assert.That(client.LocalPlayer == null);
         }
 
