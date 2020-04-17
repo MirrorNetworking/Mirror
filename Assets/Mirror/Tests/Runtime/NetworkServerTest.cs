@@ -498,7 +498,7 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerable AuthenticatorTest()
+        public IEnumerator AuthenticatorTest()
         {
             Assert.That(client.authenticator == null);
             TestServerAuthenticator comp = serverGO.AddComponent<TestServerAuthenticator>();

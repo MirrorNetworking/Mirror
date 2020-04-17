@@ -32,7 +32,7 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerable LocalPlayerTest()
+        public IEnumerator LocalPlayerTest()
         {
             Assert.That(client.LocalPlayer == null);
 
@@ -85,7 +85,7 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerable RemovePlayerTest()
+        public IEnumerator RemovePlayerTest()
         {
             Assert.Throws<InvalidOperationException>(() =>
             {
@@ -152,7 +152,7 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerable GetPrefabTest()
+        public IEnumerator GetPrefabTest()
         {
             Guid guid = Guid.NewGuid();
             client.RegisterPrefab(networkManagerGo, guid);
