@@ -12,6 +12,7 @@ namespace Mirror.Websocket
     {
         public int Port = 7778;
 
+        #region Server
         private TcpListener listener;
         private readonly IWebSocketServerFactory webSocketServerFactory = new WebSocketServerFactory();
 
@@ -34,30 +35,6 @@ namespace Mirror.Websocket
                 // expected,  the connection was closed
                 return null;
             }
-}
-
-        public override async Task<IConnection> ConnectAsync(Uri uri)
-        {
-            var options = new WebSocketClientOptions
-            {
-                NoDelay = true,
-                KeepAliveInterval = TimeSpan.Zero,
-                SecWebSocketProtocol = "binary"
-            };
-
-            if (uri.IsDefaultPort)
-            {
-                var builder = new UriBuilder(uri)
-                {
-                    Port = Port
-                };
-                uri = builder.Uri;
-            }
-
-            var clientFactory = new WebSocketClientFactory();
-            WebSocket webSocket = await clientFactory.ConnectAsync(uri, options);
-
-            return new WebsocketConnection(webSocket);
         }
 
         public override void Disconnect()
@@ -84,5 +61,34 @@ namespace Mirror.Websocket
 
             return builder.Uri;
         }
+        #endregion
+
+        #region Client
+        public override async Task<IConnection> ConnectAsync(Uri uri)
+        {
+            var options = new WebSocketClientOptions
+            {
+                NoDelay = true,
+                KeepAliveInterval = TimeSpan.Zero,
+                SecWebSocketProtocol = "binary"
+            };
+
+            if (uri.IsDefaultPort)
+            {
+                var builder = new UriBuilder(uri)
+                {
+                    Port = Port
+                };
+                uri = builder.Uri;
+            }
+
+            var clientFactory = new WebSocketClientFactory();
+            WebSocket webSocket = await clientFactory.ConnectAsync(uri, options);
+
+            return new WebsocketConnection(webSocket);
+        }
+
+        #endregion
+
     }
 }
