@@ -3,6 +3,7 @@ using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
 {
@@ -122,12 +123,14 @@ namespace Mirror.Tests
         [Test]
         public void RegisterPrefabGuidExceptionTest()
         {
-            Guid guid = Guid.NewGuid();
+            var guid = Guid.NewGuid();
+            var gameObject = new GameObject();
 
             Assert.Throws<InvalidOperationException>(() =>
             {
-                client.RegisterPrefab(new GameObject(), guid);
+                client.RegisterPrefab(gameObject, guid);
             });
+            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
