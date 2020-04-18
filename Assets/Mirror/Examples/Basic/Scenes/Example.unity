@@ -201,8 +201,8 @@ MonoBehaviour:
   dontDestroyOnLoad: 0
   runInBackground: 1
   startOnHeadless: 0
-  showDebugMessages: 0
   serverTickRate: 30
+  showDebugMessages: 0
   offlineScene: 
   onlineScene: 
   transport: {fileID: 249891955}
