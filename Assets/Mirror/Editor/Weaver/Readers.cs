@@ -51,6 +51,16 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate reader for component type {variable}. Use a supported type or provide a custom reader");
                 return null;
             }
+            if (variable.FullName == Weaver.ObjectType.FullName)
+            {
+                Weaver.Error($"Cannot generate reader for {variable}. Use a supported type or provide a custom writer");
+                return null;
+            }
+            if (variable.FullName == Weaver.ScriptableObjectType.FullName)
+            {
+                Weaver.Error($"Cannot generate reader for {variable}. Use a supported type or provide a custom writer");
+                return null;
+            }
             if (variable.IsByReference)
             {
                 // error??
