@@ -128,14 +128,5 @@ namespace Mirror.Weaver.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
         }
-
-        [Test]
-        [Ignore("Not Implemented")]
-        public void IncludesPrivateSerializeField()
-        {
-            // Need to read Assemably and check that fields are added to writer
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
-            Assert.That(weaverErrors, Is.Empty);
-        }
     }
 }
