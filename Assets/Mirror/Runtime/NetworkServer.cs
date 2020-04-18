@@ -409,9 +409,15 @@ namespace Mirror
             if (!active)
                 return;
 
-            // Check for dead clients
+            // Check for dead clients but exclude the host client because it
+            // doesn't ping itself and therefore may appear inactive.
             foreach (NetworkConnectionToClient conn in connections.Values)
-                conn.CheckForActivity();
+            {
+                if (!(conn is ULocalConnectionToClient))
+                {
+                    conn.CheckForActivity();
+                }
+            }
 
             // update all server objects
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)

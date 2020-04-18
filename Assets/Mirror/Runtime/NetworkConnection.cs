@@ -22,9 +22,12 @@ namespace Mirror
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
         /// <summary>
-        /// Number of seconds of no messages from client after which server will auto-disconnect
+        /// Timeout in seconds since last message from a client after which server will auto-disconnect.
+        /// <para>By default, clients send at least a Ping message every 2 seconds.</para>
+        /// <para>The Host client is immune from idle timeout disconnection.</para>
+        /// <para>Default value is 60 seconds.</para>
         /// </summary>
-        public float serverIdleTimeout = 10f;
+        public float serverIdleTimeout = 60f;
 
         /// <summary>
         /// Unique identifier for this connection that is assigned by the transport layer.
@@ -277,8 +280,6 @@ namespace Mirror
                     if (InvokeHandler(msgType, networkReader, channelId))
                     {
                         lastMessageTime = Time.time;
-                        Debug.Log(lastMessageTime);
-                        OnMessageReceived(msgType);
                     }
                 }
                 else
@@ -289,9 +290,11 @@ namespace Mirror
             }
         }
 
-        public virtual void OnMessageReceived(int msgType) { }
-
-        public virtual void CheckForActivity() { }
+        // Failsafe to kick clients that have stopped sending anything to the server.
+        // Clients Ping the server every 2 seconds but transports are unreliable
+        // when it comes to properly generating Disconnect messages to the server.
+        // This is overriden in NetworkConnectionToClient.
+        internal virtual void CheckForActivity() { }
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {

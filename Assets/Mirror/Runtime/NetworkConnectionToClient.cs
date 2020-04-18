@@ -14,22 +14,17 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         readonly List<int> singleConnectionId = new List<int> { -1 };
 
-        internal float lastMessageTime2;
-
-        public override void CheckForActivity()
+        // Failsafe to kick clients that have stopped sending anything to the server.
+        // Clients ping the server every 2 seconds but transports are unreliable
+        // when it comes to properly generating Disconnect messages to the server.
+        internal override void CheckForActivity()
         {
-            if ((Time.time - serverIdleTimeout) > lastMessageTime)
-            {
-                Debug.LogError($"{Time.time} {lastMessageTime} {lastMessageTime}");
+            Debug.LogWarning("NetworkConnectionToClient:CheckForActivity");
+            if ((Time.time - lastMessageTime) > serverIdleTimeout)
+            {   
                 Disconnect();
+                Debug.LogWarning($"Disconnecting {this} for inactivity!");
             }
-        }
-
-        public override void OnMessageReceived(int msgType)
-        {
-            lastMessageTime = Time.time;
-            lastMessageTime2 = Time.time;
-            Debug.LogWarning($"{lastMessageTime} {lastMessageTime2}");
         }
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)

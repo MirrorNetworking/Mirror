@@ -13,24 +13,6 @@ namespace Mirror
 
         public override string address => "localhost";
 
-        internal float lastMessageTime3;
-
-        public override void CheckForActivity()
-        {
-            if ((Time.time - serverIdleTimeout) > lastMessageTime)
-            {
-                Debug.LogError($"{Time.time} {lastMessageTime} {lastMessageTime}");
-                Disconnect();
-            }
-        }
-
-        public override void OnMessageReceived(int msgType)
-        {
-            lastMessageTime = Time.time;
-            lastMessageTime3 = Time.time;
-            Debug.LogWarning($"{lastMessageTime} {lastMessageTime2} {lastMessageTime3}");
-        }
-
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             connectionToServer.buffer.Write(segment);
