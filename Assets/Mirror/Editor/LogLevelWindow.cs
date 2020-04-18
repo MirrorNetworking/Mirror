@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Mirror
+namespace Mirror.Logging
 {
     public class LogLevelWindow : EditorWindow
     {
@@ -16,9 +16,17 @@ namespace Mirror
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.BeginVertical(EditorStyles.inspectorDefaultMargins);
-            foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
+            using (EditorGUI.ChangeCheckScope scope = new EditorGUI.ChangeCheckScope())
             {
-                DrawLoggerField(item);
+                foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
+                {
+                    DrawLoggerField(item);
+                }
+
+                if (scope.changed)
+                {
+                    LogSettingsSaver.SaveFromDictionary(LogFactory.loggers);
+                }
             }
             EditorGUILayout.EndVertical();
         }

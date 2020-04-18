@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Mirror.Logging;
 using UnityEngine;
 
 namespace Mirror
@@ -6,6 +7,11 @@ namespace Mirror
     public static class LogFactory
     {
         internal static readonly Dictionary<string, ILogger> loggers = new Dictionary<string, ILogger>();
+
+        static LogFactory()
+        {
+            LogSettingsSaver.LoadIntoDictionary(loggers);
+        }
 
         public static ILogger GetLogger<T>(LogType defaultLogLevel = LogType.Warning)
         {
