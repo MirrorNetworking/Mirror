@@ -1,11 +1,19 @@
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Mirror
+namespace Mirror.Logging
 {
     public class LogLevelWindow : EditorWindow
     {
+        [SerializeField] LogSettings settings;
+        private SerializedObject serializedObject;
+        private SerializedProperty settingsProp;
+
+        private void OnEnable()
+        {
+            serializedObject = new SerializedObject(this);
+            settingsProp = serializedObject.FindProperty(nameof(settings));
+        }
         void OnGUI()
         {
             EditorGUILayout.BeginVertical();
@@ -16,21 +24,18 @@ namespace Mirror
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.BeginVertical(EditorStyles.inspectorDefaultMargins);
-            foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
+
+            serializedObject.Update();
+            EditorGUILayout.PropertyField(settingsProp);
+            serializedObject.ApplyModifiedProperties();
+
+            if (settings != null)
             {
-                DrawLoggerField(item);
+                LogFactoryGUI.DrawLogFactoryDictionary(settings);
             }
+
             EditorGUILayout.EndVertical();
         }
-
-        static void DrawLoggerField(KeyValuePair<string, ILogger> item)
-        {
-            ILogger logger = item.Value;
-            string name = item.Key;
-
-            logger.filterLogType = (LogType)EditorGUILayout.EnumPopup(new GUIContent(name), logger.filterLogType);
-        }
-
 
         [MenuItem("Window/Analysis/Mirror Log Levels", priority = 20002)]
         public static void ShowWindow()
