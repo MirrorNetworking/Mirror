@@ -19,7 +19,6 @@ namespace Mirror
         // when it comes to properly generating Disconnect messages to the server.
         internal override void CheckForActivity()
         {
-            Debug.LogWarning("NetworkConnectionToClient:CheckForActivity");
             if ((Time.time - lastMessageTime) > serverIdleTimeout)
             {   
                 Disconnect();
