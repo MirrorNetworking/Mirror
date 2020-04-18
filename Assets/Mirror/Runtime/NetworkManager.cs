@@ -23,6 +23,9 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
     public class NetworkManager : MonoBehaviour
     {
+
+        public static readonly ILogger logger = LogFactory.GetLogger<NetworkManager>();
+
         /// <summary>
         /// A flag to control whether the NetworkManager object is destroyed when the scene changes.
         /// <para>This should be set if your game has a single NetworkManager that exists for the lifetime of the process. If there is a NetworkManager in each scene, then this should not be set.</para>
