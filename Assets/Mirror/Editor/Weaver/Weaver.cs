@@ -419,12 +419,12 @@ namespace Mirror.Weaver
 
             if (td.IsDerivedFrom(SyncListType))
             {
-                SyncListProcessor.Process(td);
+                SyncListProcessor.Process(td, SyncListType);
                 modified = true;
             }
             else if (td.IsDerivedFrom(SyncSetType))
             {
-                SyncListProcessor.Process(td);
+                SyncListProcessor.Process(td, SyncSetType);
                 modified = true;
             }
             else if (td.IsDerivedFrom(SyncDictionaryType))
