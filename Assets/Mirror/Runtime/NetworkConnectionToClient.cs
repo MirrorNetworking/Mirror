@@ -17,14 +17,7 @@ namespace Mirror
         // Failsafe to kick clients that have stopped sending anything to the server.
         // Clients ping the server every 2 seconds but transports are unreliable
         // when it comes to properly generating Disconnect messages to the server.
-        internal override void CheckForActivity()
-        {
-            if ((Time.time - lastMessageTime) > serverIdleTimeout)
-            {   
-                Debug.LogWarning($"Disconnecting {this} for inactivity!");
-                Disconnect();
-            }
-        }
+        internal override bool IsClientAlive() => Time.time - lastMessageTime < serverIdleTimeout;
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {

@@ -293,8 +293,13 @@ namespace Mirror
         // Failsafe to kick clients that have stopped sending anything to the server.
         // Clients Ping the server every 2 seconds but transports are unreliable
         // when it comes to properly generating Disconnect messages to the server.
+        // This cannot be abstract because then NetworkConnectionToServer
+        // would require and override that would never be called
         // This is overriden in NetworkConnectionToClient.
-        internal virtual void CheckForActivity() { }
+        internal virtual bool IsClientAlive()
+        {
+            return true;
+        }
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {

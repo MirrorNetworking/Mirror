@@ -413,9 +413,10 @@ namespace Mirror
             // doesn't ping itself and therefore may appear inactive.
             foreach (NetworkConnectionToClient conn in connections.Values)
             {
-                if (!(conn is ULocalConnectionToClient))
+                if (!conn.IsClientAlive())
                 {
-                    conn.CheckForActivity();
+                    Debug.LogWarning($"Disconnecting {conn} for inactivity!");
+                    conn.Disconnect();
                 }
             }
 
