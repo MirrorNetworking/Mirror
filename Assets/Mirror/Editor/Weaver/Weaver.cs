@@ -409,12 +409,6 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
-            // ignore abstract classes
-            // we dont need to process abstract classes because classes that
-            // inherit from them will be processed instead
-            if (td.IsAbstract)
-                return false;
-
             // ignore generic classes
             // we can not process generic classes
             // we give error if a generic syncObject is used in NetworkBehaviour
@@ -423,20 +417,27 @@ namespace Mirror.Weaver
 
             bool modified = false;
 
-            if (td.IsDerivedFrom(SyncListType))
+            // ignore abstract classes
+            // we dont need to process abstract classes because classes that
+            // inherit from them will be processed instead
+            // We cant early return with Abstract because we still need to check for embeded types
+            if (!td.IsAbstract)
             {
-                SyncListProcessor.Process(td, SyncListType);
-                modified = true;
-            }
-            else if (td.IsDerivedFrom(SyncSetType))
-            {
-                SyncListProcessor.Process(td, SyncSetType);
-                modified = true;
-            }
-            else if (td.IsDerivedFrom(SyncDictionaryType))
-            {
-                SyncDictionaryProcessor.Process(td);
-                modified = true;
+                if (td.IsDerivedFrom(SyncListType))
+                {
+                    SyncListProcessor.Process(td, SyncListType);
+                    modified = true;
+                }
+                else if (td.IsDerivedFrom(SyncSetType))
+                {
+                    SyncListProcessor.Process(td, SyncSetType);
+                    modified = true;
+                }
+                else if (td.IsDerivedFrom(SyncDictionaryType))
+                {
+                    SyncDictionaryProcessor.Process(td);
+                    modified = true;
+                }
             }
 
             // check for embedded types
