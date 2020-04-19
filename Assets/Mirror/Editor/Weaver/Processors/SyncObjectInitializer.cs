@@ -1,5 +1,3 @@
-// SyncObject code
-using System;
 using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -37,16 +35,16 @@ namespace Mirror.Weaver
 
             // Not initialized by the user in the field definition, e.g:
             // public SyncListInt Foo;
-            MethodReference objectConstructor;
-            try
-            {
-                objectConstructor = Weaver.CurrentAssembly.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
-            }
-            catch (Exception)
+
+            TypeDefinition fieldType = fd.FieldType.Resolve();
+            // find ctor with no parameters
+            MethodDefinition ctor = fieldType.Methods.FirstOrDefault(x => x.Name == ".ctor" && !x.HasParameters);
+            if (ctor == null)
             {
                 Weaver.Error($"{fd} does not have a default constructor");
                 return;
             }
+            MethodReference objectConstructor = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);
 
             ctorWorker.Append(ctorWorker.Create(OpCodes.Ldarg_0));
             ctorWorker.Append(ctorWorker.Create(OpCodes.Newobj, objectConstructor));

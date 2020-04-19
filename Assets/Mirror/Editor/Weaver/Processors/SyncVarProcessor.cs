@@ -344,6 +344,12 @@ namespace Mirror.Weaver
                         return;
                     }
 
+                    if (fd.FieldType.Resolve().HasGenericParameters)
+                    {
+                        Weaver.Error($"{fd} Can not use generic SyncObjects directly in NetworkBehaviour. Create a class and inherit from the generic syncList instead.");
+                        return;
+                    }
+
                     syncObjects.Add(fd);
                 }
             }
