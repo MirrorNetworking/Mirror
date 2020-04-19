@@ -10,6 +10,8 @@ namespace Mirror.Examples.ListServer
 
     public class RegisterServer : NetworkBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(RegisterServer));
+
         public NetworkManager manager;
         [Header("List Server Connection")]
         public string listServerUrl = "tcp4://127.0.0.1:8887";
@@ -54,7 +56,7 @@ namespace Mirror.Examples.ListServer
                 // send it
                 _ = gameServerToListenConnection.SendAsync(new System.ArraySegment<byte>(data));
             }
-            else Debug.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
+            else logger.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
         }
 
         void Tick()

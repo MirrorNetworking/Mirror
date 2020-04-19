@@ -13,7 +13,8 @@ namespace Mirror.Examples.Chat
 
         void Awake()
         {
-            client.Authenticated.AddListener(OnAuthenticated);
+            server.Authenticated.AddListener(OnServerAuthenticated);
+            client.Authenticated.AddListener(OnClientAuthenticated);
         }
 
         public class CreatePlayerMessage : MessageBase
@@ -21,12 +22,12 @@ namespace Mirror.Examples.Chat
             public string name;
         }
 
-        public override void OnServerConnect(INetworkConnection conn)
+        public void OnServerAuthenticated(INetworkConnection conn)
         {
             conn.RegisterHandler<CreatePlayerMessage>(OnCreatePlayer);
         }
 
-        public void OnAuthenticated(INetworkConnection conn)
+        public void OnClientAuthenticated(INetworkConnection conn)
         {
             // tell the server to create a player with this name
             conn.Send(new CreatePlayerMessage { name = PlayerName });

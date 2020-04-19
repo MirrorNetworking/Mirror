@@ -22,6 +22,8 @@ namespace Mirror.Discovery
         where Request : IMessageBase, new()
         where Response : IMessageBase, new()
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkDiscoveryBase<Request, Response>));
+
         public static bool SupportedOnThisPlatform { get { return Application.platform != RuntimePlatform.WebGLPlayer; } }
 
         // each game should have a random unique handshake,  this way you can tell if this is the same game or not
@@ -206,7 +208,7 @@ namespace Mirror.Discovery
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogException(ex, this);
+                    logger.LogException(ex, this);
                 }
             }
         }
@@ -285,7 +287,7 @@ namespace Mirror.Discovery
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogException(ex);
+                    logger.LogException(ex);
                 }
             }
         }

@@ -9,6 +9,8 @@ namespace Mirror
 {
     public class EnterPlayModeSettingsCheck : MonoBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(EnterPlayModeSettingsCheck));
+
         [InitializeOnLoadMethod]
         public static void OnInitializeOnLoad()
         {
@@ -41,7 +43,7 @@ namespace Mirror
                 if (!SessionState.GetBool("MIRROR_WEAVE_SUCCESS", false))
                 {
                     // Nope, still failed, and console has the issues logged
-                    Debug.LogError("Can't enter play mode until weaver issues are resolved.");
+                    logger.LogError("Can't enter play mode until weaver issues are resolved.");
                     EditorApplication.isPlaying = false;
                 }
             }

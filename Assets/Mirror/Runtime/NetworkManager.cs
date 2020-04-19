@@ -22,6 +22,8 @@ namespace Mirror
     [DisallowMultipleComponent]
     public class NetworkManager : MonoBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkManager));
+
         /// <summary>
         /// A flag to control whether the NetworkManager object is destroyed when the scene changes.
         /// <para>This should be set if your game has a single NetworkManager that exists for the lifetime of the process. If there is a NetworkManager in each scene, then this should not be set.</para>
@@ -37,13 +39,6 @@ namespace Mirror
         /// </summary>
         [Tooltip("Should the server auto-start when the game is started in a headless build?")]
         public bool startOnHeadless = true;
-
-        /// <summary>
-        /// Enables verbose debug messages in the console
-        /// </summary>
-        [FormerlySerializedAs("m_ShowDebugMessages")]
-        [Tooltip("This will enable verbose debug messages in the Unity Editor console")]
-        public bool showDebugMessages;
 
         /// <summary>
         /// Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.
@@ -99,7 +94,7 @@ namespace Mirror
                 if (transport == null)
                 {
                     transport = gameObject.AddComponent<AsyncTcpTransport>();
-                    Debug.Log("NetworkManager: added default Transport because there was none yet.");
+                    logger.Log("NetworkManager: added default Transport because there was none yet.");
                 }
 #if UNITY_EDITOR
                 UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
@@ -110,7 +105,7 @@ namespace Mirror
             if (GetComponent<NetworkServer>() == null)
             {
                 server = gameObject.AddComponent<NetworkServer>();
-                Debug.Log("NetworkManager: added NetworkServer because there was none yet.");
+                logger.Log("NetworkManager: added NetworkServer because there was none yet.");
 #if UNITY_EDITOR
                 UnityEditor.Undo.RecordObject(gameObject, "Added NetworkServer");
 #endif
@@ -120,7 +115,7 @@ namespace Mirror
             if (GetComponent<NetworkClient>() == null)
             {
                 client = gameObject.AddComponent<NetworkClient>();
-                Debug.Log("NetworkManager: added NetworkClient because there was none yet.");
+                logger.Log("NetworkManager: added NetworkClient because there was none yet.");
 #if UNITY_EDITOR
                 UnityEditor.Undo.RecordObject(gameObject, "Added NetworkClient");
 #endif
@@ -133,7 +128,7 @@ namespace Mirror
         public virtual void Start()
         {
 
-            Debug.Log("Thank you for using Mirror! https://mirror-networking.com");
+            logger.Log("Thank you for using Mirror! https://mirror-networking.com");
 
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
@@ -172,7 +167,7 @@ namespace Mirror
         // full server setup code, without spawning objects yet
         async Task SetupServer()
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager SetupServer");
+            logger.Log("NetworkManager SetupServer");
 
             ConfigureServerFrameRate();
 
@@ -213,7 +208,7 @@ namespace Mirror
         /// </summary>
         public Task StartClient(string serverIp)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + serverIp);
+            if (logger.LogEnabled()) logger.Log("NetworkManager StartClient address:" + serverIp);
 
             var builder = new UriBuilder
             {
@@ -231,7 +226,7 @@ namespace Mirror
         /// <param name="uri">location of the server to connect to</param>
         public void StartClient(Uri uri)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + uri);
+            if (logger.LogEnabled()) logger.Log("NetworkManager StartClient address:" + uri);
 
             _ = client.ConnectAsync(uri);
         }
@@ -318,13 +313,13 @@ namespace Mirror
             // loaded and all objects were spawned.
             // DO NOT do this earlier. it would cause race conditions where a
             // client will do things before the server is even fully started.
-            if (LogFilter.Debug) Debug.Log("StartHostClient called");
+            logger.Log("StartHostClient called");
             StartHostClient();
         }
 
         void StartHostClient()
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager ConnectLocalClient");
+            logger.Log("NetworkManager ConnectLocalClient");
 
             server.ActivateHostScene();
 
@@ -370,15 +365,13 @@ namespace Mirror
             if (!client.Active && SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
             {
                 Application.targetFrameRate = serverTickRate;
-                Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
+                logger.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
             }
 #endif
         }
 
         void Initialize()
         {
-            LogFilter.Debug = showDebugMessages;
-
             if (dontDestroyOnLoad)
             {
                 DontDestroyOnLoad(gameObject);
@@ -398,7 +391,7 @@ namespace Mirror
         /// </summary>
         public virtual void OnDestroy()
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager destroyed");
+            logger.Log("NetworkManager destroyed");
         }
 
         #endregion
@@ -429,7 +422,7 @@ namespace Mirror
                 throw new ArgumentNullException(nameof(newSceneName), "ServerChangeScene: " + nameof(newSceneName) + " cannot be empty or null");
             }
 
-            if (LogFilter.Debug) Debug.Log("ServerChangeScene " + newSceneName);
+            if (logger.LogEnabled()) logger.Log("ServerChangeScene " + newSceneName);
             server.SetAllClientsNotReady();
             networkSceneName = newSceneName;
 
@@ -449,12 +442,12 @@ namespace Mirror
                 throw new ArgumentNullException(nameof(newSceneName), "ClientChangeScene: " + nameof(newSceneName) + " cannot be empty or null");
             }
 
-            if (LogFilter.Debug) Debug.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
+            if (logger.LogEnabled()) logger.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
 
             // vis2k: pause message handling while loading scene. otherwise we will process messages and then lose all
             // the state as soon as the load is finishing, causing all kinds of bugs because of missing state.
             // (client may be null after StopClient etc.)
-            if (LogFilter.Debug) Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
+            logger.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName, sceneOperation, customHandling);
 
@@ -477,7 +470,7 @@ namespace Mirror
                         loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, LoadSceneMode.Additive);
                     else
                     {
-                        Debug.LogWarning($"Scene {newSceneName} is already loaded");
+                        logger.LogWarning($"Scene {newSceneName} is already loaded");
                     }
                     break;
                 case SceneOperation.UnloadAdditive:
@@ -487,7 +480,7 @@ namespace Mirror
                         loadingSceneAsync = SceneManager.UnloadSceneAsync(newSceneName, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
                     else
                     {
-                        Debug.LogWarning($"Cannot unload {newSceneName} with UnloadAdditive operation");
+                        logger.LogWarning($"Cannot unload {newSceneName} with UnloadAdditive operation");
                     }
                     break;
             }
@@ -514,12 +507,12 @@ namespace Mirror
                 {
                     // TODO only respawn the server objects from that scene later!
                     server.SpawnObjects();
-                    if (LogFilter.Debug) Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
+                    if (logger.LogEnabled()) logger.Log("Respawned Server objects after additive scene load: " + scene.name);
                 }
                 if (client.Active)
                 {
                     client.PrepareToSpawnSceneObjects();
-                    if (LogFilter.Debug) Debug.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
+                    if (logger.LogEnabled()) logger.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
                 }
             }
         }
@@ -528,7 +521,7 @@ namespace Mirror
         {
             if (loadingSceneAsync != null && loadingSceneAsync.isDone)
             {
-                if (LogFilter.Debug) Debug.Log("ClientChangeScene done readyCon:" + client.Connection);
+                if (logger.LogEnabled()) logger.Log("ClientChangeScene done readyCon:" + client.Connection);
                 FinishLoadScene();
                 loadingSceneAsync.allowSceneActivation = true;
                 loadingSceneAsync = null;
@@ -540,7 +533,7 @@ namespace Mirror
             // NOTE: this cannot use NetworkClient.allClients[0] - that client may be for a completely different purpose.
 
             // process queued messages that we received while loading the scene
-            if (LogFilter.Debug) Debug.Log("FinishLoadScene: resuming handlers after scene was loading.");
+            logger.Log("FinishLoadScene: resuming handlers after scene was loading.");
             // host mode?
             if (client.IsLocalClient)
             {
@@ -565,7 +558,7 @@ namespace Mirror
         {
             // debug message is very important. if we ever break anything then
             // it's very obvious to notice.
-            if (LogFilter.Debug) Debug.Log("Finished loading scene in host mode.");
+            logger.Log("Finished loading scene in host mode.");
 
             if (client.Connection != null)
             {
@@ -592,7 +585,7 @@ namespace Mirror
         {
             // debug message is very important. if we ever break anything then
             // it's very obvious to notice.
-            if (LogFilter.Debug) Debug.Log("Finished loading scene in client-only mode.");
+            logger.Log("Finished loading scene in client-only mode.");
 
             if (client.Connection != null)
             {
@@ -613,7 +606,7 @@ namespace Mirror
         {
             // debug message is very important. if we ever break anything then
             // it's very obvious to notice.
-            if (LogFilter.Debug) Debug.Log("Finished loading scene in server-only mode.");
+            logger.Log("Finished loading scene in server-only mode.");
 
             server.SpawnObjects();
             OnServerSceneChanged(networkSceneName);
@@ -635,7 +628,7 @@ namespace Mirror
             // a connection has been established,  register for our messages
             RegisterServerMessages(conn);
 
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticated");
+            logger.Log("NetworkManager.OnServerAuthenticated");
 
             // proceed with the login handshake by calling OnServerConnect
             if (!string.IsNullOrEmpty(networkSceneName))
@@ -643,19 +636,17 @@ namespace Mirror
                 var msg = new SceneMessage { sceneName = networkSceneName };
                 conn.Send(msg);
             }
-
-            OnServerConnect(conn);
         }
 
         void OnServerReadyMessageInternal(INetworkConnection conn, ReadyMessage msg)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerReadyMessageInternal");
+            logger.Log("NetworkManager.OnServerReadyMessageInternal");
             OnServerReady(conn);
         }
 
         void OnServerRemovePlayerMessageInternal(INetworkConnection conn, RemovePlayerMessage msg)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
+            logger.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
 
             if (conn.Identity != null)
             {
@@ -679,7 +670,7 @@ namespace Mirror
         {
             RegisterClientMessages(conn);
 
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticated");
+            logger.Log("NetworkManager.OnClientAuthenticated");
 
             // will wait for scene id to come from the server.
             clientLoadedScene = true;
@@ -688,7 +679,7 @@ namespace Mirror
 
         void OnClientNotReadyMessageInternal(INetworkConnection conn, NotReadyMessage msg)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientNotReadyMessageInternal");
+            logger.Log("NetworkManager.OnClientNotReadyMessageInternal");
 
             client.ready = false;
             OnClientNotReady(conn);
@@ -698,7 +689,7 @@ namespace Mirror
 
         void OnClientSceneInternal(INetworkConnection conn, SceneMessage msg)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
+            logger.Log("NetworkManager.OnClientSceneInternal");
 
             if (client.IsConnected && !server.Active)
             {
@@ -711,14 +702,6 @@ namespace Mirror
         #region Server System Callbacks
 
         /// <summary>
-        /// Called on the server when a new client connects.
-        /// <para>Unity calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
-        public virtual void OnServerConnect(INetworkConnection conn) { }
-
-
-        /// <summary>
         /// Called on the server when a client is ready.
         /// <para>The default implementation of this function calls NetworkServer.SetClientReady() to continue the network setup process.</para>
         /// </summary>
@@ -728,7 +711,7 @@ namespace Mirror
             if (conn.Identity == null)
             {
                 // this is now allowed (was not for a while)
-                if (LogFilter.Debug) Debug.Log("Ready with no player object");
+                logger.Log("Ready with no player object");
             }
             server.SetClientReady(conn);
         }

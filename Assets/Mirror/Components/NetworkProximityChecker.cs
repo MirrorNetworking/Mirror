@@ -12,6 +12,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkProximityChecker.html")]
     public class NetworkProximityChecker : NetworkVisibility
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkProximityChecker));
+
         /// <summary>
         /// Enumeration of methods to use to check proximity.
         /// </summary>
@@ -122,7 +124,7 @@ namespace Mirror
         {
             // cast without allocating GC for maximum performance
             int hitCount = Physics.OverlapSphereNonAlloc(transform.position, VisibilityRange, hitsBuffer3D, CastLayers);
-            if (hitCount == hitsBuffer3D.Length) Debug.LogWarning("NetworkProximityChecker's OverlapSphere test for " + name + " has filled the whole buffer(" + hitsBuffer3D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
+            if (hitCount == hitsBuffer3D.Length) logger.LogWarning("NetworkProximityChecker's OverlapSphere test for " + name + " has filled the whole buffer(" + hitsBuffer3D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
 
             for (int i = 0; i < hitCount; i++)
             {
@@ -142,7 +144,7 @@ namespace Mirror
         {
             // cast without allocating GC for maximum performance
             int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, VisibilityRange, hitsBuffer2D, CastLayers);
-            if (hitCount == hitsBuffer2D.Length) Debug.LogWarning("NetworkProximityChecker's OverlapCircle test for " + name + " has filled the whole buffer(" + hitsBuffer2D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
+            if (hitCount == hitsBuffer2D.Length) logger.LogWarning("NetworkProximityChecker's OverlapCircle test for " + name + " has filled the whole buffer(" + hitsBuffer2D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
 
             for (int i = 0; i < hitCount; i++)
             {
