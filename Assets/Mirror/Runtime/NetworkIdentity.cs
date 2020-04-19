@@ -54,10 +54,6 @@ namespace Mirror
         // configuration
         NetworkBehaviour[] networkBehavioursCache;
 
-        // member used to mark a identity for future reset
-        // check MarkForReset for more information.
-        bool reset;
-
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
@@ -257,6 +253,12 @@ namespace Mirror
         /// </summary>
         ///<summary>Called on clients when the server destroys the GameObject.</summary>
         public UnityEvent OnNetworkDestroy = new UnityEvent();
+
+        /// <summary>
+        /// This is called on the server when the object is unspawned
+        /// </summary>
+        /// <remarks>Can be used as hook to save player information</remarks>
+        public UnityEvent OnStopServer = new UnityEvent();
 
         /// <summary>
         /// Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id
@@ -558,15 +560,10 @@ namespace Mirror
             sceneIds.Remove(sceneId);
             sceneIds.Remove(sceneId & 0x00000000FFFFFFFF);
 
-            // Only call NetworkServer.Destroy on server and only if reset is false
-            // reset will be false from incorrect use of Destroy instead of NetworkServer.Destroy
-            // reset will be true if NetworkServer.Destroy was correctly invoked to begin with
-            // Users are supposed to call NetworkServer.Destroy instead of just regular Destroy for networked objects.
-            // This is a safeguard in case users accidentally call regular Destroy instead.
-            // We cover their mistake by calling NetworkServer.Destroy for them.
-            // If, however, they call NetworkServer.Destroy correctly, which leads to NetworkIdentity.MarkForReset,
-            // then we don't need to call it again, so the check for reset is needed to prevent the doubling.
-            if (IsServer && !reset)
+            // Server would be true if you destroy this object directy
+            // or if unity destroys it by switching scenes.
+            // so we have to unspawn the object in that case
+            if (IsServer)
             {
                 Server.Destroy(gameObject);
             }
@@ -1123,23 +1120,11 @@ namespace Mirror
             }
         }
 
-        // marks the identity for future reset, this is because we cant reset the identity during destroy
-        // as people might want to be able to read the members inside OnDestroy(), and we have no way
-        // of invoking reset after OnDestroy is called.
-        internal void MarkForReset() => reset = true;
-
-        // check if it was marked for reset
-        internal bool IsMarkedForReset() => reset;
-
-        // if we have marked an identity for reset we do the actual reset.
+        // The object is no longer networked,  reset all network state
         internal void Reset()
-        {
-            if (!reset)
-                return;
-
+        { 
             clientStarted = false;
             localPlayerStarted = false;
-            reset = false;
 
             NetId = 0;
             Server = null;

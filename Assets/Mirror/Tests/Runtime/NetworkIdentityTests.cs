@@ -5,6 +5,8 @@ using InvalidOperationException = System.InvalidOperationException;
 
 using static Mirror.Tests.AsyncUtil;
 using System.Collections;
+using UnityEngine.Events;
+using NSubstitute;
 
 namespace Mirror.Tests
 {
@@ -203,5 +205,19 @@ namespace Mirror.Tests
             Assert.That(identity.ConnectionToClient, Is.Null);
         }
 
+
+        [UnityTest]
+        public IEnumerator OnStopServer()
+        {
+            server.Spawn(gameObject);
+
+            UnityAction mockHandler = Substitute.For<UnityAction>();
+            identity.OnStopServer.AddListener(mockHandler);
+
+            server.UnSpawn(gameObject);
+
+            yield return null;
+            mockHandler.Received().Invoke();
+        }
     }
 }

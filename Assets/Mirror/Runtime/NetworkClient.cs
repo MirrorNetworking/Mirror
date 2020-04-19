@@ -142,14 +142,14 @@ namespace Mirror
             {
                 IConnection transportConnection = await transport.ConnectAsync(uri);
 
-                
+
                 RegisterSpawnPrefabs();
                 InitializeAuthEvents();
 
                 // setup all the handlers
                 Connection = new NetworkConnection(transportConnection);
                 Time.Reset();
-           
+
                 RegisterMessageHandlers(Connection);
                 Time.UpdateClient(this);
                 _ = OnConnected();
@@ -205,7 +205,7 @@ namespace Mirror
         async Task OnConnected()
         {
             // reset network time stats
-            
+
 
             // the handler may want to send messages to the client
             // thus we should set the connected state before calling the handler
@@ -317,7 +317,7 @@ namespace Mirror
             connectState = ConnectState.None;
 
             if (authenticator != null)
-            { 
+            {
                 authenticator.OnClientAuthenticated -= OnAuthenticated;
 
                 Connected.RemoveListener(authenticator.OnClientAuthenticateInternal);
@@ -380,7 +380,7 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("ClientScene.Ready() called with connection [" + conn + "]");
 
-            
+
             // Set these before sending the ReadyMessage, otherwise host client
             // will fail in InternalAddPlayer with null readyConnection.
             ready = true;
@@ -647,7 +647,7 @@ namespace Mirror
             }
             else
             {
-                identity.MarkForReset();
+                identity.Reset();
                 identity.gameObject.SetActive(false);
                 spawnableObjects[identity.sceneId] = identity;
             }
@@ -671,8 +671,6 @@ namespace Mirror
 
         void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
         {
-            identity.Reset();
-
             if (msg.assetId != Guid.Empty)
                 identity.AssetId = msg.assetId;
 

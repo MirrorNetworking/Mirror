@@ -559,8 +559,6 @@ namespace Mirror
                 logger.Log("AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + player);
                 return false;
             }
-            identity.Reset();
-
             // cannot have a player object in "Add" version
             if (conn.Identity != null)
             {
@@ -790,7 +788,6 @@ namespace Mirror
             {
                 throw new InvalidOperationException("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
             }
-            identity.Reset();
             identity.ConnectionToClient = ownerConnection;
             identity.Server = this;
             identity.Client = LocalClient;
@@ -856,8 +853,8 @@ namespace Mirror
 
             // use owner segment if 'conn' owns this identity, otherwise
             // use observers segment
-            ArraySegment<byte> payload = isOwner ? 
-                ownerWriter.ToArraySegment() : 
+            ArraySegment<byte> payload = isOwner ?
+                ownerWriter.ToArraySegment() :
                 observersWriter.ToArraySegment();
 
             return payload;
@@ -980,12 +977,15 @@ namespace Mirror
                 identity.OnNetworkDestroy.Invoke();
             }
 
+            identity.OnStopServer.Invoke();
+
+            identity.Reset();
+
             // when unspawning, dont destroy the server's object
             if (destroyServerObject)
             {
                 UnityEngine.Object.Destroy(identity.gameObject);
             }
-            identity.MarkForReset();
         }
 
         /// <summary>
@@ -1056,7 +1056,6 @@ namespace Mirror
                 if (ValidateSceneObject(identity))
                 {
                     if (logger.LogEnabled()) logger.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
-                    identity.Reset();
                     identity.gameObject.SetActive(true);
 
                     Spawn(identity.gameObject);
