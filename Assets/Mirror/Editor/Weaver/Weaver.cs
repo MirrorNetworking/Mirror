@@ -409,6 +409,12 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
+            // ignore generic classes
+            // we can not process generic classes
+            // we give error if a generic syncObject is used in NetworkBehaviour
+            if (td.HasGenericParameters)
+                return false;
+
             bool modified = false;
 
             // are ANY parent classes SyncListStruct
