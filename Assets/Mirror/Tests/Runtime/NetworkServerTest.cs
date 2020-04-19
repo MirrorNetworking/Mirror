@@ -65,9 +65,6 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.localConnection, Is.Not.Null);
             localConnection.serverIdleTimeout = 5f;
 
-            //GameObject HostPlayer = new GameObject("HostPlayer", typeof(NetworkIdentity));
-            //NetworkServer.AddPlayerForConnection(localConnection, HostPlayer);
-
             GameObject RemotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
             NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1);
             remoteConnection.serverIdleTimeout = 5f;
