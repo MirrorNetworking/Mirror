@@ -14,6 +14,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkSceneChecker.html")]
     public class NetworkSceneChecker : NetworkVisibility
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkSceneChecker));
+
         /// <summary>
         /// Flag to force this object to be hidden from all observers.
         /// <para>If this object is a player object, it will not be hidden for that client.</para>
@@ -30,7 +32,7 @@ namespace Mirror
         void Awake()
         {
             currentScene = gameObject.scene;
-            if (LogFilter.Debug) Debug.Log($"NetworkSceneChecker.Awake currentScene: {currentScene}");
+            if (logger.LogEnabled()) logger.Log($"NetworkSceneChecker.Awake currentScene: {currentScene}");
 
             NetIdentity.OnStartServer.AddListener(OnStartServer);
         }

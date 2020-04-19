@@ -11,6 +11,8 @@ namespace Mirror
     [CanEditMultipleObjects]
     public class NetworkBehaviourInspector : Editor
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkBehaviourInspector));
+
         /// <summary>
         /// List of all visible syncVars in target class
         /// </summary>
@@ -43,7 +45,7 @@ namespace Mirror
 
         void OnEnable()
         {
-            if (target == null) { Debug.LogWarning("NetworkBehaviourInspector had no target object"); return; }
+            if (target == null) { logger.LogWarning("NetworkBehaviourInspector had no target object"); return; }
 
             // If target's base class is changed from NetworkBehaviour to MonoBehaviour
             // then Unity temporarily keep using this Inspector causing things to break

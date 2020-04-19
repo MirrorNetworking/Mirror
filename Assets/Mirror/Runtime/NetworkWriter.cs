@@ -161,6 +161,8 @@ namespace Mirror
     // but they do all need to be extensions.
     public static class NetworkWriterExtensions
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkWriterExtensions));
+
         // cache encoding instead of creating it with BinaryWriter each time
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
@@ -505,7 +507,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
+                logger.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
                 writer.WritePackedUInt32(0);
             }
         }
@@ -524,7 +526,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
+                logger.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
                 writer.WritePackedUInt32(0);
             }
         }

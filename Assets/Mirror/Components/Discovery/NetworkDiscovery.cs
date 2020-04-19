@@ -12,6 +12,8 @@ namespace Mirror.Discovery
     [AddComponentMenu("Network/NetworkDiscovery")]
     public class NetworkDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkDiscovery));
+
         #region Server
 
         public long ServerId { get; private set; }
@@ -58,7 +60,7 @@ namespace Mirror.Discovery
             }
             catch (NotImplementedException)
             {
-                Debug.LogError($"Transport {transport} does not support network discovery");
+                logger.LogError($"Transport {transport} does not support network discovery");
                 throw;
             }
         }

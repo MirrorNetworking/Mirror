@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 using static Mirror.Tests.LocalConnections;
 
@@ -152,35 +151,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterDelegateDoesntOverwrite()
-        {
-            // registerdelegate is protected, but we can use
-            // RegisterCommandDelegate which calls RegisterDelegate
-            NetworkBehaviour.RegisterCommandDelegate(
-                typeof(NetworkBehaviourDelegateComponent),
-                nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate);
-
-            // registering the exact same one should be fine. it should simply
-            // do nothing.
-            NetworkBehaviour.RegisterCommandDelegate(
-                typeof(NetworkBehaviourDelegateComponent),
-                nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate);
-
-            // registering the same name with a different callback shouldn't
-            // work
-            LogAssert.Expect(LogType.Error, "Function " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate) + " and " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate2) + " have the same hash.  Please rename one of them");
-            NetworkBehaviour.RegisterCommandDelegate(
-                typeof(NetworkBehaviourDelegateComponent),
-                nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate2);
-
-            // clean up
-            NetworkBehaviour.ClearDelegates();
-        }
-
-        [Test]
         public void GetDelegate()
         {
             // registerdelegate is protected, but we can use
@@ -307,7 +277,6 @@ namespace Mirror.Tests
             // gameobject with valid networkidentity and 0 netid that is unspawned
             var go = new GameObject();
             go.AddComponent<NetworkIdentity>();
-            LogAssert.Expect(LogType.Warning, "SetSyncVarGameObject GameObject " + go + " has a zero netId. Maybe it is not spawned yet?");
             bool result = component.SyncVarGameObjectEqualExposed(go, identity.NetId);
             Assert.That(result, Is.False);
 
@@ -322,7 +291,6 @@ namespace Mirror.Tests
             // unspawned go and identity.netid==0 returns true (=equal)
             var go = new GameObject();
             go.AddComponent<NetworkIdentity>();
-            LogAssert.Expect(LogType.Warning, "SetSyncVarGameObject GameObject " + go + " has a zero netId. Maybe it is not spawned yet?");
             bool result = component.SyncVarGameObjectEqualExposed(go, 0);
             Assert.That(result, Is.True);
 
@@ -402,7 +370,6 @@ namespace Mirror.Tests
             // gameobject with valid networkidentity and 0 netid that is unspawned
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            LogAssert.Expect(LogType.Warning, "SetSyncVarNetworkIdentity NetworkIdentity " + ni + " has a zero netId. Maybe it is not spawned yet?");
             bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.NetId);
             Assert.That(result, Is.False);
 
@@ -417,7 +384,6 @@ namespace Mirror.Tests
             // unspawned go and identity.netid==0 returns true (=equal)
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            LogAssert.Expect(LogType.Warning, "SetSyncVarNetworkIdentity NetworkIdentity " + ni + " has a zero netId. Maybe it is not spawned yet?");
             bool result = component.SyncVarNetworkIdentityEqualExposed(ni, 0);
             Assert.That(result, Is.True);
 

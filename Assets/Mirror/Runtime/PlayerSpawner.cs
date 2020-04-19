@@ -10,6 +10,7 @@ namespace Mirror
     /// </summary>
     public class PlayerSpawner : MonoBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(PlayerSpawner));
 
         public NetworkClient client;
         public NetworkServer server;
@@ -59,7 +60,7 @@ namespace Mirror
 
         void OnServerAddPlayerInternal(INetworkConnection conn, AddPlayerMessage msg)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
+            logger.Log("NetworkManager.OnServerAddPlayer");
 
             if (conn.Identity != null)
             {

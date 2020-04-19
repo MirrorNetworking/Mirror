@@ -19,6 +19,8 @@ namespace Mirror
     /// </remarks>
     public class NetworkConnection : INetworkConnection
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkConnection));
+
         // Handles network messages on client and server
         private delegate void NetworkMessageDelegate(INetworkConnection conn, NetworkReader reader, int channelId);
 
@@ -132,9 +134,9 @@ namespace Mirror
             where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
-            if (LogFilter.Debug && messageHandlers.ContainsKey(msgType))
+            if (logger.filterLogType == LogType.Log && messageHandlers.ContainsKey(msgType))
             {
-                Debug.Log("NetworkServer.RegisterHandler replacing " + msgType);
+                logger.Log("NetworkServer.RegisterHandler replacing " + msgType);
             }
             messageHandlers[msgType] = MessageHandler(handler);
         }
@@ -263,7 +265,7 @@ namespace Mirror
             {
                 msgDelegate(this, reader, channelId);
             }
-            else if (Debug.isDebugBuild) Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+            else if (Debug.isDebugBuild) logger.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
         }
 
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
@@ -290,7 +292,7 @@ namespace Mirror
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError("Closed connection: " + this + ". Invalid message " + ex);
+                    logger.LogError("Closed connection: " + this + ". Invalid message " + ex);
                     Disconnect();
                 }
             }

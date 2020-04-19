@@ -6,6 +6,8 @@ namespace Mirror
     [CustomPropertyDrawer(typeof(SceneAttribute))]
     public class SceneDrawer : PropertyDrawer
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(SceneDrawer));
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             if (property.propertyType == SerializedPropertyType.String)
@@ -19,7 +21,7 @@ namespace Mirror
                 }
                 if (sceneObject == null && !string.IsNullOrEmpty(property.stringValue))
                 {
-                    Debug.LogError($"Could not find scene {property.stringValue} in {property.propertyPath}, assign the proper scenes in your NetworkManager");
+                    logger.LogError($"Could not find scene {property.stringValue} in {property.propertyPath}, assign the proper scenes in your NetworkManager");
                 }
                 var scene = (SceneAsset)EditorGUI.ObjectField(position, label, sceneObject, typeof(SceneAsset), true);
 

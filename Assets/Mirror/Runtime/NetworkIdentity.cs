@@ -49,6 +49,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkIdentity.html")]
     public sealed class NetworkIdentity : MonoBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkIdentity));
+
         // configuration
         NetworkBehaviour[] networkBehavioursCache;
 
@@ -210,7 +212,7 @@ namespace Mirror
                 {
                     m_AssetId = newAssetIdString;
                 }
-                else Debug.LogWarning($"SetDynamicAssetId object {name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
+                else logger.LogWarning($"SetDynamicAssetId object {name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
             }
         }
 
@@ -323,7 +325,7 @@ namespace Mirror
             {
                 if (sceneIds.TryGetValue(sceneId, out NetworkIdentity existing) && existing != this)
                 {
-                    Debug.LogError(name + "'s sceneId: " + sceneId.ToString("X") + " is already taken by: " + existing.name + ". Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects). Otherwise the client won't know which object to use for a SpawnSceneObject message.");
+                    logger.LogError(name + "'s sceneId: " + sceneId.ToString("X") + " is already taken by: " + existing.name + ". Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects). Otherwise the client won't know which object to use for a SpawnSceneObject message.");
                     Destroy(gameObject);
                 }
                 else
@@ -358,7 +360,7 @@ namespace Mirror
 
             if (prefab == null)
             {
-                Debug.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
+                logger.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
                 return false;
             }
             return true;
@@ -494,7 +496,7 @@ namespace Mirror
             sceneId = (sceneId & 0xFFFFFFFF) | shiftedHash;
 
             // log it. this is incredibly useful to debug sceneId issues.
-            if (LogFilter.Debug) Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + sceneId.ToString("X"));
+            if (logger.LogEnabled()) logger.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + sceneId.ToString("X"));
         }
 
         void SetupIDs()
@@ -591,7 +593,7 @@ namespace Mirror
 
             NetId = GetNextNetworkId();
 
-            if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + NetId + " SceneId:" + sceneId);
+            if (logger.LogEnabled()) logger.Log("OnStartServer " + this + " NetId:" + NetId + " SceneId:" + sceneId);
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
@@ -678,7 +680,7 @@ namespace Mirror
         void OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
             bool result = comp.OnSerialize(writer, initialState);
-            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId); }
+            if (logger.LogEnabled()) logger.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId);
 
             // serialize a barrier to be checked by the deserializer
             writer.WriteByte(Barrier);
@@ -718,7 +720,7 @@ namespace Mirror
                 // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
                 if (initialState || comp.IsDirty())
                 {
-                    if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
+                    if (logger.LogEnabled()) logger.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
 
                     // serialize into ownerWriter first
                     // (owner always gets everything!)
@@ -842,7 +844,7 @@ namespace Mirror
         {
             if (gameObject == null)
             {
-                Debug.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + NetId + "]");
+                logger.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + NetId + "]");
                 return;
             }
 
@@ -857,12 +859,12 @@ namespace Mirror
                 NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
                 if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
                 {
-                    Debug.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + NetId + "].");
+                    logger.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + NetId + "].");
                 }
             }
             else
             {
-                Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + NetId + "]");
+                logger.LogWarning("Component [" + componentIndex + "] not found for [netId=" + NetId + "]");
             }
         }
 
@@ -902,7 +904,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.Debug) Debug.Log("Added observer " + conn.Address + " added for " + gameObject);
+            if (logger.LogEnabled()) logger.Log("Added observer " + conn.Address + " added for " + gameObject);
             observers.Add(conn);
             conn.AddToVisList(this);
 
@@ -996,7 +998,7 @@ namespace Mirror
                         conn.AddToVisList(this);
                         // spawn identity for this conn
                         Server.ShowForConnection(this, conn);
-                        if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
+                        if (logger.LogEnabled()) logger.Log("New Observer for " + gameObject + " " + conn);
                         changed = true;
                     }
                 }
@@ -1011,7 +1013,7 @@ namespace Mirror
                     conn.RemoveFromVisList(this);
                     Server.HideForConnection(this, conn);
 
-                    if (LogFilter.Debug) Debug.Log("Removed Observer for " + gameObject + " " + conn);
+                    if (logger.LogEnabled()) logger.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
             }

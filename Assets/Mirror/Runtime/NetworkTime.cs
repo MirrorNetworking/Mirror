@@ -9,6 +9,8 @@ namespace Mirror
     /// </summary>
     public class NetworkTime
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkTime));
+
         /// <summary>
         /// how often are we sending ping messages
         /// used to calculate network time and RTT
@@ -65,7 +67,7 @@ namespace Mirror
         // and time from the server
         internal void OnServerPing(INetworkConnection conn, NetworkPingMessage msg)
         {
-            if (LogFilter.Debug) Debug.Log("OnPingServerMessage  conn=" + conn);
+            if (logger.LogEnabled()) logger.Log("OnPingServerMessage  conn=" + conn);
 
             var pongMsg = new NetworkPongMessage
             {
