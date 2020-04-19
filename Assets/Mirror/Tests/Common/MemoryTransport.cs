@@ -125,7 +125,26 @@ namespace Mirror.Tests
             }
             return false;
         }
-        public override bool ServerDisconnect(int connectionId) => false;
+
+        public override bool ServerDisconnect(int connectionId)
+        {
+            // clear all pending messages that we may have received.
+            // over the wire, we wouldn't receive any more pending messages
+            // ether after calling disconnect.
+            serverIncoming.Clear();
+
+            // add client disconnected message
+            clientIncoming.Enqueue(new Message(connectionId, EventType.Disconnected, null));
+
+            // add server disconnected message with connId=1 because 0 is reserved
+            serverIncoming.Enqueue(new Message(connectionId, EventType.Disconnected, null));
+
+            // not active anymore
+            serverActive = false;
+
+            return false;
+        }
+
         public override string ServerGetClientAddress(int connectionId) => string.Empty;
         public override void ServerStop()
         {
