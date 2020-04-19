@@ -66,12 +66,6 @@ namespace Mirror.Weaver
             serializeFunc.Parameters.Add(new ParameterDefinition("item", ParameterAttributes.None, itemType));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
-            if (itemType.IsGenericInstance)
-            {
-                Weaver.Error($"{td} cannot have generic elements {itemType}");
-                return null;
-            }
-
             MethodReference writeFunc = Writers.GetWriteFunc(itemType);
             if (writeFunc != null)
             {
