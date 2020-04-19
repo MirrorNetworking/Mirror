@@ -10,6 +10,8 @@ namespace Mirror
     /// </summary>
     public abstract class AsyncTransport : MonoBehaviour
     {
+        public abstract string Scheme { get; }
+
         /// <summary>
         /// Open up the port and listen for connections
         /// Use in servers.

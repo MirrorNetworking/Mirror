@@ -13,6 +13,25 @@ namespace Mirror
 
         private Dictionary<Task<IConnection>, AsyncTransport> Accepters;
 
+        public override string Scheme
+        {
+            get
+            {
+                foreach (AsyncTransport transport in transports)
+                {
+                    try
+                    {
+                        return transport.Scheme;
+                    }
+                    catch (PlatformNotSupportedException)
+                    {
+                        // try the next transport
+                    }
+                }
+                throw new PlatformNotSupportedException("No transport was able to provide scheme");
+            }
+        }
+
         public override async Task<IConnection> AcceptAsync()
         {
             if (Accepters == null)
@@ -73,7 +92,6 @@ namespace Mirror
         {
             foreach (AsyncTransport transport in transports)
                 transport.Disconnect();
-
         }
 
         public override async Task ListenAsync()

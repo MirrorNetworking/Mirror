@@ -17,6 +17,8 @@ namespace Mirror.Tests
 
         public TaskCompletionSource<IConnection> ConnectCompletionSource;
 
+        public override string Scheme => "local";
+
         public override Task<IConnection> ConnectAsync(Uri uri)
         {
             (IConnection c1, IConnection c2) = PipeConnection.CreatePipe();
@@ -41,7 +43,11 @@ namespace Mirror.Tests
 
         public override Uri ServerUri()
         {
-            return new Uri("tcp4://localhost");
+            return new UriBuilder()
+            {
+                Scheme = Scheme,
+                Host = "localhost"
+            }.Uri;
         }
     }
 }

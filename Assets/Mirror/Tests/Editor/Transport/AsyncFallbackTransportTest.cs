@@ -182,7 +182,6 @@ namespace Mirror.Tests
             });
         }
 
-
         [Test]
         public void ServerUri1()
         {
@@ -210,6 +209,37 @@ namespace Mirror.Tests
             Assert.Throws<PlatformNotSupportedException>(() =>
             {
                 _ = transport.ServerUri();
+            });
+        }
+
+
+        [Test]
+        public void Scheme1()
+        {
+            transport1.Scheme.Returns("tcp4");
+
+            Assert.That(transport.Scheme, Is.EqualTo("tcp4"));
+        }
+
+        [Test]
+        public void Scheme2()
+        {
+            transport1.Scheme.Returns(x => { throw new PlatformNotSupportedException(); });
+            transport2.Scheme.Returns("tcp4");
+
+            Assert.That(transport.Scheme, Is.EqualTo("tcp4"));
+        }
+
+
+        [Test]
+        public void SchemeNone()
+        {
+            transport1.Scheme.Returns(x => { throw new PlatformNotSupportedException(); });
+            transport2.Scheme.Returns(x => { throw new PlatformNotSupportedException(); });
+
+            Assert.Throws<PlatformNotSupportedException>(() =>
+            {
+                _ = transport.Scheme;
             });
         }
 

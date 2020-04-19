@@ -9,6 +9,25 @@ namespace Mirror
 
         public AsyncTransport[] transports;
 
+        public override string Scheme
+        {
+            get
+            {
+                foreach (AsyncTransport transport in transports)
+                {
+                    try
+                    {
+                        return transport.Scheme;
+                    }
+                    catch (PlatformNotSupportedException)
+                    {
+                        // try the next transport
+                    }
+                }
+                throw new PlatformNotSupportedException("None of the transports is supported in this platform");
+            }
+        }
+
         public override async Task<IConnection> AcceptAsync()
         {
             foreach (AsyncTransport transport in transports)

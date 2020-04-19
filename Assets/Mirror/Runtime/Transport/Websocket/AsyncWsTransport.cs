@@ -16,6 +16,8 @@ namespace Mirror.Websocket
         private TcpListener listener;
         private readonly IWebSocketServerFactory webSocketServerFactory = new WebSocketServerFactory();
 
+        public override string Scheme => "ws";
+
         public override async Task<IConnection> AcceptAsync()
         {
             try

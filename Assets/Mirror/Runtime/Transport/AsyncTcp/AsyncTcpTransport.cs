@@ -11,6 +11,8 @@ namespace Mirror.AsyncTcp
         private TcpListener listener;
         public int Port = 7777;
 
+        public override string Scheme => "tcp4";
+
         public override Task ListenAsync()
         {
             listener = TcpListener.Create(Port);

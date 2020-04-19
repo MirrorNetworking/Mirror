@@ -16,6 +16,8 @@ namespace Mirror.Tests
 
         public TaskCompletionSource<IConnection> ConnectCompletionSource;
 
+        public override string Scheme => "tcp4";
+
         public override Task<IConnection> ConnectAsync(Uri uri)
         {
             ConnectCompletionSource = new TaskCompletionSource<IConnection>();

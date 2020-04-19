@@ -213,7 +213,7 @@ namespace Mirror
             var builder = new UriBuilder
             {
                 Host = serverIp,
-                Scheme = "tcp4",
+                Scheme = transport.Scheme,
             };
 
             return client.ConnectAsync(builder.Uri);

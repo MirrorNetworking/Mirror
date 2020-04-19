@@ -119,6 +119,26 @@ namespace Mirror.Tests
             Assert.That(transport.ServerUri(), Is.EqualTo(new Uri("tcp4://myserver")));
         }
 
+        [Test]
+        public void Scheme1()
+        {
+            transport1.Scheme.Returns("tcp4");
+
+            Assert.That(transport.Scheme, Is.EqualTo("tcp4"));
+        }
+
+        [Test]
+        public void SchemeNone()
+        {
+            transport1.Scheme.Returns(x => { throw new PlatformNotSupportedException(); });
+            transport2.Scheme.Returns(x => { throw new PlatformNotSupportedException(); });
+
+            Assert.Throws<PlatformNotSupportedException>(() =>
+            {
+                _ = transport.Scheme;
+            });
+        }
+
         [UnityTest]
         public IEnumerator Connect() => RunAsync(async () =>
         {
