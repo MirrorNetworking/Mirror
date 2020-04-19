@@ -77,7 +77,12 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // wait 10 seconds for conn43 to timeout as idle
-            yield return new WaitForSeconds(10f);
+            float endTime = Time.time + 10;
+            while (endTime > Time.time)
+            {
+                NetworkServer.Update();
+                yield return null;
+            }
 
             // host client connection should still be alive
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));

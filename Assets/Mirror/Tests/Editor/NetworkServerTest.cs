@@ -349,44 +349,6 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
         }
 
-        //[Test]
-        //public void DisconnectTimeoutTest()
-        //{
-        //    // message handlers
-        //    NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
-        //    NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
-        //    NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
-
-        //    // Set high ping frequency so no NetworkPingMessage is generated
-        //    NetworkTime.PingFrequency = 20f;
-
-        //    // listen
-        //    NetworkServer.Listen(2);
-        //    Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
-
-        //    // add host client connection with a short idle timeout
-        //    ULocalConnectionToClient localConnection = new ULocalConnectionToClient();
-        //    localConnection.serverIdleTimeout = 5f;
-        //    bool result42 = NetworkServer.AddConnection(localConnection);
-        //    Assert.That(result42, Is.True);
-        //    NetworkServer.SetLocalConnection(new ULocalConnectionToClient());
-        //    Assert.That(NetworkServer.localClientActive, Is.True);
-
-        //    // add second connection with a short idle timeout
-        //    NetworkConnectionToClient conn43 = new NetworkConnectionToClient(42);
-        //    conn43.serverIdleTimeout = 5f;
-        //    bool result43 = NetworkServer.AddConnection(conn43);
-        //    Assert.That(result43, Is.True);
-        //    Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
-
-        //    // wait 10 seconds for conn43 to timeout as idle
-        //    System.Threading.Thread.Sleep(new TimeSpan(0, 0, 10));
-
-        //    // host client connection should still be alive
-        //    Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
-        //    Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
-        //}
-
         [Test]
         public void DisconnectAllConnectionsTest()
         {

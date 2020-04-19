@@ -21,8 +21,8 @@ namespace Mirror
         {
             if ((Time.time - lastMessageTime) > serverIdleTimeout)
             {   
-                Disconnect();
                 Debug.LogWarning($"Disconnecting {this} for inactivity!");
+                Disconnect();
             }
         }
 
