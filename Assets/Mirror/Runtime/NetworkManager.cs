@@ -636,8 +636,6 @@ namespace Mirror
                 var msg = new SceneMessage { sceneName = networkSceneName };
                 conn.Send(msg);
             }
-
-            OnServerConnect(conn);
         }
 
         void OnServerReadyMessageInternal(INetworkConnection conn, ReadyMessage msg)
@@ -702,14 +700,6 @@ namespace Mirror
         #endregion
 
         #region Server System Callbacks
-
-        /// <summary>
-        /// Called on the server when a new client connects.
-        /// <para>Unity calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
-        public virtual void OnServerConnect(INetworkConnection conn) { }
-
 
         /// <summary>
         /// Called on the server when a client is ready.
