@@ -95,6 +95,7 @@ namespace Mirror.Weaver.Tests
             // would only want to be send as an arg as a base type for an Inherited object
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate writer for UnityEngine\.Object\. Use a supported type or provide a custom writer"));
+            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate reader for UnityEngine\.Object\. Use a supported type or provide a custom reader"));
         }
 
         [Test]
@@ -104,6 +105,7 @@ namespace Mirror.Weaver.Tests
             // would only want to be send as an arg as a base type for an Inherited object
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate writer for UnityEngine\.ScriptableObject\. Use a supported type or provide a custom writer"));
+            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate reader for UnityEngine\.ScriptableObject\. Use a supported type or provide a custom reader"));
         }
 
         [Test]
@@ -111,6 +113,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate writer for component type UnityEngine\.MonoBehaviour\. Use a supported type or provide a custom writer"));
+            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate reader for component type UnityEngine\.MonoBehaviour\. Use a supported type or provide a custom reader"));
         }
 
         [Test]
@@ -118,6 +121,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate writer for component type MirrorTest\.MyBehaviour\. Use a supported type or provide a custom writer"));
+            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate reader for component type MirrorTest\.MyBehaviour\. Use a supported type or provide a custom reader"));
         }
 
         [Test]
@@ -130,10 +134,16 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        [Ignore("Not Implemented")]
-        public void IncludesPrivateSerializeField()
+        public void GivesErrorWhenUsingInterface()
         {
-            // Need to read Assemably and check that fields are added to writer
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
+            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate writer for interface MirrorTest\.IData\. Use a supported type or provide a custom writer"));
+            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate reader for interface MirrorTest\.IData\. Use a supported type or provide a custom reader"));
+        }
+
+        [Test]
+        public void CanUseCustomReadWriteForInterfaces()
+        {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
         }
