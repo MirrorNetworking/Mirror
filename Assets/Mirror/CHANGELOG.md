@@ -1,3 +1,10 @@
+# [34.7.0](https://github.com/MirrorNG/MirrorNG/compare/34.6.0-master...34.7.0-master) (2020-04-19)
+
+
+### Features
+
+* transport can provide their preferred scheme ([774a07e](https://github.com/MirrorNG/MirrorNG/commit/774a07e1bf26cce964cf14d502b71b43ce4f5cd0))
+
 # [34.6.0](https://github.com/MirrorNG/MirrorNG/compare/34.5.0-master...34.6.0-master) (2020-04-19)
 
 
