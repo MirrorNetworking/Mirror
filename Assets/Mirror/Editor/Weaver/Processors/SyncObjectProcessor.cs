@@ -47,6 +47,15 @@ namespace Mirror.Weaver
             if (existing != null)
                 return existing;
 
+
+            // this check needs to happen inside GenerateSerialization because
+            // we need to check if user has made custom function above
+            if (itemType.IsGenericInstance)
+            {
+                Weaver.Error($"{td} Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use {itemType} in SyncList");
+                return null;
+            }
+
             MethodDefinition serializeFunc = new MethodDefinition(methodName, MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.Public |
@@ -87,6 +96,14 @@ namespace Mirror.Weaver
             MethodDefinition existing = td.GetMethod(methodName);
             if (existing != null)
                 return existing;
+
+            // this check needs to happen inside GenerateDeserialization because
+            // we need to check if user has made custom function above
+            if (itemType.IsGenericInstance)
+            {
+                Weaver.Error($"{td} Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use {itemType} in SyncList");
+                return null;
+            }
 
             MethodDefinition deserializeFunction = new MethodDefinition(methodName, MethodAttributes.Public |
                     MethodAttributes.Virtual |

@@ -105,7 +105,7 @@ namespace Mirror.Weaver.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             string weaverError = @"Mirror\.Weaver error:";
             string type = @"MirrorTest\.MyGenericStructList";
-            string errorMessage = @"Can not create Serialize or Deserialize for generic element\. Overrides virtual methods with custom Serialize and Deserialize to use MirrorTest.MyGenericStruct`1<System.Single> in SyncList";
+            string errorMessage = @"Can not create Serialize or Deserialize for generic element\. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.MyGenericStruct`1<System.Single> in SyncList";
             Assert.That(weaverErrors, Has.Some.Match($"{weaverError} {type} {errorMessage}"));
         }
 
@@ -115,7 +115,7 @@ namespace Mirror.Weaver.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             string weaverError = @"Mirror\.Weaver error:";
             string type = @"MirrorTest\.MyGenericStructList";
-            string errorMessage = @"Can not create Serialize or Deserialize for generic element\. Overrides virtual methods with custom Serialize and Deserialize to use MirrorTest.MyGenericStruct`1<System.Single> in SyncList";
+            string errorMessage = @"Can not create Serialize or Deserialize for generic element\. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.MyGenericStruct`1<System.Single> in SyncList";
             Assert.That(weaverErrors, Has.Some.Match($"{weaverError} {type} {errorMessage}"));
         }
 
@@ -125,7 +125,7 @@ namespace Mirror.Weaver.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             string weaverError = @"Mirror\.Weaver error:";
             string type = @"MirrorTest\.MyGenericStructList";
-            string errorMessage = @"Can not create Serialize or Deserialize for generic element\. Overrides virtual methods with custom Serialize and Deserialize to use MirrorTest.MyGenericStruct`1<System.Single> in SyncList";
+            string errorMessage = @"Can not create Serialize or Deserialize for generic element\. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.MyGenericStruct`1<System.Single> in SyncList";
             Assert.That(weaverErrors, Has.Some.Match($"{weaverError} {type} {errorMessage}"));
         }
 
