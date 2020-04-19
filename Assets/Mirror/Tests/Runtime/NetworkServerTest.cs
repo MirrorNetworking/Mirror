@@ -58,7 +58,7 @@ namespace Mirror.Tests
 
             // listen
             NetworkServer.Listen(2);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+            Assert.That(NetworkServer.connections, Is.Empty);
 
             NetworkClient.ConnectHost();
             ULocalConnectionToClient localConnection = NetworkServer.localConnection as ULocalConnectionToClient;
@@ -82,7 +82,7 @@ namespace Mirror.Tests
             }
 
             // host client connection should still be alive
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+            Assert.That(NetworkServer.connections, Is.Empty);
             Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
         }
     }
