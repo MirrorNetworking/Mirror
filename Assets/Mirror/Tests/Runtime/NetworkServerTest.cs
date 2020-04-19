@@ -73,7 +73,7 @@ namespace Mirror.Tests
 
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
-            // wait 10 seconds for conn43 to timeout as idle
+            // wait 10 seconds for remoteConnection to timeout as idle
             float endTime = Time.time + 10;
             while (endTime > Time.time)
             {
