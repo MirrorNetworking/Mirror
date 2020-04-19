@@ -20,6 +20,9 @@ namespace Mirror
             return true;
         }
 
+        // override for host client: always return true.
+        internal override bool IsClientAlive() => true;
+
         internal void DisconnectInternal()
         {
             // set not ready and handle clientscene disconnect in any case
