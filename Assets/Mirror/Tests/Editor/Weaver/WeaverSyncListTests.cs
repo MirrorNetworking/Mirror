@@ -87,6 +87,21 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void SyncListNestedInStruct()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void SyncListNestedInStructWithInvalid()
+        {
+            // we need this negative test to make sure that SyncList is being processed 
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
+            Assert.That(weaverErrors, Has.Some.Match(@"Mirror\.Weaver error: UnityEngine\.Object MirrorTest\.SomeData::target has unsupported type\. Use a type supported by Mirror instead"));
+        }
+
+        [Test]
         public void SyncListStruct()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
