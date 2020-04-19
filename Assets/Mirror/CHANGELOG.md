@@ -1,3 +1,10 @@
+# [34.6.0](https://github.com/MirrorNG/MirrorNG/compare/34.5.0-master...34.6.0-master) (2020-04-19)
+
+
+### Features
+
+* onstopserver event in NetworkIdentity ([#186](https://github.com/MirrorNG/MirrorNG/issues/186)) ([eb81190](https://github.com/MirrorNG/MirrorNG/commit/eb8119007b19faca767969700b0209ade135650c))
+
 # [34.5.0](https://github.com/MirrorNG/MirrorNG/compare/34.4.1-master...34.5.0-master) (2020-04-17)
 
 
