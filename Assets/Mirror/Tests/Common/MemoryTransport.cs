@@ -133,10 +133,10 @@ namespace Mirror.Tests
             // ether after calling disconnect.
             serverIncoming.Clear();
 
-            // add client disconnected message
+            // add client disconnected message with connectionId
             clientIncoming.Enqueue(new Message(connectionId, EventType.Disconnected, null));
 
-            // add server disconnected message with connId=1 because 0 is reserved
+            // add server disconnected message with connectionId
             serverIncoming.Enqueue(new Message(connectionId, EventType.Disconnected, null));
 
             // not active anymore
