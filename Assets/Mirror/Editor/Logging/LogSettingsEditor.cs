@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+using UnityEditor;
+using UnityEngine;
 
 namespace Mirror.Logging
 {
@@ -7,7 +8,16 @@ namespace Mirror.Logging
     {
         public override void OnInspectorGUI()
         {
+            CurrentScriptField();
+
             LogSettingsGUI.DrawLogFactoryDictionary(target as LogSettings);
+        }
+
+        public void CurrentScriptField()
+        {
+            GUI.enabled = false;
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Script"));
+            GUI.enabled = true;
         }
     }
 }
