@@ -13,6 +13,13 @@ namespace Mirror.Logging
         {
             serializedObject = new SerializedObject(this);
             settingsProp = serializedObject.FindProperty(nameof(settings));
+
+            LogSettings existingSettings = EditorLogSettingsLoader.FindLogSettings();
+            if (existingSettings != null)
+            {
+                settingsProp.objectReferenceValue = existingSettings;
+                serializedObject.ApplyModifiedProperties();
+            }
         }
         void OnGUI()
         {
@@ -35,6 +42,7 @@ namespace Mirror.Logging
                 if (newSettings != null)
                 {
                     settingsProp.objectReferenceValue = newSettings;
+                    serializedObject.ApplyModifiedProperties();
                 }
             }
             else

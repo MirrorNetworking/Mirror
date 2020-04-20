@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace Mirror.Logging
@@ -38,7 +37,7 @@ namespace Mirror.Logging
             settings.loglevels.Sort((x, y) => x.name.CompareTo(y.name));
 
 #if UNITY_EDITOR
-            EditorUtility.SetDirty(settings);
+            UnityEditor.EditorUtility.SetDirty(settings);
 #endif
         }
 
