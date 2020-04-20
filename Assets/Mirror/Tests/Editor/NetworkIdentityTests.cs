@@ -92,7 +92,7 @@ namespace Mirror.Tests
         class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override void OnNetworkDestroy()
+            public override void OnStopClient()
             {
                 ++called;
                 throw new Exception("some exception");
@@ -102,7 +102,7 @@ namespace Mirror.Tests
         class NetworkDestroyCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override void OnNetworkDestroy() { ++called; }
+            public override void OnStopClient() { ++called; }
         }
 
         class SetHostVisibilityExceptionNetworkBehaviour : NetworkVisibility
@@ -1032,7 +1032,7 @@ namespace Mirror.Tests
             // OnNetworkDestroy from being called in the second one
             // exception will log an error
             LogAssert.ignoreFailingMessages = true;
-            identity.OnNetworkDestroy();
+            identity.OnStopClient();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(compEx.called, Is.EqualTo(1));
             Assert.That(comp.called, Is.EqualTo(1));

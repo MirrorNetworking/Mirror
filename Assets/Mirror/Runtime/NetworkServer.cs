@@ -1091,7 +1091,7 @@ namespace Mirror
             identity.ClearObservers();
             if (NetworkClient.active && localClientActive)
             {
-                identity.OnNetworkDestroy();
+                identity.OnStopClient();
             }
 
             // when unspawning, dont destroy the server's object
