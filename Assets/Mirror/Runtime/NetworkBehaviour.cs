@@ -814,6 +814,14 @@ namespace Mirror
             }
         }
 
+        internal void ResetSyncObjects()
+        {
+            for (int i = 0; i < syncObjects.Count; i++)
+            {
+                syncObjects[i].Reset();
+            }
+        }
+
         // Deprecated 04/20/2020
         /// <summary>
         /// Obsolete: Use <see cref="OnStopClient()"/> instead
