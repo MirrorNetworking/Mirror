@@ -321,44 +321,48 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ResetTest()
+        public void ObjectCanBeReusedAfterReset()
         {
             SyncListUInt serverList = new SyncListUInt();
             SyncListUInt clientList = new SyncListUInt();
-
-            // data has been flushed,  should go back to clear
-            Assert.That(clientList.IsReadOnly, Is.False);
 
             serverList.Add(1U);
             serverList.Add(2U);
             serverList.Add(3U);
             SerializeDeltaTo(serverList, clientList);
 
-            // client list should now lock itself,  trying to modify it
-            // should produce an InvalidOperationException
-            Assert.That(clientList.IsReadOnly, Is.True);
-            Assert.Throws<InvalidOperationException>(() => { clientList.Add(5U); });
-
             clientList.Reset();
 
             // make old client the host
-
             SyncListUInt hostList = clientList;
             SyncListUInt clientList2 = new SyncListUInt();
 
             Assert.That(hostList.IsReadOnly, Is.False);
-            Assert.That(clientList2.IsReadOnly, Is.False);
 
             hostList.Add(1U);
             hostList.Add(2U);
             hostList.Add(3U);
             SerializeDeltaTo(hostList, clientList2);
 
-            // client list should now lock itself,  trying to modify it
-            // should produce an InvalidOperationException
-            Assert.That(clientList2.IsReadOnly, Is.True);
             Assert.That(hostList.IsReadOnly, Is.False);
-            Assert.Throws<InvalidOperationException>(() => { clientList2.Add(5U); });
+        }
+
+        [Test]
+        public void ResetShouldSetReadOnlyToFalse()
+        {
+            SyncListUInt serverList = new SyncListUInt();
+            SyncListUInt clientList = new SyncListUInt();
+
+            serverList.Add(1U);
+            serverList.Add(2U);
+            serverList.Add(3U);
+            SerializeDeltaTo(serverList, clientList);
+
+            Assert.That(clientList.IsReadOnly, Is.True);
+
+            clientList.Reset();
+
+            Assert.That(clientList.IsReadOnly, Is.False);
         }
 
         [Test]
@@ -390,7 +394,7 @@ namespace Mirror.Tests
 
             serverList.Reset();
 
-            Assert.That(serverList.Count, Is.Zero);
+            Assert.That(serverList, Is.Empty);
         }
     }
 

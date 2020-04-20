@@ -303,45 +303,48 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ResetShouldSetReadOnlyToFalse()
+        public void ObjectCanBeReusedAfterReset()
         {
             SyncDictionaryIntString serverList = new SyncDictionaryIntString();
             SyncDictionaryIntString clientList = new SyncDictionaryIntString();
-
-            // data has been flushed,  should go back to clear
-            Assert.That(clientList.IsReadOnly, Is.False);
 
             serverList.Add(20, "yay");
             serverList.Add(30, "hello");
             serverList.Add(35, "world");
             SerializeDeltaTo(serverList, clientList);
 
-            // client list should now lock itself,  trying to modify it
-            // should produce an InvalidOperationException
-            Assert.That(clientList.IsReadOnly, Is.True);
-            Assert.Throws<InvalidOperationException>(() => clientList.Add(50, "fail"));
-
             clientList.Reset();
 
             // make old client the host
-
             SyncDictionaryIntString hostList = clientList;
             SyncDictionaryIntString clientList2 = new SyncDictionaryIntString();
 
-
             Assert.That(hostList.IsReadOnly, Is.False);
-            Assert.That(clientList2.IsReadOnly, Is.False);
 
             hostList.Add(20, "yay");
             hostList.Add(30, "hello");
             hostList.Add(35, "world");
             SerializeDeltaTo(hostList, clientList2);
 
-            // client list should now lock itself,  trying to modify it
-            // should produce an InvalidOperationException
-            Assert.That(clientList2.IsReadOnly, Is.True);
             Assert.That(hostList.IsReadOnly, Is.False);
-            Assert.Throws<InvalidOperationException>(() => clientList2.Add(50, "fail"));
+        }
+
+        [Test]
+        public void ResetShouldSetReadOnlyToFalse()
+        {
+            SyncDictionaryIntString serverList = new SyncDictionaryIntString();
+            SyncDictionaryIntString clientList = new SyncDictionaryIntString();
+
+            serverList.Add(20, "yay");
+            serverList.Add(30, "hello");
+            serverList.Add(35, "world");
+            SerializeDeltaTo(serverList, clientList);
+
+            Assert.That(clientList.IsReadOnly, Is.True);
+
+            clientList.Reset();
+
+            Assert.That(clientList.IsReadOnly, Is.False);
         }
 
         [Test]
@@ -373,7 +376,7 @@ namespace Mirror.Tests
 
             serverList.Reset();
 
-            Assert.That(serverList.Count, Is.Zero);
+            Assert.That(serverList, Is.Empty);
         }
     }
 }
