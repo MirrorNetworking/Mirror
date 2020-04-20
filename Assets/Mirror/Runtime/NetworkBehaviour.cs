@@ -816,9 +816,9 @@ namespace Mirror
 
         internal void ResetSyncObjects()
         {
-            for (int i = 0; i < syncObjects.Count; i++)
+            foreach (SyncObject syncObject in syncObjects)
             {
-                syncObjects[i].Reset();
+                syncObject.Reset();
             }
         }
 
