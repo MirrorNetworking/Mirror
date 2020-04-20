@@ -139,13 +139,11 @@ namespace Mirror.Tests
         class SetHostVisibilityNetworkBehaviour : NetworkVisibility
         {
             public int called;
-            public bool valuePassed;
             public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public override bool OnCheckObserver(NetworkConnection conn) { return true; }
             public override void OnSetHostVisibility(bool visible)
             {
                 ++called;
-                valuePassed = visible;
                 base.OnSetHostVisibility(visible);
             }
         }
