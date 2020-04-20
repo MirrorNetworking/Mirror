@@ -1094,6 +1094,8 @@ namespace Mirror
                 identity.OnStopClient();
             }
 
+            identity.OnStopServer();
+
             // when unspawning, dont destroy the server's object
             if (destroyServerObject)
             {
