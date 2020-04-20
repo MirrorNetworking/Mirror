@@ -54,7 +54,7 @@ namespace Mirror.Tests
     {
         // counter to make sure that it's called exactly once
         public int called;
-        public override void OnNetworkDestroy() { ++called; }
+        public override void OnStopClient() { ++called; }
     }
 
     [TestFixture]

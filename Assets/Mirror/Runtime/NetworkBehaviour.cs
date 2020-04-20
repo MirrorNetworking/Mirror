@@ -815,11 +815,23 @@ namespace Mirror
         }
 
         /// <summary>
+        /// Obsolete, use OnStopClient instead
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Use OnStopClient instead")]
+        public virtual void OnNetworkDestroy() { }
+
+        /// <summary>
         /// This is invoked on clients when the server has caused this object to be destroyed.
         /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void OnNetworkDestroy() { }
+        public virtual void OnStopClient()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            // backwards compatibility
+            OnNetworkDestroy();
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
 
         /// <summary>
         /// This is invoked for NetworkBehaviour objects when they become active on the server.

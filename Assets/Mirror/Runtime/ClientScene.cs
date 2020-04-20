@@ -611,7 +611,7 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
             {
-                localObject.OnNetworkDestroy();
+                localObject.OnStopClient();
 
                 if (!InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
                 {
