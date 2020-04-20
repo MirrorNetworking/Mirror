@@ -600,7 +600,6 @@ namespace Mirror
                 try
                 {
                     comp.OnStopServer();
-                    comp.ResetSyncObjects();
                 }
                 catch (Exception e)
                 {
@@ -760,7 +759,6 @@ namespace Mirror
                 try
                 {
                     comp.OnStopClient();
-                    comp.ResetSyncObjects();
                 }
                 catch (Exception e)
                 {
@@ -1279,6 +1277,7 @@ namespace Mirror
             networkBehavioursCache = null;
 
             ClearObservers();
+            ResetSyncObjects();
         }
 
         // invoked by NetworkServer during Update()
@@ -1368,6 +1367,14 @@ namespace Mirror
                 {
                     comp.ClearAllDirtyBits();
                 }
+            }
+        }
+
+        internal void ResetSyncObjects()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                comp.ResetSyncObjects();
             }
         }
     }
