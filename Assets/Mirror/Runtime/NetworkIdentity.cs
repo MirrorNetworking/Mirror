@@ -600,6 +600,7 @@ namespace Mirror
                 try
                 {
                     comp.OnStopServer();
+                    comp.ResetSyncObjects();
                 }
                 catch (Exception e)
                 {
@@ -759,6 +760,7 @@ namespace Mirror
                 try
                 {
                     comp.OnStopClient();
+                    comp.ResetSyncObjects();
                 }
                 catch (Exception e)
                 {
