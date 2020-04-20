@@ -1041,7 +1041,7 @@ namespace Mirror.Tests
             // unspawn
             NetworkServer.UnSpawn(go);
 
-            // it should have been marked for reset now
+            // it should have been reset now
             Assert.That(identity.netId, Is.Zero);
 
             // clean up
