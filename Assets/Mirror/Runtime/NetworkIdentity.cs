@@ -523,7 +523,7 @@ namespace Mirror
             sceneIds.Remove(sceneId);
             sceneIds.Remove(sceneId & 0x00000000FFFFFFFF);
 
-            // If the object has been unspawned,  then isServer will be false
+            // If false the object has already been unspawned
             // if it is still true, then we need to unspawn it
             if (isServer)
             {
