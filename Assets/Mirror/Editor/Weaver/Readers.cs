@@ -363,6 +363,7 @@ namespace Mirror.Weaver
                 if (ctor == null)
                 {
                     Weaver.Error($"{variable} can't be deserialized because it has no default constructor");
+                    return;
                 }
 
                 MethodReference ctorRef = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);
