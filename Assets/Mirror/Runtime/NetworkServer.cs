@@ -676,7 +676,6 @@ namespace Mirror
                 Debug.Log("AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + player);
                 return false;
             }
-            identity.Reset();
 
             // cannot have a player object in "Add" version
             if (conn.identity != null)
@@ -904,7 +903,6 @@ namespace Mirror
                 Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
                 return;
             }
-            identity.Reset();
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
             // special case to make sure hasAuthority is set
@@ -1101,7 +1099,7 @@ namespace Mirror
             {
                 UnityEngine.Object.Destroy(identity.gameObject);
             }
-            identity.MarkForReset();
+            identity.Reset();
         }
 
         /// <summary>
@@ -1175,7 +1173,6 @@ namespace Mirror
                 if (ValidateSceneObject(identity))
                 {
                     if (LogFilter.Debug) Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
-                    identity.Reset();
                     identity.gameObject.SetActive(true);
                 }
             }

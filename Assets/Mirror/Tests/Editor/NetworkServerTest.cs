@@ -1036,13 +1036,13 @@ namespace Mirror.Tests
             identity.sceneId = 42;
             // spawned objects are active
             go.SetActive(true);
-            Assert.That(identity.IsMarkedForReset(), Is.False);
+            identity.netId = 123;
 
             // unspawn
             NetworkServer.UnSpawn(go);
 
-            // it should have been marked for reset now
-            Assert.That(identity.IsMarkedForReset(), Is.True);
+            // it should have been reset now
+            Assert.That(identity.netId, Is.Zero);
 
             // clean up
             GameObject.DestroyImmediate(go);
