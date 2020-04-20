@@ -737,7 +737,7 @@ namespace Mirror
         {
             foreach (NetworkIdentity identity in Resources.FindObjectsOfTypeAll<NetworkIdentity>())
             {
-                identity.MarkForReset();
+                identity.Reset();
             }
         }
 

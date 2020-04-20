@@ -442,7 +442,7 @@ namespace Mirror
                         }
                         else
                         {
-                            identity.MarkForReset();
+                            identity.Reset();
                             identity.gameObject.SetActive(false);
                         }
                     }
@@ -453,8 +453,6 @@ namespace Mirror
 
         static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
         {
-            identity.Reset();
-
             if (msg.assetId != Guid.Empty)
                 identity.assetId = msg.assetId;
 
@@ -628,7 +626,7 @@ namespace Mirror
                     }
                 }
                 NetworkIdentity.spawned.Remove(netId);
-                localObject.MarkForReset();
+                localObject.Reset();
             }
             else
             {
