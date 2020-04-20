@@ -1372,7 +1372,7 @@ namespace Mirror
             }
         }
 
-        internal void ResetSyncObjects()
+        void ResetSyncObjects()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
