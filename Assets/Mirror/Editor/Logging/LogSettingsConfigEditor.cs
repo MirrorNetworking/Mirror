@@ -19,6 +19,7 @@ namespace Mirror.Logging
                 {
                     SerializedProperty settingsProp = serializedObject.FindProperty("settings");
                     settingsProp.objectReferenceValue = newSettings;
+                    serializedObject.ApplyModifiedProperties();
                 }
             }
             else
