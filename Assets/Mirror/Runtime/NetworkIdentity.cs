@@ -598,6 +598,26 @@ namespace Mirror
             }
         }
 
+        internal void OnStopServer()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnStartServer should be caught, so that one
+                // component's exception doesn't stop all other components from
+                // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
+                try
+                {
+                    comp.OnStopServer();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Exception in OnStopServer:" + e.Message + " " + e.StackTrace);
+                }
+            }
+        }
+
         bool clientStarted;
         internal void OnStartClient()
         {
