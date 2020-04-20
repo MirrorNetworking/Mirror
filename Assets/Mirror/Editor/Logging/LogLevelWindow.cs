@@ -29,9 +29,17 @@ namespace Mirror.Logging
             EditorGUILayout.PropertyField(settingsProp);
             serializedObject.ApplyModifiedProperties();
 
-            if (settings != null)
+            if (settings == null)
             {
-                LogFactoryGUI.DrawLogFactoryDictionary(settings);
+                LogSettings newSettings = LogSettingsGUI.DrawCreateNewButton();
+                if (newSettings != null)
+                {
+                    settingsProp.objectReferenceValue = newSettings;
+                }
+            }
+            else
+            {
+                LogSettingsGUI.DrawLogFactoryDictionary(settings);
             }
 
             EditorGUILayout.EndVertical();

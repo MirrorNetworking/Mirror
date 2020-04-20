@@ -7,7 +7,7 @@ namespace Mirror.Logging
     {
         public override void OnInspectorGUI()
         {
-            LogFactoryGUI.DrawLogFactoryDictionary(target as LogSettings);
+            LogSettingsGUI.DrawLogFactoryDictionary(target as LogSettings);
         }
     }
 }

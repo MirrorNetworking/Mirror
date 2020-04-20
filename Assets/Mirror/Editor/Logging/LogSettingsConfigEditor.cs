@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 
 namespace Mirror.Logging
 {
@@ -7,14 +7,23 @@ namespace Mirror.Logging
     {
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("settings"));
-            serializedObject.ApplyModifiedProperties();
+            DrawDefaultInspector();
+
 
             LogSettingsConfig target = this.target as LogSettingsConfig;
-            if (target.settings != null)
+
+            if (target.settings == null)
             {
-                LogFactoryGUI.DrawLogFactoryDictionary(target.settings);
+                LogSettings newSettings = LogSettingsGUI.DrawCreateNewButton();
+                if (newSettings != null)
+                {
+                    SerializedProperty settingsProp = serializedObject.FindProperty("settings");
+                    settingsProp.objectReferenceValue = newSettings;
+                }
+            }
+            else
+            {
+                LogSettingsGUI.DrawLogFactoryDictionary(target.settings);
             }
         }
     }

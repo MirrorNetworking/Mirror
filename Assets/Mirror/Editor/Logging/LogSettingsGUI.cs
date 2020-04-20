@@ -1,11 +1,20 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 namespace Mirror.Logging
 {
-    public static class LogFactoryGUI
+    public static class LogSettingsGUI
     {
+        public static LogSettings DrawCreateNewButton()
+        {
+            if (GUILayout.Button("Create New"))
+            {
+                ScriptableObjectUtility.CreateAsset<LogSettings>(nameof(LogSettings));
+            }
+
+            return null;
+        }
         public static void DrawLogFactoryDictionary(LogSettings settings)
         {
             using (EditorGUI.ChangeCheckScope scope = new EditorGUI.ChangeCheckScope())
