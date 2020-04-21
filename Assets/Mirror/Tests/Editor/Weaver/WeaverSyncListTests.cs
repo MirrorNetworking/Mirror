@@ -31,6 +31,16 @@ namespace Mirror.Weaver.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
         }
+
+        [Test]
+        public void SyncListMissingParamlessCtor()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
+            string weaverError = @"Mirror\.Weaver error:";
+            string fieldType = @"MirrorTest\.SyncListString2 MirrorTest\.SyncListMissingParamlessCtor::Foo";
+            string errorMessage = @"Can not intialize field because no default constructor was found\. Manually intialize the field \(call the constructor\) or add constructor without Parameter";
+            Assert.That(weaverErrors, Has.Some.Match($"{weaverError} {fieldType} {errorMessage}"));
+        }
         
         [Test]
         public void SyncListMissingParamlessCtorManuallyInitialized()
