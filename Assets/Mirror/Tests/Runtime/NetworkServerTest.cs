@@ -54,7 +54,7 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
 
             // Set high ping frequency so no NetworkPingMessage is generated
-            NetworkTime.PingFrequency = 20f;
+            NetworkTime.PingFrequency = 5f;
 
             // listen
             NetworkServer.Listen(2);
@@ -63,18 +63,18 @@ namespace Mirror.Tests
             NetworkClient.ConnectHost();
             ULocalConnectionToClient localConnection = NetworkServer.localConnection as ULocalConnectionToClient;
             Assert.That(NetworkServer.localConnection, Is.Not.Null);
-            localConnection.serverIdleTimeout = 5f;
+            localConnection.serverIdleTimeout = 1f;
 
             GameObject RemotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
             NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1);
-            remoteConnection.serverIdleTimeout = 5f;
+            remoteConnection.serverIdleTimeout = 1f;
             NetworkServer.OnConnected(remoteConnection);
             NetworkServer.AddPlayerForConnection(remoteConnection, RemotePlayer);
 
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // wait 10 seconds for remoteConnection to timeout as idle
-            float endTime = Time.time + 10;
+            float endTime = Time.time + 2;
             while (endTime > Time.time)
             {
                 NetworkServer.Update();
