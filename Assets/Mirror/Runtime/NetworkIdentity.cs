@@ -1267,6 +1267,9 @@ namespace Mirror
         // of invoking reset after OnDestroy is called.
         internal void Reset()
         {
+            // make sure to call this before networkBehavioursCache is cleared below
+            ResetSyncObjects();
+
             clientStarted = false;
             isClient = false;
             isServer = false;
@@ -1366,6 +1369,14 @@ namespace Mirror
                 {
                     comp.ClearAllDirtyBits();
                 }
+            }
+        }
+
+        void ResetSyncObjects()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                comp.ResetSyncObjects();
             }
         }
     }
