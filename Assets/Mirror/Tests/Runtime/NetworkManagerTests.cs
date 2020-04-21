@@ -1,5 +1,4 @@
 using System.Collections;
-using Mirror;
 using NUnit.Framework;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
