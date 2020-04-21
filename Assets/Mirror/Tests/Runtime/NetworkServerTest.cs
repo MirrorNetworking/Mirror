@@ -63,7 +63,7 @@ namespace Mirror.Tests
             NetworkClient.ConnectHost();
             ULocalConnectionToClient localConnection = NetworkServer.localConnection as ULocalConnectionToClient;
             Assert.That(NetworkServer.localConnection, Is.Not.Null);
-            localConnection.serverIdleTimeout = f;
+            localConnection.serverIdleTimeout = 1f;
 
             GameObject RemotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
             NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1);
