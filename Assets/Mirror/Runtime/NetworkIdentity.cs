@@ -252,7 +252,7 @@ namespace Mirror
         /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
         /// </summary>
         ///<summary>Called on clients when the server destroys the GameObject.</summary>
-        public UnityEvent OnNetworkDestroy = new UnityEvent();
+        public UnityEvent OnStopClient = new UnityEvent();
 
         /// <summary>
         /// This is called on the server when the object is unspawned
@@ -599,6 +599,11 @@ namespace Mirror
             OnStartServer.Invoke();
         }
 
+        internal void StopServer()
+        {
+            OnStopServer.Invoke();
+        }
+
         bool clientStarted;
         internal void StartClient()
         {
@@ -660,9 +665,9 @@ namespace Mirror
             return true;
         }
 
-        internal void NetworkDestroy()
+        internal void StopClient()
         {
-            OnNetworkDestroy.Invoke();
+            OnStopClient.Invoke();
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

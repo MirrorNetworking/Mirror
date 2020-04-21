@@ -70,12 +70,12 @@ namespace Mirror.Weaver
             }
             if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
             {
-                Weaver.Error($"Cannot generate writer for generic type {variable}. Use a concrete type or provide a custom writer");
+                Weaver.Error($"Cannot generate writer for generic type {variable}. Use a supported type or provide a custom writer");
                 return null;
             }
             if (td.IsInterface)
             {
-                Weaver.Error($"Cannot generate writer for interface {variable}. Use a concrete type or provide a custom writer");
+                Weaver.Error($"Cannot generate writer for interface {variable}. Use a supported type or provide a custom writer");
                 return null;
             }
 

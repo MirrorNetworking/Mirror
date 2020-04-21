@@ -519,12 +519,16 @@ namespace Mirror
         [ClientRpc]
         void RpcOnAnimationTriggerClientMessage(int hash)
         {
+            if (IsServer) return;
+
             HandleAnimTriggerMsg(hash);
         }
 
         [ClientRpc]
         void RpcOnAnimationResetTriggerClientMessage(int hash)
         {
+            if (IsServer) return;
+
             HandleAnimResetTriggerMsg(hash);
         }
 

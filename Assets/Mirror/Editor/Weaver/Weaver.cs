@@ -415,39 +415,28 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
+            // ignore generic classes
+            // we can not process generic classes
+            // we give error if a generic syncObject is used in NetworkBehaviour
+            if (td.HasGenericParameters)
+                return false;
+
             bool modified = false;
 
-            // are ANY parent classes SyncListStruct
-            TypeReference parent = td.BaseType;
-            while (parent != null)
+            if (td.IsDerivedFrom(SyncListType))
             {
-                if (parent.FullName.StartsWith(SyncListType.FullName, StringComparison.Ordinal))
-                {
-                    SyncListProcessor.Process(td);
-                    modified = true;
-                    break;
-                }
-                if (parent.FullName.StartsWith(SyncSetType.FullName, StringComparison.Ordinal))
-                {
-                    SyncListProcessor.Process(td);
-                    modified = true;
-                    break;
-                }
-                if (parent.FullName.StartsWith(SyncDictionaryType.FullName, StringComparison.Ordinal))
-                {
-                    SyncDictionaryProcessor.Process(td);
-                    modified = true;
-                    break;
-                }
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for pluins.
-                    break;
-                }
+                SyncListProcessor.Process(td);
+                modified = true;
+            }
+            else if (td.IsDerivedFrom(SyncSetType))
+            {
+                SyncListProcessor.Process(td);
+                modified = true;
+            }
+            else if (td.IsDerivedFrom(SyncDictionaryType))
+            {
+                SyncDictionaryProcessor.Process(td);
+                modified = true;
             }
 
             // check for embedded types

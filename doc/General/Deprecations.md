@@ -75,6 +75,9 @@ Currently, Mirror using it's default TCP transport will always send everything o
 -   `IsClientConnected()`  
     Use static property `NetworkClient.isConnected` instead.
 
+-   `onlineScene` and `offlineScene`  
+    These store full paths now, so use SceneManager.GetActiveScene().path instead.
+
 -   `OnStartClient(NetworkClient client)`  
     Override OnStartClient() instead since all `NetworkClient` methods are static now.
 

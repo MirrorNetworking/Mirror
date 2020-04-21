@@ -51,6 +51,16 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate reader for component type {variable}. Use a supported type or provide a custom reader");
                 return null;
             }
+            if (variable.FullName == Weaver.ObjectType.FullName)
+            {
+                Weaver.Error($"Cannot generate reader for {variable}. Use a supported type or provide a custom reader");
+                return null;
+            }
+            if (variable.FullName == Weaver.ScriptableObjectType.FullName)
+            {
+                Weaver.Error($"Cannot generate reader for {variable}. Use a supported type or provide a custom reader");
+                return null;
+            }
             if (variable.IsByReference)
             {
                 // error??
@@ -59,12 +69,12 @@ namespace Mirror.Weaver
             }
             if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
             {
-                Weaver.Error($"Cannot generate reader for generic variable {variable}. Use a concrete type or provide a custom reader");
+                Weaver.Error($"Cannot generate reader for generic variable {variable}. Use a supported type or provide a custom reader");
                 return null;
             }
             if (td.IsInterface)
             {
-                Weaver.Error($"Cannot generate reader for interface variable {variable}. Use a concrete type or provide a custom reader");
+                Weaver.Error($"Cannot generate reader for interface {variable}. Use a supported type or provide a custom reader");
                 return null;
             }
 

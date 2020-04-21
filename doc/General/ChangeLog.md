@@ -5,6 +5,11 @@
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
 ## Version 12.x.x -- In Progress
+- Added: [NetworkMatchChecker](../Components/NetworkMatchChecker.md) component. Use this component to create many concurrent isolated matches within a single game server.
+- Added: [SyncLists](../Guides/Sync/SyncLists.md) now have Find and FindAll functions.
+- Added: Weaver now supports custom Reader & Writer for types in other assemblies
+- Fixed: NetworkAnimator no longer double-fires SetTrigger / ResetTrigger on the host client
+- Fixed: Destroy is no longer invoked twice on the server for the player object.
 - Changed: **Breaking** NetworkBehaviour: `OnRebuildObservers`, `OnCheckObserver`, and `OnSetHostVisibility` were moved to a separate class called `NetworkVisibility`
 
 ## Version 11.4.2 - 2020-Apr-03
@@ -22,6 +27,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: NetworkRoomManager no longer incorrectly destroys the game player object. It's left in the game scene to be cleaned up by Unity when the scene changes.
 - Fixed: StopHost correctly raises OnServerDisconnect in Network Manager, and correctly unwinds before shutting down the server.
 - Fixed: `isServer` is no longer incorrectly false on server in Network Identity's OnDestroy
+- Changed: Network Manager `offlineScene` and `onlineScene` store full paths now, so use SceneManager.GetActiveScene().path instead.
 - Changed: Network Manager HUD now calls StopHost / StopServer / StopClient more appropriately.
 - Changed: Network Manager HUD labels no longer say LAN. Associated docs also cleaned up to eliminate the misconception of Mirror being LAN only solution.
 - Changed: NetworkTransform compression removed and message handling is much simpler now.

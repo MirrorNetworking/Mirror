@@ -16,6 +16,8 @@ These core components are included in Mirror:
     The Network Proximity Checker component controls the visibility of game objects for network clients, based on proximity to players.
 -   [Network Scene Checker](NetworkSceneChecker.md)  
     The Network Scene Checker component controls visibility of networked objects between scenes.
+-   [Network Match Checker](NetworkMatchChecker.md)  
+    The Network Match Checker component controls visibility of networked objects based on match id.
 -   [Network Room Manager](NetworkRoomManager.md)  
     The Network Room Manager is an extension component of Network Manager that provides a basic functional room.
 -   [Network Room Player](NetworkRoomPlayer.md)  

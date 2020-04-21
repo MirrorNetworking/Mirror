@@ -20,19 +20,19 @@ namespace Mirror.Weaver.Tests
     [Category("Weaver")]
     public abstract class WeaverTests
     {
-        public static readonly ILogger logger = LogFactory.GetLogger<WeaverTests>();
+        public static readonly ILogger logger = LogFactory.GetLogger<WeaverTests>(LogType.Exception);
 
         protected List<string> weaverErrors = new List<string>();
         void HandleWeaverError(string msg)
         {
-            logger.Log(msg);
+            logger.LogError(msg);
             weaverErrors.Add(msg);
         }
 
         protected List<string> weaverWarnings = new List<string>();
         void HandleWeaverWarning(string msg)
         {
-            logger.Log(msg);
+            logger.LogWarning(msg);
             weaverWarnings.Add(msg);
         }
 

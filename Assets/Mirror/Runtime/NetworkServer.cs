@@ -416,7 +416,8 @@ namespace Mirror
 
             Disconnected.Invoke(connection);
 
-            DestroyPlayerForConnection(connection);
+            connection.DestroyOwnedObjects();
+            connection.Identity = null;
 
             if (connection == LocalConnection)
                 LocalConnection = null;
@@ -860,23 +861,6 @@ namespace Mirror
             return payload;
         }
 
-        /// <summary>
-        /// This destroys all the player objects associated with a INetworkConnections on a server.
-        /// <para>This is used when a client disconnects, to remove the players for that client. This also destroys non-player objects that have client authority set for this connection.</para>
-        /// </summary>
-        /// <param name="conn">The connections object to clean up for.</param>
-        public void DestroyPlayerForConnection(INetworkConnection conn)
-        {
-            // destroy all objects owned by this connection
-            conn.DestroyOwnedObjects();
-
-            if (conn.Identity != null)
-            {
-                DestroyObject(conn.Identity, true);
-                conn.Identity = null;
-            }
-        }
-
         bool CheckForPrefab(GameObject obj)
         {
 #if UNITY_EDITOR
@@ -974,13 +958,12 @@ namespace Mirror
             identity.ClearObservers();
             if (LocalClientActive)
             {
-                identity.OnNetworkDestroy.Invoke();
+                identity.StopClient();
             }
 
-            identity.OnStopServer.Invoke();
+            identity.StopServer();
 
             identity.Reset();
-
             // when unspawning, dont destroy the server's object
             if (destroyServerObject)
             {

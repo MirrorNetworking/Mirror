@@ -16,7 +16,7 @@ namespace Mirror.Tests.Performance
     {
         public override void Awake()
         {
-            transport = gameObject.AddComponent<TelepathyTransport>();
+            transport = gameObject.AddComponent<MemoryTransport>();
             playerPrefab = new GameObject("testPlayerPrefab", typeof(NetworkIdentity));
             base.Awake();
         }

@@ -14,24 +14,6 @@ namespace Mirror.Tests
     public class NetworkIdentityTests
     {
         #region test components
-        class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public void OnNetworkDestroy()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
-        }
-
-        class NetworkDestroyCalledNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public void OnNetworkDestroy()
-            {
-                ++called;
-            }
-        }
 
         class SetHostVisibilityExceptionNetworkBehaviour : NetworkVisibility
         {
@@ -654,28 +636,40 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnNetworkDestroy()
+        public void OnStopClient()
         {
-            // add components
-            NetworkDestroyExceptionNetworkBehaviour compEx = gameObject.AddComponent<NetworkDestroyExceptionNetworkBehaviour>();
-            identity.OnNetworkDestroy.AddListener(compEx.OnNetworkDestroy);
-            NetworkDestroyCalledNetworkBehaviour comp = gameObject.AddComponent<NetworkDestroyCalledNetworkBehaviour>();
-            identity.OnNetworkDestroy.AddListener(comp.OnNetworkDestroy);
+            UnityAction mockCallback = Substitute.For<UnityAction>();
+            identity.OnStopClient.AddListener(mockCallback);
 
-            // make sure our test values are set to 0
-            Assert.That(compEx.called, Is.EqualTo(0));
-            Assert.That(comp.called, Is.EqualTo(0));
+            identity.StopClient();
 
-            // we have checks to make sure that it's only called once.
-            // let's see if they work.
-            Assert.Throws<Exception>(() =>
-            {
-                identity.NetworkDestroy();
+            mockCallback.Received().Invoke();
+        }
+
+        [Test]
+        public void OnStopServer()
+        {
+            UnityAction mockCallback = Substitute.For<UnityAction>();
+            identity.OnStopServer.AddListener(mockCallback);
+
+            identity.StopServer();
+
+            mockCallback.Received().Invoke();
+        }
+
+        [Test]
+        public void OnStopServerEx()
+        {
+            UnityAction mockCallback = Substitute.For<UnityAction>();
+            mockCallback
+                .When(f => f.Invoke())
+                .Do(f => { throw new Exception("Some exception"); });
+
+            identity.OnStopServer.AddListener(mockCallback);
+
+            Assert.Throws<Exception>(() => {
+                identity.StopServer();
             });
-
-            Assert.That(compEx.called, Is.EqualTo(1));
-            //Due to the order the listeners are added the one without exception is never called
-            Assert.That(comp.called, Is.EqualTo(0));
         }
 
         [Test]
