@@ -63,7 +63,7 @@ namespace Mirror.Tests
             NetworkClient.ConnectHost();
             ULocalConnectionToClient localConnection = NetworkServer.localConnection as ULocalConnectionToClient;
             Assert.That(NetworkServer.localConnection, Is.Not.Null);
-            localConnection.serverIdleTimeout = 1f;
+            localConnection.serverIdleTimeout = f;
 
             GameObject RemotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
             NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1);
@@ -73,7 +73,7 @@ namespace Mirror.Tests
 
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
-            // wait 10 seconds for remoteConnection to timeout as idle
+            // wait 2 seconds for remoteConnection to timeout as idle
             float endTime = Time.time + 2;
             while (endTime > Time.time)
             {
