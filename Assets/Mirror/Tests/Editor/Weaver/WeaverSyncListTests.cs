@@ -5,21 +5,77 @@ namespace Mirror.Weaver.Tests
     public class WeaverSyncListTests : WeaverTestsBuildFromTestName
     {
         [Test]
-        public void SyncListValid()
+        public void SyncList()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
         }
 
         [Test]
-        public void SyncListMissingParamlessCtor()
+        public void SyncListByteValid()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/SyncListString2 MirrorTest.MirrorTestPlayer::Foo does not have a default constructor"));
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
         }
 
         [Test]
-        public void SyncListByteValid()
+        public void SyncListGenericAbstractInheritance()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void SyncListGenericInheritance()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+        
+        [Test]
+        public void SyncListMissingParamlessCtorManuallyInitialized()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void SyncListNestedStruct()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void SyncListStruct()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void SyncListStructWithCustomDeserializeOnly()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void SyncListStructWithCustomMethods()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void SyncListStructWithCustomSerializeOnly()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void SyncListGenericStructWithCustomMethods()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
