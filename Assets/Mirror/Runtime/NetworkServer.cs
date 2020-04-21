@@ -78,11 +78,7 @@ namespace Mirror
             {
                 DisconnectAll();
 
-                if (dontListen)
-                {
-                    // was never started, so dont stop
-                }
-                else
+                if (!dontListen)
                 {
                     // stop the server.
                     // we do NOT call Transport.Shutdown, because someone only
