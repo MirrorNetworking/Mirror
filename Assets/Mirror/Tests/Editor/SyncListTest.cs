@@ -291,6 +291,9 @@ namespace Mirror.Tests
         [Test]
         public void DirtyTest()
         {
+            // Sync Delta to clear dirty
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+
             // nothing to send
             Assert.That(serverSyncList.IsDirty, Is.False);
 
