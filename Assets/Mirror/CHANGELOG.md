@@ -1,3 +1,13 @@
+## [34.8.1](https://github.com/MirrorNG/MirrorNG/compare/34.8.0-master...34.8.1-master) (2020-04-21)
+
+
+### Bug Fixes
+
+* Allow sync objects to be re-used ([#1744](https://github.com/MirrorNG/MirrorNG/issues/1744)) ([58c89a3](https://github.com/MirrorNG/MirrorNG/commit/58c89a3d32daedc9b6670ed0b5eb1f8753c902e2)), closes [#1714](https://github.com/MirrorNG/MirrorNG/issues/1714)
+* Remove leftover AddPlayer methods now that extraData is gone ([#1751](https://github.com/MirrorNG/MirrorNG/issues/1751)) ([2d006fe](https://github.com/MirrorNG/MirrorNG/commit/2d006fe7301eb8a0194af9ce9244988a6877f8f0))
+* Remove RoomPlayer from roomSlots on Disconnect ([2a2f76c](https://github.com/MirrorNG/MirrorNG/commit/2a2f76c263093c342f307856e400aeabbedc58df))
+* Use path instead of name in Room Example ([5d4bc47](https://github.com/MirrorNG/MirrorNG/commit/5d4bc47d46098f920f9e3468d0f276e336488e42))
+
 # [34.8.0](https://github.com/MirrorNG/MirrorNG/compare/34.7.0-master...34.8.0-master) (2020-04-21)
 
 
