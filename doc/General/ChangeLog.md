@@ -27,6 +27,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: NetworkRoomManager no longer incorrectly destroys the game player object. It's left in the game scene to be cleaned up by Unity when the scene changes.
 - Fixed: StopHost correctly raises OnServerDisconnect in Network Manager, and correctly unwinds before shutting down the server.
 - Fixed: `isServer` is no longer incorrectly false on server in Network Identity's OnDestroy
+- Changed: Network Manager `offlineScene` and `onlineScene` store full paths now, so use SceneManager.GetActiveScene().path instead.
 - Changed: Network Manager HUD now calls StopHost / StopServer / StopClient more appropriately.
 - Changed: Network Manager HUD labels no longer say LAN. Associated docs also cleaned up to eliminate the misconception of Mirror being LAN only solution.
 - Changed: NetworkTransform compression removed and message handling is much simpler now.

@@ -270,5 +270,82 @@ namespace Mirror.Tests
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "World", "Hello", "!" }));
         }
+
+        [Test]
+        public void ObjectCanBeReusedAfterReset()
+        {
+            SyncSetString serverList = new SyncSetString();
+            SyncSetString clientList = new SyncSetString();
+
+            serverList.Add("1");
+            serverList.Add("2");
+            serverList.Add("3");
+            SerializeDeltaTo(serverList, clientList);
+
+            clientList.Reset();
+
+            // make old client the host
+            SyncSetString hostList = clientList;
+            SyncSetString clientList2 = new SyncSetString();
+
+            Assert.That(hostList.IsReadOnly, Is.False);
+
+            hostList.Add("1");
+            hostList.Add("2");
+            hostList.Add("3");
+            SerializeDeltaTo(hostList, clientList2);
+
+            Assert.That(hostList.IsReadOnly, Is.False);
+        }
+
+        [Test]
+        public void ResetShouldSetReadOnlyToFalse()
+        {
+            SyncSetString serverList = new SyncSetString();
+            SyncSetString clientList = new SyncSetString();
+
+            serverList.Add("1");
+            serverList.Add("2");
+            serverList.Add("3");
+            SerializeDeltaTo(serverList, clientList);
+
+            Assert.That(clientList.IsReadOnly, Is.True);
+
+            clientList.Reset();
+
+            Assert.That(clientList.IsReadOnly, Is.False);
+        }
+
+        [Test]
+        public void ResetShouldClearChanges()
+        {
+            SyncSetString serverList = new SyncSetString();
+
+            serverList.Add("1");
+            serverList.Add("2");
+            serverList.Add("3");
+
+            Assert.That(serverList.GetChangeCount(), Is.GreaterThan(0));
+
+            serverList.Reset();
+
+            Assert.That(serverList.GetChangeCount(), Is.Zero);
+        }
+
+        [Test]
+        public void ResetShouldClearItems()
+        {
+            SyncSetString serverList = new SyncSetString();
+
+            serverList.Add("1");
+            serverList.Add("2");
+            serverList.Add("3");
+
+            Assert.That(serverList.Count, Is.GreaterThan(0));
+
+            serverList.Reset();
+
+            Assert.That(serverList, Is.Empty);
+        }
     }
 }

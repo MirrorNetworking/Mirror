@@ -22,5 +22,10 @@ namespace Mirror
 
         // deserialize changes since last sync
         void OnDeserializeDelta(NetworkReader reader);
+
+        /// <summary>
+        /// Resets the SyncObject so that it can be re-used
+        /// </summary>
+        void Reset();
     }
 }

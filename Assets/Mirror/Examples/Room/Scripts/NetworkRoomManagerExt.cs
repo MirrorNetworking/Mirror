@@ -25,7 +25,7 @@ namespace Mirror.Examples.NetworkRoom
         {
             // Demonstrates how to get the Network Manager out of DontDestroyOnLoad when
             // going to the offline scene to avoid collision with the one that lives there.
-            if (gameObject.scene.name == "DontDestroyOnLoad" && !string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene)
+            if (gameObject.scene.name == "DontDestroyOnLoad" && !string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 
             base.OnRoomStopClient();
@@ -35,7 +35,7 @@ namespace Mirror.Examples.NetworkRoom
         {
             // Demonstrates how to get the Network Manager out of DontDestroyOnLoad when
             // going to the offline scene to avoid collision with the one that lives there.
-            if (gameObject.scene.name == "DontDestroyOnLoad" && !string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene)
+            if (gameObject.scene.name == "DontDestroyOnLoad" && !string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 
             base.OnRoomStopServer();

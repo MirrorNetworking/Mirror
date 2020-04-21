@@ -417,38 +417,20 @@ namespace Mirror.Weaver
 
             bool modified = false;
 
-            // are ANY parent classes SyncListStruct
-            TypeReference parent = td.BaseType;
-            while (parent != null)
+            if (td.IsDerivedFrom(SyncListType))
             {
-                if (parent.FullName.StartsWith(SyncListType.FullName, StringComparison.Ordinal))
-                {
-                    SyncListProcessor.Process(td);
-                    modified = true;
-                    break;
-                }
-                if (parent.FullName.StartsWith(SyncSetType.FullName, StringComparison.Ordinal))
-                {
-                    SyncListProcessor.Process(td);
-                    modified = true;
-                    break;
-                }
-                if (parent.FullName.StartsWith(SyncDictionaryType.FullName, StringComparison.Ordinal))
-                {
-                    SyncDictionaryProcessor.Process(td);
-                    modified = true;
-                    break;
-                }
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for pluins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                    break;
-                }
+                SyncListProcessor.Process(td);
+                modified = true;
+            }
+            else if (td.IsDerivedFrom(SyncSetType))
+            {
+                SyncListProcessor.Process(td);
+                modified = true;
+            }
+            else if (td.IsDerivedFrom(SyncDictionaryType))
+            {
+                SyncDictionaryProcessor.Process(td);
+                modified = true;
             }
 
             // check for embedded types

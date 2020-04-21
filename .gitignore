@@ -65,7 +65,3 @@ docs/.sass-cache
 ehthumbs.db
 Thumbs.db
 /VisRepo.txt
-
-# Unity 2019.3 has a new format for certain meta files and so these keep showing up as changed.
-# Removing them and ignoring them doesn't break the example. Unity just recreates them silently.
-Assets/Mirror/Examples/Benchmarks/10k/Textures/1bitpack_kenney/*.png.meta

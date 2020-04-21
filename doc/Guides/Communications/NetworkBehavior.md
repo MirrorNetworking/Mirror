@@ -35,6 +35,3 @@ These are only called on the **Player Game Objects** when a client connects:
 -   `OnStartLocalPlayer`
 -   `Start()` function is called
 -   `OnSetLocalVisibility`
-
-**On any remaining clients, when a client disconnects:**
--   `OnNetworkDestroy`

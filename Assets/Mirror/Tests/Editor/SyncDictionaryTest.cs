@@ -301,5 +301,82 @@ namespace Mirror.Tests
             Assert.That(clientList.IsReadOnly, Is.True);
             Assert.Throws<InvalidOperationException>(() => clientList.Add(50, "fail"));
         }
+
+        [Test]
+        public void ObjectCanBeReusedAfterReset()
+        {
+            SyncDictionaryIntString serverList = new SyncDictionaryIntString();
+            SyncDictionaryIntString clientList = new SyncDictionaryIntString();
+
+            serverList.Add(20, "yay");
+            serverList.Add(30, "hello");
+            serverList.Add(35, "world");
+            SerializeDeltaTo(serverList, clientList);
+
+            clientList.Reset();
+
+            // make old client the host
+            SyncDictionaryIntString hostList = clientList;
+            SyncDictionaryIntString clientList2 = new SyncDictionaryIntString();
+
+            Assert.That(hostList.IsReadOnly, Is.False);
+
+            hostList.Add(20, "yay");
+            hostList.Add(30, "hello");
+            hostList.Add(35, "world");
+            SerializeDeltaTo(hostList, clientList2);
+
+            Assert.That(hostList.IsReadOnly, Is.False);
+        }
+
+        [Test]
+        public void ResetShouldSetReadOnlyToFalse()
+        {
+            SyncDictionaryIntString serverList = new SyncDictionaryIntString();
+            SyncDictionaryIntString clientList = new SyncDictionaryIntString();
+
+            serverList.Add(20, "yay");
+            serverList.Add(30, "hello");
+            serverList.Add(35, "world");
+            SerializeDeltaTo(serverList, clientList);
+
+            Assert.That(clientList.IsReadOnly, Is.True);
+
+            clientList.Reset();
+
+            Assert.That(clientList.IsReadOnly, Is.False);
+        }
+
+        [Test]
+        public void ResetShouldClearChanges()
+        {
+            SyncDictionaryIntString serverList = new SyncDictionaryIntString();
+
+            serverList.Add(20, "yay");
+            serverList.Add(30, "hello");
+            serverList.Add(35, "world");
+
+            Assert.That(serverList.GetChangeCount(), Is.GreaterThan(0));
+
+            serverList.Reset();
+
+            Assert.That(serverList.GetChangeCount(), Is.Zero);
+        }
+
+        [Test]
+        public void ResetShouldClearItems()
+        {
+            SyncDictionaryIntString serverList = new SyncDictionaryIntString();
+
+            serverList.Add(20, "yay");
+            serverList.Add(30, "hello");
+            serverList.Add(35, "world");
+
+            Assert.That(serverList.Count, Is.GreaterThan(0));
+
+            serverList.Reset();
+
+            Assert.That(serverList, Is.Empty);
+        }
     }
 }
