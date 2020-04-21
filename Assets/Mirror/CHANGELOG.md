@@ -1,3 +1,18 @@
+# [34.8.0](https://github.com/MirrorNG/MirrorNG/compare/34.7.0-master...34.8.0-master) (2020-04-21)
+
+
+### Bug Fixes
+
+* Don't destroy the player twice ([#1709](https://github.com/MirrorNG/MirrorNG/issues/1709)) ([cbc2a47](https://github.com/MirrorNG/MirrorNG/commit/cbc2a4772921e01db17033075fa9f7d8cb7e6faf))
+* Eliminate NetworkAnimator SetTrigger double firing on Host ([#1723](https://github.com/MirrorNG/MirrorNG/issues/1723)) ([e5b728f](https://github.com/MirrorNG/MirrorNG/commit/e5b728fed515ab679ad1e4581035d32f6c187a98))
+
+
+### Features
+
+* default log level option ([#1728](https://github.com/MirrorNG/MirrorNG/issues/1728)) ([5c56adc](https://github.com/MirrorNG/MirrorNG/commit/5c56adc1dc47ef91f7ee1d766cd70fa1681cb9df))
+* NetworkMatchChecker Component ([#1688](https://github.com/MirrorNG/MirrorNG/issues/1688)) ([21acf66](https://github.com/MirrorNG/MirrorNG/commit/21acf661905ebc35f31a52eb527a50c6eff68a44)), closes [#1685](https://github.com/MirrorNG/MirrorNG/issues/1685) [#1681](https://github.com/MirrorNG/MirrorNG/issues/1681) [#1689](https://github.com/MirrorNG/MirrorNG/issues/1689)
+* new virtual OnStopServer called when object is unspawned ([#1743](https://github.com/MirrorNG/MirrorNG/issues/1743)) ([d1695dd](https://github.com/MirrorNG/MirrorNG/commit/d1695dd16f477fc9edaaedb90032c188bcbba6e2))
+
 # [34.7.0](https://github.com/MirrorNG/MirrorNG/compare/34.6.0-master...34.7.0-master) (2020-04-19)
 
 
