@@ -1079,7 +1079,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ResetTeset()
+        public void ResetTest()
         {
             NetworkServer.Reset();
             Assert.That(NetworkServer.active, Is.False);
