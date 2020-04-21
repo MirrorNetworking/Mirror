@@ -15,7 +15,7 @@ namespace Mirror.Weaver
 
             if (resolver.GetGenericFromBaseClass(td, 0, Weaver.SyncDictionaryType, out TypeReference keyType))
             {
-                SyncObjectProcessor.GenerateSerialization(td, keyType, "SerializeKey", "DeserializeKey");
+                SyncObjectProcessor.GenerateSerialization(td, keyType, Weaver.SyncDictionaryType, "SerializeKey", "DeserializeKey");
             }
             else
             {
@@ -25,7 +25,7 @@ namespace Mirror.Weaver
 
             if (resolver.GetGenericFromBaseClass(td, 1, Weaver.SyncDictionaryType, out TypeReference itemType))
             {
-                SyncObjectProcessor.GenerateSerialization(td, itemType, "SerializeItem", "DeserializeItem");
+                SyncObjectProcessor.GenerateSerialization(td, itemType, Weaver.SyncDictionaryType, "SerializeItem", "DeserializeItem");
             }
             else
             {
