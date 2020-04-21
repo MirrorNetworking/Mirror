@@ -30,6 +30,18 @@ namespace Mirror.Tests
 
         }
 
+        class SetHostVisibilityNetworkBehaviour : NetworkVisibility
+        {
+            public int called;
+            public override void OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize) { }
+            public override bool OnCheckObserver(INetworkConnection conn) { return true; }
+            public override void OnSetHostVisibility(bool visible)
+            {
+                ++called;
+                base.OnSetHostVisibility(visible);
+            }
+        }
+
         class CheckObserverExceptionNetworkBehaviour : NetworkVisibility
         {
             public int called;
@@ -713,7 +725,6 @@ namespace Mirror.Tests
         [Test]
         public void Reset()
         {
-            // modify it a bit
             // creates .observers and generates a netId
             identity.StartServer();
             identity.ConnectionToClient = new NetworkConnection(null);
@@ -897,5 +908,17 @@ namespace Mirror.Tests
             Assert.That(identity.observers, Is.EquivalentTo(new[] { readyConnection }));
         }
 
+        [Test]
+        public void OnSetHostVisibilityBaseTest()
+        {
+            SpriteRenderer renderer;
+
+            renderer = gameObject.AddComponent<SpriteRenderer>();
+            SetHostVisibilityNetworkBehaviour comp = gameObject.AddComponent<SetHostVisibilityNetworkBehaviour>();
+            comp.OnSetHostVisibility(false);
+
+            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(renderer.enabled, Is.False);
+        }
     }
 }

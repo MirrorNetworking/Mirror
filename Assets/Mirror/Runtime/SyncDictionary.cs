@@ -14,6 +14,9 @@ namespace Mirror
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
 
+        internal int ChangeCount => changes.Count;
+
+
         /// <summary>
         /// Raised when an element is added to the dictionary.
         /// Receives the key and value of the new item
@@ -65,6 +68,14 @@ namespace Mirror
         // we might later receive changes that have already been applied
         // so we need to skip them
         int changesAhead;
+
+        public void Reset()
+        {
+            IsReadOnly = false;
+            changes.Clear();
+            changesAhead = 0;
+            objects.Clear();
+        }
 
         protected virtual void SerializeKey(NetworkWriter writer, TKey item) { }
         protected virtual void SerializeItem(NetworkWriter writer, TValue item) { }

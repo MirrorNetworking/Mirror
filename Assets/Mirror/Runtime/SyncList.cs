@@ -97,6 +97,8 @@ namespace Mirror
         // so we need to skip them
         int changesAhead;
 
+        internal int ChangeCount => changes.Count;
+
         protected virtual void SerializeItem(NetworkWriter writer, T item) { }
         protected virtual T DeserializeItem(NetworkReader reader) => default;
 
@@ -117,6 +119,14 @@ namespace Mirror
         // throw away all the changes
         // this should be called after a successfull sync
         public void Flush() => changes.Clear();
+
+        public void Reset()
+        {
+            IsReadOnly = false;
+            changes.Clear();
+            changesAhead = 0;
+            objects.Clear();
+        }
 
         void AddOperation(Operation op, int itemIndex, T oldItem, T newItem)
         {

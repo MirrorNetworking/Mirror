@@ -831,5 +831,13 @@ namespace Mirror
                 }
             }
         }
+
+        internal void ResetSyncObjects()
+        {
+            foreach (var syncObject in syncObjects)
+            {
+                syncObject.Reset();
+            }
+        }
     }
 }

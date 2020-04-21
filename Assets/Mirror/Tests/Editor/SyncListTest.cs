@@ -121,7 +121,7 @@ namespace Mirror.Tests
             string element = serverSyncList.Find(entry => entry == "World");
             Assert.That(element, Is.EqualTo("World"));
         }
-        
+
         [Test]
         public void TestNoFind()
         {
@@ -133,9 +133,9 @@ namespace Mirror.Tests
         public void TestFindAll()
         {
             List<string> results = serverSyncList.FindAll(entry => entry.Contains("l"));
-            Assert.That(results, Is.EquivalentTo( new [] {"Hello", "World"}));
+            Assert.That(results, Is.EquivalentTo(new[] { "Hello", "World" }));
         }
-        
+
         [Test]
         public void TestFindAllNonExistent()
         {
@@ -339,45 +339,71 @@ namespace Mirror.Tests
         public void ReadOnlyTest()
         {
             Assert.That(serverSyncList.IsReadOnly, Is.False);
+            Assert.That(clientSyncList.IsReadOnly, Is.True);
+        }
+        [Test]
+        public void WritingToReadOnlyThrows()
+        {
+            Assert.Throws<InvalidOperationException>(() => { clientSyncList.Add("fail"); });
         }
 
         [Test]
         public void DirtyTest()
         {
-            var serverList = new SyncListInt();
-            var clientList = new SyncListInt();
+            // Sync Delta to clear dirty
+            SerializeDeltaTo(serverSyncList, clientSyncList);
 
             // nothing to send
-            Assert.That(serverList.IsDirty, Is.False);
+            Assert.That(serverSyncList.IsDirty, Is.False);
 
             // something has changed
-            serverList.Add(1);
-            Assert.That(serverList.IsDirty, Is.True);
-            SerializeDeltaTo(serverList, clientList);
+            serverSyncList.Add("1");
+            Assert.That(serverSyncList.IsDirty, Is.True);
+            SerializeDeltaTo(serverSyncList, clientSyncList);
 
             // data has been flushed,  should go back to clear
-            Assert.That(serverList.IsDirty, Is.False);
+            Assert.That(serverSyncList.IsDirty, Is.False);
         }
 
         [Test]
-        public void ReadonlyTest()
+        public void ObjectCanBeReusedAfterReset()
         {
-            var serverList = new SyncListUInt();
-            var clientList = new SyncListUInt();
+            clientSyncList.Reset();
 
-            // data has been flushed,  should go back to clear
-            Assert.That(clientList.IsReadOnly, Is.False);
+            // make old client the host
+            SyncListString hostList = clientSyncList;
+            SyncListString clientList2 = new SyncListString();
 
-            serverList.Add(1U);
-            serverList.Add(2U);
-            serverList.Add(3U);
-            SerializeDeltaTo(serverList, clientList);
+            Assert.That(hostList.IsReadOnly, Is.False);
 
-            // client list should now lock itself,  trying to modify it
-            // should produce an InvalidOperationException
-            Assert.That(clientList.IsReadOnly, Is.True);
-            Assert.Throws<InvalidOperationException>(() => { clientList.Add(5U); });
+            // Check Add and Sync without errors
+            hostList.Add("hello");
+            hostList.Add("world");
+            SerializeDeltaTo(hostList, clientList2);
+        }
 
+        [Test]
+        public void ResetShouldSetReadOnlyToFalse()
+        {
+            clientSyncList.Reset();
+
+            Assert.That(clientSyncList.IsReadOnly, Is.False);
+        }
+
+        [Test]
+        public void ResetShouldClearChanges()
+        {
+            serverSyncList.Reset();
+
+            Assert.That(serverSyncList.ChangeCount, Is.Zero);
+        }
+
+        [Test]
+        public void ResetShouldClearItems()
+        {
+            serverSyncList.Reset();
+
+            Assert.That(serverSyncList, Is.Empty);
         }
     }
 }

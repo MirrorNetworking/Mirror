@@ -560,6 +560,7 @@ namespace Mirror
                 logger.Log("AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + player);
                 return false;
             }
+
             // cannot have a player object in "Add" version
             if (conn.Identity != null)
             {
@@ -789,6 +790,7 @@ namespace Mirror
             {
                 throw new InvalidOperationException("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
             }
+
             identity.ConnectionToClient = ownerConnection;
             identity.Server = this;
             identity.Client = LocalClient;
@@ -1039,6 +1041,7 @@ namespace Mirror
                 if (ValidateSceneObject(identity))
                 {
                     if (logger.LogEnabled()) logger.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
+
                     identity.gameObject.SetActive(true);
 
                     Spawn(identity.gameObject);

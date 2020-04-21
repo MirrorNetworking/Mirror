@@ -560,9 +560,8 @@ namespace Mirror
             sceneIds.Remove(sceneId);
             sceneIds.Remove(sceneId & 0x00000000FFFFFFFF);
 
-            // Server would be true if you destroy this object directy
-            // or if unity destroys it by switching scenes.
-            // so we have to unspawn the object in that case
+            // If false the object has already been unspawned
+            // if it is still true, then we need to unspawn it
             if (IsServer)
             {
                 Server.Destroy(gameObject);
@@ -1127,10 +1126,10 @@ namespace Mirror
 
         // The object is no longer networked,  reset all network state
         internal void Reset()
-        { 
+        {
+            ResetSyncObjects();
             clientStarted = false;
             localPlayerStarted = false;
-
             NetId = 0;
             Server = null;
             Client = null;
@@ -1223,6 +1222,14 @@ namespace Mirror
                 {
                     comp.ClearAllDirtyBits();
                 }
+            }
+        }
+
+        void ResetSyncObjects()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                comp.ResetSyncObjects();
             }
         }
     }

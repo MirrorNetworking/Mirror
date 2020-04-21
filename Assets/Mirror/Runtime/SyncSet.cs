@@ -13,6 +13,8 @@ namespace Mirror
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
 
+        internal int ChangeCount => changes.Count;
+
         /// <summary>
         /// Raised when an element is added to the list.
         /// Receives the new item
@@ -60,6 +62,14 @@ namespace Mirror
         protected SyncSet(ISet<T> objects)
         {
             this.objects = objects;
+        }
+
+        public void Reset()
+        {
+            IsReadOnly = false;
+            changes.Clear();
+            changesAhead = 0;
+            objects.Clear();
         }
 
         protected virtual void SerializeItem(NetworkWriter writer, T item) { }
