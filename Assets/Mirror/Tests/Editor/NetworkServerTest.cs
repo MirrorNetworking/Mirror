@@ -1077,5 +1077,12 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.localConnection, Is.Null);
             Assert.That(NetworkServer.localClientActive, Is.False);
         }
+
+        [Test]
+        public void ResetTeset()
+        {
+            NetworkServer.Reset();
+            Assert.That(NetworkServer.active, Is.False);
+        }
     }
 }
