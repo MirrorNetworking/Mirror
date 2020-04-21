@@ -33,11 +33,11 @@ I have worked on [Mirror](https://github.com/vis2k/Mirror) for over a year, I am
 
 However, the project is not moving forward as fast as I would like. There is a big emphasis on keeping backwards compatiblity, which is really good for many users, but it is seriously slowing me down.
 
-Mirror relies heavily on manual testing.  Manual testing does not scale. I can cover so much more code with automated tests, and have much more confidence on my changes. This will require large breaking changes that will be hard to swallow for many people,  but at the end of the day I should be able to reduce the amount of defects significantly. While there has been signficiant progress in improving test coverage in Mirror, the code is not designed to be tested, which which limits how much can be done.  This can be fixed, but not without breaking changes.
+Mirror relies heavily on manual testing.  Manual testing does not scale. I can cover so much more code with automated tests, and have much more confidence on my changes. This will require large breaking changes that will be hard to swallow for many people,  but at the end of the day I should be able to reduce the amount of defects significantly. While there has been signficiant progress in improving test coverage in Mirror, the code is not designed to be tested. There is a limit to how much can be tested.  This can be fixed, but not without bold changes.
 
-Mirror makes heavy use of singletons, which is considered an [anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons. 
+Mirror makes heavy use of singletons, an [anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons. 
 
-Mirror has very poor error handling. Many methods return true/false to indicate success/failure and use Debug.LogError to report errors. Debug.LogError is not testable,  there is no way to write a test to make sure errors are detected. Since day 1, C# has had a much better mechanism to handle abnormal conditions: Exceptions. Methods in MirrorNG should either succeed or throw exceptions if something is wrong with full explanation. This lets the developer catch the exception and take action:  display an error message to the user, report it to your servers, report it to google play, etc...
+Mirror has very poor error handling. Many methods return true/false to indicate success/failure and use Debug.LogError to report errors. True/false is terrible for reporting errors,  it does not tell you why it failed, and in many places in mirror we don't even check the result, a hidden and subtle bug. Debug.LogError is not easy to test, and you can't use it to display a sensible error to the user. Since day 1, C# has had a much better mechanism to handle abnormal conditions: Exceptions. Methods in MirrorNG should either succeed or throw exceptions if something is wrong with full explanation. This lets the developer catch the exception and take action:  display an error message to the user, report it to your servers, report it to google play, etc...
 
 Mirror is distributed in the unity asset store and github. Both of these are majorly inconvenient to work with when you want to stay up to date.  I am developing a game,  and I spent significant amount of time just updating Mirror in my game. Fortunately Unity has a new mechanism that eliminates most of the pain:  Unity Package Manager.  There has been resistance in Mirror to distribute it using UPM.
 
@@ -86,10 +86,11 @@ Alternatively you can download it from [Download Mirror](https://github.com/Mirr
 We included several small example projects.
 
 ## Transports
-MirrorNG supports many different low level networking transports:
+MirrorNG currently supports the following low level networking transports:
 
 * (built in) Tcp
 * (built in) https://github.com/ninjasource/Ninja.WebSockets (Websockets)
+* more to come
 
 ## The MirrorNG Mantra
 So many quotes to chose from.  This one in particular really encapsulates why this exists:
