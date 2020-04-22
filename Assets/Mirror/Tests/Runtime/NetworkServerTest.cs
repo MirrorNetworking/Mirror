@@ -6,28 +6,8 @@ using UnityEngine.TestTools;
 namespace Mirror.Tests
 {
     [TestFixture]
-    public class NetworkServerRuntimeTest
+    public class NetworkServerRuntimeTest : HostSetup
     {
-        private GameObject transportGameObject;
-
-        [SetUp]
-        public void SetUp()
-        {
-            transportGameObject = new GameObject("Transport");
-            Transport.activeTransport = transportGameObject.AddComponent<MemoryTransport>();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            // reset all state
-            NetworkServer.Shutdown();
-
-            Transport.activeTransport = null;
-            Object.Destroy(transportGameObject);
-        }
-
-
         [UnityTest]
         public IEnumerator DestroyPlayerForConnectionTest()
         {
