@@ -18,8 +18,8 @@ namespace Mirror.Tests
         public IEnumerator SetupHost()
         {
             networkManagerGo = new GameObject();
-            manager = networkManagerGo.AddComponent<NetworkManager>();
             transport = networkManagerGo.AddComponent<MemoryTransport>();
+            manager = networkManagerGo.AddComponent<NetworkManager>();
             Transport.activeTransport = transport;
 
             playerGO = new GameObject();
