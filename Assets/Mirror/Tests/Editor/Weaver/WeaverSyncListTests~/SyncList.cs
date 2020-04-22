@@ -3,7 +3,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncListValid : NetworkBehaviour
     {
         public SyncListInt Foo;
     }

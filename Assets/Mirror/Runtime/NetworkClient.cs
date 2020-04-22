@@ -335,11 +335,11 @@ namespace Mirror
         /// Unregisters a network message handler.
         /// </summary>
         /// <typeparam name="T">The message type to unregister.</typeparam>
-        public static void UnregisterHandler<T>() where T : IMessageBase
+        public static bool UnregisterHandler<T>() where T : IMessageBase
         {
             // use int to minimize collisions
             int msgType = MessagePacker.GetId<T>();
-            handlers.Remove(msgType);
+            return handlers.Remove(msgType);
         }
 
         /// <summary>

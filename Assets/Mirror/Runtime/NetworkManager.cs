@@ -1380,7 +1380,7 @@ namespace Mirror
                 if (!ClientScene.ready) ClientScene.Ready(conn);
                 if (autoCreatePlayer)
                 {
-                    ClientScene.AddPlayer();
+                    ClientScene.AddPlayer(conn);
                 }
             }
         }
@@ -1442,7 +1442,7 @@ namespace Mirror
             if (clientSceneOperation == SceneOperation.Normal && autoCreatePlayer && ClientScene.localPlayer == null)
             {
                 // add player if existing one is null
-                ClientScene.AddPlayer();
+                ClientScene.AddPlayer(conn);
             }
         }
 

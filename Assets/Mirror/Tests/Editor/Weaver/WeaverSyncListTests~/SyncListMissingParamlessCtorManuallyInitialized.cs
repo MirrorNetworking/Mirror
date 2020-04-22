@@ -3,9 +3,9 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class SyncListMissingParamlessCtor : NetworkBehaviour
+    class SyncListMissingParamlessCtorManuallyInitialized : NetworkBehaviour
     {
-        public SyncListString2 Foo;
+        public SyncListString2 Foo = new SyncListString2(20);
     }
 
     public class SyncListString2 : SyncList<string>

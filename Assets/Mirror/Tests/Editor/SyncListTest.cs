@@ -280,121 +280,71 @@ namespace Mirror.Tests
         public void ReadOnlyTest()
         {
             Assert.That(serverSyncList.IsReadOnly, Is.False);
+            Assert.That(clientSyncList.IsReadOnly, Is.True);
+        }
+        [Test]
+        public void WritingToReadOnlyThrows()
+        {
+            Assert.Throws<InvalidOperationException>(() => { clientSyncList.Add("fail"); });
         }
 
         [Test]
         public void DirtyTest()
         {
-            SyncListInt serverList = new SyncListInt();
-            SyncListInt clientList = new SyncListInt();
+            // Sync Delta to clear dirty
+            SerializeDeltaTo(serverSyncList, clientSyncList);
 
             // nothing to send
-            Assert.That(serverList.IsDirty, Is.False);
+            Assert.That(serverSyncList.IsDirty, Is.False);
 
             // something has changed
-            serverList.Add(1);
-            Assert.That(serverList.IsDirty, Is.True);
-            SerializeDeltaTo(serverList, clientList);
+            serverSyncList.Add("1");
+            Assert.That(serverSyncList.IsDirty, Is.True);
+            SerializeDeltaTo(serverSyncList, clientSyncList);
 
             // data has been flushed,  should go back to clear
-            Assert.That(serverList.IsDirty, Is.False);
-        }
-
-        [Test]
-        public void ReadonlyTest()
-        {
-            SyncListUInt serverList = new SyncListUInt();
-            SyncListUInt clientList = new SyncListUInt();
-
-            // data has been flushed,  should go back to clear
-            Assert.That(clientList.IsReadOnly, Is.False);
-
-            serverList.Add(1U);
-            serverList.Add(2U);
-            serverList.Add(3U);
-            SerializeDeltaTo(serverList, clientList);
-
-            // client list should now lock itself,  trying to modify it
-            // should produce an InvalidOperationException
-            Assert.That(clientList.IsReadOnly, Is.True);
-            Assert.Throws<InvalidOperationException>(() => { clientList.Add(5U); });
+            Assert.That(serverSyncList.IsDirty, Is.False);
         }
 
         [Test]
         public void ObjectCanBeReusedAfterReset()
         {
-            SyncListUInt serverList = new SyncListUInt();
-            SyncListUInt clientList = new SyncListUInt();
-
-            serverList.Add(1U);
-            serverList.Add(2U);
-            serverList.Add(3U);
-            SerializeDeltaTo(serverList, clientList);
-
-            clientList.Reset();
+            clientSyncList.Reset();
 
             // make old client the host
-            SyncListUInt hostList = clientList;
-            SyncListUInt clientList2 = new SyncListUInt();
+            SyncListString hostList = clientSyncList;
+            SyncListString clientList2 = new SyncListString();
 
             Assert.That(hostList.IsReadOnly, Is.False);
 
-            hostList.Add(1U);
-            hostList.Add(2U);
-            hostList.Add(3U);
+            // Check Add and Sync without errors
+            hostList.Add("hello");
+            hostList.Add("world");
             SerializeDeltaTo(hostList, clientList2);
-
-            Assert.That(hostList.IsReadOnly, Is.False);
         }
 
         [Test]
         public void ResetShouldSetReadOnlyToFalse()
         {
-            SyncListUInt serverList = new SyncListUInt();
-            SyncListUInt clientList = new SyncListUInt();
+            clientSyncList.Reset();
 
-            serverList.Add(1U);
-            serverList.Add(2U);
-            serverList.Add(3U);
-            SerializeDeltaTo(serverList, clientList);
-
-            Assert.That(clientList.IsReadOnly, Is.True);
-
-            clientList.Reset();
-
-            Assert.That(clientList.IsReadOnly, Is.False);
+            Assert.That(clientSyncList.IsReadOnly, Is.False);
         }
 
         [Test]
         public void ResetShouldClearChanges()
         {
-            SyncListUInt serverList = new SyncListUInt();
+            serverSyncList.Reset();
 
-            serverList.Add(1U);
-            serverList.Add(2U);
-            serverList.Add(3U);
-
-            Assert.That(serverList.GetChangeCount(), Is.GreaterThan(0));
-
-            serverList.Reset();
-
-            Assert.That(serverList.GetChangeCount(), Is.Zero);
+            Assert.That(serverSyncList.GetChangeCount(), Is.Zero);
         }
 
         [Test]
         public void ResetShouldClearItems()
         {
-            SyncListUInt serverList = new SyncListUInt();
+            serverSyncList.Reset();
 
-            serverList.Add(1U);
-            serverList.Add(2U);
-            serverList.Add(3U);
-
-            Assert.That(serverList.Count, Is.GreaterThan(0));
-
-            serverList.Reset();
-
-            Assert.That(serverList, Is.Empty);
+            Assert.That(serverSyncList, Is.Empty);
         }
     }
 

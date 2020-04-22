@@ -3,7 +3,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncListByteValid : NetworkBehaviour
     {
         class MyByteClass : SyncList<byte> {};
 

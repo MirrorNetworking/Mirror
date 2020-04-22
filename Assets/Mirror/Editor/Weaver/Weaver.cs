@@ -406,31 +406,37 @@ namespace Mirror.Weaver
 
         static bool WeaveSyncObject(TypeDefinition td)
         {
-            if (!td.IsClass)
-                return false;
-
+            bool modified = false;
+            
             // ignore generic classes
             // we can not process generic classes
             // we give error if a generic syncObject is used in NetworkBehaviour
             if (td.HasGenericParameters)
                 return false;
 
-            bool modified = false;
+            // ignore abstract classes
+            // we dont need to process abstract classes because classes that
+            // inherit from them will be processed instead
 
-            if (td.IsDerivedFrom(SyncListType))
+            // We cant early return with non classes or Abstract classes
+            // because we still need to check for embeded types
+            if (td.IsClass || !td.IsAbstract)
             {
-                SyncListProcessor.Process(td);
-                modified = true;
-            }
-            else if (td.IsDerivedFrom(SyncSetType))
-            {
-                SyncListProcessor.Process(td);
-                modified = true;
-            }
-            else if (td.IsDerivedFrom(SyncDictionaryType))
-            {
-                SyncDictionaryProcessor.Process(td);
-                modified = true;
+                if (td.IsDerivedFrom(SyncListType))
+                {
+                    SyncListProcessor.Process(td, SyncListType);
+                    modified = true;
+                }
+                else if (td.IsDerivedFrom(SyncSetType))
+                {
+                    SyncListProcessor.Process(td, SyncSetType);
+                    modified = true;
+                }
+                else if (td.IsDerivedFrom(SyncDictionaryType))
+                {
+                    SyncDictionaryProcessor.Process(td);
+                    modified = true;
+                }
             }
 
             // check for embedded types
