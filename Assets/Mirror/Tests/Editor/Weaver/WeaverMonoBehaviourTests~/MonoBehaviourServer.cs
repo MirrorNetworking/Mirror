@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : MonoBehaviour
+    class MonoBehaviourServer : MonoBehaviour
     {
         [Server]
         void ThisCantBeOutsideNetworkBehaviour() {}
