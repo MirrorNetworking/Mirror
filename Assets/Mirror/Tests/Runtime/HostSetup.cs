@@ -31,10 +31,6 @@ namespace Mirror.Tests
             yield return null;
 
             manager.StartHost();
-
-            yield return null;
-
-            NetworkClient.Update();
         }
 
         [TearDown]
