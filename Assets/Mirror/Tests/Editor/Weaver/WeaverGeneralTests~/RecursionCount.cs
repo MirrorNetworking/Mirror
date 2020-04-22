@@ -4,7 +4,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class RecursionCount : NetworkBehaviour
     {
         public class Potato0
         {
