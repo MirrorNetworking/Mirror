@@ -56,5 +56,19 @@ namespace Mirror.Weaver.Tests
             WeaverAssembler.AddSourceFilesFullPath(sources);
             WeaverAssembler.Build();
         }
+
+        [OneTimeTearDown]
+        public void FixtureCleanup()
+        {
+            CompilationFinishedHook.OnWeaverError -= HandleWeaverError;
+            CompilationFinishedHook.OnWeaverWarning -= HandleWeaverWarning;
+            CompilationFinishedHook.UnityLogEnabled = true;
+       
+            WeaverAssembler.DeleteOutputOnClear = true;
+            WeaverAssembler.Clear();
+
+            weaverWarnings.Clear();
+            weaverErrors.Clear();
+        }
     }
 }
