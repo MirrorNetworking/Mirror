@@ -87,27 +87,12 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This adds a player GameObject for this client.
-        /// <para>This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called.</para>
-        /// </summary>
-        /// <returns>True if player was added.</returns>
-        public static bool AddPlayer() => AddPlayer(null);
-
-        /// <summary>
-        /// This adds a player GameObject for this client. This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called. If an extra message was passed to AddPlayer, then OnServerAddPlayer will be called with a NetworkReader that contains the contents of the message.
-        /// </summary>
-        /// <param name="readyConn">The connection to become ready for this client.</param>
-        /// <returns>True if player was added.</returns>
-        public static bool AddPlayer(NetworkConnection readyConn) => AddPlayer(readyConn, null);
-
-        /// <summary>
         /// This adds a player GameObject for this client. This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called. If an extra message was passed to AddPlayer, then OnServerAddPlayer will be called with a NetworkReader that contains the contents of the message.
         /// <para>extraMessage can contain character selection, etc.</para>
         /// </summary>
         /// <param name="readyConn">The connection to become ready for this client.</param>
-        /// <param name="extraData">An extra message object that can be passed to the server for this player.</param>
         /// <returns>True if player was added.</returns>
-        public static bool AddPlayer(NetworkConnection readyConn, byte[] extraData)
+        public static bool AddPlayer(NetworkConnection readyConn)
         {
             // ensure valid ready connection
             if (readyConn != null)
@@ -442,7 +427,7 @@ namespace Mirror
                         }
                         else
                         {
-                            identity.MarkForReset();
+                            identity.Reset();
                             identity.gameObject.SetActive(false);
                         }
                     }
@@ -453,8 +438,6 @@ namespace Mirror
 
         static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
         {
-            identity.Reset();
-
             if (msg.assetId != Guid.Empty)
                 identity.assetId = msg.assetId;
 
@@ -611,7 +594,7 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
             {
-                localObject.OnNetworkDestroy();
+                localObject.OnStopClient();
 
                 if (!InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
                 {
@@ -628,7 +611,7 @@ namespace Mirror
                     }
                 }
                 NetworkIdentity.spawned.Remove(netId);
-                localObject.MarkForReset();
+                localObject.Reset();
             }
             else
             {

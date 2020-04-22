@@ -57,14 +57,14 @@ namespace Mirror.Weaver.Tests
         public void SyncVarsGenericParam()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for generic type MirrorTest.MirrorTestPlayer/MySyncVar`1<System.Int32>. Use a concrete type or provide a custom writer"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for generic type MirrorTest.MirrorTestPlayer/MySyncVar`1<System.Int32>. Use a supported type or provide a custom writer"));
         }
 
         [Test]
         public void SyncVarsInterface()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for interface MirrorTest.MirrorTestPlayer/MySyncVar. Use a concrete type or provide a custom writer"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for interface MirrorTest.MirrorTestPlayer/MySyncVar. Use a supported type or provide a custom writer"));
         }
 
         [Test]

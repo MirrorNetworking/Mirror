@@ -3,15 +3,16 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncListNestedStruct : NetworkBehaviour
     {
-        struct MyStruct
+        MyNestedStructList Foo;
+        
+        struct MyNestedStruct
         {
             int potato;
             float floatingpotato;
             double givemetwopotatoes;
         }
-        class MyStructClass : SyncList<MyStruct> {};
-        MyStructClass Foo;
+        class MyNestedStructList : SyncList<MyNestedStruct> { }
     }
 }

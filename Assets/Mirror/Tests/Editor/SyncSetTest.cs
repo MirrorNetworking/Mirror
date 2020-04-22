@@ -132,33 +132,6 @@ namespace Mirror.Tests
         {
             Assert.That(serverSyncSet.Count, Is.EqualTo(3));
         }
-
-        [Test]
-        public void ReadOnlyTest()
-        {
-            Assert.That(serverSyncSet.IsReadOnly, Is.False);
-        }
-
-        [Test]
-        public void ReadonlyTest()
-        {
-            SyncSetString serverList = new SyncSetString();
-            SyncSetString clientList = new SyncSetString();
-
-            // data has been flushed,  should go back to clear
-            Assert.That(clientList.IsReadOnly, Is.False);
-
-            serverList.Add("1");
-            serverList.Add("2");
-            serverList.Add("3");
-            SerializeDeltaTo(serverList, clientList);
-
-            // client list should now lock itself,  trying to modify it
-            // should produce an InvalidOperationException
-            Assert.That(clientList.IsReadOnly, Is.True);
-            Assert.Throws<InvalidOperationException>(() => { clientList.Add("5"); });
-        }
-
         [Test]
         public void TestExceptWith()
         {
@@ -269,6 +242,61 @@ namespace Mirror.Tests
             serverSyncSet.UnionWith(serverSyncSet);
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "World", "Hello", "!" }));
+        }
+
+        [Test]
+        public void ReadOnlyTest()
+        {
+            Assert.That(serverSyncSet.IsReadOnly, Is.False);
+            Assert.That(clientSyncSet.IsReadOnly, Is.True);
+        }
+
+        [Test]
+        public void WritingToReadOnlyThrows()
+        {
+            Assert.Throws<InvalidOperationException>(() => { clientSyncSet.Add("5"); });
+        }
+
+        [Test]
+        public void ObjectCanBeReusedAfterReset()
+        {
+            clientSyncSet.Reset();
+
+            // make old client the host
+            SyncSetString hostList = clientSyncSet;
+            SyncSetString clientList2 = new SyncSetString();
+
+            Assert.That(hostList.IsReadOnly, Is.False);
+
+            // Check Add and Sync without errors
+            hostList.Add("1");
+            hostList.Add("2");
+            hostList.Add("3");
+            SerializeDeltaTo(hostList, clientList2);
+        }
+
+        [Test]
+        public void ResetShouldSetReadOnlyToFalse()
+        {
+            clientSyncSet.Reset();
+
+            Assert.That(clientSyncSet.IsReadOnly, Is.False);
+        }
+
+        [Test]
+        public void ResetShouldClearChanges()
+        {
+            serverSyncSet.Reset();
+
+            Assert.That(serverSyncSet.GetChangeCount(), Is.Zero);
+        }
+
+        [Test]
+        public void ResetShouldClearItems()
+        {
+            serverSyncSet.Reset();
+
+            Assert.That(serverSyncSet, Is.Empty);
         }
     }
 }

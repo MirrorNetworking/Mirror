@@ -54,7 +54,7 @@ namespace Mirror.Tests
     {
         // counter to make sure that it's called exactly once
         public int called;
-        public override void OnNetworkDestroy() { ++called; }
+        public override void OnStopClient() { ++called; }
     }
 
     [TestFixture]
@@ -1036,13 +1036,13 @@ namespace Mirror.Tests
             identity.sceneId = 42;
             // spawned objects are active
             go.SetActive(true);
-            Assert.That(identity.IsMarkedForReset(), Is.False);
+            identity.netId = 123;
 
             // unspawn
             NetworkServer.UnSpawn(go);
 
-            // it should have been marked for reset now
-            Assert.That(identity.IsMarkedForReset(), Is.True);
+            // it should have been reset now
+            Assert.That(identity.netId, Is.Zero);
 
             // clean up
             GameObject.DestroyImmediate(go);
@@ -1076,6 +1076,15 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.active, Is.False);
             Assert.That(NetworkServer.localConnection, Is.Null);
             Assert.That(NetworkServer.localClientActive, Is.False);
+        }
+
+        [Test]
+        public void ResetTest()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            NetworkServer.Reset();
+#pragma warning restore CS0618 // Type or member is obsolete
+            Assert.That(NetworkServer.active, Is.False);
         }
     }
 }

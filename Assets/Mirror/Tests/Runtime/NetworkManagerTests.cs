@@ -1,12 +1,11 @@
 using System.Collections;
-using Mirror;
 using NUnit.Framework;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    public class NetworkManagerTests
+    public class NetworkManagerTests : HostSetup
     {
         Scene activeScene;
 

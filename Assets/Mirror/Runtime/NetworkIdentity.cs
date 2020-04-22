@@ -50,10 +50,6 @@ namespace Mirror
         // configuration
         NetworkBehaviour[] networkBehavioursCache;
 
-        // member used to mark a identity for future reset
-        // check MarkForReset for more information.
-        bool reset;
-
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
@@ -527,15 +523,9 @@ namespace Mirror
             sceneIds.Remove(sceneId);
             sceneIds.Remove(sceneId & 0x00000000FFFFFFFF);
 
-            // Only call NetworkServer.Destroy on server and only if reset is false
-            // reset will be false from incorrect use of Destroy instead of NetworkServer.Destroy
-            // reset will be true if NetworkServer.Destroy was correctly invoked to begin with
-            // Users are supposed to call NetworkServer.Destroy instead of just regular Destroy for networked objects.
-            // This is a safeguard in case users accidentally call regular Destroy instead.
-            // We cover their mistake by calling NetworkServer.Destroy for them.
-            // If, however, they call NetworkServer.Destroy correctly, which leads to NetworkIdentity.MarkForReset,
-            // then we don't need to call it again, so the check for reset is needed to prevent the doubling.
-            if (isServer && !reset)
+            // If false the object has already been unspawned
+            // if it is still true, then we need to unspawn it
+            if (isServer)
             {
                 // Do not add logging to this (see above)
                 NetworkServer.Destroy(gameObject);
@@ -594,6 +584,26 @@ namespace Mirror
                 catch (Exception e)
                 {
                     Debug.LogError("Exception in OnStartServer:" + e.Message + " " + e.StackTrace);
+                }
+            }
+        }
+
+        internal void OnStopServer()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnStartServer should be caught, so that one
+                // component's exception doesn't stop all other components from
+                // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
+                try
+                {
+                    comp.OnStopServer();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Exception in OnStopServer:" + e.Message + " " + e.StackTrace);
                 }
             }
         }
@@ -737,7 +747,7 @@ namespace Mirror
             return true;
         }
 
-        internal void OnNetworkDestroy()
+        internal void OnStopClient()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -748,7 +758,7 @@ namespace Mirror
                 //    one exception doesn't stop all the other Start() calls!
                 try
                 {
-                    comp.OnNetworkDestroy();
+                    comp.OnStopClient();
                 }
                 catch (Exception e)
                 {
@@ -1255,21 +1265,14 @@ namespace Mirror
         // marks the identity for future reset, this is because we cant reset the identity during destroy
         // as people might want to be able to read the members inside OnDestroy(), and we have no way
         // of invoking reset after OnDestroy is called.
-        internal void MarkForReset() => reset = true;
-
-        // check if it was marked for reset
-        internal bool IsMarkedForReset() => reset;
-
-        // if we have marked an identity for reset we do the actual reset.
         internal void Reset()
         {
-            if (!reset)
-                return;
+            // make sure to call this before networkBehavioursCache is cleared below
+            ResetSyncObjects();
 
             clientStarted = false;
             isClient = false;
             isServer = false;
-            reset = false;
 
             netId = 0;
             connectionToServer = null;
@@ -1366,6 +1369,14 @@ namespace Mirror
                 {
                     comp.ClearAllDirtyBits();
                 }
+            }
+        }
+
+        void ResetSyncObjects()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                comp.ResetSyncObjects();
             }
         }
     }

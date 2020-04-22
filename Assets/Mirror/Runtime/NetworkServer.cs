@@ -78,11 +78,7 @@ namespace Mirror
             {
                 DisconnectAll();
 
-                if (dontListen)
-                {
-                    // was never started, so dont stop
-                }
-                else
+                if (!dontListen)
                 {
                     // stop the server.
                     // we do NOT call Transport.Shutdown, because someone only
@@ -676,7 +672,6 @@ namespace Mirror
                 Debug.Log("AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + player);
                 return false;
             }
-            identity.Reset();
 
             // cannot have a player object in "Add" version
             if (conn.identity != null)
@@ -904,7 +899,6 @@ namespace Mirror
                 Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
                 return;
             }
-            identity.Reset();
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
             // special case to make sure hasAuthority is set
@@ -986,14 +980,9 @@ namespace Mirror
         /// <param name="conn">The connections object to clean up for.</param>
         public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
-            // destroy all objects owned by this connection
+            // destroy all objects owned by this connection, including the player object
             conn.DestroyOwnedObjects();
-
-            if (conn.identity != null)
-            {
-                DestroyObject(conn.identity, true);
-                conn.identity = null;
-            }
+            conn.identity = null;
         }
 
         /// <summary>
@@ -1096,15 +1085,17 @@ namespace Mirror
             identity.ClearObservers();
             if (NetworkClient.active && localClientActive)
             {
-                identity.OnNetworkDestroy();
+                identity.OnStopClient();
             }
+
+            identity.OnStopServer();
 
             // when unspawning, dont destroy the server's object
             if (destroyServerObject)
             {
                 UnityEngine.Object.Destroy(identity.gameObject);
             }
-            identity.MarkForReset();
+            identity.Reset();
         }
 
         /// <summary>
@@ -1178,7 +1169,6 @@ namespace Mirror
                 if (ValidateSceneObject(identity))
                 {
                     if (LogFilter.Debug) Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
-                    identity.Reset();
                     identity.gameObject.SetActive(true);
                 }
             }

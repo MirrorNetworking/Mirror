@@ -91,6 +91,14 @@ namespace Mirror
         // this should be called after a successfull sync
         public void Flush() => changes.Clear();
 
+        public void Reset()
+        {
+            IsReadOnly = false;
+            changes.Clear();
+            changesAhead = 0;
+            objects.Clear();
+        }
+
         void AddOperation(Operation op, int itemIndex, T oldItem, T newItem)
         {
             if (IsReadOnly)

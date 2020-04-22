@@ -11,6 +11,7 @@ namespace MirrorTest
         public void OnSerializeDelta(NetworkWriter writer) {}
         public void OnDeserializeAll(NetworkReader reader) {}
         public void OnDeserializeDelta(NetworkReader reader) {}
+        public void Reset() {}
     }
 
     class MirrorTestPlayer : NetworkBehaviour

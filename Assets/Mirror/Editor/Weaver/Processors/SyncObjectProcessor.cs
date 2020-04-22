@@ -10,19 +10,11 @@ namespace Mirror.Weaver
         /// </summary>
         /// <param name="td">The type of the class that needs serialization methods</param>
         /// <param name="genericArgument">Which generic argument to serialize,  0 is the first one</param>
+        /// <param name="baseType">the type that has generic arguments</param>
         /// <param name="serializeMethod">The name of the serialize method</param>
         /// <param name="deserializeMethod">The name of the deserialize method</param>
-        public static void GenerateSerialization(TypeDefinition td, int genericArgument, string serializeMethod, string deserializeMethod)
+        public static void GenerateSerialization(TypeDefinition td, TypeReference itemType, string serializeMethod, string deserializeMethod)
         {
-            // find item type
-            GenericInstanceType gt = (GenericInstanceType)td.BaseType;
-            if (gt.GenericArguments.Count <= genericArgument)
-            {
-                Weaver.Error($"{td} should have {genericArgument} generic arguments");
-                return;
-            }
-            TypeReference itemType = Weaver.CurrentAssembly.MainModule.ImportReference(gt.GenericArguments[genericArgument]);
-
             Weaver.DLog(td, "SyncObjectProcessor Start item:" + itemType.FullName);
 
             MethodReference writeItemFunc = GenerateSerialization(serializeMethod, td, itemType);
@@ -47,6 +39,15 @@ namespace Mirror.Weaver
             if (existing != null)
                 return existing;
 
+
+            // this check needs to happen inside GenerateSerialization because
+            // we need to check if user has made custom function above
+            if (itemType.IsGenericInstance)
+            {
+                Weaver.Error($"{td} Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use {itemType} in SyncList");
+                return null;
+            }
+
             MethodDefinition serializeFunc = new MethodDefinition(methodName, MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.Public |
@@ -56,12 +57,6 @@ namespace Mirror.Weaver
             serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
             serializeFunc.Parameters.Add(new ParameterDefinition("item", ParameterAttributes.None, itemType));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
-
-            if (itemType.IsGenericInstance)
-            {
-                Weaver.Error($"{td} cannot have generic elements {itemType}");
-                return null;
-            }
 
             MethodReference writeFunc = Writers.GetWriteFunc(itemType);
             if (writeFunc != null)
@@ -87,6 +82,14 @@ namespace Mirror.Weaver
             MethodDefinition existing = td.GetMethod(methodName);
             if (existing != null)
                 return existing;
+
+            // this check needs to happen inside GenerateDeserialization because
+            // we need to check if user has made custom function above
+            if (itemType.IsGenericInstance)
+            {
+                Weaver.Error($"{td} Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use {itemType} in SyncList");
+                return null;
+            }
 
             MethodDefinition deserializeFunction = new MethodDefinition(methodName, MethodAttributes.Public |
                     MethodAttributes.Virtual |
