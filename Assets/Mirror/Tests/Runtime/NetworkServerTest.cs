@@ -6,7 +6,7 @@ using UnityEngine.TestTools;
 namespace Mirror.Tests
 {
     [TestFixture]
-    public class NetworkServerRuntimeTest: HostSetup
+    public class NetworkServerRuntimeTest : HostSetup
     {
         [UnityTest]
         public IEnumerator DestroyPlayerForConnectionTest()
