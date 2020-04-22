@@ -171,8 +171,8 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             string weaverError = @"Mirror\.Weaver error:";
-            string type = @"MirrorTest\.SomeList`1<System\.Int32> MirrorTest.SyncListErrorWhenUsingGenericListInNetworkBehaviour::someList";
-            string errorMessage = @"Can not use generic SyncObjects directly in NetworkBehaviour\. Create a class and inherit from the generic syncList instead\.";
+            string type = @"MirrorTest\.SomeList`1<System\.Int32> MirrorTest\.SyncListErrorWhenUsingGenericListInNetworkBehaviour::someList";
+            string errorMessage = @"Can not use generic SyncObjects directly in NetworkBehaviour\. Create a class and inherit from the generic SyncObject instead\.";
             Assert.That(weaverErrors, Has.Some.Match($"{weaverError} {type} {errorMessage}"));
         }
     }
