@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : MonoBehaviour
+    class MonoBehaviourSyncVar : MonoBehaviour
     {
         [SyncVar]
         int potato;
