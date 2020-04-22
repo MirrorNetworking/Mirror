@@ -55,6 +55,14 @@ namespace Mirror.Weaver.Tests
             }
         }
 
+        public static void AddSourceFilesFullPath(string[] sourceFiles)
+        {
+            foreach (string src in sourceFiles)
+            {
+                SourceFiles.Add(src);
+            }
+        }
+
         // Add a range of reference files by full path
         public static void AddReferencesByFullPath(string[] refAsms)
         {
