@@ -7,7 +7,7 @@ namespace MirrorTest
 {
     interface SuperCoolInterface {}
 
-    class PrefabClone : MessageBase
+    class MessageMemberInterface : MessageBase
     {
         public uint netId;
         public Guid assetId;
