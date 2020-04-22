@@ -5,9 +5,9 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class ErrorWhenClientRpcIsStatic : NetworkBehaviour
     {
         [ClientRpc]
-        void DoesntStartWithRpc() {}
+        static void RpcCantBeStatic() {}
     }
 }

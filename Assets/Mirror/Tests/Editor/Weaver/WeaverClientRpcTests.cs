@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
@@ -12,17 +12,17 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void ClientRpcStartsWithRpc()
+        public void ErrorWhenClientRpcDoesntStartWithRpc()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::DoesntStartWithRpc() must start with Rpc.  Consider renaming it to RpcDoesntStartWithRpc"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.ErrorWhenClientRpcDoesntStartWithRpc::DoesntStartWithRpc() must start with Rpc.  Consider renaming it to RpcDoesntStartWithRpc"));
         }
 
         [Test]
-        public void ClientRpcCantBeStatic()
+        public void ErrorWhenClientRpcIsStatic()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantBeStatic() must not be static"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.ErrorWhenClientRpcIsStatic::RpcCantBeStatic() must not be static"));
         }
     }
 }
