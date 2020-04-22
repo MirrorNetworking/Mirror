@@ -11,8 +11,6 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator DestroyPlayerForConnectionTest()
         {
-            NetworkServer.Listen(1);
-
             GameObject player = new GameObject("testPlayer", typeof(NetworkIdentity));
             NetworkConnectionToClient conn = new NetworkConnectionToClient(1);
 
