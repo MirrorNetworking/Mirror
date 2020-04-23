@@ -18,9 +18,8 @@ namespace Mirror.Logging
             if (existingSettings != null)
             {
                 settings = existingSettings;
-#if UNITY_EDITOR
+
                 UnityEditor.EditorUtility.SetDirty(this);
-#endif
             }
         }
 #endif
