@@ -14,7 +14,7 @@ namespace MirrorTest
         public void Reset() {}
     }
 
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncVarsSyncList : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnChangeHealth))]
         int health;
