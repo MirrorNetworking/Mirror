@@ -125,7 +125,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        [Ignore("Not Implemented")]
         public void ExcludesNonSerializedFields()
         {
             // we test this by having a not allowed type in the class, but mark it with NonSerialized
