@@ -22,14 +22,6 @@ namespace Mirror
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
         /// <summary>
-        /// Timeout in seconds since last message from a client after which server will auto-disconnect.
-        /// <para>By default, clients send at least a Ping message every 2 seconds.</para>
-        /// <para>The Host client is immune from idle timeout disconnection.</para>
-        /// <para>Default value is 60 seconds.</para>
-        /// </summary>
-        public float serverIdleTimeout = 60f;
-
-        /// <summary>
         /// Unique identifier for this connection that is assigned by the transport layer.
         /// </summary>
         /// <remarks>

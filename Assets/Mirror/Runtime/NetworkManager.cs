@@ -102,10 +102,19 @@ namespace Mirror
         public int maxConnections = 4;
 
         /// <summary>
-        /// Should the server disconnect remote connections that have gone silent for more than 1 minute?
+        /// Should the server disconnect remote connections that have gone silent for more than Server Idle Timeout?
         /// </summary>
-        [Tooltip("Server Only - Disconnects remote connections that have been silent for more than 1 minute")]
+        [Tooltip("Server Only - Disconnects remote connections that have been silent for more than Server Idle Timeout")]
         public bool disconnectInactiveConnections;
+
+        /// <summary>
+        /// Timeout in seconds since last message from a client after which server will auto-disconnect.
+        /// <para>By default, clients send at least a Ping message every 2 seconds.</para>
+        /// <para>The Host client is immune from idle timeout disconnection.</para>
+        /// <para>Default value is 60 seconds.</para>
+        /// </summary>
+        [Tooltip("Timeout in seconds since last message from a client after which server will auto-disconnect if Disconnect Inactive Connections is enabled.")]
+        public float serverIdleTimeout = 60f;
 
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]

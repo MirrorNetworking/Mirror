@@ -30,9 +30,11 @@ namespace Mirror.Tests
             // Set high ping frequency so no NetworkPingMessage is generated
             NetworkTime.PingFrequency = 5f;
 
+            // Set a short timeout for this test
+            NetworkManager.singleton.serverIdleTimeout = 1f;
+
             GameObject remotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
             NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1);
-            remoteConnection.serverIdleTimeout = 1f;
             NetworkServer.OnConnected(remoteConnection);
             NetworkServer.AddPlayerForConnection(remoteConnection, remotePlayer);
 
