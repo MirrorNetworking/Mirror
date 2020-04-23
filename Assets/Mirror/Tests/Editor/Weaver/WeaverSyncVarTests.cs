@@ -86,7 +86,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
-            Assert.That(weaverWarnings, Contains.Item("Mirror.Weaver warning: MirrorTest.SyncObjImplementer MirrorTest.SyncVarsSyncList::syncobj has [SyncVar] attribute. SyncLists should not be marked with SyncVar"));
+            Assert.That(weaverWarnings, Contains.Item("Mirror.Weaver warning: MirrorTest.SyncVarsSyncList/SyncObjImplementer MirrorTest.SyncVarsSyncList::syncobj has [SyncVar] attribute. SyncLists should not be marked with SyncVar"));
             Assert.That(weaverWarnings, Contains.Item("Mirror.Weaver warning: Mirror.SyncListInt MirrorTest.SyncVarsSyncList::syncints has [SyncVar] attribute. SyncLists should not be marked with SyncVar"));
         }
 
