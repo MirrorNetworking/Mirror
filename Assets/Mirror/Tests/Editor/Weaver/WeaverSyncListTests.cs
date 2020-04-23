@@ -159,6 +159,23 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void SyncListErrorForInterface()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
+            string weaverError = @"Mirror\.Weaver error:";
+            string type = @"MirrorTest\.MyInterfaceList";
+            string errorMessage = @"cannot have item of type MirrorTest\.MyInterface\.  Use a type supported by mirror instead";
+            Assert.That(weaverErrors, Has.Some.Match($"{weaverError} {type} {errorMessage}"));
+        }
+
+        [Test]
+        public void SyncListInterfaceWithCustomMethods()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
         public void SyncListErrorWhenUsingGenericListInNetworkBehaviour()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
