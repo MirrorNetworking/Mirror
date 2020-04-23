@@ -30,8 +30,9 @@ namespace Mirror.Tests
             // Set high ping frequency so no NetworkPingMessage is generated
             NetworkTime.PingFrequency = 5f;
 
-            // Set a short timeout for this test
+            // Set a short timeout for this test and enable disconnectInactiveConnections
             NetworkManager.singleton.serverIdleTimeout = 1f;
+            NetworkManager.singleton.disconnectInactiveConnections = true;
 
             GameObject remotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
             NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1);
