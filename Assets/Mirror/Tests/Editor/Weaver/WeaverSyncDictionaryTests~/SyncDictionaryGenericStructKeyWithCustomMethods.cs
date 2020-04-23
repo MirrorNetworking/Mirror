@@ -5,23 +5,24 @@ namespace MirrorTest
     class SyncDictionaryGenericStructKeyWithCustomMethods : NetworkBehaviour
     {
         MyGenericStructDictionary harpseals;
-    }
 
-    struct MyGenericStruct<T>
-    {
-        public T genericpotato;
-    }
 
-    class MyGenericStructDictionary : SyncDictionary<MyGenericStruct<float>, int>
-    {
-        protected override void SerializeKey(NetworkWriter writer, MyGenericStruct<float> item)
+        struct MyGenericStruct<T>
         {
-            writer.WriteSingle(item.genericpotato);
+            public T genericpotato;
         }
 
-        protected override MyGenericStruct<float> DeserializeKey(NetworkReader reader)
+        class MyGenericStructDictionary : SyncDictionary<MyGenericStruct<float>, int>
         {
-            return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
+            protected override void SerializeKey(NetworkWriter writer, MyGenericStruct<float> item)
+            {
+                writer.WriteSingle(item.genericpotato);
+            }
+
+            protected override MyGenericStruct<float> DeserializeKey(NetworkReader reader)
+            {
+                return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
+            }
         }
-    };
+    }
 }

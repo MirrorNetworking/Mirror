@@ -5,8 +5,10 @@ namespace MirrorTest
 {
     class SyncDictionaryValid : NetworkBehaviour
     {
+        public class SyncDictionaryIntString : SyncDictionary<int, string> { }
+        
         public SyncDictionaryIntString Foo;
     }
 
-    public class SyncDictionaryIntString : SyncDictionary<int, string> { }
+    
 }
