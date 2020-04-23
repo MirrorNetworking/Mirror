@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class TargetRpcValid : NetworkBehaviour
     {
         [TargetRpc]
         void TargetThatIsTotallyValid(NetworkConnection nc) {}
