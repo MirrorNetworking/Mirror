@@ -107,9 +107,6 @@ namespace Mirror.Weaver.Tests
                 .Where(x => !x.attribute.ShouldCompileWithNoErrors)
                 .Select(x => x.method.Name);
 
-            Debug.Log("Success tests: \n" + string.Join("\n", successTests));
-            Debug.Log("Error tests: \n" + string.Join("\n", errorTests));
-
             RunBuildAndWeave(successTests);
             successTestsResults.CopyFrom(currentTestResults);
 
