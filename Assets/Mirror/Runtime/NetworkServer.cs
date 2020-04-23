@@ -407,7 +407,7 @@ namespace Mirror
 
             // Check for dead clients but exclude the host client because it
             // doesn't ping itself and therefore may appear inactive.
-            if (NetworkManager.singleton.checkInactiveConnections)
+            if (NetworkManager.singleton.disconnectInactiveConnections)
             {
                 foreach (NetworkConnectionToClient conn in connections.Values)
                 {
