@@ -5,18 +5,19 @@ namespace MirrorTest
     class SyncDictionaryErrorForGenericStructItemWithCustomDeserializeOnly : NetworkBehaviour
     {
         MyGenericStructDictionary harpseals;
-    }
 
-    struct MyGenericStruct<T>
-    {
-        public T genericpotato;
-    }
 
-    class MyGenericStructDictionary : SyncDictionary<int, MyGenericStruct<float>>
-    {
-        protected override MyGenericStruct<float> DeserializeItem(NetworkReader reader)
+        struct MyGenericStruct<T>
         {
-            return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
+            public T genericpotato;
         }
-    };
+
+        class MyGenericStructDictionary : SyncDictionary<int, MyGenericStruct<float>>
+        {
+            protected override MyGenericStruct<float> DeserializeItem(NetworkReader reader)
+            {
+                return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
+            }
+        }
+    }
 }
