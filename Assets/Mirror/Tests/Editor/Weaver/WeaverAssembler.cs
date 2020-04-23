@@ -108,7 +108,7 @@ namespace Mirror.Weaver.Tests
         public static void DeleteOutput()
         {
             // "x.dll" shortest possible dll name
-            if (OutputFile.Length < 5)
+            if (OutputFile == null || OutputFile.Length < 5)
             {
                 return;
             }
