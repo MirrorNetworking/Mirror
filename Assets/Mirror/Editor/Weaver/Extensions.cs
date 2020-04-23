@@ -193,6 +193,9 @@ namespace Mirror.Weaver
             TypeDefinition typedef = td;
             while (typedef != null)
             {
+                if (typedef.FullName == stopAt.FullName)
+                    break;
+
                 foreach (MethodDefinition md in typedef.Methods)
                 {
                     if (md.Name == methodName)
@@ -203,9 +206,6 @@ namespace Mirror.Weaver
                 {
                     TypeReference parent = typedef.BaseType;
                     typedef = parent?.Resolve();
-
-                    if (typedef.FullName == stopAt.FullName)
-                        break;
                 }
                 catch (AssemblyResolutionException)
                 {
