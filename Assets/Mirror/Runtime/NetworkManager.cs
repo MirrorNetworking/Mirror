@@ -101,6 +101,23 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 4;
 
+        // This value is passed to NetworkServer in SetupServer
+        /// <summary>
+        /// Should the server disconnect remote connections that have gone silent for more than Server Idle Timeout?
+        /// </summary>
+        [Tooltip("Server Only - Disconnects remote connections that have been silent for more than Server Idle Timeout")]
+        public bool disconnectInactiveConnections;
+
+        // This value is passed to NetworkServer in SetupServer
+        /// <summary>
+        /// Timeout in seconds since last message from a client after which server will auto-disconnect.
+        /// <para>By default, clients send at least a Ping message every 2 seconds.</para>
+        /// <para>The Host client is immune from idle timeout disconnection.</para>
+        /// <para>Default value is 60 seconds.</para>
+        /// </summary>
+        [Tooltip("Timeout in seconds since last message from a client after which server will auto-disconnect if Disconnect Inactive Connections is enabled.")]
+        public float serverIdleTimeout = 60f;
+
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
@@ -289,6 +306,10 @@ namespace Mirror
             }
 
             ConfigureServerFrameRate();
+
+            // Copy auto-disconnect settings to NetworkServer
+            NetworkServer.serverIdleTimeout = serverIdleTimeout;
+            NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
 
             // start listening to network connections
             NetworkServer.Listen(maxConnections);

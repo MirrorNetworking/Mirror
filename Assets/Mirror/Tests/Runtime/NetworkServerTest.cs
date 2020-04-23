@@ -23,5 +23,31 @@ namespace Mirror.Tests
 
             Assert.That(player == null, "Player should be destroyed with DestroyPlayerForConnection");
         }
+
+        [UnityTest]
+        public IEnumerator DisconnectTimeoutTest()
+        {
+            // Set high ping frequency so no NetworkPingMessage is generated
+            NetworkTime.PingFrequency = 5f;
+
+            // Set a short timeout for this test and enable disconnectInactiveConnections
+            NetworkServer.serverIdleTimeout = 1f;
+            NetworkServer.disconnectInactiveConnections = true;
+
+            GameObject remotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
+            NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1);
+            NetworkServer.OnConnected(remoteConnection);
+            NetworkServer.AddPlayerForConnection(remoteConnection, remotePlayer);
+
+            // There's a host player from HostSetup + remotePlayer
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
+
+            // wait 2 seconds for remoteConnection to timeout as idle
+            yield return new WaitForSeconds(2f);
+
+            // host client connection should still be alive
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            Assert.That(NetworkServer.localConnection, Is.Not.Null);
+        }
     }
 }
