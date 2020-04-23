@@ -22,63 +22,63 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourGeneric()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer`1 cannot have generic parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.NetworkBehaviourGeneric`1 cannot have generic parameters"));
         }
 
         [Test]
         public void NetworkBehaviourCmdGenericParam()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveGeneric() cannot have generic parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourCmdGenericParam::CmdCantHaveGeneric() cannot have generic parameters"));
         }
 
         [Test]
         public void NetworkBehaviourCmdCoroutine()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Collections.IEnumerator MirrorTest.MirrorTestPlayer::CmdCantHaveCoroutine() cannot be a coroutine"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Collections.IEnumerator MirrorTest.NetworkBehaviourCmdCoroutine::CmdCantHaveCoroutine() cannot be a coroutine"));
         }
 
         [Test]
         public void NetworkBehaviourCmdVoidReturn()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Int32 MirrorTest.MirrorTestPlayer::CmdCantHaveNonVoidReturn() cannot return a value.  Make it void instead"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Int32 MirrorTest.NetworkBehaviourCmdVoidReturn::CmdCantHaveNonVoidReturn() cannot return a value.  Make it void instead"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcGenericParam()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveGeneric() cannot have generic parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourTargetRpcGenericParam::TargetRpcCantHaveGeneric() cannot have generic parameters"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcCoroutine()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Collections.IEnumerator MirrorTest.MirrorTestPlayer::TargetRpcCantHaveCoroutine() cannot be a coroutine"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Collections.IEnumerator MirrorTest.NetworkBehaviourTargetRpcCoroutine::TargetRpcCantHaveCoroutine() cannot be a coroutine"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcVoidReturn()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Int32 MirrorTest.MirrorTestPlayer::TargetRpcCantHaveNonVoidReturn() cannot return a value.  Make it void instead"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Int32 MirrorTest.NetworkBehaviourTargetRpcVoidReturn::TargetRpcCantHaveNonVoidReturn() cannot return a value.  Make it void instead"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcParamOut()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamOut(Mirror.NetworkConnection,System.Int32&) cannot have out parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourTargetRpcParamOut::TargetRpcCantHaveParamOut(Mirror.NetworkConnection,System.Int32&) cannot have out parameters"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcParamOptional()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamOptional(Mirror.NetworkConnection,System.Int32) cannot have optional parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourTargetRpcParamOptional::TargetRpcCantHaveParamOptional(Mirror.NetworkConnection,System.Int32) cannot have optional parameters"));
         }
 
         [Test]
@@ -92,14 +92,14 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourTargetRpcParamAbstract()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized because it has no default constructor"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.NetworkBehaviourTargetRpcParamAbstract/AbstractClass can't be deserialized because it has no default constructor"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcParamComponent()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.MirrorTestPlayer/ComponentClass. Use a supported type or provide a custom writer"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.NetworkBehaviourTargetRpcParamComponent/ComponentClass. Use a supported type or provide a custom writer"));
         }
 
         [Test]
@@ -113,42 +113,42 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourTargetRpcDuplicateName()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Duplicate Target Rpc name [MirrorTest.MirrorTestPlayer:TargetRpcCantHaveSameName]"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Duplicate Target Rpc name [MirrorTest.NetworkBehaviourTargetRpcDuplicateName:TargetRpcCantHaveSameName]"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcGenericParam()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveGeneric() cannot have generic parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourClientRpcGenericParam::RpcCantHaveGeneric() cannot have generic parameters"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcCoroutine()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Collections.IEnumerator MirrorTest.MirrorTestPlayer::RpcCantHaveCoroutine() cannot be a coroutine"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Collections.IEnumerator MirrorTest.NetworkBehaviourClientRpcCoroutine::RpcCantHaveCoroutine() cannot be a coroutine"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcVoidReturn()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Int32 MirrorTest.MirrorTestPlayer::RpcCantHaveNonVoidReturn() cannot return a value.  Make it void instead"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Int32 MirrorTest.NetworkBehaviourClientRpcVoidReturn::RpcCantHaveNonVoidReturn() cannot return a value.  Make it void instead"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamOut()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamOut(System.Int32&) cannot have out parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourClientRpcParamOut::RpcCantHaveParamOut(System.Int32&) cannot have out parameters"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamOptional()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamOptional(System.Int32) cannot have optional parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourClientRpcParamOptional::RpcCantHaveParamOptional(System.Int32) cannot have optional parameters"));
         }
 
         [Test]
@@ -162,42 +162,42 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourClientRpcParamAbstract()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized because it has no default constructor"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.NetworkBehaviourClientRpcParamAbstract/AbstractClass can't be deserialized because it has no default constructor"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamComponent()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.MirrorTestPlayer/ComponentClass. Use a supported type or provide a custom writer"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.NetworkBehaviourClientRpcParamComponent/ComponentClass. Use a supported type or provide a custom writer"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamNetworkConnection()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamOptional(Mirror.NetworkConnection) has invalid parameer monkeyCon. Cannot pass NeworkConnections"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourClientRpcParamNetworkConnection::RpcCantHaveParamOptional(Mirror.NetworkConnection) has invalid parameer monkeyCon. Cannot pass NeworkConnections"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcDuplicateName()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Duplicate ClientRpc name [MirrorTest.MirrorTestPlayer:RpcCantHaveSameName]"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Duplicate ClientRpc name [MirrorTest.NetworkBehaviourClientRpcDuplicateName:RpcCantHaveSameName]"));
         }
 
         [Test]
         public void NetworkBehaviourCmdParamOut()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamOut(System.Int32&) cannot have out parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourCmdParamOut::CmdCantHaveParamOut(System.Int32&) cannot have out parameters"));
         }
 
         [Test]
         public void NetworkBehaviourCmdParamOptional()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamOptional(System.Int32) cannot have optional parameters"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourCmdParamOptional::CmdCantHaveParamOptional(System.Int32) cannot have optional parameters"));
         }
 
         [Test]
@@ -211,28 +211,28 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourCmdParamAbstract()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized because it has no default constructor"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.NetworkBehaviourCmdParamAbstract/AbstractClass can't be deserialized because it has no default constructor"));
         }
 
         [Test]
         public void NetworkBehaviourCmdParamComponent()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.MirrorTestPlayer/ComponentClass. Use a supported type or provide a custom writer"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.NetworkBehaviourCmdParamComponent/ComponentClass. Use a supported type or provide a custom writer"));
         }
 
         [Test]
         public void NetworkBehaviourCmdParamNetworkConnection()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamOptional(Mirror.NetworkConnection) has invalid parameer monkeyCon. Cannot pass NeworkConnections"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.NetworkBehaviourCmdParamNetworkConnection::CmdCantHaveParamOptional(Mirror.NetworkConnection) has invalid parameer monkeyCon. Cannot pass NeworkConnections"));
         }
 
         [Test]
         public void NetworkBehaviourCmdDuplicateName()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Duplicate Command name [MirrorTest.MirrorTestPlayer:CmdCantHaveSameName]"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Duplicate Command name [MirrorTest.NetworkBehaviourCmdDuplicateName:CmdCantHaveSameName]"));
         }
     }
 }

@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourTargetRpcGenericParam : NetworkBehaviour
     {
         [TargetRpc]
         public void TargetRpcCantHaveGeneric<T>() {}

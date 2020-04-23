@@ -2,7 +2,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourCmdParamNetworkConnection : NetworkBehaviour
     {
         [Command]
         public void CmdCantHaveParamOptional(NetworkConnection monkeyCon) {}
