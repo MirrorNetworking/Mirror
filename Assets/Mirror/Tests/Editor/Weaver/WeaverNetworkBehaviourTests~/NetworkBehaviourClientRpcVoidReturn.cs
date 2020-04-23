@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourClientRpcVoidReturn : NetworkBehaviour
     {
         [ClientRpc]
         public int RpcCantHaveNonVoidReturn()

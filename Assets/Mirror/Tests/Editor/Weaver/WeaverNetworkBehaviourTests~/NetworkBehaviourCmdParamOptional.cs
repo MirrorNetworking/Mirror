@@ -4,7 +4,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourCmdParamOptional : NetworkBehaviour
     {
         [Command]
         public void CmdCantHaveParamOptional(int monkeys = 12) {}
