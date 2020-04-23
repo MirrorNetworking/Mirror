@@ -8,6 +8,27 @@ using UnityEngine;
 
 namespace Mirror.Weaver.Tests
 {
+    /*
+        Test flow:
+
+        * Find all tests with BatchedTestAttribute
+
+        * Run tests in 2 groups
+  
+          * Successful compile tests
+          * Error checking tests
+
+        * If dll fails to compile
+  
+          * then run the tests one at at a time to find out which one fails
+
+        * else (dll compiled)
+  
+          * mark tests as passed
+          * check weaver gave errors
+
+    */
+
     public class WeaverTestResults
     {
         public bool compileError;
@@ -54,6 +75,9 @@ namespace Mirror.Weaver.Tests
         public bool ShouldCompileWithNoErrors { get; set; }
     }
 
+    /// <summary>
+    /// Base class to used to run tests in baches
+    /// </summary>
     [TestFixture]
     [Category("Weaver")]
     public abstract class BatchedWeaverTests
