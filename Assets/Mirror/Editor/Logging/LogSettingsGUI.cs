@@ -10,7 +10,7 @@ namespace Mirror.Logging
         {
             if (GUILayout.Button("Create New"))
             {
-                ScriptableObjectUtility.CreateAsset<LogSettings>(nameof(LogSettings));
+                return ScriptableObjectUtility.CreateAsset<LogSettings>(nameof(LogSettings));
             }
 
             return null;
