@@ -101,6 +101,12 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 4;
 
+        /// <summary>
+        /// Should the server disconnect remote connections that have gone silent for more than 1 minute?
+        /// </summary>
+        [Tooltip("Server Only - Disconnects remote connections that have been silent for more than 1 minute")]
+        public bool disconnectInactiveConnections;
+
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;

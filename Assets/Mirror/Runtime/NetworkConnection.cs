@@ -94,14 +94,12 @@ namespace Mirror
         public bool logNetworkMessages;
 
         /// <summary>
-        /// Creates a new NetworkConnection with the specified address
+        /// Creates a new NetworkConnection
         /// </summary>
-        internal NetworkConnection()
-        {
-        }
+        internal NetworkConnection() { }
 
         /// <summary>
-        /// Creates a new NetworkConnection with the specified address and connectionId
+        /// Creates a new NetworkConnection with the specified connectionId
         /// </summary>
         /// <param name="networkConnectionId"></param>
         internal NetworkConnection(int networkConnectionId)
