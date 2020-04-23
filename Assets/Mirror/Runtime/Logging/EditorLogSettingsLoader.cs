@@ -21,17 +21,17 @@ namespace Mirror.Logging
             if (cache != null)
                 return cache;
 
-            string[] assets = AssetDatabase.FindAssets("t:" + nameof(LogSettings));
-            if (assets.Length == 0)
+            string[] assetGuids = AssetDatabase.FindAssets("t:" + nameof(LogSettings));
+            if (assetGuids.Length == 0)
                 return null;
 
-            string firstPath = assets[0];
-            Debug.Assert(assets.Length < 2, "Found more than one LogSettings, Delete extra settinsg. Using first asset found :" + firstPath);
+            string firstGuid = assetGuids[0];
+            Debug.Assert(assetGuids.Length < 2, "Found more than one LogSettings, Delete extra settinsg. Using first asset found :" + firstGuid);
 
-            cache = AssetDatabase.LoadAssetAtPath<LogSettings>(firstPath);
+            string path = AssetDatabase.GUIDToAssetPath(firstGuid);
+            cache = AssetDatabase.LoadAssetAtPath<LogSettings>(path);
             return cache;
         }
-
     }
 #endif
 }
