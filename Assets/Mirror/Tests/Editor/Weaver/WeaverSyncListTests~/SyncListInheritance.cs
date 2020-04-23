@@ -6,10 +6,11 @@ namespace MirrorTest
     class SyncListInheritance : NetworkBehaviour
     {
         readonly SuperSyncListString superSyncListString = new SuperSyncListString();
-    }
     
-    public class SuperSyncListString : SyncListString
-    {
+        
+        public class SuperSyncListString : SyncListString
+        {
 
+        }
     }
 }
