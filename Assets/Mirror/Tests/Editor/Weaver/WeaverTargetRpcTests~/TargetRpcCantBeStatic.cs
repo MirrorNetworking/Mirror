@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class TargetRpcCantBeStatic : NetworkBehaviour
     {
         [TargetRpc]
         static void TargetCantBeStatic(NetworkConnection nc) {}
