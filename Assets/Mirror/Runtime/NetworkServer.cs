@@ -267,11 +267,10 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Send a message structure with the given type number to all connected clients.
-        /// <para>This applies to clients that are ready and not-ready.</para>
+        /// Send a message to all connected clients, both ready and not-ready.</para>
         /// </summary>
-        /// <typeparam name="T">Message type.</typeparam>
-        /// <param name="msg">Message structure.</param>
+        /// <typeparam name="T">Message type</typeparam>
+        /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
         public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
@@ -313,13 +312,13 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Send a message structure with the given type number to only clients which are ready.
-        /// <para>See Networking.NetworkClient.Ready.</para>
+        /// Send a message to only clients which are ready with option to include the owner of the object identity.
+        /// <para>See <see cref="ClientScene.ready"/></para>
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
-        /// <param name="identity"></param>
-        /// <param name="msg">Message structure.</param>
-        /// <param name="includeOwner">Send to observers including self..</param>
+        /// <param name="identity">Identity of the owner</param>
+        /// <param name="msg">Message</param>
+        /// <param name="includeOwner">Should the owner of the object be included</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
         public static bool SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable) where T : IMessageBase
@@ -372,12 +371,12 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Send a message structure with the given type number to only clients which are ready.
-        /// <para>See Networking.NetworkClient.Ready.</para>
+        /// Send a message to only clients which are ready including the owner of the object identity.
+        /// <para>See <see cref="ClientScene.ready"/></para>
         /// </summary>
-        /// <typeparam name="T">Message type.</typeparam>
+        /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity"></param>
-        /// <param name="msg">Message structure.</param>
+        /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
         public static bool SendToReady<T>(NetworkIdentity identity, T msg, int channelId) where T : IMessageBase
