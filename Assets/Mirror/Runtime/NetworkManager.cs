@@ -1183,11 +1183,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
 
-            if (conn.identity != null)
-            {
-                OnServerRemovePlayer(conn, conn.identity);
-                conn.identity = null;
-            }
+            OnServerRemovePlayer(conn);
+            NetworkServer.RemovePlayerForConnection(conn);
         }
 
         void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
@@ -1348,17 +1345,18 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Called on the server when a client removes a player.
-        /// <para>The default implementation of this function destroys the corresponding player object.</para>
+        /// Called on the server when the player (identity) needs to be removed from the connection.
         /// </summary>
         /// <param name="conn">The connection to remove the player from.</param>
-        /// <param name="player">The player identity to remove.</param>
+        public virtual void OnServerRemovePlayer(NetworkConnection conn) { }
+
+        // Deprecated 04/25/2020
+        /// <summary>
+        /// Obsolete: Override <see cref="OnServerRemovePlayer(NetworkConnection conn)"/ instead>
+        /// </summary>
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
         {
-            if (player.gameObject != null)
-            {
-                NetworkServer.Destroy(player.gameObject);
-            }
+            NetworkServer.Destroy(conn.identity.gameObject);
         }
 
         /// <summary>
@@ -1432,7 +1430,7 @@ namespace Mirror
 
         // Deprecated 12/22/2019
         /// <summary>
-        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.).
+        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) instead")]
         public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation)

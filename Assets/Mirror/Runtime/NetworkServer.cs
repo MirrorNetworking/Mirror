@@ -879,6 +879,11 @@ namespace Mirror
         // default remove player handler
         static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg)
         {
+            RemovePlayerForConnection(conn);
+        }
+
+        public static void RemovePlayerForConnection(NetworkConnection conn)
+        {
             if (conn.identity != null)
             {
                 Destroy(conn.identity.gameObject);
@@ -886,7 +891,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogError("Received remove player message but connection has no player");
+                if (LogFilter.Debug) Debug.Log($"Connection {conn} has no identity");
             }
         }
 

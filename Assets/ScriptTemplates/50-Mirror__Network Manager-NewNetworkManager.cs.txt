@@ -149,15 +149,10 @@ public class #SCRIPTNAME# : NetworkManager
     }
 
     /// <summary>
-    /// Called on the server when a client removes a player.
-    /// <para>The default implementation of this function destroys the corresponding player object.</para>
+    /// Called on the server when the player (identity) needs to be removed from the connection.
     /// </summary>
     /// <param name="conn">The connection to remove the player from.</param>
-    /// <param name="player">The player identity to remove.</param>
-    public override void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
-    {
-        base.OnServerRemovePlayer(conn, player);
-    }
+    public override void OnServerRemovePlayer(NetworkConnection conn) { }
 
     /// <summary>
     /// Called on the server when a client disconnects.
