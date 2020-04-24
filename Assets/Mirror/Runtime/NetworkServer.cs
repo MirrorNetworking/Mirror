@@ -878,14 +878,23 @@ namespace Mirror
         // default remove player handler
         static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg)
         {
-            RemovePlayerForConnection(conn);
+            RemovePlayerForConnection(conn, true);
         }
 
-        public static void RemovePlayerForConnection(NetworkConnection conn)
+        /// <summary>
+        /// Removes the player object from the connection
+        /// </summary>
+        /// <param name="conn">The connection of the client to remove from</param>
+        /// <param name="destroyServerObject">Indicates whether the server object should be destroyed</param>
+        public static void RemovePlayerForConnection(NetworkConnection conn, bool destroyServerObject)
         {
             if (conn.identity != null)
             {
-                Destroy(conn.identity.gameObject);
+                if (destroyServerObject)
+                    Destroy(conn.identity.gameObject);
+                else
+                    UnSpawn(conn.identity.gameObject);
+
                 conn.identity = null;
             }
             else

@@ -1184,7 +1184,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
 
             OnServerRemovePlayer(conn);
-            NetworkServer.RemovePlayerForConnection(conn);
+            NetworkServer.RemovePlayerForConnection(conn, true);
         }
 
         void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
