@@ -180,5 +180,41 @@ namespace Mirror.Weaver
             }
             return null;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="methodName"></param>
+        /// <param name="stopAt"></param>
+        /// <returns></returns>
+        public static bool HasMethodInBaseType(this TypeDefinition td, string methodName, TypeReference stopAt)
+        {
+            TypeDefinition typedef = td;
+            while (typedef != null)
+            {
+                if (typedef.FullName == stopAt.FullName)
+                    break;
+
+                foreach (MethodDefinition md in typedef.Methods)
+                {
+                    if (md.Name == methodName)
+                        return true;
+                }
+
+                try
+                {
+                    TypeReference parent = typedef.BaseType;
+                    typedef = parent?.Resolve();
+                }
+                catch (AssemblyResolutionException)
+                {
+                    // this can happen for pluins.
+                    break;
+                }
+            }
+
+            return false;
+        }
     }
 }
