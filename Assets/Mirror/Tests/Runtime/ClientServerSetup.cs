@@ -94,6 +94,8 @@ namespace Mirror.Tests
 
             Object.DestroyImmediate(playerPrefab);
             Object.DestroyImmediate(networkManagerGo);
+            Object.DestroyImmediate(serverPlayerGO);
+            Object.DestroyImmediate(clientPlayerGO);
         }
 
         #endregion
