@@ -31,7 +31,7 @@ namespace Mirror.Tests.Runtime
             NetworkTime.PingFrequency = 5f;
 
             // Set a short timeout for this test and enable disconnectInactiveConnections
-            NetworkServer.serverIdleTimeout = 1f;
+            NetworkServer.disconnectInactiveTimeout = 1f;
             NetworkServer.disconnectInactiveConnections = true;
 
             GameObject remotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));

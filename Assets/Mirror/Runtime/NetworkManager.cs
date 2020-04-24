@@ -116,7 +116,7 @@ namespace Mirror
         /// <para>Default value is 60 seconds.</para>
         /// </summary>
         [Tooltip("Timeout in seconds since last message from a client after which server will auto-disconnect if Disconnect Inactive Connections is enabled.")]
-        public float serverIdleTimeout = 60f;
+        public float disconnectInactiveTimeout = 60f;
 
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
@@ -308,7 +308,7 @@ namespace Mirror
             ConfigureServerFrameRate();
 
             // Copy auto-disconnect settings to NetworkServer
-            NetworkServer.serverIdleTimeout = serverIdleTimeout;
+            NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
             NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
 
             // start listening to network connections

@@ -69,7 +69,7 @@ namespace Mirror
         /// <para>The Host client is immune from idle timeout disconnection.</para>
         /// <para>Default value is 60 seconds.</para>
         /// </summary>
-        public static float serverIdleTimeout = 60f;
+        public static float disconnectInactiveTimeout = 60f;
 
         // cache the Send(connectionIds) list to avoid allocating each time
         static readonly List<int> connectionIdsCache = new List<int>();
