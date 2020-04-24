@@ -570,7 +570,7 @@ namespace Mirror
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
-                if (logger.LogEnabled()) logger.Log("NetworkServer.RegisterHandler replacing " + msgType);
+                logger.LogWarning("NetworkServer.RegisterHandler replacing " + msgType);
             }
             handlers[msgType] = MessagePacker.MessageHandler(handler, requireAuthentication);
         }
