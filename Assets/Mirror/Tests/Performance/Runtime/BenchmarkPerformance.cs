@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests.Performance
+namespace Mirror.Tests.Performance.Runtime
 {
     [Category("Performance")]
     [Category("Benchmark")]

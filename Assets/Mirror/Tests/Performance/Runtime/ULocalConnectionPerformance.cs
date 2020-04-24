@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 
 
-namespace Mirror.Tests.Performance
+namespace Mirror.Tests.Performance.Runtime
 {
     class NetworkManagerTest : NetworkManager
     {
