@@ -392,7 +392,7 @@ namespace Mirror
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
-        public static bool SendToReady<T>(T msg, int channelId) where T : IMessageBase
+        public static bool SendToReady<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             // get writer from pool
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -409,14 +409,17 @@ namespace Mirror
                 int count = 0;
                 foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
                 {
-                    count++;
+                    if (kvp.Value.isReady)
+                    {
+                        count++;
 
-                    // use local connection directly because it doesn't send via transport
-                    if (kvp.Value is ULocalConnectionToClient)
-                        result &= kvp.Value.Send(segment);
-                    // gather all internet connections
-                    else
-                        connectionIdsCache.Add(kvp.Key);
+                        // use local connection directly because it doesn't send via transport
+                        if (kvp.Value is ULocalConnectionToClient)
+                            result &= kvp.Value.Send(segment);
+                        // gather all internet connections
+                        else
+                            connectionIdsCache.Add(kvp.Key);
+                    }
                 }
 
                 // send to all internet connections at once
