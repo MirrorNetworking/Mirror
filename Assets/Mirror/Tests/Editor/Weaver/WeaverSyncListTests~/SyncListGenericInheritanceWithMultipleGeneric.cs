@@ -11,9 +11,10 @@ namespace MirrorTest
     class SyncListGenericInheritanceWithMultipleGeneric : NetworkBehaviour
     {
         readonly SomeListInt someList = new SomeListInt();
+    
+
+        public class SomeList<G, T> : SyncList<T> { }
+
+        public class SomeListInt : SomeList<string, int> { }
     }
-
-    public class SomeList<G, T> : SyncList<T> { }
-
-    public class SomeListInt : SomeList<string, int> { }
 }

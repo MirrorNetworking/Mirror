@@ -9,17 +9,18 @@ namespace Mirror.Weaver
         /// Generates serialization methods for synclists
         /// </summary>
         /// <param name="td">The synclist class</param>
-        public static void Process(TypeDefinition td, TypeReference baseType)
+        /// <param name="mirrorBaseType">the base SyncObject td inherits from</param>
+        public static void Process(TypeDefinition td, TypeReference mirrorBaseType)
         {
             GenericArgumentResolver resolver = new GenericArgumentResolver(1);
 
-            if (resolver.GetGenericFromBaseClass(td, 0, baseType, out TypeReference itemType))
+            if (resolver.GetGenericFromBaseClass(td, 0, mirrorBaseType, out TypeReference itemType))
             {
-                SyncObjectProcessor.GenerateSerialization(td, itemType, "SerializeItem", "DeserializeItem");
+                SyncObjectProcessor.GenerateSerialization(td, itemType, mirrorBaseType, "SerializeItem", "DeserializeItem");
             }
             else
             {
-                Weaver.Error($"Could not find generic arguments for {baseType} using {td}");
+                Weaver.Error($"Could not find generic arguments for {mirrorBaseType} using {td}");
             }
         }
     }

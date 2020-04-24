@@ -271,8 +271,8 @@ namespace Mirror
             if (IsSceneActive(RoomScene))
                 RecalculateRoomPlayerIndices();
 
-            base.OnServerDisconnect(conn);
             OnRoomServerDisconnect(conn);
+            base.OnServerDisconnect(conn);
         }
 
         /// <summary>

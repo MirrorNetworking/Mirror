@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourCmdDuplicateName : NetworkBehaviour
     {
         [Command]
         public void CmdCantHaveSameName(int abc) {}

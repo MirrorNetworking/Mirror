@@ -15,7 +15,7 @@ namespace Mirror.Weaver.Tests
         public void MessageSelfReferencing()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.PrefabClone has field $MirrorTest.PrefabClone MirrorTest.PrefabClone::selfReference that references itself"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MessageSelfReferencing has field $MirrorTest.MessageSelfReferencing MirrorTest.MessageSelfReferencing::selfReference that references itself"));
         }
 
         [Test]

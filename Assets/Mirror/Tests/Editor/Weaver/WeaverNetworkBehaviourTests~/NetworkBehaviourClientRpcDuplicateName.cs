@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourClientRpcDuplicateName : NetworkBehaviour
     {
         [ClientRpc]
         public void RpcCantHaveSameName(int abc) {}

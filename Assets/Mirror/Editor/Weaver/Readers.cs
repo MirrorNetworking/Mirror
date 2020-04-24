@@ -381,6 +381,9 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate)
                     continue;
 
+                if (field.IsNotSerialized)
+                    continue;
+
                 // mismatched ldloca/ldloc for struct/class combinations is invalid IL, which causes crash at runtime
                 OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
                 worker.Append(worker.Create(opcode, 0));

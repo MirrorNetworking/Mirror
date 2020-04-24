@@ -86,14 +86,12 @@ namespace Mirror
         public bool logNetworkMessages;
 
         /// <summary>
-        /// Creates a new NetworkConnection with the specified address
+        /// Creates a new NetworkConnection
         /// </summary>
-        internal NetworkConnection()
-        {
-        }
+        internal NetworkConnection() { }
 
         /// <summary>
-        /// Creates a new NetworkConnection with the specified address and connectionId
+        /// Creates a new NetworkConnection with the specified connectionId
         /// </summary>
         /// <param name="networkConnectionId"></param>
         internal NetworkConnection(int networkConnectionId)
@@ -280,6 +278,17 @@ namespace Mirror
                     Disconnect();
                 }
             }
+        }
+
+        // Failsafe to kick clients that have stopped sending anything to the server.
+        // Clients Ping the server every 2 seconds but transports are unreliable
+        // when it comes to properly generating Disconnect messages to the server.
+        // This cannot be abstract because then NetworkConnectionToServer
+        // would require and override that would never be called
+        // This is overriden in NetworkConnectionToClient.
+        internal virtual bool IsClientAlive()
+        {
+            return true;
         }
 
         internal void AddOwnedObject(NetworkIdentity obj)

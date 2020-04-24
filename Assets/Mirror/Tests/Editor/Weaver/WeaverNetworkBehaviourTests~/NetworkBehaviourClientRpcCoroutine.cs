@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourClientRpcCoroutine : NetworkBehaviour
     {
         [ClientRpc]
         public IEnumerator RpcCantHaveCoroutine()

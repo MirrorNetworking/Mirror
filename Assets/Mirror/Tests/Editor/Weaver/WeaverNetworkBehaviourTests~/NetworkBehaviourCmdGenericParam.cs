@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourCmdGenericParam : NetworkBehaviour
     {
         [Command]
         public void CmdCantHaveGeneric<T>() {}

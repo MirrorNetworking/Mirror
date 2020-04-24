@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class TargetRpcNetworkConnectionNotFirst : NetworkBehaviour
     {
         [TargetRpc]
         void TargetRpcMethod(int potatoesRcool, NetworkConnection nc) {}

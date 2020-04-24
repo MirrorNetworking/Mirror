@@ -6,23 +6,24 @@ namespace MirrorTest
     class SyncDictionaryItemStructWithCustomMethods : NetworkBehaviour
     {
         MyStructDictionary Foo;
-    }
-    struct MyStruct
-    {
-        int potato;
-        float floatingpotato;
-        double givemetwopotatoes;
-    }
-    class MyStructDictionary : SyncDictionary<int, MyStruct>
-    { 
-        protected override void SerializeItem(NetworkWriter writer, MyStruct item)
-        {
-            // write some stuff here
-        }
 
-        protected override MyStruct DeserializeItem(NetworkReader reader)
+        struct MyStruct
         {
-            return new MyStruct() { /* read some stuff here */ };
+            int potato;
+            float floatingpotato;
+            double givemetwopotatoes;
+        }
+        class MyStructDictionary : SyncDictionary<int, MyStruct>
+        {
+            protected override void SerializeItem(NetworkWriter writer, MyStruct item)
+            {
+                // write some stuff here
+            }
+
+            protected override MyStruct DeserializeItem(NetworkReader reader)
+            {
+                return new MyStruct() { /* read some stuff here */ };
+            }
         }
     }
 }

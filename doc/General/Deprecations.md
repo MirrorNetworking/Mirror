@@ -153,7 +153,7 @@ Currently, Mirror using it's default TCP transport will always send everything o
 ### NetworkServer
 
 -   `FindLocalObject(uint netId)`  
-    Use `NetworkIdentity.spawned[netId]` instead.
+    Use `NetworkIdentity.spawned[netId].gameObject` instead.
 
 -   `RegisterHandler(int msgType, NetworkMessageDelegate handler)`  
     Use `RegisterHandler<T>(T msg)` instead.

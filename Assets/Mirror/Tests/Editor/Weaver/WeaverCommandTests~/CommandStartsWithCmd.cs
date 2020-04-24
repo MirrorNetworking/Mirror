@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class CommandStartsWithCmd : NetworkBehaviour
     {
         [Command]
         void DoesntStartWithCmd() {}
