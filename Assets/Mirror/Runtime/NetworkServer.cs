@@ -317,6 +317,18 @@ namespace Mirror
         }
 
         /// <summary>
+        /// Send a message to only clients which are ready.
+        /// </summary>
+        /// <typeparam name="T">Message type.</typeparam>
+        /// <param name="msg">Message</param>
+        /// <param name="channelId">Transport channel to use</param>
+        /// <returns></returns>
+        public static bool SendToReady<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        {
+            return SendToAll(msg, channelId, true);
+        }
+
+        /// <summary>
         /// Send a message to only clients which are ready with option to include the owner of the object identity.
         /// <para>See <see cref="NetworkConnection.isReady"/></para>
         /// </summary>
