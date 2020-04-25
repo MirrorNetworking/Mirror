@@ -95,9 +95,7 @@ namespace Mirror.Weaver.Tests
             // would only want to be send as an arg as a base type for an Inherited object
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Cannot generate writer for Object. Use a supported type or provide a custom writer (at UnityEngine.Object)"));
-            Assert.That(weaverErrors, Contains.Item("RpcDoSomething has invalid parameter obj (at System.Void MirrorTest.GivesErrorWhenUsingObject::RpcDoSomething(UnityEngine.Object))"));
             Assert.That(weaverErrors, Contains.Item("Cannot generate reader for Object. Use a supported type or provide a custom reader (at UnityEngine.Object)"));
-            Assert.That(weaverErrors, Contains.Item("RpcDoSomething has invalid parameter obj.  Unsupported type UnityEngine.Object,  use a supported Mirror type instead (at System.Void MirrorTest.GivesErrorWhenUsingObject::RpcDoSomething(UnityEngine.Object))"));
         }
 
         [Test]
@@ -107,9 +105,7 @@ namespace Mirror.Weaver.Tests
             // would only want to be send as an arg as a base type for an Inherited object
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Cannot generate writer for ScriptableObject. Use a supported type or provide a custom writer (at UnityEngine.ScriptableObject)"));
-            Assert.That(weaverErrors, Contains.Item("RpcDoSomething has invalid parameter obj (at System.Void MirrorTest.GivesErrorWhenUsingScriptableObject::RpcDoSomething(UnityEngine.ScriptableObject))"));
             Assert.That(weaverErrors, Contains.Item("Cannot generate reader for ScriptableObject. Use a supported type or provide a custom reader (at UnityEngine.ScriptableObject)"));
-            Assert.That(weaverErrors, Contains.Item("RpcDoSomething has invalid parameter obj.  Unsupported type UnityEngine.ScriptableObject,  use a supported Mirror type instead (at System.Void MirrorTest.GivesErrorWhenUsingScriptableObject::RpcDoSomething(UnityEngine.ScriptableObject))"));
         }
 
         [Test]
@@ -117,9 +113,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MonoBehaviour. Use a supported type or provide a custom writer (at UnityEngine.MonoBehaviour)"));
-            Assert.That(weaverErrors, Contains.Item("RpcDoSomething has invalid parameter behaviour (at System.Void MirrorTest.GivesErrorWhenUsingMonoBehaviour::RpcDoSomething(UnityEngine.MonoBehaviour))"));
             Assert.That(weaverErrors, Contains.Item("Cannot generate reader for component type MonoBehaviour. Use a supported type or provide a custom reader (at UnityEngine.MonoBehaviour)"));
-            Assert.That(weaverErrors, Contains.Item("RpcDoSomething has invalid parameter behaviour.  Unsupported type UnityEngine.MonoBehaviour,  use a supported Mirror type instead (at System.Void MirrorTest.GivesErrorWhenUsingMonoBehaviour::RpcDoSomething(UnityEngine.MonoBehaviour))"));
         }
 
         [Test]
@@ -127,9 +121,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MyBehaviour. Use a supported type or provide a custom writer (at MirrorTest.MyBehaviour)"));
-            Assert.That(weaverErrors, Contains.Item("RpcDoSomething has invalid parameter behaviour (at System.Void MirrorTest.GivesErrorWhenUsingTypeInheritedFromMonoBehaviour::RpcDoSomething(MirrorTest.MyBehaviour))"));
             Assert.That(weaverErrors, Contains.Item("Cannot generate reader for component type MyBehaviour. Use a supported type or provide a custom reader (at MirrorTest.MyBehaviour)"));
-            Assert.That(weaverErrors, Contains.Item("RpcDoSomething has invalid parameter behaviour.  Unsupported type MirrorTest.MyBehaviour,  use a supported Mirror type instead (at System.Void MirrorTest.GivesErrorWhenUsingTypeInheritedFromMonoBehaviour::RpcDoSomething(MirrorTest.MyBehaviour))"));
         }
 
         [Test]
@@ -145,9 +137,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(weaverErrors, Contains.Item("Cannot generate writer for interface IData. Use a supported type or provide a custom writer (at MirrorTest.IData)"));
-            Assert.That(weaverErrors, Contains.Item("RpcDoSomething has invalid parameter data (at System.Void MirrorTest.GivesErrorWhenUsingInterface::RpcDoSomething(MirrorTest.IData))"));
             Assert.That(weaverErrors, Contains.Item("Cannot generate reader for interface IData. Use a supported type or provide a custom reader (at MirrorTest.IData)"));
-            Assert.That(weaverErrors, Contains.Item("RpcDoSomething has invalid parameter data.  Unsupported type MirrorTest.IData,  use a supported Mirror type instead (at System.Void MirrorTest.GivesErrorWhenUsingInterface::RpcDoSomething(MirrorTest.IData))"));
         }
 
         [Test]
