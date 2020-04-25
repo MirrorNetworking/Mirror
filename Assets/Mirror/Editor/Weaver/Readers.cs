@@ -84,7 +84,7 @@ namespace Mirror.Weaver
             }
             else if (variable.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
             {
-                newReaderFunc = GenerateArraySegmentReadFunc(variable, variable, recursionCount);
+                newReaderFunc = GenerateArraySegmentReadFunc(variable, recursionCount);
             }
             else
             {
@@ -206,7 +206,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateArraySegmentReadFunc(MemberReference member, TypeReference variable, int recursionCount)
+        static MethodDefinition GenerateArraySegmentReadFunc(TypeReference variable, int recursionCount)
         {
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
