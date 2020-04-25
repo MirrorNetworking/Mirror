@@ -54,7 +54,6 @@ namespace Mirror.Weaver
                 {
                     // if greater than `genericArgument` it is hard to know which generic arg we want
                     // See SyncListGenericInheritanceWithMultipleGeneric test
-                    Weaver.Error($"Too many generic argument for {next}");
                     return null;
                 }
 
