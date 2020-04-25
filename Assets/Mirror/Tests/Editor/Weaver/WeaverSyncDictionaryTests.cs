@@ -150,7 +150,7 @@ namespace Mirror.Weaver.Tests
         public void SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("someDictionary Can not use generic SyncObjects directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead (at MirrorTest.SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour/SomeSyncDictionary`2<System.Int32,System.String> MirrorTest.SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour::someDictionary)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot use generic SyncObject someDictionary directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead (at MirrorTest.SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour/SomeSyncDictionary`2<System.Int32,System.String> MirrorTest.SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour::someDictionary)"));
         }
     }
 }

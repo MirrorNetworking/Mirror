@@ -346,7 +346,7 @@ namespace Mirror.Weaver
 
                     if (fd.FieldType.Resolve().HasGenericParameters)
                     {
-                        Weaver.Error($"{fd.Name} Can not use generic SyncObjects directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead", fd);
+                        Weaver.Error($"Cannot use generic SyncObject {fd.Name} directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead", fd);
                         return;
                     }
 

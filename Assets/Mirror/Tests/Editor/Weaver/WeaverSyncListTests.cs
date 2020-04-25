@@ -183,7 +183,7 @@ namespace Mirror.Weaver.Tests
         public void SyncListErrorWhenUsingGenericListInNetworkBehaviour()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("someList Can not use generic SyncObjects directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead (at MirrorTest.SyncListErrorWhenUsingGenericListInNetworkBehaviour/SomeList`1<System.Int32> MirrorTest.SyncListErrorWhenUsingGenericListInNetworkBehaviour::someList)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot use generic SyncObjects someList directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead (at MirrorTest.SyncListErrorWhenUsingGenericListInNetworkBehaviour/SomeList`1<System.Int32> MirrorTest.SyncListErrorWhenUsingGenericListInNetworkBehaviour::someList)"));
         }
     }
 }
