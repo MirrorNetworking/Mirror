@@ -268,12 +268,14 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to all connected clients, both ready and not-ready.</para>
+        /// <para>See <see cref="NetworkConnection.isReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
+        /// <param name="sendToReadyOnly">Indicates if only ready clients should receive the message</param>
         /// <returns></returns>
-        public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable, bool sendToReadyOnly = false) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
 
@@ -291,6 +293,9 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
                 {
+                    if (sendToReadyOnly && !kvp.Value.isReady)
+                        continue;
+
                     // use local connection directly because it doesn't send via transport
                     if (kvp.Value is ULocalConnectionToClient)
                         result &= kvp.Value.Send(segment);
@@ -382,56 +387,6 @@ namespace Mirror
         public static bool SendToReady<T>(NetworkIdentity identity, T msg, int channelId) where T : IMessageBase
         {
             return SendToReady(identity, msg, true, channelId);
-        }
-
-        /// <summary>
-        /// Send a message to only clients which are ready
-        /// <para>See <see cref="ClientScene.ready"/></para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="msg">Message</param>
-        /// <param name="channelId">Transport channel to use</param>
-        /// <returns></returns>
-        public static bool SendToReady<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
-        {
-            // get writer from pool
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                // pack message only once
-                MessagePacker.Pack(msg, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
-
-                // filter and then send to all internet connections at once
-                // -> makes code more complicated, but is HIGHLY worth it to
-                //    avoid allocations, allow for multicast, etc.
-                connectionIdsCache.Clear();
-                bool result = true;
-                int count = 0;
-                foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
-                {
-                    if (kvp.Value.isReady)
-                    {
-                        count++;
-
-                        // use local connection directly because it doesn't send via transport
-                        if (kvp.Value is ULocalConnectionToClient)
-                            result &= kvp.Value.Send(segment);
-                        // gather all internet connections
-                        else
-                            connectionIdsCache.Add(kvp.Key);
-                    }
-                }
-
-                // send to all internet connections at once
-                if (connectionIdsCache.Count > 0)
-                {
-                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
-                }
-
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
-
-                return result;
-            }
         }
 
         /// <summary>
