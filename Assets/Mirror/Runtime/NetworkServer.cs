@@ -375,7 +375,7 @@ namespace Mirror
         /// <para>See <see cref="NetworkConnection.isReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="identity"></param>
+        /// <param name="identity">identity of the object</param>
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
