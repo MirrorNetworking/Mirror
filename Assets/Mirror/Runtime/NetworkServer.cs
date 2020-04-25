@@ -318,6 +318,7 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to only clients which are ready.
+        /// <para>See <see cref="NetworkConnection.isReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
         /// <param name="msg">Message</param>
