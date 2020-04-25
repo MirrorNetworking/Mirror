@@ -313,7 +313,7 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to only clients which are ready with option to include the owner of the object identity.
-        /// <para>See <see cref="ClientScene.ready"/></para>
+        /// <para>See <see cref="NetworkConnection.isReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
         /// <param name="identity">Identity of the owner</param>
@@ -372,7 +372,7 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to only clients which are ready including the owner of the object identity.
-        /// <para>See <see cref="ClientScene.ready"/></para>
+        /// <para>See <see cref="NetworkConnection.isReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity"></param>
