@@ -815,29 +815,22 @@ namespace Mirror
         {
             // hack needed so that we can deserialize gameobjects and NI
 
-            try
-            {
-                NetworkClient.Current = Client;
-                // read component dirty mask
-                ulong dirtyComponentsMask = reader.ReadPackedUInt64();
+            NetworkClient.Current = Client;
+            // read component dirty mask
+            ulong dirtyComponentsMask = reader.ReadPackedUInt64();
 
-                NetworkBehaviour[] components = NetworkBehaviours;
-                // loop through all components and deserialize the dirty ones
-                for (int i = 0; i < components.Length; ++i)
+            NetworkBehaviour[] components = NetworkBehaviours;
+            // loop through all components and deserialize the dirty ones
+            for (int i = 0; i < components.Length; ++i)
+            {
+                // is the dirty bit at position 'i' set to 1?
+                ulong dirtyBit = 1UL << i;
+                if ((dirtyComponentsMask & dirtyBit) != 0L)
                 {
-                    // is the dirty bit at position 'i' set to 1?
-                    ulong dirtyBit = 1UL << i;
-                    if ((dirtyComponentsMask & dirtyBit) != 0L)
-                    {
-                        OnDeserializeSafely(components[i], reader, initialState);
-                    }
+                    OnDeserializeSafely(components[i], reader, initialState);
                 }
             }
-            catch(EndOfStreamException ex)
-            {
-                throw new InvalidMessageException("Could not deserialize message", ex);
-            }
-
+           
         }
 
         // helper function to handle SyncEvent/Command/Rpc
