@@ -14,6 +14,7 @@ namespace Mirror.Weaver.Tests
             string className = TestContext.CurrentContext.Test.ClassName.Split('.').Last();
 
             BuildAndWeaveTestAssembly(className, TestContext.CurrentContext.Test.Name);
+
         }
     }
     [TestFixture]
@@ -49,6 +50,10 @@ namespace Mirror.Weaver.Tests
                 // ensure all errors have a location
                 Assert.That(error, Does.Match(@"\(at .*\)$"));
             }
+            if (weaverErrors.Count > 0)
+                Assert.That(CompilationFinishedHook.WeaveFailed, Is.True, "Weaver should fail if there are errors");
+            else
+                Assert.That(CompilationFinishedHook.WeaveFailed, Is.False, "Weaver should succeed if there are no errors");
         }
 
         [OneTimeSetUp]
