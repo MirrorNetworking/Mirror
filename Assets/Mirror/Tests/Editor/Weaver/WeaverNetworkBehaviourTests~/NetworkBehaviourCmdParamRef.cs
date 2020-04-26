@@ -2,9 +2,9 @@ using System;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourCmdParamRef : NetworkBehaviour
     {
         [Command]
         public void CmdCantHaveParamRef(ref int monkeys) {}

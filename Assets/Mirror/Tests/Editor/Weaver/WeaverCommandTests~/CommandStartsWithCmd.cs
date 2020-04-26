@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverCommandTests.CommandStartsWithCmd
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class CommandStartsWithCmd : NetworkBehaviour
     {
         [Command]
         void DoesntStartWithCmd() {}

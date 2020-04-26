@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverMonoBehaviourTests.MonoBehaviourClient
 {
-    class MirrorTestPlayer : MonoBehaviour
+    class MonoBehaviourClient : MonoBehaviour
     {
         [Client]
         void ThisCantBeOutsideNetworkBehaviour() {}

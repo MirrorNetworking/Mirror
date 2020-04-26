@@ -2,9 +2,9 @@ using System;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamAbstract
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourTargetRpcParamAbstract : NetworkBehaviour
     {
         public abstract class AbstractClass
         {

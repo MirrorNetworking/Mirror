@@ -814,12 +814,32 @@ namespace Mirror
             }
         }
 
+        internal void ResetSyncObjects()
+        {
+            foreach (SyncObject syncObject in syncObjects)
+            {
+                syncObject.Reset();
+            }
+        }
+
+        // Deprecated 04/20/2020
+        /// <summary>
+        /// Obsolete: Use <see cref="OnStopClient()"/> instead
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnStopClient() instead")]
+        public virtual void OnNetworkDestroy() { }
+
         /// <summary>
         /// This is invoked on clients when the server has caused this object to be destroyed.
         /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void OnNetworkDestroy() { }
+        public virtual void OnStopClient()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            // backwards compatibility
+            OnNetworkDestroy();
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
 
         /// <summary>
         /// This is invoked for NetworkBehaviour objects when they become active on the server.
@@ -827,6 +847,12 @@ namespace Mirror
         /// <para>This will be called for objects on a "host" as well as for object on a dedicated server.</para>
         /// </summary>
         public virtual void OnStartServer() { }
+
+        /// <summary>
+        /// Invoked on the server when the object is unspawned
+        /// <para>Useful for saving object data in persistant storage</para>
+        /// </summary>
+        public virtual void OnStopServer() { }
 
         /// <summary>
         /// Called on every NetworkBehaviour when it is activated on a client.

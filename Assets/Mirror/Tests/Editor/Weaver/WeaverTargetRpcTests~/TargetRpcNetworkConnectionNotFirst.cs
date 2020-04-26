@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverTargetRpcTests.TargetRpcNetworkConnectionNotFirst
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class TargetRpcNetworkConnectionNotFirst : NetworkBehaviour
     {
         [TargetRpc]
         void TargetRpcMethod(int potatoesRcool, NetworkConnection nc) {}

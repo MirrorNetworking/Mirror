@@ -2,9 +2,9 @@ using System;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamOut
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourClientRpcParamOut : NetworkBehaviour
     {
         [ClientRpc]
         public void RpcCantHaveParamOut(out int monkeys)

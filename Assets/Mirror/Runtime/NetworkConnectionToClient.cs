@@ -6,9 +6,9 @@ namespace Mirror
 {
     public class NetworkConnectionToClient : NetworkConnection
     {
-        public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId)
-        {
-        }
+        static readonly ILogger logger = LogFactory.GetLogger<NetworkConnectionToClient>();
+
+        public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId) { }
 
         public override string address => Transport.activeTransport.ServerGetClientAddress(connectionId);
 
@@ -16,9 +16,14 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         readonly List<int> singleConnectionId = new List<int> { -1 };
 
+        // Failsafe to kick clients that have stopped sending anything to the server.
+        // Clients ping the server every 2 seconds but transports are unreliable
+        // when it comes to properly generating Disconnect messages to the server.
+        internal override bool IsClientAlive() => Time.time - lastMessageTime < NetworkServer.disconnectInactiveTimeout;
+
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
-            if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
+            if (logger.LogEnabled()) logger.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
             // validate packet size first.
             if (ValidatePacketSize(segment, channelId))

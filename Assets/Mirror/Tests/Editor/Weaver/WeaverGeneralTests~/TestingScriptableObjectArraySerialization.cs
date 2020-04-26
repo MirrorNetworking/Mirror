@@ -1,7 +1,7 @@
 using Mirror;
 using UnityEngine;
 
-namespace MirrorTest
+namespace WeaverGeneralTests.TestingScriptableObjectArraySerialization
 {
     public static class CustomSerializer
     {
@@ -24,7 +24,7 @@ namespace MirrorTest
         public int Var1;
     }
 
-    public class PlayerScript : NetworkBehaviour
+    public class TestingScriptableObjectArraySerialization : NetworkBehaviour
     {
         [Command]
         public void

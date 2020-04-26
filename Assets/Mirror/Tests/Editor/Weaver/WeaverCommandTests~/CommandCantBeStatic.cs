@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverCommandTests.CommandCantBeStatic
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class CommandCantBeStatic : NetworkBehaviour
     {
         [Command]
         static void CmdCantBeStatic() {}

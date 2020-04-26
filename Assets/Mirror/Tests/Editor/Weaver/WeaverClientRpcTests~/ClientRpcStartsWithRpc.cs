@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverClientRpcTests.ClientRpcStartsWithRpc
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class ClientRpcStartsWithRpc : NetworkBehaviour
     {
         [ClientRpc]
         void DoesntStartWithRpc() {}

@@ -3,11 +3,11 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverMessageTests.MessageMemberInterface
 {
     interface SuperCoolInterface {}
 
-    class PrefabClone : MessageBase
+    class MessageMemberInterface : MessageBase
     {
         public uint netId;
         public Guid assetId;

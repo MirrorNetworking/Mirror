@@ -32,7 +32,7 @@ namespace Mirror.Weaver
         {
             if (netBehaviourSubclass.HasGenericParameters)
             {
-                Weaver.Error($"{netBehaviourSubclass} cannot have generic parameters");
+                Weaver.Error($"{netBehaviourSubclass.Name} cannot have generic parameters", netBehaviourSubclass);
                 return;
             }
             Weaver.DLog(netBehaviourSubclass, "Process Start");
@@ -128,7 +128,7 @@ namespace Mirror.Weaver
                 MethodReference writeFunc = Writers.GetWriteFunc(pd.ParameterType);
                 if (writeFunc == null)
                 {
-                    Weaver.Error($"{md} has invalid parameter {pd}");
+                    Weaver.Error($"{md.Name} has invalid parameter {pd}", md);
                     return false;
                 }
                 // use built-in writer func on writer object
@@ -184,7 +184,7 @@ namespace Mirror.Weaver
                     }
                     else
                     {
-                        Weaver.Error($"{netBehaviourSubclass} has invalid class constructor");
+                        Weaver.Error($"{netBehaviourSubclass.Name} has invalid class constructor", cctor);
                         return;
                     }
                 }
@@ -205,7 +205,7 @@ namespace Mirror.Weaver
 
             if (ctor == null)
             {
-                Weaver.Error($"{netBehaviourSubclass} has invalid constructor");
+                Weaver.Error($"{netBehaviourSubclass.Name} has invalid constructor", netBehaviourSubclass);
                 return;
             }
 
@@ -216,7 +216,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error($"{netBehaviourSubclass} has invalid constructor");
+                Weaver.Error($"{netBehaviourSubclass.Name} has invalid constructor", ctor);
                 return;
             }
 
@@ -340,7 +340,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error($"{syncVar} has unsupported type. Use a supported Mirror type instead");
+                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
                     return;
                 }
             }
@@ -394,7 +394,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error($"{syncVar} has unsupported type. Use a supported Mirror type instead");
+                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
                     return;
                 }
 
@@ -546,7 +546,7 @@ namespace Mirror.Weaver
                 MethodReference readFunc = Readers.GetReadFunc(syncVar.FieldType);
                 if (readFunc == null)
                 {
-                    Weaver.Error($"{syncVar} has unsupported type. Use a supported Mirror type instead");
+                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
                     return;
                 }
 
@@ -735,7 +735,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error($"{md} has invalid parameter {arg}.  Unsupported type {arg.ParameterType},  use a supported Mirror type instead");
+                    Weaver.Error($"{md.Name} has invalid parameter {arg}.  Unsupported type {arg.ParameterType},  use a supported Mirror type instead", md);
                     return false;
                 }
             }
@@ -752,17 +752,17 @@ namespace Mirror.Weaver
         {
             if (md.ReturnType.FullName == Weaver.IEnumeratorType.FullName)
             {
-                Weaver.Error($"{md} cannot be a coroutine");
+                Weaver.Error($"{md.Name} cannot be a coroutine", md);
                 return false;
             }
             if (md.ReturnType.FullName != Weaver.voidType.FullName)
             {
-                Weaver.Error($"{md} cannot return a value.  Make it void instead");
+                Weaver.Error($"{md.Name} cannot return a value.  Make it void instead", md);
                 return false;
             }
             if (md.HasGenericParameters)
             {
-                Weaver.Error($"{md} cannot have generic parameters");
+                Weaver.Error($"{md.Name} cannot have generic parameters", md);
                 return false;
             }
             return true;
@@ -775,19 +775,19 @@ namespace Mirror.Weaver
                 ParameterDefinition p = md.Parameters[i];
                 if (p.IsOut)
                 {
-                    Weaver.Error($"{md} cannot have out parameters");
+                    Weaver.Error($"{md.Name} cannot have out parameters", md);
                     return false;
                 }
                 if (p.IsOptional)
                 {
-                    Weaver.Error($"{md} cannot have optional parameters");
+                    Weaver.Error($"{md.Name} cannot have optional parameters", md);
                     return false;
                 }
                 // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
                 if (p.ParameterType.FullName == Weaver.NetworkConnectionType.FullName &&
                     !(ca.AttributeType.FullName == Weaver.TargetRpcType.FullName && i == 0))
                 {
-                    Weaver.Error($"{md} has invalid parameer {p}. Cannot pass NeworkConnections");
+                    Weaver.Error($"{md.Name} has invalid parameer {p}. Cannot pass NeworkConnections", md);
                     return false;
                 }
             }
@@ -835,7 +835,7 @@ namespace Mirror.Weaver
 
             if (names.Contains(md.Name))
             {
-                Weaver.Error("Duplicate ClientRpc name [" + netBehaviourSubclass.FullName + ":" + md.Name + "]");
+                Weaver.Error($"Duplicate ClientRpc name {md.Name}", md);
                 return;
             }
             names.Add(md.Name);
@@ -857,7 +857,7 @@ namespace Mirror.Weaver
 
             if (names.Contains(md.Name))
             {
-                Weaver.Error("Duplicate Target Rpc name [" + netBehaviourSubclass.FullName + ":" + md.Name + "]");
+                Weaver.Error($"Duplicate Target Rpc name {md.Name}", md);
                 return;
             }
             names.Add(md.Name);
@@ -879,7 +879,7 @@ namespace Mirror.Weaver
 
             if (names.Contains(md.Name))
             {
-                Weaver.Error("Duplicate Command name [" + netBehaviourSubclass.FullName + ":" + md.Name + "]");
+                Weaver.Error($"Duplicate Command name {md.Name}", md);
                 return;
             }
 

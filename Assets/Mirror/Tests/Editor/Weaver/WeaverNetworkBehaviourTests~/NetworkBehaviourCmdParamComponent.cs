@@ -2,9 +2,9 @@ using System;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourCmdParamComponent : NetworkBehaviour
     {
         public class ComponentClass : UnityEngine.Component
         {

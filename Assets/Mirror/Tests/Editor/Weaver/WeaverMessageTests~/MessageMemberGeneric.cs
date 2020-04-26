@@ -3,11 +3,11 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverMessageTests.MessageMemberGeneric
 {
     class HasGeneric<T> {}
 
-    class PrefabClone : MessageBase
+    class MessageMemberGeneric : MessageBase
     {
         public uint netId;
         public Guid assetId;

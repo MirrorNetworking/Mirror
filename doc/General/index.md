@@ -39,7 +39,7 @@ One of the aims of the multiplayer system is for the code for local clients and 
 
 ## Instantiate and Spawn
 
-When you make a single player game In Mirror, you usually use the `GameObject.Instantiate` method to create new game objects at runtime. However, with a multiplayer system, the server itself must “spawn” game objects in order for them to be active within the networked game. When the server spawns game objects, it triggers the creation of game objects on connected clients. The spawning system manages the lifecycle of the game object, and synchronizes the state of the game object based on how you set the game object up.
+When you make a single player game In Unity, you usually use the `GameObject.Instantiate` method to create new game objects at runtime. However, with a multiplayer system, the server itself must “spawn” game objects in order for them to be active within the networked game. When the server spawns game objects, it triggers the creation of game objects on connected clients. The spawning system manages the lifecycle of the game object, and synchronizes the state of the game object based on how you set the game object up.
 
 For more details about networked instantiating and spawning, see documentation on Spawning [game objects](../Guides/GameObjects/index.md).
 

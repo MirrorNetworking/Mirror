@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverTargetRpcTests.TargetRpcNetworkConnectionMissing
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class TargetRpcNetworkConnectionMissing : NetworkBehaviour
     {
         [TargetRpc]
         void TargetRpcMethod() {}

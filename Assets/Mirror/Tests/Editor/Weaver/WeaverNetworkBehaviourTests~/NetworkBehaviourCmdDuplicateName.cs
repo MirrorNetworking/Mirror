@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourCmdDuplicateName : NetworkBehaviour
     {
         [Command]
         public void CmdCantHaveSameName(int abc) {}

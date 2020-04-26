@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverMonoBehaviourTests.MonoBehaviourSyncList
 {
-    class MirrorTestPlayer : MonoBehaviour
+    class MonoBehaviourSyncList : MonoBehaviour
     {
         SyncListInt potato;
     }

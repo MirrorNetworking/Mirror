@@ -1,9 +1,9 @@
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourGeneric
 {
-    class MirrorTestPlayer<T> : NetworkBehaviour
+    class NetworkBehaviourGeneric<T> : NetworkBehaviour
     {
         T genericsNotAllowed;
     }

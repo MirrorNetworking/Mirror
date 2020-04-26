@@ -191,17 +191,17 @@ public override void OnServerAddPlayer(NetworkConnection conn, short playerContr
 }
 ```
 
-In your newly Mirror-capable NetworkManager, if you are using the `OnServerAddPlayer` override, remove the "playerControllerId" parameter from your override and the base call, and change the `NetworkReader` into `AddPlayerMessage`:
+In your newly Mirror-capable NetworkManager, if you are using the `OnServerAddPlayer` override, remove the "playerControllerId" and "extraMessageReader" parameters from your override and the base call:
 
 ```cs
-public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
+public override void OnServerAddPlayer(NetworkConnection conn)
 {
-    base.OnServerAddPlayer(conn, extraMessage);
+    base.OnServerAddPlayer(conn);
     // your code
 }
 ```
 
-Note that in UNet the parameter "extraMessageReader" is optional, but in Mirror it is required.
+See [Custom Player Spawn Guide](../Guides/GameObjects/SpawnPlayerCustom.md) for details on how to submit custom characters now.
 
 ### 11. Pick your transport
 

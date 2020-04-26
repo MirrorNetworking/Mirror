@@ -1,8 +1,8 @@
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamNetworkConnection
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourTargetRpcParamNetworkConnection : NetworkBehaviour
     {
         [TargetRpc]
         public void TargetRpcCantHaveParamOptional(NetworkConnection monkeyCon) {}

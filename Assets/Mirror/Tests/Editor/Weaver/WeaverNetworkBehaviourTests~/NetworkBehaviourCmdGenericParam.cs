@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdGenericParam
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourCmdGenericParam : NetworkBehaviour
     {
         [Command]
         public void CmdCantHaveGeneric<T>() {}

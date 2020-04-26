@@ -2,9 +2,9 @@ using System;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverGeneralTests.RecursionCount
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class RecursionCount : NetworkBehaviour
     {
         public class Potato0
         {

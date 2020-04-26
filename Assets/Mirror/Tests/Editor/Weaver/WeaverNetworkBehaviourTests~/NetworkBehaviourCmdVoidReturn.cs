@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdVoidReturn
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourCmdVoidReturn : NetworkBehaviour
     {
         [Command]
         public int CmdCantHaveNonVoidReturn()

@@ -1,8 +1,7 @@
-﻿using Mirror;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Runtime
 {
     public class NetworkIdentityTests
     {

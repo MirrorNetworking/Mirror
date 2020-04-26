@@ -2,9 +2,9 @@ using System;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOptional
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourCmdParamOptional : NetworkBehaviour
     {
         [Command]
         public void CmdCantHaveParamOptional(int monkeys = 12) {}

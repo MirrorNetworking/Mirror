@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverTargetRpcTests.SyncEventParamGeneric
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncEventParamGeneric : NetworkBehaviour
     {
         public delegate void MySyncEventDelegate<T>(T amount, float dir);
 

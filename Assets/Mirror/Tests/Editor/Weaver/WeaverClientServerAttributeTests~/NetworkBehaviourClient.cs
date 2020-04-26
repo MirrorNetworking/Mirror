@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverClientServerAttributeTests.NetworkBehaviourClient
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourClient : NetworkBehaviour
     {
         [Client]
         void ClientOnlyMethod() 

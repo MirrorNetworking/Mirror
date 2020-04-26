@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcCoroutine
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourTargetRpcCoroutine : NetworkBehaviour
     {
         [TargetRpc]
         public IEnumerator TargetRpcCantHaveCoroutine()

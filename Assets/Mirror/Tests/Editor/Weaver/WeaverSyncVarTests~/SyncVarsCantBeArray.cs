@@ -2,9 +2,9 @@ using UnityEngine;
 using Mirror;
 using System.Collections.Generic;
 
-namespace MirrorTest
+namespace WeaverSyncVarTests.SyncVarsCantBeArray
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncVarsCantBeArray : NetworkBehaviour
     {
         [SyncVar]
         int health;

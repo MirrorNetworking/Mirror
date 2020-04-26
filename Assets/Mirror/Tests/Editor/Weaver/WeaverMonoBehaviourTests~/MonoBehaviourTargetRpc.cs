@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverMonoBehaviourTests.MonoBehaviourTargetRpc
 {
-    class MirrorTestPlayer : MonoBehaviour
+    class MonoBehaviourTargetRpc : MonoBehaviour
     {
         [TargetRpc]
         void TargetThisCantBeOutsideNetworkBehaviour(NetworkConnection nc) {}

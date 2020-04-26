@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverClientRpcTests.ClientRpcCantBeStatic
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class ClientRpcCantBeStatic : NetworkBehaviour
     {
         [ClientRpc]
         static void RpcCantBeStatic() {}

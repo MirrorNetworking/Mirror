@@ -7,14 +7,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void RecursionCount()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/Potato1 can't be serialized because it references itself"));
+            Assert.That(weaverErrors, Contains.Item("Potato1 can't be serialized because it references itself (at WeaverGeneralTests.RecursionCount.RecursionCount/Potato1)"));
         }
+
         [Test]
         public void TestingScriptableObjectArraySerialization()
         {
-            UnityEngine.Debug.Log(string.Join("\n", weaverErrors));
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
         }
     }
 }

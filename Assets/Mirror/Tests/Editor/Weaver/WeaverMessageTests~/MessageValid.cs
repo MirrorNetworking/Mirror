@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverMessageTests.MessageValid
 {
-    class PrefabClone : MessageBase
+    class MessageValid : MessageBase
     {
         public uint netId;
         public Guid assetId;

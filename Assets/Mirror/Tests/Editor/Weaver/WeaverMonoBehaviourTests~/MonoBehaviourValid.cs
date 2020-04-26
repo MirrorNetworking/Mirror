@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverMonoBehaviourTests.MonoBehaviourValid
 {
-    class MirrorTestPlayer : MonoBehaviour
+    class MonoBehaviourValid : MonoBehaviour
     {
         int monkeys = 12;
     }

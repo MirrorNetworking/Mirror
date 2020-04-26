@@ -1,9 +1,9 @@
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncSetTests.SyncSet
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncSet : NetworkBehaviour
     {
         public SyncListInt Foo;
     }

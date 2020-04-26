@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverTargetRpcTests.TargetRpcValid
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class TargetRpcValid : NetworkBehaviour
     {
         [TargetRpc]
         void TargetThatIsTotallyValid(NetworkConnection nc) {}

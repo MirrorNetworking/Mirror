@@ -1,17 +1,18 @@
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListStruct
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncListStruct : NetworkBehaviour
     {
+        MyStructList Foo;
+        
         struct MyStruct
         {
             int potato;
             float floatingpotato;
             double givemetwopotatoes;
         }
-        class MyStructClass : SyncList<MyStruct> {};
-        MyStructClass Foo;
+        class MyStructList : SyncList<MyStruct> { }
     }
 }

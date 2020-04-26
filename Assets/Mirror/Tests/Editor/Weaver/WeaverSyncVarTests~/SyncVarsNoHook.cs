@@ -1,9 +1,9 @@
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncVarTests.SyncVarsNoHook
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncVarsNoHook : NetworkBehaviour
     {
         [SyncVar(hook = "OnChangeHealth")]
         int health;

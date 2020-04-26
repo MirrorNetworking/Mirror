@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverCommandTests.CommandValid
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class CommandValid : NetworkBehaviour
     {
         [Command]
         void CmdThatIsTotallyValid() {}

@@ -1,9 +1,9 @@
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListByteValid
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncListByteValid : NetworkBehaviour
     {
         class MyByteClass : SyncList<byte> {};
 
