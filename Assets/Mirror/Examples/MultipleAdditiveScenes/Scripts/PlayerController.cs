@@ -47,6 +47,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         public float vertical;
         public float turn;
         public float jumpSpeed;
+        public float jumpTime;
         public bool isGrounded = true;
         public bool isFalling;
         public Vector3 velocity;
@@ -70,13 +71,21 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 turn = Mathf.MoveTowards(turn, 0, turnSensitivity);
 
             if (isGrounded)
+            {
                 isFalling = false;
+                jumpTime = 0;
+            }
 
-            if ((isGrounded || !isFalling) && jumpSpeed < 1f && Input.GetKey(KeyCode.Space))
-                jumpSpeed = Mathf.Lerp(jumpSpeed, 1f, 0.5f);
+            if ((isGrounded || !isFalling) && jumpTime < 3f && Input.GetKey(KeyCode.Space))
+            {
+                jumpSpeed += .1f;
+                //jumpSpeed = Mathf.Lerp(jumpSpeed, 1f, 0.5f);
+                jumpTime += .1f;
+            }
             else if (!isGrounded)
             {
                 isFalling = true;
+                //jumpSpeed = Mathf.Lerp(jumpSpeed, 0f, 0.5f);
                 jumpSpeed = 0;
             }
         }
