@@ -4,15 +4,21 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 {
     public class PhysicsSimulator : MonoBehaviour
     {
-        public PhysicsScene physicsScene;
-        public PhysicsScene2D physicsScene2D;
+        PhysicsScene physicsScene;
+        PhysicsScene2D physicsScene2D;
+
+        bool simulatePhysicsScene;
+        bool simulatePhysicsScene2D;
 
         void Awake()
         {
             if (NetworkServer.active)
             {
                 physicsScene = gameObject.scene.GetPhysicsScene();
+                simulatePhysicsScene = physicsScene.IsValid() && physicsScene != Physics.defaultPhysicsScene;
+
                 physicsScene2D = gameObject.scene.GetPhysicsScene2D();
+                simulatePhysicsScene2D = physicsScene2D.IsValid() && physicsScene2D != Physics2D.defaultPhysicsScene;
             }
             else
             {
@@ -24,10 +30,10 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         {
             if (!NetworkServer.active) return;
 
-            if (physicsScene.IsValid() && physicsScene != Physics.defaultPhysicsScene)
+            if (simulatePhysicsScene)
                 physicsScene.Simulate(Time.fixedDeltaTime);
 
-            if (physicsScene2D.IsValid() && physicsScene2D != Physics2D.defaultPhysicsScene)
+            if (simulatePhysicsScene2D)
                 physicsScene2D.Simulate(Time.fixedDeltaTime);
         }
     }
