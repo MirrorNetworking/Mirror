@@ -38,8 +38,19 @@ namespace Mirror
 
         [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
 
+        /// <summary>
+        /// Event fires once the Client has connected its Server.
+        /// </summary>
         public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
+
+        /// <summary>
+        /// Event fires after the Client connection has sucessfully been authenticated with its Server.
+        /// </summary>
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
+
+        /// <summary>
+        /// Event fires after the Client has disconnected from its Server and Cleanup has been called.
+        /// </summary>
         public UnityEvent Disconnected = new UnityEvent();
 
         /// <summary>

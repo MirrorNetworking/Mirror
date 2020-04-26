@@ -40,8 +40,19 @@ namespace Mirror
         /// </summary>
         public UnityEvent Started = new UnityEvent();
 
+        /// <summary>
+        /// Event fires once a new Client has connect to the Server.
+        /// </summary>
         public NetworkConnectionEvent Connected = new NetworkConnectionEvent();
+
+        /// <summary>
+        /// Event fires once a new Client has passed Authentication to the Server.
+        /// </summary>
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
+
+        /// <summary>
+        /// Event fires once a Client has Disconnected from the Server.
+        /// </summary>
         public NetworkConnectionEvent Disconnected = new NetworkConnectionEvent();
 
         public UnityEvent Stopped = new UnityEvent();
@@ -408,7 +419,7 @@ namespace Mirror
             }
         }
 
-
+        //called once a client disconnects from the server
         void OnDisconnected(INetworkConnection connection)
         {
             if (logger.LogEnabled()) logger.Log("Server disconnect client:" + connection);
