@@ -11,29 +11,18 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourServer()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
-            CheckAddedCodeServer();
+            string networkServerGetActive = Weaver.NetworkBehaviourIsServer.ToString();
+            CheckAddedCode(networkServerGetActive, "MirrorTest.NetworkBehaviourServer", "ServerOnlyMethod");
+
         }
 
         [Test]
         public void NetworkBehaviourClient()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
-            CheckAddedCodeClient();
-        }
-
-        static void CheckAddedCodeServer()
-        {
-            string networkServerGetActive = Weaver.NetworkBehaviourIsServer.ToString();
-            CheckAddedCode(networkServerGetActive, "ServerOnlyMethod");
-        }
-
-        static void CheckAddedCodeClient()
-        {
             string networkClientGetActive = Weaver.NetworkBehaviourIsClient.ToString();
-            CheckAddedCode(networkClientGetActive, "ClientOnlyMethod");
+            CheckAddedCode(networkClientGetActive, "MirrorTest.NetworkBehaviourClient", "ClientOnlyMethod");
         }
 
         /// <summary>
@@ -41,10 +30,8 @@ namespace Mirror.Weaver.Tests
         /// </summary>
         /// <param name="addedString"></param>
         /// <param name="methodName"></param>
-        static void CheckAddedCode(string addedString, string methodName)
+        static void CheckAddedCode(string addedString, string className, string methodName)
         {
-            string className = "MirrorTest.MirrorTestPlayer";
-
             string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory,  WeaverAssembler.OutputFile);
             using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(assemblyName))
             {
@@ -53,12 +40,12 @@ namespace Mirror.Weaver.Tests
                 MethodBody body = method.Body;
 
                 Instruction top = body.Instructions[0];
-                Assert.AreEqual(top.OpCode, OpCodes.Ldarg_0);
+                Assert.That(top.OpCode, Is.EqualTo(OpCodes.Ldarg_0));
 
                 Instruction call = body.Instructions[1];
 
-                Assert.AreEqual(call.OpCode, OpCodes.Call);
-                Assert.AreEqual(call.Operand.ToString(), addedString);
+                Assert.That(call.OpCode, Is.EqualTo(OpCodes.Call));
+                Assert.That(call.Operand.ToString(), Is.EqualTo(addedString));
             }
         }
     }

@@ -5,13 +5,13 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class PrefabClone : MessageBase
+    class MessageSelfReferencing : MessageBase
     {
         public uint netId;
         public Guid assetId;
         public Vector3 position;
         public Quaternion rotation;
-        public PrefabClone selfReference = new PrefabClone();
+        public MessageSelfReferencing selfReference = new MessageSelfReferencing();
         public byte[] payload;
     }
 }

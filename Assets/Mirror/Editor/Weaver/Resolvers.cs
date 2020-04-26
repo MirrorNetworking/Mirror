@@ -14,7 +14,7 @@ namespace Mirror.Weaver
         {
             if (tr == null)
             {
-                Weaver.Error("Type missing for " + name);
+                Weaver.Error($"Cannot resolve method {name} without a class");
                 return null;
             }
             return ResolveMethod(tr, scriptDef, method => method.Name == name);
@@ -30,7 +30,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Weaver.Error($"Method not found");
+            Weaver.Error($"Method not found in type {t.Name}", t);
             return null;
         }
 
@@ -38,7 +38,7 @@ namespace Mirror.Weaver
         {
             if (tr == null)
             {
-                Weaver.Error("Type missing for " + name);
+                Weaver.Error($"Cannot resolve method {name} without a type");
                 return null;
             }
             foreach (MethodDefinition methodRef in tr.Resolve().Methods)
@@ -100,7 +100,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Weaver.Error($"{t}.{name}<{genericType}>() not found");
+            Weaver.Error($"Method {name} not found in {t.Name}", t);
             return null;
         }
 

@@ -8,7 +8,7 @@ using System.Collections;
 using UnityEngine.Events;
 using NSubstitute;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Runtime
 {
     public class NetworkIdentityTests
     {

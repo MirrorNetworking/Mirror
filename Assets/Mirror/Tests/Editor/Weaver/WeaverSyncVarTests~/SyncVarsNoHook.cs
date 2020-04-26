@@ -3,7 +3,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncVarsNoHook : NetworkBehaviour
     {
         [SyncVar(hook = "OnChangeHealth")]
         int health;

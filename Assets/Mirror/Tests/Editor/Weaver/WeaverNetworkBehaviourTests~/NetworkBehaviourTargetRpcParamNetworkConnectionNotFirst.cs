@@ -2,7 +2,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourTargetRpcParamNetworkConnectionNotFirst : NetworkBehaviour
     {
         [TargetRpc]
         public void TargetRpcCantHaveParamOptional(int abc, INetworkConnection monkeyCon) { }

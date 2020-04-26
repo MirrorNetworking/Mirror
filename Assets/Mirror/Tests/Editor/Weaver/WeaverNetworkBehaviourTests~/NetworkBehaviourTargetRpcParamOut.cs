@@ -4,7 +4,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourTargetRpcParamOut : NetworkBehaviour
     {
         [TargetRpc]
         public void TargetRpcCantHaveParamOut(INetworkConnection monkeyCon, out int monkeys)

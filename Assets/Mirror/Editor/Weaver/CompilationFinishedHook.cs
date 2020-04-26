@@ -45,7 +45,7 @@ namespace Mirror.Weaver
         }
 
         [InitializeOnLoadMethod]
-        static void OnInitializeOnLoad()
+        public static void OnInitializeOnLoad()
         {
             CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
 

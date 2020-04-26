@@ -9,7 +9,7 @@ using UnityEngine.TestTools;
 
 using static Mirror.Tests.AsyncUtil;
 
-namespace Mirror.Tests.Performance
+namespace Mirror.Tests.Performance.Runtime
 {
 
     class NetworkManagerTest : NetworkManager

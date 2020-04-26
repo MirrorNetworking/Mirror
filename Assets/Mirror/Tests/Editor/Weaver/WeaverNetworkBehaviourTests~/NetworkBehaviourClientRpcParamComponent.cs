@@ -4,7 +4,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class NetworkBehaviourClientRpcParamComponent : NetworkBehaviour
     {
         public class ComponentClass : UnityEngine.Component
         {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncVarsCantBeArray : NetworkBehaviour
     {
         [SyncVar]
         int health;
