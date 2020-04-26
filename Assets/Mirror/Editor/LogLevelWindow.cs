@@ -8,7 +8,7 @@ namespace Mirror
 {
     public class LogLevelWindow : EditorWindow
     {
-
+        #region GUI
         void OnGUI()
         {
             EditorGUILayout.BeginVertical();
@@ -35,15 +35,6 @@ namespace Mirror
             }
         }
 
-        private void SetLoggers(IEnumerable<LogSetting> savedLevels)
-        {
-            foreach (LogSetting setting in savedLevels)
-            {
-                ILogger logger = LogFactory.GetLogger(setting.logger);
-                logger.filterLogType = setting.logType;
-            }
-        }
-
         static void DrawLoggerField(string loggerName, ILogger logger)
         {
             logger.filterLogType = (LogType)EditorGUILayout.EnumPopup(new GUIContent(loggerName), logger.filterLogType);
@@ -56,7 +47,9 @@ namespace Mirror
             window.titleContent = new GUIContent("Mirror Log levels");
             window.Show();
         }
+        #endregion
 
+        #region Log settings persistence
         [Serializable]
         public struct LogSetting
         {
@@ -64,6 +57,14 @@ namespace Mirror
             public LogType logType;
         }
 
+        private void SetLoggers(IEnumerable<LogSetting> savedLevels)
+        {
+            foreach (LogSetting setting in savedLevels)
+            {
+                ILogger logger = LogFactory.GetLogger(setting.logger);
+                logger.filterLogType = setting.logType;
+            }
+        }
         private void LoadSavedLevels()
         {
             string levelsJson = EditorPrefs.GetString("LogLevels");
@@ -107,5 +108,7 @@ namespace Mirror
         {
             public T[] Items;
         }
+
+        #endregion
     }
 }
