@@ -57,6 +57,7 @@ namespace Mirror
             window.Show();
         }
 
+        [Serializable]
         public struct LogSetting
         {
             public string logger;
@@ -66,25 +67,45 @@ namespace Mirror
         private void LoadSavedLevels()
         {
             string levelsJson = EditorPrefs.GetString("LogLevels");
-            LogSetting[] settings =  JsonUtility.FromJson<LogSetting[]>(levelsJson);
+            LogSetting[] settings =  FromJson<LogSetting>(levelsJson);
             SetLoggers(settings ?? new LogSetting[] { });
         }
 
         private void SaveLevels()
         {
-            List<LogSetting> settings = new List<LogSetting>();
+            LogSetting[] settings = new LogSetting[LogFactory.loggers.Count()];
 
+            int i = 0;
             foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
             {
-                settings.Add(new LogSetting
+                settings[i++] = new LogSetting
                 {
                     logger = item.Key,
                     logType = item.Value.filterLogType
-                });
+                };
             }
 
-            string levelsJSon = JsonUtility.ToJson(settings);
+            string levelsJSon = ToJson(settings);
             EditorPrefs.SetString("LogLevels", levelsJSon);
+        }
+
+        public static T[] FromJson<T>(string json)
+        {
+            Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
+            return wrapper.Items;
+        }
+
+        public static string ToJson<T>(T[] array)
+        {
+            Wrapper<T> wrapper = new Wrapper<T>();
+            wrapper.Items = array;
+            return JsonUtility.ToJson(wrapper);
+        }
+
+        [Serializable]
+        private class Wrapper<T>
+        {
+            public T[] Items;
         }
     }
 }
