@@ -40,15 +40,15 @@ namespace Mirror.Weaver.Tests
         public static readonly UnityEngine.ILogger logger = LogFactory.GetLogger<BatchedWeaverTests>(LogType.Exception);
 
         // Results for tests that should compile with no errors
-        WeaverTestResults successTestsResults = new WeaverTestResults();
+        readonly WeaverTestResults successTestsResults = new WeaverTestResults();
         // Results for tests that should compile with weaver errors
-        WeaverTestResults errorTestsResults = new WeaverTestResults();
+        readonly WeaverTestResults errorTestsResults = new WeaverTestResults();
 
         // Results for currently running test
-        WeaverTestResults currentTestResults = new WeaverTestResults();
+        readonly WeaverTestResults currentTestResults = new WeaverTestResults();
 
-        string className => TestContext.CurrentContext.Test.ClassName.Split('.').Last();
-        string CurrentTest => TestContext.CurrentContext.Test.Name;
+        static string className => TestContext.CurrentContext.Test.ClassName.Split('.').Last();
+        static string CurrentTest => TestContext.CurrentContext.Test.Name;
 
 
         public void AssertHasError(string errorMessage)
@@ -189,7 +189,7 @@ namespace Mirror.Weaver.Tests
             WeaverAssembler.DeleteOutput();
         }
 
-        void BuildAndWeaveTestAssembly(string className, IEnumerable<string> testNames)
+        static void BuildAndWeaveTestAssembly(string className, IEnumerable<string> testNames)
         {
             string testSourceDirectory = className + "~";
             WeaverAssembler.OutputFile = Path.Combine(testSourceDirectory, className + ".dll");
