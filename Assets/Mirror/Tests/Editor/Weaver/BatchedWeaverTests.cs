@@ -51,13 +51,12 @@ namespace Mirror.Weaver.Tests
         string CurrentTest => TestContext.CurrentContext.Test.Name;
 
 
-        public void AssertThatWeaverErrorIs(bool value) => Assert.That(currentTestResults.weaverError, Is.EqualTo(value));
-        public void AssertErrorListHasMatch(string value)
+        public void AssertHasError(string errorMessage)
         {
             Assert.That(currentTestResults.weaverErrors,
-                Has.Some.Match(value),
+                Contains.Item(errorMessage),
                 "Expected: \n" +
-                value + "\n" +
+                errorMessage + "\n" +
                 "Error Messages: \n" +
                 string.Join("\n", currentTestResults.weaverErrors));
         }
