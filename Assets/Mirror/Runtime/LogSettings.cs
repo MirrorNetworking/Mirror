@@ -20,6 +20,11 @@ namespace Mirror
         // Start is called before the first frame update
         void Awake()
         {
+            SetLogLevels();
+        }
+
+        public void SetLogLevels()
+        {
             foreach (Level setting in Levels)
             {
                 var logger = LogFactory.GetLogger(setting.Name);

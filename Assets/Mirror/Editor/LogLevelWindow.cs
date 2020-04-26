@@ -9,20 +9,8 @@ namespace Mirror
     [CustomEditor(typeof(LogSettings), true)]
     public class LogSettingEditor : Editor
     {
-        void OnEnable()
-        {
-            // Setup the SerializedProperties.
-            EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
-        }
-
-        private void EditorApplication_playModeStateChanged(PlayModeStateChange state)
-        {
-            if (state == PlayModeStateChange.ExitingPlayMode)
-            {
-                SaveLevels();
-            }
-        }
-
+        private static Dictionary<string, LogType> levels = new Dictionary<string, LogType>();
+        
         #region GUI
         public override void OnInspectorGUI()
         {
@@ -36,112 +24,45 @@ namespace Mirror
             EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.BeginVertical(EditorStyles.inspectorDefaultMargins);
-            LoadSavedLevels();
+            SetLevels();
 
             foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
             {
-                DrawLoggerField(item.Key, item.Value);
+                DrawLoggerField(item.Key, item.Value);               
             }
             EditorGUILayout.EndVertical();
 
-            if (EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck() || !EditorApplication.isPlaying)
             {
                 SaveLevels();
             }
         }
 
-        static void DrawLoggerField(string loggerName, ILogger logger)
+        private void SetLevels()
+        {
+            foreach (var kvp in levels)
+            {
+                LogFactory.GetLogger(kvp.Key).filterLogType = kvp.Value;
+            }
+        }
+
+        void DrawLoggerField(string loggerName, ILogger logger)
         {
             logger.filterLogType = (LogType)EditorGUILayout.EnumPopup(new GUIContent(loggerName), logger.filterLogType);
+            levels[loggerName] = logger.filterLogType;
         }
 
         #endregion
 
         #region Log settings persistence
 
-        private void SetLoggers(IEnumerable<LogSettings.Level> savedLevels)
-        {
-            foreach (var setting in savedLevels)
-            {
-                if (setting.Name != null)
-                {
-                    ILogger logger = LogFactory.GetLogger(setting.Name);
-                    logger.filterLogType = setting.level;
-                }
-            }
-        }
-
-        private void LoadSavedLevels()
-        {
-            string levelsJson = EditorPrefs.GetString("LogLevels");
-            var settings = FromJson<LogSettings.Level>(levelsJson);
-            SetLoggers(settings ?? new LogSettings.Level[] { });
-        }
-
         private void SaveLevels()
         {
-            // save in EditorPrefs
-            SaveInEditorPrefs();
-            SaveInGameObject();
-        }
+            var settings = target as LogSettings;
 
-        private void SaveInGameObject()
-        {
-            LogSettings setting = target as LogSettings;
-
-            if (target == null)
-                return;
-
-            setting.Levels = new List<LogSettings.Level>();
-
-            foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
-            {
-                setting.Levels.Add(new LogSettings.Level
-                {
-                    Name = item.Key,
-                    level = item.Value.filterLogType
-                });
-            }
-
-            Undo.RecordObject(target, "Update log settings");
-        }
-
-
-        private static void SaveInEditorPrefs()
-        {
-            LogSettings.Level[] settings = new LogSettings.Level[LogFactory.loggers.Count];
-
-            int i = 0;
-            foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
-            {
-                settings[i++] = new LogSettings.Level
-                {
-                    Name = item.Key,
-                    level = item.Value.filterLogType
-                };
-            }
-
-            string levelsJSon = ToJson(settings);
-            EditorPrefs.SetString("LogLevels", levelsJSon);
-        }
-
-        public static T[] FromJson<T>(string json)
-        {
-            Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
-            return wrapper.Items;
-        }
-
-        public static string ToJson<T>(T[] array)
-        {
-            Wrapper<T> wrapper = new Wrapper<T>();
-            wrapper.Items = array;
-            return JsonUtility.ToJson(wrapper);
-        }
-
-        [Serializable]
-        private class Wrapper<T>
-        {
-            public T[] Items;
+            Undo.RecordObject(settings, "Update log settings");
+            settings.Levels = new List<LogSettings.Level>();
+            settings.Levels.AddRange(LogFactory.loggers.Select(kvp => new LogSettings.Level { Name = kvp.Key, level = kvp.Value.filterLogType }));
         }
 
         #endregion
