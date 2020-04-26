@@ -109,7 +109,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourClientRpcGenericParam()
         {
-=            Assert.That(weaverErrors, Contains.Item("RpcCantHaveGeneric cannot have generic parameters (at System.Void MirrorTest.NetworkBehaviourClientRpcGenericParam::RpcCantHaveGeneric())"));
+            Assert.That(weaverErrors, Contains.Item("RpcCantHaveGeneric cannot have generic parameters (at System.Void MirrorTest.NetworkBehaviourClientRpcGenericParam::RpcCantHaveGeneric())"));
         }
 
         [Test]
