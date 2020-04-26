@@ -19,7 +19,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error($"Could not find generic arguments for {Weaver.SyncDictionaryType} using {td}");
+                Weaver.Error($"Could not find generic arguments for SyncDictionary in {td.Name}", td);
                 return;
             }
 
@@ -29,7 +29,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error($"Could not find generic arguments for {Weaver.SyncDictionaryType} using {td}");
+                Weaver.Error($"Could not find generic arguments for SyncDictionary in {td.Name}", td);
             }
         }
     }
