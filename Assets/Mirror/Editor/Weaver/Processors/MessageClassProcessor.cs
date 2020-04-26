@@ -91,7 +91,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void CallWriter(ILProcessor serWorker, FieldDefinition field)
+        static void CallWriter(ILProcessor serWorker, FieldDefinition field)
         {
             MethodReference writeFunc = Writers.GetWriteFunc(field.FieldType);
             if (writeFunc != null)
@@ -107,7 +107,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void CallBase(TypeDefinition td, ILProcessor serWorker, string name)
+        static void CallBase(TypeDefinition td, ILProcessor serWorker, string name)
         {
             MethodReference method = Resolvers.ResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, name);
             if (method != null)
@@ -172,7 +172,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void CallReader(ILProcessor serWorker, FieldDefinition field)
+        static void CallReader(ILProcessor serWorker, FieldDefinition field)
         {
             MethodReference readerFunc = Readers.GetReadFunc(field.FieldType);
             if (readerFunc != null)

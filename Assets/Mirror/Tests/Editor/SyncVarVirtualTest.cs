@@ -47,10 +47,10 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncVarVirtualTest
     {
-        private SyncVarHookTester serverTester;
-        private NetworkIdentity netIdServer;
-        private SyncVarHookTester clientTester;
-        private NetworkIdentity netIdClient;
+        SyncVarHookTester serverTester;
+        NetworkIdentity netIdServer;
+        SyncVarHookTester clientTester;
+        NetworkIdentity netIdClient;
 
         [SetUp]
         public void Setup()
@@ -71,7 +71,7 @@ namespace Mirror.Tests
             SyncValuesWithClient();
         }
 
-        private void SyncValuesWithClient()
+        void SyncValuesWithClient()
         {
             // serialize all the data as we would for the network
             NetworkWriter ownerWriter = new NetworkWriter();

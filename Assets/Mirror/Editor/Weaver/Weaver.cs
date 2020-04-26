@@ -526,7 +526,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        private static bool WeaveModule(ModuleDefinition moduleDefinition)
+        static bool WeaveModule(ModuleDefinition moduleDefinition)
         {
             try
             {

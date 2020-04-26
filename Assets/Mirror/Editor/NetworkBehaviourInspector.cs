@@ -107,8 +107,8 @@ namespace Mirror
     }
     public class SyncListDrawer
     {
-        private readonly UnityEngine.Object targetObject;
-        private readonly List<SyncListField> syncListFields;
+        readonly UnityEngine.Object targetObject;
+        readonly List<SyncListField> syncListFields;
 
         public SyncListDrawer(UnityEngine.Object targetObject)
         {

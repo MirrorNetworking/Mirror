@@ -26,7 +26,7 @@ namespace Mirror.Weaver
             return GetHookMethod(td, syncVar, hookFunctionName);
         }
 
-        private static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName)
+        static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName)
         {
             MethodDefinition m = td.GetMethod(hookFunctionName);
             if (m != null)
