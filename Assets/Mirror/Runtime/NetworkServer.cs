@@ -268,12 +268,14 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to all connected clients, both ready and not-ready.</para>
+        /// <para>See <see cref="NetworkConnection.isReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
+        /// <param name="sendToReadyOnly">Indicates if only ready clients should receive the message</param>
         /// <returns></returns>
-        public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable, bool sendToReadyOnly = false) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
 
@@ -291,6 +293,9 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
                 {
+                    if (sendToReadyOnly && !kvp.Value.isReady)
+                        continue;
+
                     // use local connection directly because it doesn't send via transport
                     if (kvp.Value is ULocalConnectionToClient)
                         result &= kvp.Value.Send(segment);
@@ -309,6 +314,19 @@ namespace Mirror
 
                 return result;
             }
+        }
+
+        /// <summary>
+        /// Send a message to only clients which are ready.
+        /// <para>See <see cref="NetworkConnection.isReady"/></para>
+        /// </summary>
+        /// <typeparam name="T">Message type.</typeparam>
+        /// <param name="msg">Message</param>
+        /// <param name="channelId">Transport channel to use</param>
+        /// <returns></returns>
+        public static bool SendToReady<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        {
+            return SendToAll(msg, channelId, true);
         }
 
         /// <summary>
