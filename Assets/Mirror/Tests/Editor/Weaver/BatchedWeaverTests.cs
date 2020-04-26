@@ -115,6 +115,8 @@ namespace Mirror.Weaver.Tests
                 {
                     currentTestResults.CopyFrom(successTestsResults);
                 }
+
+                Assert.That(currentTestResults.weaverError, Is.False, "Success test should not have weaver error");
             }
             else
             {
@@ -128,8 +130,7 @@ namespace Mirror.Weaver.Tests
                     currentTestResults.CopyFrom(errorTestsResults);
                 }
 
-                // should have weaver error
-                Assert.That(currentTestResults.weaverError, Is.True);
+                Assert.That(currentTestResults.weaverError, Is.True, "Error check test should have weaver error");
             }
 
 
