@@ -43,38 +43,38 @@ namespace Mirror.Weaver
             TypeDefinition td = variable.Resolve();
             if (td == null)
             {
-                Weaver.Error($"{variable} is not a supported type");
+                Weaver.Error($"{variable.Name} is not a supported type", variable);
                 return null;
             }
             if (td.IsDerivedFrom(Weaver.ComponentType))
             {
-                Weaver.Error($"Cannot generate reader for component type {variable}. Use a supported type or provide a custom reader");
+                Weaver.Error($"Cannot generate reader for component type {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
             }
             if (variable.FullName == Weaver.ObjectType.FullName)
             {
-                Weaver.Error($"Cannot generate reader for {variable}. Use a supported type or provide a custom reader");
+                Weaver.Error($"Cannot generate reader for {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
             }
             if (variable.FullName == Weaver.ScriptableObjectType.FullName)
             {
-                Weaver.Error($"Cannot generate reader for {variable}. Use a supported type or provide a custom reader");
+                Weaver.Error($"Cannot generate reader for {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
             }
             if (variable.IsByReference)
             {
                 // error??
-                Weaver.Error($"Cannot pass type {variable} by reference");
+                Weaver.Error($"Cannot pass type {variable.Name} by reference", variable);
                 return null;
             }
             if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
             {
-                Weaver.Error($"Cannot generate reader for generic variable {variable}. Use a supported type or provide a custom reader");
+                Weaver.Error($"Cannot generate reader for generic variable {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
             }
             if (td.IsInterface)
             {
-                Weaver.Error($"Cannot generate reader for interface {variable}. Use a supported type or provide a custom reader");
+                Weaver.Error($"Cannot generate reader for interface {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
             }
 
@@ -93,7 +93,7 @@ namespace Mirror.Weaver
 
             if (newReaderFunc == null)
             {
-                Weaver.Error($"{variable} is not a supported type");
+                Weaver.Error($"{variable.Name} is not a supported type", variable);
                 return null;
             }
             RegisterReadFunc(variable.FullName, newReaderFunc);
@@ -109,11 +109,11 @@ namespace Mirror.Weaver
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
-        static MethodDefinition GenerateArrayReadFunc(TypeReference variable, int recursionCount)
+        static MethodDefinition GenerateArrayReadFunc( TypeReference variable, int recursionCount)
         {
             if (!variable.IsArrayType())
             {
-                Weaver.Error($"{variable} is an unsupported type. Jagged and multidimensional arrays are not supported");
+                Weaver.Error($"{variable.Name} is an unsupported type. Jagged and multidimensional arrays are not supported", variable);
                 return null;
             }
 
@@ -300,7 +300,7 @@ namespace Mirror.Weaver
         {
             if (recursionCount > MaxRecursionCount)
             {
-                Weaver.Error($"{variable} can't be deserialized because it references itself");
+                Weaver.Error($"{variable.Name} can't be deserialized because it references itself", variable);
                 return null;
             }
 
@@ -362,7 +362,7 @@ namespace Mirror.Weaver
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
-                    Weaver.Error($"{variable} can't be deserialized because it has no default constructor");
+                    Weaver.Error($"{variable.Name} can't be deserialized because it has no default constructor", variable);
                     return;
                 }
 
@@ -396,7 +396,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error($"{field} has an unsupported type");
+                    Weaver.Error($"{field.Name} has an unsupported type", field);
                 }
                 FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
 

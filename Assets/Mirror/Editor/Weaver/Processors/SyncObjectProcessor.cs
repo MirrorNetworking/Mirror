@@ -42,7 +42,7 @@ namespace Mirror.Weaver
             // we need to check if user has made custom function above
             if (itemType.IsGenericInstance)
             {
-                Weaver.Error($"{td} Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use {itemType} in SyncList");
+                Weaver.Error($"Can not create Serialize or Deserialize for generic element in {td.Name}. Override virtual methods with custom Serialize and Deserialize to use {itemType} in SyncList", td);
                 return false;
             }
 
@@ -65,7 +65,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error($"{td} cannot have item of type {itemType}.  Use a type supported by mirror instead");
+                Weaver.Error($"{td.Name} has sync object generic type {itemType.Name}.  Use a type supported by mirror instead", td);
                 return false;
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
@@ -85,7 +85,7 @@ namespace Mirror.Weaver
             // we need to check if user has made custom function above
             if (itemType.IsGenericInstance)
             {
-                Weaver.Error($"{td} Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use {itemType} in SyncList");
+                Weaver.Error($"Can not create Serialize or Deserialize for generic element in {td.Name}. Override virtual methods with custom Serialize and Deserialize to use {itemType.Name} in SyncList", td);
                 return false;
             }
 
@@ -108,7 +108,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error($"{td} cannot have item of type {itemType}.  Use a type supported by mirror instead");
+                Weaver.Error($"{td.Name} has sync object generic type {itemType.Name}.  Use a type supported by mirror instead", td);
                 return false;
             }
 

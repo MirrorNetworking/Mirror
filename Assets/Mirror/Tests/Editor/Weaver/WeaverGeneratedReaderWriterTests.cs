@@ -43,7 +43,7 @@ namespace Mirror.Weaver.Tests
         public void GivesErrorForClassWithNoValidConstructor()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Has.Some.Match(@"Mirror\.Weaver error: MirrorTest\.SomeOtherData can't be deserialized because it has no default constructor"));
+            Assert.That(weaverErrors, Contains.Item("SomeOtherData can't be deserialized because it has no default constructor (at MirrorTest.SomeOtherData)"));
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace Mirror.Weaver.Tests
         public void GivesErrorWhenUsingUnityAsset()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Has.Some.Match(@"Mirror\.Weaver error: UnityEngine\.Material can't be deserialized because it has no default constructor"));
+            Assert.That(weaverErrors, Contains.Item("Material can't be deserialized because it has no default constructor (at UnityEngine.Material)"));
         }
 
         [Test]
@@ -94,8 +94,8 @@ namespace Mirror.Weaver.Tests
             // TODO: decide if we want to block sending of Object
             // would only want to be send as an arg as a base type for an Inherited object
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate writer for UnityEngine\.Object\. Use a supported type or provide a custom writer"));
-            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate reader for UnityEngine\.Object\. Use a supported type or provide a custom reader"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for Object. Use a supported type or provide a custom writer (at UnityEngine.Object)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for Object. Use a supported type or provide a custom reader (at UnityEngine.Object)"));
         }
 
         [Test]
@@ -104,24 +104,24 @@ namespace Mirror.Weaver.Tests
             // TODO: decide if we want to block sending of ScripableObject
             // would only want to be send as an arg as a base type for an Inherited object
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate writer for UnityEngine\.ScriptableObject\. Use a supported type or provide a custom writer"));
-            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate reader for UnityEngine\.ScriptableObject\. Use a supported type or provide a custom reader"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for ScriptableObject. Use a supported type or provide a custom writer (at UnityEngine.ScriptableObject)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for ScriptableObject. Use a supported type or provide a custom reader (at UnityEngine.ScriptableObject)"));
         }
 
         [Test]
         public void GivesErrorWhenUsingMonoBehaviour()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate writer for component type UnityEngine\.MonoBehaviour\. Use a supported type or provide a custom writer"));
-            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate reader for component type UnityEngine\.MonoBehaviour\. Use a supported type or provide a custom reader"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MonoBehaviour. Use a supported type or provide a custom writer (at UnityEngine.MonoBehaviour)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for component type MonoBehaviour. Use a supported type or provide a custom reader (at UnityEngine.MonoBehaviour)"));
         }
 
         [Test]
         public void GivesErrorWhenUsingTypeInheritedFromMonoBehaviour()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate writer for component type MirrorTest\.MyBehaviour\. Use a supported type or provide a custom writer"));
-            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate reader for component type MirrorTest\.MyBehaviour\. Use a supported type or provide a custom reader"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MyBehaviour. Use a supported type or provide a custom writer (at MirrorTest.MyBehaviour)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for component type MyBehaviour. Use a supported type or provide a custom reader (at MirrorTest.MyBehaviour)"));
         }
 
         [Test]
@@ -136,12 +136,19 @@ namespace Mirror.Weaver.Tests
         public void GivesErrorWhenUsingInterface()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate writer for interface MirrorTest\.IData\. Use a supported type or provide a custom writer"));
-            Assert.That(weaverErrors, Has.Some.Match(@"Cannot generate reader for interface MirrorTest\.IData\. Use a supported type or provide a custom reader"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for interface IData. Use a supported type or provide a custom writer (at MirrorTest.IData)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for interface IData. Use a supported type or provide a custom reader (at MirrorTest.IData)"));
         }
 
         [Test]
         public void CanUseCustomReadWriteForInterfaces()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void CreatesForEnums()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);

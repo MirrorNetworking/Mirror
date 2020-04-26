@@ -15,14 +15,14 @@ namespace Mirror.Weaver.Tests
         public void TargetRpcStartsWithTarget()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.TargetRpcStartsWithTarget::DoesntStartWithTarget(Mirror.NetworkConnection) must start with Target.  Consider renaming it to TargetDoesntStartWithTarget"));
+            Assert.That(weaverErrors, Contains.Item("DoesntStartWithTarget must start with Target.  Consider renaming it to TargetDoesntStartWithTarget (at System.Void MirrorTest.TargetRpcStartsWithTarget::DoesntStartWithTarget(Mirror.NetworkConnection))"));
         }
 
         [Test]
         public void TargetRpcCantBeStatic()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.TargetRpcCantBeStatic::TargetCantBeStatic(Mirror.NetworkConnection) must not be static"));
+            Assert.That(weaverErrors, Contains.Item("TargetCantBeStatic must not be static (at System.Void MirrorTest.TargetRpcCantBeStatic::TargetCantBeStatic(Mirror.NetworkConnection))"));
         }
 
         [Test]
@@ -36,13 +36,14 @@ namespace Mirror.Weaver.Tests
         public void SyncEventStartsWithEvent()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.SyncEventStartsWithEvent/MySyncEventDelegate MirrorTest.SyncEventStartsWithEvent::DoCoolThingsWithExcitingPeople must start with Event.  Consider renaming it to EventDoCoolThingsWithExcitingPeople"));
+            Assert.That(weaverErrors, Contains.Item("DoCoolThingsWithExcitingPeople must start with Event.  Consider renaming it to EventDoCoolThingsWithExcitingPeople (at MirrorTest.SyncEventStartsWithEvent/MySyncEventDelegate MirrorTest.SyncEventStartsWithEvent::DoCoolThingsWithExcitingPeople)"));
         }
 
         [Test]
         public void SyncEventParamGeneric()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.SyncEventParamGeneric/MySyncEventDelegate`1<System.Int32> MirrorTest.SyncEventParamGeneric::EventDoCoolThingsWithExcitingPeople must not have generic parameters.  Consider creating a new class that inherits from MirrorTest.SyncEventParamGeneric/MySyncEventDelegate`1<System.Int32> instead"));        }
+            Assert.That(weaverErrors, Contains.Item("EventDoCoolThingsWithExcitingPeople must not have generic parameters.  Consider creating a new class that inherits from MirrorTest.SyncEventParamGeneric/MySyncEventDelegate`1<System.Int32> instead (at MirrorTest.SyncEventParamGeneric/MySyncEventDelegate`1<System.Int32> MirrorTest.SyncEventParamGeneric::EventDoCoolThingsWithExcitingPeople)"));
+        }
     }
 }

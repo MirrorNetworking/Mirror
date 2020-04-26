@@ -150,6 +150,17 @@ namespace Mirror.Weaver
             WeavingFailed = true;
         }
 
+        public static void Error(string message, MemberReference mr)
+        {    
+            Log.Error($"{message} (at {mr})");
+            WeavingFailed = true;
+        }
+
+        public static void Warning(string message, MemberReference mr)
+        {
+            Log.Warning($"{message} (at {mr})");
+        }
+
         public static int GetSyncVarStart(string className)
         {
             return WeaveLists.numSyncVars.ContainsKey(className)
