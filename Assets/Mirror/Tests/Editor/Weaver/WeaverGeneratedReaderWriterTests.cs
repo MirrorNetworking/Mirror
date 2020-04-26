@@ -39,7 +39,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorForClassWithNoValidConstructor()
         {
-            Assert.That(weaverErrors, Contains.Item("SomeOtherData can't be deserialized because it has no default constructor (at MirrorTest.SomeOtherData)"));
+            Assert.That(weaverErrors, Contains.Item("SomeOtherData can't be deserialized because it has no default constructor (at GeneratedReaderWriter.GivesErrorForClassWithNoValidConstructor.SomeOtherData)"));
         }
 
         [Test]
@@ -106,8 +106,8 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorWhenUsingTypeInheritedFromMonoBehaviour()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MyBehaviour. Use a supported type or provide a custom writer (at MirrorTest.MyBehaviour)"));
-            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for component type MyBehaviour. Use a supported type or provide a custom reader (at MirrorTest.MyBehaviour)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MyBehaviour. Use a supported type or provide a custom writer (at GeneratedReaderWriter.GivesErrorWhenUsingTypeInheritedFromMonoBehaviour.MyBehaviour)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for component type MyBehaviour. Use a supported type or provide a custom reader (at GeneratedReaderWriter.GivesErrorWhenUsingTypeInheritedFromMonoBehaviour.MyBehaviour)"));
         }
 
         [Test]
@@ -120,8 +120,8 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorWhenUsingInterface()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for interface IData. Use a supported type or provide a custom writer (at MirrorTest.IData)"));
-            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for interface IData. Use a supported type or provide a custom reader (at MirrorTest.IData)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for interface IData. Use a supported type or provide a custom writer (at GeneratedReaderWriter.GivesErrorWhenUsingInterface.IData)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for interface IData. Use a supported type or provide a custom reader (at GeneratedReaderWriter.GivesErrorWhenUsingInterface.IData)"));
         }
 
         [Test]
