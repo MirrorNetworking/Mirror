@@ -14,7 +14,6 @@ namespace Mirror.Weaver.Tests
             string className = TestContext.CurrentContext.Test.ClassName.Split('.').Last();
 
             BuildAndWeaveTestAssembly(className, TestContext.CurrentContext.Test.Name);
-
         }
     }
     [TestFixture]
