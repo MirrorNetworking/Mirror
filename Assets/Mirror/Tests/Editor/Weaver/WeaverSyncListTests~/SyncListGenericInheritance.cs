@@ -1,6 +1,6 @@
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListGenericInheritance
 {
     class SyncListGenericInheritance : NetworkBehaviour
     {

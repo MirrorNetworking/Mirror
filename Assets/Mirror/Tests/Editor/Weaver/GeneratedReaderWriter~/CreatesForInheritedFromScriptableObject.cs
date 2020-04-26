@@ -2,7 +2,7 @@ using Mirror;
 using Mirror.Weaver.Tests.Extra;
 using UnityEngine;
 
-namespace MirrorTest
+namespace GeneratedReaderWriter.CreatesForInheritedFromScriptableObject
 {
     public class CreatesForInheritedFromScriptableObject : NetworkBehaviour
     {

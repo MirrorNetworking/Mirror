@@ -1,7 +1,7 @@
 using Mirror;
 using UnityEngine;
 
-namespace MirrorTest
+namespace GeneratedReaderWriter.GivesErrorWhenUsingInterface
 {
     public class GivesErrorWhenUsingInterface : NetworkBehaviour
     {

@@ -14,7 +14,7 @@ namespace Mirror.Weaver.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
             string networkServerGetActive = Weaver.NetworkServerGetActive.ToString();
-            CheckAddedCode(networkServerGetActive, "MirrorTest.NetworkBehaviourServer", "ServerOnlyMethod");
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
 
         }
 
@@ -24,7 +24,7 @@ namespace Mirror.Weaver.Tests
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
             string networkClientGetActive = Weaver.NetworkClientGetActive.ToString();
-            CheckAddedCode(networkClientGetActive, "MirrorTest.NetworkBehaviourClient", "ClientOnlyMethod");
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
         }
 
         /// <summary>

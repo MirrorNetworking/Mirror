@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName
 {
     class NetworkBehaviourCmdDuplicateName : NetworkBehaviour
     {

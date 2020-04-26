@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverMonoBehaviourTests.MonoBehaviourClientCallback
 {
     class MonoBehaviourClientCallback : MonoBehaviour
     {

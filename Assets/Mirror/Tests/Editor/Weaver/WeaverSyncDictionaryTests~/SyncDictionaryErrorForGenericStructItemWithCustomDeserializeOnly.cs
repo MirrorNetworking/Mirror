@@ -1,6 +1,6 @@
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncDictionaryTests.SyncDictionaryErrorForGenericStructItemWithCustomDeserializeOnly
 {
     class SyncDictionaryErrorForGenericStructItemWithCustomDeserializeOnly : NetworkBehaviour
     {
