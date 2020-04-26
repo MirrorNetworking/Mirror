@@ -1,6 +1,6 @@
 using Mirror;
 
-namespace MirrorTest
+namespace Mirror.Weaver.Tests.SyncListErrorForGenericStructWithCustomDeserializeOnly
 {
     class SyncListErrorForGenericStructWithCustomDeserializeOnly : NetworkBehaviour
     {

@@ -1,7 +1,7 @@
 using Mirror;
 using Mirror.Weaver.Tests.Extra;
 
-namespace MirrorTest
+namespace Mirror.Weaver.Tests.GivesErrorForClassWithNoValidConstructor
 {
     public class GivesErrorForClassWithNoValidConstructor : NetworkBehaviour
     {

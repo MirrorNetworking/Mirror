@@ -1,7 +1,7 @@
 using Mirror;
 using UnityEngine;
 
-namespace MirrorTest
+namespace Mirror.Weaver.Tests.SyncListInheritanceWithOverrides
 {
     class SyncListInheritanceWithOverrides : NetworkBehaviour
     {

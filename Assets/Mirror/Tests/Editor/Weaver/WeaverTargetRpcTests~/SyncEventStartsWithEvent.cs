@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace Mirror.Weaver.Tests.SyncEventStartsWithEvent
 {
     class SyncEventStartsWithEvent : NetworkBehaviour
     {

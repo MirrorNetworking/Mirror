@@ -1,7 +1,7 @@
 using Mirror;
 using UnityEngine;
 
-namespace MirrorTest
+namespace Mirror.Weaver.Tests.GivesErrorWhenUsingMonoBehaviour
 {
     public class GivesErrorWhenUsingMonoBehaviour : NetworkBehaviour
     {

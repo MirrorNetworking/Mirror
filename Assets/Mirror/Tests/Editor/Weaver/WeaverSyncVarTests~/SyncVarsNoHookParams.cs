@@ -1,7 +1,7 @@
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace Mirror.Weaver.Tests.SyncVarsNoHookParams
 {
     class SyncVarsNoHookParams : NetworkBehaviour
     {

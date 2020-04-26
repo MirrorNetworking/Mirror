@@ -1,6 +1,6 @@
 using Mirror;
 
-namespace MirrorTest
+namespace Mirror.Weaver.Tests.CreatesForEnums
 {
     class CreatesForEnums : NetworkBehaviour
     {

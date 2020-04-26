@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace Mirror.Weaver.Tests.NetworkBehaviourCmdParamRef
 {
     class NetworkBehaviourCmdParamRef : NetworkBehaviour
     {
