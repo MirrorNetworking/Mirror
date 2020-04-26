@@ -8,8 +8,9 @@ namespace Mirror.Weaver.Tests
         public void RecursionCount()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.RecursionCount/Potato1 can't be serialized because it references itself"));
+            Assert.That(weaverErrors, Contains.Item("Potato1 can't be serialized because it references itself (at MirrorTest.RecursionCount/Potato1)"));
         }
+
         [Test]
         public void TestingScriptableObjectArraySerialization()
         {

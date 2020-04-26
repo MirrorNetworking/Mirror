@@ -94,42 +94,42 @@ namespace Mirror.Weaver.Tests
         public void SyncDictionaryErrorForGenericStructKey()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.SyncDictionaryErrorForGenericStructKey/MyGenericStructDictionary Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncDictionaryErrorForGenericStructKey/MyGenericStruct`1<System.Single> in SyncList"));
+            Assert.That(weaverErrors, Contains.Item("Can not create Serialize or Deserialize for generic element in MyGenericStructDictionary. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncDictionaryErrorForGenericStructKey/MyGenericStruct`1<System.Single> in SyncList (at MirrorTest.SyncDictionaryErrorForGenericStructKey/MyGenericStructDictionary)"));
         }
 
         [Test]
         public void SyncDictionaryErrorForGenericStructItem()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.SyncDictionaryErrorForGenericStructItem/MyGenericStructDictionary Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncDictionaryErrorForGenericStructItem/MyGenericStruct`1<System.Single> in SyncList"));
+            Assert.That(weaverErrors, Contains.Item("Can not create Serialize or Deserialize for generic element in MyGenericStructDictionary. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncDictionaryErrorForGenericStructItem/MyGenericStruct`1<System.Single> in SyncList (at MirrorTest.SyncDictionaryErrorForGenericStructItem/MyGenericStructDictionary)"));
         }
 
         [Test]
         public void SyncDictionaryErrorForGenericStructKeyWithCustomDeserializeOnly()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.SyncDictionaryErrorForGenericStructKeyWithCustomDeserializeOnly/MyGenericStructDictionary Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncDictionaryErrorForGenericStructKeyWithCustomDeserializeOnly/MyGenericStruct`1<System.Single> in SyncList"));
+            Assert.That(weaverErrors, Contains.Item("Can not create Serialize or Deserialize for generic element in MyGenericStructDictionary. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncDictionaryErrorForGenericStructKeyWithCustomDeserializeOnly/MyGenericStruct`1<System.Single> in SyncList (at MirrorTest.SyncDictionaryErrorForGenericStructKeyWithCustomDeserializeOnly/MyGenericStructDictionary)"));
         }
 
         [Test]
         public void SyncDictionaryErrorForGenericStructItemWithCustomDeserializeOnly()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.SyncDictionaryErrorForGenericStructItemWithCustomDeserializeOnly/MyGenericStructDictionary Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncDictionaryErrorForGenericStructItemWithCustomDeserializeOnly/MyGenericStruct`1<System.Single> in SyncList"));
+            Assert.That(weaverErrors, Contains.Item("Can not create Serialize or Deserialize for generic element in MyGenericStructDictionary. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncDictionaryErrorForGenericStructItemWithCustomDeserializeOnly/MyGenericStruct`1<System.Single> in SyncList (at MirrorTest.SyncDictionaryErrorForGenericStructItemWithCustomDeserializeOnly/MyGenericStructDictionary)"));
         }
 
         [Test]
         public void SyncDictionaryErrorForGenericStructKeyWithCustomSerializeOnly()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.SyncDictionaryErrorForGenericStructKeyWithCustomSerializeOnly/MyGenericStructDictionary Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncDictionaryErrorForGenericStructKeyWithCustomSerializeOnly/MyGenericStruct`1<System.Single> in SyncList"));
+            Assert.That(weaverErrors, Contains.Item("Can not create Serialize or Deserialize for generic element in MyGenericStructDictionary. Override virtual methods with custom Serialize and Deserialize to use MyGenericStruct`1 in SyncList (at MirrorTest.SyncDictionaryErrorForGenericStructKeyWithCustomSerializeOnly/MyGenericStructDictionary)"));
         }
 
         [Test]
         public void SyncDictionaryErrorForGenericStructItemWithCustomSerializeOnly()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.SyncDictionaryErrorForGenericStructItemWithCustomSerializeOnly/MyGenericStructDictionary Can not create Serialize or Deserialize for generic element. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncDictionaryErrorForGenericStructItemWithCustomSerializeOnly/MyGenericStruct`1<System.Single> in SyncList"));
+            Assert.That(weaverErrors, Contains.Item("Can not create Serialize or Deserialize for generic element in MyGenericStructDictionary. Override virtual methods with custom Serialize and Deserialize to use MyGenericStruct`1 in SyncList (at MirrorTest.SyncDictionaryErrorForGenericStructItemWithCustomSerializeOnly/MyGenericStructDictionary)"));
         }
 
         [Test]
@@ -150,7 +150,7 @@ namespace Mirror.Weaver.Tests
         public void SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour/SomeSyncDictionary`2<System.Int32,System.String> MirrorTest.SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour::someDictionary Can not use generic SyncObjects directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead."));
+            Assert.That(weaverErrors, Contains.Item("Cannot use generic SyncObject someDictionary directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead (at MirrorTest.SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour/SomeSyncDictionary`2<System.Int32,System.String> MirrorTest.SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour::someDictionary)"));
         }
     }
 }

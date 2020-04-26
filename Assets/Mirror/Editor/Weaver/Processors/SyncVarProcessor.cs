@@ -36,16 +36,16 @@ namespace Mirror.Weaver
                     if (m.Parameters[0].ParameterType != syncVar.FieldType ||
                         m.Parameters[1].ParameterType != syncVar.FieldType)
                     {
-                        Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
+                        Weaver.Error($"{m.Name} should have signature: public void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}", m);
                         return null;
                     }
                     return m;
                 }
-                Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
+                Weaver.Error($"{m.Name} should have signature: public void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}", m);
                 return null;
             }
 
-            Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
+            Weaver.Error($"No hook implementation found for {syncVar.Name}. Add this method to your class: public void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}", syncVar);
             return null;
         }
 
@@ -306,19 +306,19 @@ namespace Mirror.Weaver
                 {
                     if ((fd.Attributes & FieldAttributes.Static) != 0)
                     {
-                        Weaver.Error($"{fd} cannot be static");
+                        Weaver.Error($"{fd.Name} cannot be static", fd);
                         return;
                     }
 
                     if (fd.FieldType.IsArray)
                     {
-                        Weaver.Error($"{fd} has invalid type. Use SyncLists instead of arrays");
+                        Weaver.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
                         return;
                     }
 
                     if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
                     {
-                        Log.Warning($"{fd} has [SyncVar] attribute. SyncLists should not be marked with SyncVar");
+                        Weaver.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);
                     }
                     else
                     {
@@ -330,7 +330,7 @@ namespace Mirror.Weaver
 
                         if (dirtyBitCounter == SyncVarLimit)
                         {
-                            Weaver.Error($"{td} has too many SyncVars. Consider refactoring your class into multiple components");
+                            Weaver.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
                             return;
                         }
                     }
@@ -340,13 +340,13 @@ namespace Mirror.Weaver
                 {
                     if (fd.IsStatic)
                     {
-                        Weaver.Error($"{fd} cannot be static");
+                        Weaver.Error($"{fd.Name} cannot be static", fd);
                         return;
                     }
 
                     if (fd.FieldType.Resolve().HasGenericParameters)
                     {
-                        Weaver.Error($"{fd} Can not use generic SyncObjects directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead.");
+                        Weaver.Error($"Cannot use generic SyncObject {fd.Name} directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead", fd);
                         return;
                     }
 
