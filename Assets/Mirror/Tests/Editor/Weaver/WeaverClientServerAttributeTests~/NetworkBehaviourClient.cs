@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverClientServerAttributeTests.NetworkBehaviourClient
 {
     class NetworkBehaviourClient : NetworkBehaviour
     {

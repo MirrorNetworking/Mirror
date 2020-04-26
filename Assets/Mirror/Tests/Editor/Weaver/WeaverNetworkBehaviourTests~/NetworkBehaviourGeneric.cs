@@ -1,7 +1,7 @@
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourGeneric
 {
     class NetworkBehaviourGeneric<T> : NetworkBehaviour
     {
