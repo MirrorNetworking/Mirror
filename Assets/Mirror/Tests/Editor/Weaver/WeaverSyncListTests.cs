@@ -2,163 +2,160 @@ using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverSyncListTests : WeaverTestsBuildFromTestName
+    public class WeaverSyncListTests : BatchedWeaverTests
     {
-        [Test]
+        [BatchedTest(true)]
         public void SyncList()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListByteValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListGenericAbstractInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListGenericInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
-        public void SyncListGenericInheritanceWithMultipleGeneric()
+        [BatchedTest(false)]
+        public void SyncListErrorForGenericInheritanceWithMultipleGeneric()
         {
-            Assert.That(weaverErrors, Contains.Item("Could not find generic arguments for SyncList`1 in MirrorTest.SyncListGenericInheritanceWithMultipleGeneric/SomeListInt (at MirrorTest.SyncListGenericInheritanceWithMultipleGeneric/SomeListInt)"));
+            AssertHasError("Could not find generic arguments for SyncList`1 in SyncListErrorForGenericInheritanceWithMultipleGeneric.SomeListInt (at SyncListErrorForGenericInheritanceWithMultipleGeneric.SomeListInt)");
+            AssertHasError("Type SomeListInt has too many generic arguments in base class SyncListErrorForGenericInheritanceWithMultipleGeneric.SomeList`2<System.String,System.Int32> (at SyncListErrorForGenericInheritanceWithMultipleGeneric.SomeListInt)");
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
-        public void SyncListMissingParamlessCtor()
+        [BatchedTest(false)]
+        public void SyncListErrorForMissingParamlessCtor()
         {
-            Assert.That(weaverErrors, Contains.Item("Can not intialize field Foo because no default constructor was found. Manually intialize the field (call the constructor) or add constructor without Parameter (at MirrorTest.SyncListMissingParamlessCtor/SyncListString2 MirrorTest.SyncListMissingParamlessCtor::Foo)"));
+            AssertHasError("Can not intialize field Foo because no default constructor was found. Manually intialize the field (call the constructor) or add constructor without Parameter (at SyncListErrorForMissingParamlessCtor.SyncListString2 SyncListErrorForMissingParamlessCtor.MyBehaviour::Foo)");
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListMissingParamlessCtorManuallyInitialized()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListNestedStruct()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListNestedInAbstractClass()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
-        public void SyncListNestedInAbstractClassWithInvalid()
+        [BatchedTest(false)]
+        public void SyncListErrorForNestedInAbstractClassWithInvalid()
         {
             // we need this negative test to make sure that SyncList is being processed 
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for Object. Use a supported type or provide a custom writer (at UnityEngine.Object)"));
-            Assert.That(weaverErrors, Contains.Item("target has unsupported type. Use a type supported by Mirror instead (at UnityEngine.Object MirrorTest.SyncListNestedStructWithInvalid/SomeAbstractClass/MyNestedStruct::target)"));
-            Assert.That(weaverErrors, Contains.Item("MyNestedStructList has sync object generic type MyNestedStruct.  Use a type supported by mirror instead (at MirrorTest.SyncListNestedStructWithInvalid/SomeAbstractClass/MyNestedStructList)"));
+            AssertHasError("MyNestedStructList has sync object generic type MyNestedStruct.  Use a type supported by mirror instead (at SyncListErrorForNestedInAbstractClassWithInvalid.SomeAbstractClass/MyNestedStructList)");
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListNestedInStruct()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
-        public void SyncListNestedInStructWithInvalid()
+        [BatchedTest(false)]
+        public void SyncListErrorForNestedInStructWithInvalid()
         {
             // we need this negative test to make sure that SyncList is being processed 
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for Object. Use a supported type or provide a custom writer (at UnityEngine.Object)"));
-            Assert.That(weaverErrors, Contains.Item("target has unsupported type. Use a type supported by Mirror instead (at UnityEngine.Object MirrorTest.SyncListNestedInStructWithInvalid/SomeData::target)"));
-            Assert.That(weaverErrors, Contains.Item("SyncList has sync object generic type SomeData.  Use a type supported by mirror instead (at MirrorTest.SyncListNestedInStructWithInvalid/SomeData/SyncList)"));
+            AssertHasError("SyncList has sync object generic type SomeData.  Use a type supported by mirror instead (at SyncListErrorForNestedInStructWithInvalid.SomeData/SyncList)");
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListStruct()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListStructWithCustomDeserializeOnly()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListStructWithCustomMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListStructWithCustomSerializeOnly()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(false)]
         public void SyncListErrorForGenericStruct()
         {
-            Assert.That(weaverErrors, Contains.Item("Can not create Serialize or Deserialize for generic element in MyGenericStructList. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncListErrorForGenericStruct/MyGenericStruct`1<System.Single> in SyncList (at MirrorTest.SyncListErrorForGenericStruct/MyGenericStructList)"));
+            AssertHasError("Can not create Serialize or Deserialize for generic element in MyGenericStructList. Override virtual methods with custom Serialize and Deserialize to use SyncListErrorForGenericStruct.MyGenericStruct`1<System.Single> in SyncList (at SyncListErrorForGenericStruct.MyGenericStructList)");
         }
 
-        [Test]
+        [BatchedTest(false)]
         public void SyncListErrorForGenericStructWithCustomDeserializeOnly()
         {
-            Assert.That(weaverErrors, Contains.Item("Can not create Serialize or Deserialize for generic element in MyGenericStructList. Override virtual methods with custom Serialize and Deserialize to use MirrorTest.SyncListErrorForGenericStructWithCustomDeserializeOnly/MyGenericStruct`1<System.Single> in SyncList (at MirrorTest.SyncListErrorForGenericStructWithCustomDeserializeOnly/MyGenericStructList)"));
+            AssertHasError("Can not create Serialize or Deserialize for generic element in MyGenericStructList. Override virtual methods with custom Serialize and Deserialize to use SyncListErrorForGenericStructWithCustomDeserializeOnly.MyGenericStruct`1<System.Single> in SyncList (at SyncListErrorForGenericStructWithCustomDeserializeOnly.MyGenericStructList)");
         }
 
-        [Test]
+        [BatchedTest(false)]
         public void SyncListErrorForGenericStructWithCustomSerializeOnly()
         {
-            Assert.That(weaverErrors, Contains.Item("Can not create Serialize or Deserialize for generic element in MyGenericStructList. Override virtual methods with custom Serialize and Deserialize to use MyGenericStruct`1 in SyncList (at MirrorTest.SyncListErrorForGenericStructWithCustomSerializeOnly/MyGenericStructList)"));
+            AssertHasError("Can not create Serialize or Deserialize for generic element in MyGenericStructList. Override virtual methods with custom Serialize and Deserialize to use MyGenericStruct`1 in SyncList (at SyncListErrorForGenericStructWithCustomSerializeOnly.MyGenericStructList)");
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListGenericStructWithCustomMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(false)]
         public void SyncListErrorForInterface()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for interface MyInterface. Use a supported type or provide a custom writer (at MirrorTest.MyInterface)"));
-            Assert.That(weaverErrors, Contains.Item("MyInterfaceList has sync object generic type MyInterface.  Use a type supported by mirror instead (at MirrorTest.MyInterfaceList)"));
+            AssertHasError("Cannot generate writer for interface MyInterface. Use a supported type or provide a custom writer (at MirrorTest.MyInterface)");
+            AssertHasError("MyInterfaceList has sync object generic type MyInterface.  Use a type supported by mirror instead (at MirrorTest.MyInterfaceList)");
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListInterfaceWithCustomMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(true)]
         public void SyncListInheritanceWithOverrides()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.Pass();
         }
 
-        [Test]
+        [BatchedTest(false)]
         public void SyncListErrorWhenUsingGenericListInNetworkBehaviour()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot use generic SyncObject someList directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead (at MirrorTest.SyncListErrorWhenUsingGenericListInNetworkBehaviour/SomeList`1<System.Int32> MirrorTest.SyncListErrorWhenUsingGenericListInNetworkBehaviour::someList)"));
+            AssertHasError("Cannot use generic SyncObject someList directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead (at SyncListErrorWhenUsingGenericListInNetworkBehaviour.SomeList`1<System.Int32> SyncListErrorWhenUsingGenericListInNetworkBehaviour.MyBehaviour::someList)");
         }
     }
 }
