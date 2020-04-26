@@ -1,3 +1,25 @@
+# [34.9.0](https://github.com/MirrorNG/MirrorNG/compare/34.8.1-master...34.9.0-master) (2020-04-26)
+
+
+### Bug Fixes
+
+* Add the transport first so NetworkManager doesn't add Telepathy in OnValidate ([bdec276](https://github.com/MirrorNG/MirrorNG/commit/bdec2762821dc657e8450b576422fcf1f0f69cdf))
+* call the virtual OnRoomServerDisconnect before the base ([e6881ef](https://github.com/MirrorNG/MirrorNG/commit/e6881ef007f199efca3c326ead258f0c350ffb47))
+* compilation error on standalone build ([bb70bf9](https://github.com/MirrorNG/MirrorNG/commit/bb70bf963459be02a79c2c40cb7dfb8f10d2b92d))
+* Removed NetworkClient.Update because NetworkManager does it in LateUpdate ([984945e](https://github.com/MirrorNG/MirrorNG/commit/984945e482529bfc03bf735562f3eff297a1bad4))
+* Removed NetworkServer.Listen because HostSetup does that ([cf6823a](https://github.com/MirrorNG/MirrorNG/commit/cf6823acb5151d5bc9beca2b0911a99dfbcd4472))
+* weaver syncLists now checks for SerializeItem in base class ([#1768](https://github.com/MirrorNG/MirrorNG/issues/1768)) ([1af5b4e](https://github.com/MirrorNG/MirrorNG/commit/1af5b4ed2f81b4450881fb11fa9b4b7e198274cb))
+
+
+### Features
+
+* Allow Multiple Network Animator ([#1778](https://github.com/MirrorNG/MirrorNG/issues/1778)) ([34a76a2](https://github.com/MirrorNG/MirrorNG/commit/34a76a2834cbeebb4c623f6650c1d67345b386ac))
+* Allowing extra base types to be used for SyncLists and other SyncObjects ([#1729](https://github.com/MirrorNG/MirrorNG/issues/1729)) ([9bf816a](https://github.com/MirrorNG/MirrorNG/commit/9bf816a014fd393617422ee6efa52bdf730cc3c9))
+* Disconnect Dead Clients ([#1724](https://github.com/MirrorNG/MirrorNG/issues/1724)) ([a2eb666](https://github.com/MirrorNG/MirrorNG/commit/a2eb666f158d72851d6c62997ed4b24dc3c473bc)), closes [#1753](https://github.com/MirrorNG/MirrorNG/issues/1753)
+* Exclude fields from weaver's automatic Read/Write using System.NonSerialized attribute  ([#1727](https://github.com/MirrorNG/MirrorNG/issues/1727)) ([7f8733c](https://github.com/MirrorNG/MirrorNG/commit/7f8733ce6a8f712c195ab7a5baea166a16b52d09))
+* Improve weaver error messages ([#1779](https://github.com/MirrorNG/MirrorNG/issues/1779)) ([bcd76c5](https://github.com/MirrorNG/MirrorNG/commit/bcd76c5bdc88af6d95a96e35d47b1b167d375652))
+* NetworkServer.SendToReady ([#1773](https://github.com/MirrorNG/MirrorNG/issues/1773)) ([f6545d4](https://github.com/MirrorNG/MirrorNG/commit/f6545d4871bf6881b3150a3231af195e7f9eb8cd))
+
 ## [34.8.1](https://github.com/MirrorNG/MirrorNG/compare/34.8.0-master...34.8.1-master) (2020-04-21)
 
 
