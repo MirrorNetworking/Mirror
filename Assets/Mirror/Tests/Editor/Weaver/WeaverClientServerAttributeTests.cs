@@ -13,7 +13,9 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
-            CheckAddedCodeServer();
+            string networkServerGetActive = Weaver.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "MirrorTest.NetworkBehaviourServer", "ServerOnlyMethod");
+
         }
 
         [Test]
@@ -21,19 +23,8 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
-            CheckAddedCodeClient();
-        }
-
-        static void CheckAddedCodeServer()
-        {
-            string networkServerGetActive = Weaver.NetworkServerGetActive.ToString();
-            CheckAddedCode(networkServerGetActive, "ServerOnlyMethod");
-        }
-
-        static void CheckAddedCodeClient()
-        {
             string networkClientGetActive = Weaver.NetworkClientGetActive.ToString();
-            CheckAddedCode(networkClientGetActive, "ClientOnlyMethod");
+            CheckAddedCode(networkClientGetActive, "MirrorTest.NetworkBehaviourClient", "ClientOnlyMethod");
         }
 
         /// <summary>
@@ -41,10 +32,8 @@ namespace Mirror.Weaver.Tests
         /// </summary>
         /// <param name="addedString"></param>
         /// <param name="methodName"></param>
-        static void CheckAddedCode(string addedString, string methodName)
+        static void CheckAddedCode(string addedString, string className, string methodName)
         {
-            string className = "MirrorTest.MirrorTestPlayer";
-
             string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory,  WeaverAssembler.OutputFile);
             using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(assemblyName))
             {

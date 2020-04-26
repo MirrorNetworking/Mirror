@@ -11,7 +11,7 @@ namespace MirrorTest
         public int abstractDerivedSync;
     }
 
-    public class EntityTest : EntityConcrete
+    public class NetworkBehaviourAbstractBaseValid : EntityConcrete
     {
         [SyncVar]
         public int concreteDerivedSync;

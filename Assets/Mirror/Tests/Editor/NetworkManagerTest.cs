@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -13,6 +13,7 @@ namespace Mirror.Tests
         public void SetupNetworkManager()
         {
             gameObject = new GameObject();
+            gameObject.AddComponent<MemoryTransport>();
             manager = gameObject.AddComponent<NetworkManager>();
         }
 

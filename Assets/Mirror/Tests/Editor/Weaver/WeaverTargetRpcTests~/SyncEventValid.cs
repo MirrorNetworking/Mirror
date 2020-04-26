@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class SyncEventValid : NetworkBehaviour
     {
         public delegate void MySyncEventDelegate();
 

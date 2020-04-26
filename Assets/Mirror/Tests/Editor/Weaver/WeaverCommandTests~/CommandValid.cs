@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class MirrorTestPlayer : NetworkBehaviour
+    class CommandValid : NetworkBehaviour
     {
         [Command]
         void CmdThatIsTotallyValid() {}

@@ -15,14 +15,14 @@ namespace Mirror.Weaver.Tests
         public void ClientRpcStartsWithRpc()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::DoesntStartWithRpc() must start with Rpc.  Consider renaming it to RpcDoesntStartWithRpc"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.ClientRpcStartsWithRpc::DoesntStartWithRpc() must start with Rpc.  Consider renaming it to RpcDoesntStartWithRpc"));
         }
 
         [Test]
         public void ClientRpcCantBeStatic()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantBeStatic() must not be static"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.ClientRpcCantBeStatic::RpcCantBeStatic() must not be static"));
         }
     }
 }

@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class PrefabClone : MessageBase
+    class MessageValid : MessageBase
     {
         public uint netId;
         public Guid assetId;

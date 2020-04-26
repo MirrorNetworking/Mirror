@@ -56,6 +56,21 @@ namespace Mirror
         /// </summary>
         public static bool active { get; private set; }
 
+        /// <summary>
+        /// Should the server disconnect remote connections that have gone silent for more than Server Idle Timeout?
+        /// <para>This value is initially set from NetworkManager in SetupServer and can be changed at runtime</para>
+        /// </summary>
+        public static bool disconnectInactiveConnections;
+
+        /// <summary>
+        /// Timeout in seconds since last message from a client after which server will auto-disconnect.
+        /// <para>This value is initially set from NetworkManager in SetupServer and can be changed at runtime</para>
+        /// <para>By default, clients send at least a Ping message every 2 seconds.</para>
+        /// <para>The Host client is immune from idle timeout disconnection.</para>
+        /// <para>Default value is 60 seconds.</para>
+        /// </summary>
+        public static float disconnectInactiveTimeout = 60f;
+
         // cache the Send(connectionIds) list to avoid allocating each time
         static readonly List<int> connectionIdsCache = new List<int>();
 
@@ -252,11 +267,10 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Send a message structure with the given type number to all connected clients.
-        /// <para>This applies to clients that are ready and not-ready.</para>
+        /// Send a message to all connected clients, both ready and not-ready.</para>
         /// </summary>
-        /// <typeparam name="T">Message type.</typeparam>
-        /// <param name="msg">Message structure.</param>
+        /// <typeparam name="T">Message type</typeparam>
+        /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
         public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
@@ -298,13 +312,13 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Send a message structure with the given type number to only clients which are ready.
-        /// <para>See Networking.NetworkClient.Ready.</para>
+        /// Send a message to only clients which are ready with option to include the owner of the object identity.
+        /// <para>See <see cref="NetworkConnection.isReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
-        /// <param name="identity"></param>
-        /// <param name="msg">Message structure.</param>
-        /// <param name="includeOwner">Send to observers including self..</param>
+        /// <param name="identity">Identity of the owner</param>
+        /// <param name="msg">Message</param>
+        /// <param name="includeOwner">Should the owner of the object be included</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
         public static bool SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable) where T : IMessageBase
@@ -357,12 +371,12 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Send a message structure with the given type number to only clients which are ready.
-        /// <para>See Networking.NetworkClient.Ready.</para>
+        /// Send a message to only clients which are ready including the owner of the object identity.
+        /// <para>See <see cref="NetworkConnection.isReady"/></para>
         /// </summary>
-        /// <typeparam name="T">Message type.</typeparam>
-        /// <param name="identity"></param>
-        /// <param name="msg">Message structure.</param>
+        /// <typeparam name="T">Message type</typeparam>
+        /// <param name="identity">identity of the object</param>
+        /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
         public static bool SendToReady<T>(NetworkIdentity identity, T msg, int channelId) where T : IMessageBase
@@ -404,6 +418,20 @@ namespace Mirror
         {
             if (!active)
                 return;
+
+            // Check for dead clients but exclude the host client because it
+            // doesn't ping itself and therefore may appear inactive.
+            if (disconnectInactiveConnections)
+            {
+                foreach (NetworkConnectionToClient conn in connections.Values)
+                {
+                    if (!conn.IsClientAlive())
+                    {
+                        Debug.LogWarning($"Disconnecting {conn} for inactivity!");
+                        conn.Disconnect();
+                    }
+                }
+            }
 
             // update all server objects
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)

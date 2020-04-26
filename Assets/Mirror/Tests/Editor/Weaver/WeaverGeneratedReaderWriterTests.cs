@@ -125,7 +125,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        [Ignore("Not Implemented")]
         public void ExcludesNonSerializedFields()
         {
             // we test this by having a not allowed type in the class, but mark it with NonSerialized
@@ -143,6 +142,13 @@ namespace Mirror.Weaver.Tests
 
         [Test]
         public void CanUseCustomReadWriteForInterfaces()
+        {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void CreatesForEnums()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);

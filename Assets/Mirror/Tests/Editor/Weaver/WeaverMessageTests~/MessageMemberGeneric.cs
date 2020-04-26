@@ -7,7 +7,7 @@ namespace MirrorTest
 {
     class HasGeneric<T> {}
 
-    class PrefabClone : MessageBase
+    class MessageMemberGeneric : MessageBase
     {
         public uint netId;
         public Guid assetId;

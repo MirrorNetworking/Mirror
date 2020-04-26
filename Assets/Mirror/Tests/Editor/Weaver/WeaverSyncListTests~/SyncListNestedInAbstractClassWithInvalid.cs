@@ -6,15 +6,16 @@ namespace MirrorTest
     class SyncListNestedStructWithInvalid : NetworkBehaviour
     {
         SomeAbstractClass.MyNestedStructList Foo;
-    }
+    
 
-    public abstract class SomeAbstractClass
-    {
-        public struct MyNestedStruct
+        public abstract class SomeAbstractClass
         {
-            public int potato;
-            public Object target;
+            public struct MyNestedStruct
+            {
+                public int potato;
+                public Object target;
+            }
+            public class MyNestedStructList : SyncList<MyNestedStruct> { }
         }
-        public class MyNestedStructList : SyncList<MyNestedStruct> { }
     }
 }
