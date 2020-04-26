@@ -378,7 +378,6 @@ namespace Mirror
         /// <para>This could be for example when a client enters an ongoing game and has finished loading the current scene. The server should respond to the SYSTEM_READY event with an appropriate handler which instantiates the players object for example.</para>
         /// </summary>
         /// <param name="conn">The client connection which is ready.</param>
-        /// <returns>True if succcessful</returns>
         public void Ready(INetworkConnection conn)
         {
             if (ready)

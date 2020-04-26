@@ -240,7 +240,6 @@ namespace Mirror
         /// <para>This connection will use the callbacks registered with the server.</para>
         /// </summary>
         /// <param name="conn">Network connection to add.</param>
-        /// <returns>True if added.</returns>
         public void AddConnection(INetworkConnection conn)
         {
             if (!connections.Contains(conn))
@@ -256,7 +255,6 @@ namespace Mirror
         /// This removes an external connection added with AddExternalConnection().
         /// </summary>
         /// <param name="connectionId">The id of the connection to remove.</param>
-        /// <returns>True if the removal succeeded</returns>
         public void RemoveConnection(INetworkConnection conn)
         {
             connections.Remove(conn);
@@ -309,7 +307,6 @@ namespace Mirror
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <param name="sendToReadyOnly">Indicates if only ready clients should receive the message</param>
-        /// <returns></returns>
         public void SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToAll id:" + typeof(T));
@@ -325,7 +322,6 @@ namespace Mirror
         /// <param name="msg">Message</param>
         /// <param name="includeOwner">Should the owner of the object be included</param>
         /// <param name="channelId">Transport channel to use</param>
-        /// <returns></returns>
         public void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToReady msgType:" + typeof(T));
@@ -353,7 +349,6 @@ namespace Mirror
         /// <param name="identity">identity of the object</param>
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
-        /// <returns></returns>
         public void SendToReady<T>(NetworkIdentity identity, T msg, int channelId) where T : IMessageBase
         {
             SendToReady(identity, msg, true, channelId);
