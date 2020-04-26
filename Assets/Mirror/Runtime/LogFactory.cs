@@ -7,8 +7,6 @@ namespace Mirror
     {
         internal static readonly Dictionary<string, ILogger> loggers = new Dictionary<string, ILogger>();
 
-        public static IEnumerable<string> Loggers => loggers.Keys;
-        
         public static ILogger GetLogger<T>(LogType defaultLogLevel = LogType.Warning)
         {
             return GetLogger(typeof(T).Name, defaultLogLevel);
