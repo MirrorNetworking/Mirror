@@ -299,15 +299,17 @@ MonoBehaviour:
   transport: {fileID: 69965668}
   networkAddress: localhost
   maxConnections: 100
+  disconnectInactiveConnections: 0
+  disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 1480027675339556, guid: 1f4d376d8ca693049abd1744e4c79fad,
     type: 3}
   autoCreatePlayer: 1
-  playerSpawnMethod: 0
+  playerSpawnMethod: 1
   spawnPrefabs:
   - {fileID: 1139254171913846, guid: 8cec47ed46e0eff45966a5173d3aa0d3, type: 3}
   gameScene: Assets/Mirror/Examples/MultipleAdditiveScenes/Scenes/Game.unity
-  instances: 2
+  instances: 1
 --- !u!4 &69965670
 Transform:
   m_ObjectHideFlags: 0
