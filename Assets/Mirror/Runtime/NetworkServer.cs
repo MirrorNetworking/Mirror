@@ -291,10 +291,13 @@ namespace Mirror
                 //    avoid allocations, allow for multicast, etc.
                 connectionIdsCache.Clear();
                 bool result = true;
+                int count = 0;
                 foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
                 {
                     if (sendToReadyOnly && !kvp.Value.isReady)
                         continue;
+
+                    count++;
 
                     // use local connection directly because it doesn't send via transport
                     if (kvp.Value is ULocalConnectionToClient)
@@ -310,7 +313,7 @@ namespace Mirror
                     result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
                 }
 
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, connections.Count);
+                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
 
                 return result;
             }
