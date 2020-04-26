@@ -132,11 +132,14 @@ namespace Mirror.Weaver.Tests
                 Assert.That(currentTestResults.weaverError, Is.True, "Error check test should have weaver error");
             }
 
-
+            // no weaver tests should have compile errors
             if (currentTestResults.compileError)
             {
                 Assert.Fail($"Could not compile code for {CurrentTest}");
             }
+
+            // ensure all errors have a location
+            Assert.That(currentTestResults.weaverErrors, Is.All.Match(@"\(at .*\)$"));
         }
 
         [TearDown]
