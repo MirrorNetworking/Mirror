@@ -109,7 +109,7 @@ namespace Mirror
 
         private static void SaveInEditorPrefs()
         {
-            LogSettings.Level[] settings = new LogSettings.Level[LogFactory.loggers.Count()];
+            LogSettings.Level[] settings = new LogSettings.Level[LogFactory.loggers.Count];
 
             int i = 0;
             foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
