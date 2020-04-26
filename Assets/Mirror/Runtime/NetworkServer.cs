@@ -302,7 +302,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Send a message to all connected clients, both ready and not-ready.</para>
+        /// Send a message to all connected clients, both ready and not-ready.
         /// <para>See <see cref="NetworkConnection.isReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
