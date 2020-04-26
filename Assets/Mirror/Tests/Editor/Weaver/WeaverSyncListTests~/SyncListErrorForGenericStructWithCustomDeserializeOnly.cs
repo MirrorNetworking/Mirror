@@ -1,23 +1,22 @@
 using Mirror;
 
-namespace MirrorTest
+namespace SyncListErrorForGenericStructWithCustomDeserializeOnly
 {
-    class SyncListErrorForGenericStructWithCustomDeserializeOnly : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         MyGenericStructList harpseals;
-    
+    }
 
-        struct MyGenericStruct<T>
-        {
-            public T genericpotato;
-        }
+    struct MyGenericStruct<T>
+    {
+        public T genericpotato;
+    }
 
-        class MyGenericStructList : SyncList<MyGenericStruct<float>>
+    class MyGenericStructList : SyncList<MyGenericStruct<float>>
+    {
+        protected override MyGenericStruct<float> DeserializeItem(NetworkReader reader)
         {
-            protected override MyGenericStruct<float> DeserializeItem(NetworkReader reader)
-            {
-                return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
-            }
+            return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
         }
     }
 }

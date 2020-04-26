@@ -1,17 +1,16 @@
 using Mirror;
 
-namespace MirrorTest
+namespace SyncListErrorForGenericStruct
 {
-    class SyncListErrorForGenericStruct : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         MyGenericStructList harpseals;
-    
-
-        struct MyGenericStruct<T>
-        {
-            T genericpotato;
-        }
-
-        class MyGenericStructList : SyncList<MyGenericStruct<float>> { };
     }
+
+    struct MyGenericStruct<T>
+    {
+        T genericpotato;
+    }
+
+    class MyGenericStructList : SyncList<MyGenericStruct<float>> { };
 }

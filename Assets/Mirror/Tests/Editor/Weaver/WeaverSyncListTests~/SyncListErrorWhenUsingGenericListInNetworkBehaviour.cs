@@ -1,12 +1,11 @@
 using Mirror;
 
-namespace MirrorTest
+namespace SyncListErrorWhenUsingGenericListInNetworkBehaviour
 {
-    class SyncListErrorWhenUsingGenericListInNetworkBehaviour : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         readonly SomeList<int> someList;
-    
-
-        public class SomeList<T> : SyncList<T> { }
     }
+
+    public class SomeList<T> : SyncList<T> { }
 }

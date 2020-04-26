@@ -1,10 +1,10 @@
 using Mirror;
 
-namespace SyncListMissingParamlessCtorManuallyInitialized
+namespace SyncListErrorForMissingParamlessCtor
 {
     class MyBehaviour : NetworkBehaviour
     {
-        public SyncListString2 Foo = new SyncListString2(20);
+        public SyncListString2 Foo;
     }
 
     public class SyncListString2 : SyncList<string>

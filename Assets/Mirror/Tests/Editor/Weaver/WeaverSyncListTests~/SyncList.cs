@@ -1,9 +1,8 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace SyncList
 {
-    class SyncList : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         public SyncListInt Foo;
     }

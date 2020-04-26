@@ -1,6 +1,6 @@
 using Mirror;
 
-namespace MirrorTest
+namespace SyncListErrorForGenericInheritanceWithMultipleGeneric
 {
     /*
     This test will fail
@@ -8,13 +8,12 @@ namespace MirrorTest
     So instead give a useful error for this edge case
     */
 
-    class SyncListGenericInheritanceWithMultipleGeneric : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         readonly SomeListInt someList = new SomeListInt();
-    
-
-        public class SomeList<G, T> : SyncList<T> { }
-
-        public class SomeListInt : SomeList<string, int> { }
     }
+
+    public class SomeList<G, T> : SyncList<T> { }
+
+    public class SomeListInt : SomeList<string, int> { }
 }

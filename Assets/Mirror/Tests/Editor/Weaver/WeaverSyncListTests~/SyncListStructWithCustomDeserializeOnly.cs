@@ -1,24 +1,24 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace SyncListStructWithCustomDeserializeOnly
 {
-    class SyncListStructWithCustomDeserializeOnly : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         MyStructList Foo;
-        
-        struct MyStruct
+    }
+
+    struct MyStruct
+    {
+        int potato;
+        float floatingpotato;
+        double givemetwopotatoes;
+    }
+
+    class MyStructList : SyncList<MyStruct>
+    {
+        protected override MyStruct DeserializeItem(NetworkReader reader)
         {
-            int potato;
-            float floatingpotato;
-            double givemetwopotatoes;
-        }
-        class MyStructList : SyncList<MyStruct> 
-        {
-            protected override MyStruct DeserializeItem(NetworkReader reader)
-            {
-                return new MyStruct() { /* read some stuff here */ };
-            }
+            return new MyStruct() { /* read some stuff here */ };
         }
     }
 }

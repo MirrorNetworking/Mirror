@@ -1,6 +1,7 @@
 using Mirror;
+using UnityEngine;
 
-namespace SyncListNestedInAbstractClass
+namespace SyncListErrorForNestedInAbstractClassWithInvalid
 {
     class MyBehaviour : NetworkBehaviour
     {
@@ -12,8 +13,7 @@ namespace SyncListNestedInAbstractClass
         public struct MyNestedStruct
         {
             public int potato;
-            public float floatingpotato;
-            public double givemetwopotatoes;
+            public Object target;
         }
 
         public class MyNestedStructList : SyncList<MyNestedStruct> { }

@@ -1,24 +1,25 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace SyncListStructWithCustomSerializeOnly
 {
-    class SyncListStructWithCustomSerializeOnly : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         MyStructList Foo;
-        
-        struct MyStruct
+
+    }
+
+    struct MyStruct
+    {
+        int potato;
+        float floatingpotato;
+        double givemetwopotatoes;
+    }
+
+    class MyStructList : SyncList<MyStruct>
+    {
+        protected override void SerializeItem(NetworkWriter writer, MyStruct item)
         {
-            int potato;
-            float floatingpotato;
-            double givemetwopotatoes;
-        }
-        class MyStructList : SyncList<MyStruct> 
-        { 
-            protected override void SerializeItem(NetworkWriter writer, MyStruct item)
-            {
-                // write some stuff here
-            }
+            // write some stuff here
         }
     }
 }

@@ -1,9 +1,9 @@
 using Mirror;
 using UnityEngine;
 
-namespace MirrorTest
+namespace SyncListInheritanceWithOverrides
 {
-    class SyncListInheritanceWithOverrides : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         readonly SomeExtraList superSyncListString = new SomeExtraList();
     }

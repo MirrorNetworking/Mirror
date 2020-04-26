@@ -1,4 +1,3 @@
-using UnityEngine;
 using Mirror;
 
 namespace MirrorTest
@@ -7,9 +6,11 @@ namespace MirrorTest
     {
         MyInterfaceList Foo;
     }
+
     interface MyInterface
     {
         int someNumber { get; set; }
     }
+
     class MyInterfaceList : SyncList<MyInterface> { }
 }

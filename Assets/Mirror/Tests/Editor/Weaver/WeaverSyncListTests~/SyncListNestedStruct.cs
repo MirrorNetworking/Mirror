@@ -1,18 +1,18 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace SyncListNestedStruct
 {
-    class SyncListNestedStruct : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         MyNestedStructList Foo;
-        
+
         struct MyNestedStruct
         {
             int potato;
             float floatingpotato;
             double givemetwopotatoes;
         }
+
         class MyNestedStructList : SyncList<MyNestedStruct> { }
     }
 }

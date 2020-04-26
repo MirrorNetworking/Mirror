@@ -1,9 +1,9 @@
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace SyncListByteValid
 {
-    class SyncListByteValid : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         class MyByteClass : SyncList<byte> {};
 

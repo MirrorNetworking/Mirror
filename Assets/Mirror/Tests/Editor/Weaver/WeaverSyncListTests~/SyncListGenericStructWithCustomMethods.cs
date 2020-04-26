@@ -1,28 +1,27 @@
 using Mirror;
 
-namespace MirrorTest
+namespace SyncListGenericStructWithCustomMethods
 {
-    class SyncListGenericStructWithCustomMethods : NetworkBehaviour
+    class MyBehaviour : NetworkBehaviour
     {
         MyGenericStructList harpseals;
-    
+    }
 
-        struct MyGenericStruct<T>
+    struct MyGenericStruct<T>
+    {
+        public T genericpotato;
+    }
+
+    class MyGenericStructList : SyncList<MyGenericStruct<float>>
+    {
+        protected override void SerializeItem(NetworkWriter writer, MyGenericStruct<float> item)
         {
-            public T genericpotato;
+            writer.WriteSingle(item.genericpotato);
         }
 
-        class MyGenericStructList : SyncList<MyGenericStruct<float>>
+        protected override MyGenericStruct<float> DeserializeItem(NetworkReader reader)
         {
-            protected override void SerializeItem(NetworkWriter writer, MyGenericStruct<float> item)
-            {
-                writer.WriteSingle(item.genericpotato);
-            }
-
-            protected override MyGenericStruct<float> DeserializeItem(NetworkReader reader)
-            {
-                return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
-            }
+            return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
         }
     }
 }
