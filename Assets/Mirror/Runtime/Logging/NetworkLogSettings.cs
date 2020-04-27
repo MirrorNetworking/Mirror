@@ -7,6 +7,7 @@ namespace Mirror.Logging
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkLogSettings")]
+    [HelpURL("https://mirror-networking.com/docs/Components/NetworkLogSettings.html")]
     public class NetworkLogSettings : MonoBehaviour
     {
         [SerializeField] internal LogSettings settings;
