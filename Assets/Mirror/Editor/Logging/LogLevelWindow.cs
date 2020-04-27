@@ -1,3 +1,4 @@
+using Mirror.Logging;
 using UnityEditor;
 using UnityEngine;
 
@@ -5,6 +6,16 @@ namespace Mirror.EditorScripts.Logging
 {
     public class LogLevelWindow : EditorWindow
     {
+        [SerializeField] LogSettings settings;
+        SerializedObject serializedObject;
+        SerializedProperty settingsProp;
+
+        void OnEnable()
+        {
+            serializedObject = new SerializedObject(this);
+            settingsProp = serializedObject.FindProperty(nameof(settings));
+        }
+
         void OnGUI()
         {
             EditorGUILayout.BeginVertical();
@@ -15,7 +26,25 @@ namespace Mirror.EditorScripts.Logging
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.BeginVertical(EditorStyles.inspectorDefaultMargins);
-            LogLevelsGUI.DrawLogFactoryDictionary();
+
+            serializedObject.Update();
+            EditorGUILayout.PropertyField(settingsProp);
+            serializedObject.ApplyModifiedProperties();
+
+            if (settings == null)
+            {
+                LogSettings newSettings = LogLevelsGUI.DrawCreateNewButton();
+                if (newSettings != null)
+                {
+                    settingsProp.objectReferenceValue = newSettings;
+                    serializedObject.ApplyModifiedProperties();
+                }
+            }
+            else
+            {
+                LogLevelsGUI.DrawLogFactoryDictionary(settings);
+            }
+
             EditorGUILayout.EndVertical();
         }
 
