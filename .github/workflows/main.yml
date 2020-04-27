@@ -115,11 +115,6 @@ jobs:
           Remove-Item -Recurse -Force Assets\Mirror\Tests
           Remove-Item -Recurse -Force Assets\Mirror\Tests.meta
         
-      - name: Delete Examples
-        run: |
-          Remove-Item -Recurse -Force Assets\Mirror\Examples
-          Remove-Item -Recurse -Force Assets\Mirror\Examples.meta
-          
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
         with:
