@@ -9,6 +9,20 @@ namespace Mirror.Logging
     {
         [SerializeField] internal LogSettings settings;
 
+#if UNITY_EDITOR
+        // called when component is added to GameObject
+        void Reset()
+        {
+            LogSettings existingSettings = EditorLogSettingsLoader.FindLogSettings();
+            if (existingSettings != null)
+            {
+                settings = existingSettings;
+
+                UnityEditor.EditorUtility.SetDirty(this);
+            }
+        }
+#endif
+
         void Awake()
         {
             RefreshDictionary();
