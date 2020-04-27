@@ -8,7 +8,7 @@ The Network Log Settings component allows you to use configure logging levels an
 
 When you first add NetworkLogSettings you will have to Create a new LogSettings Asset that will store the settings.
 
-![Inspector With No Settings](NetworkLogSettingsNoSettings.PNG)
+![Inspector With No Settings](NetworkLogSettingsNoSettings.png)
 
 *Note: If an LogSettings already exists the NetworkLogSettings component will set the field when it is added*
 
@@ -17,11 +17,11 @@ When you first add NetworkLogSettings you will have to Create a new LogSettings 
 
 When you first set up LogSettings the list of components may be empty or incomplete. Running the game will make the scripts add their logger to the list so that it's logging level can be changed.
 
-![Inspector](NetworkLogSettings.PNG)
+![Inspector](NetworkLogSettings.png)
 
 Log settings can also be changed using the "Mirror Log Level" window, Found at "Window/Analysis/Mirror Log Levels".
 
-![Window](LogLevelWindow.PNG)
+![Window](LogLevelWindow.png)
 
 To change settings at runtime please see <xref:Mirror.LogFactory>.
 
