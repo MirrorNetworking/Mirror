@@ -10,7 +10,7 @@ These core components are included in Mirror:
     The Network Manager is a component for managing the networking aspects of a multiplayer game.
 -   [Network Manager HUD](NetworkManagerHUD.md)  
     The Network Manager HUD is a quick-start tool to help you start building your multiplayer game straight away, without first having to build a user interface for game creation/connection/joining. It allows you to jump straight into your gameplay programming, and means you can build your own version of these controls later in your development schedule.
-    [Network Discovery](NetworkDiscovery.md)
+-   [Network Discovery](NetworkDiscovery.md)
     Network Discovery uses a UDP broadcast on the LAN enabling clients to find the running server and connect to it.
 -   [Network Proximity Checker](NetworkProximityChecker.md)  
     The Network Proximity Checker component controls the visibility of game objects for network clients, based on proximity to players.
