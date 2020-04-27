@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Mirror.Logging;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,6 +7,16 @@ namespace Mirror.EditorScripts.Logging
 {
     public static class LogLevelsGUI
     {
+        public static LogSettings DrawCreateNewButton()
+        {
+            if (GUILayout.Button("Create New"))
+            {
+                return ScriptableObjectUtility.CreateAsset<LogSettings>(nameof(LogSettings));
+            }
+
+            return null;
+        }
+
         public static void DrawLogFactoryDictionary()
         {
             if (LogFactory.loggers.Count == 0)
