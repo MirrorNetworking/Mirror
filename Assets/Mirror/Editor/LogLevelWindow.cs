@@ -40,7 +40,7 @@ namespace Mirror
 
         private void SetLevels()
         {
-            foreach (var kvp in levels)
+            foreach (KeyValuePair<string, LogType> kvp in levels)
             {
                 LogFactory.GetLogger(kvp.Key).filterLogType = kvp.Value;
             }
@@ -58,7 +58,7 @@ namespace Mirror
 
         private void SaveLevels()
         {
-            var settings = target as LogSettings;
+            LogSettings settings = target as LogSettings;
 
             Undo.RecordObject(settings, "Update log settings");
             settings.Levels = new List<LogSettings.Level>();
