@@ -6,6 +6,13 @@ namespace Mirror.Logging
 #if UNITY_EDITOR
     public static class EditorLogSettingsLoader
     {
+        [InitializeOnLoadMethod]
+        static void Init()
+        {
+            // load settings first time LogFactory is used in the editor
+            LoadLogSettingsIntoDictionary();
+        }
+
         public static void LoadLogSettingsIntoDictionary()
         {
             LogSettings settings = FindLogSettings();
