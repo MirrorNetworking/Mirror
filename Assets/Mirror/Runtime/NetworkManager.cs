@@ -19,6 +19,7 @@ namespace Mirror
     /// </summary>
     public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
 
+    [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkManager")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
     public class NetworkManager : MonoBehaviour
