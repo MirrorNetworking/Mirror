@@ -17,17 +17,25 @@ namespace Mirror.EditorScripts.Logging
             return null;
         }
 
-        public static void DrawLogFactoryDictionary()
+        public static void DrawLogFactoryDictionary(LogSettings settings)
         {
-            if (LogFactory.loggers.Count == 0)
+            using (EditorGUI.ChangeCheckScope scope = new EditorGUI.ChangeCheckScope())
             {
-                EditorGUILayout.LabelField("No Keys found in LogFactory.loggers\nPlay the game for default log values to be added to LogFactory", EditorStyles.wordWrappedLabel);
-            }
-            else
-            {
-                foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
+                if (LogFactory.loggers.Count == 0)
                 {
-                    DrawLoggerField(item);
+                    EditorGUILayout.LabelField("No Keys found in LogFactory.loggers\nPlay the game for default log values to be added to LogFactory", EditorStyles.wordWrappedLabel);
+                }
+                else
+                {
+                    foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
+                    {
+                        DrawLoggerField(item);
+                    }
+
+                    if (scope.changed)
+                    {
+                        settings.SaveFromDictionary(LogFactory.loggers);
+                    }
                 }
             }
         }
