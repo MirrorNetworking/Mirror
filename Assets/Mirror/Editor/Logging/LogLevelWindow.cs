@@ -6,10 +6,10 @@ namespace Mirror.Logging
     public class LogLevelWindow : EditorWindow
     {
         [SerializeField] LogSettings settings;
-        private SerializedObject serializedObject;
-        private SerializedProperty settingsProp;
+        SerializedObject serializedObject;
+        SerializedProperty settingsProp;
 
-        private void OnEnable()
+        void OnEnable()
         {
             serializedObject = new SerializedObject(this);
             settingsProp = serializedObject.FindProperty(nameof(settings));
@@ -21,6 +21,7 @@ namespace Mirror.Logging
                 serializedObject.ApplyModifiedProperties();
             }
         }
+        
         void OnGUI()
         {
             EditorGUILayout.BeginVertical();
