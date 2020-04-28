@@ -1,5 +1,5 @@
 {
-    "name": "Mirror.Tests.Performance",
+    "name": "Mirror.Tests.Performance.Editor",
     "references": [
         "Unity.PerformanceTesting",
         "Mirror",
