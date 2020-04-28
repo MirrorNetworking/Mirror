@@ -306,7 +306,7 @@ namespace Mirror
         /// Register a handler for a particular message type.
         /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
         /// </summary>
-        /// <typeparam name="T">The message type to unregister.</typeparam>
+        /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler"></param>
         /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
@@ -323,7 +323,7 @@ namespace Mirror
         /// Register a handler for a particular message type.
         /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
         /// </summary>
-        /// <typeparam name="T">The message type to unregister.</typeparam>
+        /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler"></param>
         /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
