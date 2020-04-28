@@ -80,7 +80,7 @@ namespace Mirror
         public uint netId => netIdentity.netId;
 
         /// <summary>
-        /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
+        /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the client.
         /// </summary>
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
 
