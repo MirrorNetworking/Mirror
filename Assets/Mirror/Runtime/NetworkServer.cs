@@ -563,7 +563,7 @@ namespace Mirror
         /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
+        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
@@ -580,7 +580,7 @@ namespace Mirror
         /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
+        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
@@ -982,7 +982,7 @@ namespace Mirror
                 // NetworkIdentity.Awake already logs error, no need to log a second error here
                 return;
             }
-            
+
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
             // special case to make sure hasAuthority is set

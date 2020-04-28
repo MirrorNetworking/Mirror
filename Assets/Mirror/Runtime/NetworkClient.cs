@@ -324,8 +324,8 @@ namespace Mirror
         /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler"></param>
-        /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
+        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
+        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
             RegisterHandler((NetworkConnection _, T value) => { handler(value); }, requireAuthentication);
@@ -336,8 +336,8 @@ namespace Mirror
         /// <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler"></param>
-        /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
+        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
+        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
