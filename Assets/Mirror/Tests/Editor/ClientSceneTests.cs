@@ -148,5 +148,64 @@ namespace Mirror.Tests
             LogAssert.Expect(LogType.Error, $"Could not unregister '{invalidPrefab.name}' since it contains no NetworkIdentity component");
             ClientScene.UnregisterPrefab(invalidPrefab);
         }
+
+
+        [Test]
+        public void ClearSpawners_RemovesAllPrefabsFromDictionary()
+        {
+            prefabs.Add(Guid.NewGuid(), null);
+            prefabs.Add(Guid.NewGuid(), null);
+            prefabs.Add(Guid.NewGuid(), null);
+
+            ClientScene.ClearSpawners();
+
+            Assert.IsEmpty(prefabs);
+        }
+
+        [Test]
+        public void ClearSpawners_RemovesAllSpawnHandlersFromDictionary()
+        {
+            spawnHandlers.Add(Guid.NewGuid(), null);
+            spawnHandlers.Add(Guid.NewGuid(), null);
+            spawnHandlers.Add(Guid.NewGuid(), null);
+
+            ClientScene.ClearSpawners();
+
+            Assert.IsEmpty(spawnHandlers);
+        }
+
+        [Test]
+        public void ClearSpawners_RemovesAllUnspawnHandlersFromDictionary()
+        {
+            unspawnHandlers.Add(Guid.NewGuid(), null);
+            unspawnHandlers.Add(Guid.NewGuid(), null);
+            unspawnHandlers.Add(Guid.NewGuid(), null);
+
+            ClientScene.ClearSpawners();
+
+            Assert.IsEmpty(unspawnHandlers);
+        }
+
+        [Test]
+        public void ClearSpawners_ClearsAllDictionary()
+        {
+            prefabs.Add(Guid.NewGuid(), null);
+            prefabs.Add(Guid.NewGuid(), null);
+            prefabs.Add(Guid.NewGuid(), null);
+
+            spawnHandlers.Add(Guid.NewGuid(), null);
+            spawnHandlers.Add(Guid.NewGuid(), null);
+            spawnHandlers.Add(Guid.NewGuid(), null);
+
+            unspawnHandlers.Add(Guid.NewGuid(), null);
+            unspawnHandlers.Add(Guid.NewGuid(), null);
+            unspawnHandlers.Add(Guid.NewGuid(), null);
+
+            ClientScene.ClearSpawners();
+
+            Assert.IsEmpty(prefabs);
+            Assert.IsEmpty(spawnHandlers);
+            Assert.IsEmpty(unspawnHandlers);
+        }
     }
 }
