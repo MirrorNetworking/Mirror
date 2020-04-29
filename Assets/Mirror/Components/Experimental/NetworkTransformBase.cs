@@ -49,10 +49,10 @@ namespace Mirror.Experimental
         Vector3 lastScale;
 
         // client
-        public class DataPoint
+            // use local position/rotation for VR support
+        public struct DataPoint
         {
             public float timeStamp;
-            // use local position/rotation for VR support
             public Vector3 localPosition;
             public Quaternion localRotation;
             public Vector3 localScale;
@@ -60,8 +60,8 @@ namespace Mirror.Experimental
         }
 
         // interpolation start and goal
-        DataPoint start;
-        DataPoint goal;
+        DataPoint start = new DataPoint();
+        DataPoint goal = new DataPoint();
 
         // local authority send time
         float lastClientSendTime;
@@ -99,7 +99,7 @@ namespace Mirror.Experimental
                         lastClientSendTime = Time.time;
                     }
                 }
-                else if (goal != null)
+                else if (goal.timeStamp != 0)
                 {
                     // teleport or interpolate
                     if (NeedsTeleport())
@@ -108,8 +108,8 @@ namespace Mirror.Experimental
                         ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
 
                         // reset data points so we don't keep interpolating
-                        start = null;
-                        goal = null;
+                        start = new DataPoint();
+                        goal = new DataPoint();
                     }
                     else
                     {
@@ -169,7 +169,7 @@ namespace Mirror.Experimental
             // reassign start wisely
             // -> first ever data point? then make something up for previous one
             //    so that we can start interpolation without waiting for next.
-            if (start == null)
+            if (start.timeStamp == 0)
             {
                 start = new DataPoint
                 {
@@ -240,8 +240,8 @@ namespace Mirror.Experimental
         //    -> elapsed based on send interval hoping that it roughly matches
         static float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
         {
-            Vector3 delta = to.localPosition - (from != null ? from.localPosition : transform.localPosition);
-            float elapsed = from != null ? to.timeStamp - from.timeStamp : sendInterval;
+            Vector3 delta = to.localPosition - (from.localPosition != null ? from.localPosition : transform.localPosition);
+            float elapsed = from.timeStamp != 0 ? to.timeStamp - from.timeStamp : sendInterval;
             // avoid NaN
             return elapsed > 0 ? delta.magnitude / elapsed : 0;
         }
@@ -258,7 +258,7 @@ namespace Mirror.Experimental
         // where are we in the timeline between start and goal? [0,1]
         static Vector3 InterpolatePosition(DataPoint start, DataPoint goal, Vector3 currentPosition)
         {
-            if (start != null)
+            if (start.movementSpeed != 0)
             {
                 // Option 1: simply interpolate based on time. but stutter
                 // will happen, it's not that smooth. especially noticeable if
@@ -277,7 +277,7 @@ namespace Mirror.Experimental
 
         static Quaternion InterpolateRotation(DataPoint start, DataPoint goal, Quaternion defaultRotation)
         {
-            if (start != null)
+            if (start.localRotation != null)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Quaternion.Slerp(start.localRotation, goal.localRotation, t);
@@ -287,7 +287,7 @@ namespace Mirror.Experimental
 
         static Vector3 InterpolateScale(DataPoint start, DataPoint goal, Vector3 currentScale)
         {
-            if (start != null)
+            if (start.localScale != null)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Vector3.Lerp(start.localScale, goal.localScale, t);
@@ -297,7 +297,7 @@ namespace Mirror.Experimental
 
         static float CurrentInterpolationFactor(DataPoint start, DataPoint goal)
         {
-            if (start != null)
+            if (start.timeStamp != 0)
             {
                 float difference = goal.timeStamp - start.timeStamp;
 
@@ -318,8 +318,8 @@ namespace Mirror.Experimental
         bool NeedsTeleport()
         {
             // calculate time between the two data points
-            float startTime = start != null ? start.timeStamp : Time.time - syncInterval;
-            float goalTime = goal != null ? goal.timeStamp : Time.time;
+            float startTime = start.timeStamp != 0 ? start.timeStamp : Time.time - syncInterval;
+            float goalTime = goal.timeStamp != 0 ? goal.timeStamp : Time.time;
             float difference = goalTime - startTime;
             float timeSinceGoalReceived = Time.time - goalTime;
             return timeSinceGoalReceived > difference * 5;
@@ -381,11 +381,11 @@ namespace Mirror.Experimental
         void OnDrawGizmos()
         {
             // draw start and goal points
-            if (start != null) DrawDataPointGizmo(start, Color.gray);
-            if (goal != null) DrawDataPointGizmo(goal, Color.white);
+            if (start.localPosition != null) DrawDataPointGizmo(start, Color.gray);
+            if (goal.localPosition != null) DrawDataPointGizmo(goal, Color.white);
 
             // draw line between them
-            if (start != null && goal != null) DrawLineBetweenDataPoints(start, goal, Color.cyan);
+            if (start.localPosition != null && goal.localPosition != null) DrawLineBetweenDataPoints(start, goal, Color.cyan);
         }
 
         #endregion
