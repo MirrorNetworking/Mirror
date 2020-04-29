@@ -3,35 +3,51 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
+    [TestFixture]
     public class ClientSceneTests
     {
         // use guid to find asset so that the path does not matter
         const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
+        const string InvalidPrefabAssetGuid = "78f0a3f755d35324e959f3ecdd993fb0";
 
         GameObject validPrefab;
+        GameObject invalidPrefab;
         Guid validPrefabGuid;
+        Guid invalidPrefabGuid;
 
         Dictionary<Guid, GameObject> prefabs => ClientScene.prefabs;
+        Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => ClientScene.spawnHandlers;
+        Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
 
         static GameObject LoadPrefab(string guid)
         {
             return AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
         }
 
-        [SetUp]
-        public void SetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             validPrefab = LoadPrefab(ValidPrefabAssetGuid);
+            invalidPrefab = LoadPrefab(InvalidPrefabAssetGuid);
             validPrefabGuid = new Guid(ValidPrefabAssetGuid);
+            invalidPrefabGuid = new Guid(ValidPrefabAssetGuid);
         }
 
         [TearDown]
         public void TearDown()
         {
             ClientScene.Shutdown();
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            validPrefab = null;
+            invalidPrefab = null;
         }
 
 
@@ -86,6 +102,51 @@ namespace Mirror.Tests
 
             NetworkIdentity networkID = prefab.GetComponent<NetworkIdentity>();
             Assert.AreEqual(networkID.assetId, validPrefabGuid);
+        }
+
+
+        [Test]
+        public void UnregisterPrefab_RemovesPrefabFromDictionary()
+        {
+            prefabs.Add(validPrefabGuid, validPrefab);
+
+            ClientScene.UnregisterPrefab(validPrefab);
+
+            Assert.IsFalse(prefabs.ContainsKey(validPrefabGuid));
+        }
+
+        [Test]
+        public void UnregisterPrefab_RemovesSpawnHandlerFromDictionary()
+        {
+            spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
+
+            ClientScene.UnregisterPrefab(validPrefab);
+
+            Assert.IsFalse(spawnHandlers.ContainsKey(validPrefabGuid));
+        }
+
+        [Test]
+        public void UnregisterPrefab_RemovesUnSpawnHandlerFromDictionary()
+        {
+            unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => { }));
+
+            ClientScene.UnregisterPrefab(validPrefab);
+
+            Assert.IsFalse(unspawnHandlers.ContainsKey(validPrefabGuid));
+        }
+
+        [Test]
+        public void UnregisterPrefab_ErrorWhenPrefabIsNull()
+        {
+            LogAssert.Expect(LogType.Error, "Could not unregister prefab because it was null");
+            ClientScene.UnregisterPrefab(null);
+        }
+
+        [Test]
+        public void UnregisterPrefab_ErrorWhenPrefabHasNoNetworkIdentity()
+        {
+            LogAssert.Expect(LogType.Error, $"Could not unregister '{invalidPrefab.name}' since it contains no NetworkIdentity component");
+            ClientScene.UnregisterPrefab(invalidPrefab);
         }
     }
 }
