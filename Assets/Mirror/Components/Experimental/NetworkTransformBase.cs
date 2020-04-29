@@ -32,11 +32,11 @@ namespace Mirror.Experimental
 
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
-        bool IsClientWithAuthority => hasAuthority && clientAuthority;
+        bool IsOwnerWithClientAuthority => hasAuthority && clientAuthority;
 
         // Is this a client in server authority mode
         // This component could be on the player object or any object that has been assigned authority to this client.
-        bool IsClientWithServerAuthority => hasAuthority && !clientAuthority;
+        bool IsOwnerWithServerAuthority => hasAuthority && !clientAuthority;
 
         // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
@@ -70,7 +70,7 @@ namespace Mirror.Experimental
 
         void OnServerDataChanged(ServerData _, ServerData newServerData)
         {
-            if (IsClientWithServerAuthority && excludeOwnerUpdate) return;
+            if (IsOwnerWithServerAuthority && excludeOwnerUpdate) return;
 
             SetGoal(newServerData);
         }
@@ -116,7 +116,7 @@ namespace Mirror.Experimental
             {
                 // send to server if we have local authority (and aren't the server)
                 // -> only if connectionToServer has been initialized yet too
-                if (IsClientWithAuthority)
+                if (IsOwnerWithClientAuthority)
                 {
                     // check only each 'syncInterval'
                     if (!isServer && Time.time - lastClientSendTime >= syncInterval)
