@@ -727,10 +727,12 @@ namespace Mirror
         {
             NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal, false);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal, false);
-            NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
-            NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
+
+            // Network Server initially registers it's own handlers for these, so we replace them here.
+            NetworkServer.ReplaceHandler<ReadyMessage>(OnServerReadyMessageInternal);
+            NetworkServer.ReplaceHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
         }
 
         void RegisterClientMessages()
