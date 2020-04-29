@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace Mirror.Tests
         GameObject validPrefab;
         Guid validPrefabGuid;
 
+        Dictionary<Guid, GameObject> prefabs => ClientScene.prefabs;
 
         static GameObject LoadPrefab(string guid)
         {
@@ -36,7 +38,7 @@ namespace Mirror.Tests
         [Test]
         public void GetPrefab_ReturnsFalseForEmptyGuid()
         {
-            bool result = ClientScene.GetPrefab(new System.Guid(), out GameObject prefab);
+            bool result = ClientScene.GetPrefab(new Guid(), out GameObject prefab);
 
             Assert.IsFalse(result);
             Assert.IsNull(prefab);
@@ -56,7 +58,7 @@ namespace Mirror.Tests
         public void GetPrefab_ReturnsFalseForPrefabIsNull()
         {
             Guid guid = Guid.NewGuid();
-            ClientScene.prefabs.Add(guid, null);
+            prefabs.Add(guid, null);
             bool result = ClientScene.GetPrefab(guid, out GameObject prefab);
 
             Assert.IsFalse(result);
@@ -66,7 +68,7 @@ namespace Mirror.Tests
         [Test]
         public void GetPrefab_ReturnsTrueWhenPrefabIsFound()
         {
-            ClientScene.prefabs.Add(validPrefabGuid, validPrefab);
+            prefabs.Add(validPrefabGuid, validPrefab);
             bool result = ClientScene.GetPrefab(validPrefabGuid, out GameObject prefab);
 
             Assert.IsTrue(result);
@@ -76,7 +78,7 @@ namespace Mirror.Tests
         [Test]
         public void GetPrefab_HasOutPrefabWithCorrectGuid()
         {
-            ClientScene.prefabs.Add(validPrefabGuid, validPrefab);
+            prefabs.Add(validPrefabGuid, validPrefab);
             ClientScene.GetPrefab(validPrefabGuid, out GameObject prefab);
 
 
