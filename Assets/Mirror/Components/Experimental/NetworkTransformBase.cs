@@ -351,6 +351,17 @@ namespace Mirror.Experimental
 
         #region Debug Gizmos
 
+        // draw the data points for easier debugging
+        void OnDrawGizmos()
+        {
+            // draw start and goal points
+            if (start.localPosition != null) DrawDataPointGizmo(start, Color.gray);
+            if (goal.localPosition != null) DrawDataPointGizmo(goal, Color.white);
+
+            // draw line between them
+            if (start.localPosition != null && goal.localPosition != null) DrawLineBetweenDataPoints(start, goal, Color.cyan);
+        }
+
         static void DrawDataPointGizmo(DataPoint data, Color color)
         {
             // use a little offset because transform.localPosition might be in
@@ -375,17 +386,6 @@ namespace Mirror.Experimental
         {
             Gizmos.color = color;
             Gizmos.DrawLine(data1.localPosition, data2.localPosition);
-        }
-
-        // draw the data points for easier debugging
-        void OnDrawGizmos()
-        {
-            // draw start and goal points
-            if (start.localPosition != null) DrawDataPointGizmo(start, Color.gray);
-            if (goal.localPosition != null) DrawDataPointGizmo(goal, Color.white);
-
-            // draw line between them
-            if (start.localPosition != null && goal.localPosition != null) DrawLineBetweenDataPoints(start, goal, Color.cyan);
         }
 
         #endregion
