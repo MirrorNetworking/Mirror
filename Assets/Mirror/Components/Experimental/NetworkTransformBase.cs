@@ -67,7 +67,7 @@ namespace Mirror.Experimental
         float lastClientSendTime;
         float lastServerSendTime;
 
-        void Update()
+        void LateUpdate()
         {
             // if server then always sync to others.
             if (isServer)
