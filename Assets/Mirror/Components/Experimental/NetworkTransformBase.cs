@@ -123,6 +123,21 @@ namespace Mirror.Experimental
             }
         }
 
+        // teleport / lag / stuck detection
+        // -> checking distance is not enough since there could be just a tiny
+        //    fence between us and the goal
+        // -> checking time always works, this way we just teleport if we still
+        //    didn't reach the goal after too much time has elapsed
+        bool NeedsTeleport()
+        {
+            // calculate time between the two data points
+            float startTime = start.timeStamp != 0 ? start.timeStamp : Time.time - syncInterval;
+            float goalTime = goal.timeStamp != 0 ? goal.timeStamp : Time.time;
+            float difference = goalTime - startTime;
+            float timeSinceGoalReceived = Time.time - goalTime;
+            return timeSinceGoalReceived > difference * 5;
+        }
+
         // local authority client sends sync message to server for broadcasting
         [Command]
         void CmdClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale)
@@ -308,21 +323,6 @@ namespace Mirror.Experimental
                 return difference > 0 ? elapsed / difference : 1;
             }
             return 1;
-        }
-
-        // teleport / lag / stuck detection
-        // -> checking distance is not enough since there could be just a tiny
-        //    fence between us and the goal
-        // -> checking time always works, this way we just teleport if we still
-        //    didn't reach the goal after too much time has elapsed
-        bool NeedsTeleport()
-        {
-            // calculate time between the two data points
-            float startTime = start.timeStamp != 0 ? start.timeStamp : Time.time - syncInterval;
-            float goalTime = goal.timeStamp != 0 ? goal.timeStamp : Time.time;
-            float difference = goalTime - startTime;
-            float timeSinceGoalReceived = Time.time - goalTime;
-            return timeSinceGoalReceived > difference * 5;
         }
 
         // moved since last time we checked it?
