@@ -151,6 +151,38 @@ namespace Mirror.Tests
 
 
         [Test]
+        public void UnregisterSpawnHandler_RemovesSpawnHandlersFromDictionary()
+        {
+            spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
+
+            ClientScene.UnregisterSpawnHandler(validPrefabGuid);
+
+            Assert.IsFalse(unspawnHandlers.ContainsKey(validPrefabGuid));
+        }
+
+        [Test]
+        public void UnregisterSpawnHandler_RemovesUnSpawnHandlersFromDictionary()
+        {
+            unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => { }));
+
+            ClientScene.UnregisterSpawnHandler(validPrefabGuid);
+
+            Assert.IsFalse(unspawnHandlers.ContainsKey(validPrefabGuid));
+        }
+
+        [Test]
+        public void UnregisterSpawnHandler_DoesNotRemovePrefabDictionary()
+        {
+            prefabs.Add(validPrefabGuid, validPrefab);
+
+            ClientScene.UnregisterSpawnHandler(validPrefabGuid);
+
+            // Should not be removed
+            Assert.IsTrue(prefabs.ContainsKey(validPrefabGuid));
+        }
+
+
+        [Test]
         public void ClearSpawners_RemovesAllPrefabsFromDictionary()
         {
             prefabs.Add(Guid.NewGuid(), null);
