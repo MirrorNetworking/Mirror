@@ -16,6 +16,7 @@
 // * Only way for smooth movement is to use a fixed movement speed during
 //   interpolation. interpolation over time is never that good.
 //
+using System;
 using UnityEngine;
 
 namespace Mirror.Experimental
@@ -48,7 +49,18 @@ namespace Mirror.Experimental
         Quaternion lastRotation;
         Vector3 lastScale;
 
-        // client
+        //client
+        [Serializable]
+        public struct ServerData
+        {
+            public Vector3 localPosition;
+            public Quaternion localRotation;
+            public Vector3 localScale;
+        }
+
+        [SyncVar(hook = nameof(SetGoal))]
+        public ServerData serverData = new ServerData();
+
         // use local position/rotation for VR support
         public struct DataPoint
         {
@@ -75,7 +87,13 @@ namespace Mirror.Experimental
                 // let the clients know that this has moved
                 if (Time.time - lastServerSendTime >= syncInterval && HasEitherMovedRotatedScaled())
                 {
-                    RpcMove(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+                    serverData = new ServerData
+                    {
+                        localPosition = targetComponent.transform.localPosition,
+                        localRotation = targetComponent.transform.localRotation,
+                        localScale = targetComponent.transform.localScale
+                    };
+                    //RpcMove(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
                     lastServerSendTime = Time.time;
                 }
             }
@@ -94,7 +112,14 @@ namespace Mirror.Experimental
                             // serialize
                             // local position/rotation for VR support
                             // send to server
-                            CmdClientToServerSync(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+                            CmdClientToServerSync(new ServerData
+                            {
+                                localPosition = targetComponent.transform.localPosition,
+                                localRotation = targetComponent.transform.localRotation,
+                                localScale = targetComponent.transform.localScale
+                            })
+
+                            //CmdClientToServerSync(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
                         }
                         lastClientSendTime = Time.time;
                     }
@@ -164,40 +189,41 @@ namespace Mirror.Experimental
 
         // local authority client sends sync message to server for broadcasting
         [Command]
-        void CmdClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale)
+        void CmdClientToServerSync(ServerData newServerData)
         {
             // Ignore messages from client if not in client authority mode
             if (!clientAuthority)
                 return;
 
             // deserialize payload
-            SetGoal(position, rotation, scale);
+            SetGoal(serverData, newServerData);
 
             // server-only mode does no interpolation to save computations,
             // but let's set the position directly
             if (isServer && !isClient)
                 ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
 
-            RpcMove(position, rotation, scale);
+            serverData = newServerData;
+            //RpcMove(position, rotation, scale);
         }
 
-        [ClientRpc]
-        void RpcMove(Vector3 position, Quaternion rotation, Vector3 scale)
-        {
-            if (!isServer)
-                SetGoal(position, rotation, scale);
-        }
+        //[ClientRpc]
+        //void RpcMove(Vector3 position, Quaternion rotation, Vector3 scale)
+        //{
+        //    if (!isServer)
+        //        SetGoal(position, rotation, scale);
+        //}
 
         // serialization is needed by OnSerialize and by manual sending from authority
-        void SetGoal(Vector3 position, Quaternion rotation, Vector3 scale)
+        void SetGoal(ServerData _, ServerData newServerData)
         {
             // put it into a data point immediately
             DataPoint temp = new DataPoint
             {
                 // deserialize position
-                localPosition = position,
-                localRotation = rotation,
-                localScale = scale,
+                localPosition = newServerData.localPosition,
+                localRotation = newServerData.localRotation,
+                localScale = newServerData.localScale,
                 timeStamp = Time.time,
             };
 
