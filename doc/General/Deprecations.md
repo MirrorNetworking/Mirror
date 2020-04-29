@@ -49,15 +49,11 @@ Use `SyncList<YourSpecialStruct>` instead.
 
 In classic UNet, QoS Flags were used to determine how packets got to the remote end. For example, if you needed a packet to be prioritized in the queue, you would specify a high priority flag which the Unity LLAPI would then receive and deal with appropriately. Unfortunately, this caused a lot of extra work for the transport layer and some of the QoS flags did not work as intended due to buggy code that relied on too much magic.
 
-In Mirror, QoS flags were replaced with a "Channels" system. This system paves the way for future Mirror improvements, so you can send data on different channels - for example, you could have all game activity on channel 0, while in-game text chat is sent on channel 1 and voice chat is sent on channel 2. In the future, it may be possible to assign a transport system per channel, allowing one to have a TCP transport for critical game network data on channel 0, while in-game text and voice chat is running on a UDP transport in parallel on channel 1. Some transports, such as [Ignorance](../Transports/Ignorance.md), also provide legacy compatibility for those attached to QoS flags.
+In Mirror, QoS flags were replaced with a "Channels" system. While the default transport, [Telepathy](../Transports/Telepathy.md), does not use channels at all because it's TCP-based, other transports, such as [Ignorance](../Transports/Ignorance.md) and [LiteNetLib4Mirror](../Transports/LiteNetLib4Mirror.mb), do support them.
 
 The currently defined channels are:
-
 -   `Channels.DefaultReliable = 0`
-
 -   `Channels.DefaultUnreliable = 1`
-
-Currently, Mirror using it's default TCP transport will always send everything over a reliable channel. There is no way to bypass this behaviour without using a third-party transport, since TCP is always reliable. Other transports may support other channel sending methods.
 
 ## Changes by Class
 
