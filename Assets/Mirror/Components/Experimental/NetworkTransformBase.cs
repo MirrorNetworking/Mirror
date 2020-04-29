@@ -27,9 +27,16 @@ namespace Mirror.Experimental
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool clientAuthority;
 
+        [Tooltip("Set to true if updates from server should be ignored by owner in server authority mode")]
+        public bool excludeOwnerUpdate;
+
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
         bool IsClientWithAuthority => hasAuthority && clientAuthority;
+
+        // Is this a client in server authority mode
+        // This component could be on the player object or any object that has been assigned authority to this client.
+        bool IsClientWithServerAuthority => hasAuthority && !clientAuthority;
 
         // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
@@ -58,8 +65,15 @@ namespace Mirror.Experimental
             public Vector3 localScale;
         }
 
-        [SyncVar(hook = nameof(SetGoal))]
+        [SyncVar(hook = nameof(OnServerDataChanged))]
         public ServerData serverData = new ServerData();
+
+        void OnServerDataChanged(ServerData _, ServerData newServerData)
+        {
+            if (IsClientWithServerAuthority && excludeOwnerUpdate) return;
+
+            SetGoal(newServerData);
+        }
 
         // use local position/rotation for VR support
         public struct DataPoint
@@ -196,7 +210,7 @@ namespace Mirror.Experimental
                 return;
 
             // deserialize payload
-            SetGoal(serverData, newServerData);
+            SetGoal(newServerData);
 
             // server-only mode does no interpolation to save computations,
             // but let's set the position directly
@@ -215,7 +229,7 @@ namespace Mirror.Experimental
         //}
 
         // serialization is needed by OnSerialize and by manual sending from authority
-        void SetGoal(ServerData _, ServerData newServerData)
+        void SetGoal(ServerData newServerData)
         {
             // put it into a data point immediately
             DataPoint temp = new DataPoint
