@@ -49,7 +49,7 @@ namespace Mirror.Experimental
         Vector3 lastScale;
 
         // client
-            // use local position/rotation for VR support
+        // use local position/rotation for VR support
         public struct DataPoint
         {
             public float timeStamp;
@@ -121,6 +121,30 @@ namespace Mirror.Experimental
 
                 }
             }
+        }
+
+        // moved since last time we checked it?
+        bool HasEitherMovedRotatedScaled()
+        {
+            // moved or rotated or scaled?
+            // local position/rotation/scale for VR support
+            bool moved = Vector3.Distance(lastPosition, targetComponent.transform.localPosition) > localPositionSensitivity;
+            bool scaled = Vector3.Distance(lastScale, targetComponent.transform.localScale) > localScaleSensitivity;
+            bool rotated = Quaternion.Angle(lastRotation, targetComponent.transform.localRotation) > localRotationSensitivity;
+
+            // save last for next frame to compare
+            // (only if change was detected. otherwise slow moving objects might
+            //  never sync because of C#'s float comparison tolerance. see also:
+            //  https://github.com/vis2k/Mirror/pull/428)
+            bool change = moved || rotated || scaled;
+            if (change)
+            {
+                // local position/rotation for VR support
+                lastPosition = targetComponent.transform.localPosition;
+                lastRotation = targetComponent.transform.localRotation;
+                lastScale = targetComponent.transform.localScale;
+            }
+            return change;
         }
 
         // teleport / lag / stuck detection
@@ -323,30 +347,6 @@ namespace Mirror.Experimental
                 return difference > 0 ? elapsed / difference : 1;
             }
             return 1;
-        }
-
-        // moved since last time we checked it?
-        bool HasEitherMovedRotatedScaled()
-        {
-            // moved or rotated or scaled?
-            // local position/rotation/scale for VR support
-            bool moved = Vector3.Distance(lastPosition, targetComponent.transform.localPosition) > localPositionSensitivity;
-            bool scaled = Vector3.Distance(lastScale, targetComponent.transform.localScale) > localScaleSensitivity;
-            bool rotated = Quaternion.Angle(lastRotation, targetComponent.transform.localRotation) > localRotationSensitivity;
-
-            // save last for next frame to compare
-            // (only if change was detected. otherwise slow moving objects might
-            //  never sync because of C#'s float comparison tolerance. see also:
-            //  https://github.com/vis2k/Mirror/pull/428)
-            bool change = moved || rotated || scaled;
-            if (change)
-            {
-                // local position/rotation for VR support
-                lastPosition = targetComponent.transform.localPosition;
-                lastRotation = targetComponent.transform.localRotation;
-                lastScale = targetComponent.transform.localScale;
-            }
-            return change;
         }
 
         #region Debug Gizmos
