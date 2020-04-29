@@ -117,7 +117,7 @@ namespace Mirror.Experimental
                                 localPosition = targetComponent.transform.localPosition,
                                 localRotation = targetComponent.transform.localRotation,
                                 localScale = targetComponent.transform.localScale
-                            })
+                            });
 
                             //CmdClientToServerSync(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
                         }
