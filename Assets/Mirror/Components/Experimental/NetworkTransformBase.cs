@@ -52,9 +52,9 @@ namespace Mirror.Experimental
         protected abstract Transform targetComponent { get; }
 
         // server
-        Vector3 lastPosition;
-        Quaternion lastRotation;
-        Vector3 lastScale;
+        public Vector3 lastPosition;
+        public Quaternion lastRotation;
+        public Vector3 lastScale;
 
         //client
         [Serializable]
@@ -70,12 +70,13 @@ namespace Mirror.Experimental
 
         void OnServerDataChanged(ServerData _, ServerData newServerData)
         {
-            if (IsOwnerWithServerAuthority && excludeOwnerUpdate) return;
+            //if (IsOwnerWithServerAuthority && excludeOwnerUpdate) return;
 
             SetGoal(newServerData);
         }
 
         // use local position/rotation for VR support
+        [Serializable]
         public struct DataPoint
         {
             public float timeStamp;
@@ -86,12 +87,12 @@ namespace Mirror.Experimental
         }
 
         // interpolation start and goal
-        DataPoint start = new DataPoint();
-        DataPoint goal = new DataPoint();
+        public DataPoint start = new DataPoint();
+        public DataPoint goal = new DataPoint();
 
         // local authority send time
-        float lastClientSendTime;
-        float lastServerSendTime;
+        public float lastClientSendTime;
+        public float lastServerSendTime;
 
         void LateUpdate()
         {
@@ -301,7 +302,7 @@ namespace Mirror.Experimental
         //     - elapsed based on send interval hoping that it roughly matches
         static float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
         {
-            Vector3 delta = to.localPosition - (from.localPosition != null ? from.localPosition : transform.localPosition);
+            Vector3 delta = to.localPosition - (from.localPosition != Vector3.zero ? from.localPosition : transform.localPosition);
             float elapsed = from.timeStamp != 0 ? to.timeStamp - from.timeStamp : sendInterval;
 
             // avoid NaN
