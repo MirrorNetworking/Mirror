@@ -351,8 +351,11 @@ namespace Mirror
                 return;
             }
 
-            spawnHandlers.Remove(identity.assetId);
-            unspawnHandlers.Remove(identity.assetId);
+            Guid assetId = identity.assetId;
+
+            prefabs.Remove(assetId);
+            spawnHandlers.Remove(assetId);
+            unspawnHandlers.Remove(assetId);
         }
 
         /// <summary>
