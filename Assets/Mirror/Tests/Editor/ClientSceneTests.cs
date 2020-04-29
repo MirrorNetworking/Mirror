@@ -7,6 +7,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
+    [TestFixture]
     public class ClientSceneTests
     {
         // use guid to find asset so that the path does not matter
@@ -27,8 +28,8 @@ namespace Mirror.Tests
             return AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
         }
 
-        [SetUp]
-        public void SetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             validPrefab = LoadPrefab(ValidPrefabAssetGuid);
             invalidPrefab = LoadPrefab(InvalidPrefabAssetGuid);
@@ -40,6 +41,13 @@ namespace Mirror.Tests
         public void TearDown()
         {
             ClientScene.Shutdown();
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            validPrefab = null;
+            invalidPrefab = null;
         }
 
 
