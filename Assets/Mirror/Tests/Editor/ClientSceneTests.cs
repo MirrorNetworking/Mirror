@@ -8,9 +8,10 @@ namespace Mirror.Tests
     public class ClientSceneTests
     {
         // use guid to find asset so that the path does not matter
-        const string ValidPrefabGuid = "33169286da0313d45ab5bfccc6cf3775";
+        const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
 
         GameObject validPrefab;
+        Guid validPrefabGuid;
 
 
         static GameObject LoadPrefab(string guid)
@@ -21,14 +22,14 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUp()
         {
-            validPrefab = LoadPrefab(ValidPrefabGuid);
+            validPrefab = LoadPrefab(ValidPrefabAssetGuid);
+            validPrefabGuid = new Guid(ValidPrefabAssetGuid);
         }
 
         [TearDown]
         public void TearDown()
         {
             ClientScene.Shutdown();
-            validPrefab = null;
         }
 
 
@@ -65,9 +66,8 @@ namespace Mirror.Tests
         [Test]
         public void GetPrefab_ReturnsTrueWhenPrefabIsFound()
         {
-            Guid guid = new Guid(ValidPrefabGuid);
-            ClientScene.prefabs.Add(guid, validPrefab);
-            bool result = ClientScene.GetPrefab(guid, out GameObject prefab);
+            ClientScene.prefabs.Add(validPrefabGuid, validPrefab);
+            bool result = ClientScene.GetPrefab(validPrefabGuid, out GameObject prefab);
 
             Assert.IsTrue(result);
             Assert.NotNull(prefab);
@@ -76,15 +76,14 @@ namespace Mirror.Tests
         [Test]
         public void GetPrefab_HasOutPrefabWithCorrectGuid()
         {
-            Guid guid = new Guid(ValidPrefabGuid);
-            ClientScene.prefabs.Add(guid, validPrefab);
-            ClientScene.GetPrefab(guid, out GameObject prefab);
+            ClientScene.prefabs.Add(validPrefabGuid, validPrefab);
+            ClientScene.GetPrefab(validPrefabGuid, out GameObject prefab);
 
 
             Assert.NotNull(prefab);
 
             NetworkIdentity networkID = prefab.GetComponent<NetworkIdentity>();
-            Assert.AreEqual(networkID.assetId, guid);
+            Assert.AreEqual(networkID.assetId, validPrefabGuid);
         }
     }
 }
