@@ -107,7 +107,7 @@ namespace Mirror.Experimental
                         localRotation = targetComponent.transform.localRotation,
                         localScale = targetComponent.transform.localScale
                     };
-                    //RpcMove(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+
                     lastServerSendTime = Time.time;
                 }
             }
@@ -132,9 +132,8 @@ namespace Mirror.Experimental
                                 localRotation = targetComponent.transform.localRotation,
                                 localScale = targetComponent.transform.localScale
                             });
-
-                            //CmdClientToServerSync(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
                         }
+
                         lastClientSendTime = Time.time;
                     }
                 }
@@ -218,15 +217,7 @@ namespace Mirror.Experimental
                 ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
 
             serverData = newServerData;
-            //RpcMove(position, rotation, scale);
         }
-
-        //[ClientRpc]
-        //void RpcMove(Vector3 position, Quaternion rotation, Vector3 scale)
-        //{
-        //    if (!isServer)
-        //        SetGoal(position, rotation, scale);
-        //}
 
         // serialization is needed by OnSerialize and by manual sending from authority
         void SetGoal(ServerData newServerData)
@@ -394,12 +385,13 @@ namespace Mirror.Experimental
         // draw the data points for easier debugging
         void OnDrawGizmos()
         {
-            // draw start and goal points
-            if (start.localPosition != null) DrawDataPointGizmo(start, Color.gray);
-            if (goal.localPosition != null) DrawDataPointGizmo(goal, Color.white);
-
-            // draw line between them
-            if (start.localPosition != null && goal.localPosition != null) DrawLineBetweenDataPoints(start, goal, Color.cyan);
+            // draw start and goal points and a line between them
+            if (start.localPosition != goal.localPosition)
+            {
+                DrawDataPointGizmo(start, Color.yellow);
+                DrawDataPointGizmo(goal, Color.green);
+                DrawLineBetweenDataPoints(start, goal, Color.cyan);
+            }
         }
 
         static void DrawDataPointGizmo(DataPoint data, Color color)
