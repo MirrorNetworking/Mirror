@@ -142,8 +142,12 @@ namespace Mirror.Experimental
         {
             // moved or rotated or scaled?
             // local position/rotation/scale for VR support
-            bool moved = Vector3.Distance(lastPosition, targetComponent.transform.localPosition) > localPositionSensitivity;
-            bool scaled = Vector3.Distance(lastScale, targetComponent.transform.localScale) > localScaleSensitivity;
+
+            // SqrMagnitude is faster than Distance per Unity docs
+            // https://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
+            bool moved = Vector3.SqrMagnitude(lastPosition - targetComponent.transform.localPosition) > localPositionSensitivity * localPositionSensitivity;
+            bool scaled = Vector3.SqrMagnitude(lastScale - targetComponent.transform.localScale) > localScaleSensitivity * localScaleSensitivity;
+
             bool rotated = Quaternion.Angle(lastRotation, targetComponent.transform.localRotation) > localRotationSensitivity;
 
             // save last for next frame to compare
