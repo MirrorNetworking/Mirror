@@ -460,6 +460,11 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName());
 
+            if (spawnHandlers.ContainsKey(assetId) || unspawnHandlers.ContainsKey(assetId))
+            {
+                logger.LogWarning($"Replacing existing spawnHandlers for {assetId}");
+            }
+
             spawnHandlers[assetId] = spawnHandler;
             unspawnHandlers[assetId] = unspawnHandler;
         }
