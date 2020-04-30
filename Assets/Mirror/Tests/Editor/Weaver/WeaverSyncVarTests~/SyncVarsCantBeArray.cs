@@ -2,7 +2,7 @@ using UnityEngine;
 using Mirror;
 using System.Collections.Generic;
 
-namespace MirrorTest
+namespace WeaverSyncVarTests.SyncVarsCantBeArray
 {
     class SyncVarsCantBeArray : NetworkBehaviour
     {

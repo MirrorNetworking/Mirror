@@ -1,6 +1,6 @@
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListGenericInheritanceWithMultipleGeneric
 {
     /*
     This test will fail

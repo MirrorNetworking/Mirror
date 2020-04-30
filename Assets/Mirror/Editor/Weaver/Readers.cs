@@ -340,7 +340,7 @@ namespace Mirror.Weaver
         }
 
         // Initialize the local variable with a new instance
-        private static void CreateNew(TypeReference variable, ILProcessor worker, TypeDefinition td)
+        static void CreateNew(TypeReference variable, ILProcessor worker, TypeDefinition td)
         {
             if (variable.IsValueType)
             {
@@ -373,7 +373,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void DeserializeFields(TypeReference variable, int recursionCount, ILProcessor worker)
+        static void DeserializeFields(TypeReference variable, int recursionCount, ILProcessor worker)
         {
             uint fields = 0;
             foreach (FieldDefinition field in variable.Resolve().Fields)

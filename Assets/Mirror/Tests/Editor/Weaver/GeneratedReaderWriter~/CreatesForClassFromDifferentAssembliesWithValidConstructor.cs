@@ -1,7 +1,7 @@
 using Mirror;
 using Mirror.Weaver.Tests.Extra;
 
-namespace MirrorTest
+namespace GeneratedReaderWriter.CreatesForClassFromDifferentAssembliesWithValidConstructor
 {
     public class CreatesForClassFromDifferentAssembliesWithValidConstructor : NetworkBehaviour
     {

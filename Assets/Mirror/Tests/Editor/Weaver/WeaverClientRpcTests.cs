@@ -13,13 +13,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ClientRpcStartsWithRpc()
         {
-            Assert.That(weaverErrors, Contains.Item("DoesntStartWithRpc must start with Rpc.  Consider renaming it to RpcDoesntStartWithRpc (at System.Void MirrorTest.ClientRpcStartsWithRpc::DoesntStartWithRpc())"));
+            Assert.That(weaverErrors, Contains.Item("DoesntStartWithRpc must start with Rpc.  Consider renaming it to RpcDoesntStartWithRpc (at System.Void WeaverClientRpcTests.ClientRpcStartsWithRpc.ClientRpcStartsWithRpc::DoesntStartWithRpc())"));
         }
 
         [Test]
         public void ClientRpcCantBeStatic()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantBeStatic must not be static (at System.Void MirrorTest.ClientRpcCantBeStatic::RpcCantBeStatic())"));
+            Assert.That(weaverErrors, Contains.Item("RpcCantBeStatic must not be static (at System.Void WeaverClientRpcTests.ClientRpcCantBeStatic.ClientRpcCantBeStatic::RpcCantBeStatic())"));
         }
     }
 }

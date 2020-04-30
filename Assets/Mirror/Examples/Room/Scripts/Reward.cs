@@ -17,6 +17,15 @@ namespace Mirror.Examples.NetworkRoom
                 randomColor = GetComponent<RandomColor>();
         }
 
+        [ServerCallback]
+        void OnTriggerEnter(Collider other)
+        {
+            if (other.gameObject.CompareTag("Player"))
+            {
+                ClaimPrize(other.gameObject);
+            }
+        }
+        
         // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit
         // This only runs on the server
         public void ClaimPrize(GameObject player)

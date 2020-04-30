@@ -1,7 +1,7 @@
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncDictionaryTests.SyncDictionaryStructItemWithCustomMethods
 {
     class SyncDictionaryItemStructWithCustomMethods : NetworkBehaviour
     {
