@@ -421,6 +421,13 @@ namespace Mirror
         /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
         public static void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
+            // We need this check here because we don't want a null handler in the lambda expression below
+            if (spawnHandler == null)
+            {
+                logger.LogError($"Can not Register null SpawnHandler for {assetId}");
+                return;
+            }
+
             RegisterSpawnHandler(assetId, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
         }
 
