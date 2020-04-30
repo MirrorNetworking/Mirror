@@ -318,7 +318,7 @@ namespace Mirror.Experimental
 
         static Quaternion InterpolateRotation(DataPoint start, DataPoint goal, Quaternion defaultRotation)
         {
-            if (start.localRotation != null)
+            if (start.localRotation != goal.localRotation)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Quaternion.Slerp(start.localRotation, goal.localRotation, t);
@@ -328,7 +328,7 @@ namespace Mirror.Experimental
 
         static Vector3 InterpolateScale(DataPoint start, DataPoint goal, Vector3 currentScale)
         {
-            if (start.localScale != null)
+            if (start.localScale != goal.localScale)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Vector3.Lerp(start.localScale, goal.localScale, t);
