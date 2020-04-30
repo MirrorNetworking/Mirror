@@ -16,6 +16,7 @@
 // * Only way for smooth movement is to use a fixed movement speed during
 //   interpolation. interpolation over time is never that good.
 //
+using System;
 using UnityEngine;
 
 namespace Mirror.Experimental
@@ -26,9 +27,16 @@ namespace Mirror.Experimental
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool clientAuthority;
 
+        [Tooltip("Set to true if updates from server should be ignored by owner in server authority mode")]
+        public bool excludeOwnerUpdate;
+
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
-        bool IsClientWithAuthority => hasAuthority && clientAuthority;
+        bool IsOwnerWithClientAuthority => hasAuthority && clientAuthority;
+
+        // Is this a client in server authority mode
+        // This component could be on the player object or any object that has been assigned authority to this client.
+        bool IsOwnerWithServerAuthority => hasAuthority && !clientAuthority;
 
         // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
@@ -44,12 +52,13 @@ namespace Mirror.Experimental
         protected abstract Transform targetComponent { get; }
 
         // server
-        Vector3 lastPosition;
-        Quaternion lastRotation;
-        Vector3 lastScale;
+        public Vector3 lastPosition;
+        public Quaternion lastRotation;
+        public Vector3 lastScale;
 
         // client
         // use local position/rotation for VR support
+        [Serializable]
         public struct DataPoint
         {
             public float timeStamp;
@@ -60,12 +69,12 @@ namespace Mirror.Experimental
         }
 
         // interpolation start and goal
-        DataPoint start = new DataPoint();
-        DataPoint goal = new DataPoint();
+        public DataPoint start = new DataPoint();
+        public DataPoint goal = new DataPoint();
 
         // local authority send time
-        float lastClientSendTime;
-        float lastServerSendTime;
+        public float lastClientSendTime;
+        public float lastServerSendTime;
 
         void LateUpdate()
         {
@@ -84,7 +93,7 @@ namespace Mirror.Experimental
             {
                 // send to server if we have local authority (and aren't the server)
                 // -> only if connectionToServer has been initialized yet too
-                if (IsClientWithAuthority)
+                if (IsOwnerWithClientAuthority)
                 {
                     // check only each 'syncInterval'
                     if (!isServer && Time.time - lastClientSendTime >= syncInterval)
@@ -134,8 +143,8 @@ namespace Mirror.Experimental
 
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might
-            //  never sync because of C#'s float comparison tolerance. see also:
-            //  https://github.com/vis2k/Mirror/pull/428)
+            // never sync because of C#'s float comparison tolerance. see also:
+            // https://github.com/vis2k/Mirror/pull/428)
             bool change = moved || rotated || scaled;
             if (change)
             {
@@ -148,10 +157,8 @@ namespace Mirror.Experimental
         }
 
         // teleport / lag / stuck detection
-        // -> checking distance is not enough since there could be just a tiny
-        //    fence between us and the goal
-        // -> checking time always works, this way we just teleport if we still
-        //    didn't reach the goal after too much time has elapsed
+        // - checking distance is not enough since there could be just a tiny fence between us and the goal
+        // - checking time always works, this way we just teleport if we still didn't reach the goal after too much time has elapsed
         bool NeedsTeleport()
         {
             // calculate time between the two data points
@@ -173,8 +180,7 @@ namespace Mirror.Experimental
             // deserialize payload
             SetGoal(position, rotation, scale);
 
-            // server-only mode does no interpolation to save computations,
-            // but let's set the position directly
+            // server-only mode does no interpolation to save computations, but let's set the position directly
             if (isServer && !isClient)
                 ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
 
@@ -184,6 +190,8 @@ namespace Mirror.Experimental
         [ClientRpc]
         void RpcMove(Vector3 position, Quaternion rotation, Vector3 scale)
         {
+            if (IsOwnerWithServerAuthority && excludeOwnerUpdate) return;
+
             if (!isServer)
                 SetGoal(position, rotation, scale);
         }
@@ -201,13 +209,11 @@ namespace Mirror.Experimental
                 timeStamp = Time.time,
             };
 
-            // movement speed: based on how far it moved since last time
-            // has to be calculated before 'start' is overwritten
+            // movement speed: based on how far it moved since last time has to be calculated before 'start' is overwritten
             temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetComponent.transform, syncInterval);
 
             // reassign start wisely
-            // -> first ever data point? then make something up for previous one
-            //    so that we can start interpolation without waiting for next.
+            // first ever data point? then make something up for previous one so that we can start interpolation without waiting for next.
             if (start.timeStamp == 0)
             {
                 start = new DataPoint
@@ -220,9 +226,8 @@ namespace Mirror.Experimental
                     movementSpeed = temp.movementSpeed
                 };
             }
-            // -> second or nth data point? then update previous, but:
-            //    we start at where ever we are right now, so that it's
-            //    perfectly smooth and we don't jump anywhere
+            // second or nth data point? then update previous
+            // but: we start at where ever we are right now, so that it's perfectly smooth and we don't jump anywhere
             //
             //    example if we are at 'x':
             //
@@ -256,9 +261,7 @@ namespace Mirror.Experimental
 
                 start = goal;
 
-                // teleport / lag / obstacle detection: only continue at current
-                // position if we aren't too far away
-                //
+                // teleport / lag / obstacle detection: only continue at current position if we aren't too far away
                 // local position/rotation for VR support
                 if (Vector3.Distance(targetComponent.transform.localPosition, start.localPosition) < oldDistance + newDistance)
                 {
@@ -272,15 +275,15 @@ namespace Mirror.Experimental
             goal = temp;
         }
 
-        // try to estimate movement speed for a data point based on how far it
-        // moved since the previous one
-        // => if this is the first time ever then we use our best guess:
-        //    -> delta based on transform.localPosition
-        //    -> elapsed based on send interval hoping that it roughly matches
+        // try to estimate movement speed for a data point based on how far it moved since the previous one
+        // - if this is the first time ever then we use our best guess:
+        //     - delta based on transform.localPosition
+        //     - elapsed based on send interval hoping that it roughly matches
         static float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
         {
             Vector3 delta = to.localPosition - (from.localPosition != null ? from.localPosition : transform.localPosition);
             float elapsed = from.timeStamp != 0 ? to.timeStamp - from.timeStamp : sendInterval;
+
             // avoid NaN
             return elapsed > 0 ? delta.magnitude / elapsed : 0;
         }
@@ -299,15 +302,14 @@ namespace Mirror.Experimental
         {
             if (start.movementSpeed != 0)
             {
-                // Option 1: simply interpolate based on time. but stutter
-                // will happen, it's not that smooth. especially noticeable if
-                // the camera automatically follows the player
-                //   float t = CurrentInterpolationFactor();
-                //   return Vector3.Lerp(start.position, goal.position, t);
+                // Option 1: simply interpolate based on time, but stutter will happen, it's not that smooth.
+                // This is especially noticeable if the camera automatically follows the player
+                // -         Tell SonarCloud this isn't really commented code but actual comments and to stfu about it
+                // #$%%$#    float t = CurrentInterpolationFactor();
+                // #$%%$#    return Vector3.Lerp(start.position, goal.position, t);
 
                 // Option 2: always += speed
-                // -> speed is 0 if we just started after idle, so always use max
-                //    for best results
+                // speed is 0 if we just started after idle, so always use max for best results
                 float speed = Mathf.Max(start.movementSpeed, goal.movementSpeed);
                 return Vector3.MoveTowards(currentPosition, goal.localPosition, speed * Time.deltaTime);
             }
@@ -340,9 +342,9 @@ namespace Mirror.Experimental
             {
                 float difference = goal.timeStamp - start.timeStamp;
 
-                // the moment we get 'goal', 'start' is supposed to
-                // start, so elapsed time is based on:
+                // the moment we get 'goal', 'start' is supposed to start, so elapsed time is based on:
                 float elapsed = Time.time - goal.timeStamp;
+
                 // avoid NaN
                 return difference > 0 ? elapsed / difference : 1;
             }
@@ -354,30 +356,27 @@ namespace Mirror.Experimental
         // draw the data points for easier debugging
         void OnDrawGizmos()
         {
-            // draw start and goal points
-            if (start.localPosition != null) DrawDataPointGizmo(start, Color.gray);
-            if (goal.localPosition != null) DrawDataPointGizmo(goal, Color.white);
-
-            // draw line between them
-            if (start.localPosition != null && goal.localPosition != null) DrawLineBetweenDataPoints(start, goal, Color.cyan);
+            // draw start and goal points and a line between them
+            if (start.localPosition != goal.localPosition)
+            {
+                DrawDataPointGizmo(start, Color.yellow);
+                DrawDataPointGizmo(goal, Color.green);
+                DrawLineBetweenDataPoints(start, goal, Color.cyan);
+            }
         }
 
         static void DrawDataPointGizmo(DataPoint data, Color color)
         {
-            // use a little offset because transform.localPosition might be in
-            // the ground in many cases
+            // use a little offset because transform.localPosition might be in the ground in many cases
             Vector3 offset = Vector3.up * 0.01f;
 
             // draw position
             Gizmos.color = color;
             Gizmos.DrawSphere(data.localPosition + offset, 0.5f);
 
-            // draw forward and up
-            // like unity move tool
+            // draw forward and up like unity move tool
             Gizmos.color = Color.blue;
             Gizmos.DrawRay(data.localPosition + offset, data.localRotation * Vector3.forward);
-
-            // like unity move tool
             Gizmos.color = Color.green;
             Gizmos.DrawRay(data.localPosition + offset, data.localRotation * Vector3.up);
         }
