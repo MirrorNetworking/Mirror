@@ -21,6 +21,12 @@ namespace Mirror
         // does this type sync anything? otherwise we don't need to show syncInterval
         bool SyncsAnything(Type scriptClass)
         {
+            // syncVarNames should be set because SyncsAnything is called
+            if (syncVarNames.Count > 0)
+            {
+                return true;
+            }
+
             // has OnSerialize that is not in NetworkBehaviour?
             // then it either has a syncvar or custom OnSerialize. either way
             // this means we have something to sync.
