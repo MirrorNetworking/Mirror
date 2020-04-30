@@ -52,8 +52,8 @@ namespace Mirror
         public static Dictionary<ulong, NetworkIdentity> spawnableObjects;
 
         // spawn handlers
-        static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
-        static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
+        internal static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
+        internal static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
         internal static void Shutdown()
         {
@@ -289,11 +289,65 @@ namespace Mirror
         /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
         /// </summary>
         /// <param name="prefab">A Prefab that will be spawned.</param>
+        /// <param name="newAssetId">An assetId to be assigned to this prefab. This allows a dynamically created game object to be registered for an already known asset Id.</param>
+        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
+        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
+        public static void RegisterPrefab(GameObject prefab, Guid newAssetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        {
+            RegisterPrefab(prefab, newAssetId, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
+        }
+
+        /// <summary>
+        /// Registers a prefab with the spawning system.
+        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
+        /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
+        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
+        /// </summary>
+        /// <param name="prefab">A Prefab that will be spawned.</param>
         /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
         /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
         public static void RegisterPrefab(GameObject prefab, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             RegisterPrefab(prefab, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
+        }
+
+        /// <summary>
+        /// Registers a prefab with the spawning system.
+        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
+        /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
+        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
+        /// </summary>
+        /// <param name="prefab">A Prefab that will be spawned.</param>
+        /// <param name="newAssetId">An assetId to be assigned to this prefab. This allows a dynamically created game object to be registered for an already known asset Id.</param>
+        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
+        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
+        public static void RegisterPrefab(GameObject prefab, Guid newAssetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        {
+            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
+            if (identity == null)
+            {
+                logger.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
+                return;
+            }
+
+            identity.assetId = newAssetId;
+
+            if (spawnHandler == null || unspawnHandler == null)
+            {
+                logger.LogError("RegisterPrefab custom spawn function null for " + identity.assetId);
+                return;
+            }
+
+            if (identity.assetId == Guid.Empty)
+            {
+                logger.LogError("RegisterPrefab game object " + prefab.name + " has no prefab. Use RegisterSpawnHandler() instead?");
+                return;
+            }
+
+            if (logger.LogEnabled()) logger.Log("Registering custom prefab '" + prefab.name + "' as asset:" + identity.assetId + " " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName());
+
+            spawnHandlers[identity.assetId] = spawnHandler;
+            unspawnHandlers[identity.assetId] = unspawnHandler;
         }
 
         /// <summary>
@@ -338,14 +392,24 @@ namespace Mirror
         /// <param name="prefab">The prefab to be removed from registration.</param>
         public static void UnregisterPrefab(GameObject prefab)
         {
+            if (prefab == null)
+            {
+                logger.LogError("Could not unregister prefab because it was null");
+                return;
+            }
+
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
                 logger.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
             }
-            spawnHandlers.Remove(identity.assetId);
-            unspawnHandlers.Remove(identity.assetId);
+
+            Guid assetId = identity.assetId;
+
+            prefabs.Remove(assetId);
+            spawnHandlers.Remove(assetId);
+            unspawnHandlers.Remove(assetId);
         }
 
         /// <summary>
