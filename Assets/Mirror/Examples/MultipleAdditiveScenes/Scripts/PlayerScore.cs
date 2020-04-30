@@ -12,7 +12,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         public override void OnStartServer()
         {
-            index = connectionToClient.connectionId;
+            //index = connectionToClient.connectionId;
         }
 
         void OnGUI()

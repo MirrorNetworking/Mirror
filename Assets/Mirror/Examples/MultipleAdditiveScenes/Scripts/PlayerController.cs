@@ -5,14 +5,31 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 {
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkTransform))]
+    [RequireComponent(typeof(CapsuleCollider))]
+    [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
         public CharacterController characterController;
+        public CapsuleCollider capsuleCollider;
+        public Rigidbody rigidbody3D;
 
         void OnValidate()
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
+            if (capsuleCollider == null)
+                capsuleCollider = GetComponent<CapsuleCollider>();
+            if (rigidbody3D == null)
+                rigidbody3D = GetComponent<Rigidbody>();
+        }
+
+        void Start()
+        {
+            capsuleCollider.enabled = isServer;
+
+            rigidbody3D.isKinematic = true;
+            rigidbody3D.useGravity = false;
+            rigidbody3D.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         }
 
         public override void OnStartLocalPlayer()

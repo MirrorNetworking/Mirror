@@ -88,12 +88,14 @@ GameObject:
   m_Component:
   - component: {fileID: 4822224316094678}
   - component: {fileID: 114402732107420660}
+  - component: {fileID: 114720308987319626}
   - component: {fileID: 114265392388239132}
   - component: {fileID: 143011667059871024}
+  - component: {fileID: 4839740653866577337}
+  - component: {fileID: 1849877933717427647}
   - component: {fileID: 114892629901890886}
   - component: {fileID: 6261579163786439309}
   - component: {fileID: 115187108610643062}
-  - component: {fileID: 114720308987319626}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -132,6 +134,21 @@ MonoBehaviour:
   serverOnly: 0
   m_AssetId: 
   hasSpawned: 0
+--- !u!114 &114720308987319626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480027675339556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7fdb599e1359924bad6255660370252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  forceHidden: 0
 --- !u!114 &114265392388239132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,9 +182,39 @@ CharacterController:
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.001
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!136 &4839740653866577337
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480027675339556}
+  m_Material: {fileID: 13400000, guid: 2debad4ac21a6644faf4fc93bd5b5869, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 0
+  m_Radius: 0.8
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &1849877933717427647
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480027675339556}
+  serializedVersion: 2
+  m_Mass: 50
+  m_Drag: 0
+  m_AngularDrag: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!114 &114892629901890886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -183,6 +230,8 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   characterController: {fileID: 143011667059871024}
+  capsuleCollider: {fileID: 4839740653866577337}
+  rigidbody3D: {fileID: 1849877933717427647}
   moveSpeed: 8
   turnSensitivity: 5
   maxTurnSpeed: 150
@@ -190,6 +239,7 @@ MonoBehaviour:
   vertical: 0
   turn: 0
   jumpSpeed: 0
+  jumpTime: 0
   isGrounded: 1
   isFalling: 0
   velocity: {x: 0, y: 0, z: 0}
@@ -226,21 +276,6 @@ MonoBehaviour:
   syncInterval: 0
   index: 0
   score: 0
---- !u!114 &114720308987319626
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1480027675339556}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7fdb599e1359924bad6255660370252, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
-  forceHidden: 0
 --- !u!1 &4926068573968176962
 GameObject:
   m_ObjectHideFlags: 0
@@ -299,7 +334,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ac64a68d9ea8fa9459ff2f158065c1d0, type: 2}
+  - {fileID: 2100000, guid: 2089070a3452e6f4d866c53e51aae8f2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

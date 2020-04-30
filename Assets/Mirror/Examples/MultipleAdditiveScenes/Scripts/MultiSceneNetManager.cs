@@ -9,39 +9,30 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     public class MultiSceneNetManager : NetworkManager
     {
         [Header("MultiScene Setup")]
+        public int instances = 2;
+
         [Scene]
         public string gameScene;
 
-        public int instances = 2;
-
         List<Scene> subScenes = new List<Scene>();
 
-        IEnumerator LoadSubScenes()
+        public override void Start()
         {
-            for (int index = 0; index < instances; index++)
-            {
-                yield return SceneManager.LoadSceneAsync(gameScene, new LoadSceneParameters { loadSceneMode= LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
-                subScenes.Add(SceneManager.GetSceneAt(index + 1));
-            }
-        }
-
-        IEnumerator UnloadSubScenes()
-        {
-            for (int index = 0; index < subScenes.Count; index++)
-                yield return SceneManager.UnloadSceneAsync(subScenes[index]);
-
-            subScenes.Clear();
-
-            yield return Resources.UnloadUnusedAssets();
+            if (isHeadless && startOnHeadless)
+                StartServer();
+#if RELEASE
+            if (!isHeadless)
+                StartClient();
+#endif
         }
 
         #region Server System Callbacks
 
-                /// <summary>
-                /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
-                /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
-                /// </summary>
-                /// <param name="conn">Connection from client.</param>
+        /// <summary>
+        /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
+        /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
+        /// </summary>
+        /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
             // This delay is really for the host player that loads too fast for the server to have subscene loaded
@@ -54,6 +45,8 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             conn.Send(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.LoadAdditive });
 
             base.OnServerAddPlayer(conn);
+
+            conn.identity.GetComponent<PlayerScore>().index = conn.connectionId & instances;
 
             if (subScenes.Count > 0)
                 SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[conn.connectionId % subScenes.Count]);
@@ -72,13 +65,32 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             StartCoroutine(LoadSubScenes());
         }
 
+        IEnumerator LoadSubScenes()
+        {
+            for (int index = 0; index < instances; index++)
+            {
+                yield return SceneManager.LoadSceneAsync(gameScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
+                subScenes.Add(SceneManager.GetSceneAt(index + 1));
+            }
+        }
+
         /// <summary>
         /// This is called when a server is stopped - including when a host is stopped.
         /// </summary>
-        public override void OnStopServer() 
+        public override void OnStopServer()
         {
             NetworkServer.SendToAll(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.UnloadAdditive });
             StartCoroutine(UnloadSubScenes());
+        }
+
+        IEnumerator UnloadSubScenes()
+        {
+            for (int index = 0; index < subScenes.Count; index++)
+                yield return SceneManager.UnloadSceneAsync(subScenes[index]);
+
+            subScenes.Clear();
+
+            yield return Resources.UnloadUnusedAssets();
         }
 
         #endregion
