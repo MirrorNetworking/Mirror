@@ -291,7 +291,7 @@ namespace Mirror.Experimental
         //     - elapsed based on send interval hoping that it roughly matches
         static float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
         {
-            Vector3 delta = to.localPosition - (from.localPosition != null ? from.localPosition : transform.localPosition);
+            Vector3 delta = to.localPosition - (from.localPosition != transform.localPosition ? from.localPosition : transform.localPosition);
             float elapsed = from.timeStamp != 0 ? to.timeStamp - from.timeStamp : sendInterval;
 
             // avoid NaN
@@ -315,8 +315,8 @@ namespace Mirror.Experimental
                 // Option 1: simply interpolate based on time, but stutter will happen, it's not that smooth.
                 // This is especially noticeable if the camera automatically follows the player
                 // -         Tell SonarCloud this isn't really commented code but actual comments and to stfu about it
-                // #$%%$#    float t = CurrentInterpolationFactor();
-                // #$%%$#    return Vector3.Lerp(start.position, goal.position, t);
+                // -         float t = CurrentInterpolationFactor();
+                // -         return Vector3.Lerp(start.position, goal.position, t);
 
                 // Option 2: always += speed
                 // speed is 0 if we just started after idle, so always use max for best results
