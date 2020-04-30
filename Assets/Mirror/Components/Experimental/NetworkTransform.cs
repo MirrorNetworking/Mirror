@@ -3,7 +3,7 @@
 namespace Mirror.Experimental
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/Experimental/NetworkTransform")]
+    [AddComponentMenu("Network/Experimental/NetworkTransformExperimental")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkTransform.html")]
     public class NetworkTransform : NetworkTransformBase
     {
