@@ -245,6 +245,22 @@ namespace Mirror.Tests
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
+        [Test]
+        public void RegisterSpawnHandler_SpawnDelegate_WarningWhenHandlerForGuidAlreadyExists()
+        {
+            Guid guid = Guid.NewGuid();
+            SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+
+            SpawnDelegate spawnHandler2 = new SpawnDelegate((x, y) => new GameObject());
+            UnSpawnDelegate unspawnHandler2 = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
+
+            LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {guid}");
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler2, unspawnHandler2);
+        }
+
 
         [Test]
         public void RegisterSpawnHandler_SpawnHandlerDelegate_AddsHandlerToSpawnHandlers()
@@ -303,6 +319,22 @@ namespace Mirror.Tests
 
             LogAssert.Expect(LogType.Error, "Can not Register SpawnHandler for empty Guid");
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnHandlerDelegate_WarningWhenHandlerForGuidAlreadyExists()
+        {
+            Guid guid = Guid.NewGuid();
+            SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+
+            SpawnHandlerDelegate spawnHandler2 = new SpawnHandlerDelegate(x => new GameObject());
+            UnSpawnDelegate unspawnHandler2 = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
+
+            LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {guid}");
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler2, unspawnHandler2);
         }
 
 
