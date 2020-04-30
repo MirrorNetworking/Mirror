@@ -71,6 +71,8 @@ namespace Mirror.Experimental
             public Quaternion localRotation;
             public Vector3 localScale;
             public float movementSpeed;
+
+            public bool isValid => timeStamp != 0;
         }
 
         // interpolation start and goal
@@ -113,7 +115,7 @@ namespace Mirror.Experimental
                         lastClientSendTime = Time.time;
                     }
                 }
-                else if (goal.timeStamp != 0)
+                else if (goal.isValid)
                 {
                     // teleport or interpolate
                     if (NeedsTeleport())
@@ -171,8 +173,8 @@ namespace Mirror.Experimental
         bool NeedsTeleport()
         {
             // calculate time between the two data points
-            float startTime = start.timeStamp != 0 ? start.timeStamp : Time.time - syncInterval;
-            float goalTime = goal.timeStamp != 0 ? goal.timeStamp : Time.time;
+            float startTime = start.isValid ? start.timeStamp : Time.time - syncInterval;
+            float goalTime = goal.isValid ? goal.timeStamp : Time.time;
             float difference = goalTime - startTime;
             float timeSinceGoalReceived = Time.time - goalTime;
             return timeSinceGoalReceived > difference * 5;
@@ -292,7 +294,7 @@ namespace Mirror.Experimental
         static float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
         {
             Vector3 delta = to.localPosition - (from.localPosition != transform.localPosition ? from.localPosition : transform.localPosition);
-            float elapsed = from.timeStamp != 0 ? to.timeStamp - from.timeStamp : sendInterval;
+            float elapsed = from.isValid ? to.timeStamp - from.timeStamp : sendInterval;
 
             // avoid NaN
             return elapsed > 0 ? delta.magnitude / elapsed : 0;
@@ -348,7 +350,7 @@ namespace Mirror.Experimental
 
         static float CurrentInterpolationFactor(DataPoint start, DataPoint goal)
         {
-            if (start.timeStamp != 0)
+            if (start.isValid)
             {
                 float difference = goal.timeStamp - start.timeStamp;
 
