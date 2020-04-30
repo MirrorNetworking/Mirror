@@ -445,6 +445,12 @@ namespace Mirror
                 return;
             }
 
+            if (assetId == Guid.Empty)
+            {
+                logger.LogError("Can not Register SpawnHandler for empty Guid");
+                return;
+            }
+
             if (logger.LogEnabled()) logger.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName());
 
             spawnHandlers[assetId] = spawnHandler;
