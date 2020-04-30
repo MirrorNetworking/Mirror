@@ -25,9 +25,11 @@ namespace Mirror.Experimental
     {
         [Header("Authority")]
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
+        [SyncVar]
         public bool clientAuthority;
 
         [Tooltip("Set to true if updates from server should be ignored by owner in server authority mode")]
+        [SyncVar]
         public bool excludeOwnerUpdate;
 
         // Is this a client with authority over this transform?
@@ -42,10 +44,13 @@ namespace Mirror.Experimental
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
         [Header("Sensitivity")]
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
+        [SyncVar]
         public float localPositionSensitivity = .01f;
         [Tooltip("If rotation exceeds this angle, it will be transmitted on the network")]
+        [SyncVar]
         public float localRotationSensitivity = .01f;
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
+        [SyncVar]
         public float localScaleSensitivity = .01f;
 
         // target transform to sync. can be on a child.
