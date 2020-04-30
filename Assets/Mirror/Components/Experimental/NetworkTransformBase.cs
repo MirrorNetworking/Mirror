@@ -270,8 +270,9 @@ namespace Mirror.Experimental
 
                 start = goal;
 
-                // teleport / lag / obstacle detection: only continue at current position if we aren't too far away
                 // local position/rotation for VR support
+                // teleport / lag / obstacle detection: only continue at current position if we aren't too far away
+                // XC  < AB + BC (see comments above)
                 if (Vector3.Distance(targetComponent.transform.localPosition, start.localPosition) < oldDistance + newDistance)
                 {
                     start.localPosition = targetComponent.transform.localPosition;
