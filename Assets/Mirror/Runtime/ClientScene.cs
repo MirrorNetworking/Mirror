@@ -338,14 +338,24 @@ namespace Mirror
         /// <param name="prefab">The prefab to be removed from registration.</param>
         public static void UnregisterPrefab(GameObject prefab)
         {
+            if (prefab == null)
+            {
+                logger.LogError("Could not unregister prefab because it was null");
+                return;
+            }
+
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
                 logger.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
             }
-            spawnHandlers.Remove(identity.assetId);
-            unspawnHandlers.Remove(identity.assetId);
+
+            Guid assetId = identity.assetId;
+
+            prefabs.Remove(assetId);
+            spawnHandlers.Remove(assetId);
+            unspawnHandlers.Remove(assetId);
         }
 
         /// <summary>
