@@ -16,16 +16,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         readonly List<Scene> subScenes = new List<Scene>();
 
-        public override void Start()
-        {
-            if (isHeadless && startOnHeadless)
-                StartServer();
-#if RELEASE
-            if (!isHeadless)
-                StartClient();
-#endif
-        }
-
         #region Server System Callbacks
 
         /// <summary>
