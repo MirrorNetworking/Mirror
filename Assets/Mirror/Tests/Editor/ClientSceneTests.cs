@@ -151,6 +151,162 @@ namespace Mirror.Tests
 
 
         [Test]
+        public void RegisterSpawnHandler_SpawnDelegate_AddsHandlerToSpawnHandlers()
+        {
+            int handlerCalled = 0;
+
+            Guid guid = Guid.NewGuid();
+            SpawnDelegate spawnHandler = new SpawnDelegate((pos, rot) =>
+            {
+                handlerCalled++;
+                return null;
+            });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+
+            Assert.IsTrue(spawnHandlers.ContainsKey(guid));
+
+            // check spawnHandler above is called
+            SpawnHandlerDelegate handler = spawnHandlers[guid];
+            handler.Invoke(default);
+            Assert.That(handlerCalled, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnDelegate_AddsHandlerToSpawnHandlersWithCorrectArguments()
+        {
+            int handlerCalled = 0;
+            Vector3 somePosition = new Vector3(10, 20, 3);
+
+            Guid guid = Guid.NewGuid();
+            SpawnDelegate spawnHandler = new SpawnDelegate((pos, assetId) =>
+            {
+                handlerCalled++;
+                Assert.That(pos, Is.EqualTo(somePosition));
+                Assert.That(assetId, Is.EqualTo(guid));
+                return null;
+            });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+
+            Assert.IsTrue(spawnHandlers.ContainsKey(guid));
+
+            // check spawnHandler above is called
+            SpawnHandlerDelegate handler = spawnHandlers[guid];
+            handler.Invoke(new SpawnMessage { position = somePosition, assetId = guid });
+            Assert.That(handlerCalled, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnDelegate_AddsHandlerToUnSpawnHandlers()
+        {
+            Guid guid = Guid.NewGuid();
+            SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+
+            Assert.IsTrue(unspawnHandlers.ContainsKey(guid));
+            Assert.AreEqual(unspawnHandlers[guid], unspawnHandler);
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnDelegate_ErrorWhenSpawnHandlerIsNull()
+        {
+            Guid guid = Guid.NewGuid();
+            SpawnDelegate spawnHandler = null;
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {guid}");
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnDelegate_ErrorWhenUnSpawnHandlerIsNull()
+        {
+            Guid guid = Guid.NewGuid();
+            SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
+            UnSpawnDelegate unspawnHandler = null;
+
+            LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {guid}");
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnDelegate_ErrorWhenAssetIdIsEmpty()
+        {
+            Guid guid = new Guid();
+            SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            LogAssert.Expect(LogType.Error, "Can not Register SpawnHandler for empty Guid");
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+        }
+
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnHandlerDelegate_AddsHandlerToSpawnHandlers()
+        {
+            Guid guid = Guid.NewGuid();
+            SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+
+            Assert.IsTrue(spawnHandlers.ContainsKey(guid));
+            Assert.AreEqual(spawnHandlers[guid], spawnHandler);
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnHandlerDelegate_AddsHandlerToUnSpawnHandlers()
+        {
+            Guid guid = Guid.NewGuid();
+            SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+
+            Assert.IsTrue(unspawnHandlers.ContainsKey(guid));
+            Assert.AreEqual(unspawnHandlers[guid], unspawnHandler);
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnHandlerDelegate_ErrorWhenSpawnHandlerIsNull()
+        {
+            Guid guid = Guid.NewGuid();
+            SpawnHandlerDelegate spawnHandler = null;
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {guid}");
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnHandlerDelegate_ErrorWhenUnSpawnHandlerIsNull()
+        {
+            Guid guid = Guid.NewGuid();
+            SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
+            UnSpawnDelegate unspawnHandler = null;
+
+            LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {guid}");
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnHandlerDelegate_ErrorWhenAssetIdIsEmpty()
+        {
+            Guid guid = new Guid();
+            SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            LogAssert.Expect(LogType.Error, "Can not Register SpawnHandler for empty Guid");
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+        }
+
+
+        [Test]
         public void UnregisterSpawnHandler_RemovesSpawnHandlersFromDictionary()
         {
             spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
