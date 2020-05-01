@@ -87,7 +87,9 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 isFalling = false;
 
             if ((isGrounded || !isFalling) && jumpSpeed < 1f && Input.GetKey(KeyCode.Space))
+            {
                 jumpSpeed = Mathf.Lerp(jumpSpeed, 1f, 0.5f);
+            }
             else if (!isGrounded)
             {
                 isFalling = true;

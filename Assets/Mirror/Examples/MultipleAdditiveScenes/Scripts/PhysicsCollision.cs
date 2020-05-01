@@ -27,17 +27,17 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             if (other.gameObject.CompareTag("Player"))
             {
                 // get direction from which player is contacting object
-                Vector3 dir = other.contacts[0].normal;
+                Vector3 direction = other.contacts[0].normal;
 
                 // zero the y and normalize so we don't shove this through the floor or launch this over the wall
-                dir.y = 0;
-                dir = dir.normalized;
+                direction.y = 0;
+                direction = direction.normalized;
 
                 // push this away from player...a bit less force for host player
                 if (other.gameObject.GetComponent<NetworkIdentity>().connectionToClient.connectionId == 0)
-                    rigidbody3D.AddForce(dir * force * .5f);
+                    rigidbody3D.AddForce(direction * force * .5f);
                 else
-                    rigidbody3D.AddForce(dir * force);
+                    rigidbody3D.AddForce(direction * force);
             }
         }
     }
