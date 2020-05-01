@@ -29,6 +29,9 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
             rigidbody3D.isKinematic = true;
             rigidbody3D.useGravity = false;
+
+            // SonarCloud gripes about this not being a flags enum but Unity forgot to decorate it with the [Flags] attribute
+            // See https://docs.unity3d.com/ScriptReference/RigidbodyConstraints.html
             rigidbody3D.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         }
 
