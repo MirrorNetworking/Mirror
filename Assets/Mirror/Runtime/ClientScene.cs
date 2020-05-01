@@ -242,7 +242,7 @@ namespace Mirror
         {
             if (newAssetId == Guid.Empty)
             {
-                logger.LogError($"Could not register {prefab.name} with new assetId because the new assetId was empty");
+                logger.LogError($"Could not register '{prefab.name}' with new assetId because the new assetId was empty");
                 return;
             }
 
@@ -294,20 +294,20 @@ namespace Mirror
         {
             if (prefab.assetId == Guid.Empty)
             {
-                logger.LogError($"Can not Register {prefab.name} because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+                logger.LogError($"Can not Register '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
                 return;
             }
 
             if (prefab.sceneId != 0)
             {
-                logger.LogError($"Can not Register {prefab.name} because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+                logger.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
                 return;
             }
 
             NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
             if (identities.Length > 1)
             {
-                logger.LogWarning($"Prefab {prefab.name} has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+                logger.LogWarning($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
             }
 
             if (logger.LogEnabled()) logger.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");

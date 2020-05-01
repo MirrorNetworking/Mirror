@@ -167,7 +167,7 @@ namespace Mirror.Tests
             CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
 
             //test
-            LogAssert.Expect(LogType.Error, $"Can not Register {runtimeObject.name} because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+            LogAssert.Expect(LogType.Error, $"Can not Register '{runtimeObject.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
             ClientScene.RegisterPrefab(runtimeObject);
 
             // teardown
@@ -194,7 +194,7 @@ namespace Mirror.Tests
         [Test]
         public void RegisterPrefab_PrefabNewGuid_ErrorForEmptyGuid()
         {
-            LogAssert.Expect(LogType.Error, $"Could not register {validPrefab.name} with new assetId because the new assetId was empty");
+            LogAssert.Expect(LogType.Error, $"Could not register '{validPrefab.name}' with new assetId because the new assetId was empty");
             ClientScene.RegisterPrefab(validPrefab, new Guid());
         }
 
@@ -208,7 +208,7 @@ namespace Mirror.Tests
             // Scene Id needs to not be zero for this test
             netId.sceneId = 20;
 
-            LogAssert.Expect(LogType.Error, $"Can not Register {clone.name} because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+            LogAssert.Expect(LogType.Error, $"Can not Register '{clone.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
             callRegisterPrefab(clone, setGuid, newGuid);
 
             GameObject.DestroyImmediate(clone);
@@ -219,7 +219,7 @@ namespace Mirror.Tests
         [TestCase(true, AnotherGuidString)]
         public void RegisterPrefab_Prefab_WarningForNetworkIdentityInChildren(bool setGuid, string newGuid)
         {
-            LogAssert.Expect(LogType.Warning, $"Prefab {prefabWithChildren.name} has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+            LogAssert.Expect(LogType.Warning, $"Prefab '{prefabWithChildren.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
             callRegisterPrefab(prefabWithChildren, setGuid, newGuid);
         }
 
