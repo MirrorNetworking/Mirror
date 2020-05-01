@@ -21,7 +21,6 @@ namespace Mirror.Tests
         GameObject prefabWithChildren;
         GameObject invalidPrefab;
         Guid validPrefabGuid;
-        Guid AnotherGuid;
 
         Dictionary<Guid, GameObject> prefabs => ClientScene.prefabs;
         Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => ClientScene.spawnHandlers;
@@ -39,7 +38,6 @@ namespace Mirror.Tests
             prefabWithChildren = LoadPrefab(PrefabWithChildrenAssetGuid);
             invalidPrefab = LoadPrefab(InvalidPrefabAssetGuid);
             validPrefabGuid = new Guid(ValidPrefabAssetGuid);
-            AnotherGuid = new Guid(AnotherGuidString);
         }
 
         [TearDown]
