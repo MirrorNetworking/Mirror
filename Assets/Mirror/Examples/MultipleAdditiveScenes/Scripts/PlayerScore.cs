@@ -5,14 +5,26 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     public class PlayerScore : NetworkBehaviour
     {
         [SyncVar]
-        public int index;
+        public int playerNumber;
+
+        [SyncVar]
+        public int scoreIndex;
+
+        [SyncVar]
+        public int matchIndex;
 
         [SyncVar]
         public uint score;
 
+        public int clientMatchIndex = -1;
+
         void OnGUI()
         {
-            GUI.Box(new Rect(10f + (index * 110), 10f, 100f, 25f), $"P{index}: {score.ToString("0000000")}");
+            if (!isLocalPlayer && clientMatchIndex < 0)
+                clientMatchIndex = NetworkClient.connection.identity.GetComponent<PlayerScore>().matchIndex;
+
+            if (isLocalPlayer || matchIndex == clientMatchIndex)
+                GUI.Box(new Rect(10f + (scoreIndex * 110), 10f, 100f, 25f), $"P{playerNumber}: {score}");
         }
     }
 }

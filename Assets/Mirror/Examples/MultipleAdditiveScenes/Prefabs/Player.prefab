@@ -207,7 +207,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1480027675339556}
   serializedVersion: 2
-  m_Mass: 50
+  m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0
   m_UseGravity: 0
@@ -274,8 +274,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0
-  index: 0
+  playerNumber: 0
+  matchIndex: 0
+  playerIndex: 0
   score: 0
+  clientMatchIndex: -1
 --- !u!1 &4926068573968176962
 GameObject:
   m_ObjectHideFlags: 0

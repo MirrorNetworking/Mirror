@@ -9,7 +9,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     public class MultiSceneNetManager : NetworkManager
     {
         [Header("MultiScene Setup")]
-        public int instances = 2;
+        public int instances = 3;
 
         [Scene]
         public string gameScene;
@@ -36,7 +36,10 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
             base.OnServerAddPlayer(conn);
 
-            conn.identity.GetComponent<PlayerScore>().index = conn.connectionId & instances;
+            PlayerScore playerScore = conn.identity.GetComponent<PlayerScore>();
+            playerScore.playerNumber = conn.connectionId;
+            playerScore.scoreIndex = conn.connectionId / subScenes.Count;
+            playerScore.matchIndex = conn.connectionId % subScenes.Count;
 
             if (subScenes.Count > 0)
                 SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[conn.connectionId % subScenes.Count]);
