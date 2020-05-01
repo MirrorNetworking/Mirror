@@ -149,18 +149,42 @@ namespace Mirror.Tests
             callRegisterPrefab(invalidPrefab, setGuid, newGuid);
         }
 
+        static void CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity)
+        {
+            runtimeObject = new GameObject("Runtime GameObject");
+            networkIdentity = runtimeObject.AddComponent<NetworkIdentity>();
+            // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
+            networkIdentity.sceneId = 0;
+        }
+
         [Test]
         public void RegisterPrefab_Prefab_ErrorForEmptyGuid()
         {
-            // setup
-            GameObject sceneObject = new GameObject("mySceneObject", typeof(NetworkIdentity));
+            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
 
             //test
-            LogAssert.Expect(LogType.Error, $"Can not Register {sceneObject.name} because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
-            ClientScene.RegisterPrefab(sceneObject);
+            LogAssert.Expect(LogType.Error, $"Can not Register {runtimeObject.name} because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+            ClientScene.RegisterPrefab(runtimeObject);
 
             // teardown
-            GameObject.DestroyImmediate(sceneObject);
+            GameObject.DestroyImmediate(runtimeObject);
+        }
+
+        [Test]
+        public void RegisterPrefab_PrefabNewGuid_AddsPrefabToDictionary()
+        {
+            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
+
+            Guid guid = new Guid(AnotherGuidString);
+            ClientScene.RegisterPrefab(runtimeObject, guid);
+
+            Assert.IsTrue(prefabs.ContainsKey(guid));
+            Assert.AreEqual(prefabs[guid], runtimeObject);
+
+            Assert.AreEqual(networkIdentity.assetId, guid);
+
+            // teardown
+            GameObject.DestroyImmediate(runtimeObject);
         }
 
         [Test]
