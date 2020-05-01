@@ -240,18 +240,29 @@ namespace Mirror
         /// <param name="newAssetId">An assetId to be assigned to this prefab. This allows a dynamically created game object to be registered for an already known asset Id.</param>
         public static void RegisterPrefab(GameObject prefab, Guid newAssetId)
         {
-            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
-            if (identity)
+            if (newAssetId == Guid.Empty)
             {
-                identity.assetId = newAssetId;
+                logger.LogError($"Could not register {prefab.name} with new assetId because the new assetId was empty");
+                return;
+            }
 
-                if (logger.LogEnabled()) logger.Log("Registering prefab '" + prefab.name + "' as asset:" + identity.assetId);
-                prefabs[identity.assetId] = prefab;
-            }
-            else
+            if (prefab == null)
             {
-                logger.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
+                logger.LogError("Could not register prefab because it was null");
+                return;
             }
+
+            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
+            if (identity == null)
+            {
+                logger.LogError($"Could not register '{prefab.name}' since it contains no NetworkIdentity component");
+                return;
+            }
+
+
+            identity.assetId = newAssetId;
+
+            RegisterPrefabIdentity(identity);
         }
 
         /// <summary>
@@ -263,23 +274,45 @@ namespace Mirror
         /// <param name="prefab">A Prefab that will be spawned.</param>
         public static void RegisterPrefab(GameObject prefab)
         {
-            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
-            if (identity)
+            if (prefab == null)
             {
-                if (logger.LogEnabled()) logger.Log("Registering prefab '" + prefab.name + "' as asset:" + identity.assetId);
-                prefabs[identity.assetId] = prefab;
+                logger.LogError("Could not register prefab because it was null");
+                return;
+            }
 
-                NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
-                if (identities.Length > 1)
-                {
-                    logger.LogWarning("The prefab '" + prefab.name +
-                                     "' has multiple NetworkIdentity components. There can only be one NetworkIdentity on a prefab, and it must be on the root object.");
-                }
-            }
-            else
+            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
+            if (identity == null)
             {
-                logger.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
+                logger.LogError($"Could not register '{prefab.name}' since it contains no NetworkIdentity component");
+                return;
             }
+
+            RegisterPrefabIdentity(identity);
+        }
+
+        static void RegisterPrefabIdentity(NetworkIdentity prefab)
+        {
+            if (prefab.assetId == Guid.Empty)
+            {
+                logger.LogError($"Can not Register {prefab.name} because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+                return;
+            }
+
+            if (prefab.sceneId != 0)
+            {
+                logger.LogError($"Can not Register {prefab.name} because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+                return;
+            }
+
+            NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
+            if (identities.Length > 1)
+            {
+                logger.LogWarning($"Prefab {prefab.name} has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+            }
+
+            if (logger.LogEnabled()) logger.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");
+
+            prefabs[prefab.assetId] = prefab.gameObject;
         }
 
         /// <summary>
