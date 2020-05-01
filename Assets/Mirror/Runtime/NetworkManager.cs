@@ -1359,7 +1359,13 @@ namespace Mirror
         /// Obsolete: Override <see cref="OnServerRemovePlayer(NetworkConnection conn)"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnServerRemovePlayer(NetworkConnection conn) instead", true)]
-        public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player) { }
+        public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
+        {
+            if (player.gameObject != null)
+            {
+                NetworkServer.Destroy(player.gameObject);
+            }
+        }
 
         /// <summary>
         /// Called on the server when a network error occurs for a client connection.
