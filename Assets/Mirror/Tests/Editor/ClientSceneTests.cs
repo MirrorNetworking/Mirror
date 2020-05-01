@@ -192,7 +192,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterPrefab_PrefabNewGuid_AddsPrefabToDictionary()
+        public void RegisterPrefab_PrefabNewGuid_AddsRuntimeObjectToDictionary()
         {
             CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
 
