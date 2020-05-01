@@ -14,7 +14,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         [Scene]
         public string gameScene;
 
-        List<Scene> subScenes = new List<Scene>();
+        readonly List<Scene> subScenes = new List<Scene>();
 
         public override void Start()
         {
