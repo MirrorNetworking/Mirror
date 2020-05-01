@@ -122,10 +122,12 @@ namespace Mirror.Tests
         [TestCase(true, AnotherGuidString)]
         public void RegisterPrefab_Prefab_AddsPrefabToDictionary(bool setGuid, string newGuid)
         {
+            Guid guid = setGuid ? new Guid(newGuid) : validPrefabGuid;
+
             callRegisterPrefab(validPrefab, setGuid, newGuid);
 
-            Assert.IsTrue(prefabs.ContainsKey(validPrefabGuid));
-            Assert.AreEqual(prefabs[validPrefabGuid], validPrefab);
+            Assert.IsTrue(prefabs.ContainsKey(guid));
+            Assert.AreEqual(prefabs[guid], validPrefab);
         }
 
 
