@@ -113,12 +113,16 @@ namespace Mirror.Tests
         }
 
 
-        private void callRegisterPrefab(GameObject prefab, bool setGuid, string newGuid)
+        static void CallRegisterPrefab(GameObject prefab, bool setGuid, string newGuid)
         {
             if (setGuid)
+            {
                 ClientScene.RegisterPrefab(prefab, new Guid(newGuid));
+            }
             else
+            {
                 ClientScene.RegisterPrefab(prefab);
+            }
         }
 
         [Test]
@@ -128,7 +132,7 @@ namespace Mirror.Tests
         {
             Guid guid = setGuid ? new Guid(AnotherGuidString) : validPrefabGuid;
 
-            callRegisterPrefab(validPrefab, setGuid, AnotherGuidString);
+            CallRegisterPrefab(validPrefab, setGuid, AnotherGuidString);
 
             Assert.IsTrue(prefabs.ContainsKey(guid));
             Assert.AreEqual(prefabs[guid], validPrefab);
@@ -154,7 +158,7 @@ namespace Mirror.Tests
         public void RegisterPrefab_Prefab_ErrorForNullPrefab(bool setGuid)
         {
             LogAssert.Expect(LogType.Error, "Could not register prefab because it was null");
-            callRegisterPrefab(null, setGuid, AnotherGuidString);
+            CallRegisterPrefab(null, setGuid, AnotherGuidString);
         }
 
         [Test]
@@ -163,7 +167,7 @@ namespace Mirror.Tests
         public void RegisterPrefab_Prefab_ErrorForPrefabWithoutNetworkIdentity(bool setGuid)
         {
             LogAssert.Expect(LogType.Error, $"Could not register '{invalidPrefab.name}' since it contains no NetworkIdentity component");
-            callRegisterPrefab(invalidPrefab, setGuid, AnotherGuidString);
+            CallRegisterPrefab(invalidPrefab, setGuid, AnotherGuidString);
         }
 
         static void CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity)
@@ -222,7 +226,7 @@ namespace Mirror.Tests
             netId.sceneId = 20;
 
             LogAssert.Expect(LogType.Error, $"Can not Register '{clone.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
-            callRegisterPrefab(clone, setGuid, AnotherGuidString);
+            CallRegisterPrefab(clone, setGuid, AnotherGuidString);
 
             GameObject.DestroyImmediate(clone);
         }
@@ -233,7 +237,7 @@ namespace Mirror.Tests
         public void RegisterPrefab_Prefab_WarningForNetworkIdentityInChildren(bool setGuid)
         {
             LogAssert.Expect(LogType.Warning, $"Prefab '{prefabWithChildren.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
-            callRegisterPrefab(prefabWithChildren, setGuid, AnotherGuidString);
+            CallRegisterPrefab(prefabWithChildren, setGuid, AnotherGuidString);
         }
 
 
