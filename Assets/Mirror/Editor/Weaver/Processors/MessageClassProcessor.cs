@@ -47,7 +47,7 @@ namespace Mirror.Weaver
             {
                 if (field.FieldType.FullName == td.FullName)
                 {
-                    Weaver.Error($"{td} has field ${field} that references itself");
+                    Weaver.Error($"{td.Name} has field {field.Name} that references itself", field);
                     return;
                 }
             }
@@ -91,7 +91,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void CallWriter(ILProcessor serWorker, FieldDefinition field)
+        static void CallWriter(ILProcessor serWorker, FieldDefinition field)
         {
             MethodReference writeFunc = Writers.GetWriteFunc(field.FieldType);
             if (writeFunc != null)
@@ -103,11 +103,11 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error($"{field} has unsupported type");
+                Weaver.Error($"{field.Name} has unsupported type", field);
             }
         }
 
-        private static void CallBase(TypeDefinition td, ILProcessor serWorker, string name)
+        static void CallBase(TypeDefinition td, ILProcessor serWorker, string name)
         {
             MethodReference method = Resolvers.ResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, name);
             if (method != null)
@@ -172,7 +172,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void CallReader(ILProcessor serWorker, FieldDefinition field)
+        static void CallReader(ILProcessor serWorker, FieldDefinition field)
         {
             MethodReference readerFunc = Readers.GetReadFunc(field.FieldType);
             if (readerFunc != null)
@@ -184,7 +184,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error($"{field} has unsupported type");
+                Weaver.Error($"{field.Name} has unsupported type", field);
             }
         }
     }

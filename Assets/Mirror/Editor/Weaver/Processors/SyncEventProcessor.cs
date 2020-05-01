@@ -21,7 +21,7 @@ namespace Mirror.Weaver
             }
             if (eventField == null)
             {
-                Weaver.Error($"{td} not found. Did you declare the event?");
+                Weaver.Error($"event field not found for {ed.Name}. Did you declare it as an event?", ed);
                 return null;
             }
 
@@ -118,13 +118,13 @@ namespace Mirror.Weaver
                 {
                     if (!ed.Name.StartsWith("Event"))
                     {
-                        Weaver.Error($"{ed} must start with Event.  Consider renaming it to Event{ed.Name}");
+                        Weaver.Error($"{ed.Name} must start with Event.  Consider renaming it to Event{ed.Name}", ed);
                         return;
                     }
 
                     if (ed.EventType.Resolve().HasGenericParameters)
                     {
-                        Weaver.Error($"{ed} must not have generic parameters.  Consider creating a new class that inherits from {ed.EventType} instead");
+                        Weaver.Error($"{ed.Name} must not have generic parameters.  Consider creating a new class that inherits from {ed.EventType} instead", ed);
                         return;
                     }
 

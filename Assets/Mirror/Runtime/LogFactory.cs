@@ -40,12 +40,12 @@ namespace Mirror
     {
         public static void LogError(this ILogger logger, object message)
         {
-            logger.LogError(null, message);
+            logger.Log(LogType.Error, message);
         }
 
         public static void LogWarning(this ILogger logger, object message)
         {
-            logger.LogWarning(null, message);
+            logger.Log(LogType.Warning, message);
         }
 
         public static bool LogEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Log);

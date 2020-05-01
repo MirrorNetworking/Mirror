@@ -19,6 +19,7 @@ namespace Mirror
     /// </summary>
     public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
 
+    [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkManager")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
     public class NetworkManager : MonoBehaviour
@@ -726,19 +727,22 @@ namespace Mirror
         {
             NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal, false);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal, false);
-            NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
-            NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
+
+            // Network Server initially registers it's own handlers for these, so we replace them here.
+            NetworkServer.ReplaceHandler<ReadyMessage>(OnServerReadyMessageInternal);
+            NetworkServer.ReplaceHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
         }
 
         void RegisterClientMessages()
         {
-            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal, false);
-            NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
-            NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
-            NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
+            // Network Client initially registers it's own handlers for these, so we replace them here.
+            NetworkClient.ReplaceHandler<ConnectMessage>(OnClientConnectInternal, false);
+            NetworkClient.ReplaceHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
+            NetworkClient.ReplaceHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
+            NetworkClient.ReplaceHandler<ErrorMessage>(OnClientErrorInternal, false);
+            NetworkClient.ReplaceHandler<SceneMessage>(OnClientSceneInternal, false);
 
             if (playerPrefab != null)
             {

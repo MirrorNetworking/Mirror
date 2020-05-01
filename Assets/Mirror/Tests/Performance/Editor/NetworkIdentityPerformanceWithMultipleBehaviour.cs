@@ -9,7 +9,7 @@ namespace Mirror.Tests.Performance
     [Category("Benchmark")]
     public class NetworkIdentityPerformanceWithMultipleBehaviour
     {
-        private const int healthCount = 32;
+        const int healthCount = 32;
         GameObject gameObject;
         NetworkIdentity identity;
         Health[] health;

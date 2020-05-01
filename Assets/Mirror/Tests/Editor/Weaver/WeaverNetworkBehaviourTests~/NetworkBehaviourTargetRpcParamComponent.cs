@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamComponent
 {
     class NetworkBehaviourTargetRpcParamComponent : NetworkBehaviour
     {

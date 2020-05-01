@@ -8,17 +8,17 @@ namespace Mirror.Tests
 {
     public class NetworkMatchCheckerTest
     {
-        private GameObject player1;
-        private GameObject player2;
-        private GameObject player3;
-        private NetworkMatchChecker player1MatchChecker;
-        private NetworkMatchChecker player2MatchChecker;
-        private NetworkConnection player1Connection;
-        private NetworkConnection player2Connection;
-        private NetworkConnection player3Connection;
-        private GameObject transportGO;
+        GameObject player1;
+        GameObject player2;
+        GameObject player3;
+        NetworkMatchChecker player1MatchChecker;
+        NetworkMatchChecker player2MatchChecker;
+        NetworkConnection player1Connection;
+        NetworkConnection player2Connection;
+        NetworkConnection player3Connection;
+        GameObject transportGO;
         static int nextConnectionId;
-        private Dictionary<Guid, HashSet<NetworkIdentity>> matchPlayers;
+        Dictionary<Guid, HashSet<NetworkIdentity>> matchPlayers;
 
         [SetUp]
         public void Setup()
@@ -41,7 +41,7 @@ namespace Mirror.Tests
             matchPlayers = g;
         }
 
-        private static Dictionary<Guid, HashSet<NetworkIdentity>> GetMatchPlayersDictionary()
+        static Dictionary<Guid, HashSet<NetworkIdentity>> GetMatchPlayersDictionary()
         {
             Type type = typeof(NetworkMatchChecker);
             FieldInfo fieldInfo = type.GetField("matchPlayers", BindingFlags.Static | BindingFlags.NonPublic);

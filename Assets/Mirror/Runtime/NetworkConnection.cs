@@ -16,6 +16,8 @@ namespace Mirror
     /// </remarks>
     public abstract class NetworkConnection : IDisposable
     {
+        static readonly ILogger logger = LogFactory.GetLogger<NetworkConnection>();
+
         // internal so it can be tested
         internal readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
@@ -83,6 +85,7 @@ namespace Mirror
         /// <para>ConnectionSend con:1 bytes:11 msgId:5 FB59D743FD120000000000 ConnectionRecv con:1 bytes:27 msgId:8 14F21000000000016800AC3FE090C240437846403CDDC0BD3B0000</para>
         /// <para>Note that these are application-level network messages, not protocol-level packets. There will typically be multiple network messages combined in a single protocol packet.</para>
         /// </remarks>
+        [Obsolete("Set logger to Log level instead")]
         public bool logNetworkMessages;
 
         /// <summary>
@@ -158,14 +161,14 @@ namespace Mirror
         {
             if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
+                logger.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
             if (segment.Count == 0)
             {
                 // zero length packets getting into the packet queues are bad.
-                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
+                logger.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
                 return false;
             }
 
@@ -217,7 +220,7 @@ namespace Mirror
                 msgDelegate(this, reader, channelId);
                 return true;
             }
-            if (Debug.isDebugBuild) Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+            if (logger.LogEnabled()) logger.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
             return false;
         }
 
@@ -264,7 +267,7 @@ namespace Mirror
                 if (MessagePacker.UnpackMessage(networkReader, out int msgType))
                 {
                     // logging
-                    if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+                    if (logger.LogEnabled()) logger.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                     // try to invoke the handler for that message
                     if (InvokeHandler(msgType, networkReader, channelId))
@@ -274,7 +277,7 @@ namespace Mirror
                 }
                 else
                 {
-                    Debug.LogError("Closed connection: " + this + ". Invalid message header.");
+                    logger.LogError("Closed connection: " + this + ". Invalid message header.");
                     Disconnect();
                 }
             }

@@ -1,6 +1,6 @@
 using Mirror;
 
-namespace MirrorTest
+namespace GeneratedReaderWriter.CanUseCustomReadWriteForInterfaces
 {
     public class CanUseCustomReadWriteForInterfaces : NetworkBehaviour
     {

@@ -44,10 +44,15 @@ namespace Mirror.Weaver.Tests
             WeaverAssembler.Build();
 
             Assert.That(WeaverAssembler.CompilerErrors, Is.False);
-            if (weaverErrors.Count > 0)
+            foreach (string error in weaverErrors)
             {
-                Assert.That(weaverErrors[0], Does.StartWith("Mirror.Weaver error: "));
+                // ensure all errors have a location
+                Assert.That(error, Does.Match(@"\(at .*\)$"));
             }
+            if (weaverErrors.Count > 0)
+                Assert.That(CompilationFinishedHook.WeaveFailed, Is.True, "Weaver should fail if there are errors");
+            else
+                Assert.That(CompilationFinishedHook.WeaveFailed, Is.False, "Weaver should succeed if there are no errors");
         }
 
         [OneTimeSetUp]

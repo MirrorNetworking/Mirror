@@ -7,71 +7,61 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MonoBehaviourValid()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
         }
 
         [Test]
         public void MonoBehaviourSyncVar()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [SyncVar] System.Int32 MirrorTest.MonoBehaviourSyncVar::potato must be inside a NetworkBehaviour.  MirrorTest.MonoBehaviourSyncVar is not a NetworkBehaviour"));
+            Assert.That(weaverErrors, Contains.Item("SyncVar potato must be inside a NetworkBehaviour.  MonoBehaviourSyncVar is not a NetworkBehaviour (at System.Int32 WeaverMonoBehaviourTests.MonoBehaviourSyncVar.MonoBehaviourSyncVar::potato)"));
         }
 
         [Test]
         public void MonoBehaviourSyncList()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Mirror.SyncListInt MirrorTest.MonoBehaviourSyncList::potato is a SyncObject and must be inside a NetworkBehaviour.  MirrorTest.MonoBehaviourSyncList is not a NetworkBehaviour"));
+            Assert.That(weaverErrors, Contains.Item("potato is a SyncObject and must be inside a NetworkBehaviour.  MonoBehaviourSyncList is not a NetworkBehaviour (at Mirror.SyncListInt WeaverMonoBehaviourTests.MonoBehaviourSyncList.MonoBehaviourSyncList::potato)"));
         }
 
         [Test]
         public void MonoBehaviourCommand()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [Command] System.Void MirrorTest.MonoBehaviourCommand::CmdThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
+            Assert.That(weaverErrors, Contains.Item("Command CmdThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourCommand.MonoBehaviourCommand::CmdThisCantBeOutsideNetworkBehaviour())"));
         }
 
         [Test]
         public void MonoBehaviourClientRpc()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [ClientRpc] System.Void MirrorTest.MonoBehaviourClientRpc::RpcThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
+            Assert.That(weaverErrors, Contains.Item("ClientRpc RpcThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourClientRpc.MonoBehaviourClientRpc::RpcThisCantBeOutsideNetworkBehaviour())"));
         }
 
         [Test]
         public void MonoBehaviourTargetRpc()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [TargetRpc] System.Void MirrorTest.MonoBehaviourTargetRpc::TargetThisCantBeOutsideNetworkBehaviour(Mirror.NetworkConnection) must be declared inside a NetworkBehaviour"));
+            Assert.That(weaverErrors, Contains.Item("TargetRpc TargetThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourTargetRpc.MonoBehaviourTargetRpc::TargetThisCantBeOutsideNetworkBehaviour(Mirror.NetworkConnection))"));
         }
 
         [Test]
         public void MonoBehaviourServer()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [Server] System.Void MirrorTest.MonoBehaviourServer::ThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
+            Assert.That(weaverErrors, Contains.Item("Server method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourServer.MonoBehaviourServer::ThisCantBeOutsideNetworkBehaviour())"));
         }
 
         [Test]
         public void MonoBehaviourServerCallback()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [ServerCallback] System.Void MirrorTest.MonoBehaviourServerCallback::ThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
+            Assert.That(weaverErrors, Contains.Item("ServerCallback method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourServerCallback.MonoBehaviourServerCallback::ThisCantBeOutsideNetworkBehaviour())"));
         }
 
         [Test]
         public void MonoBehaviourClient()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [Client] System.Void MirrorTest.MonoBehaviourClient::ThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
+            Assert.That(weaverErrors, Contains.Item("Client method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourClient.MonoBehaviourClient::ThisCantBeOutsideNetworkBehaviour())"));
         }
 
         [Test]
         public void MonoBehaviourClientCallback()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: [ClientCallback] System.Void MirrorTest.MonoBehaviourClientCallback::ThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
+            Assert.That(weaverErrors, Contains.Item("ClientCallback method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourClientCallback.MonoBehaviourClientCallback::ThisCantBeOutsideNetworkBehaviour())"));
         }
     }
 }
