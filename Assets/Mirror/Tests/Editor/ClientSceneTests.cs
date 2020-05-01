@@ -246,7 +246,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnDelegate_WarningWhenHandlerForGuidAlreadyExists()
+        public void RegisterSpawnHandler_SpawnDelegate_WarningWhenHandlerForGuidAlreadyExistsInHandlerDictionary()
         {
             Guid guid = Guid.NewGuid();
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
@@ -259,6 +259,19 @@ namespace Mirror.Tests
 
             LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {guid}");
             ClientScene.RegisterSpawnHandler(guid, spawnHandler2, unspawnHandler2);
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnDelegate_ErrorWhenHandlerForGuidAlreadyExistsInPrefabDictionary()
+        {
+            Guid guid = Guid.NewGuid();
+            prefabs.Add(guid, validPrefab);
+
+            SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+
+            LogAssert.Expect(LogType.Error, $"assetId '{guid}' is already used by prefab '{validPrefab.name}'");
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
 
@@ -322,7 +335,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnHandlerDelegate_WarningWhenHandlerForGuidAlreadyExists()
+        public void RegisterSpawnHandler_SpawnHandlerDelegate_WarningWhenHandlerForGuidAlreadyExistsInHandlerDictionary()
         {
             Guid guid = Guid.NewGuid();
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
@@ -335,6 +348,19 @@ namespace Mirror.Tests
 
             LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {guid}");
             ClientScene.RegisterSpawnHandler(guid, spawnHandler2, unspawnHandler2);
+        }
+
+        [Test]
+        public void RegisterSpawnHandler_SpawnHandlerDelegate_ErrorWhenHandlerForGuidAlreadyExistsInPrefabDictionary()
+        {
+            Guid guid = Guid.NewGuid();
+            prefabs.Add(guid, validPrefab);
+
+            SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => new GameObject());
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
+
+            LogAssert.Expect(LogType.Error, $"assetId '{guid}' is already used by prefab '{validPrefab.name}'");
+            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
 

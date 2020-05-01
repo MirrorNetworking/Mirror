@@ -465,6 +465,12 @@ namespace Mirror
                 logger.LogWarning($"Replacing existing spawnHandlers for {assetId}");
             }
 
+            if (prefabs.ContainsKey(assetId))
+            {
+                // this is error because SpawnPrefab checks prefabs before handler
+                logger.LogError($"assetId '{assetId}' is already used by prefab '{prefabs[assetId].name}'");
+            }
+
             spawnHandlers[assetId] = spawnHandler;
             unspawnHandlers[assetId] = unspawnHandler;
         }
