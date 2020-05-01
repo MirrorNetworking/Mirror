@@ -310,6 +310,17 @@ namespace Mirror
                 logger.LogWarning($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
             }
 
+            if (prefabs.ContainsKey(prefab.assetId))
+            {
+                GameObject existingPrefab = prefabs[prefab.assetId];
+                logger.LogWarning($"Replacing existing prefab with assetId '{prefab.assetId}'. Old prefab '{existingPrefab.name}', New prefab '{prefab.name}'");
+            }
+
+            if (spawnHandlers.ContainsKey(prefab.assetId) || unspawnHandlers.ContainsKey(prefab.assetId))
+            {
+                logger.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId}' when spawnHandlers with same assetId already exists.");
+            }
+
             if (logger.LogEnabled()) logger.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");
 
             prefabs[prefab.assetId] = prefab.gameObject;
