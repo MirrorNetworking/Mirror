@@ -22,19 +22,19 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         }
 
         [ServerCallback]
-        void OnCollisionStay(Collision c)
+        void OnCollisionStay(Collision other)
         {
-            if (c.gameObject.CompareTag("Player"))
+            if (other.gameObject.CompareTag("Player"))
             {
                 // get direction from which player is contacting object
-                Vector3 dir = c.contacts[0].normal;
+                Vector3 dir = other.contacts[0].normal;
 
                 // zero the y and normalize so we don't shove this through the floor or launch this over the wall
                 dir.y = 0;
                 dir = dir.normalized;
 
                 // push this away from player...a bit less force for host player
-                if (c.gameObject.GetComponent<NetworkIdentity>().connectionToClient.connectionId == 0)
+                if (other.gameObject.GetComponent<NetworkIdentity>().connectionToClient.connectionId == 0)
                     rigidbody3D.AddForce(dir * force * .5f);
                 else
                     rigidbody3D.AddForce(dir * force);
