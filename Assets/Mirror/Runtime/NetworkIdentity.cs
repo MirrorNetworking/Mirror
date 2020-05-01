@@ -210,11 +210,11 @@ namespace Mirror
             internal set
             {
                 string newAssetIdString = value.ToString("N");
-                if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
+                if (m_AssetId != newAssetIdString)
                 {
                     m_AssetId = newAssetIdString;
+                    logger.Log($"SetDynamicAssetId object {name} already has an assetId {m_AssetId}, replacing assetId with new id {newAssetIdString}");
                 }
-                else logger.LogWarning($"SetDynamicAssetId object {name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
             }
         }
 
