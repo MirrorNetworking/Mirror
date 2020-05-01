@@ -134,6 +134,19 @@ namespace Mirror.Tests
             Assert.AreEqual(prefabs[guid], validPrefab);
         }
 
+        [Test]
+        public void RegisterPrefab_PrefabNewGuid_ChangePrefabsAssetId()
+        {
+            Guid guid = new Guid(AnotherGuidString);
+            ClientScene.RegisterPrefab(validPrefab, guid);
+
+            Assert.IsTrue(prefabs.ContainsKey(guid));
+            Assert.AreEqual(prefabs[guid], validPrefab);
+
+            NetworkIdentity netId = prefabs[guid].GetComponent<NetworkIdentity>();
+
+            Assert.AreEqual(netId.assetId, guid);
+        }
 
         [Test]
         [TestCase(false, "")]
