@@ -88,21 +88,13 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 turn = Mathf.MoveTowards(turn, 0, turnSensitivity);
 
             if (isGrounded)
-            {
                 isFalling = false;
-                jumpTime = 0;
-            }
 
-            if ((isGrounded || !isFalling) && jumpTime < 3f && Input.GetKey(KeyCode.Space))
-            {
-                jumpSpeed += .1f;
-                //jumpSpeed = Mathf.Lerp(jumpSpeed, 1f, 0.5f);
-                jumpTime += .1f;
-            }
+            if ((isGrounded || !isFalling) && jumpSpeed < 1f && Input.GetKey(KeyCode.Space))
+                jumpSpeed = Mathf.Lerp(jumpSpeed, 1f, 0.5f);
             else if (!isGrounded)
             {
                 isFalling = true;
-                //jumpSpeed = Mathf.Lerp(jumpSpeed, 0f, 0.5f);
                 jumpSpeed = 0;
             }
         }
