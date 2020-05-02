@@ -289,29 +289,21 @@ namespace Mirror
         {
             // moved or rotated or scaled?
             // local position/rotation/scale for VR support
-            Transform targetComponentTransform = targetComponent.transform;
-
-            bool Moved() =>
-                DistanceGreaterThan(lastPosition, targetComponentTransform.localPosition, localPositionSensitivity);
-
-            bool Scaled() =>
-                DistanceGreaterThan(lastScale, targetComponentTransform.localScale, localScaleSensitivity);
-
-            bool Rotated() =>
-                Quaternion.Angle(lastRotation, targetComponentTransform.localRotation) > localRotationSensitivity;
+            bool moved = DistanceGreaterThan(lastPosition, targetComponent.transform.localPosition, localPositionSensitivity);
+            bool scaled = DistanceGreaterThan(lastScale, targetComponent.transform.localScale, localScaleSensitivity);
+            bool rotated = Quaternion.Angle(lastRotation, targetComponent.transform.localRotation) > localRotationSensitivity;
 
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might
             //  never sync because of C#'s float comparison tolerance. see also:
             //  https://github.com/vis2k/Mirror/pull/428 )
-            // Micro-optimization to lazily evaluate other performance-heavy conditions
-            bool change = Moved() || Rotated() || Scaled();
+            bool change = moved || rotated || scaled;
             if (change)
             {
                 // local position/rotation for VR support
-                lastPosition = targetComponentTransform.localPosition;
-                lastRotation = targetComponentTransform.localRotation;
-                lastScale = targetComponentTransform.localScale;
+                lastPosition = targetComponent.transform.localPosition;
+                lastRotation = targetComponent.transform.localRotation;
+                lastScale = targetComponent.transform.localScale;
             }
 
             return change;
@@ -321,8 +313,8 @@ namespace Mirror
         static bool DistanceGreaterThan(in Vector3 first, in Vector3 second, in float greaterThan)
         {
             // SqrMagnitude provides better performance than Distance, as it avoids an expensive square root function,
-            // which is generally not an issue on modern PC CPUs based on benchmarks, but it hurts mobile performance
-            //return SqrMagnitude(first - second) > greaterThan * greaterThan;
+            // which is generally not an issue on modern PC CPUs based on benchmarks, but it hurts mobile performance.
+            // Following code is the equivalent of: return SqrMagnitude(first - second) > greaterThan * greaterThan;
             // Further micro-optimizations: 1. Avoid a Vector3 constructor call for "operator -"
             // 2. Use "in" function parameters to avoid copying structs (Or instead copy its content to prevent a call)
             float x = first.x - second.x;
