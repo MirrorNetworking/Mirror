@@ -541,7 +541,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
         /// <returns>A new GamePlayer object.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer) instead")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer) instead", true)]
         public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
         {
             return null;
