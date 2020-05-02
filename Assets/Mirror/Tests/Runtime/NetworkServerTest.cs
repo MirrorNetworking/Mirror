@@ -25,6 +25,27 @@ namespace Mirror.Tests.Runtime
         }
 
         [UnityTest]
+        public IEnumerator RemovePlayerForConnectionTest()
+        {
+            GameObject player = new GameObject("testPlayer", typeof(NetworkIdentity));
+            NetworkConnectionToClient conn = new NetworkConnectionToClient(1);
+
+            NetworkServer.AddPlayerForConnection(conn, player);
+
+            NetworkServer.RemovePlayerForConnection(conn, false);
+
+            // takes 1 frame for unity to destroy object
+            yield return null;
+
+            Assert.That(player, Is.Not.Null, "Player should be not be destroyed");
+            Assert.That(conn.identity == null, "identity should be null");
+
+            // respawn player
+            NetworkServer.AddPlayerForConnection(conn, player);
+            Assert.That(conn.identity != null, "identity should not be null");
+        }
+
+        [UnityTest]
         public IEnumerator DisconnectTimeoutTest()
         {
             // Set high ping frequency so no NetworkPingMessage is generated
