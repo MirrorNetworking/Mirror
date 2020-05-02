@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using Guid = System.Guid;
@@ -121,27 +123,13 @@ namespace Mirror
             return true;
         }
 
+        // Deprecated 5/2/2020
         /// <summary>
-        /// Removes the player from the game.
+        /// Obsolete: Removed as a security risk
         /// </summary>
         /// <returns>True if succcessful</returns>
-        public static bool RemovePlayer()
-        {
-            if (logger.LogEnabled()) logger.Log("ClientScene.RemovePlayer() called with connection [" + readyConnection + "]");
-
-            if (readyConnection.identity != null)
-            {
-                readyConnection.Send(new RemovePlayerMessage());
-
-                Object.Destroy(readyConnection.identity.gameObject);
-
-                readyConnection.identity = null;
-                localPlayer = null;
-
-                return true;
-            }
-            return false;
-        }
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk", true)]
+        public static bool RemovePlayer() { return false; }
 
         /// <summary>
         /// Signal that the client connection is ready to enter the game.

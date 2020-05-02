@@ -736,7 +736,6 @@ namespace Mirror
 
             // Network Server initially registers it's own handlers for these, so we replace them here.
             NetworkServer.ReplaceHandler<ReadyMessage>(OnServerReadyMessageInternal);
-            NetworkServer.ReplaceHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
         }
 
         void RegisterClientMessages()
@@ -1187,16 +1186,12 @@ namespace Mirror
             OnServerAddPlayer(conn);
         }
 
-        void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
-
-            if (conn.identity != null)
-            {
-                OnServerRemovePlayer(conn, conn.identity);
-                conn.identity = null;
-            }
-        }
+        // Deprecated 5/2/2020
+        /// <summary>
+        /// Obsolete: Removed as a security risk
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk", true)]
+        void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg) { }
 
         void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
         {

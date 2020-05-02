@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
@@ -138,7 +139,6 @@ namespace Mirror
         {
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler<CommandMessage>(OnCommandMessage);
-            RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
         }
 
@@ -924,19 +924,12 @@ namespace Mirror
             SetClientReady(conn);
         }
 
-        // default remove player handler
-        static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg)
-        {
-            if (conn.identity != null)
-            {
-                Destroy(conn.identity.gameObject);
-                conn.identity = null;
-            }
-            else
-            {
-                Debug.LogError("Received remove player message but connection has no player");
-            }
-        }
+        // Deprecated 5/2/2020
+        /// <summary>
+        /// Obsolete: Removed as a security risk
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk", true)]
+        static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg) { }
 
         // Handle command from specific player, this could be one of multiple players on a single client
         static void OnCommandMessage(NetworkConnection conn, CommandMessage msg)
