@@ -45,13 +45,14 @@ namespace Mirror.Tests.Performance.Runtime
             yield return null;
             GameObject.Destroy(manager.gameObject);
         }
-
-        [TearDown]
-        public void TearDown()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             if (NetworkManager.singleton != null)
             {
+                GameObject go = NetworkManager.singleton.gameObject;
                 NetworkManager.Shutdown();
+                GameObject.DestroyImmediate(go);
             }
         }
 
