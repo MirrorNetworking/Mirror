@@ -16,9 +16,12 @@ namespace Mirror.Tests.Runtime
 
             NetworkServer.AddPlayerForConnection(conn, player);
 
+            // allow 1 frame to spawn object
+            yield return null;
+
             NetworkServer.DestroyPlayerForConnection(conn);
 
-            // takes 1 frame for unity to destroy object
+            // allow 1 frame to unspawn object and for unity to destroy object
             yield return null;
 
             Assert.That(player == null, "Player should be destroyed with DestroyPlayerForConnection");
@@ -32,9 +35,12 @@ namespace Mirror.Tests.Runtime
 
             NetworkServer.AddPlayerForConnection(conn, player);
 
+            // allow 1 frame to spawn object
+            yield return null;
+
             NetworkServer.RemovePlayerForConnection(conn, false);
 
-            // takes 1 frame for unity to destroy object
+            // allow 1 frame to unspawn object
             yield return null;
 
             Assert.That(player, Is.Not.Null, "Player should be not be destroyed");
