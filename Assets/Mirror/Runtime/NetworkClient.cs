@@ -49,7 +49,6 @@ namespace Mirror
         /// </summary>
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
 
-
         public NetworkConnectionEvent ClientNotReady = new NetworkConnectionEvent();
 
         /// <summary>
@@ -167,7 +166,6 @@ namespace Mirror
             {
                 IConnection transportConnection = await transport.ConnectAsync(uri);
 
-
                 RegisterSpawnPrefabs();
                 InitializeAuthEvents();
 
@@ -224,13 +222,11 @@ namespace Mirror
         /// </summary>
         /// <remarks>This is a hack, but it is needed to deserialize
         /// gameobjects when processing the message</remarks>
-        /// 
         internal static NetworkClient Current { get; set; }
 
         async Task OnConnected()
         {
             // reset network time stats
-
 
             // the handler may want to send messages to the client
             // thus we should set the connected state before calling the handler
@@ -252,7 +248,6 @@ namespace Mirror
 
                 Disconnected.Invoke();
             }
-
         }
 
         public void OnAuthenticated(INetworkConnection conn)
@@ -352,7 +347,6 @@ namespace Mirror
                 // if no authenticator, consider connection as authenticated
                 Connected.RemoveListener(OnAuthenticated);
             }
-
         }
 
         /// <summary>
@@ -440,7 +434,6 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("ClientScene.Ready() called with connection [" + conn + "]");
 
-
             // Set these before sending the ReadyMessage, otherwise host client
             // will fail in InternalAddPlayer with null readyConnection.
             ready = true;
@@ -490,7 +483,6 @@ namespace Mirror
             logger.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
             return null;
         }
-
 
         #region Spawn Prefabs
         private void RegisterSpawnPrefabs()

@@ -127,7 +127,6 @@ namespace Mirror
         /// </summary>
         public virtual void Start()
         {
-
             logger.Log("Thank you for using Mirror! https://mirror-networking.com");
 
             // Set the networkSceneName to prevent a scene reload

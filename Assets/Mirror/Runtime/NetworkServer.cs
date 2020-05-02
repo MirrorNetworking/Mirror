@@ -8,7 +8,6 @@ using UnityEngine.Events;
 namespace Mirror
 {
 
-
     /// <summary>
     /// The NetworkServer.
     /// </summary>
@@ -77,7 +76,6 @@ namespace Mirror
         /// </summary>
         public bool LocalClientActive => LocalClient != null && LocalClient.Active;
 
-
         /// <summary>
         /// Number of active player objects across all connections on the server.
         /// <para>This is only valid on the host / server.</para>
@@ -109,7 +107,6 @@ namespace Mirror
 
         // Time kept in this server
         public readonly NetworkTime Time = new NetworkTime();
-
 
         // transport to use to accept connections
         public AsyncTransport transport;
@@ -153,7 +150,6 @@ namespace Mirror
                 Connected.AddListener(OnAuthenticated);
             }
         }
-
 
         internal void RegisterMessageHandlers(INetworkConnection connection)
         {
