@@ -251,7 +251,7 @@ namespace Mirror.Tests
             prefabs.Add(guid, validPrefab);
 
             LogAssert.Expect(LogType.Warning, $"Replacing existing prefab with assetId '{guid}'. Old prefab '{validPrefab.name}', New prefab '{validPrefab.name}'");
-            callRegisterPrefab(validPrefab, setGuid, newGuid);
+            CallRegisterPrefab(validPrefab, setGuid, newGuid);
         }
 
         [Test]
@@ -265,7 +265,7 @@ namespace Mirror.Tests
             unspawnHandlers.Add(guid, x => { });
 
             LogAssert.Expect(LogType.Warning, $"Adding prefab '{validPrefab.name}' with assetId '{guid}' when spawnHandlers with same assetId already exists.");
-            callRegisterPrefab(validPrefab, setGuid, newGuid);
+            CallRegisterPrefab(validPrefab, setGuid, newGuid);
         }
 
 
