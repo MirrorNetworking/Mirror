@@ -46,6 +46,15 @@ namespace Mirror.Tests.Performance.Runtime
             GameObject.Destroy(manager.gameObject);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            if (NetworkManager.singleton != null)
+            {
+                NetworkManager.Shutdown();
+            }
+        }
+
         [UnityTest]
         public IEnumerator ConnectAndDisconnectWorks()
         {
