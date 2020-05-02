@@ -1189,15 +1189,9 @@ namespace Mirror
 
             if (conn.identity != null)
             {
-#pragma warning disable CS0618 // Type or member is obsolete
-                // Deprecated 04/25/2020
                 OnServerRemovePlayer(conn, conn.identity);
-#pragma warning restore CS0618 // Type or member is obsolete
                 conn.identity = null;
             }
-
-            OnServerRemovePlayer(conn);
-            NetworkServer.RemovePlayerForConnection(conn, true);
         }
 
         void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
@@ -1358,16 +1352,11 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Called on the server when the player (identity) needs to be removed from the connection.
+        /// Called on the server when a client removes a player.
+        /// <para>The default implementation of this function destroys the corresponding player object.</para>
         /// </summary>
         /// <param name="conn">The connection to remove the player from.</param>
-        public virtual void OnServerRemovePlayer(NetworkConnection conn) { }
-
-        // Deprecated 04/25/2020
-        /// <summary>
-        /// Obsolete: Override <see cref="OnServerRemovePlayer(NetworkConnection conn)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnServerRemovePlayer(NetworkConnection conn) instead")]
+        /// <param name="player">The player identity to remove.</param>
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
         {
             if (player.gameObject != null)
