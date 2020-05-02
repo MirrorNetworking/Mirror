@@ -13,7 +13,9 @@ namespace Mirror.Tests.Performance.Runtime
         public override void Awake()
         {
             transport = gameObject.AddComponent<MemoryTransport>();
-            playerPrefab = new GameObject("testPlayerPrefab", typeof(NetworkIdentity));
+            playerPrefab = new GameObject();
+            NetworkIdentity identity = playerPrefab.AddComponent<NetworkIdentity>();
+            identity.assetId = System.Guid.NewGuid();
             base.Awake();
         }
         public override void OnDestroy()
