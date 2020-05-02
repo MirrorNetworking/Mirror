@@ -695,6 +695,10 @@ namespace Mirror
 
             // do this early
             LogFilter.Debug = showDebugMessages;
+            if (LogFilter.Debug)
+            {
+                LogFactory.EnableDebugMode();
+            }
 
             if (dontDestroyOnLoad)
             {
@@ -737,11 +741,12 @@ namespace Mirror
 
         void RegisterClientMessages()
         {
-            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal, false);
-            NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
-            NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
-            NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
+            // Network Client initially registers it's own handlers for these, so we replace them here.
+            NetworkClient.ReplaceHandler<ConnectMessage>(OnClientConnectInternal, false);
+            NetworkClient.ReplaceHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
+            NetworkClient.ReplaceHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
+            NetworkClient.ReplaceHandler<ErrorMessage>(OnClientErrorInternal, false);
+            NetworkClient.ReplaceHandler<SceneMessage>(OnClientSceneInternal, false);
 
             if (playerPrefab != null)
             {
@@ -1435,9 +1440,9 @@ namespace Mirror
 
         // Deprecated 12/22/2019
         /// <summary>
-        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.).
+        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) instead")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) instead", true)]
         public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation)
         {
             OnClientChangeScene(newSceneName, sceneOperation, false);

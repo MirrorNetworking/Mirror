@@ -5,7 +5,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests.Runtime
 {
-    public class NetworkManagerTests : HostSetup
+    public class NetworkManagerTests
     {
         Scene activeScene;
 

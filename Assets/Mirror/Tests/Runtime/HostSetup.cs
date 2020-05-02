@@ -24,6 +24,7 @@ namespace Mirror.Tests.Runtime
 
             playerGO = new GameObject();
             identity = playerGO.AddComponent<NetworkIdentity>();
+            identity.assetId = System.Guid.NewGuid();
 
             manager.playerPrefab = playerGO;
             manager.startOnHeadless = false;
