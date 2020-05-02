@@ -2,11 +2,11 @@
 
 IMPORTANT: Make sure you have a layer in project settings called Player for this example to work well.
 
-In Build Settings, remove all scenes and add all of the scenes from the Examples\AdditiveScenes\Scenes folder in the following order:
+In Build Settings, remove all scenes and add all of the scenes from the Scenes folder in the following order:
 - MainScene
 - SubScene
 
-Open the MainScene in the Editor and make sure the Sub Scenes list in the Network scene object contains the SubScene scene.  This is already setup by default, but if the MainScene was opened and saved before putting the scenes in the Build Settings list, the Sub Scenes list may be cleared accidentally.
+Open the MainScene in the Editor and make sure the Sub Scenes list in the Network Manager component on the Network scene object contains the SubScene scene.  This is already setup by default, but if the MainScene was opened and saved before putting the scenes in the Build Settings list, the Sub Scenes list may be cleared accidentally.
 
 File -> Build and Run
 
