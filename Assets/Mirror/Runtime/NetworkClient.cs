@@ -37,6 +37,7 @@ namespace Mirror
         readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
         [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
+        [Serializable] public class ClientSceneChangeEvent : UnityEvent<string, SceneOperation, bool> { }
 
         /// <summary>
         /// Event fires once the Client has connected its Server.
@@ -47,6 +48,19 @@ namespace Mirror
         /// Event fires after the Client connection has sucessfully been authenticated with its Server.
         /// </summary>
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
+
+
+        public NetworkConnectionEvent ClientNotReady = new NetworkConnectionEvent();
+
+        /// <summary>
+        /// Event fires when the Client starts changing scene.
+        /// </summary>
+        public ClientSceneChangeEvent ClientChangeScene = new ClientSceneChangeEvent();
+
+        /// <summary>
+        /// Event fires after the Client has completed its scene change.
+        /// </summary>
+        public NetworkConnectionEvent ClientSceneChanged = new NetworkConnectionEvent();
 
         /// <summary>
         /// Event fires after the Client has disconnected from its Server and Cleanup has been called.
@@ -339,6 +353,42 @@ namespace Mirror
                 Connected.RemoveListener(OnAuthenticated);
             }
 
+        }
+
+        /// <summary>
+        /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
+        /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
+        /// </summary>
+        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
+        /// <param name="sceneOperation">Scene operation that's about to happen</param>
+        /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
+        public void OnClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
+        {
+            ClientChangeScene.Invoke(sceneName, sceneOperation, customHandling);
+        }
+
+        /// <summary>
+        /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
+        /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
+        /// </summary>
+        /// <param name="conn">The network connection that the scene change message arrived on.</param>
+        public void OnClientSceneChanged(INetworkConnection conn)
+        {
+            // always become ready.
+            if (!ready)
+                Ready(conn);
+
+            ClientSceneChanged.Invoke(conn);
+        }
+
+        /// <summary>
+        /// Called on clients when a servers tells the client it is no longer ready.
+        /// <para>This is commonly used when switching scenes.</para>
+        /// </summary>
+        /// <param name="conn">Connection to the server.</param>
+        public void OnClientNotReady(INetworkConnection conn)
+        {
+            ClientNotReady.Invoke(conn);
         }
 
         static bool ConsiderForSpawning(NetworkIdentity identity)
