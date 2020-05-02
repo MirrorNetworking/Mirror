@@ -12,12 +12,16 @@ namespace Mirror.Tests
     {
         // use guid to find asset so that the path does not matter
         const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
+        const string PrefabWithChildrenAssetGuid = "a78e009e3f2dee44e8859516974ede43";
         const string InvalidPrefabAssetGuid = "78f0a3f755d35324e959f3ecdd993fb0";
+        // random guid, not used anywhere
+        const string AnotherGuidString = "5794128cdfda04542985151f82990d05";
 
         GameObject validPrefab;
+        NetworkIdentity validPrefabNetId;
+        GameObject prefabWithChildren;
         GameObject invalidPrefab;
         Guid validPrefabGuid;
-        Guid invalidPrefabGuid;
 
         Dictionary<Guid, GameObject> prefabs => ClientScene.prefabs;
         Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => ClientScene.spawnHandlers;
@@ -32,21 +36,25 @@ namespace Mirror.Tests
         public void OneTimeSetUp()
         {
             validPrefab = LoadPrefab(ValidPrefabAssetGuid);
+            validPrefabNetId = validPrefab.GetComponent<NetworkIdentity>();
+            prefabWithChildren = LoadPrefab(PrefabWithChildrenAssetGuid);
             invalidPrefab = LoadPrefab(InvalidPrefabAssetGuid);
             validPrefabGuid = new Guid(ValidPrefabAssetGuid);
-            invalidPrefabGuid = new Guid(ValidPrefabAssetGuid);
         }
 
         [TearDown]
         public void TearDown()
         {
             ClientScene.Shutdown();
+            // reset asset id incase they are changed by tests
+            validPrefabNetId.assetId = validPrefabGuid;
         }
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
             validPrefab = null;
+            prefabWithChildren = null;
             invalidPrefab = null;
         }
 
@@ -102,6 +110,149 @@ namespace Mirror.Tests
 
             NetworkIdentity networkID = prefab.GetComponent<NetworkIdentity>();
             Assert.AreEqual(networkID.assetId, validPrefabGuid);
+        }
+
+
+        static void CallRegisterPrefab(GameObject prefab, bool setGuid, string newGuid)
+        {
+            if (setGuid)
+            {
+                ClientScene.RegisterPrefab(prefab, new Guid(newGuid));
+            }
+            else
+            {
+                ClientScene.RegisterPrefab(prefab);
+            }
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RegisterPrefab_Prefab_AddsPrefabToDictionary(bool setGuid)
+        {
+            Guid guid = setGuid ? new Guid(AnotherGuidString) : validPrefabGuid;
+
+            CallRegisterPrefab(validPrefab, setGuid, AnotherGuidString);
+
+            Assert.IsTrue(prefabs.ContainsKey(guid));
+            Assert.AreEqual(prefabs[guid], validPrefab);
+        }
+
+        [Test]
+        public void RegisterPrefab_PrefabNewGuid_ChangePrefabsAssetId()
+        {
+            Guid guid = new Guid(AnotherGuidString);
+            ClientScene.RegisterPrefab(validPrefab, guid);
+
+            Assert.IsTrue(prefabs.ContainsKey(guid));
+            Assert.AreEqual(prefabs[guid], validPrefab);
+
+            NetworkIdentity netId = prefabs[guid].GetComponent<NetworkIdentity>();
+
+            Assert.AreEqual(netId.assetId, guid);
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RegisterPrefab_Prefab_ErrorForNullPrefab(bool setGuid)
+        {
+            LogAssert.Expect(LogType.Error, "Could not register prefab because it was null");
+            CallRegisterPrefab(null, setGuid, AnotherGuidString);
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RegisterPrefab_Prefab_ErrorForPrefabWithoutNetworkIdentity(bool setGuid)
+        {
+            LogAssert.Expect(LogType.Error, $"Could not register '{invalidPrefab.name}' since it contains no NetworkIdentity component");
+            CallRegisterPrefab(invalidPrefab, setGuid, AnotherGuidString);
+        }
+
+        static void CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity)
+        {
+            runtimeObject = new GameObject("Runtime GameObject");
+            networkIdentity = runtimeObject.AddComponent<NetworkIdentity>();
+            // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
+            networkIdentity.sceneId = 0;
+        }
+
+        [Test]
+        public void RegisterPrefab_Prefab_ErrorForEmptyGuid()
+        {
+            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
+
+            //test
+            LogAssert.Expect(LogType.Error, $"Can not Register '{runtimeObject.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+            ClientScene.RegisterPrefab(runtimeObject);
+
+            // teardown
+            GameObject.DestroyImmediate(runtimeObject);
+        }
+
+        [Test]
+        public void RegisterPrefab_PrefabNewGuid_AddsRuntimeObjectToDictionary()
+        {
+            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
+
+            Guid guid = new Guid(AnotherGuidString);
+            ClientScene.RegisterPrefab(runtimeObject, guid);
+
+            Assert.IsTrue(prefabs.ContainsKey(guid));
+            Assert.AreEqual(prefabs[guid], runtimeObject);
+
+            Assert.AreEqual(networkIdentity.assetId, guid);
+
+            // teardown
+            GameObject.DestroyImmediate(runtimeObject);
+        }
+
+        [Test]
+        public void RegisterPrefab_PrefabNewGuid_ErrorForEmptyGuid()
+        {
+            LogAssert.Expect(LogType.Error, $"Could not register '{validPrefab.name}' with new assetId because the new assetId was empty");
+            ClientScene.RegisterPrefab(validPrefab, new Guid());
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RegisterPrefab_Prefab_ErrorIfPrefabHadSceneId(bool setGuid)
+        {
+            GameObject clone = GameObject.Instantiate(validPrefab);
+            NetworkIdentity netId = clone.GetComponent<NetworkIdentity>();
+            // Scene Id needs to not be zero for this test
+            netId.sceneId = 20;
+
+            LogAssert.Expect(LogType.Error, $"Can not Register '{clone.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+            CallRegisterPrefab(clone, setGuid, AnotherGuidString);
+
+            GameObject.DestroyImmediate(clone);
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void RegisterPrefab_Prefab_WarningForNetworkIdentityInChildren(bool setGuid)
+        {
+            LogAssert.Expect(LogType.Warning, $"Prefab '{prefabWithChildren.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+            CallRegisterPrefab(prefabWithChildren, setGuid, AnotherGuidString);
+        }
+
+
+        [Test]
+        [Ignore("Not Implemented")]
+        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInPrefabsDictionary()
+        {
+            // Not Implemented
+        }
+
+        [Test]
+        [Ignore("Not Implemented")]
+        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInHandlersDictionary()
+        {
+            // Not Implemented
         }
 
 
