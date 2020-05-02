@@ -242,17 +242,30 @@ namespace Mirror.Tests
 
 
         [Test]
-        [Ignore("Not Implemented")]
-        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInPrefabsDictionary()
+        [TestCase(false, "")]
+        [TestCase(true, AnotherGuidString)]
+        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInPrefabsDictionary(bool setGuid, string newGuid)
         {
-            // Not Implemented
+            Guid guid = setGuid ? new Guid(newGuid) : validPrefabGuid;
+
+            prefabs.Add(guid, validPrefab);
+
+            LogAssert.Expect(LogType.Warning, $"Replacing existing prefab with assetId '{guid}'. Old prefab '{validPrefab.name}', New prefab '{validPrefab.name}'");
+            callRegisterPrefab(validPrefab, setGuid, newGuid);
         }
 
         [Test]
-        [Ignore("Not Implemented")]
-        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInHandlersDictionary()
+        [TestCase(false, "")]
+        [TestCase(true, AnotherGuidString)]
+        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInHandlersDictionary(bool setGuid, string newGuid)
         {
-            // Not Implemented
+            Guid guid = setGuid ? new Guid(newGuid) : validPrefabGuid;
+
+            spawnHandlers.Add(guid, x => null);
+            unspawnHandlers.Add(guid, x => { });
+
+            LogAssert.Expect(LogType.Warning, $"Adding prefab '{validPrefab.name}' with assetId '{guid}' when spawnHandlers with same assetId already exists.");
+            callRegisterPrefab(validPrefab, setGuid, newGuid);
         }
 
 
