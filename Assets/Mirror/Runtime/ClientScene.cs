@@ -493,6 +493,17 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName());
 
+            if (spawnHandlers.ContainsKey(assetId) || unspawnHandlers.ContainsKey(assetId))
+            {
+                logger.LogWarning($"Replacing existing spawnHandlers for {assetId}");
+            }
+
+            if (prefabs.ContainsKey(assetId))
+            {
+                // this is error because SpawnPrefab checks prefabs before handler
+                logger.LogError($"assetId '{assetId}' is already used by prefab '{prefabs[assetId].name}'");
+            }
+
             spawnHandlers[assetId] = spawnHandler;
             unspawnHandlers[assetId] = unspawnHandler;
         }
