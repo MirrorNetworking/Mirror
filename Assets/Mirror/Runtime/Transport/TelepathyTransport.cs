@@ -135,7 +135,6 @@ namespace Mirror
                 // stop when there is no more message
                 if (!ProcessClientMessage())
                 {
-                    //if (i > 0) Debug.Log("Telepathy Client processed " + i + " messages this tick.");
                     break;
                 }
             }
