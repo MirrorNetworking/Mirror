@@ -113,6 +113,7 @@ namespace Mirror
             }
             dontListen = false;
             active = false;
+            handlers.Clear();
 
             NetworkIdentity.ResetNextNetworkId();
         }
