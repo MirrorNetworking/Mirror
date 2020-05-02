@@ -1187,6 +1187,15 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
 
+            if (conn.identity != null)
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                // Deprecated 04/25/2020
+                OnServerRemovePlayer(conn, conn.identity);
+#pragma warning restore CS0618 // Type or member is obsolete
+                conn.identity = null;
+            }
+
             OnServerRemovePlayer(conn);
             NetworkServer.RemovePlayerForConnection(conn, true);
         }
@@ -1358,7 +1367,7 @@ namespace Mirror
         /// <summary>
         /// Obsolete: Override <see cref="OnServerRemovePlayer(NetworkConnection conn)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnServerRemovePlayer(NetworkConnection conn) instead", true)]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnServerRemovePlayer(NetworkConnection conn) instead")]
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
         {
             if (player.gameObject != null)
