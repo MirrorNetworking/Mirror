@@ -616,8 +616,7 @@ namespace Mirror
 
         void RegisterServerMessages(INetworkConnection connection)
         {
-            connection.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
-            connection.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
+            //Currently no messages are regsitered to the Server from NetworkManager
         }
 
         // called after successful authentication
@@ -633,23 +632,6 @@ namespace Mirror
             {
                 var msg = new SceneMessage { sceneName = networkSceneName };
                 conn.Send(msg);
-            }
-        }
-
-        void OnServerReadyMessageInternal(INetworkConnection conn, ReadyMessage msg)
-        {
-            logger.Log("NetworkManager.OnServerReadyMessageInternal");
-            OnServerReady(conn);
-        }
-
-        void OnServerRemovePlayerMessageInternal(INetworkConnection conn, RemovePlayerMessage msg)
-        {
-            logger.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
-
-            if (conn.Identity != null)
-            {
-                OnServerRemovePlayer(conn, conn.Identity);
-                conn.Identity = null;
             }
         }
 
@@ -698,36 +680,6 @@ namespace Mirror
         #endregion
 
         #region Server System Callbacks
-
-        /// <summary>
-        /// Called on the server when a client is ready.
-        /// <para>The default implementation of this function calls NetworkServer.SetClientReady() to continue the network setup process.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
-        public virtual void OnServerReady(INetworkConnection conn)
-        {
-            if (conn.Identity == null)
-            {
-                // this is now allowed (was not for a while)
-                logger.Log("Ready with no player object");
-            }
-            server.SetClientReady(conn);
-        }
-
-
-        /// <summary>
-        /// Called on the server when a client removes a player.
-        /// <para>The default implementation of this function destroys the corresponding player object.</para>
-        /// </summary>
-        /// <param name="conn">The connection to remove the player from.</param>
-        /// <param name="player">The player identity to remove.</param>
-        public virtual void OnServerRemovePlayer(INetworkConnection conn, NetworkIdentity player)
-        {
-            if (player.gameObject != null)
-            {
-                server.Destroy(player.gameObject);
-            }
-        }
 
         /// <summary>
         /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
