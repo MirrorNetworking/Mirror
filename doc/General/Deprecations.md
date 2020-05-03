@@ -86,6 +86,9 @@ The currently defined channels are:
 -   `OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)`  
     Override `OnServerAddPlayer(NetworkConnection conn)` instead. See [Custom Player Spawn Guide](../Guides/GameObjects/SpawnPlayerCustom.md) for details.
 
+-   `OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)`  
+    Use `NetworkServer.RemovePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)` instead.
+
 ### NetworkRoomManager
 
 -   `OnRoomServerCreateGamePlayer(NetworkConnection conn)`  
