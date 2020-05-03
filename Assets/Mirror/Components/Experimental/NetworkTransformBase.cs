@@ -179,15 +179,15 @@ namespace Mirror.Experimental
             // Save last for next frame to compare only if change was detected, otherwise
             // slow moving objects might never sync because of C#'s float comparison tolerance.
             // See also: https://github.com/vis2k/Mirror/pull/428)
-            bool change = HasMoved || HasRotated || HasScaled;
-            if (change)
+            bool changed = HasMoved || HasRotated || HasScaled;
+            if (changed)
             {
                 // local position/rotation for VR support
                 if (syncPosition) lastPosition = targetTransform.localPosition;
                 if (syncRotation) lastRotation = targetTransform.localRotation;
                 if (syncScale) lastScale = targetTransform.localScale;
             }
-            return change;
+            return changed;
         }
 
         // local position/rotation for VR support
