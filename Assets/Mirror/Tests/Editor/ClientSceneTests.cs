@@ -391,6 +391,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         public void RegisterPrefab_ErrorForEmptyGuid(RegisterPrefabOverload overload)
         {
+            // setup
             CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
 
             //test
@@ -409,8 +410,10 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
         public void RegisterPrefab_PrefabNewGuid_AddsRuntimeObjectToDictionary(RegisterPrefabOverload overload)
         {
+            // setup
             CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
 
+            //test
             CallRegisterPrefab(runtimeObject, overload);
 
             Assert.IsTrue(prefabs.ContainsKey(anotherGuid));
