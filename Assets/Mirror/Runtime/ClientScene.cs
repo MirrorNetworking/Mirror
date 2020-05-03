@@ -552,7 +552,8 @@ namespace Mirror
             {
                 if (identity != null && identity.gameObject != null)
                 {
-                    if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
+                    bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
+                    if (!wasUnspawned)
                     {
                         if (identity.sceneId == 0)
                         {
