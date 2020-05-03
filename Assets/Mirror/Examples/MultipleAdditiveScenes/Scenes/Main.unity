@@ -276,7 +276,9 @@ MonoBehaviour:
   port: 7777
   NoDelay: 1
   serverMaxMessageSize: 16384
+  serverMaxReceivesPerTick: 10000
   clientMaxMessageSize: 16384
+  clientMaxReceivesPerTick: 1000
 --- !u!114 &69965669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308,7 +310,7 @@ MonoBehaviour:
   playerSpawnMethod: 1
   spawnPrefabs:
   - {fileID: 1139254171913846, guid: 8cec47ed46e0eff45966a5173d3aa0d3, type: 3}
-  instances: 3
+  instances: 1
   gameScene: Assets/Mirror/Examples/MultipleAdditiveScenes/Scenes/Game.unity
 --- !u!4 &69965670
 Transform:

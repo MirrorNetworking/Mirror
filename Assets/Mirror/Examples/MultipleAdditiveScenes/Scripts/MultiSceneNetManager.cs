@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
@@ -74,6 +74,20 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         {
             NetworkServer.SendToAll(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.UnloadAdditive });
             StartCoroutine(UnloadSubScenes());
+        }
+
+        public override void OnStopClient()
+        {
+            StartCoroutine(UnloadClientSubScenes());
+        }
+
+        IEnumerator UnloadClientSubScenes()
+        {
+            for (int index = 0; index < SceneManager.sceneCount; index++)
+            {
+                if (SceneManager.GetSceneAt(index) != SceneManager.GetActiveScene())
+                    yield return SceneManager.UnloadSceneAsync(SceneManager.GetSceneAt(index));
+            }
         }
 
         IEnumerator UnloadSubScenes()

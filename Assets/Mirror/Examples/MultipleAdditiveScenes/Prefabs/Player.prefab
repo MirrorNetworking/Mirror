@@ -275,8 +275,8 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   playerNumber: 0
+  scoreIndex: 0
   matchIndex: 0
-  playerIndex: 0
   score: 0
   clientMatchIndex: -1
 --- !u!1 &4926068573968176962
