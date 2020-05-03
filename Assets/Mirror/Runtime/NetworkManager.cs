@@ -1056,7 +1056,6 @@ namespace Mirror
 
             if (NetworkClient.isConnected)
             {
-                RegisterClientMessages();
                 OnClientSceneChanged(NetworkClient.connection);
             }
         }
