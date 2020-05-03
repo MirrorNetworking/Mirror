@@ -310,7 +310,7 @@ MonoBehaviour:
   playerSpawnMethod: 1
   spawnPrefabs:
   - {fileID: 1139254171913846, guid: 8cec47ed46e0eff45966a5173d3aa0d3, type: 3}
-  instances: 1
+  instances: 3
   gameScene: Assets/Mirror/Examples/MultipleAdditiveScenes/Scenes/Game.unity
 --- !u!4 &69965670
 Transform:
