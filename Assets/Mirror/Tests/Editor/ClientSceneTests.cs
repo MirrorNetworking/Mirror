@@ -426,12 +426,16 @@ namespace Mirror.Tests
         }
 
         [Test]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void RegisterPrefab_HandlerNewGuid_AddsSpawnHandlerToDictionaryWithNewAssetId(RegisterPrefabOverload overload)
+        public void RegisterPrefab_Handler_AddsSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
         {
+            // setup
             CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
 
+            //test
             CallRegisterPrefab(runtimeObject, overload);
 
             Assert.IsTrue(spawnHandlers.ContainsKey(anotherGuid));
@@ -441,12 +445,16 @@ namespace Mirror.Tests
         }
 
         [Test]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void RegisterPrefab_HandlerNewGuid_AddsUnspawnHandlerToDictionaryWithNewAssetId(RegisterPrefabOverload overload)
+        public void RegisterPrefab_Handler_AddsUnSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
         {
+            // setup
             CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
 
+            //test
             CallRegisterPrefab(runtimeObject, overload);
 
             Assert.IsTrue(unspawnHandlers.ContainsKey(anotherGuid));
