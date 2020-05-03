@@ -244,32 +244,32 @@ namespace Mirror.Tests
 
 
         [Test]
-        [TestCase(false, "")]
-        [TestCase(true, AnotherGuidString)]
+        [TestCase(false)]
+        [TestCase(true)]
         [Ignore("Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831")]
-        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInPrefabsDictionary(bool setGuid, string newGuid)
+        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInPrefabsDictionary(bool setGuid)
         {
-            Guid guid = setGuid ? new Guid(newGuid) : validPrefabGuid;
+            Guid guid = setGuid ? new Guid(AnotherGuidString) : validPrefabGuid;
 
             prefabs.Add(guid, validPrefab);
 
             LogAssert.Expect(LogType.Warning, $"Replacing existing prefab with assetId '{guid}'. Old prefab '{validPrefab.name}', New prefab '{validPrefab.name}'");
-            CallRegisterPrefab(validPrefab, setGuid, newGuid);
+            CallRegisterPrefab(validPrefab, setGuid, AnotherGuidString);
         }
 
         [Test]
-        [TestCase(false, "")]
-        [TestCase(true, AnotherGuidString)]
+        [TestCase(false)]
+        [TestCase(true)]
         [Ignore("Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831")]
-        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInHandlersDictionary(bool setGuid, string newGuid)
+        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInHandlersDictionary(bool setGuid)
         {
-            Guid guid = setGuid ? new Guid(newGuid) : validPrefabGuid;
+            Guid guid = setGuid ? new Guid(AnotherGuidString) : validPrefabGuid;
 
             spawnHandlers.Add(guid, x => null);
             unspawnHandlers.Add(guid, x => { });
 
             LogAssert.Expect(LogType.Warning, $"Adding prefab '{validPrefab.name}' with assetId '{guid}' when spawnHandlers with same assetId already exists.");
-            CallRegisterPrefab(validPrefab, setGuid, newGuid);
+            CallRegisterPrefab(validPrefab, setGuid, AnotherGuidString);
         }
 
 
