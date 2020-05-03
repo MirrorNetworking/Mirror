@@ -50,6 +50,20 @@ namespace Mirror.Experimental
         [SyncVar]
         public bool syncScale = true;
 
+        [Header("Interpolation")]
+
+        [Tooltip("Set to true if position should be interpolated")]
+        [SyncVar]
+        public bool interpolatePosition = true;
+
+        [Tooltip("Set to true if rotation should be interpolated")]
+        [SyncVar]
+        public bool interpolateRotation = true;
+
+        [Tooltip("Set to true if scale should be interpolated")]
+        [SyncVar]
+        public bool interpolateScale = true;
+
         // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
         [Header("Sensitivity")]
@@ -169,9 +183,9 @@ namespace Mirror.Experimental
             if (change)
             {
                 // local position/rotation for VR support
-                lastPosition = targetTransform.localPosition;
-                lastRotation = targetTransform.localRotation;
-                lastScale = targetTransform.localScale;
+                if (syncPosition) lastPosition = targetTransform.localPosition;
+                if (syncRotation) lastRotation = targetTransform.localRotation;
+                if (syncScale) lastScale = targetTransform.localScale;
             }
             return change;
         }
@@ -321,14 +335,17 @@ namespace Mirror.Experimental
         void ApplyPositionRotationScale(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // local position/rotation for VR support
-            targetTransform.localPosition = position;
-            targetTransform.localRotation = rotation;
-            targetTransform.localScale = scale;
+            if (syncPosition) targetTransform.localPosition = position;
+            if (syncRotation) targetTransform.localRotation = rotation;
+            if (syncScale) targetTransform.localScale = scale;
         }
 
         // where are we in the timeline between start and goal? [0,1]
-        static Vector3 InterpolatePosition(DataPoint start, DataPoint goal, Vector3 currentPosition)
+        Vector3 InterpolatePosition(DataPoint start, DataPoint goal, Vector3 currentPosition)
         {
+            if (!interpolatePosition)
+                return currentPosition;
+
             if (start.movementSpeed != 0)
             {
                 // Option 1: simply interpolate based on time, but stutter will happen, it's not that smooth.
@@ -342,26 +359,35 @@ namespace Mirror.Experimental
                 float speed = Mathf.Max(start.movementSpeed, goal.movementSpeed);
                 return Vector3.MoveTowards(currentPosition, goal.localPosition, speed * Time.deltaTime);
             }
+
             return currentPosition;
         }
 
-        static Quaternion InterpolateRotation(DataPoint start, DataPoint goal, Quaternion defaultRotation)
+        Quaternion InterpolateRotation(DataPoint start, DataPoint goal, Quaternion defaultRotation)
         {
+            if (!interpolateRotation)
+                return defaultRotation;
+
             if (start.localRotation != goal.localRotation)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Quaternion.Slerp(start.localRotation, goal.localRotation, t);
             }
+
             return defaultRotation;
         }
 
-        static Vector3 InterpolateScale(DataPoint start, DataPoint goal, Vector3 currentScale)
+        Vector3 InterpolateScale(DataPoint start, DataPoint goal, Vector3 currentScale)
         {
+            if (!interpolateScale)
+                return currentScale;
+
             if (start.localScale != goal.localScale)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Vector3.Lerp(start.localScale, goal.localScale, t);
             }
+
             return currentScale;
         }
 
