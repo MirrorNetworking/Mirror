@@ -205,17 +205,6 @@ namespace Mirror
                                .ToDictionary(identity => identity.sceneId, identity => identity);
         }
 
-        static NetworkIdentity SpawnSceneObject(ulong sceneId)
-        {
-            if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
-            {
-                spawnableObjects.Remove(sceneId);
-                return identity;
-            }
-            logger.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
-            return null;
-        }
-
         /// <summary>
         /// Find the registered prefab for this asset id.
         /// Useful for debuggers
@@ -692,6 +681,17 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId);
             return spawnedId;
+        }
+
+        static NetworkIdentity SpawnSceneObject(ulong sceneId)
+        {
+            if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
+            {
+                spawnableObjects.Remove(sceneId);
+                return identity;
+            }
+            logger.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
+            return null;
         }
 
         internal static void OnObjectSpawnStarted(ObjectSpawnStartedMessage _)
