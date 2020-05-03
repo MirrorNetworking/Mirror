@@ -932,9 +932,27 @@ namespace Mirror
                 Destroy(conn.identity.gameObject);
                 conn.identity = null;
             }
+        }
+
+        /// <summary>
+        /// Removes the player object from the connection
+        /// </summary>
+        /// <param name="conn">The connection of the client to remove from</param>
+        /// <param name="destroyServerObject">Indicates whether the server object should be destroyed</param>
+        public static void RemovePlayerForConnection(NetworkConnection conn, bool destroyServerObject)
+        {
+            if (conn.identity != null)
+            {
+                if (destroyServerObject)
+                    Destroy(conn.identity.gameObject);
+                else
+                    UnSpawn(conn.identity.gameObject);
+
+                conn.identity = null;
+            }
             else
             {
-                Debug.LogError("Received remove player message but connection has no player");
+                if (LogFilter.Debug) Debug.Log($"Connection {conn} has no identity");
             }
         }
 
