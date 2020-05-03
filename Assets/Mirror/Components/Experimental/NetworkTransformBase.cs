@@ -23,7 +23,11 @@ namespace Mirror.Experimental
 {
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
+        // target transform to sync. can be on a child.
+        protected abstract Transform targetTransform { get; }
+
         [Header("Authority")]
+
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         [SyncVar]
         public bool clientAuthority;
@@ -32,29 +36,37 @@ namespace Mirror.Experimental
         [SyncVar]
         public bool excludeOwnerUpdate;
 
-        // Is this a client with authority over this transform?
-        // This component could be on the player object or any object that has been assigned authority to this client.
-        bool IsOwnerWithClientAuthority => hasAuthority && clientAuthority;
+        [Header("Synchronization")]
 
-        // Is this a client in server authority mode
-        // This component could be on the player object or any object that has been assigned authority to this client.
-        bool IsOwnerWithServerAuthority => hasAuthority && !clientAuthority;
+        [Tooltip("Set to true if position should be synchronized")]
+        [SyncVar]
+        public bool syncPosition = true;
+
+        [Tooltip("Set to true if rotation should be synchronized")]
+        [SyncVar]
+        public bool syncRotation = true;
+
+        [Tooltip("Set to true if scale should be synchronized")]
+        [SyncVar]
+        public bool syncScale = true;
 
         // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
         [Header("Sensitivity")]
+
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         [SyncVar]
         public float localPositionSensitivity = .01f;
+
         [Tooltip("If rotation exceeds this angle, it will be transmitted on the network")]
         [SyncVar]
         public float localRotationSensitivity = .01f;
+
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         [SyncVar]
         public float localScaleSensitivity = .01f;
 
-        // target transform to sync. can be on a child.
-        protected abstract Transform targetTransform { get; }
+        [Header("Diagnostics")]
 
         // server
         public Vector3 lastPosition;
@@ -74,6 +86,14 @@ namespace Mirror.Experimental
 
             public bool isValid => timeStamp != 0;
         }
+
+        // Is this a client with authority over this transform?
+        // This component could be on the player object or any object that has been assigned authority to this client.
+        bool IsOwnerWithClientAuthority => hasAuthority && clientAuthority;
+
+        // Is this a client in server authority mode
+        // This component could be on the player object or any object that has been assigned authority to this client.
+        bool IsOwnerWithServerAuthority => hasAuthority && !clientAuthority;
 
         // interpolation start and goal
         public DataPoint start = new DataPoint();
@@ -156,14 +176,13 @@ namespace Mirror.Experimental
             return change;
         }
 
-
         // local position/rotation for VR support
         // SqrMagnitude is faster than Distance per Unity docs
         // https://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
 
-        bool HasMoved => Vector3.SqrMagnitude(lastPosition - targetTransform.localPosition) > localPositionSensitivity * localPositionSensitivity;
-        bool HasScaled => Vector3.SqrMagnitude(lastScale - targetTransform.localScale) > localScaleSensitivity * localScaleSensitivity;
-        bool HasRotated => Quaternion.Angle(lastRotation, targetTransform.localRotation) > localRotationSensitivity;
+        bool HasMoved => syncPosition && Vector3.SqrMagnitude(lastPosition - targetTransform.localPosition) > localPositionSensitivity * localPositionSensitivity;
+        bool HasRotated => syncRotation && Quaternion.Angle(lastRotation, targetTransform.localRotation) > localRotationSensitivity;
+        bool HasScaled => syncScale && Vector3.SqrMagnitude(lastScale - targetTransform.localScale) > localScaleSensitivity * localScaleSensitivity;
 
         // teleport / lag / stuck detection
         // - checking distance is not enough since there could be just a tiny fence between us and the goal
