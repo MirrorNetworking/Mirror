@@ -10,6 +10,8 @@ namespace Mirror.Tests
     [TestFixture]
     public class ClientSceneTests
     {
+        const string NewAssetIdIgnoreMessage = "Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831";
+
         // use guid to find asset so that the path does not matter
         const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
         const string PrefabWithChildrenAssetGuid = "a78e009e3f2dee44e8859516974ede43";
@@ -321,8 +323,7 @@ namespace Mirror.Tests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
-        [Ignore("Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831")]
+        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void RegisterPrefab_Prefab_AddsPrefabToDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -334,10 +335,9 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        [Ignore("Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831")]
+        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void RegisterPrefab_NewGuid_ChangePrefabsAssetId(RegisterPrefabOverload overload)
         {
             Guid guid = anotherGuid;
@@ -504,8 +504,7 @@ namespace Mirror.Tests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
-        [Ignore("Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831")]
+        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInPrefabsDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -518,10 +517,9 @@ namespace Mirror.Tests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        [Ignore("Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831")]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void RegisterPrefab_Handler_ErrorForAssetIdAlreadyExistingInPrefabsDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -534,12 +532,11 @@ namespace Mirror.Tests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        [Ignore("Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831")]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void RegisterPrefab_WarningForAssetIdAlreadyExistingInHandlersDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -547,14 +544,18 @@ namespace Mirror.Tests
             spawnHandlers.Add(guid, x => null);
             unspawnHandlers.Add(guid, x => { });
 
-            LogAssert.Expect(LogType.Warning, $"Adding prefab '{validPrefab.name}' with assetId '{guid}' when spawnHandlers with same assetId already exists.");
+            string msg = OverloadWithHandler(overload)
+                ? $"Replacing existing spawnHandlers for prefab '{validPrefab.name}' with assetId '{guid}'"
+                : $"Adding prefab '{validPrefab.name}' with assetId '{guid}' when spawnHandlers with same assetId already exists.";
+
+            LogAssert.Expect(LogType.Warning, msg);
             CallRegisterPrefab(validPrefab, overload);
         }
 
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void RegisterPrefab_SpawnDelegate_AddsHandlerToSpawnHandlers(RegisterPrefabOverload overload)
         {
             int handlerCalled = 0;
@@ -579,7 +580,7 @@ namespace Mirror.Tests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void RegisterPrefab_SpawnDelegate_AddsHandlerToSpawnHandlersWithCorrectArguments(RegisterPrefabOverload overload)
         {
             int handlerCalled = 0;
@@ -611,12 +612,12 @@ namespace Mirror.Tests
         {
             Guid guid = GuidForOverload(overload);
             LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {guid}");
-            CallRegisterPrefab(validPrefab, overload, spawnHandlerDelegate: null);
+            CallRegisterPrefab(validPrefab, overload, spawnHandler: null);
         }
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void RegisterPrefab_SpawnHandleDelegate_AddsHandlerToSpawnHandlers(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -631,19 +632,19 @@ namespace Mirror.Tests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void RegisterPrefab_SpawnHandleDelegate_ErrorWhenSpawnHandlerIsNull(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
             LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {guid}");
-            CallRegisterPrefab(validPrefab, overload, spawnHandler: null);
+            CallRegisterPrefab(validPrefab, overload, spawnHandlerDelegate: null);
         }
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void RegisterPrefab_Handler_ErrorWhenUnSpawnHandlerIsNull(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
