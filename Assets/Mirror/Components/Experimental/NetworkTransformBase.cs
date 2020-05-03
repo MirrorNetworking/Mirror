@@ -54,7 +54,7 @@ namespace Mirror.Experimental
         public float localScaleSensitivity = .01f;
 
         // target transform to sync. can be on a child.
-        protected abstract Transform targetComponent { get; }
+        protected abstract Transform targetTransform { get; }
 
         // server
         public Vector3 lastPosition;
@@ -91,7 +91,7 @@ namespace Mirror.Experimental
                 // let the clients know that this has moved
                 if (Time.time - lastServerSendTime >= syncInterval && HasEitherMovedRotatedScaled())
                 {
-                    RpcMove(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+                    RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
                     lastServerSendTime = Time.time;
                 }
             }
@@ -110,7 +110,7 @@ namespace Mirror.Experimental
                             // serialize
                             // local position/rotation for VR support
                             // send to server
-                            CmdClientToServerSync(targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+                            CmdClientToServerSync(targetTransform.transform.localPosition, targetTransform.transform.localRotation, targetTransform.transform.localScale);
                         }
                         lastClientSendTime = Time.time;
                     }
@@ -130,42 +130,40 @@ namespace Mirror.Experimental
                     else
                     {
                         // local position/rotation for VR support
-                        ApplyPositionRotationScale(InterpolatePosition(start, goal, targetComponent.transform.localPosition),
-                                                   InterpolateRotation(start, goal, targetComponent.transform.localRotation),
-                                                   InterpolateScale(start, goal, targetComponent.transform.localScale));
+                        ApplyPositionRotationScale(InterpolatePosition(start, goal, targetTransform.localPosition),
+                                                   InterpolateRotation(start, goal, targetTransform.localRotation),
+                                                   InterpolateScale(start, goal, targetTransform.localScale));
                     }
 
                 }
             }
         }
 
-        // moved since last time we checked it?
+        // moved or rotated or scaled since last time we checked it?
         bool HasEitherMovedRotatedScaled()
         {
-            // moved or rotated or scaled?
-            // local position/rotation/scale for VR support
-
-            // SqrMagnitude is faster than Distance per Unity docs
-            // https://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
-            bool moved = Vector3.SqrMagnitude(lastPosition - targetComponent.transform.localPosition) > localPositionSensitivity * localPositionSensitivity;
-            bool scaled = Vector3.SqrMagnitude(lastScale - targetComponent.transform.localScale) > localScaleSensitivity * localScaleSensitivity;
-
-            bool rotated = Quaternion.Angle(lastRotation, targetComponent.transform.localRotation) > localRotationSensitivity;
-
-            // save last for next frame to compare
-            // (only if change was detected. otherwise slow moving objects might
-            // never sync because of C#'s float comparison tolerance. see also:
-            // https://github.com/vis2k/Mirror/pull/428)
-            bool change = moved || rotated || scaled;
+            // Save last for next frame to compare only if change was detected, otherwise
+            // slow moving objects might never sync because of C#'s float comparison tolerance.
+            // See also: https://github.com/vis2k/Mirror/pull/428)
+            bool change = HasMoved || HasRotated || HasScaled;
             if (change)
             {
                 // local position/rotation for VR support
-                lastPosition = targetComponent.transform.localPosition;
-                lastRotation = targetComponent.transform.localRotation;
-                lastScale = targetComponent.transform.localScale;
+                lastPosition = targetTransform.localPosition;
+                lastRotation = targetTransform.localRotation;
+                lastScale = targetTransform.localScale;
             }
             return change;
         }
+
+
+        // local position/rotation for VR support
+        // SqrMagnitude is faster than Distance per Unity docs
+        // https://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
+
+        bool HasMoved => Vector3.SqrMagnitude(lastPosition - targetTransform.localPosition) > localPositionSensitivity * localPositionSensitivity;
+        bool HasScaled => Vector3.SqrMagnitude(lastScale - targetTransform.localScale) > localScaleSensitivity * localScaleSensitivity;
+        bool HasRotated => Quaternion.Angle(lastRotation, targetTransform.localRotation) > localRotationSensitivity;
 
         // teleport / lag / stuck detection
         // - checking distance is not enough since there could be just a tiny fence between us and the goal
@@ -221,7 +219,7 @@ namespace Mirror.Experimental
             };
 
             // movement speed: based on how far it moved since last time has to be calculated before 'start' is overwritten
-            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetComponent.transform, syncInterval);
+            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetTransform, syncInterval);
 
             // reassign start wisely
             // first ever data point? then make something up for previous one so that we can start interpolation without waiting for next.
@@ -231,9 +229,9 @@ namespace Mirror.Experimental
                 {
                     timeStamp = Time.time - syncInterval,
                     // local position/rotation for VR support
-                    localPosition = targetComponent.transform.localPosition,
-                    localRotation = targetComponent.transform.localRotation,
-                    localScale = targetComponent.transform.localScale,
+                    localPosition = targetTransform.localPosition,
+                    localRotation = targetTransform.localRotation,
+                    localScale = targetTransform.localScale,
                     movementSpeed = temp.movementSpeed
                 };
             }
@@ -275,11 +273,11 @@ namespace Mirror.Experimental
                 // local position/rotation for VR support
                 // teleport / lag / obstacle detection: only continue at current position if we aren't too far away
                 // XC  < AB + BC (see comments above)
-                if (Vector3.Distance(targetComponent.transform.localPosition, start.localPosition) < oldDistance + newDistance)
+                if (Vector3.Distance(targetTransform.localPosition, start.localPosition) < oldDistance + newDistance)
                 {
-                    start.localPosition = targetComponent.transform.localPosition;
-                    start.localRotation = targetComponent.transform.localRotation;
-                    start.localScale = targetComponent.transform.localScale;
+                    start.localPosition = targetTransform.localPosition;
+                    start.localRotation = targetTransform.localRotation;
+                    start.localScale = targetTransform.localScale;
                 }
             }
 
@@ -304,9 +302,9 @@ namespace Mirror.Experimental
         void ApplyPositionRotationScale(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // local position/rotation for VR support
-            targetComponent.transform.localPosition = position;
-            targetComponent.transform.localRotation = rotation;
-            targetComponent.transform.localScale = scale;
+            targetTransform.localPosition = position;
+            targetTransform.localRotation = rotation;
+            targetTransform.localScale = scale;
         }
 
         // where are we in the timeline between start and goal? [0,1]
