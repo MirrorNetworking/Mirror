@@ -27,11 +27,26 @@ namespace Mirror
             logger = new Logger(Debug.unityLogger)
             {
                 // by default, log warnings and up
-                filterLogType = defaultLogLevel
+                filterLogType = debugMode ? LogType.Log : defaultLogLevel
             };
 
             loggers[loggerName] = logger;
             return logger;
+        }
+
+
+        static bool debugMode = false;
+        /// <summary>
+        /// Makes all log levels LogType.Log, this is so that NetworkManger.showDebugMessages can still be used
+        /// </summary>
+        internal static void EnableDebugMode()
+        {
+            debugMode = true;
+
+            foreach (KeyValuePair<string, ILogger> kvp in loggers)
+            {
+                kvp.Value.filterLogType = LogType.Log;
+            }
         }
     }
 

@@ -695,6 +695,10 @@ namespace Mirror
 
             // do this early
             LogFilter.Debug = showDebugMessages;
+            if (LogFilter.Debug)
+            {
+                LogFactory.EnableDebugMode();
+            }
 
             if (dontDestroyOnLoad)
             {
@@ -1436,9 +1440,9 @@ namespace Mirror
 
         // Deprecated 12/22/2019
         /// <summary>
-        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.).
+        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) instead")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) instead", true)]
         public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation)
         {
             OnClientChangeScene(newSceneName, sceneOperation, false);
