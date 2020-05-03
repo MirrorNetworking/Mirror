@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
@@ -138,7 +139,6 @@ namespace Mirror
         {
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler<CommandMessage>(OnCommandMessage);
-            RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
         }
 
@@ -924,15 +924,12 @@ namespace Mirror
             SetClientReady(conn);
         }
 
-        // default remove player handler
-        static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg)
-        {
-            if (conn.identity != null)
-            {
-                Destroy(conn.identity.gameObject);
-                conn.identity = null;
-            }
-        }
+        // Deprecated 5/2/2020
+        /// <summary>
+        /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, GameObject, bool)"/> instead.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false) instead", true)]
+        static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg) { }
 
         /// <summary>
         /// Removes the player object from the connection
