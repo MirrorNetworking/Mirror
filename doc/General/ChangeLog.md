@@ -11,10 +11,14 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: NetworkBehaviour now has OnStopServer and OnStopClient virtual methods
 - Added: Weaver now supports custom Reader & Writer for types in other assemblies
 - Added: Network Manager now has an optional setting to check for and disconnect remote connections that have gone silent for a specified interval.
+- Added: Network Manager now has a ReplaceHandler method to avoid warnings when attempting to double register message handlers.
 - Added: NetworkServer SendToAll now has an optional bool to only send to ready clients, and a SendToReady method that doesn't require a NetworkIdentity.
 - Fixed: NetworkAnimator no longer double-fires SetTrigger / ResetTrigger on the host client
 - Fixed: NetworkAnimator is no longer limited to one component per object.
 - Fixed: Destroy is no longer invoked twice on the server for the player object.
+- Fixed: RegisterClientMessages is no longer invoked twice on the client.
+- Fixed: NetworkBehaviour SyncMode and SyncInterval was not showing in the inspector in some cases.
+- Fixed: Telepathy Transport - LateUpdate now processes a limited amount of messages per tick to avoid deadlocks
 - Changed: NetworkBehaviour: `OnNetworkDestroy` was renamed to `OnStopClient`.
 - Changed: **Breaking** RemovePlayerMessage has been removed as a potential security risk.  Use `NetworkServer.RemovePlayerForConnection` instead.
 - Changed: **Breaking** NetworkBehaviour: `OnRebuildObservers`, `OnCheckObserver`, and `OnSetHostVisibility` were moved to a separate class called `NetworkVisibility`
