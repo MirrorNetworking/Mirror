@@ -128,6 +128,10 @@ namespace Mirror.Tests
             Assert.That(OverloadWithAssetId(overload), Is.EqualTo(expected));
         }
 
+        /// <summary>
+        /// Allows TestCases to call different overloads for RegisterPrefab.
+        /// Without this we would need duplicate tests for each overload
+        /// </summary>
         [Flags]
         public enum RegisterPrefabOverload
         {
