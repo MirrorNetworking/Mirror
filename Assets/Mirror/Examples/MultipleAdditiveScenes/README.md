@@ -1,6 +1,9 @@
 # Multiple Additive Scenes Example
 
-In Build Settings, remove all scenes and add both of the scenes from the Examples\MultipleAdditiveScenes\Scenes folder in the following order: - Main - Game
+In Build Settings, remove all scenes and add both of the scenes from the Scenes folder in the following order:
+
+- Main
+- Game
 
 Open the Main scene in the Editor and make sure the Game Scene field in the MultiScene Network Manager on the Network scene object contains the Game scene. This is already setup by default, but if the Main scene was opened and saved before putting the scenes in the Build Settings list, the Game Scene field may be cleared accidentally.
 
