@@ -137,13 +137,6 @@ namespace Mirror
                 {
                     break;
                 }
-
-                // Some messages can disable transport
-                // If this is disabled stop processing message in queue
-                if (!enabled)
-                {
-                    break;
-                }
             }
 
             // process a maximum amount of server messages per tick
@@ -151,13 +144,6 @@ namespace Mirror
             {
                 // stop when there is no more message
                 if (!ProcessServerMessage())
-                {
-                    break;
-                }
-
-                // Some messages can disable transport
-                // If this is disabled stop processing message in queue
-                if (!enabled)
                 {
                     break;
                 }
