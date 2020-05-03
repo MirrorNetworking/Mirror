@@ -37,7 +37,7 @@ namespace Mirror
 
         /// <summary>
         /// The NetworkConnection object that is currently "ready". This is the connection to the server where objects are spawned from.
-        /// <para>This connection can be used to send messages to the server. There can only be one ready connection at a time. There can be multiple NetworkClient instances in existence, each with their own NetworkConnections, but there is only one ClientScene instance and corresponding ready connection.</para>
+        /// <para>This connection can be used to send messages to the server. There can only be one ClientScene and ready connection at a time.</para>
         /// </summary>
         public static NetworkConnection readyConnection { get; private set; }
 
