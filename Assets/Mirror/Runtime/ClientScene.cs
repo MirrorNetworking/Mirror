@@ -205,17 +205,6 @@ namespace Mirror
                                .ToDictionary(identity => identity.sceneId, identity => identity);
         }
 
-        static NetworkIdentity SpawnSceneObject(ulong sceneId)
-        {
-            if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
-            {
-                spawnableObjects.Remove(sceneId);
-                return identity;
-            }
-            logger.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
-            return null;
-        }
-
         /// <summary>
         /// Find the registered prefab for this asset id.
         /// Useful for debuggers
@@ -228,6 +217,46 @@ namespace Mirror
             prefab = null;
             return assetId != Guid.Empty &&
                    prefabs.TryGetValue(assetId, out prefab) && prefab != null;
+        }
+
+        /// <summary>
+        /// Valids Prefab then adds it to prefabs dictionary 
+        /// </summary>
+        /// <param name="prefab">NetworkIdentity on Prefab GameObject</param>
+        static void RegisterPrefabIdentity(NetworkIdentity prefab)
+        {
+            if (prefab.assetId == Guid.Empty)
+            {
+                logger.LogError($"Can not Register '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+                return;
+            }
+
+            if (prefab.sceneId != 0)
+            {
+                logger.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+                return;
+            }
+
+            NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
+            if (identities.Length > 1)
+            {
+                logger.LogWarning($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+            }
+
+            if (prefabs.ContainsKey(prefab.assetId))
+            {
+                GameObject existingPrefab = prefabs[prefab.assetId];
+                logger.LogWarning($"Replacing existing prefab with assetId '{prefab.assetId}'. Old prefab '{existingPrefab.name}', New prefab '{prefab.name}'");
+            }
+
+            if (spawnHandlers.ContainsKey(prefab.assetId) || unspawnHandlers.ContainsKey(prefab.assetId))
+            {
+                logger.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId}' when spawnHandlers with same assetId already exists.");
+            }
+
+            if (logger.LogEnabled()) logger.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");
+
+            prefabs[prefab.assetId] = prefab.gameObject;
         }
 
         /// <summary>
@@ -288,42 +317,6 @@ namespace Mirror
             }
 
             RegisterPrefabIdentity(identity);
-        }
-
-        static void RegisterPrefabIdentity(NetworkIdentity prefab)
-        {
-            if (prefab.assetId == Guid.Empty)
-            {
-                logger.LogError($"Can not Register '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
-                return;
-            }
-
-            if (prefab.sceneId != 0)
-            {
-                logger.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
-                return;
-            }
-
-            NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
-            if (identities.Length > 1)
-            {
-                logger.LogWarning($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
-            }
-
-            if (prefabs.ContainsKey(prefab.assetId))
-            {
-                GameObject existingPrefab = prefabs[prefab.assetId];
-                logger.LogWarning($"Replacing existing prefab with assetId '{prefab.assetId}'. Old prefab '{existingPrefab.name}', New prefab '{prefab.name}'");
-            }
-
-            if (spawnHandlers.ContainsKey(prefab.assetId) || unspawnHandlers.ContainsKey(prefab.assetId))
-            {
-                logger.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId}' when spawnHandlers with same assetId already exists.");
-            }
-
-            if (logger.LogEnabled()) logger.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");
-
-            prefabs[prefab.assetId] = prefab.gameObject;
         }
 
         /// <summary>
@@ -559,7 +552,8 @@ namespace Mirror
             {
                 if (identity != null && identity.gameObject != null)
                 {
-                    if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
+                    bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
+                    if (!wasUnspawned)
                     {
                         if (identity.sceneId == 0)
                         {
@@ -692,6 +686,17 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId);
             return spawnedId;
+        }
+
+        static NetworkIdentity SpawnSceneObject(ulong sceneId)
+        {
+            if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
+            {
+                spawnableObjects.Remove(sceneId);
+                return identity;
+            }
+            logger.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
+            return null;
         }
 
         internal static void OnObjectSpawnStarted(ObjectSpawnStartedMessage _)
