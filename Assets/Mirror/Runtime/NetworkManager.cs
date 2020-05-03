@@ -1190,7 +1190,7 @@ namespace Mirror
         /// <summary>
         /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, GameObject, bool)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk. Use NetworkServer.ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false) instead", true)]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false) instead", true)]
         void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg) { }
 
         void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
@@ -1354,7 +1354,7 @@ namespace Mirror
         /// <summary>
         /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, GameObject, bool)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk. Use NetworkServer.ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false) instead", true)]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false) instead", true)]
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player) { }
 
         /// <summary>

@@ -926,10 +926,32 @@ namespace Mirror
 
         // Deprecated 5/2/2020
         /// <summary>
-        /// Obsolete: Removed as a security risk
+        /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, GameObject, bool)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk", true)]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false) instead", true)]
         static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg) { }
+
+        /// <summary>
+        /// Removes the player object from the connection
+        /// </summary>
+        /// <param name="conn">The connection of the client to remove from</param>
+        /// <param name="destroyServerObject">Indicates whether the server object should be destroyed</param>
+        public static void RemovePlayerForConnection(NetworkConnection conn, bool destroyServerObject)
+        {
+            if (conn.identity != null)
+            {
+                if (destroyServerObject)
+                    Destroy(conn.identity.gameObject);
+                else
+                    UnSpawn(conn.identity.gameObject);
+
+                conn.identity = null;
+            }
+            else
+            {
+                if (LogFilter.Debug) Debug.Log($"Connection {conn} has no identity");
+            }
+        }
 
         // Handle command from specific player, this could be one of multiple players on a single client
         static void OnCommandMessage(NetworkConnection conn, CommandMessage msg)

@@ -65,7 +65,7 @@ namespace Mirror
     /// <summary>
     /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, GameObject, bool)"/> instead.
     /// </summary>
-    [Obsolete("Removed as a security risk. Use NetworkServer.ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false) instead")]
+    [Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false) instead", true)]
     public struct RemovePlayerMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
