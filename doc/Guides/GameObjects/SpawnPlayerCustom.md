@@ -101,10 +101,8 @@ You can also use `ReplacePlayerForConnection` to respawn a player or change the 
 ``` cs
 public class MyNetworkManager : NetworkManager
 {
-    public void ReplacePlayer(GameObject newPrefab)
+    public void ReplacePlayer(NetworkConnection conn, GameObject newPrefab)
     {
-        NetworkConnection conn = NetworkClient.connection;
-
         // Cache a reference to the current player object
         GameObject oldPlayer = conn.identity.gameObject;
 
