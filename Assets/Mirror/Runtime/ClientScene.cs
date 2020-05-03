@@ -43,13 +43,13 @@ namespace Mirror
         /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
         /// <para>The key to the dictionary is the prefab asset Id.</para>
         /// </summary>
-        public static Dictionary<Guid, GameObject> prefabs = new Dictionary<Guid, GameObject>();
+        public static readonly Dictionary<Guid, GameObject> prefabs = new Dictionary<Guid, GameObject>();
 
         /// <summary>
         /// This is dictionary of the disabled NetworkIdentity objects in the scene that could be spawned by messages from the server.
         /// <para>The key to the dictionary is the NetworkIdentity sceneId.</para>
         /// </summary>
-        public static Dictionary<ulong, NetworkIdentity> spawnableObjects;
+        public static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects = new Dictionary<ulong, NetworkIdentity>();
 
         // spawn handlers
         internal static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
@@ -58,7 +58,7 @@ namespace Mirror
         internal static void Shutdown()
         {
             ClearSpawners();
-            spawnableObjects = null;
+            spawnableObjects.Clear();
             readyConnection = null;
             ready = false;
             isSpawnFinished = false;
@@ -185,6 +185,9 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Checks if identity is not spawned yet, not hidden and has sceneId
+        /// </summary>
         static bool ConsiderForSpawning(NetworkIdentity identity)
         {
             // not spawned yet, not hidden, etc.?
@@ -199,10 +202,19 @@ namespace Mirror
         /// </summary>
         public static void PrepareToSpawnSceneObjects()
         {
-            // add all unspawned NetworkIdentities to spawnable objects
-            spawnableObjects = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
-                               .Where(ConsiderForSpawning)
-                               .ToDictionary(identity => identity.sceneId, identity => identity);
+            // remove existing items, they will be re-added below
+            spawnableObjects.Clear();
+
+            // finds all NetworkIdentity currently loaded by unity (includes disabled objects)
+            NetworkIdentity[] allIdentities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
+            foreach (NetworkIdentity identity in allIdentities)
+            {
+                // add all unspawned NetworkIdentities to spawnable objects
+                if (ConsiderForSpawning(identity))
+                {
+                    spawnableObjects.Add(identity.sceneId, identity);
+                }
+            }
         }
 
         /// <summary>
