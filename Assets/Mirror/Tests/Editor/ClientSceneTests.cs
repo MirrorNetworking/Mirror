@@ -330,8 +330,8 @@ namespace Mirror.Tests
 
 
         [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [TestCase(RegisterPrefabOverload.Prefab)]
+        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
         [Ignore("Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831")]
         public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInPrefabsDictionary(RegisterPrefabOverload overload)
         {
@@ -344,8 +344,8 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCase(false)]
-        [TestCase(true)]
+        [TestCase(RegisterPrefabOverload.Prefab)]
+        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
         [Ignore("Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831")]
         public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInHandlersDictionary(RegisterPrefabOverload overload)
         {
