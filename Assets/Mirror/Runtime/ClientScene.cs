@@ -220,6 +220,46 @@ namespace Mirror
         }
 
         /// <summary>
+        /// Valids Prefab then adds it to prefabs dictionary 
+        /// </summary>
+        /// <param name="prefab">NetworkIdentity on Prefab GameObject</param>
+        static void RegisterPrefabIdentity(NetworkIdentity prefab)
+        {
+            if (prefab.assetId == Guid.Empty)
+            {
+                logger.LogError($"Can not Register '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+                return;
+            }
+
+            if (prefab.sceneId != 0)
+            {
+                logger.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+                return;
+            }
+
+            NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
+            if (identities.Length > 1)
+            {
+                logger.LogWarning($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+            }
+
+            if (prefabs.ContainsKey(prefab.assetId))
+            {
+                GameObject existingPrefab = prefabs[prefab.assetId];
+                logger.LogWarning($"Replacing existing prefab with assetId '{prefab.assetId}'. Old prefab '{existingPrefab.name}', New prefab '{prefab.name}'");
+            }
+
+            if (spawnHandlers.ContainsKey(prefab.assetId) || unspawnHandlers.ContainsKey(prefab.assetId))
+            {
+                logger.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId}' when spawnHandlers with same assetId already exists.");
+            }
+
+            if (logger.LogEnabled()) logger.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");
+
+            prefabs[prefab.assetId] = prefab.gameObject;
+        }
+
+        /// <summary>
         /// Registers a prefab with the spawning system.
         /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
         /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
@@ -277,42 +317,6 @@ namespace Mirror
             }
 
             RegisterPrefabIdentity(identity);
-        }
-
-        static void RegisterPrefabIdentity(NetworkIdentity prefab)
-        {
-            if (prefab.assetId == Guid.Empty)
-            {
-                logger.LogError($"Can not Register '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
-                return;
-            }
-
-            if (prefab.sceneId != 0)
-            {
-                logger.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
-                return;
-            }
-
-            NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
-            if (identities.Length > 1)
-            {
-                logger.LogWarning($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
-            }
-
-            if (prefabs.ContainsKey(prefab.assetId))
-            {
-                GameObject existingPrefab = prefabs[prefab.assetId];
-                logger.LogWarning($"Replacing existing prefab with assetId '{prefab.assetId}'. Old prefab '{existingPrefab.name}', New prefab '{prefab.name}'");
-            }
-
-            if (spawnHandlers.ContainsKey(prefab.assetId) || unspawnHandlers.ContainsKey(prefab.assetId))
-            {
-                logger.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId}' when spawnHandlers with same assetId already exists.");
-            }
-
-            if (logger.LogEnabled()) logger.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");
-
-            prefabs[prefab.assetId] = prefab.gameObject;
         }
 
         /// <summary>
