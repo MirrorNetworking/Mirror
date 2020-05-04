@@ -648,7 +648,6 @@ namespace Mirror
 
             // will wait for scene id to come from the server.
             clientLoadedScene = true;
-            client.Connection = conn;
         }
 
         void OnClientNotReadyMessageInternal(INetworkConnection conn, NotReadyMessage msg)
