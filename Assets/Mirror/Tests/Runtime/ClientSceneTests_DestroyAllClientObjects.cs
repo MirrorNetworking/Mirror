@@ -166,5 +166,18 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             Assert.That(disableCalled2, Is.EqualTo(0), "Object with UnspawnHandler should not be destroyed");
             Assert.That(disableCalled3, Is.EqualTo(0), "Object with UnspawnHandler should not be destroyed");
         }
+
+        [Test]
+        public void ClearsSpawnedList()
+        {
+            // sceneId 0 is prefab
+            TestListenerBehaviour listener1 = CreateAndAddObject(30001, 0);
+            TestListenerBehaviour listener2 = CreateAndAddObject(30002, 0);
+            TestListenerBehaviour listener3 = CreateAndAddObject(30003, 0);
+
+            ClientScene.DestroyAllClientObjects();
+
+            Assert.That(spawned, Is.Empty);
+        }
     }
 }
