@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.ClientSceneTests
 {
     public class ClientSceneTests_GetPrefab : ClientSceneTestsBase
     {

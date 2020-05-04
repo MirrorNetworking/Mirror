@@ -3,7 +3,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.ClientSceneTests
 {
     public class ClientSceneTests_RegisterPrefab : ClientSceneTestsBase
     {
