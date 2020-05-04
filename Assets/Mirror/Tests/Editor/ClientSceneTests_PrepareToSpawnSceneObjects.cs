@@ -117,7 +117,6 @@ namespace Mirror.Tests
             Assert.IsTrue(spawnableObjects.ContainsKey(20));
             Assert.That(spawnableObjects[20], Is.EqualTo(obj1));
 
-
             Assert.IsTrue(spawnableObjects.ContainsKey(21));
             Assert.That(spawnableObjects[21], Is.EqualTo(obj2));
         }
