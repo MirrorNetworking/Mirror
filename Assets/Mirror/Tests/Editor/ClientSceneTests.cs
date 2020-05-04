@@ -8,27 +8,27 @@ using UnityEngine.TestTools;
 namespace Mirror.Tests
 {
     [TestFixture]
-    public class ClientSceneTests
+    public abstract class BaseClientSceneTests
     {
-        const string NewAssetIdIgnoreMessage = "Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831";
+        protected const string NewAssetIdIgnoreMessage = "Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831";
 
         // use guid to find asset so that the path does not matter
-        const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
-        const string PrefabWithChildrenAssetGuid = "a78e009e3f2dee44e8859516974ede43";
-        const string InvalidPrefabAssetGuid = "78f0a3f755d35324e959f3ecdd993fb0";
+        protected const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
+        protected const string PrefabWithChildrenAssetGuid = "a78e009e3f2dee44e8859516974ede43";
+        protected const string InvalidPrefabAssetGuid = "78f0a3f755d35324e959f3ecdd993fb0";
         // random guid, not used anywhere
-        const string AnotherGuidString = "5794128cdfda04542985151f82990d05";
+        protected const string AnotherGuidString = "5794128cdfda04542985151f82990d05";
 
-        GameObject validPrefab;
-        NetworkIdentity validPrefabNetId;
-        GameObject prefabWithChildren;
-        GameObject invalidPrefab;
-        Guid validPrefabGuid;
-        Guid anotherGuid;
+        protected GameObject validPrefab;
+        protected NetworkIdentity validPrefabNetId;
+        protected GameObject prefabWithChildren;
+        protected GameObject invalidPrefab;
+        protected Guid validPrefabGuid;
+        protected Guid anotherGuid;
 
-        Dictionary<Guid, GameObject> prefabs => ClientScene.prefabs;
-        Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => ClientScene.spawnHandlers;
-        Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
+        protected Dictionary<Guid, GameObject> prefabs => ClientScene.prefabs;
+        protected Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => ClientScene.spawnHandlers;
+        protected Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
 
         static GameObject LoadPrefab(string guid)
         {
@@ -61,10 +61,11 @@ namespace Mirror.Tests
             prefabWithChildren = null;
             invalidPrefab = null;
         }
-
-
+    }
+    public class ClientSceneTests_GetPrefab : BaseClientSceneTests
+    {
         [Test]
-        public void GetPrefab_ReturnsFalseForEmptyGuid()
+        public void ReturnsFalseForEmptyGuid()
         {
             bool result = ClientScene.GetPrefab(new Guid(), out GameObject prefab);
 
@@ -73,7 +74,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void GetPrefab_ReturnsFalseForPrefabNotFound()
+        public void ReturnsFalseForPrefabNotFound()
         {
             Guid guid = Guid.NewGuid();
             bool result = ClientScene.GetPrefab(guid, out GameObject prefab);
@@ -83,7 +84,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void GetPrefab_ReturnsFalseForPrefabIsNull()
+        public void ReturnsFalseForPrefabIsNull()
         {
             Guid guid = Guid.NewGuid();
             prefabs.Add(guid, null);
@@ -94,7 +95,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void GetPrefab_ReturnsTrueWhenPrefabIsFound()
+        public void ReturnsTrueWhenPrefabIsFound()
         {
             prefabs.Add(validPrefabGuid, validPrefab);
             bool result = ClientScene.GetPrefab(validPrefabGuid, out GameObject prefab);
@@ -104,7 +105,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void GetPrefab_HasOutPrefabWithCorrectGuid()
+        public void HasOutPrefabWithCorrectGuid()
         {
             prefabs.Add(validPrefabGuid, validPrefab);
             ClientScene.GetPrefab(validPrefabGuid, out GameObject prefab);
@@ -115,8 +116,9 @@ namespace Mirror.Tests
             NetworkIdentity networkID = prefab.GetComponent<NetworkIdentity>();
             Assert.AreEqual(networkID.assetId, validPrefabGuid);
         }
-
-
+    }
+    public class ClientSceneTests_RegisterPrefab : BaseClientSceneTests
+    {
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab, false)]
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, true)]
@@ -328,7 +330,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void RegisterPrefab_Prefab_AddsPrefabToDictionary(RegisterPrefabOverload overload)
+        public void Prefab_AddsPrefabToDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
 
@@ -342,7 +344,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void RegisterPrefab_NewGuid_ChangePrefabsAssetId(RegisterPrefabOverload overload)
+        public void NewGuid_ChangePrefabsAssetId(RegisterPrefabOverload overload)
         {
             Guid guid = anotherGuid;
             CallRegisterPrefab(validPrefab, overload);
@@ -362,7 +364,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void RegisterPrefab_ErrorForNullPrefab(RegisterPrefabOverload overload)
+        public void ErrorForNullPrefab(RegisterPrefabOverload overload)
         {
             string msg = OverloadWithHandler(overload)
                 ? "Could not register handler for prefab because the prefab was null"
@@ -379,7 +381,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void RegisterPrefab_ErrorForPrefabWithoutNetworkIdentity(RegisterPrefabOverload overload)
+        public void ErrorForPrefabWithoutNetworkIdentity(RegisterPrefabOverload overload)
         {
             string msg = OverloadWithHandler(overload)
                 ? $"Could not register handler for '{invalidPrefab.name}' since it contains no NetworkIdentity component"
@@ -393,7 +395,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        public void RegisterPrefab_ErrorForEmptyGuid(RegisterPrefabOverload overload)
+        public void ErrorForEmptyGuid(RegisterPrefabOverload overload)
         {
             // setup
             CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
@@ -412,7 +414,7 @@ namespace Mirror.Tests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
-        public void RegisterPrefab_PrefabNewGuid_AddsRuntimeObjectToDictionary(RegisterPrefabOverload overload)
+        public void PrefabNewGuid_AddsRuntimeObjectToDictionary(RegisterPrefabOverload overload)
         {
             // setup
             CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
@@ -432,7 +434,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void RegisterPrefab_Handler_AddsSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
+        public void Handler_AddsSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
         {
             // setup
             CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
@@ -449,7 +451,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void RegisterPrefab_Handler_AddsUnSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
+        public void Handler_AddsUnSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
         {
             // setup
             CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
@@ -467,7 +469,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void RegisterPrefab_NewGuid_ErrorForEmptyGuid(RegisterPrefabOverload overload)
+        public void NewGuid_ErrorForEmptyGuid(RegisterPrefabOverload overload)
         {
             string msg = OverloadWithHandler(overload)
                 ? $"Could not register handler for '{validPrefab.name}' with new assetId because the new assetId was empty"
@@ -483,7 +485,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void RegisterPrefab_ErrorIfPrefabHadSceneId(RegisterPrefabOverload overload)
+        public void ErrorIfPrefabHadSceneId(RegisterPrefabOverload overload)
         {
             GameObject clone = GameObject.Instantiate(validPrefab);
             NetworkIdentity netId = clone.GetComponent<NetworkIdentity>();
@@ -503,7 +505,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void RegisterPrefab_WarningForNetworkIdentityInChildren(RegisterPrefabOverload overload)
+        public void WarningForNetworkIdentityInChildren(RegisterPrefabOverload overload)
         {
             LogAssert.Expect(LogType.Warning, $"Prefab '{prefabWithChildren.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
             CallRegisterPrefab(prefabWithChildren, overload);
@@ -513,7 +515,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void RegisterPrefab_Prefab_WarningForAssetIdAlreadyExistingInPrefabsDictionary(RegisterPrefabOverload overload)
+        public void Prefab_WarningForAssetIdAlreadyExistingInPrefabsDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
 
@@ -528,7 +530,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void RegisterPrefab_Handler_ErrorForAssetIdAlreadyExistingInPrefabsDictionary(RegisterPrefabOverload overload)
+        public void Handler_ErrorForAssetIdAlreadyExistingInPrefabsDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
 
@@ -545,7 +547,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void RegisterPrefab_WarningForAssetIdAlreadyExistingInHandlersDictionary(RegisterPrefabOverload overload)
+        public void WarningForAssetIdAlreadyExistingInHandlersDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
 
@@ -564,7 +566,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void RegisterPrefab_SpawnDelegate_AddsHandlerToSpawnHandlers(RegisterPrefabOverload overload)
+        public void SpawnDelegate_AddsHandlerToSpawnHandlers(RegisterPrefabOverload overload)
         {
             int handlerCalled = 0;
 
@@ -589,7 +591,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void RegisterPrefab_SpawnDelegate_AddsHandlerToSpawnHandlersWithCorrectArguments(RegisterPrefabOverload overload)
+        public void SpawnDelegate_AddsHandlerToSpawnHandlersWithCorrectArguments(RegisterPrefabOverload overload)
         {
             int handlerCalled = 0;
             Vector3 somePosition = new Vector3(10, 20, 3);
@@ -616,7 +618,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
-        public void RegisterPrefab_SpawnDelegate_ErrorWhenSpawnHandlerIsNull(RegisterPrefabOverload overload)
+        public void SpawnDelegate_ErrorWhenSpawnHandlerIsNull(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
             LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {guid}");
@@ -626,7 +628,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void RegisterPrefab_SpawnHandleDelegate_AddsHandlerToSpawnHandlers(RegisterPrefabOverload overload)
+        public void SpawnHandleDelegate_AddsHandlerToSpawnHandlers(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
 
@@ -641,7 +643,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void RegisterPrefab_SpawnHandleDelegate_ErrorWhenSpawnHandlerIsNull(RegisterPrefabOverload overload)
+        public void SpawnHandleDelegate_ErrorWhenSpawnHandlerIsNull(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
             LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {guid}");
@@ -653,16 +655,18 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void RegisterPrefab_Handler_ErrorWhenUnSpawnHandlerIsNull(RegisterPrefabOverload overload)
+        public void Handler_ErrorWhenUnSpawnHandlerIsNull(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
             LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {guid}");
             CallRegisterPrefab(validPrefab, overload, unspawnHandler: null);
         }
 
-
+    }
+    public class ClientSceneTests_UnregisterPrefab : BaseClientSceneTests
+    {
         [Test]
-        public void UnregisterPrefab_RemovesPrefabFromDictionary()
+        public void RemovesPrefabFromDictionary()
         {
             prefabs.Add(validPrefabGuid, validPrefab);
 
@@ -672,7 +676,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void UnregisterPrefab_RemovesSpawnHandlerFromDictionary()
+        public void RemovesSpawnHandlerFromDictionary()
         {
             spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
 
@@ -682,7 +686,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void UnregisterPrefab_RemovesUnSpawnHandlerFromDictionary()
+        public void RemovesUnSpawnHandlerFromDictionary()
         {
             unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => { }));
 
@@ -692,22 +696,24 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void UnregisterPrefab_ErrorWhenPrefabIsNull()
+        public void ErrorWhenPrefabIsNull()
         {
             LogAssert.Expect(LogType.Error, "Could not unregister prefab because it was null");
             ClientScene.UnregisterPrefab(null);
         }
 
         [Test]
-        public void UnregisterPrefab_ErrorWhenPrefabHasNoNetworkIdentity()
+        public void ErrorWhenPrefabHasNoNetworkIdentity()
         {
             LogAssert.Expect(LogType.Error, $"Could not unregister '{invalidPrefab.name}' since it contains no NetworkIdentity component");
             ClientScene.UnregisterPrefab(invalidPrefab);
         }
 
-
+    }
+    public class ClientSceneTests_RegisterSpawnHandler : BaseClientSceneTests
+    {
         [Test]
-        public void RegisterSpawnHandler_SpawnDelegate_AddsHandlerToSpawnHandlers()
+        public void SpawnDelegate_AddsHandlerToSpawnHandlers()
         {
             int handlerCalled = 0;
 
@@ -730,7 +736,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnDelegate_AddsHandlerToSpawnHandlersWithCorrectArguments()
+        public void SpawnDelegate_AddsHandlerToSpawnHandlersWithCorrectArguments()
         {
             int handlerCalled = 0;
             Vector3 somePosition = new Vector3(10, 20, 3);
@@ -756,7 +762,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnDelegate_AddsHandlerToUnSpawnHandlers()
+        public void SpawnDelegate_AddsHandlerToUnSpawnHandlers()
         {
             Guid guid = Guid.NewGuid();
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
@@ -769,7 +775,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnDelegate_ErrorWhenSpawnHandlerIsNull()
+        public void SpawnDelegate_ErrorWhenSpawnHandlerIsNull()
         {
             Guid guid = Guid.NewGuid();
             SpawnDelegate spawnHandler = null;
@@ -780,7 +786,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnDelegate_ErrorWhenUnSpawnHandlerIsNull()
+        public void SpawnDelegate_ErrorWhenUnSpawnHandlerIsNull()
         {
             Guid guid = Guid.NewGuid();
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
@@ -791,7 +797,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnDelegate_ErrorWhenAssetIdIsEmpty()
+        public void SpawnDelegate_ErrorWhenAssetIdIsEmpty()
         {
             Guid guid = new Guid();
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
@@ -802,7 +808,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnDelegate_WarningWhenHandlerForGuidAlreadyExistsInHandlerDictionary()
+        public void SpawnDelegate_WarningWhenHandlerForGuidAlreadyExistsInHandlerDictionary()
         {
             Guid guid = Guid.NewGuid();
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
@@ -818,7 +824,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnDelegate_ErrorWhenHandlerForGuidAlreadyExistsInPrefabDictionary()
+        public void SpawnDelegate_ErrorWhenHandlerForGuidAlreadyExistsInPrefabDictionary()
         {
             Guid guid = Guid.NewGuid();
             prefabs.Add(guid, validPrefab);
@@ -832,7 +838,7 @@ namespace Mirror.Tests
 
 
         [Test]
-        public void RegisterSpawnHandler_SpawnHandlerDelegate_AddsHandlerToSpawnHandlers()
+        public void SpawnHandlerDelegate_AddsHandlerToSpawnHandlers()
         {
             Guid guid = Guid.NewGuid();
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
@@ -845,7 +851,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnHandlerDelegate_AddsHandlerToUnSpawnHandlers()
+        public void SpawnHandlerDelegate_AddsHandlerToUnSpawnHandlers()
         {
             Guid guid = Guid.NewGuid();
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
@@ -858,7 +864,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnHandlerDelegate_ErrorWhenSpawnHandlerIsNull()
+        public void SpawnHandlerDelegate_ErrorWhenSpawnHandlerIsNull()
         {
             Guid guid = Guid.NewGuid();
             SpawnHandlerDelegate spawnHandler = null;
@@ -869,7 +875,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnHandlerDelegate_ErrorWhenUnSpawnHandlerIsNull()
+        public void SpawnHandlerDelegate_ErrorWhenUnSpawnHandlerIsNull()
         {
             Guid guid = Guid.NewGuid();
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
@@ -880,7 +886,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnHandlerDelegate_ErrorWhenAssetIdIsEmpty()
+        public void SpawnHandlerDelegate_ErrorWhenAssetIdIsEmpty()
         {
             Guid guid = new Guid();
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
@@ -891,7 +897,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnHandlerDelegate_WarningWhenHandlerForGuidAlreadyExistsInHandlerDictionary()
+        public void SpawnHandlerDelegate_WarningWhenHandlerForGuidAlreadyExistsInHandlerDictionary()
         {
             Guid guid = Guid.NewGuid();
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
@@ -907,7 +913,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterSpawnHandler_SpawnHandlerDelegate_ErrorWhenHandlerForGuidAlreadyExistsInPrefabDictionary()
+        public void SpawnHandlerDelegate_ErrorWhenHandlerForGuidAlreadyExistsInPrefabDictionary()
         {
             Guid guid = Guid.NewGuid();
             prefabs.Add(guid, validPrefab);
@@ -919,9 +925,11 @@ namespace Mirror.Tests
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
-
+    }
+    public class ClientSceneTests_UnregisterSpawnHandler : BaseClientSceneTests
+    {
         [Test]
-        public void UnregisterSpawnHandler_RemovesSpawnHandlersFromDictionary()
+        public void RemovesSpawnHandlersFromDictionary()
         {
             spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
 
@@ -931,7 +939,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void UnregisterSpawnHandler_RemovesUnSpawnHandlersFromDictionary()
+        public void RemovesUnSpawnHandlersFromDictionary()
         {
             unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => { }));
 
@@ -941,7 +949,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void UnregisterSpawnHandler_DoesNotRemovePrefabDictionary()
+        public void DoesNotRemovePrefabDictionary()
         {
             prefabs.Add(validPrefabGuid, validPrefab);
 
@@ -951,9 +959,11 @@ namespace Mirror.Tests
             Assert.IsTrue(prefabs.ContainsKey(validPrefabGuid));
         }
 
-
+    }
+    public class ClientSceneTests_ClearSpawners : BaseClientSceneTests
+    {
         [Test]
-        public void ClearSpawners_RemovesAllPrefabsFromDictionary()
+        public void RemovesAllPrefabsFromDictionary()
         {
             prefabs.Add(Guid.NewGuid(), null);
             prefabs.Add(Guid.NewGuid(), null);
@@ -965,7 +975,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ClearSpawners_RemovesAllSpawnHandlersFromDictionary()
+        public void RemovesAllSpawnHandlersFromDictionary()
         {
             spawnHandlers.Add(Guid.NewGuid(), null);
             spawnHandlers.Add(Guid.NewGuid(), null);
@@ -977,7 +987,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ClearSpawners_RemovesAllUnspawnHandlersFromDictionary()
+        public void RemovesAllUnspawnHandlersFromDictionary()
         {
             unspawnHandlers.Add(Guid.NewGuid(), null);
             unspawnHandlers.Add(Guid.NewGuid(), null);
@@ -989,7 +999,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ClearSpawners_ClearsAllDictionary()
+        public void ClearsAllDictionary()
         {
             prefabs.Add(Guid.NewGuid(), null);
             prefabs.Add(Guid.NewGuid(), null);
