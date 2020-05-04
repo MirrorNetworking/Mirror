@@ -203,6 +203,7 @@ namespace Mirror.Tests
                     break;
             }
         }
+
         void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload, Guid guid)
         {
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
@@ -231,6 +232,7 @@ namespace Mirror.Tests
                     break;
             }
         }
+
         void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload, SpawnDelegate spawnHandler)
         {
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
@@ -255,6 +257,7 @@ namespace Mirror.Tests
                     break;
             }
         }
+
         void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload, SpawnHandlerDelegate spawnHandlerDelegate)
         {
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
@@ -279,6 +282,7 @@ namespace Mirror.Tests
                     break;
             }
         }
+
         void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload, UnSpawnDelegate unspawnHandler)
         {
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
