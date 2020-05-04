@@ -10,11 +10,6 @@ using UnityEngine.Serialization;
 namespace Mirror
 {
 
-    /// <summary>
-    /// Enumeration of methods of current Network Manager state at runtime.
-    /// </summary>
-    public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
-
     [AddComponentMenu("Network/NetworkManager")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
     [RequireComponent(typeof(NetworkServer))]
