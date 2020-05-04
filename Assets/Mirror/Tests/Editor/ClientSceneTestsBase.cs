@@ -46,7 +46,7 @@ namespace Mirror.Tests
         }
 
         [TearDown]
-        public void TearDown()
+        public virtual void TearDown()
         {
             ClientScene.Shutdown();
             // reset asset id incase they are changed by tests
