@@ -1023,6 +1023,8 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
             GameObject.DestroyImmediate(go);
             GameObject.DestroyImmediate(go2);
+            // need to clear spawned list as SpawnObjects adds items to that list
+            NetworkIdentity.spawned.Clear();
         }
 
         [Test]
