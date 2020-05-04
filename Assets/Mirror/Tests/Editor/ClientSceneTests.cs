@@ -426,9 +426,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
         public void RegisterPrefab_Handler_AddsSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
         {
@@ -445,9 +443,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
         public void RegisterPrefab_Handler_AddsUnSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
         {
