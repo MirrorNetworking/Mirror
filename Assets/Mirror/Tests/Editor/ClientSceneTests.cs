@@ -139,7 +139,7 @@ namespace Mirror.Tests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, true)]
         public void CheckOverloadWithHandler(RegisterPrefabOverload overload, bool expected)
         {
-            // test to make sure OverloadWithAssetId correctly works with flags
+            // test to make sure OverloadWithHandler correctly works with flags
             Assert.That(OverloadWithHandler(overload), Is.EqualTo(expected));
         }
 
@@ -272,7 +272,7 @@ namespace Mirror.Tests
                 case RegisterPrefabOverload.Prefab_NewAssetId:
                 case RegisterPrefabOverload.Prefab_SpawnDelegate:
                 case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
-                    Debug.LogError("Overload did not have SpawnDelegate parameter");
+                    Debug.LogError("Overload did not have SpawnHandlerDelegate parameter");
                     break;
                 default:
                     Debug.LogError("Overload not found");
