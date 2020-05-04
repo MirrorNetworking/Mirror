@@ -164,6 +164,7 @@ namespace Mirror.Tests
         }
 
         [Test]
+        [Obsolete("RemovePlayerMessage is Obsolete")]
         public void RemovePlayerMessageTest()
         {
             // try setting value with constructor
