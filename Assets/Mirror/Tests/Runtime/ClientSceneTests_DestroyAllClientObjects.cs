@@ -76,7 +76,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             listener2.onDestroyCalled += () => destroyCalled2++;
             listener3.onDestroyCalled += () => destroyCalled3++;
 
-
             ClientScene.DestroyAllClientObjects();
 
             // wait for frame to make sure unity events are called
