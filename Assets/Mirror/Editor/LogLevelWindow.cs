@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Mirror
+namespace Mirror.EditorScripts.Logging
 {
     public class LogLevelWindow : EditorWindow
     {
