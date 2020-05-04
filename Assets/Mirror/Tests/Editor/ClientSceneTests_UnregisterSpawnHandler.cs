@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.ClientSceneTests
 {
     public class ClientSceneTests_UnregisterSpawnHandler : ClientSceneTestsBase
     {
