@@ -19,7 +19,7 @@ namespace Mirror.Tests
         protected const string AnotherGuidString = "5794128cdfda04542985151f82990d05";
 
         protected GameObject validPrefab;
-        protected NetworkIdentity validPrefabNetId;
+        protected NetworkIdentity validPrefabNetworkIdentity;
         protected GameObject prefabWithChildren;
         protected GameObject invalidPrefab;
         protected Guid validPrefabGuid;
@@ -38,7 +38,7 @@ namespace Mirror.Tests
         public void OneTimeSetUp()
         {
             validPrefab = LoadPrefab(ValidPrefabAssetGuid);
-            validPrefabNetId = validPrefab.GetComponent<NetworkIdentity>();
+            validPrefabNetworkIdentity = validPrefab.GetComponent<NetworkIdentity>();
             prefabWithChildren = LoadPrefab(PrefabWithChildrenAssetGuid);
             invalidPrefab = LoadPrefab(InvalidPrefabAssetGuid);
             validPrefabGuid = new Guid(ValidPrefabAssetGuid);
@@ -50,7 +50,7 @@ namespace Mirror.Tests
         {
             ClientScene.Shutdown();
             // reset asset id incase they are changed by tests
-            validPrefabNetId.assetId = validPrefabGuid;
+            validPrefabNetworkIdentity.assetId = validPrefabGuid;
         }
 
         [OneTimeTearDown]
