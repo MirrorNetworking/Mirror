@@ -24,6 +24,8 @@ namespace Mirror.Tests
         protected GameObject invalidPrefab;
         protected Guid validPrefabGuid;
         protected Guid anotherGuid;
+        protected readonly List<GameObject> _createdObjects = new List<GameObject>();
+
 
         protected Dictionary<Guid, GameObject> prefabs => ClientScene.prefabs;
         protected Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => ClientScene.spawnHandlers;
@@ -51,6 +53,15 @@ namespace Mirror.Tests
             ClientScene.Shutdown();
             // reset asset id incase they are changed by tests
             validPrefabNetworkIdentity.assetId = validPrefabGuid;
+
+            foreach (GameObject item in _createdObjects)
+            {
+                if (item != null)
+                {
+                    GameObject.DestroyImmediate(item);
+                }
+            }
+            _createdObjects.Clear();
         }
 
         [OneTimeTearDown]
