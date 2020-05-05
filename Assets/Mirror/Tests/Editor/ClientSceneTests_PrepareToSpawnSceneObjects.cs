@@ -6,21 +6,7 @@ namespace Mirror.Tests.ClientSceneTests
 {
     public class ClientSceneTests_PrepareToSpawnSceneObjects : ClientSceneTestsBase
     {
-        readonly List<NetworkIdentity> createdObjects = new List<NetworkIdentity>();
-
         protected Dictionary<ulong, NetworkIdentity> spawnableObjects => ClientScene.spawnableObjects;
-
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-            foreach (NetworkIdentity item in createdObjects)
-            {
-                Object.DestroyImmediate(item.gameObject);
-            }
-            createdObjects.Clear();
-        }
 
         NetworkIdentity CreateSceneObject(ulong sceneId)
         {
@@ -29,7 +15,7 @@ namespace Mirror.Tests.ClientSceneTests
             // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
             networkIdentity.sceneId = sceneId;
 
-            createdObjects.Add(networkIdentity);
+            _createdObjects.Add(runtimeObject);
 
             return networkIdentity;
         }

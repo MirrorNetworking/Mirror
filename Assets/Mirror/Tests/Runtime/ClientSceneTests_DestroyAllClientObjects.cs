@@ -31,8 +31,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
     public class ClientSceneTests_DestroyAllClientObjects
     {
         readonly List<GameObject> _createdObjects = new List<GameObject>();
-        protected Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
-        protected Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
+        Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
+        Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
 
         [TearDown]
         public void TearDown()
