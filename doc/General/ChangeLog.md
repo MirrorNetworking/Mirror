@@ -4,7 +4,7 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
-## Version 13.x.x -- In Progress
+## Version 13.0.1 -- 2020-May-06
 - Added: [Multiple Concurrent Additive Scenes Example](../Examples/MultipleAdditiveScenes/index.md)
 - Added: [NetworkMatchChecker](../Components/NetworkMatchChecker.md) component. Use this component to create many concurrent isolated matches within a single game server.
 - Added: [SyncLists](../Guides/Sync/SyncLists.md) now have Find and FindAll functions.
