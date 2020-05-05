@@ -421,7 +421,7 @@ namespace Mirror
             networkSceneName = newSceneName;
 
             // Let server prepare for scene change
-            OnServerChangeScene(newSceneName);
+            server.OnServerChangeScene(newSceneName);
 
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
@@ -563,7 +563,7 @@ namespace Mirror
             FinishStartHost();
 
             // call OnServerSceneChanged
-            OnServerSceneChanged(networkSceneName);
+            server.OnServerSceneChanged(networkSceneName);
 
             if (client.IsConnected)
             {
@@ -601,7 +601,7 @@ namespace Mirror
             logger.Log("Finished loading scene in server-only mode.");
 
             server.SpawnObjects();
-            OnServerSceneChanged(networkSceneName);
+            server.OnServerSceneChanged(networkSceneName);
         }
 
         #endregion
@@ -669,23 +669,6 @@ namespace Mirror
                 ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
             }
         }
-
-        #endregion
-
-        #region Server System Callbacks
-
-        /// <summary>
-        /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
-        /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
-        /// </summary>
-        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-        public virtual void OnServerChangeScene(string newSceneName) { }
-
-        /// <summary>
-        /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ServerChangeScene().
-        /// </summary>
-        /// <param name="sceneName">The name of the new scene.</param>
-        public virtual void OnServerSceneChanged(string sceneName) { }
 
         #endregion
 
