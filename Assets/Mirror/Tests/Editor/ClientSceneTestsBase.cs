@@ -9,8 +9,6 @@ namespace Mirror.Tests
     [TestFixture]
     public abstract class ClientSceneTestsBase
     {
-        protected const string NewAssetIdIgnoreMessage = "Ignoring this test till we know how to fix it, see https://github.com/vis2k/Mirror/issues/1831";
-
         // use guid to find asset so that the path does not matter
         protected const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
         protected const string PrefabWithChildrenAssetGuid = "a78e009e3f2dee44e8859516974ede43";
