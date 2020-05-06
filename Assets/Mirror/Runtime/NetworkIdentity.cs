@@ -209,11 +209,30 @@ namespace Mirror
             }
             internal set
             {
-                string newAssetIdString = value.ToString("N");
-                if (m_AssetId != newAssetIdString)
+                string newAssetIdString = value == Guid.Empty ? string.Empty : value.ToString("N");
+                string oldAssetIdSrting = m_AssetId;
+
+                if (oldAssetIdSrting != newAssetIdString)
                 {
+                    // new is empty
+                    if (string.IsNullOrEmpty(newAssetIdString))
+                    {
+                        logger.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{oldAssetIdSrting}'");
+                        return;
+                    }
+
+                    // old not empty
+                    if (!string.IsNullOrEmpty(oldAssetIdSrting))
+                    {
+                        logger.LogWarning($"Replacing existing AssetId on NetworkIdentity '{name}', old assetId '{oldAssetIdSrting}', new assetId '{newAssetIdString}'");
+                    }
+                    // old is empty
+                    else if (logger.LogEnabled())
+                    {
+                        logger.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
+                    }
+
                     m_AssetId = newAssetIdString;
-                    logger.Log($"SetDynamicAssetId object {name} already has an assetId {m_AssetId}, replacing assetId with new id {newAssetIdString}");
                 }
             }
         }
