@@ -1,10 +1,10 @@
 - name: Overview
   href: index.md
-- name: Network Animator
-  href: NetworkAnimator.md
 - name: Authenticators
   href: Authenticators/toc.yml
   topicHref: Authenticators/
+- name: Network Animator
+  href: NetworkAnimator.md
 - name: Network Discovery
   href: NetworkDiscovery.md
 - name: Network Identity
