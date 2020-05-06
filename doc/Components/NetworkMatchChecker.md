@@ -1,4 +1,4 @@
-# Network Scene Checker
+# Network Match Checker
 
 The Network Match Checker component controls visibility of networked objects based on match id.
 
