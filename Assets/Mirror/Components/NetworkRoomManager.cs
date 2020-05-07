@@ -424,8 +424,6 @@ namespace Mirror
 
             if (playerPrefab == null)
                 Debug.LogError("NetworkRoomManager no GamePlayer prefab is registered. Please add a GamePlayer prefab.");
-            else
-                ClientScene.RegisterPrefab(playerPrefab);
 
             OnRoomStartClient();
         }
