@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 1078519278818213949}
   - component: {fileID: 644305951047116972}
   - component: {fileID: 3679374677650722848}
-  - component: {fileID: 5648102249226208429}
   - component: {fileID: 5430786619612738921}
   m_Layer: 0
   m_Name: Player
@@ -96,7 +95,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 0
   serverOnly: 0
-  m_AssetId: e1299008405d14b17b1ca459a6cd44a2
+  m_AssetId: 
   hasSpawned: 0
 --- !u!114 &644305951047116972
 MonoBehaviour:
@@ -131,20 +130,6 @@ MonoBehaviour:
   localPositionSensitivity: 0.01
   localRotationSensitivity: 0.01
   localScaleSensitivity: 0.01
---- !u!136 &5648102249226208429
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449802645721213856}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5430786619612738921
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,8 +146,4 @@ MonoBehaviour:
   syncInterval: 0.1
   visRange: 15
   visUpdateInterval: 1
-  checkMethod: 0
   forceHidden: 0
-  castLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
