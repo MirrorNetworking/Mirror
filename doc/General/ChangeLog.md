@@ -4,6 +4,10 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
+## Version 14.x.x -- In Progress
+- Fixed: NetworkRoomManager.minPlayers is now protected so it's available for derived classes.
+- Changed: Network Proximity Checker now uses direct distance check against player objects instead of Physics.SphereCastNonAlloc for better performance.
+
 ## Version 13.0.1 -- 2020-May-06
 - Added: [Multiple Concurrent Additive Scenes Example](../Examples/MultipleAdditiveScenes/index.md)
 - Added: [NetworkMatchChecker](../Components/NetworkMatchChecker.md) component. Use this component to create many concurrent isolated matches within a single game server.
