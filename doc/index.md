@@ -29,7 +29,7 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 -   Additive Scene Loading
 -   Single and separated Unity projects supported
 -   Network [Authenticators](Components/Authenticators/index.md) to protect your game
--   Network [Discovery](Guides/NetworkDiscovery.md) to easily connect LAN players to a LAN Server or Host
+-   Network [Discovery](Components/NetworkDiscovery.md) to easily connect LAN players to a LAN Server or Host
 -   Network [Manager](Components/NetworkManager.md) and [HUD](Components/NetworkManagerHUD.md)
 -   Network [Room Manager](Components/NetworkRoomManager.md) and [Room Player](Components/NetworkRoomPlayer.md)
 -   Network [Identity](Components/NetworkIdentity.md)

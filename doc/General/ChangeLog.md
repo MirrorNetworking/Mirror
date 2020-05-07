@@ -72,7 +72,6 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: NetworkTransform now has 3 new floats for Sensitivity to quiet down message traffic from micro changes.
 - Added: Network Observer added to [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
 - Added: [Network Discovery](../Components/NetworkDiscovery.md) has been reimplemented including an example and script template -- thanks to all those who contributed!
-- Added: [Network Discovery](../Guides/NetworkDiscovery.md) Guide added to documentation.
 - Added: [Network Scene Checker Component](../Components/NetworkSceneChecker.md).
 - Added: Mirror Icon for all components.
 - Added: Inspector Headers to NetworkBehaviour, NetworkTransform, and NetworkAnimator.
