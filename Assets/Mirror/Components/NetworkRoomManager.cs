@@ -36,7 +36,7 @@ namespace Mirror
         [FormerlySerializedAs("m_MinPlayers")]
         [SerializeField]
         [Tooltip("Minimum number of players to auto-start the game")]
-        int minPlayers = 1;
+        protected int minPlayers = 1;
 
         [FormerlySerializedAs("m_RoomPlayerPrefab")]
         [SerializeField]
