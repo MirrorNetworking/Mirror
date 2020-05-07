@@ -146,7 +146,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Removed: Network Identity: Local Player Authority has been removed as no longer necessary.
 
 ## Version 4.0.7 - 2019-Oct-03
-- Added: [Authentication](../Guides/Authentication.md) support to authenticate clients in the Connect phase.
+- Added: [Authenticators](Components/Authenticators/index.md) support to authenticate clients in the Connect phase.
 - Added: Profiler events. These events can be subscribed to by the [Network Profiler](../Guides/Profiler.md) to provide visual information.
 - Added: Transports now include channel in profiler events.
 - Added: Transport abstract class now supports sending a message to a list of connection id's.
@@ -290,7 +290,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Changed: Documentation for [Transports](../Transports/index.md).
 - Changed: Weaver is now full source...FINALLY!
 - Changed: ClientScene.AddPlayer 2nd parameter is now `byte[] extraData` instead of `MessageBase extraMessage`.
-    -   Please refer to the code sample [here](../Guides/Authentication.md) to see how to update your code.
+    -   Please refer to the code sample [here](../Guides/GameObjects/SpawnPlayerCustom.md) to see how to update your code.
 - Changed: NetworkManager -- Headless Auto-Start moved to `Start()` from `Awake()`.
 - Changed: Removed Message ID's for all messages - See [Network Messages](../Guides/Communications/NetworkMessages.md) for details.
     -   Message IDs are now generated automatically based on the message name.  
