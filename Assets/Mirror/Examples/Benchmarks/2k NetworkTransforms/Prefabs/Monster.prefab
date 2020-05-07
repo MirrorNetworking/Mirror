@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 1078519278818213949}
   - component: {fileID: 3679374677650722848}
   - component: {fileID: 8309506939003697769}
-  - component: {fileID: 9124827821541176517}
   - component: {fileID: 7488211268558861764}
   m_Layer: 0
   m_Name: Monster
@@ -96,7 +95,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 0
   serverOnly: 0
-  m_AssetId: 30b8f251d03d84284b70601e691d474f
+  m_AssetId: 
   hasSpawned: 0
 --- !u!114 &3679374677650722848
 MonoBehaviour:
@@ -133,20 +132,6 @@ MonoBehaviour:
   speed: 1
   movementProbability: 0.5
   movementDistance: 20
---- !u!136 &9124827821541176517
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449802645721213856}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7488211268558861764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,8 +148,4 @@ MonoBehaviour:
   syncInterval: 0.1
   visRange: 15
   visUpdateInterval: 1
-  checkMethod: 0
   forceHidden: 0
-  castLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
