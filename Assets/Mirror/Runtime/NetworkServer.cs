@@ -1130,10 +1130,10 @@ namespace Mirror
         /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
         /// </summary>
         /// <param name="obj">The object to spawn.</param>
-        /// <param name="player">The player object to set Client Authority to.</param>
-        public static void Spawn(GameObject obj, GameObject player)
+        /// <param name="ownerPlayer">The player object to set Client Authority to.</param>
+        public static void Spawn(GameObject obj, GameObject ownerPlayer)
         {
-            NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
+            NetworkIdentity identity = ownerPlayer.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
                 Debug.LogError("Player object has no NetworkIdentity");
