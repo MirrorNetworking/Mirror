@@ -818,8 +818,6 @@ namespace Mirror
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
 
-            //NOTE: DONT set connection ready.
-
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
             if (conn is ULocalConnectionToClient)
             {
