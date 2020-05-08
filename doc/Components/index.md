@@ -28,6 +28,8 @@ These core components are included in Mirror:
     The Network Transform component synchronizes the movement and rotation of game objects across the network. Note that the network Transform component only synchronizes spawned networked game objects.
 -   [Network Transform Child](NetworkTransformChild.md)  
     The Network Transform Child component synchronizes the position and rotation of the child game object of a game object with a Network Transform component.
+-   [Network Log Settings](NetworkLogSettings.md)
+    The Network Log Settings component allows you to use configure logging levels and load the settings in a build.
 
 ## Authenticators
 
