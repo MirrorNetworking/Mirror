@@ -763,9 +763,19 @@ namespace Mirror
 
         void CleanupNetworkIdentities()
         {
-            foreach (NetworkIdentity identity in Resources.FindObjectsOfTypeAll<NetworkIdentity>())
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
-                identity.Reset();
+                NetworkIdentity identity = kvp.Value;
+
+                if (identity.sceneId != 0)
+                {
+                    identity.Reset();
+                    identity.gameObject.SetActive(false);
+                }
+                else
+                {
+                    Destroy(identity.gameObject);
+                }
             }
         }
 
