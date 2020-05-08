@@ -39,7 +39,7 @@ namespace Mirror.Logging
 
             if (assetGuids.Length > 2)
             {
-                Debug.LogWarning("Found more than one LogSettings, Delete extra settinsg. Using first asset found: " + path);
+                Debug.LogWarning("Found more than one LogSettings, Delete extra settings. Using first asset found: " + path);
             }
             Debug.Assert(cache != null, "Failed to load asset at: " + path);
 
