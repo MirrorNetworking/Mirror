@@ -23,6 +23,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Guides/NetworkBehaviour.html")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkBehaviour));
+
         internal float lastSyncTime;
 
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.

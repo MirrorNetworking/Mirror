@@ -9,6 +9,8 @@ namespace Mirror
     /// </summary>
     public static class NetworkTime
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkTime));
+
         /// <summary>
         /// how often are we sending ping messages
         /// used to calculate network time and RTT

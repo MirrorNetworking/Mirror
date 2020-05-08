@@ -17,6 +17,8 @@ namespace Mirror
     //    (probably even shorter)
     public static class MessagePacker
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(MessagePacker));
+
         public static int GetId<T>() where T : IMessageBase
         {
             // paul: 16 bits is enough to avoid collisions

@@ -7,6 +7,8 @@ namespace Mirror
     // sending messages on this connection causes the client's handler function to be invoked directly
     class ULocalConnectionToClient : NetworkConnectionToClient
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(ULocalConnectionToClient));
+
         internal ULocalConnectionToServer connectionToServer;
 
         public ULocalConnectionToClient() : base(0) { }

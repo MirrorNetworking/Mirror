@@ -16,6 +16,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkManagerHUD.html")]
     public class NetworkManagerHUD : MonoBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger<NetworkManagerHUD>();
+
         NetworkManager manager;
 
         /// <summary>
