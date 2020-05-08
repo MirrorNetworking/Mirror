@@ -656,7 +656,7 @@ namespace Mirror
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="assetId"></param>
         /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
-        /// <returns></returns>
+        /// <returns>True if connection was sucessfully replaced for player.</returns>
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId, bool keepAuthority = false)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
@@ -673,7 +673,7 @@ namespace Mirror
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
-        /// <returns></returns>
+        /// <returns>True if connection was sucessfully replaced for player.</returns>
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)
         {
             return InternalReplacePlayerForConnection(conn, player, keepAuthority);
@@ -686,7 +686,7 @@ namespace Mirror
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="assetId"></param>
-        /// <returns></returns>
+        /// <returns>True if connection was sucessfully added for a connection.</returns>
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
@@ -739,7 +739,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
-        /// <returns></returns>
+        /// <returns>True if connection was sucessfully added for a connection.</returns>
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
