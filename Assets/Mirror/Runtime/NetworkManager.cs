@@ -334,7 +334,6 @@ namespace Mirror
         /// <summary>
         /// This starts a new server.
         /// </summary>
-        /// <returns></returns>
         public void StartServer()
         {
             mode = NetworkManagerMode.ServerOnly;

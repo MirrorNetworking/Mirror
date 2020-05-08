@@ -146,7 +146,6 @@ namespace Mirror
         /// Start the server, setting the maximum number of connections.
         /// </summary>
         /// <param name="maxConns">Maximum number of allowed connections</param>
-        /// <returns></returns>
         public static void Listen(int maxConns)
         {
             Initialize();
