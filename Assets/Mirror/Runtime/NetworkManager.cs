@@ -777,6 +777,8 @@ namespace Mirror
                     Destroy(identity.gameObject);
                 }
             }
+
+            NetworkIdentity.spawned.Clear();
         }
 
         /// <summary>
