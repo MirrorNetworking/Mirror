@@ -1040,7 +1040,6 @@ namespace Mirror
                     payload = payload,
                 };
 
-
                 conn.Send(msg);
             }
         }
