@@ -5,7 +5,6 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests.Runtime
 {
-
     [TestFixture]
     public class NetworkServerRuntimeTest
     {
