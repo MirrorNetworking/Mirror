@@ -131,7 +131,7 @@ namespace Mirror
                 }
                 else
                 {
-                    Destroy(identity.gameObject);
+                    GameObject.Destroy(identity.gameObject);
                 }
             }
 
