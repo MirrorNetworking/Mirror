@@ -1206,7 +1206,7 @@ namespace Mirror
         {
             if (obj == null)
             {
-                if (logger.LogEnabled()) logger.Log("NetworkServer DestroyObject is null");
+                logger.Log("NetworkServer DestroyObject is null");
                 return;
             }
 
@@ -1226,7 +1226,7 @@ namespace Mirror
         {
             if (obj == null)
             {
-                if (logger.LogEnabled()) logger.Log("NetworkServer UnspawnObject is null");
+                logger.Log("NetworkServer UnspawnObject is null");
                 return;
             }
 

@@ -23,7 +23,7 @@ namespace Mirror.Examples.Additive
 
         IEnumerator LoadSubScenes()
         {
-            if (LogFilter.Debug) logger.Log("Loading Scenes");
+            logger.Log("Loading Scenes");
 
             foreach (string sceneName in subScenes)
             {
@@ -44,7 +44,7 @@ namespace Mirror.Examples.Additive
 
         IEnumerator UnloadScenes()
         {
-            if (LogFilter.Debug) logger.Log("Unloading Subscenes");
+            logger.Log("Unloading Subscenes");
 
             foreach (string sceneName in subScenes)
                 if (SceneManager.GetSceneByName(sceneName).IsValid() || SceneManager.GetSceneByPath(sceneName).IsValid())

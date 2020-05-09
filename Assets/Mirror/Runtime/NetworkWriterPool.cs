@@ -91,7 +91,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.Debug) { logger.LogWarning("NetworkWriterPool.Recycle, Pool was full leaving extra writer for GC"); }
+                logger.LogWarning("NetworkWriterPool.Recycle, Pool was full leaving extra writer for GC");
             }
         }
     }

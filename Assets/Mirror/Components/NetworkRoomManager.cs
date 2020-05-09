@@ -130,7 +130,7 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerReady(NetworkConnection conn)
         {
-            if (LogFilter.Debug) logger.Log("NetworkRoomManager OnServerReady");
+            logger.Log("NetworkRoomManager OnServerReady");
             base.OnServerReady(conn);
 
             if (conn != null && conn.identity != null)

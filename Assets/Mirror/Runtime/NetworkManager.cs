@@ -540,13 +540,13 @@ namespace Mirror
             // loaded and all objects were spawned.
             // DO NOT do this earlier. it would cause race conditions where a
             // client will do things before the server is even fully started.
-            if (LogFilter.Debug) logger.Log("StartHostClient called");
+            logger.Log("StartHostClient called");
             StartHostClient();
         }
 
         void StartHostClient()
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager ConnectLocalClient");
+            logger.Log("NetworkManager ConnectLocalClient");
 
             if (authenticator != null)
             {
@@ -597,7 +597,7 @@ namespace Mirror
 
             OnStopServer();
 
-            if (LogFilter.Debug) logger.Log("NetworkManager StopServer");
+            logger.Log("NetworkManager StopServer");
             isNetworkActive = false;
             NetworkServer.Shutdown();
 
@@ -627,7 +627,7 @@ namespace Mirror
 
             OnStopClient();
 
-            if (LogFilter.Debug) logger.Log("NetworkManager StopClient");
+            logger.Log("NetworkManager StopClient");
             isNetworkActive = false;
 
             // shutdown client
@@ -712,13 +712,13 @@ namespace Mirror
                     // Return false to not allow collision-destroyed second instance to continue.
                     return false;
                 }
-                if (LogFilter.Debug) logger.Log("NetworkManager created singleton (DontDestroyOnLoad)");
+                logger.Log("NetworkManager created singleton (DontDestroyOnLoad)");
                 singleton = this;
                 if (Application.isPlaying) DontDestroyOnLoad(gameObject);
             }
             else
             {
-                if (LogFilter.Debug) logger.Log("NetworkManager created singleton (ForScene)");
+                logger.Log("NetworkManager created singleton (ForScene)");
                 singleton = this;
             }
 
@@ -792,7 +792,7 @@ namespace Mirror
         /// </summary>
         public virtual void OnDestroy()
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager destroyed");
+            logger.Log("NetworkManager destroyed");
         }
 
         #endregion
@@ -959,7 +959,7 @@ namespace Mirror
             // NOTE: this cannot use NetworkClient.allClients[0] - that client may be for a completely different purpose.
 
             // process queued messages that we received while loading the scene
-            if (LogFilter.Debug) logger.Log("FinishLoadScene: resuming handlers after scene was loading.");
+            logger.Log("FinishLoadScene: resuming handlers after scene was loading.");
             Transport.activeTransport.enabled = true;
 
             // host mode?
@@ -988,7 +988,7 @@ namespace Mirror
         {
             // debug message is very important. if we ever break anything then
             // it's very obvious to notice.
-            if (LogFilter.Debug) logger.Log("Finished loading scene in host mode.");
+            logger.Log("Finished loading scene in host mode.");
 
             if (clientReadyConnection != null)
             {
@@ -1046,7 +1046,7 @@ namespace Mirror
         {
             // debug message is very important. if we ever break anything then
             // it's very obvious to notice.
-            if (LogFilter.Debug) logger.Log("Finished loading scene in client-only mode.");
+            logger.Log("Finished loading scene in client-only mode.");
 
             if (clientReadyConnection != null)
             {
@@ -1067,7 +1067,7 @@ namespace Mirror
         {
             // debug message is very important. if we ever break anything then
             // it's very obvious to notice.
-            if (LogFilter.Debug) logger.Log("Finished loading scene in server-only mode.");
+            logger.Log("Finished loading scene in server-only mode.");
 
             NetworkServer.SpawnObjects();
             OnServerSceneChanged(networkSceneName);
@@ -1118,7 +1118,7 @@ namespace Mirror
 
         void OnServerConnectInternal(NetworkConnection conn, ConnectMessage connectMsg)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnServerConnectInternal");
+            logger.Log("NetworkManager.OnServerConnectInternal");
 
             if (authenticator != null)
             {
@@ -1135,7 +1135,7 @@ namespace Mirror
         // called after successful authentication
         void OnServerAuthenticated(NetworkConnection conn)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnServerAuthenticated");
+            logger.Log("NetworkManager.OnServerAuthenticated");
 
             // set connection to authenticated
             conn.isAuthenticated = true;
@@ -1152,19 +1152,19 @@ namespace Mirror
 
         void OnServerDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnServerDisconnectInternal");
+            logger.Log("NetworkManager.OnServerDisconnectInternal");
             OnServerDisconnect(conn);
         }
 
         void OnServerReadyMessageInternal(NetworkConnection conn, ReadyMessage msg)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnServerReadyMessageInternal");
+            logger.Log("NetworkManager.OnServerReadyMessageInternal");
             OnServerReady(conn);
         }
 
         void OnServerAddPlayerInternal(NetworkConnection conn, AddPlayerMessage msg)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnServerAddPlayer");
+            logger.Log("NetworkManager.OnServerAddPlayer");
 
             if (autoCreatePlayer && playerPrefab == null)
             {
@@ -1196,7 +1196,7 @@ namespace Mirror
 
         void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnServerErrorInternal");
+            logger.Log("NetworkManager.OnServerErrorInternal");
             OnServerError(conn, msg.value);
         }
 
@@ -1206,7 +1206,7 @@ namespace Mirror
 
         void OnClientConnectInternal(NetworkConnection conn, ConnectMessage message)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnClientConnectInternal");
+            logger.Log("NetworkManager.OnClientConnectInternal");
 
             if (authenticator != null)
             {
@@ -1223,7 +1223,7 @@ namespace Mirror
         // called after successful authentication
         void OnClientAuthenticated(NetworkConnection conn)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnClientAuthenticated");
+            logger.Log("NetworkManager.OnClientAuthenticated");
 
             // set connection to authenticated
             conn.isAuthenticated = true;
@@ -1244,13 +1244,13 @@ namespace Mirror
 
         void OnClientDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnClientDisconnectInternal");
+            logger.Log("NetworkManager.OnClientDisconnectInternal");
             OnClientDisconnect(conn);
         }
 
         void OnClientNotReadyMessageInternal(NetworkConnection conn, NotReadyMessage msg)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnClientNotReadyMessageInternal");
+            logger.Log("NetworkManager.OnClientNotReadyMessageInternal");
 
             ClientScene.ready = false;
             OnClientNotReady(conn);
@@ -1260,13 +1260,13 @@ namespace Mirror
 
         void OnClientErrorInternal(NetworkConnection conn, ErrorMessage msg)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager:OnClientErrorInternal");
+            logger.Log("NetworkManager:OnClientErrorInternal");
             OnClientError(conn, msg.value);
         }
 
         void OnClientSceneInternal(NetworkConnection conn, SceneMessage msg)
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager.OnClientSceneInternal");
+            logger.Log("NetworkManager.OnClientSceneInternal");
 
             if (NetworkClient.isConnected && !NetworkServer.active)
             {
@@ -1293,7 +1293,7 @@ namespace Mirror
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
             NetworkServer.DestroyPlayerForConnection(conn);
-            if (LogFilter.Debug) logger.Log("OnServerDisconnect: Client disconnected.");
+            logger.Log("OnServerDisconnect: Client disconnected.");
         }
 
         /// <summary>
@@ -1306,7 +1306,7 @@ namespace Mirror
             if (conn.identity == null)
             {
                 // this is now allowed (was not for a while)
-                if (LogFilter.Debug) logger.Log("Ready with no player object");
+                logger.Log("Ready with no player object");
             }
             NetworkServer.SetClientReady(conn);
         }
