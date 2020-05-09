@@ -92,7 +92,7 @@ namespace Mirror
         {
             if (segment.Count == 0)
             {
-                Debug.LogError("LocalConnection.SendBytes cannot send zero bytes");
+                logger.LogError("LocalConnection.SendBytes cannot send zero bytes");
                 return false;
             }
 
