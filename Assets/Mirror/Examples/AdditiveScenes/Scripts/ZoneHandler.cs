@@ -18,7 +18,7 @@ namespace Mirror.Examples.Additive
         [Server]
         void OnTriggerEnter(Collider other)
         {
-            Debug.LogFormat("Loading {0}", subScene);
+            logger.LogFormat(LogType.Log, "Loading {0}", subScene);
 
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
             NetworkServer.SendToClientOfPlayer(networkIdentity, new SceneMessage { sceneName = subScene, sceneOperation = SceneOperation.LoadAdditive });
@@ -27,7 +27,7 @@ namespace Mirror.Examples.Additive
         [Server]
         void OnTriggerExit(Collider other)
         {
-            Debug.LogFormat("Unloading {0}", subScene);
+            logger.LogFormat(LogType.Log, "Unloading {0}", subScene);
 
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
             NetworkServer.SendToClientOfPlayer(networkIdentity, new SceneMessage { sceneName = subScene, sceneOperation = SceneOperation.UnloadAdditive });
