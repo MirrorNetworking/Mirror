@@ -125,7 +125,7 @@ namespace Mirror.Tests
         {
             public int called;
             public bool valuePassed;
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public override bool OnCheckObserver(NetworkConnection conn) { return true; }
             public override void OnSetHostVisibility(bool visible)
             {
@@ -152,38 +152,38 @@ namespace Mirror.Tests
         {
             public int called;
             public NetworkConnection valuePassed;
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public override bool OnCheckObserver(NetworkConnection conn)
             {
                 ++called;
                 valuePassed = conn;
                 throw new Exception("some exception");
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class CheckObserverTrueNetworkBehaviour : NetworkVisibility
         {
             public int called;
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public override bool OnCheckObserver(NetworkConnection conn)
             {
                 ++called;
                 return true;
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class CheckObserverFalseNetworkBehaviour : NetworkVisibility
         {
             public int called;
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public override bool OnCheckObserver(NetworkConnection conn)
             {
                 ++called;
                 return false;
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class SerializeTest1NetworkBehaviour : NetworkBehaviour
@@ -250,13 +250,13 @@ namespace Mirror.Tests
             {
                 observers.Add(observer);
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class RebuildEmptyObserversNetworkBehaviour : NetworkVisibility
         {
             public override bool OnCheckObserver(NetworkConnection conn) { return true; }
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public int hostVisibilityCalled;
             public bool hostVisibilityValue;
             public override void OnSetHostVisibility(bool visible)
@@ -341,6 +341,8 @@ namespace Mirror.Tests
             // DestroyImmediate is called internally, giving an error in Editor
             identity.isServer = false;
             GameObject.DestroyImmediate(gameObject);
+            // clean so that null entries are not in dictionary
+            NetworkIdentity.spawned.Clear();
         }
 
         // A Test behaves as an ordinary method
