@@ -24,7 +24,7 @@ namespace Mirror
     /// <para>The <see cref="NetworkManager">NetworkManager</see> has a NetworkClient instance that it uses for games that it starts, but the NetworkClient may be used by itself.</para>
     /// </summary>
     [DisallowMultipleComponent]
-    public class NetworkClient : MonoBehaviour
+    public class NetworkClient : MonoBehaviour, INetworkClient
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkClient));
 
