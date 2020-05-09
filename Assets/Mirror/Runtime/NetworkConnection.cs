@@ -230,7 +230,7 @@ namespace Mirror
         /// </summary>
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="msg">The message object to process.</param>
-        /// <returns></returns>
+        /// <returns>Returns true if the handler was successfully invoked</returns>
         public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
         {
             // get writer from pool

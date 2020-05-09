@@ -146,7 +146,6 @@ namespace Mirror
         /// Start the server, setting the maximum number of connections.
         /// </summary>
         /// <param name="maxConns">Maximum number of allowed connections</param>
-        /// <returns></returns>
         public static void Listen(int maxConns)
         {
             Initialize();
@@ -657,7 +656,7 @@ namespace Mirror
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="assetId"></param>
         /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
-        /// <returns></returns>
+        /// <returns>True if connection was successfully replaced for player.</returns>
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId, bool keepAuthority = false)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
@@ -674,7 +673,7 @@ namespace Mirror
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
-        /// <returns></returns>
+        /// <returns>True if connection was successfully replaced for player.</returns>
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)
         {
             return InternalReplacePlayerForConnection(conn, player, keepAuthority);
@@ -687,7 +686,7 @@ namespace Mirror
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="assetId"></param>
-        /// <returns></returns>
+        /// <returns>True if connection was sucessfully added for a connection.</returns>
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
@@ -740,7 +739,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
-        /// <returns></returns>
+        /// <returns>True if connection was successfully added for a connection.</returns>
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
@@ -818,8 +817,6 @@ namespace Mirror
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
-
-            //NOTE: DONT set connection ready.
 
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
             if (conn is ULocalConnectionToClient)
@@ -1042,7 +1039,6 @@ namespace Mirror
 
                     payload = payload,
                 };
-
 
                 conn.Send(msg);
             }
