@@ -769,7 +769,7 @@ namespace Mirror
                 GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
                 if (logger.LogEnabled())
                 {
-                    logger.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
+                    if (logger.LogEnabled()) logger.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
                 }
 
                 return obj.GetComponent<NetworkIdentity>();
@@ -799,7 +799,7 @@ namespace Mirror
                 if (logger.LogEnabled())
                 {
                     foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
-                        logger.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
+                        if (logger.LogEnabled()) logger.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
                 }
             }
 
