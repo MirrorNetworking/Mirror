@@ -28,7 +28,7 @@ namespace Mirror.Examples.Additive
             foreach (string sceneName in subScenes)
             {
                 yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-                if (LogFilter.Debug) logger.Log($"Loaded {sceneName}");
+                if (logger.LogEnabled()) logger.Log($"Loaded {sceneName}");
             }
         }
 
@@ -50,7 +50,7 @@ namespace Mirror.Examples.Additive
                 if (SceneManager.GetSceneByName(sceneName).IsValid() || SceneManager.GetSceneByPath(sceneName).IsValid())
                 {
                     yield return SceneManager.UnloadSceneAsync(sceneName);
-                    if (LogFilter.Debug) logger.Log($"Unloaded {sceneName}");
+                    if (logger.LogEnabled()) logger.Log($"Unloaded {sceneName}");
                 }
 
             yield return Resources.UnloadUnusedAssets();

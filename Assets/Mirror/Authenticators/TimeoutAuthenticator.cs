@@ -39,13 +39,13 @@ namespace Mirror.Authenticators
 
         IEnumerator BeginAuthentication(NetworkConnection conn)
         {
-            if (LogFilter.Debug) logger.Log($"Authentication countdown started {conn} {timeout}");
+            if (logger.LogEnabled()) logger.Log($"Authentication countdown started {conn} {timeout}");
 
             yield return new WaitForSecondsRealtime(timeout);
 
             if (!conn.isAuthenticated)
             {
-                if (LogFilter.Debug) logger.Log($"Authentication Timeout {conn}");
+                if (logger.LogEnabled()) logger.Log($"Authentication Timeout {conn}");
 
                 conn.Disconnect();
             }

@@ -296,7 +296,7 @@ namespace Mirror
         // full server setup code, without spawning objects yet
         void SetupServer()
         {
-            if (LogFilter.Debug) logger.Log("NetworkManager SetupServer");
+            if (logger.LogEnabled()) logger.Log("NetworkManager SetupServer");
             InitializeSingleton();
 
             if (runInBackground)
@@ -399,7 +399,7 @@ namespace Mirror
                 logger.LogError("Must set the Network Address field in the manager");
                 return;
             }
-            if (LogFilter.Debug) logger.Log("NetworkManager StartClient address:" + networkAddress);
+            if (logger.LogEnabled()) logger.Log("NetworkManager StartClient address:" + networkAddress);
 
             NetworkClient.Connect(networkAddress);
 
@@ -432,7 +432,7 @@ namespace Mirror
 
             RegisterClientMessages();
 
-            if (LogFilter.Debug) logger.Log("NetworkManager StartClient address:" + uri);
+            if (logger.LogEnabled()) logger.Log("NetworkManager StartClient address:" + uri);
             networkAddress = uri.Host;
 
             NetworkClient.Connect(uri);
@@ -857,12 +857,12 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.Debug) logger.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
+            if (logger.LogEnabled()) logger.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
 
             // vis2k: pause message handling while loading scene. otherwise we will process messages and then lose all
             // the state as soon as the load is finishing, causing all kinds of bugs because of missing state.
             // (client may be null after StopClient etc.)
-            if (LogFilter.Debug) logger.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
+            if (logger.LogEnabled()) logger.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
             Transport.activeTransport.enabled = false;
 
             // Let client prepare for scene change
@@ -933,12 +933,12 @@ namespace Mirror
                 {
                     // TODO only respawn the server objects from that scene later!
                     NetworkServer.SpawnObjects();
-                    if (LogFilter.Debug) logger.Log("Respawned Server objects after additive scene load: " + scene.name);
+                    if (logger.LogEnabled()) logger.Log("Respawned Server objects after additive scene load: " + scene.name);
                 }
                 if (NetworkClient.active)
                 {
                     ClientScene.PrepareToSpawnSceneObjects();
-                    if (LogFilter.Debug) logger.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
+                    if (logger.LogEnabled()) logger.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
                 }
             }
         }
@@ -947,7 +947,7 @@ namespace Mirror
         {
             if (singleton != null && loadingSceneAsync != null && loadingSceneAsync.isDone)
             {
-                if (LogFilter.Debug) logger.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
+                if (logger.LogEnabled()) logger.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
                 singleton.FinishLoadScene();
                 loadingSceneAsync.allowSceneActivation = true;
                 loadingSceneAsync = null;
@@ -1091,7 +1091,7 @@ namespace Mirror
         /// <param name="start">Transform to register.</param>
         public static void RegisterStartPosition(Transform start)
         {
-            if (LogFilter.Debug) logger.Log("RegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
+            if (logger.LogEnabled()) logger.Log("RegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
             startPositions.Add(start);
 
             // reorder the list so that round-robin spawning uses the start positions
@@ -1108,7 +1108,7 @@ namespace Mirror
         /// <param name="start">Transform to unregister.</param>
         public static void UnRegisterStartPosition(Transform start)
         {
-            if (LogFilter.Debug) logger.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
+            if (logger.LogEnabled()) logger.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
             startPositions.Remove(start);
         }
 

@@ -949,7 +949,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.Debug) logger.Log($"Connection {conn} has no identity");
+                if (logger.LogEnabled()) logger.Log($"Connection {conn} has no identity");
             }
         }
 
