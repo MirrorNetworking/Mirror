@@ -130,7 +130,7 @@ namespace Mirror
                 }
                 if (netIdentityCache == null)
                 {
-                    Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
+                    logger.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                 }
                 return netIdentityCache;
             }
@@ -152,7 +152,7 @@ namespace Mirror
                 }
 
                 // this should never happen
-                Debug.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
+                logger.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
 
                 return -1;
             }
@@ -187,19 +187,19 @@ namespace Mirror
             //       to avoid Wrapper functions. a lot of people requested this.
             if (!NetworkClient.active)
             {
-                Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
+                logger.LogError("Command Function " + cmdName + " called on server without an active client.");
                 return;
             }
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
             {
-                Debug.LogWarning($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
+                logger.LogWarning($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
                 return;
             }
 
             if (ClientScene.readyConnection == null)
             {
-                Debug.LogError("Send command attempted with no client running [client=" + connectionToServer + "].");
+                logger.LogError("Send command attempted with no client running [client=" + connectionToServer + "].");
                 return;
             }
 
@@ -237,13 +237,13 @@ namespace Mirror
             // this was in Weaver before
             if (!NetworkServer.active)
             {
-                Debug.LogError("RPC Function " + rpcName + " called on Client.");
+                logger.LogError("RPC Function " + rpcName + " called on Client.");
                 return;
             }
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                Debug.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
+                logger.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
             }
 
@@ -267,7 +267,7 @@ namespace Mirror
             // this was in Weaver before
             if (!NetworkServer.active)
             {
-                Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
+                logger.LogError("TargetRPC Function " + rpcName + " called on client.");
                 return;
             }
             // connection parameter is optional. assign if null.
@@ -278,13 +278,13 @@ namespace Mirror
             // this was in Weaver before
             if (conn is NetworkConnectionToServer)
             {
-                Debug.LogError("TargetRPC Function " + rpcName + " called on connection to server");
+                logger.LogError("TargetRPC Function " + rpcName + " called on connection to server");
                 return;
             }
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                Debug.LogWarning("TargetRpc " + rpcName + " called on un-spawned object: " + name);
+                logger.LogWarning("TargetRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
             }
 
@@ -321,7 +321,7 @@ namespace Mirror
         {
             if (!NetworkServer.active)
             {
-                Debug.LogWarning("SendEvent no server?");
+                logger.LogWarning("SendEvent no server?");
                 return;
             }
 
@@ -388,7 +388,7 @@ namespace Mirror
                     return;
                 }
 
-                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
+                logger.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
             }
             Invoker invoker = new Invoker
             {
@@ -397,7 +397,7 @@ namespace Mirror
                 invokeFunction = func
             };
             cmdHandlerDelegates[cmdHash] = invoker;
-            if (LogFilter.Debug) Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName());
+            if (LogFilter.Debug) logger.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName());
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -437,7 +437,7 @@ namespace Mirror
             // debug message if not found, or null, or mismatched type
             // (no need to throw an error, an attacker might just be trying to
             //  call an cmd with an rpc's hash)
-            if (LogFilter.Debug) Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found");
+            if (LogFilter.Debug) logger.Log("GetInvokerForHash hash:" + cmdHash + " not found");
             return false;
         }
 
@@ -490,7 +490,7 @@ namespace Mirror
                     newNetId = identity.netId;
                     if (newNetId == 0)
                     {
-                        Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
+                        logger.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
                     }
                 }
             }
@@ -514,12 +514,12 @@ namespace Mirror
                     newNetId = identity.netId;
                     if (newNetId == 0)
                     {
-                        Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
+                        logger.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
                     }
                 }
             }
 
-            if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
+            if (LogFilter.Debug) logger.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
             SetDirtyBit(dirtyBit);
             // assign new one on the server, and in case we ever need it on client too
             gameObjectField = newGameObject;
@@ -556,7 +556,7 @@ namespace Mirror
                 newNetId = newIdentity.netId;
                 if (newNetId == 0)
                 {
-                    Debug.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
+                    logger.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
                 }
             }
 
@@ -577,11 +577,11 @@ namespace Mirror
                 newNetId = newIdentity.netId;
                 if (newNetId == 0)
                 {
-                    Debug.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
+                    logger.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
                 }
             }
 
-            if (LogFilter.Debug) Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
+            if (LogFilter.Debug) logger.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
             SetDirtyBit(dirtyBit);
             netIdField = newNetId;
             // assign new one on the server, and in case we ever need it on client too
@@ -615,7 +615,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVar<T>(T value, ref T fieldValue, ulong dirtyBit)
         {
-            if (LogFilter.Debug) Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
+            if (LogFilter.Debug) logger.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
             SetDirtyBit(dirtyBit);
             fieldValue = value;
         }
