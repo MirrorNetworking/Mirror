@@ -123,7 +123,7 @@ namespace Mirror
                 if (requireAuthenication && !conn.isAuthenticated)
                 {
                     // message requires authentication, but the connection was not authenticated
-                    Debug.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
+                    logger.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
                     conn.Disconnect();
                     return;
                 }
@@ -135,7 +135,7 @@ namespace Mirror
             }
             catch (Exception exception)
             {
-                Debug.LogError("Closed connection: " + conn + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
+                logger.LogError("Closed connection: " + conn + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
                 conn.Disconnect();
                 return;
             }
