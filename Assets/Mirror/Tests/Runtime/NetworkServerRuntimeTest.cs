@@ -26,10 +26,10 @@ namespace Mirror.Tests.Runtime
                 GameObject.Destroy(Transport.activeTransport.gameObject);
             }
 
-            if (!NetworkServer.active)
-                return;
-
-            NetworkServer.Shutdown();
+            if (NetworkServer.active)
+            {
+                NetworkServer.Shutdown();
+            }
         }
 
         [UnityTest]
