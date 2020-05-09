@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Runtime
 {
     public class SceneObjectSpawningTests
     {
@@ -33,6 +33,7 @@ namespace Mirror.Tests
             sceneObject = GameObject.Find("SceneNetworkIdentity").GetComponent<NetworkIdentity>();
             Debug.Assert(sceneObject != null, $"Could not find 'SceneNetworkIdentity' in Scene:{ScenePath}");
         }
+
         [UnityTearDown]
         public IEnumerator TearDown()
         {
@@ -42,6 +43,7 @@ namespace Mirror.Tests
             Scene scene = SceneManager.GetSceneByPath(ScenePath);
             yield return SceneManager.UnloadSceneAsync(scene);
         }
+
         [UnityTest]
         public IEnumerator CallingInstantiateOnASceneObjectGivesAHelpfulError()
         {
@@ -53,6 +55,7 @@ namespace Mirror.Tests
             GameObject clone = GameObject.Instantiate(sceneObject.gameObject);
             NetworkServer.Spawn(clone);
         }
+
         [UnityTest]
         public IEnumerator CallingInstantiateOnASceneObjectMutlipleTimesGivesAHelpfulErrorEachTime()
         {
