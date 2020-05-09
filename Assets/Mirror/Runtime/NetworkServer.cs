@@ -124,14 +124,17 @@ namespace Mirror
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                if (identity.sceneId != 0)
+                if (identity != null)
                 {
-                    identity.Reset();
-                    identity.gameObject.SetActive(false);
-                }
-                else
-                {
-                    GameObject.Destroy(identity.gameObject);
+                    if (identity.sceneId != 0)
+                    {
+                        identity.Reset();
+                        identity.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        GameObject.Destroy(identity.gameObject);
+                    }
                 }
             }
 
