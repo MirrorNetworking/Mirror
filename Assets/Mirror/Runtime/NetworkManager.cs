@@ -765,7 +765,6 @@ namespace Mirror
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                NetworkIdentity identity = kvp.Value;
 
                 if (identity.sceneId != 0)
                 {
