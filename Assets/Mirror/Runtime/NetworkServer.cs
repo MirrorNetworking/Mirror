@@ -429,7 +429,7 @@ namespace Mirror
             {
                 conn.Disconnect();
                 // call OnDisconnected unless local player in host mode
-                if (conn.connectionId != 0)
+                if (conn.connectionId != NetworkConnection.LocalConnectionId)
                     OnDisconnected(conn);
                 conn.Dispose();
             }
