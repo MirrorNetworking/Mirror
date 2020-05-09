@@ -24,7 +24,7 @@ namespace Mirror.Examples.Chat
                 $"<color=blue>{player.playerName}: </color> {message}";
             AppendMessage(prettyMessage);
 
-            Debug.Log(message);
+            logger.Log(message);
         }
 
         public void OnSend()
