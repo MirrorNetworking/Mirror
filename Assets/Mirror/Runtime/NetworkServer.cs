@@ -739,7 +739,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
-        /// <returns>True if connection was sucessfully added for a connection.</returns>
+        /// <returns>True if connection was successfully added for a connection.</returns>
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
