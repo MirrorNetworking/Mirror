@@ -23,12 +23,12 @@ namespace Mirror.Examples.Additive
 
         IEnumerator LoadSubScenes()
         {
-            if (LogFilter.Debug) Debug.Log("Loading Scenes");
+            if (LogFilter.Debug) logger.Log("Loading Scenes");
 
             foreach (string sceneName in subScenes)
             {
                 yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-                if (LogFilter.Debug) Debug.Log($"Loaded {sceneName}");
+                if (LogFilter.Debug) logger.Log($"Loaded {sceneName}");
             }
         }
 
@@ -44,13 +44,13 @@ namespace Mirror.Examples.Additive
 
         IEnumerator UnloadScenes()
         {
-            if (LogFilter.Debug) Debug.Log("Unloading Subscenes");
+            if (LogFilter.Debug) logger.Log("Unloading Subscenes");
 
             foreach (string sceneName in subScenes)
                 if (SceneManager.GetSceneByName(sceneName).IsValid() || SceneManager.GetSceneByPath(sceneName).IsValid())
                 {
                     yield return SceneManager.UnloadSceneAsync(sceneName);
-                    if (LogFilter.Debug) Debug.Log($"Unloaded {sceneName}");
+                    if (LogFilter.Debug) logger.Log($"Unloaded {sceneName}");
                 }
 
             yield return Resources.UnloadUnusedAssets();
