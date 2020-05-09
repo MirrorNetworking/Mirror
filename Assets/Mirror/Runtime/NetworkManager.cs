@@ -686,7 +686,7 @@ namespace Mirror
             if (!NetworkClient.active && isHeadless)
             {
                 Application.targetFrameRate = serverTickRate;
-                logger.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
+                if (logger.logEnabled) logger.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
             }
 #endif
         }
@@ -824,7 +824,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.Debug) logger.Log("ServerChangeScene " + newSceneName);
+            if (logger.logEnabled) logger.Log("ServerChangeScene " + newSceneName);
             NetworkServer.SetAllClientsNotReady();
             networkSceneName = newSceneName;
 
