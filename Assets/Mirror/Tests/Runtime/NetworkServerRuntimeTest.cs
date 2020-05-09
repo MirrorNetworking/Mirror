@@ -6,8 +6,31 @@ using UnityEngine.TestTools;
 namespace Mirror.Tests.Runtime
 {
     [TestFixture]
-    public class NetworkServerRuntimeTest : HostSetup
+    public class NetworkServerRuntimeTest
     {
+        [UnitySetUp]
+        public IEnumerator UnitySetUp()
+        {
+            Transport.activeTransport = new GameObject().AddComponent<MemoryTransport>();
+            // start server and wait 1 frame
+            NetworkServer.Listen(1);
+            yield return null;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (Transport.activeTransport != null)
+            {
+                GameObject.Destroy(Transport.activeTransport.gameObject);
+            }
+
+            if (NetworkServer.active)
+            {
+                NetworkServer.Shutdown();
+            }
+        }
+
         [UnityTest]
         public IEnumerator DestroyPlayerForConnectionTest()
         {
@@ -49,32 +72,6 @@ namespace Mirror.Tests.Runtime
             // respawn player
             NetworkServer.AddPlayerForConnection(conn, player);
             Assert.That(conn.identity != null, "identity should not be null");
-        }
-
-        [UnityTest]
-        public IEnumerator DisconnectTimeoutTest()
-        {
-            // Set high ping frequency so no NetworkPingMessage is generated
-            NetworkTime.PingFrequency = 5f;
-
-            // Set a short timeout for this test and enable disconnectInactiveConnections
-            NetworkServer.disconnectInactiveTimeout = 1f;
-            NetworkServer.disconnectInactiveConnections = true;
-
-            GameObject remotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
-            NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(1);
-            NetworkServer.OnConnected(remoteConnection);
-            NetworkServer.AddPlayerForConnection(remoteConnection, remotePlayer);
-
-            // There's a host player from HostSetup + remotePlayer
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
-
-            // wait 2 seconds for remoteConnection to timeout as idle
-            yield return new WaitForSeconds(2f);
-
-            // host client connection should still be alive
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
-            Assert.That(NetworkServer.localConnection, Is.Not.Null);
         }
     }
 }
