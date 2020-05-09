@@ -10,6 +10,8 @@ namespace Mirror.Authenticators
     [AddComponentMenu("Network/Authenticators/TimeoutAuthenticator")]
     public class TimeoutAuthenticator : NetworkAuthenticator
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(BasicAuthenticator));
+
         public NetworkAuthenticator authenticator;
 
         [Range(0, 600), Tooltip("Timeout to auto-disconnect in seconds. Set to 0 for no timeout.")]

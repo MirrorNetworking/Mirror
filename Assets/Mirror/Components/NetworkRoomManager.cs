@@ -20,6 +20,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkRoomManager.html")]
     public class NetworkRoomManager : NetworkManager
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkRoomManager));
+
         public struct PendingPlayer
         {
             public NetworkConnection conn;

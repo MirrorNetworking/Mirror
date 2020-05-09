@@ -25,6 +25,8 @@ namespace Mirror
     /// </summary>
     public static class NetworkReaderPool
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkReaderPool));
+
         /// <summary>
         /// Size of the pool
         /// <para>If pool is too small getting readers will causes memory allocation</para>

@@ -5,6 +5,8 @@ namespace Mirror.Examples.NetworkRoom
     [RequireComponent(typeof(RandomColor))]
     public class Reward : NetworkBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(Reward));
+
         public bool available = true;
         public Spawner spawner;
         uint points;

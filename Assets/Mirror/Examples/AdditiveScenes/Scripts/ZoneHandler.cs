@@ -9,6 +9,8 @@ namespace Mirror.Examples.Additive
     // that entered the Zone to load the subscene assigned to the subscene property.
     public class ZoneHandler : NetworkBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(ZoneHandler));
+
         [Scene]
         [Tooltip("Assign the sub-scene to load for this zone")]
         public string subScene;

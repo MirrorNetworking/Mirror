@@ -6,6 +6,8 @@ namespace Mirror.Examples.NetworkRoom
     [AddComponentMenu("")]
     public class NetworkRoomPlayerExt : NetworkRoomPlayer
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkRoomPlayerExt));
+
         public override void OnStartClient()
         {
             if (LogFilter.Debug) Debug.LogFormat("OnStartClient {0}", SceneManager.GetActiveScene().path);

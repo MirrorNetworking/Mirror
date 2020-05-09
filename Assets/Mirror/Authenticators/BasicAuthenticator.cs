@@ -6,6 +6,8 @@ namespace Mirror.Authenticators
     [AddComponentMenu("Network/Authenticators/BasicAuthenticator")]
     public class BasicAuthenticator : NetworkAuthenticator
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(BasicAuthenticator));
+
         [Header("Custom Properties")]
 
         // set these in the inspector

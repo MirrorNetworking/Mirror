@@ -6,6 +6,8 @@ namespace Mirror.Examples.Chat
 {
     public class ChatWindow : MonoBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(ChatWindow));
+
         public InputField chatMessage;
         public Text chatHistory;
         public Scrollbar scrollbar;

@@ -40,6 +40,8 @@ namespace Mirror.Examples.ListServer
     [RequireComponent(typeof(NetworkManager))]
     public class ListServer : MonoBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(ListServer));
+
         [Header("List Server Connection")]
         public string listServerIp = "127.0.0.1";
         public ushort gameServerToListenPort = 8887;

@@ -7,6 +7,8 @@ namespace Mirror.Examples.Additive
     [AddComponentMenu("")]
     public class AdditiveNetworkManager : NetworkManager
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(AdditiveNetworkManager));
+
         [Scene]
         [Tooltip("Add all sub-scenes to this list")]
         public string[] subScenes;
