@@ -33,7 +33,7 @@ namespace Mirror
         void Awake()
         {
             currentScene = gameObject.scene;
-            if (LogFilter.Debug) Debug.Log($"NetworkSceneChecker.Awake currentScene: {currentScene}");
+            if (LogFilter.Debug) logger.Log($"NetworkSceneChecker.Awake currentScene: {currentScene}");
         }
 
         public override void OnStartServer()
