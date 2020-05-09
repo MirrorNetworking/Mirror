@@ -673,7 +673,7 @@ namespace Mirror
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
-        /// <returns>True if connection was sucessfully replaced for player.</returns>
+        /// <returns>True if connection was successfully replaced for player.</returns>
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)
         {
             return InternalReplacePlayerForConnection(conn, player, keepAuthority);
