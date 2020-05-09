@@ -111,7 +111,7 @@ namespace Mirror.Authenticators
             }
             else
             {
-                if (logger.LogEnabled()) logger.LogFormat(LogType.Error, "Authentication Response: {0}", msg.message);
+                logger.LogFormat(LogType.Error, "Authentication Response: {0}", msg.message);
 
                 // Set this on the client for local reference
                 conn.isAuthenticated = false;
