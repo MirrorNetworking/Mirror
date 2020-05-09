@@ -763,7 +763,7 @@ namespace Mirror
 
         void CleanupNetworkIdentities()
         {
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
                 NetworkIdentity identity = kvp.Value;
 
