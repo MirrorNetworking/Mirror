@@ -173,7 +173,7 @@ namespace Mirror
                 Connection = new NetworkConnection(transportConnection);
                 Time.Reset();
 
-                RegisterMessageHandlers(Connection);
+                RegisterMessageHandlers();
                 Time.UpdateClient(this);
                 _ = OnConnected();
             }
@@ -198,7 +198,7 @@ namespace Mirror
             server.SetLocalConnection(this, c2);
             hostServer = server;
             Connection = new NetworkConnection(c1);
-            RegisterHostHandlers(Connection);
+            RegisterHostHandlers();
             _ = OnConnected();
         }
 
@@ -293,32 +293,32 @@ namespace Mirror
             }
         }
 
-        internal void RegisterHostHandlers(INetworkConnection connection)
+        internal void RegisterHostHandlers()
         {
-            connection.RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
-            connection.RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
-            connection.RegisterHandler<NetworkPongMessage>(msg => { });
-            connection.RegisterHandler<SpawnMessage>(OnHostClientSpawn);
+            Connection.RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
+            Connection.RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
+            Connection.RegisterHandler<NetworkPongMessage>(msg => { });
+            Connection.RegisterHandler<SpawnMessage>(OnHostClientSpawn);
             // host mode reuses objects in the server
             // so we don't need to spawn them
-            connection.RegisterHandler<ObjectSpawnStartedMessage>(msg => { });
-            connection.RegisterHandler<ObjectSpawnFinishedMessage>(msg => { });
-            connection.RegisterHandler<UpdateVarsMessage>(msg => { });
-            connection.RegisterHandler<RpcMessage>(OnRpcMessage);
-            connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
+            Connection.RegisterHandler<ObjectSpawnStartedMessage>(msg => { });
+            Connection.RegisterHandler<ObjectSpawnFinishedMessage>(msg => { });
+            Connection.RegisterHandler<UpdateVarsMessage>(msg => { });
+            Connection.RegisterHandler<RpcMessage>(OnRpcMessage);
+            Connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
-        internal void RegisterMessageHandlers(INetworkConnection connection)
+        internal void RegisterMessageHandlers()
         {
-            connection.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
-            connection.RegisterHandler<ObjectHideMessage>(OnObjectHide);
-            connection.RegisterHandler<NetworkPongMessage>(Time.OnClientPong);
-            connection.RegisterHandler<SpawnMessage>(OnSpawn);
-            connection.RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
-            connection.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
-            connection.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
-            connection.RegisterHandler<RpcMessage>(OnRpcMessage);
-            connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
+            Connection.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
+            Connection.RegisterHandler<ObjectHideMessage>(OnObjectHide);
+            Connection.RegisterHandler<NetworkPongMessage>(Time.OnClientPong);
+            Connection.RegisterHandler<SpawnMessage>(OnSpawn);
+            Connection.RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
+            Connection.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
+            Connection.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
+            Connection.RegisterHandler<RpcMessage>(OnRpcMessage);
+            Connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
         /// <summary>
