@@ -68,7 +68,7 @@ namespace Mirror.Tests.Runtime
             float endTime = Time.time + 2f;
             while (Time.time < endTime)
             {
-                yield return new WaitForEndOfFrame();
+                yield return null;
                 NetworkServer.Update();
             }
 
