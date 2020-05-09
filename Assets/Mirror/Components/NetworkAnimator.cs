@@ -371,13 +371,13 @@ namespace Mirror
             {
                 if (!isClient)
                 {
-                    Debug.LogWarning("Tried to set animation in the server for a client-controlled animator");
+                    logger.LogWarning("Tried to set animation in the server for a client-controlled animator");
                     return;
                 }
 
                 if (!hasAuthority)
                 {
-                    Debug.LogWarning("Only the client with authority can set animations");
+                    logger.LogWarning("Only the client with authority can set animations");
                     return;
                 }
 
@@ -388,7 +388,7 @@ namespace Mirror
             {
                 if (!isServer)
                 {
-                    Debug.LogWarning("Tried to set animation in the client for a server-controlled animator");
+                    logger.LogWarning("Tried to set animation in the client for a server-controlled animator");
                     return;
                 }
 
@@ -416,13 +416,13 @@ namespace Mirror
             {
                 if (!isClient)
                 {
-                    Debug.LogWarning("Tried to reset animation in the server for a client-controlled animator");
+                    logger.LogWarning("Tried to reset animation in the server for a client-controlled animator");
                     return;
                 }
 
                 if (!hasAuthority)
                 {
-                    Debug.LogWarning("Only the client with authority can reset animations");
+                    logger.LogWarning("Only the client with authority can reset animations");
                     return;
                 }
 
@@ -433,7 +433,7 @@ namespace Mirror
             {
                 if (!isServer)
                 {
-                    Debug.LogWarning("Tried to reset animation in the client for a server-controlled animator");
+                    logger.LogWarning("Tried to reset animation in the client for a server-controlled animator");
                     return;
                 }
 
@@ -450,7 +450,7 @@ namespace Mirror
             if (!clientAuthority)
                 return;
 
-            if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
+            if (LogFilter.Debug) logger.Log("OnAnimationMessage for netId=" + netId);
 
             // handle and broadcast
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(parameters))
