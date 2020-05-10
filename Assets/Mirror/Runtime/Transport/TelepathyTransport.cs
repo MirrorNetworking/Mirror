@@ -69,15 +69,34 @@ namespace Mirror
             return Application.platform != RuntimePlatform.WebGLPlayer;
         }
 
+        public void CreateNewClient()
+        {
+            if (client != null && (client.Connecting || client.Connected))
+            {
+                Telepathy.Logger.LogWarning("Existing client is connecting or connected, can not create new");
+            }
+
+            client = new Telepathy.Client
+            {
+                NoDelay = NoDelay,
+                MaxMessageSize = clientMaxMessageSize
+            };
+        }
         // client
         public override bool ClientConnected() => client.Connected;
-        public override void ClientConnect(string address) => client.Connect(address, port);
+        public override void ClientConnect(string address)
+        {
+            CreateNewClient();
+            client.Connect(address, port);
+        }
+
         public override void ClientConnect(Uri uri)
         {
             if (uri.Scheme != Scheme)
                 throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
 
             int serverPort = uri.IsDefaultPort ? port : uri.Port;
+            CreateNewClient();
             client.Connect(uri.Host, serverPort);
         }
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
