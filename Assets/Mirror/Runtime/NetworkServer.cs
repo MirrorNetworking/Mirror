@@ -116,7 +116,29 @@ namespace Mirror
             active = false;
             handlers.Clear();
 
+            CleanupNetworkIdentities();
             NetworkIdentity.ResetNextNetworkId();
+        }
+
+        static void CleanupNetworkIdentities()
+        {
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            {
+                if (identity != null)
+                {
+                    if (identity.sceneId != 0)
+                    {
+                        identity.Reset();
+                        identity.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        GameObject.Destroy(identity.gameObject);
+                    }
+                }
+            }
+
+            NetworkIdentity.spawned.Clear();
         }
 
         static void Initialize()

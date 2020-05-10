@@ -607,8 +607,6 @@ namespace Mirror
                 ServerChangeScene(offlineScene);
             }
 
-            CleanupNetworkIdentities();
-
             startPositionIndex = 0;
 
             networkSceneName = "";
@@ -642,8 +640,6 @@ namespace Mirror
             {
                 ClientChangeScene(offlineScene, SceneOperation.Normal);
             }
-
-            CleanupNetworkIdentities();
 
             networkSceneName = "";
         }
@@ -759,24 +755,6 @@ namespace Mirror
                     ClientScene.RegisterPrefab(prefab);
                 }
             }
-        }
-
-        void CleanupNetworkIdentities()
-        {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
-                if (identity.sceneId != 0)
-                {
-                    identity.Reset();
-                    identity.gameObject.SetActive(false);
-                }
-                else
-                {
-                    Destroy(identity.gameObject);
-                }
-            }
-
-            NetworkIdentity.spawned.Clear();
         }
 
         /// <summary>
