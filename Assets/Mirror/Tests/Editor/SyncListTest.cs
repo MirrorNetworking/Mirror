@@ -94,14 +94,14 @@ namespace Mirror.Tests
         [Test]
         public void TestRemoveAll()
         {
-            int count = serverSyncList.RemoveAll(entry => entry.Contains("l"));
+            serverSyncList.RemoveAll(entry => entry.Contains("l"));
             Assert.That(serverSyncList, Is.EquivalentTo(new[] { "!" }));
         }
 
         [Test]
         public void TestRemoveAllNone()
         {
-            int count = serverSyncList.RemoveAll(entry => entry == "yay");
+            serverSyncList.RemoveAll(entry => entry == "yay");
             Assert.That(serverSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
         }
 
