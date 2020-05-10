@@ -5,6 +5,8 @@ namespace Mirror.Examples.NetworkRoom
     [RequireComponent(typeof(RandomColor))]
     public class Reward : NetworkBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(Reward));
+
         public bool available = true;
         public Spawner spawner;
         uint points;
@@ -41,7 +43,7 @@ namespace Mirror.Examples.NetworkRoom
                 // calculate the points from the color ... lighter scores higher as the average approaches 255
                 // UnityEngine.Color RGB values are float fractions of 255
                 points = (uint)(((prizeColor.r * 255) + (prizeColor.g * 255) + (prizeColor.b * 255)) / 3);
-                if (LogFilter.Debug) Debug.LogFormat("Scored {0} points R:{1} G:{2} B:{3}", points, prizeColor.r, prizeColor.g, prizeColor.b);
+                if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Scored {0} points R:{1} G:{2} B:{3}", points, prizeColor.r, prizeColor.g, prizeColor.b);
 
                 // award the points via SyncVar on the PlayerController
                 player.GetComponent<PlayerScore>().score += points;

@@ -81,6 +81,8 @@ namespace Mirror
     // send messages on this connection causes the server's handler function to be invoked directly.
     internal class ULocalConnectionToServer : NetworkConnectionToServer
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(ULocalConnectionToClient));
+
         internal ULocalConnectionToClient connectionToClient;
         internal readonly LocalConnectionBuffer buffer = new LocalConnectionBuffer();
 
@@ -90,7 +92,7 @@ namespace Mirror
         {
             if (segment.Count == 0)
             {
-                Debug.LogError("LocalConnection.SendBytes cannot send zero bytes");
+                logger.LogError("LocalConnection.SendBytes cannot send zero bytes");
                 return false;
             }
 
