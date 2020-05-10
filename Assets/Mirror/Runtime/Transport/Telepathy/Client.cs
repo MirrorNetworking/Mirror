@@ -46,12 +46,27 @@ namespace Telepathy
         // the thread function
         void ReceiveThreadFunction(string ip, int port)
         {
+            const int maxConnectingTimeout = 20;
             // absolutely must wrap with try/catch, otherwise thread
             // exceptions are silent
             try
             {
-                // connect (blocking)
-                client.Connect(ip, port);
+                IAsyncResult ar = client.BeginConnect(ip, port, null, null);
+                WaitHandle wh = ar.AsyncWaitHandle;
+                try
+                {
+                    if (!ar.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(maxConnectingTimeout), false))
+                    {
+                        client.Close();
+                        throw new TimeoutException();
+                    }
+
+                    client.EndConnect(ar);
+                }
+                finally
+                {
+                    wh.Close();
+                }
                 _Connecting = false;
 
                 // set socket options after the socket was created in Connect()
@@ -80,10 +95,16 @@ namespace Telepathy
             catch (ThreadInterruptedException)
             {
                 // expected if Disconnect() aborts it
+                // Logger.LogWarning("ThreadInterruptedException");
             }
             catch (ThreadAbortException)
             {
                 // expected if Disconnect() aborts it
+                // Logger.LogWarning("ThreadAbortException");
+            }
+            catch (TimeoutException)
+            {
+                Logger.LogError($"TimeoutException: Could not connect to host server after {maxConnectingTimeout} seconds");
             }
             catch (Exception exception)
             {
@@ -139,7 +160,7 @@ namespace Telepathy
             // creates IPv4 socket
             client = new TcpClient();
             // clear internal IPv4 socket until Connect()
-            client.Client = null;
+            //client.Client = null;
 
             // clear old messages in queue, just to be sure that the caller
             // doesn't receive data from last time and gets out of sync.
