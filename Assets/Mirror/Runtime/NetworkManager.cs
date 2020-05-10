@@ -241,6 +241,14 @@ namespace Mirror
 
             // setup OnSceneLoaded callback
             SceneManager.sceneLoaded += OnSceneLoaded;
+
+            if (transport == null)
+            {
+                // was a transport added yet? if not, add one
+                transport = GetComponent<Transport>();
+
+                Debug.Assert(transport != null, "Could not find Transport on NetworkManager");
+            }
         }
 
         /// <summary>
