@@ -25,7 +25,7 @@ namespace Mirror
     /// </summary>
     public static class NetworkReaderPool
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkReaderPool));
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkReaderPool), LogType.Error);
 
         /// <summary>
         /// Size of the pool
