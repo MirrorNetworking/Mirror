@@ -99,6 +99,13 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestRemoveAllNone()
+        {
+            int count = serverSyncList.RemoveAll(entry => entry == "yay");
+            Assert.That(serverSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
+        }
+
+        [Test]
         public void TestRemoveAt()
         {
             serverSyncList.RemoveAt(1);
