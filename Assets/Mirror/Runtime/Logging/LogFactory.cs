@@ -7,6 +7,8 @@ namespace Mirror
     {
         internal static readonly Dictionary<string, ILogger> loggers = new Dictionary<string, ILogger>();
 
+        public static Dictionary<string, ILogger>.ValueCollection AllLoggers => loggers.Values;
+
         /// <summary>
         /// logHandler used for new loggers
         /// </summary>
