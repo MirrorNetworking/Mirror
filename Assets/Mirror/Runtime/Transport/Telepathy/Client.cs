@@ -7,31 +7,54 @@ namespace Telepathy
 {
     public class Client : Common
     {
-        public TcpClient client;
+        /// <summary>
+        /// We need an instance to keep track of the current TcpClient
+        /// <para>
+        /// If the Client is disconnected while in TcpClient.Connect the thread 
+        /// will not be stoped until the Connect either is sucess or fail.
+        /// If another client is created to connect before the old one is finished
+        /// then the old one will close the new one.
+        /// </para>
+        /// </summary>
+        class TcpInstance
+        {
+            public TcpClient client;
+
+            // TcpClient has no 'connecting' state to check. We need to keep track
+            // of it manually.
+            // -> checking 'thread.IsAlive && !Connected' is not enough because the
+            //    thread is alive and connected is false for a short moment after
+            //    disconnecting, so this would cause race conditions.
+            // -> we use a threadsafe bool wrapper so that ThreadFunction can remain
+            //    static (it needs a common lock)
+            // => Connecting is true from first Connect() call in here, through the
+            //    thread start, until TcpClient.Connect() returns. Simple and clear.
+            // => bools are atomic according to
+            //    https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/variables
+            //    made volatile so the compiler does not reorder access to it
+            public volatile bool Connecting;
+
+            public Thread sendThread;
+            
+        }
+
+        /// <summary>
+        /// Current instance of TcpClient
+        /// </summary>
+        TcpInstance instance;
+        public TcpClient client => instance != null ? instance.client : null;
         Thread receiveThread;
-        Thread sendThread;
 
         // TcpClient.Connected doesn't check if socket != null, which
         // results in NullReferenceExceptions if connection was closed.
         // -> let's check it manually instead
-        public bool Connected => client != null &&
-                                 client.Client != null &&
-                                 client.Client.Connected;
+        public bool Connected => instance != null &&
+                                 instance.client != null &&
+                                 instance.client.Client != null &&
+                                 instance.client.Client.Connected;
 
-        // TcpClient has no 'connecting' state to check. We need to keep track
-        // of it manually.
-        // -> checking 'thread.IsAlive && !Connected' is not enough because the
-        //    thread is alive and connected is false for a short moment after
-        //    disconnecting, so this would cause race conditions.
-        // -> we use a threadsafe bool wrapper so that ThreadFunction can remain
-        //    static (it needs a common lock)
-        // => Connecting is true from first Connect() call in here, through the
-        //    thread start, until TcpClient.Connect() returns. Simple and clear.
-        // => bools are atomic according to
-        //    https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/variables
-        //    made volatile so the compiler does not reorder access to it
-        volatile bool _Connecting;
-        public bool Connecting => _Connecting;
+
+        public bool Connecting => instance != null && instance.Connecting;
 
         // send queue
         // => SafeQueue is twice as fast as ConcurrentQueue, see SafeQueue.cs!
@@ -44,46 +67,56 @@ namespace Telepathy
         ManualResetEvent sendPending = new ManualResetEvent(false);
 
         // the thread function
-        void ReceiveThreadFunction(string ip, int port)
+        void ReceiveThreadFunction(string ip, int port, TcpInstance current)
         {
+            bool hadSocketException = false;
             // absolutely must wrap with try/catch, otherwise thread
             // exceptions are silent
             try
             {
-                // connect (blocking)
-                client.Connect(ip, port);
-                _Connecting = false;
+                try
+                {
+                    // connect (blocking)
+                    current.client.Connect(ip, port);
+                    current.Connecting = false;
 
-                // set socket options after the socket was created in Connect()
-                // (not after the constructor because we clear the socket there)
-                client.NoDelay = NoDelay;
-                client.SendTimeout = SendTimeout;
+                    // set socket options after the socket was created in Connect()
+                    // (not after the constructor because we clear the socket there)
+                    current.client.NoDelay = NoDelay;
+                    current.client.SendTimeout = SendTimeout;
 
-                // start send thread only after connected
-                sendThread = new Thread(() => { SendLoop(0, client, sendQueue, sendPending); });
-                sendThread.IsBackground = true;
-                sendThread.Start();
+                    // start send thread only after connected
+                    current.sendThread = new Thread(() => { SendLoop(0, current.client, sendQueue, sendPending); });
+                    current.sendThread.IsBackground = true;
+                    current.sendThread.Start();
 
-                // run the receive loop
-                ReceiveLoop(0, client, receiveQueue, MaxMessageSize);
-            }
-            catch (SocketException exception)
-            {
-                // this happens if (for example) the ip address is correct
-                // but there is no server running on that ip/port
-                Logger.Log("Client Recv: failed to connect to ip=" + ip + " port=" + port + " reason=" + exception);
+                    // run the receive loop
+                    ReceiveLoop(0, current.client, receiveQueue, MaxMessageSize);
+                }
+                catch (SocketException exception)
+                {
+                    hadSocketException = true;
+                    // sleep to check for Abort/Interrupt
+                    Thread.Sleep(0);
 
-                // add 'Disconnected' event to message queue so that the caller
-                // knows that the Connect failed. otherwise they will never know
-                receiveQueue.Enqueue(new Message(0, EventType.Disconnected, null));
+                    // this happens if (for example) the ip address is correct
+                    // but there is no server running on that ip/port
+                    Logger.Log("Client Recv: failed to connect to ip=" + ip + " port=" + port + " reason=" + exception);
+
+                    // add 'Disconnected' event to message queue so that the caller
+                    // knows that the Connect failed. otherwise they will never know
+                    receiveQueue.Enqueue(new Message(0, EventType.Disconnected, null));
+                }
             }
             catch (ThreadInterruptedException)
             {
                 // expected if Disconnect() aborts it
+                Logger.LogWarning("ThreadInterruptedException" + (hadSocketException ? " with SocketException" : ""));
             }
             catch (ThreadAbortException)
             {
                 // expected if Disconnect() aborts it
+                Logger.LogWarning("ThreadAbortException" + (hadSocketException ? " with SocketException" : ""));
             }
             catch (Exception exception)
             {
@@ -97,29 +130,32 @@ namespace Telepathy
             // otherwise the send thread would only end if it's
             // actually sending data while the connection is
             // closed.
-            sendThread?.Interrupt();
+            current.sendThread?.Interrupt();
 
             // Connect might have failed. thread might have been closed.
             // let's reset connecting state no matter what.
-            _Connecting = false;
+            current.Connecting = false;
 
             // if we got here then we are done. ReceiveLoop cleans up already,
             // but we may never get there if connect fails. so let's clean up
             // here too.
-            client?.Close();
+            current.client?.Close();
         }
 
         public void Connect(string ip, int port)
         {
-            // not if already started
-            if (Connecting || Connected)
+            // if already started, return
+            if (instance != null)
             {
                 Logger.LogWarning("Telepathy Client can not create connection because an existing connection is connecting or connected");
                 return;
             }
 
+            // see comments on TcpInstance
+            instance = new TcpInstance();
+
             // We are connecting from now until Connect succeeds or fails
-            _Connecting = true;
+            instance.Connecting = true;
 
             // create a TcpClient with perfect IPv4, IPv6 and hostname resolving
             // support.
@@ -137,9 +173,9 @@ namespace Telepathy
             //    resolves the hostname and creates either an IPv4 or an IPv6
             //    socket as needed (see TcpClient source)
             // creates IPv4 socket
-            client = new TcpClient();
+            instance.client = new TcpClient();
             // clear internal IPv4 socket until Connect()
-            client.Client = null;
+            instance.client.Client = null;
 
             // clear old messages in queue, just to be sure that the caller
             // doesn't receive data from last time and gets out of sync.
@@ -154,7 +190,7 @@ namespace Telepathy
             //    too long, which is especially good in games
             // -> this way we don't async client.BeginConnect, which seems to
             //    fail sometimes if we connect too many clients too fast
-            receiveThread = new Thread(() => { ReceiveThreadFunction(ip, port); });
+            receiveThread = new Thread(() => { ReceiveThreadFunction(ip, port, instance); });
             receiveThread.IsBackground = true;
             receiveThread.Start();
         }
@@ -162,10 +198,10 @@ namespace Telepathy
         public void Disconnect()
         {
             // only if started
-            if (Connecting || Connected)
+            if (instance != null)
             {
                 // close client
-                client.Close();
+                instance.client.Close();
 
                 // wait until thread finished. this is the only way to guarantee
                 // that we can call Connect() again immediately after Disconnect
@@ -175,7 +211,7 @@ namespace Telepathy
 
                 // we interrupted the receive Thread, so we can't guarantee that
                 // connecting was reset. let's do it manually.
-                _Connecting = false;
+                instance.Connecting = false;
 
                 // clear send queues. no need to hold on to them.
                 // (unlike receiveQueue, which is still needed to process the
@@ -184,7 +220,8 @@ namespace Telepathy
 
                 // let go of this one completely. the thread ended, no one uses
                 // it anymore and this way Connected is false again immediately.
-                client = null;
+                instance.client = null;
+                instance = null;
             }
         }
 
