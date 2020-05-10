@@ -339,6 +339,19 @@ namespace Mirror
             AddOperation(Operation.OP_REMOVEAT, index, oldItem, default);
         }
 
+        public int RemoveAll(Predicate<T> match)
+        {
+            List<T> toRemove = new List<T>();
+            for (int i = 0; i < objects.Count; ++i)
+                if (match(objects[i]))
+                    toRemove.Add(objects[i]);
+
+            foreach (T entry in toRemove)
+                objects.Remove(entry);
+
+            return toRemove.Count;
+        }
+
         public T this[int i]
         {
             get => objects[i];
