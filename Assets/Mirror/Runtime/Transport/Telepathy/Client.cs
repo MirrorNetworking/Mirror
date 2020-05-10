@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Telepathy
 {
@@ -51,22 +52,12 @@ namespace Telepathy
             // exceptions are silent
             try
             {
-                IAsyncResult ar = client.BeginConnect(ip, port, null, null);
-                WaitHandle wh = ar.AsyncWaitHandle;
-                try
+                Task connectingTask = client.ConnectAsync(ip, port);
+                if (!connectingTask.Wait(TimeSpan.FromSeconds(maxConnectingTimeout)))
                 {
-                    if (!ar.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(maxConnectingTimeout), false))
-                    {
-                        client.Close();
-                        throw new TimeoutException();
-                    }
+                    throw new TimeoutException();
+                }
 
-                    client.EndConnect(ar);
-                }
-                finally
-                {
-                    wh.Close();
-                }
                 _Connecting = false;
 
                 // set socket options after the socket was created in Connect()
