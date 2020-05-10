@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -28,9 +29,25 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             onDestroyCalled?.Invoke();
         }
     }
+    /// <summary>
+    /// A network Behaviour that changes NetworkIdentity.spawned in OnDisable
+    /// </summary>
+    public class BadBehaviour : MonoBehaviour
+    {
+        public void OnDisable()
+        {
+            GameObject go = new GameObject();
+            ClientSceneTests_DestroyAllClientObjects._createdObjects.Add(go);
+            NetworkIdentity netId = go.AddComponent<NetworkIdentity>();
+            const int id = 32032;
+            netId.netId = id;
+
+            NetworkIdentity.spawned.Add(id, netId);
+        }
+    }
     public class ClientSceneTests_DestroyAllClientObjects
     {
-        readonly List<GameObject> _createdObjects = new List<GameObject>();
+        public static readonly List<GameObject> _createdObjects = new List<GameObject>();
         Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
         Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
 
@@ -177,6 +194,20 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             ClientScene.DestroyAllClientObjects();
 
             Assert.That(spawned, Is.Empty);
+        }
+
+        [Test]
+        public void CatchesAndLogsExeptionWhenSpawnedListIsChanged()
+        {
+            GameObject badGameObject = new GameObject("bad", typeof(NetworkIdentity), typeof(BadBehaviour));
+            NetworkIdentity netId = badGameObject.GetComponent<NetworkIdentity>();
+            const int id = 3535;
+            netId.netId = id;
+            spawned.Add(id, netId);
+
+            LogAssert.Expect(LogType.Exception, new Regex("InvalidOperationException"));
+            LogAssert.Expect(LogType.Error, "Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
+            ClientScene.DestroyAllClientObjects();
         }
     }
 }
