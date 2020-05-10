@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
@@ -34,7 +34,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 direction = direction.normalized;
 
                 // push this away from player...a bit less force for host player
-                if (other.gameObject.GetComponent<NetworkIdentity>().connectionToClient.connectionId == 0)
+                if (other.gameObject.GetComponent<NetworkIdentity>().connectionToClient.connectionId == NetworkConnection.LocalConnectionId)
                     rigidbody3D.AddForce(direction * force * .5f);
                 else
                     rigidbody3D.AddForce(direction * force);

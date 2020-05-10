@@ -9,7 +9,7 @@ namespace Mirror
     {
         internal ULocalConnectionToServer connectionToServer;
 
-        public ULocalConnectionToClient() : base(0) { }
+        public ULocalConnectionToClient() : base(LocalConnectionId) { }
 
         public override string address => "localhost";
 
