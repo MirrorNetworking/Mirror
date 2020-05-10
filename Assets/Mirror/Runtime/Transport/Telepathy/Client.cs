@@ -69,21 +69,36 @@ namespace Telepathy
             }
             catch (SocketException exception)
             {
-                // this happens if (for example) the ip address is correct
-                // but there is no server running on that ip/port
-                Logger.Log("Client Recv: failed to connect to ip=" + ip + " port=" + port + " reason=" + exception);
+                try
+                {
+                    // sleep to check for Interrupt
+                    Thread.Sleep(0);
 
-                // add 'Disconnected' event to message queue so that the caller
-                // knows that the Connect failed. otherwise they will never know
-                receiveQueue.Enqueue(new Message(0, EventType.Disconnected, null));
+                    // if not Interrupted, then log SocketException and disconnect
+
+                    // this happens if (for example) the ip address is correct
+                    // but there is no server running on that ip/port
+                    Logger.LogError("Client Recv: failed to connect to ip=" + ip + " port=" + port + " reason=" + exception);
+
+                    // add 'Disconnected' event to message queue so that the caller
+                    // knows that the Connect failed. otherwise they will never know
+                    receiveQueue.Enqueue(new Message(0, EventType.Disconnected, null));
+                }
+                catch (ThreadInterruptedException)
+                {
+                    // expected if Disconnect() aborts it
+                    Logger.LogWarning("ThreadInterruptedException after SocketException");
+                }
             }
             catch (ThreadInterruptedException)
             {
                 // expected if Disconnect() aborts it
+                Logger.LogWarning("ThreadInterruptedException");
             }
             catch (ThreadAbortException)
             {
                 // expected if Disconnect() aborts it
+                Logger.Log("ThreadAbortException");
             }
             catch (Exception exception)
             {
@@ -107,6 +122,7 @@ namespace Telepathy
             // but we may never get there if connect fails. so let's clean up
             // here too.
             client?.Close();
+            client = null;
         }
 
         public void Connect(string ip, int port)
@@ -139,6 +155,7 @@ namespace Telepathy
             // creates IPv4 socket
             client = new TcpClient();
             // clear internal IPv4 socket until Connect()
+            client.Client.Close();
             client.Client = null;
 
             // clear old messages in queue, just to be sure that the caller
