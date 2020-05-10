@@ -28,6 +28,7 @@ namespace Telepathy.Tests.Runtime
         {
             clientTransport = new GameObject().AddComponent<TelepathyTransport>();
             manager = clientTransport.gameObject.AddComponent<NetworkManager>();
+            manager.startOnHeadless = false;
             manager.showDebugMessages = true;
             LogFilter.Debug = true;
             if (LogFilter.Debug)
