@@ -55,6 +55,14 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestAddRange()
+        {
+            serverSyncList.AddRange(new[] { "One", "Two", "Three" });
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EqualTo(new[] { "Hello", "World", "!", "One", "Two", "Three" }));
+        }
+
+        [Test]
         public void TestClear()
         {
             serverSyncList.Clear();
@@ -68,6 +76,14 @@ namespace Mirror.Tests
             serverSyncList.Insert(0, "yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "yay", "Hello", "World", "!" }));
+        }
+
+        [Test]
+        public void TestInsertRange()
+        {
+            serverSyncList.InsertRange(1, new[] { "One", "Two", "Three" });
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EqualTo(new[] { "Hello", "One", "Two", "Three", "World", "!" }));
         }
 
         [Test]

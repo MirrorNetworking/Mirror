@@ -274,6 +274,14 @@ namespace Mirror
             AddOperation(Operation.OP_ADD, objects.Count - 1, default, item);
         }
 
+        public void AddRange(IEnumerable<T> range)
+        {
+            foreach (T entry in range)
+            {
+                Add(entry);
+            }
+        }
+
         public void Clear()
         {
             objects.Clear();
@@ -319,6 +327,15 @@ namespace Mirror
         {
             objects.Insert(index, item);
             AddOperation(Operation.OP_INSERT, index, default, item);
+        }
+
+        public void InsertRange(int index, IEnumerable<T> range)
+        {
+            foreach (T entry in range)
+            {
+                Insert(index, entry);
+                index++;
+            }
         }
 
         public bool Remove(T item)
