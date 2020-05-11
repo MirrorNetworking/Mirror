@@ -7,6 +7,18 @@ namespace Mirror
     {
         internal static readonly Dictionary<string, ILogger> loggers = new Dictionary<string, ILogger>();
 
+        public static Dictionary<string, ILogger>.ValueCollection AllLoggers => loggers.Values;
+
+        /// <summary>
+        /// logHandler used for new loggers
+        /// </summary>
+        static ILogHandler defaultLogHandler = Debug.unityLogger;
+        
+        /// <summary>
+        /// if true sets all log level to LogType.Log
+        /// </summary>
+        static bool debugMode = false;
+
         public static ILogger GetLogger<T>(LogType defaultLogLevel = LogType.Warning)
         {
             return GetLogger(typeof(T).Name, defaultLogLevel);
@@ -24,7 +36,7 @@ namespace Mirror
                 return logger;
             }
 
-            logger = new Logger(Debug.unityLogger)
+            logger = new Logger(defaultLogHandler)
             {
                 // by default, log warnings and up
                 filterLogType = debugMode ? LogType.Log : defaultLogLevel
@@ -34,8 +46,6 @@ namespace Mirror
             return logger;
         }
 
-
-        static bool debugMode = false;
         /// <summary>
         /// Makes all log levels LogType.Log, this is so that NetworkManger.showDebugMessages can still be used
         /// </summary>
@@ -43,9 +53,23 @@ namespace Mirror
         {
             debugMode = true;
 
-            foreach (KeyValuePair<string, ILogger> kvp in loggers)
+            foreach (ILogger logger in loggers.Values)
             {
-                kvp.Value.filterLogType = LogType.Log;
+                logger.filterLogType = LogType.Log;
+            }
+        }
+
+        /// <summary>
+        /// Replacing log handler for all existing loggers and sets defaultLogHandler for new loggers
+        /// </summary>
+        /// <param name="logHandler"></param>
+        public static void ReplaceLogHandler(ILogHandler logHandler)
+        {
+            defaultLogHandler = logHandler;
+
+            foreach (ILogger logger in loggers.Values)
+            {
+                logger.logHandler = logHandler;
             }
         }
     }
