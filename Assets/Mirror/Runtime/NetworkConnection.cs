@@ -101,6 +101,8 @@ namespace Mirror
         internal NetworkConnection(int networkConnectionId)
         {
             connectionId = networkConnectionId;
+            // set lastTime to current time when creating connection to make sure it isn't instantly kicked for inactivity 
+            lastMessageTime = Time.time;
         }
 
         ~NetworkConnection()
