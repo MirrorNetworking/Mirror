@@ -95,14 +95,16 @@ namespace Mirror.Tests
         public void TestRemoveAll()
         {
             serverSyncList.RemoveAll(entry => entry.Contains("l"));
-            Assert.That(serverSyncList, Is.EquivalentTo(new[] { "!" }));
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "!" }));
         }
 
         [Test]
         public void TestRemoveAllNone()
         {
             serverSyncList.RemoveAll(entry => entry == "yay");
-            Assert.That(serverSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
         }
 
         [Test]

@@ -348,7 +348,7 @@ namespace Mirror
 
             foreach (T entry in toRemove)
             {
-                objects.Remove(entry);
+                Remove(entry);
             }
 
             return toRemove.Count;
