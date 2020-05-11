@@ -15,7 +15,7 @@ namespace Mirror
     [RequireComponent(typeof(NetworkServer))]
     [RequireComponent(typeof(NetworkClient))]
     [DisallowMultipleComponent]
-    public class NetworkManager : MonoBehaviour
+    public class NetworkManager : MonoBehaviour, INetworkManager
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkManager));
 
