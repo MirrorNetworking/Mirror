@@ -18,7 +18,7 @@ namespace Mirror
     /// <para>There are a number of internal messages used by NetworkServer, these are setup when NetworkServer.Listen() is called.</para>
     /// </remarks>
     [DisallowMultipleComponent]
-    public class NetworkServer : MonoBehaviour
+    public class NetworkServer : MonoBehaviour, INetworkServer
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkServer));
 
