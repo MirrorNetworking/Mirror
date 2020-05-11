@@ -5,6 +5,8 @@
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
 ## Version 14.x.x -- In Progress
+- Added: [NetworkLogSettings](../Components/NetworkLogSettings.md) component and Log Settings Window
+- Added: SyncLists now support AddRange, InsertRange, and RemoveAll
 - Fixed: NetworkRoomManager.minPlayers is now protected so it's available for derived classes.
 - Changed: Network Proximity Checker now uses direct distance check against player objects instead of Physics.SphereCastNonAlloc for better performance.
 
