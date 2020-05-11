@@ -18,6 +18,7 @@ namespace Mirror.Tests
     public class NetworkServerTests : ClientServerSetup<MockComponent>
     {
         WovenTestMessage message;
+        GameObject playerReplacement;
 
         public override void ExtraSetup()
         {
@@ -222,6 +223,74 @@ namespace Mirror.Tests
 
             func.Received(0).Invoke(
                 Arg.Any<WovenTestMessage>());
+        }
+
+        int ServerChangeCalled;
+        public void ServerChangeScene(string newSceneName)
+        {
+            ServerChangeCalled++;
+        }
+
+        [Test]
+        public void ServerChangeSceneTest()
+        {
+            server.ServerChangeScene.AddListener(ServerChangeScene);
+            server.OnServerChangeScene("");
+            Assert.That(ServerChangeCalled, Is.EqualTo(1));
+        }
+
+        int ServerSceneChangedCalled;
+        public void ServerSceneChanged(string sceneName)
+        {
+            ServerSceneChangedCalled++;
+        }
+
+        [Test]
+        public void ServerSceneChangedTest()
+        {
+            server.ServerSceneChanged.AddListener(ServerSceneChanged);
+            server.OnServerSceneChanged("");
+            Assert.That(ServerSceneChangedCalled, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ReplacePlayerBaseTest()
+        {
+            playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
+            NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
+            replacementIdentity.AssetId = Guid.NewGuid();
+            client.RegisterPrefab(playerReplacement);
+
+            server.ReplacePlayerForConnection(connectionToClient, client, playerReplacement);
+
+            Assert.That(connectionToClient.Identity, Is.EqualTo(replacementIdentity));
+        }
+
+        [Test]
+        public void ReplacePlayerDontKeepAuthTest()
+        {
+            playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
+            NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
+            replacementIdentity.AssetId = Guid.NewGuid();
+            client.RegisterPrefab(playerReplacement);
+
+            server.ReplacePlayerForConnection(connectionToClient, client, playerReplacement, true);
+
+            Assert.That(clientIdentity.ConnectionToClient, Is.EqualTo(null));
+        }
+
+        [Test]
+        public void ReplacePlayerAssetIdTest()
+        {
+            Guid replacementGuid = Guid.NewGuid();
+            playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
+            NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
+            replacementIdentity.AssetId = replacementGuid;
+            client.RegisterPrefab(playerReplacement);
+
+            server.ReplacePlayerForConnection(connectionToClient, client, playerReplacement, replacementGuid);
+
+            Assert.That(connectionToClient.Identity.AssetId, Is.EqualTo(replacementGuid));
         }
     }
 }

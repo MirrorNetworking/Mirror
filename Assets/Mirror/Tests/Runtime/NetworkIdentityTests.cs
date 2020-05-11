@@ -2,11 +2,12 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using InvalidOperationException = System.InvalidOperationException;
-
+using Object = UnityEngine.Object;
 using static Mirror.Tests.AsyncUtil;
 using System.Collections;
 using UnityEngine.Events;
 using NSubstitute;
+using System;
 
 namespace Mirror.Tests.Runtime
 {
@@ -137,6 +138,14 @@ namespace Mirror.Tests.Runtime
         {
             server.Spawn(gameObject, server.LocalConnection);
             Assert.That(identity.ConnectionToClient, Is.SameAs(server.LocalConnection));
+        }
+
+        [Test]
+        public void SpawnWithAssetId()
+        {
+            Guid replacementGuid = Guid.NewGuid();
+            server.Spawn(gameObject, replacementGuid, server.LocalConnection);
+            Assert.That(identity.AssetId, Is.EqualTo(replacementGuid));
         }
 
         [Test]
