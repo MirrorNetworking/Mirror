@@ -523,22 +523,6 @@ namespace Mirror
             return InternalReplacePlayerForConnection(conn, client, player, keepAuthority);
         }
 
-        /// <summary>
-        /// <para>When an AddPlayer message handler has received a request from a player, the server calls this to associate the player object with the connection.</para>
-        /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player on this playerControllerId for this connection, this will fail.</para>
-        /// </summary>
-        /// <param name="conn">Connection which is adding the player.</param>
-        /// <param name="client">Client associated to the player.</param> 
-        /// <param name="player">Player object spawned for the player.</param>
-        /// <param name="assetId"></param>
-        /// <returns></returns>
-        public bool AddPlayerForConnection(INetworkConnection conn, GameObject player, Guid assetId)
-        {
-            NetworkIdentity identity = GetNetworkIdentity(player);
-            identity.AssetId = assetId;
-            return AddPlayerForConnection(conn, player);
-        }
-
         void SpawnObserversForConnection(INetworkConnection conn)
         {
             if (logger.LogEnabled()) logger.Log("Spawning " + spawned.Count + " objects for conn " + conn);
@@ -575,6 +559,22 @@ namespace Mirror
             // OnStartClient on each one (only after all were spawned, which
             // is how Unity's Start() function works too)
             conn.Send(new ObjectSpawnFinishedMessage());
+        }
+
+        /// <summary>
+        /// <para>When an AddPlayer message handler has received a request from a player, the server calls this to associate the player object with the connection.</para>
+        /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player on this playerControllerId for this connection, this will fail.</para>
+        /// </summary>
+        /// <param name="conn">Connection which is adding the player.</param>
+        /// <param name="client">Client associated to the player.</param> 
+        /// <param name="player">Player object spawned for the player.</param>
+        /// <param name="assetId"></param>
+        /// <returns></returns>
+        public bool AddPlayerForConnection(INetworkConnection conn, GameObject player, Guid assetId)
+        {
+            NetworkIdentity identity = GetNetworkIdentity(player);
+            identity.AssetId = assetId;
+            return AddPlayerForConnection(conn, player);
         }
 
         /// <summary>

@@ -473,17 +473,6 @@ namespace Mirror
             }
         }
 
-        NetworkIdentity SpawnSceneObject(ulong sceneId)
-        {
-            if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
-            {
-                spawnableObjects.Remove(sceneId);
-                return identity;
-            }
-            logger.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
-            return null;
-        }
-
         #region Spawn Prefabs
         private void RegisterSpawnPrefabs()
         {
@@ -836,6 +825,17 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId);
             return spawnedId;
+        }
+
+        NetworkIdentity SpawnSceneObject(ulong sceneId)
+        {
+            if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
+            {
+                spawnableObjects.Remove(sceneId);
+                return identity;
+            }
+            logger.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
+            return null;
         }
 
         internal void OnObjectSpawnStarted(ObjectSpawnStartedMessage _)
