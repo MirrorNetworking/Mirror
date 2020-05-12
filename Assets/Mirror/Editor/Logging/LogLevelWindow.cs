@@ -25,34 +25,37 @@ namespace Mirror.EditorScripts.Logging
 
         void OnGUI()
         {
-            EditorGUILayout.BeginVertical();
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField(new GUIContent("Mirror Log Levels"), EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-            EditorGUILayout.Space();
-            EditorGUILayout.EndVertical();
-
-            EditorGUILayout.BeginVertical(EditorStyles.inspectorDefaultMargins);
-
-            serializedObject.Update();
-            EditorGUILayout.PropertyField(settingsProp);
-            serializedObject.ApplyModifiedProperties();
-
-            if (settings == null)
+            using (new EditorGUILayout.VerticalScope())
             {
-                LogSettings newSettings = LogLevelsGUI.DrawCreateNewButton();
-                if (newSettings != null)
+                using (new EditorGUILayout.VerticalScope())
                 {
-                    settingsProp.objectReferenceValue = newSettings;
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField(new GUIContent("Mirror Log Levels"), EditorStyles.boldLabel);
+                    EditorGUILayout.Space();
+                    EditorGUILayout.Space();
+                }
+
+                using (new EditorGUILayout.VerticalScope(EditorStyles.inspectorDefaultMargins))
+                {
+                    serializedObject.Update();
+                    EditorGUILayout.PropertyField(settingsProp);
                     serializedObject.ApplyModifiedProperties();
+
+                    if (settings == null)
+                    {
+                        LogSettings newSettings = LogLevelsGUI.DrawCreateNewButton();
+                        if (newSettings != null)
+                        {
+                            settingsProp.objectReferenceValue = newSettings;
+                            serializedObject.ApplyModifiedProperties();
+                        }
+                    }
+                    else
+                    {
+                        LogLevelsGUI.DrawLogFactoryDictionary(settings);
+                    }
                 }
             }
-            else
-            {
-                LogLevelsGUI.DrawLogFactoryDictionary(settings);
-            }
-
-            EditorGUILayout.EndVertical();
         }
 
         [MenuItem("Window/Analysis/Mirror Log Levels", priority = 20002)]
