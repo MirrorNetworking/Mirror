@@ -59,6 +59,7 @@ namespace Mirror.EditorScripts.Logging
         public static void ShowWindow()
         {
             LogLevelWindow window = GetWindow<LogLevelWindow>();
+            window.minSize = new Vector2(200, 100);
             window.titleContent = new GUIContent("Mirror Log levels");
             window.Show();
         }
