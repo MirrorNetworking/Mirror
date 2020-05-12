@@ -45,7 +45,14 @@ namespace Mirror.EditorScripts.Logging
             ILogger logger = item.Value;
             string name = item.Key;
 
-            logger.filterLogType = (LogType)EditorGUILayout.EnumPopup(new GUIContent(name), logger.filterLogType);
+            const float fieldWidth = 100f;
+            const float inspectorMargin = 25f;
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(new GUIContent(name), GUILayout.MaxWidth(EditorGUIUtility.currentViewWidth - fieldWidth - inspectorMargin));
+                logger.filterLogType = (LogType)EditorGUILayout.EnumPopup(logger.filterLogType, GUILayout.Width(fieldWidth));
+            }
         }
     }
 }
