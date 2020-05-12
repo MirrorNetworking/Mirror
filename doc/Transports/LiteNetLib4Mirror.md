@@ -42,5 +42,4 @@ Dankrushen - for helping me find one small mistake which i couldn't find for two
 Lucas Ontivero - for [Open.Nat](https://github.com/lontivero/Open.NAT/releases), used for UPnP  
 shiena - for NetworkDiscoveryHUD   
 
-
 ![The LiteNetLib4Mirror Transport component in the Inspector window](LiteNetLibTransport.PNG)
