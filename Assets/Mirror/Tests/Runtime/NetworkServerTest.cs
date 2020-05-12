@@ -218,6 +218,19 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SetLocalConnectionExceptionTest()
+        {
+            client.ConnectHost(server);
+
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                server.SetLocalConnection(null, null);
+            });
+
+            client.Disconnect();
+        }
+
+        [Test]
         public void AddConnectionTest()
         {
             // add first connection

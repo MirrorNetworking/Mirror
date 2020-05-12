@@ -292,5 +292,25 @@ namespace Mirror.Tests
 
             Assert.That(connectionToClient.Identity.AssetId, Is.EqualTo(replacementGuid));
         }
+
+        [Test]
+        public void NumPlayersTest()
+        {
+            Assert.That(server.NumPlayers, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void AddPlayerForConnectionAssetIdTest()
+        {
+            Guid replacementGuid = Guid.NewGuid();
+            playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
+            NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
+            replacementIdentity.AssetId = replacementGuid;
+            client.RegisterPrefab(playerReplacement);
+
+            connectionToClient.Identity = null;
+
+            Assert.That(server.AddPlayerForConnection(connectionToClient, playerReplacement, replacementGuid), Is.True);
+        }
     }
 }
