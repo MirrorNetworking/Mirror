@@ -7,8 +7,10 @@ namespace Mirror.EditorScripts.Logging
     public class LogLevelWindow : EditorWindow
     {
         [SerializeField] LogSettings settings = null;
+
         SerializedObject serializedObject;
         SerializedProperty settingsProp;
+        Vector2 dictionaryScrollPosition;
 
         void OnEnable()
         {
@@ -25,34 +27,39 @@ namespace Mirror.EditorScripts.Logging
 
         void OnGUI()
         {
-            using (new EditorGUILayout.VerticalScope())
+            using (EditorGUILayout.ScrollViewScope scrollScope = new EditorGUILayout.ScrollViewScope(dictionaryScrollPosition, GUIStyle.none, GUI.skin.verticalScrollbar))
             {
+                dictionaryScrollPosition = scrollScope.scrollPosition;
+
                 using (new EditorGUILayout.VerticalScope())
                 {
-                    EditorGUILayout.Space();
-                    EditorGUILayout.LabelField(new GUIContent("Mirror Log Levels"), EditorStyles.boldLabel);
-                    EditorGUILayout.Space();
-                    EditorGUILayout.Space();
-                }
-
-                using (new EditorGUILayout.VerticalScope(EditorStyles.inspectorDefaultMargins))
-                {
-                    serializedObject.Update();
-                    EditorGUILayout.PropertyField(settingsProp);
-                    serializedObject.ApplyModifiedProperties();
-
-                    if (settings == null)
+                    using (new EditorGUILayout.VerticalScope())
                     {
-                        LogSettings newSettings = LogLevelsGUI.DrawCreateNewButton();
-                        if (newSettings != null)
-                        {
-                            settingsProp.objectReferenceValue = newSettings;
-                            serializedObject.ApplyModifiedProperties();
-                        }
+                        EditorGUILayout.Space();
+                        EditorGUILayout.LabelField(new GUIContent("Mirror Log Levels"), EditorStyles.boldLabel);
+                        EditorGUILayout.Space();
+                        EditorGUILayout.Space();
                     }
-                    else
+
+                    using (new EditorGUILayout.VerticalScope())
                     {
-                        LogLevelsGUI.DrawLogFactoryDictionary(settings);
+                        serializedObject.Update();
+                        EditorGUILayout.PropertyField(settingsProp);
+                        serializedObject.ApplyModifiedProperties();
+
+                        if (settings == null)
+                        {
+                            LogSettings newSettings = LogLevelsGUI.DrawCreateNewButton();
+                            if (newSettings != null)
+                            {
+                                settingsProp.objectReferenceValue = newSettings;
+                                serializedObject.ApplyModifiedProperties();
+                            }
+                        }
+                        else
+                        {
+                            LogLevelsGUI.DrawLogFactoryDictionary(settings);
+                        }
                     }
                 }
             }
