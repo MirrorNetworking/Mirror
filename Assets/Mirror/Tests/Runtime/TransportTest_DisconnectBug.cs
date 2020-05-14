@@ -21,8 +21,8 @@ namespace Telepathy.Tests.Runtime
         private NetworkManager manager;
         private TelepathyTransport serverTransport;
 
-
         bool success;
+
         [UnitySetUp]
         public IEnumerator UnitySetUp()
         {
@@ -55,6 +55,7 @@ namespace Telepathy.Tests.Runtime
             GameObject.Destroy(serverTransport.gameObject);
         }
 
+
         [UnityTest]
         public IEnumerator CanConnectToServer_Ip()
         {
@@ -62,6 +63,7 @@ namespace Telepathy.Tests.Runtime
 
             Assert.IsTrue(success, "Connection closed early");
         }
+
         [UnityTest]
         public IEnumerator CanConnectToServer_HostName()
         {
@@ -69,6 +71,7 @@ namespace Telepathy.Tests.Runtime
 
             Assert.IsTrue(success, "Connection closed early");
         }
+
         IEnumerator CanConnectToServer(string hostName)
         {
             // good address
@@ -80,7 +83,6 @@ namespace Telepathy.Tests.Runtime
             const float waitTime = 1;
             while (NetworkClient.active)
             {
-                //Debug.Log($"Connected = {clientTransport.ClientConnected()}");
                 yield return null;
 
                 // stop after x seconds
@@ -100,6 +102,7 @@ namespace Telepathy.Tests.Runtime
 
             Assert.IsTrue(success, "Connection closed early");
         }
+
         [UnityTest]
         public IEnumerator StopEarlyShouldKillThread_HostName()
         {
