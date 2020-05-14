@@ -80,20 +80,25 @@ namespace Telepathy
             {
                 // connect (blocking)
                 current.client.Connect(ip, port);
-                current.Connecting = false;
 
-                // set socket options after the socket was created in Connect()
-                // (not after the constructor because we clear the socket there)
-                current.client.NoDelay = NoDelay;
-                current.client.SendTimeout = SendTimeout;
+                // if thread has been interrupted during Connect we need to stop and clean up the current Instance below
+                if (!current.interrupt)
+                {
+                    current.Connecting = false;
 
-                // start send thread only after connected
-                current.sendThread = new Thread(() => { SendLoop(0, current.client, sendQueue, sendPending); });
-                current.sendThread.IsBackground = true;
-                current.sendThread.Start();
+                    // set socket options after the socket was created in Connect()
+                    // (not after the constructor because we clear the socket there)
+                    current.client.NoDelay = NoDelay;
+                    current.client.SendTimeout = SendTimeout;
 
-                // run the receive loop
-                ReceiveLoop(0, current.client, receiveQueue, MaxMessageSize);
+                    // start send thread only after connected
+                    current.sendThread = new Thread(() => { SendLoop(0, current.client, sendQueue, sendPending); });
+                    current.sendThread.IsBackground = true;
+                    current.sendThread.Start();
+
+                    // run the receive loop
+                    ReceiveLoop(0, current.client, receiveQueue, MaxMessageSize);
+                }
             }
             catch (SocketException exception)
             {
