@@ -303,7 +303,7 @@ namespace Mirror
         {
             if (!active)
             {
-                logger.LogWarning("Can send using NetworkServer.SendToAll<T>(T msg) because NetworkServer is not active");
+                logger.LogWarning("Can not send using NetworkServer.SendToAll<T>(T msg) because NetworkServer is not active");
                 return false;
             }
 
@@ -361,7 +361,7 @@ namespace Mirror
         {
             if (!active)
             {
-                logger.LogWarning("Can send using NetworkServer.SendToReady<T>(T msg) because NetworkServer is not active");
+                logger.LogWarning("Can not send using NetworkServer.SendToReady<T>(T msg) because NetworkServer is not active");
                 return false;
             }
 

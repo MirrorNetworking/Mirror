@@ -1094,7 +1094,7 @@ namespace Mirror.Tests
         [TestCase(nameof(NetworkServer.SendToReady))]
         public void SendCalledWhileNotActive_ShouldGiveWarning(string functionName)
         {
-            LogAssert.Expect(LogType.Warning, $"Can send using NetworkServer.{functionName}<T>(T msg) because NetworkServer is not active");
+            LogAssert.Expect(LogType.Warning, $"Can not send using NetworkServer.{functionName}<T>(T msg) because NetworkServer is not active");
             bool success;
 
             switch (functionName)
