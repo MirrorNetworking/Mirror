@@ -35,6 +35,7 @@ namespace Telepathy
             public volatile bool Connecting;
 
             public Thread sendThread;
+            public Thread receiveThread;
 
             /// <summary>
             /// Set this to true to interrupt the thread after a SocketException
@@ -48,7 +49,6 @@ namespace Telepathy
         /// </summary>
         TcpInstance instance;
         public TcpClient client => instance != null ? instance.client : null;
-        Thread receiveThread;
 
         // TcpClient.Connected doesn't check if socket != null, which
         // results in NullReferenceExceptions if connection was closed.
@@ -189,9 +189,9 @@ namespace Telepathy
             //    too long, which is especially good in games
             // -> this way we don't async client.BeginConnect, which seems to
             //    fail sometimes if we connect too many clients too fast
-            receiveThread = new Thread(() => { ReceiveThreadFunction(ip, port, instance); });
-            receiveThread.IsBackground = true;
-            receiveThread.Start();
+            instance.receiveThread = new Thread(() => { ReceiveThreadFunction(ip, port, instance); });
+            instance.receiveThread.IsBackground = true;
+            instance.receiveThread.Start();
         }
 
         public void Disconnect()
@@ -206,7 +206,7 @@ namespace Telepathy
                 // that we can call Connect() again immediately after Disconnect
                 // -> calling .Join would sometimes wait forever, e.g. when
                 //    calling Disconnect while trying to connect to a dead end
-                receiveThread?.Interrupt();
+                instance.receiveThread?.Interrupt();
 
                 instance.interrupt = true;
 
