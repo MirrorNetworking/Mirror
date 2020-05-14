@@ -1105,7 +1105,7 @@ namespace Mirror.Tests
                     Assert.That(success, Is.False);
                     break;
                 case nameof(NetworkServer.SendToReady):
-                    success = NetworkServer.SendToAll(new NetworkPingMessage { });
+                    success = NetworkServer.SendToReady(new NetworkPingMessage { });
                     Assert.That(success, Is.False);
                     break;
                 default:
