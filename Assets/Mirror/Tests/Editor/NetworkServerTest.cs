@@ -1114,4 +1114,3 @@ namespace Mirror.Tests
         }
     }
 }
-;
