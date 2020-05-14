@@ -301,6 +301,12 @@ namespace Mirror
         /// <returns></returns>
         public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable, bool sendToReadyOnly = false) where T : IMessageBase
         {
+            if (!active)
+            {
+                logger.LogWarning("Can not send using NetworkServer.SendToAll<T>(T msg) because NetworkServer is not active");
+                return false;
+            }
+
             if (logger.LogEnabled()) logger.Log("Server.SendToAll id:" + typeof(T));
 
             // get writer from pool
@@ -353,6 +359,12 @@ namespace Mirror
         /// <returns></returns>
         public static bool SendToReady<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
+            if (!active)
+            {
+                logger.LogWarning("Can not send using NetworkServer.SendToReady<T>(T msg) because NetworkServer is not active");
+                return false;
+            }
+
             return SendToAll(msg, channelId, true);
         }
 
