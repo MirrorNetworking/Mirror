@@ -35,7 +35,12 @@ namespace Telepathy
             public volatile bool Connecting;
 
             public Thread sendThread;
-            
+
+            /// <summary>
+            /// Set this to true to interrupt the thread after a SocketException
+            /// <para>Avoids the need to sleep to check for Thread.Interrupt();</para>
+            /// </summary>
+            public bool interrupt;
         }
 
         /// <summary>
@@ -69,36 +74,32 @@ namespace Telepathy
         // the thread function
         void ReceiveThreadFunction(string ip, int port, TcpInstance current)
         {
-            bool hadSocketException = false;
             // absolutely must wrap with try/catch, otherwise thread
             // exceptions are silent
             try
             {
-                try
+                // connect (blocking)
+                current.client.Connect(ip, port);
+                current.Connecting = false;
+
+                // set socket options after the socket was created in Connect()
+                // (not after the constructor because we clear the socket there)
+                current.client.NoDelay = NoDelay;
+                current.client.SendTimeout = SendTimeout;
+
+                // start send thread only after connected
+                current.sendThread = new Thread(() => { SendLoop(0, current.client, sendQueue, sendPending); });
+                current.sendThread.IsBackground = true;
+                current.sendThread.Start();
+
+                // run the receive loop
+                ReceiveLoop(0, current.client, receiveQueue, MaxMessageSize);
+            }
+            catch (SocketException exception)
+            {
+                // if thread has been interrupted ignore the SocketException and clean up the current Instance below
+                if (!current.interrupt)
                 {
-                    // connect (blocking)
-                    current.client.Connect(ip, port);
-                    current.Connecting = false;
-
-                    // set socket options after the socket was created in Connect()
-                    // (not after the constructor because we clear the socket there)
-                    current.client.NoDelay = NoDelay;
-                    current.client.SendTimeout = SendTimeout;
-
-                    // start send thread only after connected
-                    current.sendThread = new Thread(() => { SendLoop(0, current.client, sendQueue, sendPending); });
-                    current.sendThread.IsBackground = true;
-                    current.sendThread.Start();
-
-                    // run the receive loop
-                    ReceiveLoop(0, current.client, receiveQueue, MaxMessageSize);
-                }
-                catch (SocketException exception)
-                {
-                    hadSocketException = true;
-                    // sleep to check for Abort/Interrupt
-                    Thread.Sleep(0);
-
                     // this happens if (for example) the ip address is correct
                     // but there is no server running on that ip/port
                     Logger.Log("Client Recv: failed to connect to ip=" + ip + " port=" + port + " reason=" + exception);
@@ -111,12 +112,10 @@ namespace Telepathy
             catch (ThreadInterruptedException)
             {
                 // expected if Disconnect() aborts it
-                Logger.LogWarning("ThreadInterruptedException" + (hadSocketException ? " with SocketException" : ""));
             }
             catch (ThreadAbortException)
             {
                 // expected if Disconnect() aborts it
-                Logger.LogWarning("ThreadAbortException" + (hadSocketException ? " with SocketException" : ""));
             }
             catch (Exception exception)
             {
@@ -208,6 +207,8 @@ namespace Telepathy
                 // -> calling .Join would sometimes wait forever, e.g. when
                 //    calling Disconnect while trying to connect to a dead end
                 receiveThread?.Interrupt();
+
+                instance.interrupt = true;
 
                 // we interrupted the receive Thread, so we can't guarantee that
                 // connecting was reset. let's do it manually.
