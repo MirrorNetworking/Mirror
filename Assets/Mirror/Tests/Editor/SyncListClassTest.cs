@@ -29,7 +29,7 @@ namespace Mirror.Tests
             SyncListTest.SerializeDeltaTo(serverList, clientList);
 
             Assert.IsFalse(clientList.Any(x => x.id == item1.id));
-            Assert.IsTrue(clientList.Any(x => x.id == item1.id));
+            Assert.IsTrue(clientList.Any(x => x.id == item2.id));
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace Mirror.Tests
             Assert.That(clientList.Count, Is.Zero);
 
             Assert.IsFalse(clientList.Any(x => x.id == item1.id));
-            Assert.IsFalse(clientList.Any(x => x.id == item1.id));
+            Assert.IsFalse(clientList.Any(x => x.id == item2.id));
         }
     }
 
