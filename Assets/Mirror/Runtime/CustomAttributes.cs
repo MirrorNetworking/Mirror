@@ -17,14 +17,14 @@ namespace Mirror
         /// <summary>
         /// Parameters of hook method
         /// </summary>
-        public HookParameter hookParameter = HookParameter.autoDetect;
+        public HookParameter hookParameter = HookParameter.AutoDetect;
 
         public enum HookParameter
         {
             /// <summary>
             /// Automatically detect which hook parameters to use
             /// </summary>
-            autoDetect = 0,
+            AutoDetect = 0,
             /// <summary>
             /// Finds hook with newValue parameter
             /// <para>
