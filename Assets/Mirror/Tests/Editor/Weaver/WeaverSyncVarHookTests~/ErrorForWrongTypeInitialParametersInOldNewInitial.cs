@@ -1,8 +1,8 @@
 using Mirror;
 
-namespace WeaverSyncVarHookTests.ErrorForWrongTypeInitalParametersInOldNewInital
+namespace WeaverSyncVarHookTests.ErrorForWrongTypeInitialParametersInOldNewInitial
 {
-    class ErrorForWrongTypeInitalParametersInOldNewInital : NetworkBehaviour
+    class ErrorForWrongTypeInitialParametersInOldNewInitial : NetworkBehaviour
     {
         [SyncVar(hook = nameof(onChangeHealth), hookParameter = SyncVarAttribute.HookParameter.OldNewInitial)]
         int health;
