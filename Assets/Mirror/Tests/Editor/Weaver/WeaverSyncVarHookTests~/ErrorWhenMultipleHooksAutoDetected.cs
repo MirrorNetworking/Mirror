@@ -1,4 +1,5 @@
-﻿using Mirror;
+using Mirror;
+
 namespace WeaverSyncVarHookTests.ErrorWhenMultipleHooksAutoDetected
 {
     class ErrorWhenMultipleHooksAutoDetected : NetworkBehaviour
@@ -7,6 +8,16 @@ namespace WeaverSyncVarHookTests.ErrorWhenMultipleHooksAutoDetected
         int health;
 
         void onChangeHealth(int newValue)
+        {
+
+        }
+
+        void onChangeHealth(int oldValue, int newValue)
+        {
+
+        }
+
+        void onChangeHealth(int oldValue, int newValue, bool initialState)
         {
 
         }

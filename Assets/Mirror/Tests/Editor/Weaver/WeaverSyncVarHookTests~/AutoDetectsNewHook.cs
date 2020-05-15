@@ -1,4 +1,5 @@
-﻿using Mirror;
+using Mirror;
+
 namespace WeaverSyncVarHookTests.AutoDetectsNewHook
 {
     class AutoDetectsNewHook : NetworkBehaviour

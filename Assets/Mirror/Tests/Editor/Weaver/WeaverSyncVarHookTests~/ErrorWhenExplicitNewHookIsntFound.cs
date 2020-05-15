@@ -1,4 +1,5 @@
 using Mirror;
+
 namespace WeaverSyncVarHookTests.ErrorWhenExplicitNewHookIsntFound
 {
     class ErrorWhenExplicitNewHookIsntFound : NetworkBehaviour

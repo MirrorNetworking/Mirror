@@ -1,4 +1,5 @@
 using Mirror;
+
 namespace WeaverSyncVarHookTests.AutoDetectsOldNewHook
 {
     class AutoDetectsOldNewHook : NetworkBehaviour

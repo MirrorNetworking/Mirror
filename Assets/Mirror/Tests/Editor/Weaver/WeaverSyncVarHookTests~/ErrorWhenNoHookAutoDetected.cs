@@ -4,12 +4,7 @@ namespace WeaverSyncVarHookTests.ErrorWhenNoHookAutoDetected
 {
     class ErrorWhenNoHookAutoDetected : NetworkBehaviour
     {
-        [SyncVar(hook = nameof(onChangeHealth))]
+        [SyncVar(hook = "onChangeHealth")]
         int health;
-
-        void onChangeHealth(int newValue)
-        {
-
-        }
     }
 }

@@ -28,6 +28,18 @@ namespace Mirror.Weaver.Tests
             Assert.That(weaverErrors, Is.Empty);
         }
 
+        [Test]
+        public void AutoDetectsWithOtherOverloads()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void AutoDetectsWithOtherOverloadsReverseOrder()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
 
         [Test]
         public void FindsExplicitNewHookWithOtherOverloads()
@@ -84,37 +96,37 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void ErrorWhenNewParametersInNewIsWrongType()
+        public void ErrorForWrongTypeNewParametersInNew()
         {
             Assert.That(weaverErrors, Contains.Item("OnChangeHealth should have signature: public void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { } (at System.Void WeaverSyncVarTests.SyncVarsWrongHookType.SyncVarsWrongHookType::OnChangeHealth(System.Boolean,System.Boolean))"));
         }
 
         [Test]
-        public void ErrorWhenOldParametersInOldNewIsWrongType()
+        public void ErrorForWrongTypeOldParametersInOldNew()
         {
             Assert.That(weaverErrors, Contains.Item("OnChangeHealth should have signature: public void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { } (at System.Void WeaverSyncVarTests.SyncVarsWrongHookType.SyncVarsWrongHookType::OnChangeHealth(System.Boolean,System.Boolean))"));
         }
 
         [Test]
-        public void ErrorWhenNewParametersInOldNewIsWrongType()
+        public void ErrorForWrongTypeNewParametersInOldNew()
         {
             Assert.That(weaverErrors, Contains.Item("OnChangeHealth should have signature: public void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { } (at System.Void WeaverSyncVarTests.SyncVarsWrongHookType.SyncVarsWrongHookType::OnChangeHealth(System.Boolean,System.Boolean))"));
         }
 
         [Test]
-        public void ErrorWhenOldParametersInOldNewInitialIsWrongType()
+        public void ErrorForWrongTypeOldParametersInOldNewInital()
         {
             Assert.That(weaverErrors, Contains.Item("OnChangeHealth should have signature: public void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { } (at System.Void WeaverSyncVarTests.SyncVarsWrongHookType.SyncVarsWrongHookType::OnChangeHealth(System.Boolean,System.Boolean))"));
         }
 
         [Test]
-        public void ErrorWhenNewParametersInOldNewInitialIsWrongType()
+        public void ErrorForWrongTypeNewParametersInOldNewInital()
         {
             Assert.That(weaverErrors, Contains.Item("OnChangeHealth should have signature: public void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { } (at System.Void WeaverSyncVarTests.SyncVarsWrongHookType.SyncVarsWrongHookType::OnChangeHealth(System.Boolean,System.Boolean))"));
         }
 
         [Test]
-        public void ErrorWhenInitialParametersInOldNewInitialIsWrongType()
+        public void ErrorForWrongTypeInitalParametersInOldNewInital()
         {
             Assert.That(weaverErrors, Contains.Item("OnChangeHealth should have signature: public void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { } (at System.Void WeaverSyncVarTests.SyncVarsWrongHookType.SyncVarsWrongHookType::OnChangeHealth(System.Boolean,System.Boolean))"));
         }

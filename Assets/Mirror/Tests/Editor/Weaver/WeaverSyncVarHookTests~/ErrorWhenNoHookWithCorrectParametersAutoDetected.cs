@@ -1,4 +1,4 @@
-﻿using Mirror;
+using Mirror;
 namespace WeaverSyncVarHookTests.ErrorWhenNoHookWithCorrectParametersAutoDetected
 {
     class ErrorWhenNoHookWithCorrectParametersAutoDetected : NetworkBehaviour
@@ -6,7 +6,12 @@ namespace WeaverSyncVarHookTests.ErrorWhenNoHookWithCorrectParametersAutoDetecte
         [SyncVar(hook = nameof(onChangeHealth))]
         int health;
 
-        void onChangeHealth(int newValue)
+        void onChangeHealth()
+        {
+
+        }
+
+        void onChangeHealth(float otherValue)
         {
 
         }
