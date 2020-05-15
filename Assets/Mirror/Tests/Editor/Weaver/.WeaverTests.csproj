@@ -190,9 +190,6 @@
     <Compile Include="WeaverSyncSetTests~\SyncSetInheritance.cs" />
     <Compile Include="WeaverSyncSetTests~\SyncSetStruct.cs" />
     <Compile Include="WeaverSyncVarHookTests~\ErrorWhenNoHookAutoDetected.cs" />
-    <Compile Include="WeaverSyncVarHookTests~\SyncVarsNoHookParams.cs" />
-    <Compile Include="WeaverSyncVarHookTests~\SyncVarsTooManyHookParams.cs" />
-    <Compile Include="WeaverSyncVarHookTests~\SyncVarsWrongHookType.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsCantBeArray.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsDerivedNetworkBehaviour.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsDifferentModule.cs" />
