@@ -891,7 +891,7 @@ namespace Mirror.Tests
             // serialize all - should work even if compExc throws an exception
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            ulong mask = identity.GetIntialComponentsMask();
+            ulong mask = identity.GetInitialComponentsMask();
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
             identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
@@ -952,7 +952,7 @@ namespace Mirror.Tests
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
 
-            ulong mask = identity.GetIntialComponentsMask();
+            ulong mask = identity.GetInitialComponentsMask();
             identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // Should still write with too mnay Components because NetworkBehavioursCache should handle the error
@@ -996,7 +996,7 @@ namespace Mirror.Tests
             // serialize
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            ulong mask = identity.GetIntialComponentsMask();
+            ulong mask = identity.GetInitialComponentsMask();
             identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // reset component values
@@ -1734,22 +1734,22 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void GetIntialComponentsMaskShouldReturn1BitPerNetworkBehaviour()
+        public void GetInitialComponentsMaskShouldReturn1BitPerNetworkBehaviour()
         {
             gameObject.AddComponent<MyTestComponent>();
             gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
 
-            ulong mask = identity.GetIntialComponentsMask();
+            ulong mask = identity.GetInitialComponentsMask();
 
             // 1 + 2 + 4 = 7
             Assert.That(mask, Is.EqualTo(7UL));
         }
 
         [Test]
-        public void GetIntialComponentsMaskShouldReturnZeroWhenNoNetworkBehaviours()
+        public void GetInitialComponentsMaskShouldReturnZeroWhenNoNetworkBehaviours()
         {
-            ulong mask = identity.GetIntialComponentsMask();
+            ulong mask = identity.GetInitialComponentsMask();
 
             Assert.That(mask, Is.EqualTo(0UL));
         }

@@ -877,7 +877,7 @@ namespace Mirror
 
             return dirtyComponentsMask;
         }
-        internal ulong GetIntialComponentsMask()
+        internal ulong GetInitialComponentsMask()
         {
             // loop through all components only once and then write dirty+payload into the writer afterwards
             ulong dirtyComponentsMask = 0UL;
