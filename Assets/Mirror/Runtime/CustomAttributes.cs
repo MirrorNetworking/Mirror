@@ -21,6 +21,8 @@ namespace Mirror
 
         public enum HookParameter
         {
+            // Numbers are used by Weaver, Do not change
+
             /// <summary>
             /// Automatically detect which hook parameters to use
             /// </summary>
