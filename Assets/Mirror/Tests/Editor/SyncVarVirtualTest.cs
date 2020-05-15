@@ -77,7 +77,7 @@ namespace Mirror.Tests
             NetworkWriter ownerWriter = new NetworkWriter();
             // not really used in this Test
             NetworkWriter observersWriter = new NetworkWriter();
-            ulong mask = netIdServer.GetIntialComponentsMask();
+            ulong mask = netIdServer.GetInitialComponentsMask();
             netIdServer.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
 
