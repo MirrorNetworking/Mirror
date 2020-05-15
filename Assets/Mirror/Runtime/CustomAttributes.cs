@@ -10,15 +10,42 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Field)]
     public class SyncVarAttribute : PropertyAttribute
     {
+        /// <summary>
+        /// Name of hook method
+        /// </summary>
         public string hook;
-        public Overload overload = Overload.autoDetect;
+        /// <summary>
+        /// Parameters of hook method
+        /// </summary>
+        public HookParameter hookParameter = HookParameter.autoDetect;
 
-        public enum Overload
+        public enum HookParameter
         {
+            /// <summary>
+            /// Automatically detect which hook parameters to use
+            /// </summary>
             autoDetect = 0,
+            /// <summary>
+            /// Finds hook with newValue parameter
+            /// <para>
+            /// void onValueChange(T newValue)
+            /// </para>
+            /// </summary>
             New = 1,
+            /// <summary>
+            /// Finds hook with oldValue and newValue parameters
+            /// <para>
+            /// void onValueChange(T oldValue, T newValue)
+            /// </para>
+            /// </summary>
             OldNew = 2,
-            OldNewIntial = 3
+            /// <summary>
+            /// Finds hook with oldValue, newValue and initialState parameters
+            /// <para>
+            /// void onValueChange(T oldValue, T newValue, bool initialState)
+            /// </para>
+            /// </summary>
+            OldNewInitial = 3
         }
     }
 
