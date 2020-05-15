@@ -55,7 +55,7 @@ namespace Mirror.Tests
         [SetUp]
         public void Setup()
         {
-            // create server and client objects and sync inital values
+            // create server and client objects and sync initial values
 
             GameObject gameObject1 = new GameObject();
             netIdServer = gameObject1.AddComponent<NetworkIdentity>();
