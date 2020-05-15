@@ -19,36 +19,37 @@ namespace Mirror
         /// </summary>
         public HookParameter hookParameter = HookParameter.AutoDetect;
 
-        public enum HookParameter
-        {
-            // Numbers are used by Weaver, Do not change
+    }
 
-            /// <summary>
-            /// Automatically detect which hook parameters to use
-            /// </summary>
-            AutoDetect = 0,
-            /// <summary>
-            /// Finds hook with newValue parameter
-            /// <para>
-            /// void onValueChange(T newValue)
-            /// </para>
-            /// </summary>
-            New = 1,
-            /// <summary>
-            /// Finds hook with oldValue and newValue parameters
-            /// <para>
-            /// void onValueChange(T oldValue, T newValue)
-            /// </para>
-            /// </summary>
-            OldNew = 2,
-            /// <summary>
-            /// Finds hook with oldValue, newValue and initialState parameters
-            /// <para>
-            /// void onValueChange(T oldValue, T newValue, bool initialState)
-            /// </para>
-            /// </summary>
-            OldNewInitial = 3
-        }
+    public enum HookParameter
+    {
+        // Numbers are used by Weaver, Do not change
+
+        /// <summary>
+        /// Automatically detect which hook parameters to use
+        /// </summary>
+        AutoDetect = 0,
+        /// <summary>
+        /// Finds hook with newValue parameter
+        /// <para>
+        /// void onValueChange(T newValue)
+        /// </para>
+        /// </summary>
+        New = 1,
+        /// <summary>
+        /// Finds hook with oldValue and newValue parameters
+        /// <para>
+        /// void onValueChange(T oldValue, T newValue)
+        /// </para>
+        /// </summary>
+        OldNew = 2,
+        /// <summary>
+        /// Finds hook with oldValue, newValue and initialState parameters
+        /// <para>
+        /// void onValueChange(T oldValue, T newValue, bool initialState)
+        /// </para>
+        /// </summary>
+        OldNewInitial = 3
     }
 
     /// <summary>

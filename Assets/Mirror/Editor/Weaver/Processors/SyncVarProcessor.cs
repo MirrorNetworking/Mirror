@@ -11,7 +11,7 @@ namespace Mirror.Weaver
     public static class SyncVarProcessor
     {
         /// <summary>
-        /// <see cref="Mirror.SyncVarAttribute.HookParameter"/>
+        /// <see cref="Mirror.HookParameter"/>
         /// </summary>
         enum HookParameter
         {

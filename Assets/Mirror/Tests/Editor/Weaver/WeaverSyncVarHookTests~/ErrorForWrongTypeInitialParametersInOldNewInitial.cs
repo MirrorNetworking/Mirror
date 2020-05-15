@@ -4,7 +4,7 @@ namespace WeaverSyncVarHookTests.ErrorForWrongTypeInitialParametersInOldNewIniti
 {
     class ErrorForWrongTypeInitialParametersInOldNewInitial : NetworkBehaviour
     {
-        [SyncVar(hook = nameof(onChangeHealth), hookParameter = SyncVarAttribute.HookParameter.OldNewInitial)]
+        [SyncVar(hook = nameof(onChangeHealth), hookParameter = HookParameter.OldNewInitial)]
         int health;
 
         void onChangeHealth(int oldValue, int newValue, int wrongInitialState)

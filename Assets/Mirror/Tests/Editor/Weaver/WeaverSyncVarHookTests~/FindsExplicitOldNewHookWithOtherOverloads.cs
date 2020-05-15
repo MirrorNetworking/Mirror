@@ -3,7 +3,7 @@ namespace WeaverSyncVarHookTests.FindsExplicitOldNewHookWithOtherOverloads
 {
     class FindsExplicitOldNewHookWithOtherOverloads : NetworkBehaviour
     {
-        [SyncVar(hook = nameof(onChangeHealth), hookParameter = SyncVarAttribute.HookParameter.OldNew)]
+        [SyncVar(hook = nameof(onChangeHealth), hookParameter = HookParameter.OldNew)]
         int health;
 
         void onChangeHealth(int newValue)

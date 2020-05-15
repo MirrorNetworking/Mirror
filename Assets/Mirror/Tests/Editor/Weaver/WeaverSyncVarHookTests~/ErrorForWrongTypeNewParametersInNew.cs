@@ -4,7 +4,7 @@ namespace WeaverSyncVarHookTests.ErrorForWrongTypeNewParametersInNew
 {
     class ErrorForWrongTypeNewParametersInNew : NetworkBehaviour
     {
-        [SyncVar(hook = nameof(onChangeHealth), hookParameter = SyncVarAttribute.HookParameter.New)]
+        [SyncVar(hook = nameof(onChangeHealth), hookParameter = HookParameter.New)]
         int health;
 
         void onChangeHealth(float wrongNewValue)
