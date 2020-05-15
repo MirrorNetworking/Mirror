@@ -11,6 +11,15 @@ namespace Mirror
     public class SyncVarAttribute : PropertyAttribute
     {
         public string hook;
+        public Overload overload = Overload.autoDetect;
+
+        public enum Overload
+        {
+            autoDetect = 0,
+            New = 1,
+            OldNew = 2,
+            OldNewIntial = 3
+        }
     }
 
     /// <summary>
