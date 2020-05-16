@@ -158,7 +158,7 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static T GetField<T>(this CustomAttribute ca, string field, T def)
+        public static T GetField<T>(this CustomAttribute ca, string field, T defaultValue)
         {
             foreach (CustomAttributeNamedArgument customField in ca.Fields)
             {
@@ -168,7 +168,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            return def;
+            return defaultValue;
         }
 
         public static MethodDefinition GetMethod(this TypeDefinition td, string methodName)
