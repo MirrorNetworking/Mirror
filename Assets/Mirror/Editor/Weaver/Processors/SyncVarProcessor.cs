@@ -84,24 +84,30 @@ namespace Mirror.Weaver
 
         static MethodDefinition AutoDetectHookMethod(FieldDefinition syncVar, string hookFunctionName, List<MethodDefinition> methods)
         {
-            List<MethodDefinition> methodsWithParamCount = new List<MethodDefinition>(methods.Where(m => 1 <= m.Parameters.Count && m.Parameters.Count <= 3));
+            List<MethodDefinition> methodsWith1Param = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == 1));
+            List<MethodDefinition> methodsWith2Param = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == 2));
+            List<MethodDefinition> methodsWith3Param = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == 3));
 
-            if (methodsWithParamCount.Count == 0)
+            // If all empty return early with ErrorMessage
+            if (methodsWith1Param.Count == 0 &&
+                methodsWith2Param.Count == 0 &&
+                methodsWith3Param.Count == 0)
             {
                 Weaver.Error($"No hook with correct parameters found for '{syncVar.Name}', hook name '{hookFunctionName}'. {HookImplementationMessage(hookFunctionName, syncVar.FieldType.ToString())}",
                     syncVar);
                 return null;
             }
 
-            MethodDefinition match = null;
             string multipleFoundError = $"Multiple hooks found for for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                 $"Use the hookParameter option in the SyncVar Attribute to pick which one to use.";
 
             // Find method with matching parameters
             // return error if multiple are found
-            foreach (MethodDefinition method in methodsWithParamCount)
+            MethodDefinition match = null;
+
+            foreach (MethodDefinition method in methodsWith1Param)
             {
-                if (method.Parameters.Count == 1 && MatchesParameters(HookParameter.New, syncVar, method))
+                if (MatchesParameters(HookParameter.New, syncVar, method))
                 {
                     if (match != null)
                     {
@@ -111,8 +117,11 @@ namespace Mirror.Weaver
 
                     match = method;
                 }
+            }
 
-                if (method.Parameters.Count == 2 && MatchesParameters(HookParameter.OldNew, syncVar, method))
+            foreach (MethodDefinition method in methodsWith2Param)
+            {
+                if (MatchesParameters(HookParameter.OldNew, syncVar, method))
                 {
                     if (match != null)
                     {
@@ -122,8 +131,11 @@ namespace Mirror.Weaver
 
                     match = method;
                 }
+            }
 
-                if (method.Parameters.Count == 3 && MatchesParameters(HookParameter.OldNewInitial, syncVar, method))
+            foreach (MethodDefinition method in methodsWith3Param)
+            {
+                if (MatchesParameters(HookParameter.OldNewInitial, syncVar, method))
                 {
                     if (match != null)
                     {
