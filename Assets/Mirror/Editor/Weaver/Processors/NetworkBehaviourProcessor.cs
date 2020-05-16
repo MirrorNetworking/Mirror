@@ -424,15 +424,15 @@ namespace Mirror.Weaver
         void DeserializeField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize)
         {
             // check for Hook function
-            MethodDefinition hookMethod = SyncVarProcessor.GetHookMethod(netBehaviourSubclass, syncVar);
+            SyncVarProcessor.GetHookResult hookResult = SyncVarProcessor.GetHookMethod(netBehaviourSubclass, syncVar);
 
             if (IsNetworkIdentityField(syncVar))
             {
-                DeserializeNetworkIdentityField(syncVar, serWorker, deserialize, hookMethod);
+                DeserializeNetworkIdentityField(syncVar, serWorker, deserialize, hookResult);
             }
             else
             {
-                DeserializeNormalField(syncVar, serWorker, deserialize, hookMethod);
+                DeserializeNormalField(syncVar, serWorker, deserialize, hookResult);
             }
         }
 
@@ -455,7 +455,7 @@ namespace Mirror.Weaver
         /// <param name="deserialize"></param>
         /// <param name="initialState"></param>
         /// <param name="hookResult"></param>
-        void DeserializeNetworkIdentityField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize, MethodDefinition hookMethod)
+        void DeserializeNetworkIdentityField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize, SyncVarProcessor.GetHookResult hookResult)
         {
             /*
             Generates code like:
@@ -509,7 +509,7 @@ namespace Mirror.Weaver
             // netId
             serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
 
-            if (hookMethod != null)
+            if (hookResult.found)
             {
                 // call Hook(this.GetSyncVarGameObject/NetworkIdentity(reader.ReadPackedUInt32()))
                 // because we send/receive the netID, not the GameObject/NetworkIdentity
@@ -554,7 +554,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                 // syncvar.get (finds current GO/NI from netId)
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                serWorker.Append(serWorker.Create(OpCodes.Callvirt, hookMethod));
+                serWorker.Append(serWorker.Create(OpCodes.Callvirt, hookResult.method));
 
                 // Generates: end if (!SyncVarEqual);
                 serWorker.Append(syncVarEqualLabel);
@@ -569,7 +569,7 @@ namespace Mirror.Weaver
         /// <param name="deserialize"></param>
         /// <param name="initialState"></param>
         /// <param name="hookResult"></param>
-        void DeserializeNormalField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize, MethodDefinition hookMethod)
+        void DeserializeNormalField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize, SyncVarProcessor.GetHookResult hookResult)
         {
             /*
              Generates code like:
@@ -614,7 +614,7 @@ namespace Mirror.Weaver
             // syncvar
             serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
 
-            if (hookMethod != null)
+            if (hookResult.found)
             {
                 // call hook
                 // but only if SyncVar changed. otherwise a client would
@@ -647,7 +647,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                 // syncvar.get
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                serWorker.Append(serWorker.Create(OpCodes.Callvirt, hookMethod));
+                serWorker.Append(serWorker.Create(OpCodes.Callvirt, hookResult.method));
 
                 // Generates: end if (!SyncVarEqual);
                 serWorker.Append(syncVarEqualLabel);

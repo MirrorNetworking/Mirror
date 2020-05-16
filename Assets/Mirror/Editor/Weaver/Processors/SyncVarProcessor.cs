@@ -14,13 +14,22 @@ namespace Mirror.Weaver
         /// <summary>
         /// <see cref="Mirror.HookParameter"/>
         /// </summary>
-        enum HookParameter
+        public enum HookParameter
         {
             AutoDetect = 0,
             // numbers match parameter count, do not change
             New = 1,
             OldNew = 2,
             OldNewInitial = 3
+        }
+
+        public struct GetHookResult
+        {
+            public bool found;
+            public HookParameter parameter;
+            public MethodDefinition method;
+
+            public static readonly GetHookResult NotFound = new GetHookResult { found = false };
         }
 
         // used to log expected method signature
@@ -52,23 +61,23 @@ namespace Mirror.Weaver
         const int SyncVarLimit = 64;
 
         // Get hook method if any
-        public static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar)
+        public static GetHookResult GetHookMethod(TypeDefinition td, FieldDefinition syncVar)
         {
             CustomAttribute ca = syncVar.GetCustomAttribute(Weaver.SyncVarType.FullName);
 
             if (ca == null)
-                return null;
+                return GetHookResult.NotFound;
 
             string hookFunctionName = ca.GetField<string>("hook", null);
             HookParameter hookParameter = ca.GetField("hookParameter", HookParameter.AutoDetect);
 
             if (hookFunctionName == null)
-                return null;
+                return GetHookResult.NotFound;
 
             return FindHookMethod(td, syncVar, hookFunctionName, hookParameter);
         }
 
-        static MethodDefinition FindHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName, HookParameter hookParameter)
+        static GetHookResult FindHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName, HookParameter hookParameter)
         {
             List<MethodDefinition> methods = td.GetMethods(hookFunctionName);
 
@@ -82,7 +91,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static MethodDefinition AutoDetectHookMethod(FieldDefinition syncVar, string hookFunctionName, List<MethodDefinition> methods)
+        static GetHookResult AutoDetectHookMethod(FieldDefinition syncVar, string hookFunctionName, List<MethodDefinition> methods)
         {
             List<MethodDefinition> methodsWith1Param = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == 1));
             List<MethodDefinition> methodsWith2Param = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == 2));
@@ -95,7 +104,7 @@ namespace Mirror.Weaver
             {
                 Weaver.Error($"No hook with correct parameters found for '{syncVar.Name}', hook name '{hookFunctionName}'. {HookImplementationMessage(hookFunctionName, syncVar.FieldType.ToString())}",
                     syncVar);
-                return null;
+                return GetHookResult.NotFound;
             }
 
             string multipleFoundError = $"Multiple hooks found for for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
@@ -104,6 +113,7 @@ namespace Mirror.Weaver
             // Find method with matching parameters
             // return error if multiple are found
             MethodDefinition match = null;
+            HookParameter matchParameters = HookParameter.AutoDetect;
 
             foreach (MethodDefinition method in methodsWith1Param)
             {
@@ -112,10 +122,11 @@ namespace Mirror.Weaver
                     if (match != null)
                     {
                         Weaver.Error(multipleFoundError, syncVar);
-                        return null;
+                        return GetHookResult.NotFound;
                     }
 
                     match = method;
+                    matchParameters = HookParameter.New;
                 }
             }
 
@@ -126,10 +137,11 @@ namespace Mirror.Weaver
                     if (match != null)
                     {
                         Weaver.Error(multipleFoundError, syncVar);
-                        return null;
+                        return GetHookResult.NotFound;
                     }
 
                     match = method;
+                    matchParameters = HookParameter.OldNew;
                 }
             }
 
@@ -140,27 +152,33 @@ namespace Mirror.Weaver
                     if (match != null)
                     {
                         Weaver.Error(multipleFoundError, syncVar);
-                        return null;
+                        return GetHookResult.NotFound;
                     }
 
                     match = method;
+                    matchParameters = HookParameter.OldNewInitial;
                 }
             }
 
             // If only 1 found, return it
             if (match != null)
             {
-                return match;
+                return new GetHookResult
+                {
+                    found = true,
+                    method = match,
+                    parameter = matchParameters
+                };
             }
             else
             {
                 Weaver.Error($"No hook with correct parameters found for '{syncVar.Name}', hook name '{hookFunctionName}'. {HookImplementationMessage(hookFunctionName, syncVar.FieldType.ToString())}",
                     syncVar);
-                return null;
+                return GetHookResult.NotFound;
             }
         }
 
-        static MethodDefinition FindHookWithParameters(FieldDefinition syncVar, string hookFunctionName, List<MethodDefinition> methods, HookParameter hookParameter)
+        static GetHookResult FindHookWithParameters(FieldDefinition syncVar, string hookFunctionName, List<MethodDefinition> methods, HookParameter hookParameter)
         {
             int parameterCount = (int)hookParameter;
             List<MethodDefinition> methodsWithParamCount = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == parameterCount));
@@ -170,21 +188,26 @@ namespace Mirror.Weaver
                 Weaver.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}' with '{Enum.GetName(typeof(HookParameter), hookParameter)}' parameters. " +
                     $"Method signature should be {HookParameterMessage(hookParameter, hookFunctionName, syncVar.FieldType.ToString())}",
                     syncVar);
-                return null;
+                return GetHookResult.NotFound;
             }
 
             foreach (MethodDefinition method in methodsWithParamCount)
             {
                 if (MatchesParameters(hookParameter, syncVar, method))
                 {
-                    return method;
+                    return new GetHookResult
+                    {
+                        found = true,
+                        method = method,
+                        parameter = hookParameter
+                    };
                 }
             }
 
             Weaver.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}' with '{Enum.GetName(typeof(HookParameter), hookParameter)}' parameters. " +
                $"Method signature should be {HookParameterMessage(hookParameter, hookFunctionName, syncVar.FieldType.ToString())}",
                syncVar);
-            return null;
+            return GetHookResult.NotFound;
         }
 
         static bool MatchesParameters(HookParameter hookParameter, FieldDefinition syncVar, MethodDefinition method)
@@ -358,10 +381,12 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Call, gm));
             }
 
-            MethodDefinition hookFunctionMethod = GetHookMethod(td, fd);
+            GetHookResult hookResult = GetHookMethod(td, fd);
 
-            if (hookFunctionMethod != null)
+            if (hookResult.found)
             {
+                MethodDefinition hookFunctionMethod = hookResult.method;
+
                 //if (NetworkServer.localClientActive && !getSyncVarHookGuard(dirtyBit))
                 Instruction label = setWorker.Create(OpCodes.Nop);
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkServerGetLocalClientActive));
@@ -377,6 +402,8 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_1));
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
 
+
+                // TODO Make this work with extra hooks
                 // call hook (oldValue, newValue)
                 // dont add this (Ldarg_0) if method is static
                 if (!hookFunctionMethod.IsStatic)
