@@ -84,5 +84,14 @@ namespace Mirror.Tests
 
             Assert.That(manager.IsNetworkActive, Is.False);
         });
+
+        [Test]
+        public void ServerChangeSceneTest()
+        {
+            AssetBundle.LoadFromFile("Assets/Mirror/Tests/Runtime/TestScene/testscene");
+            manager.ServerChangeScene("testScene");
+
+            Assert.That(manager.networkSceneName, Is.EqualTo("testScene"));
+        }
     }
 }
