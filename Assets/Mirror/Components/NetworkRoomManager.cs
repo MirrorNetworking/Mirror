@@ -537,7 +537,7 @@ namespace Mirror
 
         // Deprecated 12/17/2019
         /// <summary>
-        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)"/> instead.
+        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)">OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)</see> instead.
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
         /// <returns>A new GamePlayer object.</returns>
@@ -562,7 +562,7 @@ namespace Mirror
         /// <summary>
         /// This allows customization of the creation of the GamePlayer object on the server.
         /// <para>This is only called for subsequent GamePlay scenes after the first one.</para>
-        /// <para>See <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)"/> to customize the player object for the initial GamePlay scene.</para>
+        /// <para>See <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)">OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)</see> to customize the player object for the initial GamePlay scene.</para>
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
         public virtual void OnRoomServerAddPlayer(NetworkConnection conn)
@@ -572,7 +572,7 @@ namespace Mirror
 
         // Deprecated 02/22/2020
         /// <summary>
-        /// Obsolete: Use <see cref="OnRoomServerSceneLoadedForPlayer(NetworkConnection, GameObject, GameObject)"/> instead.
+        /// Obsolete: Use <see cref="OnRoomServerSceneLoadedForPlayer(NetworkConnection, GameObject, GameObject)">OnRoomServerSceneLoadedForPlayer(NetworkConnection, GameObject, GameObject)</see> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer) instead")]
         public virtual bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)

@@ -292,7 +292,7 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to all connected clients, both ready and not-ready.</para>
-        /// <para>See <see cref="NetworkConnection.isReady"/></para>
+        /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="msg">Message</param>
@@ -351,7 +351,7 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to only clients which are ready.
-        /// <para>See <see cref="NetworkConnection.isReady"/></para>
+        /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
         /// <param name="msg">Message</param>
@@ -370,7 +370,7 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to only clients which are ready with option to include the owner of the object identity.
-        /// <para>See <see cref="NetworkConnection.isReady"/></para>
+        /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
         /// <param name="identity">Identity of the owner</param>
@@ -429,7 +429,7 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to only clients which are ready including the owner of the object identity.
-        /// <para>See <see cref="NetworkConnection.isReady"/></para>
+        /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity">identity of the object</param>
@@ -623,7 +623,7 @@ namespace Mirror
 
         /// <summary>
         /// Replaces a handler for a particular message type.
-        /// <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/>
+        /// See also <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)">RegisterHandler(T)(Action(NetworkConnection, T), bool)</see>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
@@ -636,7 +636,7 @@ namespace Mirror
 
         /// <summary>
         /// Replaces a handler for a particular message type.
-        /// <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/>
+        /// See also <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)">RegisterHandler(T)(Action(NetworkConnection, T), bool)</see>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
@@ -957,7 +957,7 @@ namespace Mirror
 
         // Deprecated 5/2/2020
         /// <summary>
-        /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, GameObject, bool)"/> instead.
+        /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, GameObject, bool)">NetworkServer.RemovePlayerForConnection</see> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false) instead", true)]
         static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg) { }

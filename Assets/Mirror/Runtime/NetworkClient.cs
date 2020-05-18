@@ -333,7 +333,7 @@ namespace Mirror
 
         /// <summary>
         /// Replaces a handler for a particular message type.
-        /// <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/>
+        /// See also <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)">RegisterHandler(T)(Action(NetworkConnection, T), bool)</see>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
@@ -346,7 +346,7 @@ namespace Mirror
 
         /// <summary>
         /// Replaces a handler for a particular message type.
-        /// <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/>
+        /// See also <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)">RegisterHandler(T)(Action(NetworkConnection, T), bool)</see>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked when this message type is received.</param>

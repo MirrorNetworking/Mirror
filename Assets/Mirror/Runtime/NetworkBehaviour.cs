@@ -826,7 +826,7 @@ namespace Mirror
 
         // Deprecated 04/20/2020
         /// <summary>
-        /// Obsolete: Use <see cref="OnStopClient()"/> instead
+        /// Obsolete: Use <see cref="OnStopClient()">OnStopClient()</see> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnStopClient() instead")]
         public virtual void OnNetworkDestroy() { }
@@ -871,7 +871,7 @@ namespace Mirror
         /// <summary>
         /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see>.
         /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and before <see cref="OnStartClient">OnStartClient.</see></para>
-        /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
+        /// <para>When <see cref="NetworkIdentity.AssignClientAuthority">AssignClientAuthority</see> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
         /// </summary>
         public virtual void OnStartAuthority() { }
 
