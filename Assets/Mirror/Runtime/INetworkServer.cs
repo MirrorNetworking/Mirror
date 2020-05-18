@@ -26,14 +26,7 @@ namespace Mirror
         bool SpawnObjects();
     }
 
-    public interface IServerSceneManager
-    {
-        void OnServerChangeScene(string newSceneName);
-
-        void OnServerSceneChanged(string sceneName);
-    }
-
-    public interface INetworkServer : IServerObjectManager, IServerSceneManager
+    public interface INetworkServer : IServerObjectManager
     {
         void Disconnect();
 

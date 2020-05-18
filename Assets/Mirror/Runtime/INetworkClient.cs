@@ -34,16 +34,10 @@ namespace Mirror
     public interface IClientSceneManager
     {
         void PrepareToSpawnSceneObjects();
-
-        void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling);
-
-        void OnClientSceneChanged(INetworkConnection conn);
     }
 
     public interface INetworkClient : IClientObjectManager, IClientSceneManager
     {
-        void OnAuthenticated(INetworkConnection conn);
-
         void Disconnect();
 
         void Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase;
@@ -51,7 +45,5 @@ namespace Mirror
         Task SendAsync<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase;
 
         void Ready(INetworkConnection conn);
-
-        void OnClientNotReady(INetworkConnection conn);
     }
 }

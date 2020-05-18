@@ -250,7 +250,7 @@ namespace Mirror
             }
         }
 
-        public void OnAuthenticated(INetworkConnection conn)
+        internal void OnAuthenticated(INetworkConnection conn)
         {
             Authenticated?.Invoke(conn);
         }
@@ -356,7 +356,7 @@ namespace Mirror
         /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
         /// <param name="sceneOperation">Scene operation that's about to happen</param>
         /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
-        public void OnClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
+        internal void OnClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
         {
             ClientChangeScene.Invoke(sceneName, sceneOperation, customHandling);
         }
@@ -366,7 +366,7 @@ namespace Mirror
         /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
         /// </summary>
         /// <param name="conn">The network connection that the scene change message arrived on.</param>
-        public void OnClientSceneChanged(INetworkConnection conn)
+        internal void OnClientSceneChanged(INetworkConnection conn)
         {
             // always become ready.
             if (!ready)
@@ -380,7 +380,7 @@ namespace Mirror
         /// <para>This is commonly used when switching scenes.</para>
         /// </summary>
         /// <param name="conn">Connection to the server.</param>
-        public void OnClientNotReady(INetworkConnection conn)
+        internal void OnClientNotReady(INetworkConnection conn)
         {
             ClientNotReady.Invoke(conn);
         }
