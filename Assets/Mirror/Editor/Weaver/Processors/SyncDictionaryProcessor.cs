@@ -1,4 +1,3 @@
-
 using Mono.CecilX;
 
 namespace Mirror.Weaver
