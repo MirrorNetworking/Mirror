@@ -11,6 +11,24 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void AutoDetectsStaticHook()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void AutoDetectsHookWithGameObject()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void AutoDetectsHookWithNetworkIdentity()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
         public void AutoDetectsNewHook()
         {
             Assert.That(weaverErrors, Is.Empty);

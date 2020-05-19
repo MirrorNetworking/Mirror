@@ -189,10 +189,13 @@
     <Compile Include="WeaverSyncSetTests~\SyncSetGenericInheritance.cs" />
     <Compile Include="WeaverSyncSetTests~\SyncSetInheritance.cs" />
     <Compile Include="WeaverSyncSetTests~\SyncSetStruct.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\AutoDetectsHookWithGameObject.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\AutoDetectsHookWithNetworkIdentity.cs" />
     <Compile Include="WeaverSyncVarHookTests~\AutoDetectsNewHook.cs" />
     <Compile Include="WeaverSyncVarHookTests~\AutoDetectsOldNewHook.cs" />
     <Compile Include="WeaverSyncVarHookTests~\AutoDetectsOldNewInitialHook.cs" />
     <Compile Include="WeaverSyncVarHookTests~\AutoDetectsPrivateHook.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\AutoDetectsStaticHook.cs" />
     <Compile Include="WeaverSyncVarHookTests~\AutoDetectsWithOtherOverloads.cs" />
     <Compile Include="WeaverSyncVarHookTests~\AutoDetectsWithOtherOverloadsReverseOrder.cs" />
     <Compile Include="WeaverSyncVarHookTests~\ErrorForWrongTypeInitialParametersInOldNewInitial.cs" />
