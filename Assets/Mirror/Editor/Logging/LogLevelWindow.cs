@@ -70,7 +70,7 @@ namespace Mirror.EditorScripts.Logging
         {
             LogLevelWindow window = GetWindow<LogLevelWindow>();
             window.minSize = new Vector2(200, 100);
-            window.titleContent = new GUIContent("Mirror Log levels");
+            window.titleContent = new GUIContent("Mirror Log Levels");
             window.Show();
         }
     }
