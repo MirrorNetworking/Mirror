@@ -17,11 +17,27 @@ namespace Mirror.Examples.Tanks
         public GameObject projectilePrefab;
         public Transform projectileMount;
 
+        [Header("Game Stats")]
+        [SyncVar]
+        public int health;
+        [SyncVar]
+        public int lives;
+        [SyncVar]
+        public int score;
+        [SyncVar]
+        public bool isDead;
+
         void Update()
         {
             // movement for local player
             if (!isLocalPlayer)
                 return;
+
+            if (health <= 0)
+            {
+                isDead = true;
+                return;
+            }
 
             // rotate
             float horizontal = Input.GetAxis("Horizontal");
@@ -45,6 +61,7 @@ namespace Mirror.Examples.Tanks
         void CmdFire()
         {
             GameObject projectile = Instantiate(projectilePrefab, projectileMount.position, transform.rotation);
+            projectile.GetComponent<Projectile>().source = gameObject;
             NetworkServer.Spawn(projectile);
             RpcOnFire();
         }
@@ -54,6 +71,34 @@ namespace Mirror.Examples.Tanks
         void RpcOnFire()
         {
             animator.SetTrigger("Shoot");
+        }
+
+        public void RespawnButtonHandler()
+        {
+            if (!isLocalPlayer && isDead)
+                return;
+
+            CmdRespawn();
+        }
+
+        [ClientRpc]
+        void RpcRespawn()
+        {
+            if (!isLocalPlayer && isDead)
+                return;
+
+            CmdRespawn();
+        }
+
+        [Command]
+        void CmdRespawn()
+        {
+            lives--;
+
+            Transform startPos = NetworkManager.singleton.GetStartPosition();
+            GameObject player = Instantiate(NetworkManager.singleton.playerPrefab, startPos.position, startPos.rotation);
+            NetworkServer.ReplacePlayerForConnection(connectionToClient, player);
+            NetworkServer.Destroy(gameObject);
         }
     }
 }
