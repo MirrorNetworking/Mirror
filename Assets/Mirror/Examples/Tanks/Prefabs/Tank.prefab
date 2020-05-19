@@ -51,9 +51,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneId: 0
   serverOnly: 0
-  m_AssetId: 
-  m_SceneId: 0
+  m_AssetId: 6f43bf5488a7443d19ab2a83c6b91f35
+  hasSpawned: 0
 --- !u!95 &2240606817507776182
 Animator:
   serializedVersion: 3
@@ -87,10 +88,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  compressRotation: 1
   clientAuthority: 1
   localPositionSensitivity: 0.01
-  localEulerAnglesSensitivity: 0.01
+  localRotationSensitivity: 0.01
   localScaleSensitivity: 0.01
 --- !u!195 &6900008319038825817
 NavMeshAgent:
@@ -148,6 +148,10 @@ MonoBehaviour:
   projectilePrefab: {fileID: 5890560936853567077, guid: b7dd46dbf38c643f09e206f9fa4be008,
     type: 3}
   projectileMount: {fileID: 5718089106632469514}
+  health: 100
+  lives: 1
+  score: 0
+  isDead: 0
 --- !u!1 &4426914200102054949
 GameObject:
   m_ObjectHideFlags: 0
@@ -254,10 +258,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4492442352427800}
     m_Modifications:
-    - target: {fileID: 100010, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
-      propertyPath: m_Name
-      value: 3D Model
-      objectReference: {fileID: 0}
     - target: {fileID: 400010, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -301,6 +301,10 @@ PrefabInstance:
     - target: {fileID: 400010, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 100010, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
+      propertyPath: m_Name
+      value: 3D Model
       objectReference: {fileID: 0}
     - target: {fileID: 13700000, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
       propertyPath: m_Materials.Array.data[0]
