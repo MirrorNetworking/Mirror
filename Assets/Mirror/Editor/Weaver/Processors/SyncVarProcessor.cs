@@ -385,8 +385,6 @@ namespace Mirror.Weaver
 
             if (hookResult.found)
             {
-                MethodDefinition hookFunctionMethod = hookResult.method;
-
                 //if (NetworkServer.localClientActive && !getSyncVarHookGuard(dirtyBit))
                 Instruction label = setWorker.Create(OpCodes.Nop);
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkServerGetLocalClientActive));
@@ -402,17 +400,8 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_1));
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
 
-
-                // TODO Make this work with extra hooks
                 // call hook (oldValue, newValue)
-                // dont add this (Ldarg_0) if method is static
-                if (!hookFunctionMethod.IsStatic)
-                {
-                    setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-                }
-                setWorker.Append(setWorker.Create(OpCodes.Ldloc, oldValue));
-                setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
-                setWorker.Append(setWorker.Create(OpCodes.Callvirt, hookFunctionMethod));
+                WriteCallHookMethodUsingArgument(setWorker, hookResult, oldValue);
 
                 // setSyncVarHookGuard(dirtyBit, false);
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
@@ -550,6 +539,99 @@ namespace Mirror.Weaver
             }
 
             Weaver.SetNumSyncVars(td.FullName, numSyncVars);
+        }
+
+        public static void WriteCallHookMethodUsingArgument(ILProcessor worker, GetHookResult hookResult, VariableDefinition oldValue)
+        {
+            _WriteCallHookMethod(worker, hookResult, oldValue, null, false);
+        }
+
+        public static void WriteCallHookMethodUsingField(ILProcessor worker, GetHookResult hookResult, VariableDefinition oldValue, FieldDefinition newValue, bool initialState)
+        {
+            if (newValue == null)
+            {
+                Weaver.Error("NewValue field was null when writing SyncVar hook");
+            }
+
+            _WriteCallHookMethod(worker, hookResult, oldValue, newValue, initialState);
+        }
+
+        static void _WriteCallHookMethod(ILProcessor worker, GetHookResult hookResult, VariableDefinition oldValue, FieldDefinition newValue, bool initialState)
+        {
+            WriteStartFunctionCall();
+
+            // write args
+            if (hookResult.parameter == HookParameter.New)
+            {
+                WriteNewValue();
+            }
+            else if (hookResult.parameter == HookParameter.OldNew)
+            {
+                WriteOldValue();
+                WriteNewValue();
+            }
+            else if (hookResult.parameter == HookParameter.OldNewInitial)
+            {
+                WriteOldValue();
+                WriteNewValue();
+                WriteInitialState();
+            }
+            else
+            {
+                Weaver.Error("Invalid hook parameter in WriteCallHookMethod");
+            }
+
+            WriteEndFunctionCall();
+
+
+            // *** Local functions used to write OpCodes ***
+            // Local functions have access to function variables, no need to pass in args
+
+            void WriteOldValue()
+            {
+                worker.Append(worker.Create(OpCodes.Ldloc, oldValue));
+            }
+
+            void WriteNewValue()
+            {
+                // write arg1 or this.field
+                if (newValue == null)
+                {
+                    worker.Append(worker.Create(OpCodes.Ldarg_1));
+                }
+                else
+                {
+                    // this.
+                    worker.Append(worker.Create(OpCodes.Ldarg_0));
+                    // syncvar.get
+                    worker.Append(worker.Create(OpCodes.Ldfld, newValue));
+                }
+            }
+
+            void WriteInitialState()
+            {
+                worker.Append(worker.Create(initialState ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
+            }
+
+            // Writes this before method if it is not static
+            void WriteStartFunctionCall()
+            {
+                // dont add this (Ldarg_0) if method is static
+                if (!hookResult.method.IsStatic)
+                {
+                    // this before method call
+                    // eg this.onValueChanged
+                    worker.Append(worker.Create(OpCodes.Ldarg_0));
+                }
+            }
+
+            // Calls method
+            void WriteEndFunctionCall()
+            {
+                // only use Callvirt when not static
+                OpCode opcode = hookResult.method.IsStatic ? OpCodes.Call : OpCodes.Callvirt;
+                worker.Append(worker.Create(opcode, hookResult.method));
+            }
         }
     }
 }
