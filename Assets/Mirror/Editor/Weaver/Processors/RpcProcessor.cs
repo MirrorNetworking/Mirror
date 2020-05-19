@@ -1,8 +1,11 @@
-// all the [Rpc] code from NetworkBehaviourProcessor in one place
 using Mono.CecilX;
 using Mono.CecilX.Cil;
+
 namespace Mirror.Weaver
 {
+    /// <summary>
+    /// Processes [Rpc] methods in NetworkBehaviour
+    /// </summary>
     public static class RpcProcessor
     {
         public const string RpcPrefix = "InvokeRpc";

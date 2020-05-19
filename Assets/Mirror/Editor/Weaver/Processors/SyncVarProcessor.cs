@@ -1,10 +1,12 @@
-// all the [SyncVar] code from NetworkBehaviourProcessor in one place
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
+    /// <summary>
+    /// Processes [SyncVar] in NetworkBehaviour
+    /// </summary>
     public static class SyncVarProcessor
     {
         // ulong = 64 bytes

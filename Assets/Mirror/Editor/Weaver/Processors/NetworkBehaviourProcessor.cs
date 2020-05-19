@@ -1,10 +1,12 @@
-// this class processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
+    /// <summary>
+    /// processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
+    /// </summary>
     class NetworkBehaviourProcessor
     {
         readonly List<FieldDefinition> syncVars = new List<FieldDefinition>();

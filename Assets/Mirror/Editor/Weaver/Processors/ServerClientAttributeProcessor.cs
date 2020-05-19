@@ -1,10 +1,11 @@
-// this class processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
-
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
+    /// <summary>
+    /// processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
+    /// </summary>
     static class ServerClientAttributeProcessor
     {
         public static void ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
