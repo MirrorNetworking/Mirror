@@ -1,11 +1,12 @@
-// this class generates OnSerialize/OnDeserialize when inheriting from MessageBase
-
 using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
+    /// <summary>
+    /// generates OnSerialize/OnDeserialize when inheriting from MessageBase
+    /// </summary>
     static class MessageClassProcessor
     {
 

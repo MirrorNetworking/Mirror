@@ -1,9 +1,11 @@
-// all the [Command] code from NetworkBehaviourProcessor in one place
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
+    /// <summary>
+    /// Processes [Command] methods in NetworkBehaviour
+    /// </summary>
     public static class CommandProcessor
     {
         const string CmdPrefix = "InvokeCmd";
