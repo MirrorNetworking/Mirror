@@ -24,8 +24,7 @@ namespace Mirror.Examples.Tanks
         public int lives;
         [SyncVar]
         public int score;
-        [SyncVar]
-        public bool isDead;
+        public bool isDead => health <= 0;
 
         void Update()
         {
@@ -33,11 +32,8 @@ namespace Mirror.Examples.Tanks
             if (!isLocalPlayer)
                 return;
 
-            if (health <= 0)
-            {
-                isDead = true;
+            if (isDead)
                 return;
-            }
 
             // rotate
             float horizontal = Input.GetAxis("Horizontal");

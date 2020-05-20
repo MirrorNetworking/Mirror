@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,8 +5,6 @@ namespace Mirror.Examples.Tanks
 {
     public class GameController : MonoBehaviour
     {
-        public int minimumPlayersToStartGame;
-
         public Tank LocalPlayer;
         public GameObject RespawnButton;
         public GameObject HealthTextLabel;
