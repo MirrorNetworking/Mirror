@@ -18,7 +18,7 @@ namespace Mirror.Logging
 
     public static class LogSettingsExt
     {
-        public static void SaveFromDictionary(this LogSettings settings, Dictionary<string, ILogger> dictionary)
+        public static void SaveFromDictionary(this LogSettings settings, SortedDictionary<string, ILogger> dictionary)
         {
             if (settings == null)
             {
@@ -41,7 +41,7 @@ namespace Mirror.Logging
 #endif
         }
 
-        public static void LoadIntoDictionary(this LogSettings settings, Dictionary<string, ILogger> dictionary)
+        public static void LoadIntoDictionary(this LogSettings settings, SortedDictionary<string, ILogger> dictionary)
         {
             if (settings == null)
             {
