@@ -232,6 +232,7 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
 
                 // call hook (oldValue, newValue)
+                // Generates: OnValueChanged(oldValue, value);
                 WriteCallHookMethodUsingArgument(setWorker, hookMethod, oldValue);
 
                 // setSyncVarHookGuard(dirtyBit, false);

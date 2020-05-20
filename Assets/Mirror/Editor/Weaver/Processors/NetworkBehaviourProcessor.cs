@@ -546,7 +546,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
 
                 // call the hook
-                // Generates: OnValueChnaged(oldValue, this.syncVar);
+                // Generates: OnValueChanged(oldValue, this.syncVar);
                 SyncVarProcessor.WriteCallHookMethodUsingField(serWorker, hookMethod, oldSyncVar, syncVar);
 
                 // Generates: end if (!SyncVarEqual);
@@ -632,7 +632,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
 
                 // call the hook
-                // Generates: OnValueChnaged(oldValue, this.syncVar);
+                // Generates: OnValueChanged(oldValue, this.syncVar);
                 SyncVarProcessor.WriteCallHookMethodUsingField(serWorker, hookMethod, oldValue, syncVar);
 
                 // Generates: end if (!SyncVarEqual);
