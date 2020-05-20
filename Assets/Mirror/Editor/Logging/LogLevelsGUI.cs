@@ -50,7 +50,7 @@ namespace Mirror.EditorScripts.Logging
 
             using (new EditorGUILayout.HorizontalScope())
             {
-                EditorGUILayout.LabelField(new GUIContent(name), GUILayout.MaxWidth(EditorGUIUtility.currentViewWidth - fieldWidth - inspectorMargin));
+                EditorGUILayout.LabelField(new GUIContent(ObjectNames.NicifyVariableName(name)), GUILayout.MaxWidth(EditorGUIUtility.currentViewWidth - fieldWidth - inspectorMargin));
                 logger.filterLogType = (LogType)EditorGUILayout.EnumPopup(logger.filterLogType, GUILayout.Width(fieldWidth));
             }
         }
