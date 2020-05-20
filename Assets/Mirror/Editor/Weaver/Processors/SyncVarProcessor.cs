@@ -12,11 +12,11 @@ namespace Mirror.Weaver
         // ulong = 64 bytes
         const int SyncVarLimit = 64;
 
-        // Get hook method if any
 
         static string HookParameterMessage(string hookName, TypeReference ValueType)
             => string.Format("void {0}({1} oldValue, {1} newValue)", hookName, ValueType);
 
+        // Get hook method if any
         public static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar)
         {
             CustomAttribute ca = syncVar.GetCustomAttribute(Weaver.SyncVarType.FullName);
