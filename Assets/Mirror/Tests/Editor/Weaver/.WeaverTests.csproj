@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>_WeaverTests2.csproj</RootNamespace>
@@ -189,10 +189,15 @@
     <Compile Include="WeaverSyncSetTests~\SyncSetGenericInheritance.cs" />
     <Compile Include="WeaverSyncSetTests~\SyncSetInheritance.cs" />
     <Compile Include="WeaverSyncSetTests~\SyncSetStruct.cs" />
-    <Compile Include="WeaverSyncVarHookTests~\ErrorWhenNoHookAutoDetected.cs" />
-    <Compile Include="WeaverSyncVarHookTests~\SyncVarsNoHookParams.cs" />
-    <Compile Include="WeaverSyncVarHookTests~\SyncVarsTooManyHookParams.cs" />
-    <Compile Include="WeaverSyncVarHookTests~\SyncVarsWrongHookType.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\FindsHookWithGameObjects.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\FindsHookWithNetworkIdentity.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\FindsPublicHook.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\FindsPrivateHook.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\ErrorForWrongTypeNewParameter.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\ErrorForWrongTypeOldParameter.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\ErrorWhenNoHookWithCorrectParametersFound.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\ErrorWhenNoHookFound.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\FindsHookWhenOverMethodsWithSameNameExist.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsCantBeArray.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsDerivedNetworkBehaviour.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsDifferentModule.cs" />
