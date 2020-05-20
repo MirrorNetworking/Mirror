@@ -21,15 +21,30 @@ namespace Mirror.Examples.Tanks
         [SyncVar]
         public int health;
         [SyncVar]
-        public int lives;
-        [SyncVar]
         public int score;
+        [SyncVar]
+        public string playerName;
+        [SyncVar]
+        public bool allowMovement;
+        [SyncVar]
+        public bool isReady;
+
         public bool isDead => health <= 0;
+        public TextMesh nameText;
+
 
         void Update()
         {
+            nameText.text = playerName;
+
             // movement for local player
             if (!isLocalPlayer)
+                return;
+
+            //Set local players name color to green
+            nameText.color = Color.green;
+
+            if (!allowMovement)
                 return;
 
             if (isDead)
@@ -69,32 +84,27 @@ namespace Mirror.Examples.Tanks
             animator.SetTrigger("Shoot");
         }
 
-        public void RespawnButtonHandler()
+        public void SendReadyToServer(string playername)
         {
-            if (!isLocalPlayer && isDead)
+            if (!isLocalPlayer)
                 return;
 
-            CmdRespawn();
-        }
-
-        [ClientRpc]
-        void RpcRespawn()
-        {
-            if (!isLocalPlayer && isDead)
-                return;
-
-            CmdRespawn();
+            CmdReady(playername);
         }
 
         [Command]
-        void CmdRespawn()
+        void CmdReady(string playername)
         {
-            lives--;
+            if(string.IsNullOrEmpty(playername))
+            {
+                playerName = "PLAYER" + Random.Range(1, 99);
+            }
+            else
+            {
+                playerName = playername;
+            }
 
-            Transform startPos = NetworkManager.singleton.GetStartPosition();
-            GameObject player = Instantiate(NetworkManager.singleton.playerPrefab, startPos.position, startPos.rotation);
-            NetworkServer.ReplacePlayerForConnection(connectionToClient, player);
-            NetworkServer.Destroy(gameObject);
+            isReady = true;
         }
     }
 }
