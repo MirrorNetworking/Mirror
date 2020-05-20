@@ -56,6 +56,7 @@ namespace Mirror.Tests
             BaseHookCalled.Invoke(oldValue, newValue);
         }
     }
+
     class VirtualOverrideHook : VirtualHookBase
     {
         public event Action<int, int> OverrideHookCalled;
@@ -73,6 +74,7 @@ namespace Mirror.Tests
 
         protected abstract void OnValueChanged(int oldValue, int newValue);
     }
+
     class AbstractHook : AbstractHookBase
     {
         public event Action<int, int> HookCalled;
@@ -151,7 +153,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void OldNew_HookCalledWhenSyncingChangedValue(bool intialState)
+        public void Hook_CalledWhenSyncingChangedValue(bool intialState)
         {
             HookBehaviour serverObject = CreateObject<HookBehaviour>();
             HookBehaviour clientObject = CreateObject<HookBehaviour>();
@@ -178,7 +180,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void OldNew_HookNotCalledWhenSyncingSameValue(bool intialState)
+        public void Hook_NotCalledWhenSyncingSameValue(bool intialState)
         {
             HookBehaviour serverObject = CreateObject<HookBehaviour>();
             HookBehaviour clientObject = CreateObject<HookBehaviour>();
