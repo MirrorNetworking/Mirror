@@ -35,7 +35,13 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void FindsHookWhenOverMethodsWithSameNameExist()
+        public void FindsHookWithOtherOverloadsInOrder()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void FindsHookWithOtherOverloadsInReverseOrder()
         {
             Assert.That(weaverErrors, Is.Empty);
         }

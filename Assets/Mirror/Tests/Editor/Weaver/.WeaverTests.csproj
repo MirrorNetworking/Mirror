@@ -191,13 +191,14 @@
     <Compile Include="WeaverSyncSetTests~\SyncSetStruct.cs" />
     <Compile Include="WeaverSyncVarHookTests~\FindsHookWithGameObjects.cs" />
     <Compile Include="WeaverSyncVarHookTests~\FindsHookWithNetworkIdentity.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\FindsHookWithOtherOverloadsInOrder.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\FindsHookWithOtherOverloadsInReverseOrder.cs" />
     <Compile Include="WeaverSyncVarHookTests~\FindsPublicHook.cs" />
     <Compile Include="WeaverSyncVarHookTests~\FindsPrivateHook.cs" />
     <Compile Include="WeaverSyncVarHookTests~\ErrorForWrongTypeNewParameter.cs" />
     <Compile Include="WeaverSyncVarHookTests~\ErrorForWrongTypeOldParameter.cs" />
     <Compile Include="WeaverSyncVarHookTests~\ErrorWhenNoHookWithCorrectParametersFound.cs" />
     <Compile Include="WeaverSyncVarHookTests~\ErrorWhenNoHookFound.cs" />
-    <Compile Include="WeaverSyncVarHookTests~\FindsHookWhenOverMethodsWithSameNameExist.cs" />
     <Compile Include="WeaverSyncVarHookTests~\FindsStaticHook.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsCantBeArray.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsDerivedNetworkBehaviour.cs" />
