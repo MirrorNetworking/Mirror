@@ -8,7 +8,7 @@ namespace WeaverSyncVarHookTests.FindsHookWithOtherOverloadsInReverseOrder
         [SyncVar(hook = nameof(onChangeHealth))]
         int health;
 
-        void onChangeHealth(Vector3 anotherValue)
+        void onChangeHealth(Vector3 anotherValue, bool secondArg)
         {
 
         }

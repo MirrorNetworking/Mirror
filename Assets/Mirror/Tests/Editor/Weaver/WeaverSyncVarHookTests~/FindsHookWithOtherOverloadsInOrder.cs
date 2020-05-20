@@ -13,7 +13,7 @@ namespace WeaverSyncVarHookTests.FindsHookWithOtherOverloadsInOrder
 
         }
 
-        void onChangeHealth(Vector3 anotherValue)
+        void onChangeHealth(Vector3 anotherValue, bool secondArg)
         {
 
         }
