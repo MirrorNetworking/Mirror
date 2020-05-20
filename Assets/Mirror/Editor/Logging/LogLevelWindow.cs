@@ -6,6 +6,7 @@ namespace Mirror.EditorScripts.Logging
 {
     public class LogLevelWindow : EditorWindow
     {
+        [Header("Log Settings Asset")]
         [SerializeField] LogSettings settings = null;
 
         SerializedObject serializedObject;
@@ -33,14 +34,6 @@ namespace Mirror.EditorScripts.Logging
 
                 using (new EditorGUILayout.VerticalScope())
                 {
-                    using (new EditorGUILayout.VerticalScope())
-                    {
-                        EditorGUILayout.Space();
-                        EditorGUILayout.LabelField(new GUIContent("Mirror Log Levels"), EditorStyles.boldLabel);
-                        EditorGUILayout.Space();
-                        EditorGUILayout.Space();
-                    }
-
                     using (new EditorGUILayout.VerticalScope())
                     {
                         serializedObject.Update();

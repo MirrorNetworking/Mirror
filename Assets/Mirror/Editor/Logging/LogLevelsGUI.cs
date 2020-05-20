@@ -27,6 +27,9 @@ namespace Mirror.EditorScripts.Logging
                 }
                 else
                 {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Logging Components", EditorStyles.boldLabel);
+
                     foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
                     {
                         DrawLoggerField(item);

@@ -10,6 +10,7 @@ namespace Mirror.Logging
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkLogSettings.html")]
     public class NetworkLogSettings : MonoBehaviour
     {
+        [Header("Log Settings Asset")]
         [SerializeField] internal LogSettings settings;
 
 #if UNITY_EDITOR
