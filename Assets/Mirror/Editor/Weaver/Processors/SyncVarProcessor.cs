@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
@@ -29,40 +30,44 @@ namespace Mirror.Weaver
             if (hookFunctionName == null)
                 return null;
 
-            return GetHookMethod(td, syncVar, hookFunctionName);
+            return FindHookMethod(td, syncVar, hookFunctionName);
         }
 
-        static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName)
+        static MethodDefinition FindHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName)
         {
-            MethodDefinition m = td.GetMethod(hookFunctionName);
-            if (m != null)
+            List<MethodDefinition> methods = td.GetMethods(hookFunctionName);
+
+            List<MethodDefinition> methodsWith2Param = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == 2));
+
+            if (methodsWith2Param.Count == 0)
             {
-                if (m.Parameters.Count == 2)
-                {
-                    if (m.Parameters[0].ParameterType != syncVar.FieldType ||
-                        m.Parameters[1].ParameterType != syncVar.FieldType)
-                    {
-                        Weaver.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
-                            $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
-                             syncVar);
-
-                        return null;
-                    }
-                    return m;
-                }
-
-                Weaver.Error($"Hook had wrong parameters for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
-                  $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
-                  syncVar);
+                Weaver.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
+                    $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
+                    syncVar);
 
                 return null;
             }
 
-            Weaver.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
-                   $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
+            foreach (MethodDefinition method in methodsWith2Param)
+            {
+                if (MatchesParameters(syncVar, method))
+                {
+                    return method;
+                }
+            }
+
+            Weaver.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
+                     $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
                    syncVar);
 
             return null;
+        }
+
+        static bool MatchesParameters(FieldDefinition syncVar, MethodDefinition method)
+        {
+            // matches void onValueChange(T oldValue, T newValue)
+            return method.Parameters[0].ParameterType.FullName == syncVar.FieldType.FullName &&
+                   method.Parameters[1].ParameterType.FullName == syncVar.FieldType.FullName;
         }
 
         public static MethodDefinition ProcessSyncVarGet(FieldDefinition fd, string originalName, FieldDefinition netFieldId)

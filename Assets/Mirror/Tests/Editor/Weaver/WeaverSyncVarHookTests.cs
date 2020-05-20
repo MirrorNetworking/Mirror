@@ -62,7 +62,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ErrorWhenNoHookWithCorrectParametersFound()
         {
-            Assert.That(weaverErrors, Contains.Item($"Hook had wrong parameters for 'health', hook name 'onChangeHealth'. " +
+            Assert.That(weaverErrors, Contains.Item($"Could not find hook for 'health', hook name 'onChangeHealth'. " +
                 $"Method signature should be {OldNewMethodFormat("onChangeHealth", "System.Int32")} " +
                 $"(at System.Int32 WeaverSyncVarHookTests.ErrorWhenNoHookWithCorrectParametersFound.ErrorWhenNoHookWithCorrectParametersFound::health)"));
         }
