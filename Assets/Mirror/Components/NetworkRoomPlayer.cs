@@ -1,3 +1,5 @@
+using System;
+using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
@@ -11,6 +13,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkRoomPlayer.html")]
     public class NetworkRoomPlayer : NetworkBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkRoomPlayer));
+
         /// <summary>
         /// This flag controls whether the default UI is shown for the room player.
         /// <para>As this UI is rendered using the old GUI system, it is only recommended for testing purposes.</para>
@@ -57,7 +61,7 @@ namespace Mirror
                 OnClientEnterRoom();
             }
             else
-                Debug.LogError("RoomPlayer could not find a NetworkRoomManager. The RoomPlayer requires a NetworkRoomManager object to function. Make sure that there is one in the scene.");
+                logger.LogError("RoomPlayer could not find a NetworkRoomManager. The RoomPlayer requires a NetworkRoomManager object to function. Make sure that there is one in the scene.");
         }
 
         #endregion
@@ -79,9 +83,16 @@ namespace Mirror
 
         #region SyncVar Hooks
 
-        void ReadyStateChanged(bool _, bool newReadyState)
+        /// <summary>
+        /// This is a hook that is invoked on clients when a RoomPlayer switches between ready or not ready.
+        /// <para>This function is called when the a client player calls CmdChangeReadyState.</para>
+        /// </summary>
+        /// <param name="newReadyState">New Ready State</param>
+        public virtual void ReadyStateChanged(bool _, bool newReadyState)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             OnClientReady(newReadyState);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         #endregion
@@ -99,11 +110,11 @@ namespace Mirror
         /// </summary>
         public virtual void OnClientExitRoom() { }
 
+        // Deprecated 05/18/2020
         /// <summary>
-        /// This is a hook that is invoked on clients when a RoomPlayer switches between ready or not ready.
-        /// <para>This function is called when the a client player calls CmdChangeReadyState.</para>
+        /// Obsolete: Override <see cref="ReadyStateChanged(bool, bool)">ReadyStateChanged(bool, bool)</see> instead.
         /// </summary>
-        /// <param name="readyState">Whether the player is ready or not.</param>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override ReadyStateChanged(bool, bool) instead")]
         public virtual void OnClientReady(bool readyState) { }
 
         #endregion

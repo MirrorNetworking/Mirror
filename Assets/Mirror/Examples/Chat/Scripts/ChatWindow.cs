@@ -6,6 +6,8 @@ namespace Mirror.Examples.Chat
 {
     public class ChatWindow : MonoBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(ChatWindow));
+
         public InputField chatMessage;
         public Text chatHistory;
         public Scrollbar scrollbar;
@@ -15,14 +17,14 @@ namespace Mirror.Examples.Chat
             Player.OnMessage += OnPlayerMessage;
         }
 
-        private void OnPlayerMessage(Player player, string message)
+        void OnPlayerMessage(Player player, string message)
         {
             string prettyMessage = player.isLocalPlayer ?
                 $"<color=red>{player.playerName}: </color> {message}" :
                 $"<color=blue>{player.playerName}: </color> {message}";
             AppendMessage(prettyMessage);
 
-            Debug.Log(message);
+            logger.Log(message);
         }
 
         public void OnSend()

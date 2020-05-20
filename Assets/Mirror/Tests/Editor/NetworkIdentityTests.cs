@@ -92,7 +92,7 @@ namespace Mirror.Tests
         class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override void OnNetworkDestroy()
+            public override void OnStopClient()
             {
                 ++called;
                 throw new Exception("some exception");
@@ -102,14 +102,30 @@ namespace Mirror.Tests
         class NetworkDestroyCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override void OnNetworkDestroy() { ++called; }
+            public override void OnStopClient() { ++called; }
+        }
+
+        class StopServerCalledNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStopServer() { ++called; }
+        }
+
+        class StopServerExceptionNetworkBehaviour : NetworkBehaviour
+        {
+            public int called;
+            public override void OnStopServer()
+            {
+                ++called;
+                throw new Exception("some exception");
+            }
         }
 
         class SetHostVisibilityExceptionNetworkBehaviour : NetworkVisibility
         {
             public int called;
             public bool valuePassed;
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public override bool OnCheckObserver(NetworkConnection conn) { return true; }
             public override void OnSetHostVisibility(bool visible)
             {
@@ -120,42 +136,54 @@ namespace Mirror.Tests
 
         }
 
+        class SetHostVisibilityNetworkBehaviour : NetworkVisibility
+        {
+            public int called;
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
+            public override bool OnCheckObserver(NetworkConnection conn) { return true; }
+            public override void OnSetHostVisibility(bool visible)
+            {
+                ++called;
+                base.OnSetHostVisibility(visible);
+            }
+        }
+
         class CheckObserverExceptionNetworkBehaviour : NetworkVisibility
         {
             public int called;
             public NetworkConnection valuePassed;
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public override bool OnCheckObserver(NetworkConnection conn)
             {
                 ++called;
                 valuePassed = conn;
                 throw new Exception("some exception");
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class CheckObserverTrueNetworkBehaviour : NetworkVisibility
         {
             public int called;
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public override bool OnCheckObserver(NetworkConnection conn)
             {
                 ++called;
                 return true;
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class CheckObserverFalseNetworkBehaviour : NetworkVisibility
         {
             public int called;
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public override bool OnCheckObserver(NetworkConnection conn)
             {
                 ++called;
                 return false;
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class SerializeTest1NetworkBehaviour : NetworkBehaviour
@@ -222,13 +250,13 @@ namespace Mirror.Tests
             {
                 observers.Add(observer);
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class RebuildEmptyObserversNetworkBehaviour : NetworkVisibility
         {
             public override bool OnCheckObserver(NetworkConnection conn) { return true; }
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
             public int hostVisibilityCalled;
             public bool hostVisibilityValue;
             public override void OnSetHostVisibility(bool visible)
@@ -313,6 +341,8 @@ namespace Mirror.Tests
             // DestroyImmediate is called internally, giving an error in Editor
             identity.isServer = false;
             GameObject.DestroyImmediate(gameObject);
+            // clean so that null entries are not in dictionary
+            NetworkIdentity.spawned.Clear();
         }
 
         // A Test behaves as an ordinary method
@@ -861,9 +891,10 @@ namespace Mirror.Tests
             // serialize all - should work even if compExc throws an exception
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
+            ulong mask = identity.GetInitialComponentsMask();
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
             LogAssert.ignoreFailingMessages = false;
 
             // owner should have written all components
@@ -921,7 +952,8 @@ namespace Mirror.Tests
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
 
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            ulong mask = identity.GetInitialComponentsMask();
+            identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // Should still write with too mnay Components because NetworkBehavioursCache should handle the error
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
@@ -964,7 +996,8 @@ namespace Mirror.Tests
             // serialize
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            ulong mask = identity.GetInitialComponentsMask();
+            identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // reset component values
             comp1.value = 0;
@@ -1029,10 +1062,42 @@ namespace Mirror.Tests
             // OnNetworkDestroy from being called in the second one
             // exception will log an error
             LogAssert.ignoreFailingMessages = true;
-            identity.OnNetworkDestroy();
+            identity.OnStopClient();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(compEx.called, Is.EqualTo(1));
             Assert.That(comp.called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void OnStopServer()
+        {
+            // add components
+            StopServerCalledNetworkBehaviour comp = gameObject.AddComponent<StopServerCalledNetworkBehaviour>();
+
+            // make sure our test values are set to 0
+            Assert.That(comp.called, Is.EqualTo(0));
+
+            identity.OnStopServer();
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void OnStopServerEx()
+        {
+            // add components
+            StopServerExceptionNetworkBehaviour compEx = gameObject.AddComponent<StopServerExceptionNetworkBehaviour>();
+
+            // make sure our test values are set to 0
+            Assert.That(compEx.called, Is.EqualTo(0));
+
+            // call OnNetworkDestroy in identity
+            // one component will throw an exception, but that shouldn't stop
+            // OnNetworkDestroy from being called in the second one
+            // exception will log an error
+            LogAssert.ignoreFailingMessages = true;
+            identity.OnStopServer();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(compEx.called, Is.EqualTo(1));
         }
 
         [Test]
@@ -1164,15 +1229,7 @@ namespace Mirror.Tests
             identity.connectionToServer = new NetworkConnectionToServer();
             identity.observers[43] = new NetworkConnectionToClient(2);
 
-            // calling reset shouldn't do anything unless it was marked for reset
-            identity.Reset();
-            Assert.That(identity.isClient, Is.True);
-            Assert.That(identity.netId, Is.EqualTo(netId));
-            Assert.That(identity.connectionToClient, !Is.Null);
-            Assert.That(identity.connectionToServer, !Is.Null);
-
             // mark for reset and reset
-            identity.MarkForReset();
             identity.Reset();
             Assert.That(identity.isClient, Is.False);
             Assert.That(identity.netId, Is.EqualTo(0));
@@ -1674,6 +1731,80 @@ namespace Mirror.Tests
             // .observers will be null and it should simply return early.
             identity.RebuildObservers(true);
             Assert.That(identity.observers, Is.Null);
+        }
+
+        [Test]
+        public void GetInitialComponentsMaskShouldReturn1BitPerNetworkBehaviour()
+        {
+            gameObject.AddComponent<MyTestComponent>();
+            gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+
+            ulong mask = identity.GetInitialComponentsMask();
+
+            // 1 + 2 + 4 = 7
+            Assert.That(mask, Is.EqualTo(7UL));
+        }
+
+        [Test]
+        public void GetInitialComponentsMaskShouldReturnZeroWhenNoNetworkBehaviours()
+        {
+            ulong mask = identity.GetInitialComponentsMask();
+
+            Assert.That(mask, Is.EqualTo(0UL));
+        }
+
+        [Test]
+        public void GetDirtyComponentsMaskShouldReturn1BitOnlyForDirtyComponents()
+        {
+            MyTestComponent comp1 = gameObject.AddComponent<MyTestComponent>();
+            SerializeTest1NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            SerializeTest2NetworkBehaviour comp3 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+
+
+            // mark comps 1 and 3 as dirty
+
+            comp1.syncInterval = 0;
+            comp3.syncInterval = 0;
+
+            comp1.SetDirtyBit(1UL);
+            comp2.ClearAllDirtyBits();
+            comp3.SetDirtyBit(1UL);
+
+
+            ulong mask = identity.GetDirtyComponentsMask();
+
+            // 1 + 4 = 5
+            Assert.That(mask, Is.EqualTo(5UL));
+        }
+
+        [Test]
+        public void GetDirtyComponentsMaskShouldReturnZeroWhenNoDirtyComponents()
+        {
+            MyTestComponent comp1 = gameObject.AddComponent<MyTestComponent>();
+            SerializeTest1NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            SerializeTest2NetworkBehaviour comp3 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+
+            comp1.ClearAllDirtyBits();
+            comp2.ClearAllDirtyBits();
+            comp3.ClearAllDirtyBits();
+
+            ulong mask = identity.GetDirtyComponentsMask();
+
+            Assert.That(mask, Is.EqualTo(0UL));
+        }
+
+        [Test]
+        public void OnSetHostVisibilityBaseTest()
+        {
+            SpriteRenderer renderer;
+
+            renderer = gameObject.AddComponent<SpriteRenderer>();
+            SetHostVisibilityNetworkBehaviour comp = gameObject.AddComponent<SetHostVisibilityNetworkBehaviour>();
+            comp.OnSetHostVisibility(false);
+
+            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(renderer.enabled, Is.False);
         }
     }
 }

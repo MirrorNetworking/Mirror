@@ -73,6 +73,7 @@ namespace Mirror.Weaver
         public static MethodReference ReadyConnectionReference;
 
         public static TypeReference ComponentType;
+        public static TypeReference ObjectType;
 
         public static TypeReference CmdDelegateReference;
         public static MethodReference CmdDelegateConstructor;
@@ -147,6 +148,17 @@ namespace Mirror.Weaver
         {
             Log.Error(message);
             WeavingFailed = true;
+        }
+
+        public static void Error(string message, MemberReference mr)
+        {    
+            Log.Error($"{message} (at {mr})");
+            WeavingFailed = true;
+        }
+
+        public static void Warning(string message, MemberReference mr)
+        {
+            Log.Warning($"{message} (at {mr})");
         }
 
         public static int GetSyncVarStart(string className)
@@ -294,6 +306,7 @@ namespace Mirror.Weaver
             RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, CurrentAssembly, "Recycle");
 
             ComponentType = UnityAssembly.MainModule.GetType("UnityEngine.Component");
+            ObjectType = UnityAssembly.MainModule.GetType("UnityEngine.Object");
             ClientSceneType = NetAssembly.MainModule.GetType("Mirror.ClientScene");
             ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, CurrentAssembly, "get_readyConnection");
 
@@ -327,15 +340,6 @@ namespace Mirror.Weaver
         public static bool IsNetworkBehaviour(TypeDefinition td)
         {
             return td.IsDerivedFrom(NetworkBehaviourType);
-        }
-
-        public static bool IsValidTypeToGenerate(TypeDefinition variable)
-        {
-            // a valid type is a simple class or struct. so we generate only code for types we dont know, and if they are not inside
-            // this assembly it must mean that we are trying to serialize a variable outside our scope. and this will fail.
-            // no need to report an error here, the caller will report a better error
-            string assembly = CurrentAssembly.MainModule.Name;
-            return variable.Module.Name == assembly;
         }
 
         static void CheckMonoBehaviour(TypeDefinition td)
@@ -413,42 +417,36 @@ namespace Mirror.Weaver
 
         static bool WeaveSyncObject(TypeDefinition td)
         {
-            if (!td.IsClass)
+            bool modified = false;
+            
+            // ignore generic classes
+            // we can not process generic classes
+            // we give error if a generic syncObject is used in NetworkBehaviour
+            if (td.HasGenericParameters)
                 return false;
 
-            bool modified = false;
+            // ignore abstract classes
+            // we dont need to process abstract classes because classes that
+            // inherit from them will be processed instead
 
-            // are ANY parent classes SyncListStruct
-            TypeReference parent = td.BaseType;
-            while (parent != null)
+            // We cant early return with non classes or Abstract classes
+            // because we still need to check for embeded types
+            if (td.IsClass || !td.IsAbstract)
             {
-                if (parent.FullName.StartsWith(SyncListType.FullName, StringComparison.Ordinal))
+                if (td.IsDerivedFrom(SyncListType))
                 {
-                    SyncListProcessor.Process(td);
+                    SyncListProcessor.Process(td, SyncListType);
                     modified = true;
-                    break;
                 }
-                if (parent.FullName.StartsWith(SyncSetType.FullName, StringComparison.Ordinal))
+                else if (td.IsDerivedFrom(SyncSetType))
                 {
-                    SyncListProcessor.Process(td);
+                    SyncListProcessor.Process(td, SyncSetType);
                     modified = true;
-                    break;
                 }
-                if (parent.FullName.StartsWith(SyncDictionaryType.FullName, StringComparison.Ordinal))
+                else if (td.IsDerivedFrom(SyncDictionaryType))
                 {
                     SyncDictionaryProcessor.Process(td);
                     modified = true;
-                    break;
-                }
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for pluins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                    break;
                 }
             }
 
@@ -528,7 +526,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        private static bool WeaveModule(ModuleDefinition moduleDefinition)
+        static bool WeaveModule(ModuleDefinition moduleDefinition)
         {
             try
             {

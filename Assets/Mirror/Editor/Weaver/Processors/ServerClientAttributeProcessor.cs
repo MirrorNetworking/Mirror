@@ -1,10 +1,11 @@
-// this class processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
-
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
+    /// <summary>
+    /// processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
+    /// </summary>
     static class ServerClientAttributeProcessor
     {
         public static void ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
@@ -35,7 +36,7 @@ namespace Mirror.Weaver
         {
             if (!Weaver.IsNetworkBehaviour(td))
             {
-                Weaver.Error($"[Server] {md} must be declared in a NetworkBehaviour");
+                Weaver.Error($"Server method {md.Name} must be declared in a NetworkBehaviour", md);
                 return;
             }
             ILProcessor worker = md.Body.GetILProcessor();
@@ -57,7 +58,7 @@ namespace Mirror.Weaver
         {
             if (!Weaver.IsNetworkBehaviour(td))
             {
-                Weaver.Error($"[Client] {md} must be declared in a NetworkBehaviour");
+                Weaver.Error($"Client method {md.Name} must be declared in a NetworkBehaviour", md);
                 return;
             }
             ILProcessor worker = md.Body.GetILProcessor();

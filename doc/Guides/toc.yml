@@ -4,10 +4,6 @@
   href: Authority.md
 - name: About IDs
   href: IDs.md
-- name: Authentication
-  href: Authentication.md
-- name: Network Discovery
-  href: NetworkDiscovery.md
 - name: Network Profiler
   href: Profiler.md
 - name: Attributes

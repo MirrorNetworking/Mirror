@@ -9,14 +9,14 @@ With the server-authoritative system of Mirror, the server must use the `Network
 **Note:** This is not a component that you can add to a game object directly. Instead, you must create a script which inherits from `NetworkBehaviour` (instead of the default `MonoBehaviour`), then you can add your script as a component to a game object.
 
 ## Properties
--   **isLocalPlayer**  
-    Returns true if this game object represents the player created for this client.
 -   **isServer**  
     Returns true if this game object is running on the server, and has been spawned.
 -   **isClient**  
     Returns true if this game object is on the client and has been spawned by the server.
+-   **isLocalPlayer**  
+    Returns true if this game object represents the player created for this client.
 -   **hasAuthority**  
-    Returns true if this client has [ownership](Authority.md) over this game object.  It is normally false in the server,  except if the server is also a client (host mode).
+    Returns true on the client if this client has [authority](Authority.md) over this game object. It is meaningless in server context.
 -   **netId**  
     The unique network ID of this game object. The server assigns this at run time. It is unique for all game objects in that network session.
 -   **netIdentity**  
@@ -56,13 +56,13 @@ public class SpaceShip : NetworkBehaviour
 ```
 
 The built-in callbacks are:
--   **OnStartServer** called when a game object spawns on the server, or when the server is started for game objects in the Scene
--   **OnStartClient** called when the game object spawns on the client, or when the client connects to a server for game objects in the Scene
--   **OnSerialize** called to gather state to send from the server to clients
--   **OnDeSerialize** called to apply state to game objects on clients
--   **OnNetworkDestroy** called on clients when the server destroys the game object
+-   **OnStartServer** called on server when a game object spawns on the server, or when the server is started for game objects in the Scene
+-   **OnStopServer** called on server when a game object is destroyed on the server, or when the server is stopped for game objects in the Scene
+-   **OnStartClient** called on clients when the game object spawns on the client, or when the client connects to a server for game objects in the Scene
+-   **OnStopClient** called on clients when the server destroys the game object
 -   **OnStartLocalPlayer** called on clients for player game objects on the local client (only)
 -   **OnStartAuthority** called on clients for behaviours that have authority, based on context and hasAuthority.
+-   **OnStopAuthority** called on clients for behaviours when authority is removed.
 
 Note that in a peer-hosted setup, when one of the clients is acting as both host and client, both `OnStartServer` and `OnStartClient` are called on the same game object. Both these functions are useful for actions that are specific to either the client or server, such as suppressing effects on a server, or setting up client-side events.
 

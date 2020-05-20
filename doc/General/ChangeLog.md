@@ -1,10 +1,33 @@
 # Change Log
 
-**Mirror is published to the Asset Store at the start of every month, unless some critical issue causes a delay.**
+**Mirror is published to the [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321) at the start of every month, unless some critical issue causes a delay.**
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
-## Version 12.x.x -- In Progress
+## Version 14.x.x -- In Progress
+- Added: [NetworkLogSettings](../Components/NetworkLogSettings.md) component and Log Settings Window
+- Added: SyncLists now support AddRange, InsertRange, and RemoveAll
+- Fixed: NetworkRoomManager.minPlayers is now protected so it's available for derived classes.
+- Fixed: RegisterClientMessages was being incorrectly invoked for every scene change.
+- Changed: Network Proximity Checker now uses direct distance check against player objects instead of Physics.SphereCastNonAlloc for better performance.
+
+## Version 13.0.1 -- 2020-May-06
+- Added: [Multiple Concurrent Additive Scenes Example](../Examples/MultipleAdditiveScenes/index.md)
+- Added: [NetworkMatchChecker](../Components/NetworkMatchChecker.md) component. Use this component to create many concurrent isolated matches within a single game server.
+- Added: [SyncLists](../Guides/Sync/SyncLists.md) now have Find and FindAll functions.
+- Added: NetworkBehaviour now has OnStopServer and OnStopClient virtual methods
+- Added: Weaver now supports custom Reader & Writer for types in other assemblies
+- Added: Network Manager now has an optional setting to check for and disconnect remote connections that have gone silent for a specified interval.
+- Added: Network Manager now has a ReplaceHandler method to avoid warnings when attempting to double register message handlers.
+- Added: NetworkServer SendToAll now has an optional bool to only send to ready clients, and a SendToReady method that doesn't require a NetworkIdentity.
+- Fixed: NetworkAnimator no longer double-fires SetTrigger / ResetTrigger on the host client
+- Fixed: NetworkAnimator is no longer limited to one component per object.
+- Fixed: Destroy is no longer invoked twice on the server for the player object.
+- Fixed: RegisterClientMessages is no longer invoked twice on the client.
+- Fixed: NetworkBehaviour SyncMode and SyncInterval was not showing in the inspector in some cases.
+- Fixed: Telepathy Transport - LateUpdate now processes a limited amount of messages per tick to avoid deadlocks
+- Changed: NetworkBehaviour: `OnNetworkDestroy` was renamed to `OnStopClient`.
+- Changed: **Breaking** RemovePlayerMessage has been removed as a potential security risk.  Use `NetworkServer.RemovePlayerForConnection` instead.
 - Changed: **Breaking** NetworkBehaviour: `OnRebuildObservers`, `OnCheckObserver`, and `OnSetHostVisibility` were moved to a separate class called `NetworkVisibility`
 
 ## Version 11.4.2 - 2020-Apr-03
@@ -22,6 +45,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: NetworkRoomManager no longer incorrectly destroys the game player object. It's left in the game scene to be cleaned up by Unity when the scene changes.
 - Fixed: StopHost correctly raises OnServerDisconnect in Network Manager, and correctly unwinds before shutting down the server.
 - Fixed: `isServer` is no longer incorrectly false on server in Network Identity's OnDestroy
+- Changed: Network Manager `offlineScene` and `onlineScene` store full paths now, so use SceneManager.GetActiveScene().path instead.
 - Changed: Network Manager HUD now calls StopHost / StopServer / StopClient more appropriately.
 - Changed: Network Manager HUD labels no longer say LAN. Associated docs also cleaned up to eliminate the misconception of Mirror being LAN only solution.
 - Changed: NetworkTransform compression removed and message handling is much simpler now.
@@ -55,7 +79,6 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: NetworkTransform now has 3 new floats for Sensitivity to quiet down message traffic from micro changes.
 - Added: Network Observer added to [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
 - Added: [Network Discovery](../Components/NetworkDiscovery.md) has been reimplemented including an example and script template -- thanks to all those who contributed!
-- Added: [Network Discovery](../Guides/NetworkDiscovery.md) Guide added to documentation.
 - Added: [Network Scene Checker Component](../Components/NetworkSceneChecker.md).
 - Added: Mirror Icon for all components.
 - Added: Inspector Headers to NetworkBehaviour, NetworkTransform, and NetworkAnimator.
@@ -129,7 +152,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Removed: Network Identity: Local Player Authority has been removed as no longer necessary.
 
 ## Version 4.0.7 - 2019-Oct-03
-- Added: [Authentication](../Guides/Authentication.md) support to authenticate clients in the Connect phase.
+- Added: [Authenticators](Components/Authenticators/index.md) support to authenticate clients in the Connect phase.
 - Added: Profiler events. These events can be subscribed to by the [Network Profiler](../Guides/Profiler.md) to provide visual information.
 - Added: Transports now include channel in profiler events.
 - Added: Transport abstract class now supports sending a message to a list of connection id's.
@@ -273,7 +296,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Changed: Documentation for [Transports](../Transports/index.md).
 - Changed: Weaver is now full source...FINALLY!
 - Changed: ClientScene.AddPlayer 2nd parameter is now `byte[] extraData` instead of `MessageBase extraMessage`.
-    -   Please refer to the code sample [here](../Guides/Authentication.md) to see how to update your code.
+    -   Please refer to the code sample [here](../Guides/GameObjects/SpawnPlayerCustom.md) to see how to update your code.
 - Changed: NetworkManager -- Headless Auto-Start moved to `Start()` from `Awake()`.
 - Changed: Removed Message ID's for all messages - See [Network Messages](../Guides/Communications/NetworkMessages.md) for details.
     -   Message IDs are now generated automatically based on the message name.  

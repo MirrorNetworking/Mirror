@@ -1,10 +1,9 @@
 using System.Collections;
-using Mirror;
 using NUnit.Framework;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Runtime
 {
     public class NetworkManagerTests
     {

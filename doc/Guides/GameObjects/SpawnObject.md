@@ -1,12 +1,12 @@
 # Spawning Game Objects
 
-In Mirror, you usually “spawn” (that is, create) new game objects with `Instantiate`. However, in the multiplayer High Level API, the word “spawn” means something more specific. In the server-authoritative model of the HLAPI, to “spawn” a game object on the server means that the game object is created on clients connected to the server, and is managed by the spawning system.
+In Unity, you usually “spawn” (that is, create) new game objects with `Instantiate`. However, in Mirror, the word “spawn” means something more specific. In the server-authoritative model of the Mirror, to “spawn” a game object on the server means that the game object is created on clients connected to the server, and is managed by the spawning system.
 
 Once the game object is spawned using this system, state updates are sent to clients whenever the game object changes on the server. When Mirror destroys the game object on the server, it also destroys it on the clients. The server manages spawned game objects alongside all other networked game objects, so that if another client joins the game later, the server can spawn the game objects on that client. These spawned game objects have a unique network instance ID called “netId” that is the same on the server and clients for each game object. The unique network instance ID is used to route messages set across the network to game objects, and to identify game objects.
 
 When the server spawns a game object with a Network Identity component, the game object spawned on the client has the same “state”. This means it is identical to the game object on the server; it has the same Transform, movement state, and (if Network Transform and SyncVars are used) synchronized variables. Therefore, client game objects are always up-to-date when Mirror creates them. This avoids issues such as game objects spawning at the wrong initial location, then reappearing at their correct position when a state update arrives.
 
-The Network Manager before trying to register it with the Network Manager.
+A game object Prefab must have a Network Identity component before trying to register it with the Network Manager.
 
 To register a Prefab with the Network Manager in the Editor, select the Network Manager game object, and in the Inspector, navigate to the Network Manager component. Click the triangle next to Spawn Info to open the settings, then under Registered Spawnable Prefabs, click the plus (+) button. Drag and drop Prefabs into the empty field to assign them to the list.
 

@@ -16,6 +16,11 @@ namespace Mirror.Tests
             fromList.OnSerializeAll(writer);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeAll(reader);
+
+            int writeLength = writer.Length;
+            int readLength = reader.Position;
+            Assert.That(writeLength == readLength, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
+
         }
 
         public static void SerializeDeltaTo<T>(T fromList, T toList) where T : SyncObject
@@ -25,6 +30,10 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeDelta(reader);
             fromList.Flush();
+
+            int writeLength = writer.Length;
+            int readLength = reader.Position;
+            Assert.That(writeLength == readLength, $"OnSerializeDelta and OnDeserializeDelta calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
         }
 
         [SetUp]
@@ -55,6 +64,14 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestAddRange()
+        {
+            serverSyncList.AddRange(new[] { "One", "Two", "Three" });
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EqualTo(new[] { "Hello", "World", "!", "One", "Two", "Three" }));
+        }
+
+        [Test]
         public void TestClear()
         {
             serverSyncList.Clear();
@@ -68,6 +85,14 @@ namespace Mirror.Tests
             serverSyncList.Insert(0, "yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "yay", "Hello", "World", "!" }));
+        }
+
+        [Test]
+        public void TestInsertRange()
+        {
+            serverSyncList.InsertRange(1, new[] { "One", "Two", "Three" });
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EqualTo(new[] { "Hello", "One", "Two", "Three", "World", "!" }));
         }
 
         [Test]
@@ -89,6 +114,22 @@ namespace Mirror.Tests
             serverSyncList[1] = "yay";
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "yay", "!" }));
+        }
+
+        [Test]
+        public void TestRemoveAll()
+        {
+            serverSyncList.RemoveAll(entry => entry.Contains("l"));
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "!" }));
+        }
+
+        [Test]
+        public void TestRemoveAllNone()
+        {
+            serverSyncList.RemoveAll(entry => entry == "yay");
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
         }
 
         [Test]
@@ -120,7 +161,7 @@ namespace Mirror.Tests
             string element = serverSyncList.Find(entry => entry == "World");
             Assert.That(element, Is.EqualTo("World"));
         }
-        
+
         [Test]
         public void TestNoFind()
         {
@@ -132,9 +173,9 @@ namespace Mirror.Tests
         public void TestFindAll()
         {
             List<string> results = serverSyncList.FindAll(entry => entry.Contains("l"));
-            Assert.That(results, Is.EquivalentTo( new [] {"Hello", "World"}));
+            Assert.That(results, Is.EquivalentTo(new[] { "Hello", "World" }));
         }
-        
+
         [Test]
         public void TestFindAllNonExistent()
         {
@@ -280,45 +321,89 @@ namespace Mirror.Tests
         public void ReadOnlyTest()
         {
             Assert.That(serverSyncList.IsReadOnly, Is.False);
+            Assert.That(clientSyncList.IsReadOnly, Is.True);
+        }
+        [Test]
+        public void WritingToReadOnlyThrows()
+        {
+            Assert.Throws<InvalidOperationException>(() => { clientSyncList.Add("fail"); });
         }
 
         [Test]
         public void DirtyTest()
         {
-            SyncListInt serverList = new SyncListInt();
-            SyncListInt clientList = new SyncListInt();
+            // Sync Delta to clear dirty
+            SerializeDeltaTo(serverSyncList, clientSyncList);
 
             // nothing to send
-            Assert.That(serverList.IsDirty, Is.False);
+            Assert.That(serverSyncList.IsDirty, Is.False);
 
             // something has changed
-            serverList.Add(1);
-            Assert.That(serverList.IsDirty, Is.True);
-            SerializeDeltaTo(serverList, clientList);
+            serverSyncList.Add("1");
+            Assert.That(serverSyncList.IsDirty, Is.True);
+            SerializeDeltaTo(serverSyncList, clientSyncList);
 
             // data has been flushed,  should go back to clear
-            Assert.That(serverList.IsDirty, Is.False);
+            Assert.That(serverSyncList.IsDirty, Is.False);
         }
 
         [Test]
-        public void ReadonlyTest()
+        public void ObjectCanBeReusedAfterReset()
         {
-            SyncListUInt serverList = new SyncListUInt();
-            SyncListUInt clientList = new SyncListUInt();
+            clientSyncList.Reset();
 
-            // data has been flushed,  should go back to clear
-            Assert.That(clientList.IsReadOnly, Is.False);
+            // make old client the host
+            SyncListString hostList = clientSyncList;
+            SyncListString clientList2 = new SyncListString();
 
-            serverList.Add(1U);
-            serverList.Add(2U);
-            serverList.Add(3U);
-            SerializeDeltaTo(serverList, clientList);
+            Assert.That(hostList.IsReadOnly, Is.False);
 
-            // client list should now lock itself,  trying to modify it
-            // should produce an InvalidOperationException
-            Assert.That(clientList.IsReadOnly, Is.True);
-            Assert.Throws<InvalidOperationException>(() => { clientList.Add(5U); });
+            // Check Add and Sync without errors
+            hostList.Add("hello");
+            hostList.Add("world");
+            SerializeDeltaTo(hostList, clientList2);
+        }
 
+        [Test]
+        public void ResetShouldSetReadOnlyToFalse()
+        {
+            clientSyncList.Reset();
+
+            Assert.That(clientSyncList.IsReadOnly, Is.False);
+        }
+
+        [Test]
+        public void ResetShouldClearChanges()
+        {
+            serverSyncList.Reset();
+
+            Assert.That(serverSyncList.GetChangeCount(), Is.Zero);
+        }
+
+        [Test]
+        public void ResetShouldClearItems()
+        {
+            serverSyncList.Reset();
+
+            Assert.That(serverSyncList, Is.Empty);
+        }
+    }
+
+    public static class SyncObjectTestMethods
+    {
+        public static uint GetChangeCount(this SyncObject syncObject)
+        {
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                syncObject.OnSerializeDelta(writer);
+
+                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(writer.ToArraySegment()))
+                {
+                    uint count = reader.ReadPackedUInt32();
+
+                    return count;
+                }
+            }
         }
     }
 }

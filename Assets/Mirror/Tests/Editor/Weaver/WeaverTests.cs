@@ -1,7 +1,9 @@
-//#define LOG_WEAVER_OUTPUTS
-
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Weaver.Tests
 {
@@ -10,42 +12,51 @@ namespace Mirror.Weaver.Tests
         [SetUp]
         public void TestSetup()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
+            string className = TestContext.CurrentContext.Test.ClassName.Split('.').Last();
+
+            BuildAndWeaveTestAssembly(className, TestContext.CurrentContext.Test.Name);
         }
     }
     [TestFixture]
     [Category("Weaver")]
     public abstract class WeaverTests
     {
+        public static readonly ILogger logger = LogFactory.GetLogger<WeaverTests>(LogType.Exception);
+
         protected List<string> weaverErrors = new List<string>();
         void HandleWeaverError(string msg)
         {
-#if LOG_WEAVER_OUTPUTS
-            Debug.LogError(msg);
-#endif
+            LogAssert.ignoreFailingMessages = true;
+            logger.LogError(msg);
+            LogAssert.ignoreFailingMessages = false;
+
             weaverErrors.Add(msg);
         }
 
         protected List<string> weaverWarnings = new List<string>();
         void HandleWeaverWarning(string msg)
         {
-#if LOG_WEAVER_OUTPUTS
-            Debug.LogWarning(msg);
-#endif
+            logger.LogWarning(msg);
             weaverWarnings.Add(msg);
         }
 
-        protected void BuildAndWeaveTestAssembly(string baseName)
+        protected void BuildAndWeaveTestAssembly(string className, string testName)
         {
-            WeaverAssembler.OutputFile = baseName + ".dll";
-            WeaverAssembler.AddSourceFiles(new string[] { baseName + ".cs" });
+            string testSourceDirectory = className + "~";
+            WeaverAssembler.OutputFile = Path.Combine(testSourceDirectory, testName + ".dll");
+            WeaverAssembler.AddSourceFiles(new string[] { Path.Combine(testSourceDirectory, testName + ".cs") });
             WeaverAssembler.Build();
 
             Assert.That(WeaverAssembler.CompilerErrors, Is.False);
-            if (weaverErrors.Count > 0)
+            foreach (string error in weaverErrors)
             {
-                Assert.That(weaverErrors[0], Does.StartWith("Mirror.Weaver error: "));
+                // ensure all errors have a location
+                Assert.That(error, Does.Match(@"\(at .*\)$"));
             }
+            if (weaverErrors.Count > 0)
+                Assert.That(CompilationFinishedHook.WeaveFailed, Is.True, "Weaver should fail if there are errors");
+            else
+                Assert.That(CompilationFinishedHook.WeaveFailed, Is.False, "Weaver should succeed if there are no errors");
         }
 
         [OneTimeSetUp]

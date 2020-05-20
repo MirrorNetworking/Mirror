@@ -1,9 +1,11 @@
-// all the [TargetRpc] code from NetworkBehaviourProcessor in one place
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
+    /// <summary>
+    /// Processes [TargetRpc] methods in NetworkBehaviour
+    /// </summary>
     public static class TargetRpcProcessor
     {
         const string TargetRpcPrefix = "InvokeTargetRpc";
@@ -143,13 +145,13 @@ namespace Mirror.Weaver
         {
             if (!md.Name.StartsWith("Target"))
             {
-                Weaver.Error($"{md} must start with Target.  Consider renaming it to Target{md.Name}");
+                Weaver.Error($"{md.Name} must start with Target.  Consider renaming it to Target{md.Name}", md);
                 return false;
             }
 
             if (md.IsStatic)
             {
-                Weaver.Error($"{md} must not be static");
+                Weaver.Error($"{md.Name} must not be static", md);
                 return false;
             }
 

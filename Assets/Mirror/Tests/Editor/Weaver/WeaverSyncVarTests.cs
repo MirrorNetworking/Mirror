@@ -7,94 +7,85 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsValid()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
         }
 
         [Test]
         public void SyncVarsNoHook()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: No hook implementation found for System.Int32 MirrorTest.MirrorTestPlayer::health. Add this method to your class:\npublic void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { }"));
+            Assert.That(weaverErrors, Contains.Item("No hook implementation found for health. Add this method to your class: public void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { } (at System.Int32 WeaverSyncVarTests.SyncVarsNoHook.SyncVarsNoHook::health)"));
         }
 
         [Test]
         public void SyncVarsNoHookParams()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth() should have signature:\npublic void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { }"));
+            Assert.That(weaverErrors, Contains.Item("OnChangeHealth should have signature: public void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { } (at System.Void WeaverSyncVarTests.SyncVarsNoHookParams.SyncVarsNoHookParams::OnChangeHealth())"));
         }
 
         [Test]
         public void SyncVarsTooManyHookParams()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth(System.Int32,System.Int32,System.Int32) should have signature:\npublic void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { }"));
+            Assert.That(weaverErrors, Contains.Item("OnChangeHealth should have signature: public void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { } (at System.Void WeaverSyncVarTests.SyncVarsTooManyHookParams.SyncVarsTooManyHookParams::OnChangeHealth(System.Int32,System.Int32,System.Int32))"));
         }
 
         [Test]
         public void SyncVarsWrongHookType()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth(System.Boolean,System.Boolean) should have signature:\npublic void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { }"));
+            Assert.That(weaverErrors, Contains.Item("OnChangeHealth should have signature: public void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { } (at System.Void WeaverSyncVarTests.SyncVarsWrongHookType.SyncVarsWrongHookType::OnChangeHealth(System.Boolean,System.Boolean))"));
         }
 
         [Test]
         public void SyncVarsDerivedNetworkBehaviour()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.MirrorTestPlayer/MySyncVar. Use a supported type or provide a custom writer"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MySyncVar. Use a supported type or provide a custom writer (at WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.SyncVarsDerivedNetworkBehaviour/MySyncVar)"));
+            Assert.That(weaverErrors, Contains.Item("invalidVar has unsupported type. Use a supported Mirror type instead (at WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.SyncVarsDerivedNetworkBehaviour/MySyncVar WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.SyncVarsDerivedNetworkBehaviour::invalidVar)"));
         }
 
         [Test]
         public void SyncVarsStatic()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Int32 MirrorTest.MirrorTestPlayer::invalidVar cannot be static"));
+            Assert.That(weaverErrors, Contains.Item("invalidVar cannot be static (at System.Int32 WeaverSyncVarTests.SyncVarsStatic.SyncVarsStatic::invalidVar)"));
         }
 
         [Test]
         public void SyncVarsGenericParam()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for generic type MirrorTest.MirrorTestPlayer/MySyncVar`1<System.Int32>. Use a concrete type or provide a custom writer"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for generic type MySyncVar`1. Use a supported type or provide a custom writer (at WeaverSyncVarTests.SyncVarsGenericParam.SyncVarsGenericParam/MySyncVar`1<System.Int32>)"));
+            Assert.That(weaverErrors, Contains.Item("invalidVar has unsupported type. Use a supported Mirror type instead (at WeaverSyncVarTests.SyncVarsGenericParam.SyncVarsGenericParam/MySyncVar`1<System.Int32> WeaverSyncVarTests.SyncVarsGenericParam.SyncVarsGenericParam::invalidVar)"));
         }
 
         [Test]
         public void SyncVarsInterface()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for interface MirrorTest.MirrorTestPlayer/MySyncVar. Use a concrete type or provide a custom writer"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for interface MySyncVar. Use a supported type or provide a custom writer (at WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/MySyncVar)"));
+            Assert.That(weaverErrors, Contains.Item("invalidVar has unsupported type. Use a supported Mirror type instead (at WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/MySyncVar WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface::invalidVar)"));
         }
 
         [Test]
         public void SyncVarsDifferentModule()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: Cannot generate writer for component type UnityEngine.TextMesh. Use a supported type or provide a custom writer"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type TextMesh. Use a supported type or provide a custom writer (at UnityEngine.TextMesh)"));
+            Assert.That(weaverErrors, Contains.Item("invalidVar has unsupported type. Use a supported Mirror type instead (at UnityEngine.TextMesh WeaverSyncVarTests.SyncVarsDifferentModule.SyncVarsDifferentModule::invalidVar)"));
         }
 
         [Test]
         public void SyncVarsCantBeArray()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Int32[] MirrorTest.MirrorTestPlayer::thisShouldntWork has invalid type. Use SyncLists instead of arrays"));
+            Assert.That(weaverErrors, Contains.Item("thisShouldntWork has invalid type. Use SyncLists instead of arrays (at System.Int32[] WeaverSyncVarTests.SyncVarsCantBeArray.SyncVarsCantBeArray::thisShouldntWork)"));
         }
 
         [Test]
         public void SyncVarsSyncList()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
-            Assert.That(weaverWarnings, Contains.Item("Mirror.Weaver warning: MirrorTest.SyncObjImplementer MirrorTest.MirrorTestPlayer::syncobj has [SyncVar] attribute. SyncLists should not be marked with SyncVar"));
-            Assert.That(weaverWarnings, Contains.Item("Mirror.Weaver warning: Mirror.SyncListInt MirrorTest.MirrorTestPlayer::syncints has [SyncVar] attribute. SyncLists should not be marked with SyncVar"));
+            Assert.That(weaverWarnings, Contains.Item("syncobj has [SyncVar] attribute. SyncLists should not be marked with SyncVar (at WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList/SyncObjImplementer WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncobj)"));
+            Assert.That(weaverWarnings, Contains.Item("syncints has [SyncVar] attribute. SyncLists should not be marked with SyncVar (at Mirror.SyncListInt WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncints)"));
         }
 
         [Test]
         public void SyncVarsMoreThan63()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer has too many SyncVars. Consider refactoring your class into multiple components"));
+            Assert.That(weaverErrors, Contains.Item("SyncVarsMoreThan63 has too many SyncVars. Consider refactoring your class into multiple components (at WeaverSyncVarTests.SyncVarsMoreThan63.SyncVarsMoreThan63)"));
         }
     }
 }

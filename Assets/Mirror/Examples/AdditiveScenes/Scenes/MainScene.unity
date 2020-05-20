@@ -362,6 +362,7 @@ MonoBehaviour:
   sceneId: 1834901131
   serverOnly: 1
   m_AssetId: 
+  hasSpawned: 0
 --- !u!114 &159607913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1837,6 +1838,8 @@ MonoBehaviour:
   transport: {fileID: 1661834280}
   networkAddress: localhost
   maxConnections: 4
+  disconnectInactiveConnections: 0
+  disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7,
     type: 3}

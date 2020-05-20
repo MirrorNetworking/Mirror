@@ -47,10 +47,10 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncVarVirtualTest
     {
-        private SyncVarHookTester serverTester;
-        private NetworkIdentity netIdServer;
-        private SyncVarHookTester clientTester;
-        private NetworkIdentity netIdClient;
+        SyncVarHookTester serverTester;
+        NetworkIdentity netIdServer;
+        SyncVarHookTester clientTester;
+        NetworkIdentity netIdClient;
 
         [SetUp]
         public void Setup()
@@ -71,13 +71,14 @@ namespace Mirror.Tests
             SyncValuesWithClient();
         }
 
-        private void SyncValuesWithClient()
+        void SyncValuesWithClient()
         {
             // serialize all the data as we would for the network
             NetworkWriter ownerWriter = new NetworkWriter();
             // not really used in this Test
             NetworkWriter observersWriter = new NetworkWriter();
-            netIdServer.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            ulong mask = netIdServer.GetInitialComponentsMask();
+            netIdServer.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
 
             // apply all the data from the server object

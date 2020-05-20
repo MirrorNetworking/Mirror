@@ -10,7 +10,8 @@ Mirror supports a number of data types you can use with these, including:
 - URI
 - NetworkIdentity
 - Game object with a NetworkIdentity component attached.
-- Structures with any of the above (it's recommended to implement IEquatable\<T\> to avoid boxing and to have the struct readonly, cause modifying one of fields doesn't cause a resync)
+- Structures with any of the above  
+    - It's recommended to implement IEquatable\<T\> to avoid boxing, and to have the struct readonly because modifying one of fields doesn't cause a resync
 - Classes as long as each field has a supported data type.
 - ScriptableObject as long as each field has a supported data type
 - Arrays of any of the above (not supported with syncvars or synclists)

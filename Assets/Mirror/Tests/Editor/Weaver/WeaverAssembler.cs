@@ -20,10 +20,7 @@ namespace Mirror.Weaver.Tests
                     if (guidsFound.Length == 1 && !string.IsNullOrEmpty(guidsFound[0]))
                     {
                         string path = AssetDatabase.GUIDToAssetPath(guidsFound[0]);
-                        string dir = Path.GetDirectoryName(path);
-                        // Path in mirror project
-                        //"Assets/Mirror/Tests/Editor/WeaverTests~/";
-                        _outputDirectory = Path.Combine(dir, "WeaverTests~/");
+                        _outputDirectory = Path.GetDirectoryName(path);
                     }
                     else
                     {
@@ -54,7 +51,7 @@ namespace Mirror.Weaver.Tests
         {
             foreach (string src in sourceFiles)
             {
-                SourceFiles.Add(OutputDirectory + src);
+                SourceFiles.Add(Path.Combine(OutputDirectory, src));
             }
         }
 
@@ -116,7 +113,7 @@ namespace Mirror.Weaver.Tests
                 return;
             }
 
-            string projPathFile = OutputDirectory + OutputFile;
+            string projPathFile = Path.Combine(OutputDirectory, OutputFile);
 
             try
             {
@@ -156,21 +153,9 @@ namespace Mirror.Weaver.Tests
             DeleteOutputOnClear = false;
         }
 
-        // build synchronously
         public static void Build()
         {
-            BuildAssembly(true);
-        }
-
-        // build asynchronously - this isn't currently used
-        public static void BuildAsync()
-        {
-            BuildAssembly(false);
-        }
-
-        static void BuildAssembly(bool wait)
-        {
-            AssemblyBuilder assemblyBuilder = new AssemblyBuilder(OutputDirectory + OutputFile, SourceFiles.ToArray());
+            AssemblyBuilder assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray());
             assemblyBuilder.additionalReferences = ReferenceAssemblies.ToArray();
             if (AllowUnsafe)
             {
@@ -206,12 +191,9 @@ namespace Mirror.Weaver.Tests
                 return;
             }
 
-            if (wait)
+            while (assemblyBuilder.status != AssemblyBuilderStatus.Finished)
             {
-                while (assemblyBuilder.status != AssemblyBuilderStatus.Finished)
-                {
-                    System.Threading.Thread.Sleep(10);
-                }
+                System.Threading.Thread.Sleep(10);
             }
         }
     }

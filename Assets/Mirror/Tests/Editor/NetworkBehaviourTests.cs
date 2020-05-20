@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -184,7 +184,7 @@ namespace Mirror.Tests
     public class OnNetworkDestroyComponent : NetworkBehaviour
     {
         public int called;
-        public override void OnNetworkDestroy()
+        public override void OnStopClient()
         {
             ++called;
         }
@@ -235,6 +235,8 @@ namespace Mirror.Tests
             identity.isServer = false;
             GameObject.DestroyImmediate(gameObject);
             NetworkServer.RemoveLocalConnection();
+
+            NetworkIdentity.spawned.Clear();
         }
 
         [Test]
@@ -1595,7 +1597,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
 
             // call identity OnNetworkDestroy
-            identity.OnNetworkDestroy();
+            identity.OnStopClient();
 
             // should have been forwarded to behaviours
             Assert.That(comp.called, Is.EqualTo(1));

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -127,10 +128,23 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
     public class NetworkBehaviourSerializeTest
     {
-        static T CreateBehaviour<T>() where T : NetworkBehaviour
+        readonly List<GameObject> createdObjects = new List<GameObject>();
+        [TearDown]
+        public void TearDown()
+        {
+            // Clean up all created objects
+            foreach (GameObject item in createdObjects)
+            {
+                Object.DestroyImmediate(item);
+            }
+            createdObjects.Clear();
+        }
+
+        T CreateBehaviour<T>() where T : NetworkBehaviour
         {
             GameObject go1 = new GameObject();
             go1.AddComponent<NetworkIdentity>();
+            createdObjects.Add(go1);
             return go1.AddComponent<T>();
         }
         static void SyncNetworkBehaviour(NetworkBehaviour source, NetworkBehaviour target, bool initialState)
