@@ -9,6 +9,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: SyncLists now support AddRange, InsertRange, and RemoveAll
 - Fixed: NetworkRoomManager.minPlayers is now protected so it's available for derived classes.
 - Fixed: RegisterClientMessages was being incorrectly invoked for every scene change.
+- Fixed: NetworkBehaviour SyncMode and SyncInterval was not showing in the inspector in some cases.
 - Changed: Network Proximity Checker now uses direct distance check against player objects instead of Physics.SphereCastNonAlloc for better performance.
 
 ## Version 13.0.1 -- 2020-May-06
