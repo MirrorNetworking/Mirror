@@ -99,6 +99,10 @@ namespace Mirror.Examples.Tanks
             if (!IsGameReady)
                 return;
 
+            //Cant win a game you play by yourself. But you can still use this example for testing network/movement
+            if (players.Count == 1)
+                return;
+
             int alivePlayerCount = 0;
             foreach (Tank tank in players)
             {
