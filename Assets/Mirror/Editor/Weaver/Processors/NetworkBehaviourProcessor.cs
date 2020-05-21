@@ -546,15 +546,8 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
 
                 // call the hook
-                // this.
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                // oldSyncVar GO/NI
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldSyncVar));
-                // this.
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                // syncvar.get (finds current GO/NI from netId)
-                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                serWorker.Append(serWorker.Create(OpCodes.Callvirt, hookMethod));
+                // Generates: OnValueChanged(oldValue, this.syncVar);
+                SyncVarProcessor.WriteCallHookMethodUsingField(serWorker, hookMethod, oldSyncVar, syncVar);
 
                 // Generates: end if (!SyncVarEqual);
                 serWorker.Append(syncVarEqualLabel);
@@ -639,15 +632,8 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
 
                 // call the hook
-                // this.
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                // oldvalue
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue));
-                // this.
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                // syncvar.get
-                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                serWorker.Append(serWorker.Create(OpCodes.Callvirt, hookMethod));
+                // Generates: OnValueChanged(oldValue, this.syncVar);
+                SyncVarProcessor.WriteCallHookMethodUsingField(serWorker, hookMethod, oldValue, syncVar);
 
                 // Generates: end if (!SyncVarEqual);
                 serWorker.Append(syncVarEqualLabel);
