@@ -5,47 +5,52 @@
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
 ## Version 14.x.x -- In Progress
-- Added: [NetworkLogSettings](../Components/NetworkLogSettings.md) component and Log Settings Window
-- Added: SyncLists now support AddRange, InsertRange, and RemoveAll
-- Fixed: NetworkRoomManager.minPlayers is now protected so it's available for derived classes.
-- Fixed: RegisterClientMessages was being incorrectly invoked for every scene change.
-- Fixed: NetworkBehaviour SyncMode and SyncInterval was not showing in the inspector in some cases.
+- Added: [NetworkLogSettings](../Components/NetworkLogSettings.md) component and Log Settings Window.
+- Added: SyncLists now support AddRange, InsertRange, and RemoveAll.
+- Added: Network Room Player template now includes base Network Behaviour overrides.
+- Fixed: Network Room Manager.minPlayers is now protected so it's available for derived classes.
+- Fixed: Network Room Manager no longer does redundant player prefab registration in `OnStartClient`.
+- Fixed: `RegisterClientMessages` was being incorrectly invoked for every scene change.
+- Fixed: Network Behaviour SyncMode and SyncInterval was not showing in the inspector in some cases (regression).
+- Fixed: Network Manager now cleans up network objects better when server stops.
+- Fixed: Network Manager no longer tries to change to offline scene redundantly in `StopClient`.
+- Changed: Network Room Player now uses virtual SyncVar hook for ReadyStateChanged.
 - Changed: Network Proximity Checker now uses direct distance check against player objects instead of Physics.SphereCastNonAlloc for better performance.
 
 ## Version 13.0.1 -- 2020-May-06
-- Added: [Multiple Concurrent Additive Scenes Example](../Examples/MultipleAdditiveScenes/index.md)
+- Added: [Multiple Concurrent Additive Scenes Example](../Examples/MultipleAdditiveScenes/index.md).
 - Added: [NetworkMatchChecker](../Components/NetworkMatchChecker.md) component. Use this component to create many concurrent isolated matches within a single game server.
 - Added: [SyncLists](../Guides/Sync/SyncLists.md) now have Find and FindAll functions.
-- Added: NetworkBehaviour now has OnStopServer and OnStopClient virtual methods
-- Added: Weaver now supports custom Reader & Writer for types in other assemblies
+- Added: Network Behaviour now has OnStopServer and OnStopClient virtual methods.
+- Added: Weaver now supports custom Reader & Writer for types in other assemblies.
 - Added: Network Manager now has an optional setting to check for and disconnect remote connections that have gone silent for a specified interval.
 - Added: Network Manager now has a ReplaceHandler method to avoid warnings when attempting to double register message handlers.
 - Added: NetworkServer SendToAll now has an optional bool to only send to ready clients, and a SendToReady method that doesn't require a NetworkIdentity.
-- Fixed: NetworkAnimator no longer double-fires SetTrigger / ResetTrigger on the host client
+- Fixed: NetworkAnimator no longer double-fires SetTrigger / ResetTrigger on the host client.
 - Fixed: NetworkAnimator is no longer limited to one component per object.
 - Fixed: Destroy is no longer invoked twice on the server for the player object.
 - Fixed: RegisterClientMessages is no longer invoked twice on the client.
-- Fixed: NetworkBehaviour SyncMode and SyncInterval was not showing in the inspector in some cases.
-- Fixed: Telepathy Transport - LateUpdate now processes a limited amount of messages per tick to avoid deadlocks
-- Changed: NetworkBehaviour: `OnNetworkDestroy` was renamed to `OnStopClient`.
+- Fixed: Network Behaviour SyncMode and SyncInterval was not showing in the inspector in some cases.
+- Fixed: Telepathy Transport - LateUpdate now processes a limited amount of messages per tick to avoid deadlocks.
+- Changed: Network Behaviour: `OnNetworkDestroy` was renamed to `OnStopClient`.
 - Changed: **Breaking** RemovePlayerMessage has been removed as a potential security risk.  Use `NetworkServer.RemovePlayerForConnection` instead.
-- Changed: **Breaking** NetworkBehaviour: `OnRebuildObservers`, `OnCheckObserver`, and `OnSetHostVisibility` were moved to a separate class called `NetworkVisibility`
+- Changed: **Breaking** Network Behaviour: `OnRebuildObservers`, `OnCheckObserver`, and `OnSetHostVisibility` were moved to a separate class called `NetworkVisibility`.
 
 ## Version 11.4.2 - 2020-Apr-03
 - Added: SyncVar hooks can be virtual now, and overriden in a derived class.
-- Added: Virtual OnRoomStopServer to NetworkRoomManager and Script Template
-- Added: 10K Networked Objects Benchmark Example
+- Added: Virtual OnRoomStopServer to NetworkRoomManager and Script Template.
+- Added: 10K Networked Objects Benchmark Example.
 - Fixed: Setting breakpoints in an IDE for Command's and Rpc's work correctly now.
 - Fixed: NetworkServer's calls to SendToObservers now reports correct channel to Mirror Profiler.
 - Fixed: NetworkRoomManager's `roomPlayerPrefab` is now `protected` so it can be accessed in derived classes.
 - Fixed: NetworkRoomPlayer inspector and documentation updated to be less confusing.
 - Fixed: NetworkIdentity no longer double calls NetworkServer.Destroy.
 - Fixed: NetworkAnimator now correctly excludes parameters controlled by curves.
-- Fixed: NetworkBehaviour now uses a property drawer for the SyncVar label so it displays better.
+- Fixed: Network Behaviour now uses a property drawer for the SyncVar label so it displays better.
 - Fixed: NetworkServer.SendToReady overloads are no longer ambiguous.
 - Fixed: NetworkRoomManager no longer incorrectly destroys the game player object. It's left in the game scene to be cleaned up by Unity when the scene changes.
 - Fixed: StopHost correctly raises OnServerDisconnect in Network Manager, and correctly unwinds before shutting down the server.
-- Fixed: `isServer` is no longer incorrectly false on server in Network Identity's OnDestroy
+- Fixed: `isServer` is no longer incorrectly false on server in Network Identity's OnDestroy.
 - Changed: Network Manager `offlineScene` and `onlineScene` store full paths now, so use SceneManager.GetActiveScene().path instead.
 - Changed: Network Manager HUD now calls StopHost / StopServer / StopClient more appropriately.
 - Changed: Network Manager HUD labels no longer say LAN. Associated docs also cleaned up to eliminate the misconception of Mirror being LAN only solution.
@@ -60,7 +65,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: NetworkReader.ReadMessage<T>.
 - Added: NetworkDiscovery now handles headless server mode.
 - Added: SyncVar, Cmd's and Rpc's now support Scriptable Objects via CreateInstance on the receiving side.
-- Added: [Discord Transport](../Transports/Discord.md)
+- Added: [Discord Transport](../Transports/Discord.md).
 - Fixed: `isClient` now returns true on clients in OnDestroy for networked objects.
 - Fixed: Host Player race condition for Ready message.
 - Fixed: NetworkAnimator and NetworkTransform now correctly check for client authority in their respective Command methods.
@@ -82,7 +87,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: [Network Discovery](../Components/NetworkDiscovery.md) has been reimplemented including an example and script template -- thanks to all those who contributed!
 - Added: [Network Scene Checker Component](../Components/NetworkSceneChecker.md).
 - Added: Mirror Icon for all components.
-- Added: Inspector Headers to NetworkBehaviour, NetworkTransform, and NetworkAnimator.
+- Added: Inspector Headers to Network Behaviour, NetworkTransform, and NetworkAnimator.
 - Added: URI added to supported data types.
 - Added: `NetworkReaderPool` has been implemented in place of `new NetworkReader` everywhere, significantly reducing garbage allocation.
 - Fixed: NetworkTransform and NetworkAnimator now uses NetworkWriterPool.
@@ -166,7 +171,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Components with different sync intervals were not sending updates to clients.
 - Fixed: In certain cases, weaver wouldn't weave some external assemblies.
 - Fixed: NetworkAnimator now does a full sync for new clients.
-- Fixed: NetworkBehaviour inspector now shows SyncMode for private SyncVars.
+- Fixed: Network Behaviour inspector now shows SyncMode for private SyncVars.
 - Fixed: Calling Commands and Rpcs of parent classes from inherited classes works as it should.
 - Fixed: Telepathy no longer hangs when attempting to connect to a nonexistent host.
 - Fixed: Websockets Transport now properly returns the client endpoint information via `ServerGetClientAddress`.
@@ -193,7 +198,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: SyncVar hooks were not able to change other SyncVars in Host mode.
 - Fixed: Telepathy not setting socket options on accepted clients.
 - Fixed: Catch IL2CPP bug.
-- Fixed: Telepathy and Websockets now start connections ID's at 1 instead of 2
+- Fixed: Telepathy and Websockets now start connections ID's at 1 instead of 2.
 - Fixed: Websockets support for SSL restored.
 - Fixed: NetworkManager no longer complains about missing player prefab if auto-create is disabled.
 - Fixed: Removed a garbage allocation in Network Transform.
