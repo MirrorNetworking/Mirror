@@ -36,6 +36,7 @@ namespace Mirror.Examples.Tanks
         void Update()
         {
             nameText.text = playerName;
+            nameText.transform.rotation = Camera.main.transform.rotation;
 
             // movement for local player
             if (!isLocalPlayer)
