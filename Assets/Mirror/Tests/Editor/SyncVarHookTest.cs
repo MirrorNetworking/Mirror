@@ -43,6 +43,19 @@ namespace Mirror.Tests
             HookCalled.Invoke(oldValue, newValue);
         }
     }
+    
+    class StaticHookBehaviour : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(OnValueChanged))]
+        public int value = 0;
+
+        public static event Action<int, int> HookCalled;
+
+        static void OnValueChanged(int oldValue, int newValue)
+        {
+            HookCalled.Invoke(oldValue, newValue);
+        }
+    }
 
     class VirtualHookBase : NetworkBehaviour
     {
@@ -202,6 +215,32 @@ namespace Mirror.Tests
             Assert.That(callCount, Is.EqualTo(0));
         }
 
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void StaticMethod_HookCalledWhenSyncingChangedValue(bool intialState)
+        {
+            StaticHookBehaviour serverObject = CreateObject<StaticHookBehaviour>();
+            StaticHookBehaviour clientObject = CreateObject<StaticHookBehaviour>();
+
+            const int clientValue = 10;
+            const int serverValue = 24;
+
+            serverObject.value = serverValue;
+            clientObject.value = clientValue;
+
+            int hookcallCount = 0;
+            StaticHookBehaviour.HookCalled += (oldValue, newValue) =>
+            {
+                hookcallCount++;
+                Assert.That(oldValue, Is.EqualTo(clientValue));
+                Assert.That(newValue, Is.EqualTo(serverValue));
+            };
+
+            bool written = SyncToClient(serverObject, clientObject, intialState);
+            Assert.IsTrue(written);
+            Assert.That(hookcallCount, Is.EqualTo(1));
+        }
 
         [Test]
         [TestCase(true)]

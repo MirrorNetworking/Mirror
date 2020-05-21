@@ -11,6 +11,18 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void FindsPublicHook()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void FindsStaticHook()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
         public void FindsHookWithGameObjects()
         {
             Assert.That(weaverErrors, Is.Empty);
@@ -18,12 +30,6 @@ namespace Mirror.Weaver.Tests
 
         [Test]
         public void FindsHookWithNetworkIdentity()
-        {
-            Assert.That(weaverErrors, Is.Empty);
-        }
-
-        [Test]
-        public void FindsPublicHook()
         {
             Assert.That(weaverErrors, Is.Empty);
         }

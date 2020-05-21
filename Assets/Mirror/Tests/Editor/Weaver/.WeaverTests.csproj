@@ -198,6 +198,7 @@
     <Compile Include="WeaverSyncVarHookTests~\ErrorWhenNoHookWithCorrectParametersFound.cs" />
     <Compile Include="WeaverSyncVarHookTests~\ErrorWhenNoHookFound.cs" />
     <Compile Include="WeaverSyncVarHookTests~\FindsHookWhenOverMethodsWithSameNameExist.cs" />
+    <Compile Include="WeaverSyncVarHookTests~\FindsStaticHook.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsCantBeArray.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsDerivedNetworkBehaviour.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsDifferentModule.cs" />
