@@ -18,7 +18,7 @@ namespace Mirror.Logging
 
     public static class LogSettingsExt
     {
-        public static void SaveFromDictionary(this LogSettings settings, Dictionary<string, ILogger> dictionary)
+        public static void SaveFromDictionary(this LogSettings settings, SortedDictionary<string, ILogger> dictionary)
         {
             if (settings == null)
             {
@@ -33,15 +33,12 @@ namespace Mirror.Logging
                 settings.loglevels.Add(new LogSettings.LoggerSettings { name = kvp.Key, logLevel = kvp.Value.filterLogType });
             }
 
-            // sort by name so that list is saved in same order each time
-            settings.loglevels.Sort((x, y) => string.CompareOrdinal(x.name, y.name));
-
 #if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(settings);
 #endif
         }
 
-        public static void LoadIntoDictionary(this LogSettings settings, Dictionary<string, ILogger> dictionary)
+        public static void LoadIntoDictionary(this LogSettings settings, SortedDictionary<string, ILogger> dictionary)
         {
             if (settings == null)
             {
