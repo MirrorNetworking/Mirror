@@ -202,5 +202,31 @@ namespace Mirror.Tests
             client.Connection.Identity = null;
             Assert.That(client.RemovePlayer(), Is.False);
         }
+
+        [UnityTest]
+        public IEnumerator ObjectHideTest()
+        {
+            client.OnObjectHide(new ObjectHideMessage
+            {
+                netId = identity.NetId
+            });
+
+            yield return null;
+
+            Assert.That(identity == null);
+        }
+
+        [UnityTest]
+        public IEnumerator ObjectDestroyTest()
+        {
+            client.OnObjectDestroy(new ObjectDestroyMessage
+            {
+                netId = identity.NetId
+            });
+
+            yield return null;
+
+            Assert.That(identity == null);
+        }
     }
 }
