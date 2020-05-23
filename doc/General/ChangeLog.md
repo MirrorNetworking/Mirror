@@ -16,6 +16,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Network Manager no longer tries to change to offline scene redundantly in `StopClient`.
 - Changed: Network Room Player now uses virtual SyncVar hook for ReadyStateChanged.
 - Changed: Network Proximity Checker now uses direct distance check against player objects instead of Physics.SphereCastNonAlloc for better performance.
+- Removed: Discord Transport
 
 ## Version 13.0.1 -- 2020-May-06
 - Added: [Multiple Concurrent Additive Scenes Example](../Examples/MultipleAdditiveScenes/index.md).

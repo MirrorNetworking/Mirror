@@ -18,7 +18,6 @@ uMMORPG was possible with \<6000 lines of code. We needed a networking library t
 -   **UDP** ([ENet](Transports/Ignorance.md) and [LiteNetLib](Transports/LiteNetLib4Mirror.md))
 -   **WebGL** ([Secure Web Sockets](Transports/WebSockets.md))
 -   **Steam** ([Steamworks.Net or FacePunch](Transports/Fizzy.md))
--   **Discord** ([Discord SDK](Transports/Discord.md))
 -   **Multiplexer** ([Multiplexer](Transports/Multiplexer.md))
 -   **Fallback** ([Fallback](Fallback.md))
 
