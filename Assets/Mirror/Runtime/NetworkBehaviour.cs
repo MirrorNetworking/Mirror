@@ -180,7 +180,7 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
+        protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool ignoreAuthority = false)
         {
             // this was in Weaver before
             // NOTE: we could remove this later to allow calling Cmds on Server
@@ -191,7 +191,7 @@ namespace Mirror
                 return;
             }
             // local players can always send commands, regardless of authority, other objects must have authority.
-            if (!(isLocalPlayer || hasAuthority))
+            if (!(ignoreAuthority || isLocalPlayer || hasAuthority))
             {
                 logger.LogWarning($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
                 return;
@@ -224,9 +224,9 @@ namespace Mirror
         /// <param name="reader">Parameters to pass to the command.</param>
         /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
+        public virtual bool InvokeCommand(int cmdHash, NetworkReader reader, NetworkConnection conn = null)
         {
-            return InvokeHandlerDelegate(cmdHash, MirrorInvokeType.Command, reader);
+            return InvokeHandlerDelegate(cmdHash, MirrorInvokeType.Command, reader, conn);
         }
         #endregion
 
@@ -358,7 +358,7 @@ namespace Mirror
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="reader"></param>
-        public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
+        public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader, NetworkConnection conn = null);
 
         protected class Invoker
         {
@@ -427,9 +427,7 @@ namespace Mirror
 
         static bool GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType, out Invoker invoker)
         {
-            if (cmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
-                invoker != null &&
-                invoker.invokeType == invokeType)
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out invoker) && invoker != null && invoker.invokeType == invokeType)
             {
                 return true;
             }
@@ -438,16 +436,16 @@ namespace Mirror
             // (no need to throw an error, an attacker might just be trying to
             //  call an cmd with an rpc's hash)
             if (logger.LogEnabled()) logger.Log("GetInvokerForHash hash:" + cmdHash + " not found");
+
             return false;
         }
 
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
-        internal bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader)
+        internal bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkConnection conn = null)
         {
-            if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) &&
-                invoker.invokeClass.IsInstanceOfType(this))
+            if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(this))
             {
-                invoker.invokeFunction(this, reader);
+                invoker.invokeFunction(this, reader, conn);
                 return true;
             }
             return false;
