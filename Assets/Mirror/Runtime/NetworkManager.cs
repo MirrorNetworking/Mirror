@@ -732,7 +732,7 @@ namespace Mirror
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
 
-            // Network Server initially registers it's own handler for this, so we replace it here.
+            // Network Server initially registers its own handler for this, so we replace it here.
             NetworkServer.ReplaceHandler<ReadyMessage>(OnServerReadyMessageInternal);
         }
 
