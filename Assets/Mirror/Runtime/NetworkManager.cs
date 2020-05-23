@@ -738,12 +738,11 @@ namespace Mirror
 
         void RegisterClientMessages()
         {
-            // Network Client initially registers it's own handlers for these, so we replace them here.
-            NetworkClient.ReplaceHandler<ConnectMessage>(OnClientConnectInternal, false);
-            NetworkClient.ReplaceHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
-            NetworkClient.ReplaceHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            NetworkClient.ReplaceHandler<ErrorMessage>(OnClientErrorInternal, false);
-            NetworkClient.ReplaceHandler<SceneMessage>(OnClientSceneInternal, false);
+            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal, false);
+            NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
+            NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
+            NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
+            NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
 
             if (playerPrefab != null)
             {
