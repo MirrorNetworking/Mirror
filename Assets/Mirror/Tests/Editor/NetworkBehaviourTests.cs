@@ -32,7 +32,7 @@ namespace Mirror.Tests
 
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
         {
             ++((NetworkBehaviourSendCommandInternalComponent)comp).called;
         }
@@ -52,7 +52,7 @@ namespace Mirror.Tests
 
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void RPCGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void RPCGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
         {
             ++((NetworkBehaviourSendRPCInternalComponent)comp).called;
         }
@@ -72,7 +72,7 @@ namespace Mirror.Tests
 
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void TargetRPCGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void TargetRPCGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
         {
             ++((NetworkBehaviourSendTargetRPCInternalComponent)comp).called;
         }
@@ -92,7 +92,7 @@ namespace Mirror.Tests
 
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void EventGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void EventGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
         {
             ++((NetworkBehaviourSendEventInternalComponent)comp).called;
         }
@@ -107,8 +107,8 @@ namespace Mirror.Tests
     // we need to inherit from networkbehaviour to test protected functions
     public class NetworkBehaviourDelegateComponent : NetworkBehaviour
     {
-        public static void Delegate(NetworkBehaviour comp, NetworkReader reader) { }
-        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) { }
+        public static void Delegate(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null) { }
+        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null) { }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
