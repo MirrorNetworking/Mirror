@@ -43,7 +43,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListMissingParamlessCtor()
         {
-            Assert.That(weaverErrors, Contains.Item("Can not intialize field Foo because no default constructor was found. Manually intialize the field (call the constructor) or add constructor without Parameter (at WeaverSyncListTests.SyncListMissingParamlessCtor.SyncListMissingParamlessCtor/SyncListString2 WeaverSyncListTests.SyncListMissingParamlessCtor.SyncListMissingParamlessCtor::Foo)"));
+            Assert.That(weaverErrors, Contains.Item("Can not initialize field Foo because no default constructor was found. Manually initialize the field (call the constructor) or add constructor without Parameter (at WeaverSyncListTests.SyncListMissingParamlessCtor.SyncListMissingParamlessCtor/SyncListString2 WeaverSyncListTests.SyncListMissingParamlessCtor.SyncListMissingParamlessCtor::Foo)"));
         }
 
         [Test]

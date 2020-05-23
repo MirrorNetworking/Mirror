@@ -41,7 +41,7 @@ namespace Mirror.Weaver
             MethodDefinition ctor = fieldType.Methods.FirstOrDefault(x => x.Name == ".ctor" && !x.HasParameters);
             if (ctor == null)
             {
-                Weaver.Error($"Can not intialize field {fd.Name} because no default constructor was found. Manually intialize the field (call the constructor) or add constructor without Parameter", fd);
+                Weaver.Error($"Can not initialize field {fd.Name} because no default constructor was found. Manually initialize the field (call the constructor) or add constructor without Parameter", fd);
                 return;
             }
             MethodReference objectConstructor = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);

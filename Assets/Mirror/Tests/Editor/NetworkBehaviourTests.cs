@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -235,6 +235,8 @@ namespace Mirror.Tests
             identity.isServer = false;
             GameObject.DestroyImmediate(gameObject);
             NetworkServer.RemoveLocalConnection();
+
+            NetworkIdentity.spawned.Clear();
         }
 
         [Test]

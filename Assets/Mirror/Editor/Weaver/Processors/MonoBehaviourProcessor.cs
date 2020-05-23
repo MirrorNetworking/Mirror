@@ -1,8 +1,10 @@
-// this class only shows warnings in case we use SyncVars etc. for MonoBehaviour.
 using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
+    /// <summary>
+    /// only shows warnings in case we use SyncVars etc. for MonoBehaviour.
+    /// </summary>
     static class MonoBehaviourProcessor
     {
         public static void Process(TypeDefinition td)

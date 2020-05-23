@@ -1,10 +1,12 @@
-// all the SyncEvent code from NetworkBehaviourProcessor in one place
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
+    /// <summary>
+    /// Processes SyncEvents in NetworkBehaviour
+    /// </summary>
     public static class SyncEventProcessor
     {
         public static MethodDefinition ProcessEventInvoke(TypeDefinition td, EventDefinition ed)

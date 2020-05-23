@@ -20,6 +20,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkRoomManager.html")]
     public class NetworkRoomManager : NetworkManager
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkRoomManager));
+
         public struct PendingPlayer
         {
             public NetworkConnection conn;
@@ -36,7 +38,7 @@ namespace Mirror
         [FormerlySerializedAs("m_MinPlayers")]
         [SerializeField]
         [Tooltip("Minimum number of players to auto-start the game")]
-        int minPlayers = 1;
+        protected int minPlayers = 1;
 
         [FormerlySerializedAs("m_RoomPlayerPrefab")]
         [SerializeField]
@@ -93,7 +95,7 @@ namespace Mirror
                 if (identity == null)
                 {
                     roomPlayerPrefab = null;
-                    Debug.LogError("RoomPlayer prefab must have a NetworkIdentity component.");
+                    logger.LogError("RoomPlayer prefab must have a NetworkIdentity component.");
                 }
             }
 
@@ -128,7 +130,7 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerReady(NetworkConnection conn)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkRoomManager OnServerReady");
+            logger.Log("NetworkRoomManager OnServerReady");
             base.OnServerReady(conn);
 
             if (conn != null && conn.identity != null)
@@ -143,7 +145,7 @@ namespace Mirror
 
         void SceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer)
         {
-            if (LogFilter.Debug) Debug.LogFormat("NetworkRoom SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().path, conn);
+            if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "NetworkRoom SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().path, conn);
 
             if (IsSceneActive(RoomScene))
             {
@@ -289,7 +291,7 @@ namespace Mirror
 
                 allPlayersReady = false;
 
-                if (LogFilter.Debug) Debug.LogFormat("NetworkRoomManager.OnServerAddPlayer playerPrefab:{0}", roomPlayerPrefab.name);
+                if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "NetworkRoomManager.OnServerAddPlayer playerPrefab:{0}", roomPlayerPrefab.name);
 
                 GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
                 if (newRoomGameObject == null)
@@ -369,13 +371,13 @@ namespace Mirror
         {
             if (string.IsNullOrEmpty(RoomScene))
             {
-                Debug.LogError("NetworkRoomManager RoomScene is empty. Set the RoomScene in the inspector for the NetworkRoomMangaer");
+                logger.LogError("NetworkRoomManager RoomScene is empty. Set the RoomScene in the inspector for the NetworkRoomMangaer");
                 return;
             }
 
             if (string.IsNullOrEmpty(GameplayScene))
             {
-                Debug.LogError("NetworkRoomManager PlayScene is empty. Set the PlayScene in the inspector for the NetworkRoomMangaer");
+                logger.LogError("NetworkRoomManager PlayScene is empty. Set the PlayScene in the inspector for the NetworkRoomMangaer");
                 return;
             }
 
@@ -418,14 +420,12 @@ namespace Mirror
         public override void OnStartClient()
         {
             if (roomPlayerPrefab == null || roomPlayerPrefab.gameObject == null)
-                Debug.LogError("NetworkRoomManager no RoomPlayer prefab is registered. Please add a RoomPlayer prefab.");
+                logger.LogError("NetworkRoomManager no RoomPlayer prefab is registered. Please add a RoomPlayer prefab.");
             else
                 ClientScene.RegisterPrefab(roomPlayerPrefab.gameObject);
 
             if (playerPrefab == null)
-                Debug.LogError("NetworkRoomManager no GamePlayer prefab is registered. Please add a GamePlayer prefab.");
-            else
-                ClientScene.RegisterPrefab(playerPrefab);
+                logger.LogError("NetworkRoomManager no GamePlayer prefab is registered. Please add a GamePlayer prefab.");
 
             OnRoomStartClient();
         }
@@ -537,7 +537,7 @@ namespace Mirror
 
         // Deprecated 12/17/2019
         /// <summary>
-        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)"/> instead.
+        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)">OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)</see> instead.
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
         /// <returns>A new GamePlayer object.</returns>
@@ -562,7 +562,7 @@ namespace Mirror
         /// <summary>
         /// This allows customization of the creation of the GamePlayer object on the server.
         /// <para>This is only called for subsequent GamePlay scenes after the first one.</para>
-        /// <para>See <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)"/> to customize the player object for the initial GamePlay scene.</para>
+        /// <para>See <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)">OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)</see> to customize the player object for the initial GamePlay scene.</para>
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
         public virtual void OnRoomServerAddPlayer(NetworkConnection conn)
@@ -572,7 +572,7 @@ namespace Mirror
 
         // Deprecated 02/22/2020
         /// <summary>
-        /// Obsolete: Use <see cref="OnRoomServerSceneLoadedForPlayer(NetworkConnection, GameObject, GameObject)"/> instead.
+        /// Obsolete: Use <see cref="OnRoomServerSceneLoadedForPlayer(NetworkConnection, GameObject, GameObject)">OnRoomServerSceneLoadedForPlayer(NetworkConnection, GameObject, GameObject)</see> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer) instead")]
         public virtual bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)

@@ -6,7 +6,7 @@ Once the game object is spawned using this system, state updates are sent to cli
 
 When the server spawns a game object with a Network Identity component, the game object spawned on the client has the same “state”. This means it is identical to the game object on the server; it has the same Transform, movement state, and (if Network Transform and SyncVars are used) synchronized variables. Therefore, client game objects are always up-to-date when Mirror creates them. This avoids issues such as game objects spawning at the wrong initial location, then reappearing at their correct position when a state update arrives.
 
-The Network Manager before trying to register it with the Network Manager.
+A game object Prefab must have a Network Identity component before trying to register it with the Network Manager.
 
 To register a Prefab with the Network Manager in the Editor, select the Network Manager game object, and in the Inspector, navigate to the Network Manager component. Click the triangle next to Spawn Info to open the settings, then under Registered Spawnable Prefabs, click the plus (+) button. Drag and drop Prefabs into the empty field to assign them to the list.
 

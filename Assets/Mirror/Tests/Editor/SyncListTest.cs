@@ -16,6 +16,11 @@ namespace Mirror.Tests
             fromList.OnSerializeAll(writer);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeAll(reader);
+
+            int writeLength = writer.Length;
+            int readLength = reader.Position;
+            Assert.That(writeLength == readLength, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
+
         }
 
         public static void SerializeDeltaTo<T>(T fromList, T toList) where T : SyncObject
@@ -25,6 +30,10 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeDelta(reader);
             fromList.Flush();
+
+            int writeLength = writer.Length;
+            int readLength = reader.Position;
+            Assert.That(writeLength == readLength, $"OnSerializeDelta and OnDeserializeDelta calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
         }
 
         [SetUp]
@@ -55,6 +64,14 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestAddRange()
+        {
+            serverSyncList.AddRange(new[] { "One", "Two", "Three" });
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EqualTo(new[] { "Hello", "World", "!", "One", "Two", "Three" }));
+        }
+
+        [Test]
         public void TestClear()
         {
             serverSyncList.Clear();
@@ -68,6 +85,14 @@ namespace Mirror.Tests
             serverSyncList.Insert(0, "yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "yay", "Hello", "World", "!" }));
+        }
+
+        [Test]
+        public void TestInsertRange()
+        {
+            serverSyncList.InsertRange(1, new[] { "One", "Two", "Three" });
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EqualTo(new[] { "Hello", "One", "Two", "Three", "World", "!" }));
         }
 
         [Test]
@@ -89,6 +114,22 @@ namespace Mirror.Tests
             serverSyncList[1] = "yay";
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "yay", "!" }));
+        }
+
+        [Test]
+        public void TestRemoveAll()
+        {
+            serverSyncList.RemoveAll(entry => entry.Contains("l"));
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "!" }));
+        }
+
+        [Test]
+        public void TestRemoveAllNone()
+        {
+            serverSyncList.RemoveAll(entry => entry == "yay");
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
         }
 
         [Test]

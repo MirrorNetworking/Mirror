@@ -61,7 +61,7 @@ namespace Mirror.Weaver
                 TypeReference genericArg = genericType.GenericArguments[genericArgument];
                 if (!genericArg.IsGenericParameter)
                 {
-                    // if not generic, sucessfully found type
+                    // if not generic, successfully found type
                     return Weaver.CurrentAssembly.MainModule.ImportReference(genericArg);
                 }
             }

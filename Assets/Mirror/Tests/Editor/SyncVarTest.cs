@@ -123,7 +123,7 @@ namespace Mirror.Tests
             NetworkWriter ownerWriter = new NetworkWriter();
             // not really used in this Test
             NetworkWriter observersWriter = new NetworkWriter();
-            ulong mask = identity1.GetIntialComponentsMask();
+            ulong mask = identity1.GetInitialComponentsMask();
             identity1.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // set up a "client" object

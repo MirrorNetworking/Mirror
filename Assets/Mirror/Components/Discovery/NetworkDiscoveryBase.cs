@@ -13,7 +13,7 @@ namespace Mirror.Discovery
     /// <summary>
     /// Base implementation for Network Discovery.  Extend this component
     /// to provide custom discovery with game specific data
-    /// <see cref="NetworkDiscovery"/> for a sample implementation
+    /// <see cref="NetworkDiscovery">NetworkDiscovery</see> for a sample implementation
     /// </summary>
     [DisallowMultipleComponent]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]

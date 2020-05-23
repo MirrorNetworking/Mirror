@@ -76,7 +76,7 @@ namespace Mirror
         void OnValidate()
         {
 #if UNITY_EDITOR
-            // automatically assign NetworkManager field if we add this to NetworkManager
+            // automatically assign authenticator field if we add this to NetworkManager
             NetworkManager manager = GetComponent<NetworkManager>();
             if (manager != null && manager.authenticator == null)
             {

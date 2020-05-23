@@ -18,6 +18,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkAnimator.html")]
     public class NetworkAnimator : NetworkBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkAnimator));
+
         [Header("Authority")]
         [Tooltip("Set to true if animations come from owner client,  set to false if animations always come from server")]
         public bool clientAuthority;
@@ -369,13 +371,13 @@ namespace Mirror
             {
                 if (!isClient)
                 {
-                    Debug.LogWarning("Tried to set animation in the server for a client-controlled animator");
+                    logger.LogWarning("Tried to set animation in the server for a client-controlled animator");
                     return;
                 }
 
                 if (!hasAuthority)
                 {
-                    Debug.LogWarning("Only the client with authority can set animations");
+                    logger.LogWarning("Only the client with authority can set animations");
                     return;
                 }
 
@@ -386,7 +388,7 @@ namespace Mirror
             {
                 if (!isServer)
                 {
-                    Debug.LogWarning("Tried to set animation in the client for a server-controlled animator");
+                    logger.LogWarning("Tried to set animation in the client for a server-controlled animator");
                     return;
                 }
 
@@ -414,13 +416,13 @@ namespace Mirror
             {
                 if (!isClient)
                 {
-                    Debug.LogWarning("Tried to reset animation in the server for a client-controlled animator");
+                    logger.LogWarning("Tried to reset animation in the server for a client-controlled animator");
                     return;
                 }
 
                 if (!hasAuthority)
                 {
-                    Debug.LogWarning("Only the client with authority can reset animations");
+                    logger.LogWarning("Only the client with authority can reset animations");
                     return;
                 }
 
@@ -431,7 +433,7 @@ namespace Mirror
             {
                 if (!isServer)
                 {
-                    Debug.LogWarning("Tried to reset animation in the client for a server-controlled animator");
+                    logger.LogWarning("Tried to reset animation in the client for a server-controlled animator");
                     return;
                 }
 
@@ -448,7 +450,7 @@ namespace Mirror
             if (!clientAuthority)
                 return;
 
-            if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
+            if (logger.LogEnabled()) logger.Log("OnAnimationMessage for netId=" + netId);
 
             // handle and broadcast
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(parameters))

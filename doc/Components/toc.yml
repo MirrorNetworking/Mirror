@@ -2,13 +2,15 @@
   href: index.md
 - name: Network Animator
   href: NetworkAnimator.md
-- name: Authenticators
+- name: Network Authenticators
   href: Authenticators/toc.yml
   topicHref: Authenticators/
 - name: Network Discovery
   href: NetworkDiscovery.md
 - name: Network Identity
   href: NetworkIdentity.md
+- name: Network Log Settings
+  href: NetworkLogSettings.md
 - name: Network Manager
   href: NetworkManager.md
 - name: Network Manager HUD

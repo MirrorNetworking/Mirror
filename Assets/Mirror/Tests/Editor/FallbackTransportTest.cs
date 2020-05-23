@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
@@ -16,7 +16,7 @@ namespace Mirror.Tests
         FallbackTransport transport;
 
         [SetUp]
-        public void SetupMultipex()
+        public void Setup()
         {
             transport1 = Substitute.For<Transport>();
             transport2 = Substitute.For<Transport>();
@@ -25,6 +25,12 @@ namespace Mirror.Tests
 
             transport = gameObject.AddComponent<FallbackTransport>();
             transport.transports = new[] { transport1, transport2 };
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            GameObject.DestroyImmediate(transport.gameObject);
         }
 
         #region Client tests

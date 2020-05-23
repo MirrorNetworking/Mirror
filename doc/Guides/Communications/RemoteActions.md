@@ -111,6 +111,7 @@ public class Player : NetworkBehaviour
     void CmdHealMe()
     {
         health += 10;
+        TargetHealed(10);
     }
 
     [TargetRpc]

@@ -125,9 +125,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneId: 0
   serverOnly: 0
-  m_AssetId: 
-  m_SceneId: 0
+  m_AssetId: b7dd46dbf38c643f09e206f9fa4be008
+  hasSpawned: 0
 --- !u!136 &2355290524794870353
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -175,6 +176,8 @@ MonoBehaviour:
   destroyAfter: 5
   rigidBody: {fileID: 4629190479245867726}
   force: 1000
+  damage: 33
+  source: {fileID: 0}
 --- !u!1 &9126921595194253319
 GameObject:
   m_ObjectHideFlags: 0

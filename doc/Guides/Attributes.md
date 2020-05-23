@@ -6,13 +6,13 @@ These attributes can be used for Unity game loop methods like Start or Update, a
 -   **NetworkSettings**  
     This attribute has been deprecated because `channels` were moved to transports (where applicable) and `interval` was moved to an inspector property
 -   **Server**  
-    means don't allow a client to call that method (throws a warning or an error when called on a client).
+    Only a server can call the method (throws a warning or an error when called on a client).
 -   **ServerCallback**  
-    A Custom Attribute that can be added to member functions of NetworkBehaviour scripts, to make them only run on servers.
+    Same as **Server** but does not throw warning when called on client.
 -   **Client**  
-    means don't allow a server to call that method (throws a warning or an error when called on the server).
+    Only a Client can call the method (throws a warning or an error when called on the server).
 -   **ClientCallback**  
-    A Custom Attribute that can be added to member functions of NetworkBehaviour scripts, to make them only run on clients, but not generate warnings.
+    Same as **Client** but does not throw warning when called on server.
 -   **ClientRpc**  
     The server uses a Remote Procedure Call (RPC) to run that function on clients. See also: [Remote Actions](Communications/RemoteActions.md)
 -   **TargetRpc**  
