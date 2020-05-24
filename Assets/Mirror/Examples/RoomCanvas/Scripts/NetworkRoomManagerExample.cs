@@ -44,7 +44,7 @@ namespace Mirror.Examples.NetworkRoomCanvas
         public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer)
         {
             PlayerScore playerScore = gamePlayer.GetComponent<PlayerScore>();
-            playerScore.index = roomPlayer.GetComponent<NetworkRoomPlayer>().index;
+            playerScore.index = roomPlayer.GetComponent<NetworkRoomPlayerExample>().index;
             return true;
         }
 
