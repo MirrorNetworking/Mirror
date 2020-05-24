@@ -13,6 +13,7 @@ namespace Mirror.Examples.NetworkRoomCanvas
 
             manager.onPlayerListChanged += addAllPlayers;
 
+            // call now incase event was missed
             NetworkRoomPlayerExample[] players = manager.GetPlayers();
             addAllPlayers(players);
         }

@@ -20,6 +20,9 @@ namespace Mirror.Examples.NetworkRoomCanvas
 
                 manager = NetworkManager.singleton as NetworkRoomManagerExample;
                 manager.onServerAllPlayersReady += Manager_onServerAllPlayersReady;
+
+                // call now incase event was missed
+                Manager_onServerAllPlayersReady(manager.allPlayersReady);
             }
             else
             {

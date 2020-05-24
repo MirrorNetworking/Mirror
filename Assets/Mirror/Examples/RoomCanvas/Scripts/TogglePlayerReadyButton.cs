@@ -20,6 +20,9 @@ namespace Mirror.Examples.NetworkRoomCanvas
                 button.onClick.AddListener(OnClick);
 
                 ClientScene.onLocalPlayerChanged += ClientScene_onLocalPlayerChanged;
+
+                // call now incase event was missed
+                ClientScene_onLocalPlayerChanged(null, ClientScene.localPlayer);
             }
             else
             {
