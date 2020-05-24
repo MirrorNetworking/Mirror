@@ -19,12 +19,12 @@ namespace Mirror.Weaver
         // Get hook method if any
         public static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar)
         {
-            CustomAttribute ca = syncVar.GetCustomAttribute(Weaver.SyncVarType.FullName);
+            CustomAttribute syncVarAttr = syncVar.GetCustomAttribute(Weaver.SyncVarType.FullName);
 
-            if (ca == null)
+            if (syncVarAttr == null)
                 return null;
 
-            string hookFunctionName = ca.GetField<string>("hook", null);
+            string hookFunctionName = syncVarAttr.GetField<string>("hook", null);
 
             if (hookFunctionName == null)
                 return null;

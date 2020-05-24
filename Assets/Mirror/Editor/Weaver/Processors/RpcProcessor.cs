@@ -60,7 +60,7 @@ namespace Mirror.Weaver
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
         */
-        public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
+        public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
 
@@ -90,7 +90,7 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             // writer
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, ca.GetField("channel", 0)));
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, clientRpcAttr.GetField("channel", 0)));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(rpcWorker);
@@ -100,7 +100,7 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        public static bool ProcessMethodsValidateRpc(MethodDefinition md, CustomAttribute ca)
+        public static bool ProcessMethodsValidateRpc(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             if (!md.Name.StartsWith("Rpc"))
             {
@@ -116,7 +116,7 @@ namespace Mirror.Weaver
 
             // validate
             return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, clientRpcAttr);
         }
     }
 }

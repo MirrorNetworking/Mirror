@@ -65,7 +65,7 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        public static MethodDefinition ProcessEventCall(TypeDefinition td, EventDefinition ed, CustomAttribute ca)
+        public static MethodDefinition ProcessEventCall(TypeDefinition td, EventDefinition ed, CustomAttribute syncEventAttr)
         {
             MethodReference invoke = Resolvers.ResolveMethod(ed.EventType, Weaver.CurrentAssembly, "Invoke");
             MethodDefinition evt = new MethodDefinition("Call" + ed.Name, MethodAttributes.Public |
@@ -99,7 +99,7 @@ namespace Mirror.Weaver
             evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));
             // writer
             evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0));
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, ca.GetField("channel", 0)));
+            evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, syncEventAttr.GetField("channel", 0)));
             evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.sendEventInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(evtWorker);
@@ -114,9 +114,9 @@ namespace Mirror.Weaver
             // find events
             foreach (EventDefinition ed in td.Events)
             {
-                CustomAttribute ca = ed.GetCustomAttribute(Weaver.SyncEventType.FullName);
+                CustomAttribute syncEventAttr = ed.GetCustomAttribute(Weaver.SyncEventType.FullName);
 
-                if (ca != null)
+                if (syncEventAttr != null)
                 {
                     if (!ed.Name.StartsWith("Event"))
                     {
@@ -142,7 +142,7 @@ namespace Mirror.Weaver
 
                     Weaver.DLog(td, "ProcessEvent " + ed);
 
-                    MethodDefinition eventCallFunc = ProcessEventCall(td, ed, ca);
+                    MethodDefinition eventCallFunc = ProcessEventCall(td, ed, syncEventAttr);
                     td.Methods.Add(eventCallFunc);
 
                     // original weaver compares .Name, not EventDefinition.

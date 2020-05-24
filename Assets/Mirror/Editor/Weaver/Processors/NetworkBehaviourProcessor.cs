@@ -276,6 +276,7 @@ namespace Mirror.Weaver
             awakeWorker.Append(awakeWorker.Create(OpCodes.Ldftn, func));
 
             awakeWorker.Append(awakeWorker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
+            //
             awakeWorker.Append(awakeWorker.Create(OpCodes.Call, registerMethod));
         }
 
@@ -850,9 +851,9 @@ namespace Mirror.Weaver
             }
         }
 
-        void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
+        void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            if (!RpcProcessor.ProcessMethodsValidateRpc(md, ca))
+            if (!RpcProcessor.ProcessMethodsValidateRpc(md, clientRpcAttr))
             {
                 return;
             }
@@ -865,7 +866,7 @@ namespace Mirror.Weaver
             names.Add(md.Name);
             clientRpcs.Add(md);
 
-            MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, ca);
+            MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, clientRpcAttr);
 
             MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(netBehaviourSubclass, md, rpcCallFunc);
             if (rpcFunc != null)
@@ -874,9 +875,9 @@ namespace Mirror.Weaver
             }
         }
 
-        void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
+        void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
-            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md, ca))
+            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md, targetRpcAttr))
                 return;
 
             if (names.Contains(md.Name))
@@ -887,7 +888,7 @@ namespace Mirror.Weaver
             names.Add(md.Name);
             targetRpcs.Add(md);
 
-            MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(netBehaviourSubclass, md, ca);
+            MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(netBehaviourSubclass, md, targetRpcAttr);
 
             MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(netBehaviourSubclass, md, rpcCallFunc);
             if (rpcFunc != null)
@@ -896,9 +897,9 @@ namespace Mirror.Weaver
             }
         }
 
-        void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
+        void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute commandAttr)
         {
-            if (!CommandProcessor.ProcessMethodsValidateCommand(md, ca))
+            if (!CommandProcessor.ProcessMethodsValidateCommand(md, commandAttr))
                 return;
 
             if (names.Contains(md.Name))
@@ -910,7 +911,7 @@ namespace Mirror.Weaver
             names.Add(md.Name);
             commands.Add(md);
 
-            MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(netBehaviourSubclass, md, ca);
+            MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(netBehaviourSubclass, md, commandAttr);
 
             MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(netBehaviourSubclass, md, cmdCallFunc);
             if (cmdFunc != null)
