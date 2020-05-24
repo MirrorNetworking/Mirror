@@ -1,3 +1,10 @@
+## [34.9.1](https://github.com/MirrorNG/MirrorNG/compare/34.9.0-master...34.9.1-master) (2020-05-24)
+
+
+### Bug Fixes
+
+* disconnect transport without domain reload ([20785b7](https://github.com/MirrorNG/MirrorNG/commit/20785b740e21fb22834cd01d7d628e127df6b80d))
+
 # [34.9.0](https://github.com/MirrorNG/MirrorNG/compare/34.8.1-master...34.9.0-master) (2020-04-26)
 
 
