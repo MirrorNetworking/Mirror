@@ -32,7 +32,7 @@ namespace Mirror.Experimental
         [SyncVar]
         public bool clientAuthority;
 
-        [Tooltip("Set to true if updates from server should be ignored by owner in server authority mode")]
+        [Tooltip("Set to true if updates from server should be ignored by owner")]
         [SyncVar]
         public bool excludeOwnerUpdate;
 
@@ -104,10 +104,6 @@ namespace Mirror.Experimental
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
         bool IsOwnerWithClientAuthority => hasAuthority && clientAuthority;
-
-        // Is this a client in server authority mode
-        // This component could be on the player object or any object that has been assigned authority to this client.
-        bool IsOwnerWithServerAuthority => hasAuthority && !clientAuthority;
 
         // interpolation start and goal
         public DataPoint start = new DataPoint();
@@ -231,7 +227,7 @@ namespace Mirror.Experimental
         [ClientRpc]
         void RpcMove(Vector3 position, Quaternion rotation, Vector3 scale)
         {
-            if (IsOwnerWithServerAuthority && excludeOwnerUpdate) return;
+            if (hasAuthority && excludeOwnerUpdate) return;
 
             if (!isServer)
                 SetGoal(position, rotation, scale);
