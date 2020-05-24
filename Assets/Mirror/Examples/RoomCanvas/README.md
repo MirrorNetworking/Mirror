@@ -1,11 +1,11 @@
 # Room Example
 
 In Build Settings, remove all scenes and add all of the scenes from the Examples\Room\Scenes folder in the following order:
--	OfflineScene
--	RoomScene
--	OnlineScene
+-	OfflineCanvasExample
+-	RoomCanvasExample
+-	OnlineCanvasExample
 
-If you opened the Offline scene before doing the above steps, you may have to reassign the scenes to the NetworkRoomManagerExt component of the RoomManager scene object.
+If you opened the Offline scene before doing the above steps, you may have to reassign the scenes to the NetworkRoomManagerExample component of the RoomManager scene object.
 
 File -> Build and Run
 
@@ -26,3 +26,6 @@ You should now be in the Online scene with your players of random color.
 WASDQE keys to move & turn your player capsule.
 Collide with the spheres to score points.
 Lighter colors score higher.
+
+
+*Note: the game scene in this example is the same as the [Room Example](../Room/README.md).*
