@@ -381,7 +381,7 @@ namespace Mirror.Tests
             // register the command delegate, otherwise it's not found
             NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
                 nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                NetworkBehaviourSendCommandInternalComponent.CommandGenerated);
+                NetworkBehaviourSendCommandInternalComponent.CommandGenerated, false);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
@@ -421,7 +421,7 @@ namespace Mirror.Tests
             // register the command delegate, otherwise it's not found
             NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
                 nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                NetworkBehaviourSendCommandInternalComponent.CommandGenerated);
+                NetworkBehaviourSendCommandInternalComponent.CommandGenerated, false);
 
             // invoke command
             int cmdHash = NetworkBehaviour.GetMethodHash(
@@ -750,14 +750,14 @@ namespace Mirror.Tests
             NetworkBehaviour.RegisterCommandDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate);
+                NetworkBehaviourDelegateComponent.Delegate, false);
 
             // registering the exact same one should be fine. it should simply
             // do nothing.
             NetworkBehaviour.RegisterCommandDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate);
+                NetworkBehaviourDelegateComponent.Delegate, false);
 
             // registering the same name with a different callback shouldn't
             // work
@@ -765,7 +765,7 @@ namespace Mirror.Tests
             NetworkBehaviour.RegisterCommandDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate2);
+                NetworkBehaviourDelegateComponent.Delegate2, false);
 
             // clean up
             NetworkBehaviour.ClearDelegates();
@@ -779,7 +779,7 @@ namespace Mirror.Tests
             NetworkBehaviour.RegisterCommandDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate);
+                NetworkBehaviourDelegateComponent.Delegate, false);
 
             // get handler
             int cmdHash = NetworkBehaviour.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
