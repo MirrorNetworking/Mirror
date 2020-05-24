@@ -70,5 +70,10 @@ namespace Mirror.AsyncTcp
 
             return builder.Uri;
         }
+
+        public void OnApplicationQuit()
+        {
+            listener?.Stop();
+        }
     }
 }
