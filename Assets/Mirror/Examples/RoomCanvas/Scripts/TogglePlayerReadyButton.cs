@@ -5,10 +5,16 @@ namespace Mirror.Examples.NetworkRoomCanvas
 {
 
     [RequireComponent(typeof(Button))]
+    [RequireComponent(typeof(Graphic))]
     public class TogglePlayerReadyButton : MonoBehaviour
     {
+        [Header("State Colors")]
+        public Color readyColor = Color.green;
+        public Color notReadyColor = Color.red;
+
         NetworkRoomPlayerExample localPlayer;
         private Button button;
+        private Graphic graphic;
 
         void OnEnable()
         {
@@ -17,6 +23,8 @@ namespace Mirror.Examples.NetworkRoomCanvas
             if (NetworkClient.active)
             {
                 button.onClick.AddListener(OnClick);
+
+                graphic = GetComponent<Graphic>();
 
                 ClientScene.onLocalPlayerChanged += ClientScene_onLocalPlayerChanged;
 
@@ -34,16 +42,16 @@ namespace Mirror.Examples.NetworkRoomCanvas
             ClientScene.onLocalPlayerChanged -= ClientScene_onLocalPlayerChanged;
         }
 
-        private void ClientScene_onLocalPlayerChanged(NetworkIdentity oldPlayer, NetworkIdentity newPlayer)
+        private void ClientScene_onLocalPlayerChanged(NetworkIdentity _, NetworkIdentity newPlayer)
         {
             if (newPlayer != null)
             {
                 localPlayer = newPlayer.GetComponent<NetworkRoomPlayerExample>();
+                graphic.color = localPlayer.readyToBegin ? readyColor : notReadyColor;
             }
             else
             {
                 localPlayer = null;
-
             }
         }
 
@@ -51,7 +59,11 @@ namespace Mirror.Examples.NetworkRoomCanvas
         {
             if (localPlayer != null)
             {
-                localPlayer.CmdChangeReadyState(!localPlayer.readyToBegin);
+                //toggle ready
+                bool ready = !localPlayer.readyToBegin;
+
+                graphic.color = ready ? readyColor : notReadyColor;
+                localPlayer.CmdChangeReadyState(ready);
             }
         }
     }
