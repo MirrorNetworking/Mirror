@@ -6,9 +6,8 @@ namespace Mirror.Examples.NetworkRoomCanvas
     [RequireComponent(typeof(Button))]
     public class ServerStartButton : MonoBehaviour
     {
-        NetworkRoomPlayerExample localPlayer;
-        private Button button;
-        private NetworkRoomManagerExample manager;
+        Button button;
+        NetworkRoomManagerExample manager;
 
         void OnEnable()
         {
@@ -38,12 +37,12 @@ namespace Mirror.Examples.NetworkRoomCanvas
             }
         }
 
-        private void Manager_onServerAllPlayersReady(bool allReady)
+        void Manager_onServerAllPlayersReady(bool allReady)
         {
             button.interactable = allReady;
         }
 
-        private void OnClick()
+        void OnClick()
         {
             manager.ServerChangeScene(manager.GameplayScene);
         }

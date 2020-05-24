@@ -12,7 +12,7 @@ namespace Mirror.Examples.NetworkRoomCanvas
         public Color notReadyColor = Color.red;
         public Color hostColor = Color.blue;
 
-        private NetworkRoomPlayerExample player;
+        NetworkRoomPlayerExample player;
 
         public void Setup(NetworkRoomPlayerExample player)
         {
@@ -23,7 +23,8 @@ namespace Mirror.Examples.NetworkRoomCanvas
             SetPlayerName("player " + player.index);
             SetReady(player.readyToBegin);
         }
-        private void OnDestroy()
+
+        void OnDestroy()
         {
             player.onReadyChanged -= SetReady;
         }
@@ -36,11 +37,12 @@ namespace Mirror.Examples.NetworkRoomCanvas
         public void SetReady(bool ready)
         {
             readyText.text = ready ? "Ready" : "";
-            Color color = getColor(ready);
+            Color color = GetColor(ready);
             nameText.color = color;
             readyText.color = color;
         }
-        private Color getColor(bool ready)
+
+        Color GetColor(bool ready)
         {
             if (player.IsHost)
             { return hostColor; }

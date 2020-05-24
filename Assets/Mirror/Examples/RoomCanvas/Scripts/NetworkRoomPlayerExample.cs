@@ -22,11 +22,7 @@ namespace Mirror.Examples.NetworkRoomCanvas
 
         public event Action<bool> onReadyChanged;
 
-        /// <summary>
-        /// This is a hook that is invoked on clients when a RoomPlayer switches between ready or not ready.
-        /// <para>This function is called when the a client player calls SendReadyToBeginMessage() or SendNotReadyToBeginMessage().</para>
-        /// </summary>
-        /// <param name="readyState">Whether the player is ready or not.</param>
+        /// <inheritdoc/>
         public override void ReadyStateChanged(bool oldReadyState, bool readyState)
         {
             onReadyChanged?.Invoke(readyState);

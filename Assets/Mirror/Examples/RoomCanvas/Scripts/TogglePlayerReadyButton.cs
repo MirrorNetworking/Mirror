@@ -37,12 +37,13 @@ namespace Mirror.Examples.NetworkRoomCanvas
                 gameObject.SetActive(false);
             }
         }
+
         void OnDisable()
         {
             ClientScene.onLocalPlayerChanged -= ClientScene_onLocalPlayerChanged;
         }
 
-        private void ClientScene_onLocalPlayerChanged(NetworkIdentity _, NetworkIdentity newPlayer)
+        void ClientScene_onLocalPlayerChanged(NetworkIdentity _, NetworkIdentity newPlayer)
         {
             if (newPlayer != null)
             {
@@ -55,7 +56,7 @@ namespace Mirror.Examples.NetworkRoomCanvas
             }
         }
 
-        private void OnClick()
+        void OnClick()
         {
             if (localPlayer != null)
             {
