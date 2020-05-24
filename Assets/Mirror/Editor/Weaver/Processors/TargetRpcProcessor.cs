@@ -87,7 +87,7 @@ namespace Mirror.Weaver
             correctly in dependent assemblies
 
         */
-        public static MethodDefinition ProcessTargetRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
+        public static MethodDefinition ProcessTargetRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
 
@@ -131,7 +131,7 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             // writer
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, ca.GetField("channel", 0)));
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, targetRpcAttr.GetField("channel", 0)));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendTargetRpcInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(rpcWorker);
@@ -141,7 +141,7 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        public static bool ProcessMethodsValidateTargetRpc(MethodDefinition md, CustomAttribute ca)
+        public static bool ProcessMethodsValidateTargetRpc(MethodDefinition md, CustomAttribute targetRpcAttr)
         {
             if (!md.Name.StartsWith("Target"))
             {
@@ -161,7 +161,7 @@ namespace Mirror.Weaver
             }
 
             // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);
+            return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, targetRpcAttr);
         }
     }
 }
