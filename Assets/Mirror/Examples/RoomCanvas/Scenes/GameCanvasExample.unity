@@ -161,7 +161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  prizePrefab: {fileID: 114251241889735402, guid: 52f1c9ea06cfd154cb68ff9d1b66fc13,
+  prizePrefab: {fileID: 114251241889735402, guid: 14cc0f525ef1ce84d822efffce91a986,
     type: 3}
 --- !u!4 &29930035
 Transform:
@@ -635,7 +635,7 @@ MeshRenderer:
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3201636fa507dad448e9a36d66a80825, type: 2}
+  - {fileID: 2100000, guid: 2332c63fa6cbc6748b915b7611eadb1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
