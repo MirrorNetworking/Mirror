@@ -247,7 +247,7 @@ namespace Mirror.Experimental
                 localPosition = position,
                 localRotation = rotation,
                 localScale = scale,
-                timeStamp = Time.time,
+                timeStamp = Time.time
             };
 
             // movement speed: based on how far it moved since last time has to be calculated before 'start' is overwritten
