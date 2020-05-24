@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Mono.CecilX;
 
 namespace Mirror.Weaver
@@ -179,6 +180,17 @@ namespace Mirror.Weaver
                     return md;
             }
             return null;
+        }
+
+        public static List<MethodDefinition> GetMethods(this TypeDefinition td, string methodName)
+        {
+            List<MethodDefinition> methods = new List<MethodDefinition>();
+            foreach (MethodDefinition md in td.Methods)
+            {
+                if (md.Name == methodName)
+                    methods.Add(md);
+            }
+            return methods;
         }
 
         /// <summary>
