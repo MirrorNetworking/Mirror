@@ -4,17 +4,16 @@ namespace Mirror.Examples.NetworkRoomCanvas
 {
     public class NetworkPlayerUIList : MonoBehaviour
     {
-        [SerializeField] private NetworkPlayerUIItem _networkPlayerPrefab;
+        [SerializeField] private NetworkPlayerUIItem _networkPlayerPrefab = null;
         private NetworkPlayerUIItem[] _items;
 
         public void OnEnable()
         {
             NetworkRoomManagerExample manager = NetworkManager.singleton as NetworkRoomManagerExample;
-            Debug.Log("NetworkPlayerList.OnEnable");
 
             manager.onPlayerListChanged += addAllPlayers;
 
-            var players = manager.GetPlayers();
+            NetworkRoomPlayerExample[] players = manager.GetPlayers();
             addAllPlayers(players);
         }
 
