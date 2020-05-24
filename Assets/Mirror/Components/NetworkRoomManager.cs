@@ -69,7 +69,8 @@ namespace Mirror
         /// True when all players have submitted a Ready message
         /// </summary>
         [Tooltip("Diagnostic flag indicating all players are ready to play")]
-        public bool allPlayersReady;
+        [FormerlySerializedAs("allPlayersReady")]
+        public bool _allPlayersReady;
 
         /// <summary>
         /// These slots track players that enter the room.
@@ -77,6 +78,28 @@ namespace Mirror
         /// </summary>
         [Tooltip("List of Room Player objects")]
         public List<NetworkRoomPlayer> roomSlots = new List<NetworkRoomPlayer>();
+
+        public bool allPlayersReady
+        {
+            get => _allPlayersReady;
+            set
+            {
+                bool wasReady = _allPlayersReady;
+                bool nowReady = value;
+
+                if (wasReady != nowReady)
+                {
+                    if (nowReady)
+                    {
+                        OnRoomServerPlayersReady();
+                    }
+                    else
+                    {
+                        OnRoomServerPlayersNotReady();
+                    }
+                }
+            }
+        }
 
         public override void OnValidate()
         {
@@ -186,13 +209,11 @@ namespace Mirror
             if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
             {
                 allPlayersReady = false;
-                OnRoomServerPlayersNotReady();
             }
             else
             {
                 pendingPlayers.Clear();
                 allPlayersReady = true;
-                OnRoomServerPlayersReady();
             }
         }
 
