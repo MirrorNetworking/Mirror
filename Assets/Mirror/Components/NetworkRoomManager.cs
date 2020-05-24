@@ -186,12 +186,14 @@ namespace Mirror
             if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
             {
                 allPlayersReady = false;
-                return;
+                OnRoomServerPlayersNotReady();
             }
-
-            pendingPlayers.Clear();
-            allPlayersReady = true;
-            OnRoomServerPlayersReady();
+            else
+            {
+                pendingPlayers.Clear();
+                allPlayersReady = true;
+                OnRoomServerPlayersReady();
+            }
         }
 
         void CallOnClientEnterRoom()
@@ -603,6 +605,13 @@ namespace Mirror
             // all players are readyToBegin, start the game
             ServerChangeScene(GameplayScene);
         }
+
+        /// <summary>
+        /// This is called on the server when CheckReadyToBegin finds that players are not ready
+        ///
+        /// <para>May be called multiple times while not ready players are joining</para>
+        /// </summary>
+        public virtual void OnRoomServerPlayersNotReady() { }
 
         #endregion
 
