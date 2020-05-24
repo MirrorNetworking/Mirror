@@ -50,7 +50,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 0
   serverOnly: 0
-  m_AssetId: 
+  m_AssetId: 14cc0f525ef1ce84d822efffce91a986
+  hasSpawned: 0
 --- !u!114 &114048121767222990
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,7 +61,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1139254171913846}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a22f9eb8ebad79e47babf4c051a714ee, type: 3}
+  m_Script: {fileID: 11500000, guid: 30bc8143b5ad69c4dabd5dc9d3051b6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
@@ -77,7 +78,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1139254171913846}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e6a8bf08f02e254aa9a52ef0aaa1553, type: 3}
+  m_Script: {fileID: 11500000, guid: 60b9679e2650ea3449ffafb1551177cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
@@ -179,7 +180,6 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
