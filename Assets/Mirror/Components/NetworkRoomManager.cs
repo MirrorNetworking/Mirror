@@ -89,6 +89,8 @@ namespace Mirror
 
                 if (wasReady != nowReady)
                 {
+                    _allPlayersReady = value;
+
                     if (nowReady)
                     {
                         OnRoomServerPlayersReady();
