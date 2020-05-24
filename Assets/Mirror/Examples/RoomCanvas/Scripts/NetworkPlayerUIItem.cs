@@ -8,9 +8,9 @@ namespace Mirror.Examples.NetworkRoomCanvas
         public Text readyText;
 
         [Header("State Colors")]
-        public Color _ready = Color.green;
-        public Color _notReady = Color.red;
-        public Color _host = Color.blue;
+        public Color readyColor = Color.green;
+        public Color notReadyColor = Color.red;
+        public Color hostColor = Color.blue;
 
         private NetworkRoomPlayerExample player;
 
@@ -43,16 +43,16 @@ namespace Mirror.Examples.NetworkRoomCanvas
         private Color getColor(bool ready)
         {
             if (player.IsHost)
-            { return _host; }
+            { return hostColor; }
 
 
             if (ready)
             {
-                return _ready;
+                return readyColor;
             }
             else
             {
-                return _notReady;
+                return notReadyColor;
             }
         }
     }
