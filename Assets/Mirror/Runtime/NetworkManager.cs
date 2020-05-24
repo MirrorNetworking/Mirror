@@ -10,17 +10,12 @@ using UnityEngine.Serialization;
 namespace Mirror
 {
 
-    /// <summary>
-    /// Enumeration of methods of current Network Manager state at runtime.
-    /// </summary>
-    public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
-
     [AddComponentMenu("Network/NetworkManager")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
     [RequireComponent(typeof(NetworkServer))]
     [RequireComponent(typeof(NetworkClient))]
     [DisallowMultipleComponent]
-    public class NetworkManager : MonoBehaviour
+    public class NetworkManager : MonoBehaviour, INetworkManager
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkManager));
 
@@ -127,7 +122,6 @@ namespace Mirror
         /// </summary>
         public virtual void Start()
         {
-
             logger.Log("Thank you for using Mirror! https://mirror-networking.com");
 
             // Set the networkSceneName to prevent a scene reload
@@ -427,7 +421,7 @@ namespace Mirror
             networkSceneName = newSceneName;
 
             // Let server prepare for scene change
-            OnServerChangeScene(newSceneName);
+            server.OnServerChangeScene(newSceneName);
 
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
@@ -449,7 +443,7 @@ namespace Mirror
             // (client may be null after StopClient etc.)
             logger.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
             // Let client prepare for scene change
-            OnClientChangeScene(newSceneName, sceneOperation, customHandling);
+            client.OnClientChangeScene(newSceneName, sceneOperation, customHandling);
 
             // scene handling will happen in overrides of OnClientChangeScene and/or OnClientSceneChanged
             if (customHandling)
@@ -564,18 +558,17 @@ namespace Mirror
             {
                 client.OnAuthenticated(client.Connection);
                 clientLoadedScene = true;
-                client.Connection = null;
             }
 
             FinishStartHost();
 
             // call OnServerSceneChanged
-            OnServerSceneChanged(networkSceneName);
+            server.OnServerSceneChanged(networkSceneName);
 
             if (client.IsConnected)
             {
                 // let client know that we changed scene
-                OnClientSceneChanged(client.Connection);
+                client.OnClientSceneChanged(client.Connection);
             }
         }
 
@@ -591,12 +584,11 @@ namespace Mirror
             {
                 client.OnAuthenticated(client.Connection);
                 clientLoadedScene = true;
-                client.Connection = null;
             }
 
             if (client.IsConnected)
             {
-                OnClientSceneChanged(client.Connection);
+                client.OnClientSceneChanged(client.Connection);
             }
         }
 
@@ -609,7 +601,7 @@ namespace Mirror
             logger.Log("Finished loading scene in server-only mode.");
 
             server.SpawnObjects();
-            OnServerSceneChanged(networkSceneName);
+            server.OnServerSceneChanged(networkSceneName);
         }
 
         #endregion
@@ -618,8 +610,7 @@ namespace Mirror
 
         void RegisterServerMessages(INetworkConnection connection)
         {
-            connection.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
-            connection.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
+            //Currently no messages are regsitered to the Server from NetworkManager
         }
 
         // called after successful authentication
@@ -635,23 +626,6 @@ namespace Mirror
             {
                 var msg = new SceneMessage { sceneName = networkSceneName };
                 conn.Send(msg);
-            }
-        }
-
-        void OnServerReadyMessageInternal(INetworkConnection conn, ReadyMessage msg)
-        {
-            logger.Log("NetworkManager.OnServerReadyMessageInternal");
-            OnServerReady(conn);
-        }
-
-        void OnServerRemovePlayerMessageInternal(INetworkConnection conn, RemovePlayerMessage msg)
-        {
-            logger.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
-
-            if (conn.Identity != null)
-            {
-                OnServerRemovePlayer(conn, conn.Identity);
-                conn.Identity = null;
             }
         }
 
@@ -674,7 +648,6 @@ namespace Mirror
 
             // will wait for scene id to come from the server.
             clientLoadedScene = true;
-            client.Connection = conn;
         }
 
         void OnClientNotReadyMessageInternal(INetworkConnection conn, NotReadyMessage msg)
@@ -682,7 +655,7 @@ namespace Mirror
             logger.Log("NetworkManager.OnClientNotReadyMessageInternal");
 
             client.ready = false;
-            OnClientNotReady(conn);
+            client.OnClientNotReady(conn);
 
             // NOTE: clientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
         }
@@ -695,85 +668,6 @@ namespace Mirror
             {
                 ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
             }
-        }
-
-        #endregion
-
-        #region Server System Callbacks
-
-        /// <summary>
-        /// Called on the server when a client is ready.
-        /// <para>The default implementation of this function calls NetworkServer.SetClientReady() to continue the network setup process.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
-        public virtual void OnServerReady(INetworkConnection conn)
-        {
-            if (conn.Identity == null)
-            {
-                // this is now allowed (was not for a while)
-                logger.Log("Ready with no player object");
-            }
-            server.SetClientReady(conn);
-        }
-
-
-        /// <summary>
-        /// Called on the server when a client removes a player.
-        /// <para>The default implementation of this function destroys the corresponding player object.</para>
-        /// </summary>
-        /// <param name="conn">The connection to remove the player from.</param>
-        /// <param name="player">The player identity to remove.</param>
-        public virtual void OnServerRemovePlayer(INetworkConnection conn, NetworkIdentity player)
-        {
-            if (player.gameObject != null)
-            {
-                server.Destroy(player.gameObject);
-            }
-        }
-
-        /// <summary>
-        /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
-        /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
-        /// </summary>
-        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-        public virtual void OnServerChangeScene(string newSceneName) { }
-
-        /// <summary>
-        /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ServerChangeScene().
-        /// </summary>
-        /// <param name="sceneName">The name of the new scene.</param>
-        public virtual void OnServerSceneChanged(string sceneName) { }
-
-        #endregion
-
-        #region Client System Callbacks
-
-        /// <summary>
-        /// Called on clients when a servers tells the client it is no longer ready.
-        /// <para>This is commonly used when switching scenes.</para>
-        /// </summary>
-        /// <param name="conn">Connection to the server.</param>
-        public virtual void OnClientNotReady(INetworkConnection conn) { }
-
-        /// <summary>
-        /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
-        /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
-        /// </summary>
-        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-        /// <param name="sceneOperation">Scene operation that's about to happen</param>
-        /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
-        public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) { }
-
-        /// <summary>
-        /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
-        /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
-        /// </summary>
-        /// <param name="conn">The network connection that the scene change message arrived on.</param>
-        public virtual void OnClientSceneChanged(INetworkConnection conn)
-        {
-            // always become ready.
-            if (!client.ready)
-                client.Ready(conn);
         }
 
         #endregion

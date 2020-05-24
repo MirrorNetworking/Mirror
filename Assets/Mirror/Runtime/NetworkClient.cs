@@ -24,7 +24,7 @@ namespace Mirror
     /// <para>The <see cref="NetworkManager">NetworkManager</see> has a NetworkClient instance that it uses for games that it starts, but the NetworkClient may be used by itself.</para>
     /// </summary>
     [DisallowMultipleComponent]
-    public class NetworkClient : MonoBehaviour
+    public class NetworkClient : MonoBehaviour, INetworkClient
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkClient));
 
@@ -37,6 +37,7 @@ namespace Mirror
         readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
         [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
+        [Serializable] public class ClientSceneChangeEvent : UnityEvent<string, SceneOperation, bool> { }
 
         /// <summary>
         /// Event fires once the Client has connected its Server.
@@ -47,6 +48,18 @@ namespace Mirror
         /// Event fires after the Client connection has sucessfully been authenticated with its Server.
         /// </summary>
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
+
+        public NetworkConnectionEvent ClientNotReady = new NetworkConnectionEvent();
+
+        /// <summary>
+        /// Event fires when the Client starts changing scene.
+        /// </summary>
+        public ClientSceneChangeEvent ClientChangeScene = new ClientSceneChangeEvent();
+
+        /// <summary>
+        /// Event fires after the Client has completed its scene change.
+        /// </summary>
+        public NetworkConnectionEvent ClientSceneChanged = new NetworkConnectionEvent();
 
         /// <summary>
         /// Event fires after the Client has disconnected from its Server and Cleanup has been called.
@@ -153,7 +166,6 @@ namespace Mirror
             {
                 IConnection transportConnection = await transport.ConnectAsync(uri);
 
-
                 RegisterSpawnPrefabs();
                 InitializeAuthEvents();
 
@@ -161,7 +173,7 @@ namespace Mirror
                 Connection = new NetworkConnection(transportConnection);
                 Time.Reset();
 
-                RegisterMessageHandlers(Connection);
+                RegisterMessageHandlers();
                 Time.UpdateClient(this);
                 _ = OnConnected();
             }
@@ -186,7 +198,7 @@ namespace Mirror
             server.SetLocalConnection(this, c2);
             hostServer = server;
             Connection = new NetworkConnection(c1);
-            RegisterHostHandlers(Connection);
+            RegisterHostHandlers();
             _ = OnConnected();
         }
 
@@ -210,13 +222,11 @@ namespace Mirror
         /// </summary>
         /// <remarks>This is a hack, but it is needed to deserialize
         /// gameobjects when processing the message</remarks>
-        /// 
         internal static NetworkClient Current { get; set; }
 
         async Task OnConnected()
         {
             // reset network time stats
-
 
             // the handler may want to send messages to the client
             // thus we should set the connected state before calling the handler
@@ -238,10 +248,9 @@ namespace Mirror
 
                 Disconnected.Invoke();
             }
-
         }
 
-        public void OnAuthenticated(INetworkConnection conn)
+        internal void OnAuthenticated(INetworkConnection conn)
         {
             Authenticated?.Invoke(conn);
         }
@@ -284,32 +293,32 @@ namespace Mirror
             }
         }
 
-        internal void RegisterHostHandlers(INetworkConnection connection)
+        internal void RegisterHostHandlers()
         {
-            connection.RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
-            connection.RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
-            connection.RegisterHandler<NetworkPongMessage>(msg => { });
-            connection.RegisterHandler<SpawnMessage>(OnHostClientSpawn);
+            Connection.RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
+            Connection.RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
+            Connection.RegisterHandler<NetworkPongMessage>(msg => { });
+            Connection.RegisterHandler<SpawnMessage>(OnHostClientSpawn);
             // host mode reuses objects in the server
             // so we don't need to spawn them
-            connection.RegisterHandler<ObjectSpawnStartedMessage>(msg => { });
-            connection.RegisterHandler<ObjectSpawnFinishedMessage>(msg => { });
-            connection.RegisterHandler<UpdateVarsMessage>(msg => { });
-            connection.RegisterHandler<RpcMessage>(OnRpcMessage);
-            connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
+            Connection.RegisterHandler<ObjectSpawnStartedMessage>(msg => { });
+            Connection.RegisterHandler<ObjectSpawnFinishedMessage>(msg => { });
+            Connection.RegisterHandler<UpdateVarsMessage>(msg => { });
+            Connection.RegisterHandler<RpcMessage>(OnRpcMessage);
+            Connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
-        internal void RegisterMessageHandlers(INetworkConnection connection)
+        internal void RegisterMessageHandlers()
         {
-            connection.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
-            connection.RegisterHandler<ObjectHideMessage>(OnObjectHide);
-            connection.RegisterHandler<NetworkPongMessage>(Time.OnClientPong);
-            connection.RegisterHandler<SpawnMessage>(OnSpawn);
-            connection.RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
-            connection.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
-            connection.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
-            connection.RegisterHandler<RpcMessage>(OnRpcMessage);
-            connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
+            Connection.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
+            Connection.RegisterHandler<ObjectHideMessage>(OnObjectHide);
+            Connection.RegisterHandler<NetworkPongMessage>(Time.OnClientPong);
+            Connection.RegisterHandler<SpawnMessage>(OnSpawn);
+            Connection.RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
+            Connection.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
+            Connection.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
+            Connection.RegisterHandler<RpcMessage>(OnRpcMessage);
+            Connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
         /// <summary>
@@ -338,7 +347,42 @@ namespace Mirror
                 // if no authenticator, consider connection as authenticated
                 Connected.RemoveListener(OnAuthenticated);
             }
+        }
 
+        /// <summary>
+        /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
+        /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
+        /// </summary>
+        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
+        /// <param name="sceneOperation">Scene operation that's about to happen</param>
+        /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
+        internal void OnClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
+        {
+            ClientChangeScene.Invoke(sceneName, sceneOperation, customHandling);
+        }
+
+        /// <summary>
+        /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
+        /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
+        /// </summary>
+        /// <param name="conn">The network connection that the scene change message arrived on.</param>
+        internal void OnClientSceneChanged(INetworkConnection conn)
+        {
+            // always become ready.
+            if (!ready)
+                Ready(conn);
+
+            ClientSceneChanged.Invoke(conn);
+        }
+
+        /// <summary>
+        /// Called on clients when a servers tells the client it is no longer ready.
+        /// <para>This is commonly used when switching scenes.</para>
+        /// </summary>
+        /// <param name="conn">Connection to the server.</param>
+        internal void OnClientNotReady(INetworkConnection conn)
+        {
+            ClientNotReady.Invoke(conn);
         }
 
         static bool ConsiderForSpawning(NetworkIdentity identity)
@@ -378,7 +422,6 @@ namespace Mirror
         /// <para>This could be for example when a client enters an ongoing game and has finished loading the current scene. The server should respond to the SYSTEM_READY event with an appropriate handler which instantiates the players object for example.</para>
         /// </summary>
         /// <param name="conn">The client connection which is ready.</param>
-        /// <returns>True if succcessful</returns>
         public void Ready(INetworkConnection conn)
         {
             if (ready)
@@ -391,11 +434,9 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("ClientScene.Ready() called with connection [" + conn + "]");
 
-
             // Set these before sending the ReadyMessage, otherwise host client
             // will fail in InternalAddPlayer with null readyConnection.
             ready = true;
-            Connection = conn;
             Connection.IsReady = true;
 
             // Tell server we're ready to have a player object spawned
@@ -431,18 +472,6 @@ namespace Mirror
                 spawnableObjects.Add(obj.sceneId, obj);
             }
         }
-
-        NetworkIdentity SpawnSceneObject(ulong sceneId)
-        {
-            if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
-            {
-                spawnableObjects.Remove(sceneId);
-                return identity;
-            }
-            logger.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
-            return null;
-        }
-
 
         #region Spawn Prefabs
         private void RegisterSpawnPrefabs()
@@ -554,11 +583,6 @@ namespace Mirror
                 throw new InvalidOperationException("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
             }
 
-            if (spawnHandler == null || unspawnHandler == null)
-            {
-                throw new InvalidOperationException("RegisterPrefab custom spawn function null for " + identity.AssetId);
-            }
-
             if (identity.AssetId == Guid.Empty)
             {
                 throw new InvalidOperationException("RegisterPrefab game object " + prefab.name + " has no " + nameof(prefab) + ". Use RegisterSpawnHandler() instead?");
@@ -610,11 +634,6 @@ namespace Mirror
         /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
         public void RegisterSpawnHandler(Guid assetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
-            if (spawnHandler == null || unspawnHandler == null)
-            {
-                throw new InvalidOperationException("RegisterSpawnHandler custom spawn function null for " + assetId);
-            }
-
             if (logger.LogEnabled()) logger.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName());
 
             spawnHandlers[assetId] = spawnHandler;
@@ -796,6 +815,17 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId);
             return spawnedId;
+        }
+
+        NetworkIdentity SpawnSceneObject(ulong sceneId)
+        {
+            if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
+            {
+                spawnableObjects.Remove(sceneId);
+                return identity;
+            }
+            logger.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
+            return null;
         }
 
         internal void OnObjectSpawnStarted(ObjectSpawnStartedMessage _)

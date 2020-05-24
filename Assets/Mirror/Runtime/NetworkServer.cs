@@ -8,7 +8,6 @@ using UnityEngine.Events;
 namespace Mirror
 {
 
-
     /// <summary>
     /// The NetworkServer.
     /// </summary>
@@ -19,13 +18,14 @@ namespace Mirror
     /// <para>There are a number of internal messages used by NetworkServer, these are setup when NetworkServer.Listen() is called.</para>
     /// </remarks>
     [DisallowMultipleComponent]
-    public class NetworkServer : MonoBehaviour
+    public class NetworkServer : MonoBehaviour, INetworkServer
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkServer));
 
         bool initialized;
 
         [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
+        [Serializable] public class NetworkSceneEvent : UnityEvent<string> { }
 
         /// <summary>
         /// The maximum number of concurrent network connections to support.
@@ -49,6 +49,16 @@ namespace Mirror
         /// Event fires once a new Client has passed Authentication to the Server.
         /// </summary>
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
+
+        /// <summary>
+        /// Event fires before Server changes scene.
+        /// </summary>
+        public NetworkSceneEvent ServerChangeScene = new NetworkSceneEvent();
+
+        /// <summary>
+        /// Event fires after Server has completed scene change.
+        /// </summary>
+        public NetworkSceneEvent ServerSceneChanged = new NetworkSceneEvent();
 
         /// <summary>
         /// Event fires once a Client has Disconnected from the Server.
@@ -76,7 +86,6 @@ namespace Mirror
         /// True if there is a local client connected to this server (host mode)
         /// </summary>
         public bool LocalClientActive => LocalClient != null && LocalClient.Active;
-
 
         /// <summary>
         /// Number of active player objects across all connections on the server.
@@ -109,7 +118,6 @@ namespace Mirror
 
         // Time kept in this server
         public readonly NetworkTime Time = new NetworkTime();
-
 
         // transport to use to accept connections
         public AsyncTransport transport;
@@ -153,7 +161,6 @@ namespace Mirror
                 Connected.AddListener(OnAuthenticated);
             }
         }
-
 
         internal void RegisterMessageHandlers(INetworkConnection connection)
         {
@@ -240,7 +247,6 @@ namespace Mirror
         /// <para>This connection will use the callbacks registered with the server.</para>
         /// </summary>
         /// <param name="conn">Network connection to add.</param>
-        /// <returns>True if added.</returns>
         public void AddConnection(INetworkConnection conn)
         {
             if (!connections.Contains(conn))
@@ -256,7 +262,6 @@ namespace Mirror
         /// This removes an external connection added with AddExternalConnection().
         /// </summary>
         /// <param name="connectionId">The id of the connection to remove.</param>
-        /// <returns>True if the removal succeeded</returns>
         public void RemoveConnection(INetworkConnection conn)
         {
             connections.Remove(conn);
@@ -291,6 +296,25 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
+        /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
+        /// </summary>
+        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
+        internal void OnServerChangeScene(string newSceneName)
+        {
+            ServerChangeScene.Invoke(newSceneName);
+        }
+
+        /// <summary>
+        /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ServerChangeScene().
+        /// </summary>
+        /// <param name="sceneName">The name of the new scene.</param>
+        internal void OnServerSceneChanged(string sceneName)
+        {
+            ServerSceneChanged.Invoke(sceneName);
+        }
+
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
         void SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
@@ -303,13 +327,12 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to all connected clients, both ready and not-ready.
-        /// <para>See <see cref="NetworkConnection.isReady"/></para>
+        /// <para>See <see cref="NetworkConnection.IsReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <param name="sendToReadyOnly">Indicates if only ready clients should receive the message</param>
-        /// <returns></returns>
         public void SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToAll id:" + typeof(T));
@@ -318,14 +341,13 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to only clients which are ready with option to include the owner of the object identity.
-        /// <para>See <see cref="NetworkConnection.isReady"/></para>
+        /// <para>See <see cref="NetworkConnection.IsReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
         /// <param name="identity">Identity of the owner</param>
         /// <param name="msg">Message</param>
         /// <param name="includeOwner">Should the owner of the object be included</param>
         /// <param name="channelId">Transport channel to use</param>
-        /// <returns></returns>
         public void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToReady msgType:" + typeof(T));
@@ -347,13 +369,12 @@ namespace Mirror
 
         /// <summary>
         /// Send a message to only clients which are ready including the owner of the object identity.
-        /// <para>See <see cref="NetworkConnection.isReady"/></para>
+        /// <para>See <see cref="NetworkConnection.IsReady"/></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity">identity of the object</param>
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
-        /// <returns></returns>
         public void SendToReady<T>(NetworkIdentity identity, T msg, int channelId) where T : IMessageBase
         {
             SendToReady(identity, msg, true, channelId);
@@ -502,22 +523,6 @@ namespace Mirror
             return InternalReplacePlayerForConnection(conn, client, player, keepAuthority);
         }
 
-        /// <summary>
-        /// <para>When an AddPlayer message handler has received a request from a player, the server calls this to associate the player object with the connection.</para>
-        /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player on this playerControllerId for this connection, this will fail.</para>
-        /// </summary>
-        /// <param name="conn">Connection which is adding the player.</param>
-        /// <param name="client">Client associated to the player.</param> 
-        /// <param name="player">Player object spawned for the player.</param>
-        /// <param name="assetId"></param>
-        /// <returns></returns>
-        public bool AddPlayerForConnection(INetworkConnection conn, GameObject player, Guid assetId)
-        {
-            NetworkIdentity identity = GetNetworkIdentity(player);
-            identity.AssetId = assetId;
-            return AddPlayerForConnection(conn, player);
-        }
-
         void SpawnObserversForConnection(INetworkConnection conn)
         {
             if (logger.LogEnabled()) logger.Log("Spawning " + spawned.Count + " objects for conn " + conn);
@@ -554,6 +559,22 @@ namespace Mirror
             // OnStartClient on each one (only after all were spawned, which
             // is how Unity's Start() function works too)
             conn.Send(new ObjectSpawnFinishedMessage());
+        }
+
+        /// <summary>
+        /// <para>When an AddPlayer message handler has received a request from a player, the server calls this to associate the player object with the connection.</para>
+        /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player on this playerControllerId for this connection, this will fail.</para>
+        /// </summary>
+        /// <param name="conn">Connection which is adding the player.</param>
+        /// <param name="client">Client associated to the player.</param> 
+        /// <param name="player">Player object spawned for the player.</param>
+        /// <param name="assetId"></param>
+        /// <returns></returns>
+        public bool AddPlayerForConnection(INetworkConnection conn, GameObject player, Guid assetId)
+        {
+            NetworkIdentity identity = GetNetworkIdentity(player);
+            identity.AssetId = assetId;
+            return AddPlayerForConnection(conn, player);
         }
 
         /// <summary>

@@ -119,6 +119,13 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TimeTest()
+        {
+            SampleBehavior behaviour1 = playerGO.AddComponent<SampleBehavior>();
+            Assert.That(behaviour1.NetworkTime, Is.EqualTo(client.Time));
+        }
+
+        [Test]
         public void HasIdentitysConnectionToServer()
         {
             (identity.ConnectionToServer, _) = PipedConnections();

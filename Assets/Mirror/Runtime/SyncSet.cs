@@ -81,6 +81,8 @@ namespace Mirror
         // this should be called after a successfull sync
         public void Flush() => changes.Clear();
 
+        void AddOperation(Operation op) => AddOperation(op, default);
+
         void AddOperation(Operation op, T item)
         {
             if (IsReadOnly)
@@ -116,8 +118,6 @@ namespace Mirror
                     break;
             }
         }
-
-        void AddOperation(Operation op) => AddOperation(op, default);
 
         public void OnSerializeAll(NetworkWriter writer)
         {

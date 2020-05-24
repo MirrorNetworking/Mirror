@@ -10,6 +10,8 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkClientTest : HostSetup<MockComponent>
     {
+        GameObject playerReplacement;
+
         [Test]
         public void IsConnectedTest()
         {
@@ -129,5 +131,102 @@ namespace Mirror.Tests
             Object.Destroy(prefabObject);
         }
 
+        [Test]
+        public void ReplacePlayerHostTest()
+        {
+            playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
+            NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
+            replacementIdentity.AssetId = Guid.NewGuid();
+            client.RegisterPrefab(playerReplacement);
+
+            server.ReplacePlayerForConnection(server.LocalConnection, client, playerReplacement, true);
+
+            Assert.That(server.LocalClient.Connection.Identity, Is.EqualTo(replacementIdentity));
+        }
+
+        int ClientChangeCalled;
+        public void ClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
+        {
+            ClientChangeCalled++;
+        }
+
+        [Test]
+        public void ClientChangeSceneTest()
+        {
+            client.ClientChangeScene.AddListener(ClientChangeScene);
+            client.OnClientChangeScene("", SceneOperation.Normal, false);
+            Assert.That(ClientChangeCalled, Is.EqualTo(1));
+        }
+
+        int ClientSceneChangedCalled;
+        public void ClientSceneChanged(INetworkConnection conn)
+        {
+            ClientSceneChangedCalled++;
+        }
+
+        [Test]
+        public void ClientSceneChangedTest()
+        {
+            client.ClientSceneChanged.AddListener(ClientSceneChanged);
+            client.OnClientSceneChanged(client.Connection);
+            Assert.That(ClientSceneChangedCalled, Is.EqualTo(1));
+        }
+
+        int ClientNotReadyCalled;
+        public void ClientNotReady(INetworkConnection conn)
+        {
+            ClientNotReadyCalled++;
+        }
+
+        [Test]
+        public void ClientNotReadyTest()
+        {
+            client.ClientNotReady.AddListener(ClientNotReady);
+            client.OnClientNotReady(client.Connection);
+            Assert.That(ClientNotReadyCalled, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void RemovePlayerExceptionTest()
+        {
+            client.Connection = null;
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                client.RemovePlayer();
+            });
+        }
+
+        [Test]
+        public void RemovePlayerNullIdentTest()
+        {
+            client.Connection.Identity = null;
+            Assert.That(client.RemovePlayer(), Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator ObjectHideTest()
+        {
+            client.OnObjectHide(new ObjectHideMessage
+            {
+                netId = identity.NetId
+            });
+
+            yield return null;
+
+            Assert.That(identity == null);
+        }
+
+        [UnityTest]
+        public IEnumerator ObjectDestroyTest()
+        {
+            client.OnObjectDestroy(new ObjectDestroyMessage
+            {
+                netId = identity.NetId
+            });
+
+            yield return null;
+
+            Assert.That(identity == null);
+        }
     }
 }
