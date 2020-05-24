@@ -6,6 +6,17 @@ namespace Mirror.Examples.NetworkRoomCanvas
     [AddComponentMenu("")]
     public class NetworkRoomPlayerExample : NetworkRoomPlayer
     {
+        public bool IsHost { get; private set; }
+
+        public override void OnStartLocalPlayer()
+        {
+            if (isServer)
+            {
+                IsHost = true;
+                readyToBegin = true;
+            }
+        }
+
         public event Action<bool> onReadyChanged;
 
         /// <summary>

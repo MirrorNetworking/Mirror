@@ -42,7 +42,7 @@ namespace Mirror.Examples.NetworkRoomCanvas
         }
         private Color getColor(bool ready)
         {
-            if (player.isServer)
+            if (player.IsHost)
             { return _host; }
 
 
