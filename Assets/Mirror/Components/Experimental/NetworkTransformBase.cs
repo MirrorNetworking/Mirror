@@ -117,13 +117,13 @@ namespace Mirror.Experimental
         public float lastClientSendTime;
         public float lastServerSendTime;
 
-        void LateUpdate()
+        void FixedUpdate()
         {
             // if server then always sync to others.
             if (isServer)
             {
                 // let the clients know that this has moved
-                if (Time.time - lastServerSendTime >= syncInterval && HasEitherMovedRotatedScaled())
+                if (HasEitherMovedRotatedScaled())
                 {
                     RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
                     lastServerSendTime = Time.time;
@@ -136,8 +136,7 @@ namespace Mirror.Experimental
                 // -> only if connectionToServer has been initialized yet too
                 if (IsOwnerWithClientAuthority)
                 {
-                    // check only each 'syncInterval'
-                    if (!isServer && Time.time - lastClientSendTime >= syncInterval)
+                    if (!isServer)
                     {
                         if (HasEitherMovedRotatedScaled())
                         {
@@ -204,7 +203,7 @@ namespace Mirror.Experimental
         bool NeedsTeleport()
         {
             // calculate time between the two data points
-            float startTime = start.isValid ? start.timeStamp : Time.time - syncInterval;
+            float startTime = start.isValid ? start.timeStamp : Time.time - Time.fixedDeltaTime;
             float goalTime = goal.isValid ? goal.timeStamp : Time.time;
             float difference = goalTime - startTime;
             float timeSinceGoalReceived = Time.time - goalTime;
@@ -252,7 +251,7 @@ namespace Mirror.Experimental
             };
 
             // movement speed: based on how far it moved since last time has to be calculated before 'start' is overwritten
-            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetTransform, syncInterval);
+            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetTransform, Time.fixedDeltaTime);
 
             // reassign start wisely
             // first ever data point? then make something up for previous one so that we can start interpolation without waiting for next.
@@ -260,7 +259,7 @@ namespace Mirror.Experimental
             {
                 start = new DataPoint
                 {
-                    timeStamp = Time.time - syncInterval,
+                    timeStamp = Time.time - Time.fixedDeltaTime,
                     // local position/rotation for VR support
                     localPosition = targetTransform.localPosition,
                     localRotation = targetTransform.localRotation,
