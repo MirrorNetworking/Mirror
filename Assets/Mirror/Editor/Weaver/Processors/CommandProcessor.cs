@@ -70,8 +70,8 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Ldc_I4, ca.GetField("channel", 0)));
-            bool ignoreAuthority = ca.GetField("ignoreAuthority", false);
+            worker.Append(worker.Create(OpCodes.Ldc_I4, commandAttr.GetField("channel", 0)));
+            bool ignoreAuthority = commandAttr.GetField("ignoreAuthority", false);
             worker.Append(worker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Call, Weaver.sendCommandInternal));
 
