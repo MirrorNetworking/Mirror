@@ -804,7 +804,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec2af714933ced74f9b25f8622390435, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _networkPlayerPrefab: {fileID: 8458649661201493998, guid: d4a29b7d699397641b148fd112df0c55,
+  _networkPlayerPrefab: {fileID: 7912927997620116918, guid: 6e5b8ac29c5cf5f4b8c9578e538defd4,
     type: 3}
 --- !u!114 &1640324059
 MonoBehaviour:
