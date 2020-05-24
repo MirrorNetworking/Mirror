@@ -365,13 +365,18 @@ namespace Mirror
             public MirrorInvokeType invokeType;
             public Type invokeClass;
             public CmdDelegate invokeFunction;
+            public bool cmdIgnoreAuthority;
+        }
+        public struct CommandInfo
+        {
+            public bool ignoreAuthority;
         }
 
         static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
         // helper function register a Command/Rpc/SyncEvent delegate
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func)
+        protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func, bool cmdIgnoreAuthority = false)
         {
             // type+func so Inventory.RpcUse != Equipment.RpcUse
             int cmdHash = GetMethodHash(invokeClass, cmdName);
@@ -394,16 +399,17 @@ namespace Mirror
             {
                 invokeType = invokerType,
                 invokeClass = invokeClass,
-                invokeFunction = func
+                invokeFunction = func,
+                cmdIgnoreAuthority = cmdIgnoreAuthority,
             };
             cmdHandlerDelegates[cmdHash] = invoker;
             if (logger.LogEnabled()) logger.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName());
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
+        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func, bool ignoreAuthority)
         {
-            RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func);
+            RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func, ignoreAuthority);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -449,6 +455,18 @@ namespace Mirror
                 return true;
             }
             return false;
+        }
+
+        internal CommandInfo GetCommandInfo(int cmdHash)
+        {
+            if (GetInvokerForHash(cmdHash, MirrorInvokeType.Command, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(this))
+            {
+                return new CommandInfo
+                {
+                    ignoreAuthority = invoker.cmdIgnoreAuthority
+                };
+            }
+            return default;
         }
 
         [Obsolete("Use NetworkBehaviour.GetDelegate instead.")]
