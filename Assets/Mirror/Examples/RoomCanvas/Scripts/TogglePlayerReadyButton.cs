@@ -16,7 +16,6 @@ namespace Mirror.Examples.NetworkRoomCanvas
 
             if (NetworkClient.active)
             {
-                button.gameObject.SetActive(true);
                 button.onClick.AddListener(OnClick);
 
                 ClientScene.onLocalPlayerChanged += ClientScene_onLocalPlayerChanged;
@@ -27,7 +26,7 @@ namespace Mirror.Examples.NetworkRoomCanvas
             else
             {
                 // button only needs to exists on host/client
-                button.gameObject.SetActive(false);
+                gameObject.SetActive(false);
             }
         }
         void OnDisable()

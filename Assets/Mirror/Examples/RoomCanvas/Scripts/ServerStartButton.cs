@@ -15,7 +15,6 @@ namespace Mirror.Examples.NetworkRoomCanvas
             button = GetComponent<Button>();
             if (NetworkServer.active)
             {
-                button.gameObject.SetActive(true);
                 button.onClick.AddListener(OnClick);
 
                 manager = NetworkManager.singleton as NetworkRoomManagerExample;
@@ -27,7 +26,7 @@ namespace Mirror.Examples.NetworkRoomCanvas
             else
             {
                 // button only needs to be active for server
-                button.gameObject.SetActive(false);
+                gameObject.SetActive(false);
             }
         }
 
