@@ -29,9 +29,7 @@ namespace Mirror.Examples.NetworkRoomCanvas
         /// <param name="readyState">Whether the player is ready or not.</param>
         public override void ReadyStateChanged(bool oldReadyState, bool readyState)
         {
-            //Debug.Log(readyState);
-
-            onReadyChanged.Invoke(readyState);
+            onReadyChanged?.Invoke(readyState);
         }
     }
 }
