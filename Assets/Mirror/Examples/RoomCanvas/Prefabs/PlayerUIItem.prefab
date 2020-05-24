@@ -194,7 +194,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 100}
+  m_SizeDelta: {x: 700, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &7912927997620116918
 MonoBehaviour:
@@ -210,6 +210,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameText: {fileID: 7912927996832628220}
   readyText: {fileID: 7912927997436550541}
-  _ready: {r: 0, g: 1, b: 0, a: 1}
-  _notReady: {r: 1, g: 0, b: 0, a: 1}
-  _host: {r: 0, g: 0, b: 1, a: 1}
+  readyColor: {r: 0, g: 0.7, b: 0, a: 1}
+  notReadyColor: {r: 0.7, g: 0, b: 0, a: 1}
+  hostColor: {r: 0, g: 0, b: 0.7, a: 1}
