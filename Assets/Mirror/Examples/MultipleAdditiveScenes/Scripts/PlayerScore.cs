@@ -25,6 +25,9 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
             if (isLocalPlayer || matchIndex == clientMatchIndex)
                 GUI.Box(new Rect(10f + (scoreIndex * 110), 10f, 100f, 25f), $"P{playerNumber}: {score}");
+
+            if (isLocalPlayer)
+                GUI.Box(new Rect(Screen.width-100, 10f, 90f, 25f), $"RTT: {(int)(NetworkTime.rtt * 1000)}");
         }
     }
 }
