@@ -32,7 +32,10 @@ namespace Mirror.Examples.NetworkRoomCanvas
 
         void OnDisable()
         {
-            manager.onServerAllPlayersReady -= Manager_onServerAllPlayersReady;
+            if (manager != null)
+            {
+                manager.onServerAllPlayersReady -= Manager_onServerAllPlayersReady;
+            }
         }
 
         private void Manager_onServerAllPlayersReady(bool allReady)
