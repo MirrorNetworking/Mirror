@@ -32,33 +32,33 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            ILProcessor cmdWorker = cmd.Body.GetILProcessor();
-            Instruction label1 = cmdWorker.Create(OpCodes.Nop);
-            Instruction label2 = cmdWorker.Create(OpCodes.Nop);
+            ILProcessor worker = cmd.Body.GetILProcessor();
+            Instruction label1 = worker.Create(OpCodes.Nop);
+            Instruction label2 = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteClientActiveCheck(cmdWorker, ed.Name, label1, "Event");
+            NetworkBehaviourProcessor.WriteClientActiveCheck(worker, ed.Name, label1, "Event");
 
             // null event check
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Castclass, td));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldfld, eventField));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Brtrue, label2));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
-            cmdWorker.Append(label2);
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Castclass, td));
+            worker.Append(worker.Create(OpCodes.Ldfld, eventField));
+            worker.Append(worker.Create(OpCodes.Brtrue, label2));
+            worker.Append(worker.Create(OpCodes.Ret));
+            worker.Append(label2);
 
             // setup reader
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Castclass, td));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldfld, eventField));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Castclass, td));
+            worker.Append(worker.Create(OpCodes.Ldfld, eventField));
 
             // read the event arguments
             MethodReference invoke = Resolvers.ResolveMethod(eventField.FieldType, Weaver.CurrentAssembly, "Invoke");
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(invoke.Resolve(), cmdWorker, false))
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(invoke.Resolve(), worker, false))
                 return null;
 
             // invoke actual event delegate function
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, invoke));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
+            worker.Append(worker.Create(OpCodes.Callvirt, invoke));
+            worker.Append(worker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
 
@@ -77,34 +77,34 @@ namespace Mirror.Weaver
                 evt.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
             }
 
-            ILProcessor evtWorker = evt.Body.GetILProcessor();
-            Instruction label = evtWorker.Create(OpCodes.Nop);
+            ILProcessor worker = evt.Body.GetILProcessor();
+            Instruction label = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteSetupLocals(evtWorker);
+            NetworkBehaviourProcessor.WriteSetupLocals(worker);
 
-            NetworkBehaviourProcessor.WriteServerActiveCheck(evtWorker, ed.Name, label, "Event");
+            NetworkBehaviourProcessor.WriteServerActiveCheck(worker, ed.Name, label, "Event");
 
-            NetworkBehaviourProcessor.WriteCreateWriter(evtWorker);
+            NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the syncevent
-            if (!NetworkBehaviourProcessor.WriteArguments(evtWorker, invoke.Resolve(), false))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, invoke.Resolve(), false))
                 return null;
 
             // invoke interal send and return
             // this
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0));
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldtoken, td));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldtoken, td));
             // invokerClass
-            evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
+            worker.Append(worker.Create(OpCodes.Ldstr, ed.Name));
             // writer
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0));
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, syncEventAttr.GetField("channel", 0)));
-            evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.sendEventInternal));
+            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ldc_I4, syncEventAttr.GetField("channel", 0)));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.sendEventInternal));
 
-            NetworkBehaviourProcessor.WriteRecycleWriter(evtWorker);
+            NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 
-            evtWorker.Append(evtWorker.Create(OpCodes.Ret));
+            worker.Append(worker.Create(OpCodes.Ret));
 
             return evt;
         }
