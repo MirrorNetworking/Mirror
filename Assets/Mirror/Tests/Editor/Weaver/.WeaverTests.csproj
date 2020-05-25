@@ -86,7 +86,9 @@
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourServer.cs" />
     <Compile Include="WeaverCommandTests~\CommandCantBeStatic.cs" />
     <Compile Include="WeaverCommandTests~\CommandStartsWithCmd.cs" />
+    <Compile Include="WeaverCommandTests~\CommandThatIgnoresAuthority.cs" />
     <Compile Include="WeaverCommandTests~\CommandValid.cs" />
+    <Compile Include="WeaverCommandTests~\CommandWithArguments.cs" />
     <Compile Include="WeaverGeneralTests~\RecursionCount.cs" />
     <Compile Include="WeaverGeneralTests~\TestingScriptableObjectArraySerialization.cs" />
     <Compile Include="WeaverMessageTests~\MessageMemberGeneric.cs" />
