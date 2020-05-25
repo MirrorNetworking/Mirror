@@ -21,7 +21,7 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger(typeof(ClientScene));
 
         static bool isSpawnFinished;
-        private static NetworkIdentity _localPlayer;
+        static NetworkIdentity _localPlayer;
 
         /// <summary>
         /// NetworkIdentity of the localPlayer
