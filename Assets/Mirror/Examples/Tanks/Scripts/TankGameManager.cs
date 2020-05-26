@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Mirror.Examples.Tanks
 {
-    public class TanksNetworkManager : NetworkManager
+    public class TankGameManager : MonoBehaviour
     {
         public int MinimumPlayersForGame = 1;
 
@@ -23,7 +23,7 @@ namespace Mirror.Examples.Tanks
 
         void Update()
         {
-            if (isNetworkActive)
+            if (NetworkManager.singleton.isNetworkActive)
             {
                 GameReadyCheck();
                 GameOverCheck();
@@ -38,11 +38,18 @@ namespace Mirror.Examples.Tanks
                     UpdateStats();
                 }
             }
+            else
+            {
+                //Cleanup state once network goes offline
+                IsGameReady = false;
+                LocalPlayer = null;
+                players.Clear();
+            }
         }
 
         void ShowReadyMenu()
         {
-            if (mode == NetworkManagerMode.ServerOnly)
+            if (NetworkManager.singleton.mode == NetworkManagerMode.ServerOnly)
                 return;
 
             if (LocalPlayer.isReady)
