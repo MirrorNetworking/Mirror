@@ -37,21 +37,21 @@ namespace Mirror.Weaver
         {
             MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
 
-            ILProcessor cmdWorker = md.Body.GetILProcessor();
+            ILProcessor worker = md.Body.GetILProcessor();
 
-            NetworkBehaviourProcessor.WriteSetupLocals(cmdWorker);
+            NetworkBehaviourProcessor.WriteSetupLocals(worker);
 
             if (Weaver.GenerateLogErrors)
             {
-                cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, "Call Command function " + md.Name));
-                cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.logErrorReference));
+                worker.Append(worker.Create(OpCodes.Ldstr, "Call Command function " + md.Name));
+                worker.Append(worker.Create(OpCodes.Call, Weaver.logErrorReference));
             }
 
             // NetworkWriter writer = new NetworkWriter();
-            NetworkBehaviourProcessor.WriteCreateWriter(cmdWorker);
+            NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Cmd call
-            if (!NetworkBehaviourProcessor.WriteArguments(cmdWorker, md, false))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, false))
                 return null;
 
             string cmdName = md.Name;
@@ -63,19 +63,19 @@ namespace Mirror.Weaver
 
             // invoke internal send and return
             // load 'base.' to call the SendCommand function with
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldtoken, td));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldtoken, td));
             // invokerClass
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, cmdName));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
+            worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             // writer
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, commandAttr.GetField("channel", 0)));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.sendCommandInternal));
+            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ldc_I4, commandAttr.GetField("channel", 0)));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.sendCommandInternal));
 
-            NetworkBehaviourProcessor.WriteRecycleWriter(cmdWorker);
+            NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
+            worker.Append(worker.Create(OpCodes.Ret));
 
             return cmd;
         }
@@ -97,21 +97,21 @@ namespace Mirror.Weaver
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
-            ILProcessor cmdWorker = cmd.Body.GetILProcessor();
-            Instruction label = cmdWorker.Create(OpCodes.Nop);
+            ILProcessor worker = cmd.Body.GetILProcessor();
+            Instruction label = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteServerActiveCheck(cmdWorker, md.Name, label, "Command");
+            NetworkBehaviourProcessor.WriteServerActiveCheck(worker, md.Name, label, "Command");
 
             // setup for reader
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Castclass, td));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, cmdWorker, false))
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, worker, false))
                 return null;
 
             // invoke actual command function
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, cmdCallFunc));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
+            worker.Append(worker.Create(OpCodes.Callvirt, cmdCallFunc));
+            worker.Append(worker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
             td.Methods.Add(cmd);
