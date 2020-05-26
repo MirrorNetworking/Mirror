@@ -1317,7 +1317,7 @@ GameObject:
   - component: {fileID: 1282001518}
   - component: {fileID: 1282001519}
   - component: {fileID: 1282001521}
-  - component: {fileID: 1282001522}
+  - component: {fileID: 1282001520}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -1354,6 +1354,36 @@ MonoBehaviour:
   showGUI: 1
   offsetX: 0
   offsetY: 0
+--- !u!114 &1282001520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282001517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dontDestroyOnLoad: 1
+  runInBackground: 1
+  startOnHeadless: 1
+  showDebugMessages: 0
+  serverTickRate: 30
+  offlineScene: 
+  onlineScene: 
+  transport: {fileID: 1282001521}
+  networkAddress: localhost
+  maxConnections: 4
+  disconnectInactiveConnections: 0
+  disconnectInactiveTimeout: 60
+  authenticator: {fileID: 0}
+  playerPrefab: {fileID: 1916082411674582, guid: 6f43bf5488a7443d19ab2a83c6b91f35,
+    type: 3}
+  autoCreatePlayer: 1
+  playerSpawnMethod: 0
+  spawnPrefabs: []
 --- !u!114 &1282001521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1410,50 +1440,6 @@ MonoBehaviour:
   serverMaxReceivesPerTick: 10000
   clientMaxMessageSize: 16384
   clientMaxReceivesPerTick: 1000
---- !u!114 &1282001522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282001517}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21139f03d4abf3b4dbeb308fa6c880ef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 1
-  runInBackground: 1
-  startOnHeadless: 1
-  showDebugMessages: 0
-  serverTickRate: 30
-  offlineScene: 
-  onlineScene: 
-  transport: {fileID: 1282001521}
-  networkAddress: localhost
-  maxConnections: 4
-  disconnectInactiveConnections: 0
-  disconnectInactiveTimeout: 60
-  authenticator: {fileID: 0}
-  playerPrefab: {fileID: 1916082411674582, guid: 6f43bf5488a7443d19ab2a83c6b91f35,
-    type: 3}
-  autoCreatePlayer: 1
-  playerSpawnMethod: 0
-  spawnPrefabs:
-  - {fileID: 5890560936853567077, guid: b7dd46dbf38c643f09e206f9fa4be008, type: 3}
-  MinimumPlayersForGame: 1
-  LocalPlayer: {fileID: 0}
-  StartPanel: {fileID: 1423260327}
-  GameOverPanel: {fileID: 1631056143}
-  HealthTextLabel: {fileID: 721152070}
-  ScoreTextLabel: {fileID: 637114753}
-  HealthText: {fileID: 1278248530}
-  ScoreText: {fileID: 1162041875}
-  PlayerNameText: {fileID: 264728361}
-  WinnerNameText: {fileID: 597109996}
-  IsGameReady: 0
-  IsGameOver: 0
-  players: []
 --- !u!1 &1423260327
 GameObject:
   m_ObjectHideFlags: 0
@@ -1771,7 +1757,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1282001522}
+      - m_Target: {fileID: 2086596000}
         m_MethodName: ReadyButtonHandler
         m_Mode: 1
         m_Arguments:
@@ -1981,6 +1967,7 @@ GameObject:
   - component: {fileID: 2086595998}
   - component: {fileID: 2086595997}
   - component: {fileID: 2086595996}
+  - component: {fileID: 2086596000}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2071,3 +2058,28 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &2086596000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086595995}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21139f03d4abf3b4dbeb308fa6c880ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MinimumPlayersForGame: 1
+  LocalPlayer: {fileID: 0}
+  StartPanel: {fileID: 1423260327}
+  GameOverPanel: {fileID: 1631056143}
+  HealthTextLabel: {fileID: 721152070}
+  ScoreTextLabel: {fileID: 637114753}
+  HealthText: {fileID: 1278248530}
+  ScoreText: {fileID: 1162041875}
+  PlayerNameText: {fileID: 264728361}
+  WinnerNameText: {fileID: 597109996}
+  IsGameReady: 0
+  IsGameOver: 0
+  players: []
