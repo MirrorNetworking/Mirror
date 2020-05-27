@@ -13,7 +13,7 @@ namespace Mirror.Tests
         public int called;
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
+        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader)
         {
             ++((CommandTestNetworkBehaviour)comp).called;
         }
@@ -25,7 +25,7 @@ namespace Mirror.Tests
         public int called;
         // weaver generates this from [Rpc]
         // but for tests we need to add it manually
-        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
+        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader)
         {
             ++((RpcTestNetworkBehaviour)comp).called;
         }
@@ -37,7 +37,7 @@ namespace Mirror.Tests
         public int called;
         // weaver generates this from [SyncEvent]
         // but for tests we need to add it manually
-        public static void SyncEventGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
+        public static void SyncEventGenerated(NetworkBehaviour comp, NetworkReader reader)
         {
             ++((SyncEventTestNetworkBehaviour)comp).called;
         }

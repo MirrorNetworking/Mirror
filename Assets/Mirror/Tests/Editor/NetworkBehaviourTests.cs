@@ -32,7 +32,7 @@ namespace Mirror.Tests
 
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
+        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader)
         {
             ++((NetworkBehaviourSendCommandInternalComponent)comp).called;
         }
@@ -52,7 +52,7 @@ namespace Mirror.Tests
 
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void RPCGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
+        public static void RPCGenerated(NetworkBehaviour comp, NetworkReader reader)
         {
             ++((NetworkBehaviourSendRPCInternalComponent)comp).called;
         }
@@ -72,7 +72,7 @@ namespace Mirror.Tests
 
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void TargetRPCGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
+        public static void TargetRPCGenerated(NetworkBehaviour comp, NetworkReader reader)
         {
             ++((NetworkBehaviourSendTargetRPCInternalComponent)comp).called;
         }
@@ -92,7 +92,7 @@ namespace Mirror.Tests
 
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void EventGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null)
+        public static void EventGenerated(NetworkBehaviour comp, NetworkReader reader)
         {
             ++((NetworkBehaviourSendEventInternalComponent)comp).called;
         }
@@ -107,8 +107,8 @@ namespace Mirror.Tests
     // we need to inherit from networkbehaviour to test protected functions
     public class NetworkBehaviourDelegateComponent : NetworkBehaviour
     {
-        public static void Delegate(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null) { }
-        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader, NetworkConnection conn = null) { }
+        public static void Delegate(NetworkBehaviour comp, NetworkReader reader) { }
+        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) { }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
@@ -381,7 +381,8 @@ namespace Mirror.Tests
             // register the command delegate, otherwise it's not found
             NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
                 nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                NetworkBehaviourSendCommandInternalComponent.CommandGenerated, false);
+                NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
+                false);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
@@ -421,7 +422,8 @@ namespace Mirror.Tests
             // register the command delegate, otherwise it's not found
             NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
                 nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                NetworkBehaviourSendCommandInternalComponent.CommandGenerated, false);
+                NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
+                false);
 
             // invoke command
             int cmdHash = NetworkBehaviour.GetMethodHash(
@@ -750,22 +752,24 @@ namespace Mirror.Tests
             NetworkBehaviour.RegisterCommandDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate, false);
+                NetworkBehaviourDelegateComponent.Delegate,
+                false);
 
             // registering the exact same one should be fine. it should simply
             // do nothing.
             NetworkBehaviour.RegisterCommandDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate, false);
-
+                NetworkBehaviourDelegateComponent.Delegate,
+                false);
             // registering the same name with a different callback shouldn't
             // work
             LogAssert.Expect(LogType.Error, "Function " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate) + " and " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate2) + " have the same hash.  Please rename one of them");
             NetworkBehaviour.RegisterCommandDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate2, false);
+                NetworkBehaviourDelegateComponent.Delegate2,
+                false);
 
             // clean up
             NetworkBehaviour.ClearDelegates();
@@ -779,7 +783,8 @@ namespace Mirror.Tests
             NetworkBehaviour.RegisterCommandDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate, false);
+                NetworkBehaviourDelegateComponent.Delegate,
+                false);
 
             // get handler
             int cmdHash = NetworkBehaviour.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
