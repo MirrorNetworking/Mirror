@@ -26,6 +26,15 @@ namespace Mirror
     }
 
     /// <summary>
+    /// Used to replace NetworkConnection sent in a Command
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Parameter)]
+    public class SenderConnectionAttribute : Attribute
+    {
+
+    }
+
+    /// <summary>
     /// The server uses a Remote Procedure Call (RPC) to run this function on clients.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
