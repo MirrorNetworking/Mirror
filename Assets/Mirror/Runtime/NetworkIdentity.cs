@@ -831,7 +831,7 @@ namespace Mirror
                 // is this component dirty?
                 // -> always serialize if initialState so all components are included in spawn packet
                 // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
-                if (initialState || comp.IsDirty())
+                if (comp.enabled && (initialState || comp.IsDirty()))
                 {
                     if (logger.LogEnabled()) logger.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
 
