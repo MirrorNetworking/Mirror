@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
 
-namespace WeaverTargetRpcTests.SyncEventValid
+namespace WeaverSyncEventTests.SyncEventValid
 {
     class SyncEventValid : NetworkBehaviour
     {
