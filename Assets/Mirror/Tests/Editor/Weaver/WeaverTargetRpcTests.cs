@@ -13,7 +13,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ErrorWhenMethodDoesNotStartWithTarget()
         {
-            Assert.That(weaverErrors, Contains.Item("DoesntStartWithTarget must start with Target. Consider renaming it to TargetDoesntStartWithTarget " +
+            Assert.That(weaverErrors, Contains.Item("DoesntStartWithTarget must start with Target.  Consider renaming it to TargetDoesntStartWithTarget " +
                 "(at System.Void WeaverTargetRpcTests.ErrorWhenMethodDoesNotStartWithTarget.ErrorWhenMethodDoesNotStartWithTarget::DoesntStartWithTarget(Mirror.NetworkConnection))"));
         }
 
@@ -27,14 +27,14 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ErrorWhenTargetRpcIsMissingNetworkConnection()
         {
-            Assert.That(weaverErrors, Contains.Item("TargetCantBeStatic must not be static " +
+            Assert.That(weaverErrors, Contains.Item("TargetCantBeStatic must have NetworkConnection as the first parameter" +
                 "(at System.Void WeaverTargetRpcTests.ErrorWhenTargetRpcIsMissingNetworkConnection.ErrorWhenTargetRpcIsMissingNetworkConnection::TargetRpcMethod())"));
         }
 
         [Test]
         public void ErrorWhenNetworkConnectionIsNotTheFirstParameter()
         {
-            Assert.That(weaverErrors, Contains.Item("TargetCantBeStatic must not be static " +
+            Assert.That(weaverErrors, Contains.Item("TargetCantBeStatic must have NetworkConnection as the first parameter" +
                 "(at System.Void WeaverTargetRpcTests.ErrorWhenNetworkConnectionIsNotTheFirstParameter.ErrorWhenNetworkConnectionIsNotTheFirstParameter::TargetRpcMethod(System.Int32, Mirror.NetworkConnection))"));
         }
     }
