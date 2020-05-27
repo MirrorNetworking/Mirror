@@ -47,7 +47,7 @@ namespace Mirror
         {
             get
             {
-                if (animator == null || !animator.enabled) 
+                if (animator == null || !animator.enabled)
                     return false;
 
                 if (isServer)
@@ -70,8 +70,11 @@ namespace Mirror
 
         void OnEnable()
         {
-            if (animator == null || !animator.enabled) 
-                return; 
+            if (animator == null || !animator.enabled)
+            {
+                if (logger.LogEnabled()) logger.Log($"NetworkAnimator: No Animator is assigned on {gameObject}");
+                return;
+            }
 
             // store the animator parameters in a variable - the "Animator.parameters" getter allocates
             // a new parameter array every time it is accessed so we should avoid doing it in a loop
@@ -187,7 +190,7 @@ namespace Mirror
 
         void HandleAnimMsg(int stateHash, float normalizedTime, int layerId, NetworkReader reader)
         {
-            if (animator == null || !animator.enabled) 
+            if (animator == null || !animator.enabled)
                 return;
 
             if (hasAuthority && clientAuthority)
