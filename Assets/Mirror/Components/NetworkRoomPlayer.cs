@@ -58,7 +58,8 @@ namespace Mirror
                 room.roomSlots.Add(this);
                 room.RecalculateRoomPlayerIndices();
 
-                OnClientEnterRoom();
+                if (NetworkClient.active)
+                    OnClientEnterRoom();
             }
             else
                 logger.LogError("RoomPlayer could not find a NetworkRoomManager. The RoomPlayer requires a NetworkRoomManager object to function. Make sure that there is one in the scene.");
@@ -107,13 +108,13 @@ namespace Mirror
         #region Room Client Virtuals
 
         /// <summary>
-        /// This is a hook that is invoked on all player objects when entering the room.
+        /// This is a hook that is invoked on clients for all room player objects when entering the room.
         /// <para>Note: isLocalPlayer is not guaranteed to be set until OnStartLocalPlayer is called.</para>
         /// </summary>
         public virtual void OnClientEnterRoom() { }
 
         /// <summary>
-        /// This is a hook that is invoked on all player objects when exiting the room.
+        /// This is a hook that is invoked on clients for all room player objects when exiting the room.
         /// </summary>
         public virtual void OnClientExitRoom() { }
 
