@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
@@ -11,33 +11,36 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void TargetRpcStartsWithTarget()
+        public void ErrorWhenMethodDoesNotStartWithTarget()
         {
-            Assert.That(weaverErrors, Contains.Item("DoesntStartWithTarget must start with Target.  Consider renaming it to TargetDoesntStartWithTarget (at System.Void WeaverTargetRpcTests.TargetRpcStartsWithTarget.TargetRpcStartsWithTarget::DoesntStartWithTarget(Mirror.NetworkConnection))"));
+            Assert.That(weaverErrors, Contains.Item("DoesntStartWithTarget must start with Target.  Consider renaming it to TargetDoesntStartWithTarget " +
+                "(at System.Void WeaverTargetRpcTests.ErrorWhenMethodDoesNotStartWithTarget.ErrorWhenMethodDoesNotStartWithTarget::DoesntStartWithTarget(Mirror.NetworkConnection))"));
         }
 
         [Test]
-        public void TargetRpcCantBeStatic()
+        public void ErrorWhenTargetRpcIsStatic()
         {
-            Assert.That(weaverErrors, Contains.Item("TargetCantBeStatic must not be static (at System.Void WeaverTargetRpcTests.TargetRpcCantBeStatic.TargetRpcCantBeStatic::TargetCantBeStatic(Mirror.NetworkConnection))"));
+            Assert.That(weaverErrors, Contains.Item("TargetCantBeStatic must not be static " +
+                "(at System.Void WeaverTargetRpcTests.ErrorWhenTargetRpcIsStatic.ErrorWhenTargetRpcIsStatic::TargetCantBeStatic(Mirror.NetworkConnection))"));
         }
 
         [Test]
-        public void SyncEventValid()
+        public void TargetRpcCanSkipNetworkConnection()
         {
             Assert.That(weaverErrors, Is.Empty);
         }
 
         [Test]
-        public void SyncEventStartsWithEvent()
+        public void TargetRpcCanHaveOtherParametersWhileSkipingNetworkConnection()
         {
-            Assert.That(weaverErrors, Contains.Item("DoCoolThingsWithExcitingPeople must start with Event.  Consider renaming it to EventDoCoolThingsWithExcitingPeople (at WeaverTargetRpcTests.SyncEventStartsWithEvent.SyncEventStartsWithEvent/MySyncEventDelegate WeaverTargetRpcTests.SyncEventStartsWithEvent.SyncEventStartsWithEvent::DoCoolThingsWithExcitingPeople)"));
+            Assert.That(weaverErrors, Is.Empty);
         }
 
         [Test]
-        public void SyncEventParamGeneric()
+        public void ErrorWhenNetworkConnectionIsNotTheFirstParameter()
         {
-            Assert.That(weaverErrors, Contains.Item("EventDoCoolThingsWithExcitingPeople must not have generic parameters.  Consider creating a new class that inherits from WeaverTargetRpcTests.SyncEventParamGeneric.SyncEventParamGeneric/MySyncEventDelegate`1<System.Int32> instead (at WeaverTargetRpcTests.SyncEventParamGeneric.SyncEventParamGeneric/MySyncEventDelegate`1<System.Int32> WeaverTargetRpcTests.SyncEventParamGeneric.SyncEventParamGeneric::EventDoCoolThingsWithExcitingPeople)"));
+            Assert.That(weaverErrors, Contains.Item($"TargetRpcMethod has invalid parameter nc. Cannot pass NeworkConnections " +
+                "(at System.Void WeaverTargetRpcTests.ErrorWhenNetworkConnectionIsNotTheFirstParameter.ErrorWhenNetworkConnectionIsNotTheFirstParameter::TargetRpcMethod(System.Int32,Mirror.NetworkConnection))"));
         }
     }
 }

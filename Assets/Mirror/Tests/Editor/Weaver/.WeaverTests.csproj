@@ -53,6 +53,7 @@
     <None Remove="WeaverMonoBehaviourTests.cs.meta" />
     <None Remove="WeaverNetworkBehaviourTests.cs.meta" />
     <None Remove="WeaverSyncDictionaryTests.cs.meta" />
+    <None Remove="WeaverSyncEventTests.cs.meta" />
     <None Remove="WeaverSyncListTests.cs.meta" />
     <None Remove="WeaverSyncSetTests.cs.meta" />
     <None Remove="WeaverSyncVarHookTests.cs.meta" />
@@ -209,13 +210,14 @@
     <Compile Include="WeaverSyncVarTests~\SyncVarsStatic.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsSyncList.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsValid.cs" />
-    <Compile Include="WeaverTargetRpcTests~\SyncEventParamGeneric.cs" />
-    <Compile Include="WeaverTargetRpcTests~\SyncEventStartsWithEvent.cs" />
-    <Compile Include="WeaverTargetRpcTests~\SyncEventValid.cs" />
-    <Compile Include="WeaverTargetRpcTests~\TargetRpcCantBeStatic.cs" />
-    <Compile Include="WeaverTargetRpcTests~\TargetRpcNetworkConnectionMissing.cs" />
-    <Compile Include="WeaverTargetRpcTests~\TargetRpcNetworkConnectionNotFirst.cs" />
-    <Compile Include="WeaverTargetRpcTests~\TargetRpcStartsWithTarget.cs" />
+    <Compile Include="WeaverSyncEventTests~\ErrorWhenSyncEventUsesGenericParameter.cs" />
+    <Compile Include="WeaverSyncEventTests~\ErrorWhenSyncEventDoesntStartWithEvent.cs" />
+    <Compile Include="WeaverSyncEventTests~\SyncEventValid.cs" />
+    <Compile Include="WeaverTargetRpcTests~\ErrorWhenTargetRpcIsStatic.cs" />
+    <Compile Include="WeaverTargetRpcTests~\TargetRpcCanHaveOtherParametersWhileSkipingNetworkConnection.cs" />
+    <Compile Include="WeaverTargetRpcTests~\TargetRpcCanSkipNetworkConnection.cs" />
+    <Compile Include="WeaverTargetRpcTests~\ErrorWhenNetworkConnectionIsNotTheFirstParameter.cs" />
+    <Compile Include="WeaverTargetRpcTests~\ErrorWhenMethodDoesNotStartWithTarget.cs" />
     <Compile Include="WeaverTargetRpcTests~\TargetRpcValid.cs" />
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>G:/UnityEditors/2018.3.6f1/Editor/Data/Managed/UnityEngine/UnityEngine.CoreModule.dll</HintPath>
