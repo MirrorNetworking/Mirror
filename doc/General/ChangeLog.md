@@ -11,6 +11,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: Network Room Player now has a virtual hook for the index SyncVar, and the override is in the template.
 - Fixed: Network Room Manager.minPlayers is now protected so it's available for derived classes.
 - Fixed: Network Room Manager no longer does redundant player prefab registration in `OnStartClient`.
+- Fixed: Network Room Player `OnClientEnterRoom` now correctly only fires on clients.
 - Fixed: `RegisterClientMessages` was being incorrectly invoked for every scene change.
 - Fixed: Network Behaviour `SyncMode` and `SyncInterval` was not showing in the inspector in some cases (regression).
 - Fixed: Network Manager now cleans up network objects better when server stops.
