@@ -8,6 +8,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: [NetworkLogSettings](../Components/NetworkLogSettings.md) component and Log Settings Window.
 - Added: SyncLists now support `AddRange`, `InsertRange`, and `RemoveAll`.
 - Added: Network Room Player template now includes base Network Behaviour overrides.
+- Added: Network Room Player now has a virtual hook for the index SyncVar, and the override is in the template.
 - Fixed: Network Room Manager.minPlayers is now protected so it's available for derived classes.
 - Fixed: Network Room Manager no longer does redundant player prefab registration in `OnStartClient`.
 - Fixed: `RegisterClientMessages` was being incorrectly invoked for every scene change.
