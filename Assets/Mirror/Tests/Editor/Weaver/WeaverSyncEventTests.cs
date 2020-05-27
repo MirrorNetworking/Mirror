@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
@@ -11,18 +11,19 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void SyncEventStartsWithEvent()
+        public void ErrorWhenSyncEventDoesntStartWithEvent()
         {
-            Assert.That(weaverErrors, Contains.Item("DoCoolThingsWithExcitingPeople must start with Event. Consider renaming it to EventDoCoolThingsWithExcitingPeople " +
-                "(at WeaverTargetRpcTests.SyncEventStartsWithEvent.SyncEventStartsWithEvent/MySyncEventDelegate WeaverTargetRpcTests.SyncEventStartsWithEvent.SyncEventStartsWithEvent::DoCoolThingsWithExcitingPeople)"));
+            Assert.That(weaverErrors, Contains.Item("DoCoolThingsWithExcitingPeople must start with Event.  " +
+                "Consider renaming it to EventDoCoolThingsWithExcitingPeople " +
+                "(at WeaverSyncEventTests.ErrorWhenSyncEventDoesntStartWithEvent.ErrorWhenSyncEventDoesntStartWithEvent/MySyncEventDelegate WeaverSyncEventTests.ErrorWhenSyncEventDoesntStartWithEvent.ErrorWhenSyncEventDoesntStartWithEvent::DoCoolThingsWithExcitingPeople)"));
         }
 
         [Test]
-        public void SyncEventParamGeneric()
+        public void ErrorWhenSyncEventUsesGenericParameter()
         {
-            Assert.That(weaverErrors, Contains.Item("EventDoCoolThingsWithExcitingPeople must not have generic parameters. " +
-                "Consider creating a new class that inherits from WeaverTargetRpcTests.SyncEventParamGeneric.SyncEventParamGeneric/MySyncEventDelegate`1<System.Int32> instead " +
-                "(at WeaverTargetRpcTests.SyncEventParamGeneric.SyncEventParamGeneric/MySyncEventDelegate`1<System.Int32> WeaverTargetRpcTests.SyncEventParamGeneric.SyncEventParamGeneric::EventDoCoolThingsWithExcitingPeople)"));
+            Assert.That(weaverErrors, Contains.Item("EventDoCoolThingsWithExcitingPeople must not have generic parameters.  " +
+                "Consider creating a new class that inherits from WeaverSyncEventTests.ErrorWhenSyncEventUsesGenericParameter.ErrorWhenSyncEventUsesGenericParameter/MySyncEventDelegate`1<System.Int32> instead " +
+                "(at WeaverSyncEventTests.ErrorWhenSyncEventUsesGenericParameter.ErrorWhenSyncEventUsesGenericParameter/MySyncEventDelegate`1<System.Int32> WeaverSyncEventTests.ErrorWhenSyncEventUsesGenericParameter.ErrorWhenSyncEventUsesGenericParameter::EventDoCoolThingsWithExcitingPeople)"));
         }
     }
 }

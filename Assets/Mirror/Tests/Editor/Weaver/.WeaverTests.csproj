@@ -210,7 +210,7 @@
     <Compile Include="WeaverSyncVarTests~\SyncVarsStatic.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsSyncList.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsValid.cs" />
-    <Compile Include="WeaverSyncEventTests~\SyncEventParamGeneric.cs" />
+    <Compile Include="WeaverSyncEventTests~\ErrorWhenSyncEventUsesGenericParameter.cs" />
     <Compile Include="WeaverSyncEventTests~\ErrorWhenSyncEventDoesntStartWithEvent.cs" />
     <Compile Include="WeaverSyncEventTests~\SyncEventValid.cs" />
     <Compile Include="WeaverTargetRpcTests~\ErrorWhenTargetRpcIsStatic.cs" />
