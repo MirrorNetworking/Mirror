@@ -214,7 +214,8 @@
     <Compile Include="WeaverSyncEventTests~\ErrorWhenSyncEventDoesntStartWithEvent.cs" />
     <Compile Include="WeaverSyncEventTests~\SyncEventValid.cs" />
     <Compile Include="WeaverTargetRpcTests~\ErrorWhenTargetRpcIsStatic.cs" />
-    <Compile Include="WeaverTargetRpcTests~\ErrorWhenTargetRpcIsMissingNetworkConnection.cs" />
+    <Compile Include="WeaverTargetRpcTests~\TargetRpcCanHaveOtherParametersWhileSkipingNetworkConnection.cs" />
+    <Compile Include="WeaverTargetRpcTests~\TargetRpcCanSkipNetworkConnection.cs" />
     <Compile Include="WeaverTargetRpcTests~\ErrorWhenNetworkConnectionIsNotTheFirstParameter.cs" />
     <Compile Include="WeaverTargetRpcTests~\ErrorWhenMethodDoesNotStartWithTarget.cs" />
     <Compile Include="WeaverTargetRpcTests~\TargetRpcValid.cs" />
