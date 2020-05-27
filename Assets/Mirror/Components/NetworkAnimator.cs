@@ -68,7 +68,7 @@ namespace Mirror
             }
         }
 
-        void OnEnable()
+        void Awake()
         {
             if (animator == null || !animator.enabled)
             {
