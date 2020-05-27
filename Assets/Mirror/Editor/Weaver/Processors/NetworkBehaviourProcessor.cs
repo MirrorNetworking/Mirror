@@ -797,11 +797,6 @@ namespace Mirror.Weaver
         public static bool ProcessMethodsValidateParameters(MethodReference md, CustomAttribute ca)
         {
             bool isTargetRpc = ca.AttributeType.FullName == Weaver.TargetRpcType.FullName;
-            if (isTargetRpc && md.Parameters.Count == 0)
-            {
-                Weaver.Error($"{md.Name} must have NetworkConnection as the first parameter", md);
-                return false;
-            }
 
             for (int i = 0; i < md.Parameters.Count; ++i)
             {
@@ -816,27 +811,18 @@ namespace Mirror.Weaver
                     Weaver.Error($"{md.Name} cannot have optional parameters", md);
                     return false;
                 }
-                // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
+
                 bool isFirstParam = i == 0;
+                bool isNetworkConnection = p.ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
 
-                if (isTargetRpc && isFirstParam)
+                // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
+                if (isNetworkConnection && !(isTargetRpc && isFirstParam))
                 {
-                    if (p.ParameterType.FullName != Weaver.NetworkConnectionType.FullName)
-                    {
-                        Weaver.Error($"{md.Name} must have NetworkConnection as the first parameter", md);
-                        return false;
-                    }
+                    Weaver.Error($"{md.Name} has invalid parameter {p}. Cannot pass NeworkConnections", md);
+                    return false;
                 }
-                else
-                {
-                    if (p.ParameterType.FullName == Weaver.NetworkConnectionType.FullName)
-                    {
-                        Weaver.Error($"{md.Name} has invalid parameter {p}. Cannot pass NeworkConnections", md);
-                        return false;
-                    }
-                }
-
             }
+
             return true;
         }
 
