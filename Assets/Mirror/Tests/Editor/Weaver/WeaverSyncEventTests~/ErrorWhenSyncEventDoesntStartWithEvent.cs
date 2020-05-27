@@ -5,7 +5,7 @@ using Mirror;
 
 namespace WeaverTargetRpcTests.SyncEventStartsWithEvent
 {
-    class SyncEventStartsWithEvent : NetworkBehaviour
+    class ErrorWhenSyncEventDoesntStartWithEvent : NetworkBehaviour
     {
         public delegate void MySyncEventDelegate(int amount, float dir);
 
