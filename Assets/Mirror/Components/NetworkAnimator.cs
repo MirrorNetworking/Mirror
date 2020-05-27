@@ -47,6 +47,9 @@ namespace Mirror
         {
             get
             {
+                if (animator == null || !animator.enabled) 
+                    return false;
+
                 if (isServer)
                 {
                     if (!clientAuthority)
@@ -65,8 +68,11 @@ namespace Mirror
             }
         }
 
-        void Awake()
+        void OnEnable()
         {
+            if (animator == null || !animator.enabled) 
+                return; 
+
             // store the animator parameters in a variable - the "Animator.parameters" getter allocates
             // a new parameter array every time it is accessed so we should avoid doing it in a loop
             parameters = animator.parameters
@@ -78,6 +84,8 @@ namespace Mirror
 
             animationHash = new int[animator.layerCount];
             transitionHash = new int[animator.layerCount];
+
+            if (logger.LogEnabled()) logger.Log($"NetworkAnimator:OnEnable parameters.Length: {parameters.Length}");
         }
 
         void FixedUpdate()
@@ -179,6 +187,9 @@ namespace Mirror
 
         void HandleAnimMsg(int stateHash, float normalizedTime, int layerId, NetworkReader reader)
         {
+            if (animator == null || !animator.enabled) 
+                return;
+
             if (hasAuthority && clientAuthority)
                 return;
 
@@ -203,11 +214,17 @@ namespace Mirror
 
         void HandleAnimTriggerMsg(int hash)
         {
+            if (animator == null || !animator.enabled)
+                return;
+
             animator.SetTrigger(hash);
         }
 
         void HandleAnimResetTriggerMsg(int hash)
         {
+            if (animator == null || !animator.enabled)
+                return;
+
             animator.ResetTrigger(hash);
         }
 
@@ -308,6 +325,9 @@ namespace Mirror
         /// <returns></returns>
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
+            if (parameters == null || animator == null || !animator.enabled)
+                return false;
+
             if (initialState)
             {
                 for (int i = 0; i < animator.layerCount; i++)
@@ -338,6 +358,9 @@ namespace Mirror
         /// <param name="initialState"></param>
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
+            if (animator == null || !animator.enabled)
+                return;
+
             if (initialState)
             {
                 for (int i = 0; i < animator.layerCount; i++)
@@ -358,6 +381,9 @@ namespace Mirror
         /// <param name="triggerName">Name of trigger.</param>
         public void SetTrigger(string triggerName)
         {
+            if (animator == null || !animator.enabled)
+                return;
+
             SetTrigger(Animator.StringToHash(triggerName));
         }
 
@@ -367,6 +393,9 @@ namespace Mirror
         /// <param name="hash">Hash id of trigger (from the Animator).</param>
         public void SetTrigger(int hash)
         {
+            if (animator == null || !animator.enabled)
+                return;
+
             if (clientAuthority)
             {
                 if (!isClient)
@@ -403,6 +432,9 @@ namespace Mirror
         /// <param name="triggerName">Name of trigger.</param>
         public void ResetTrigger(string triggerName)
         {
+            if (animator == null || !animator.enabled)
+                return;
+
             ResetTrigger(Animator.StringToHash(triggerName));
         }
 
@@ -412,6 +444,9 @@ namespace Mirror
         /// <param name="hash">Hash id of trigger (from the Animator).</param>
         public void ResetTrigger(int hash)
         {
+            if (animator == null || !animator.enabled)
+                return;
+
             if (clientAuthority)
             {
                 if (!isClient)
