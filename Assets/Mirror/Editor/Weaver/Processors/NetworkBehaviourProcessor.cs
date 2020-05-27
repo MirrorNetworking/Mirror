@@ -865,6 +865,7 @@ namespace Mirror.Weaver
         static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
         {
             bool isNetworkConnection = param.ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
+            bool isSenderConnection = IsSenderConnection(param, callType, isNetworkConnection);
 
             if (param.IsOut)
             {
@@ -881,13 +882,28 @@ namespace Mirror.Weaver
             }
 
             // sender connection can be optional
-            if (param.IsOptional)
+            if (param.IsOptional && !isSenderConnection)
             {
                 Weaver.Error($"{method.Name} cannot have optional parameters", method);
                 return false;
             }
 
             return true;
+        }
+
+        static bool IsSenderConnection(ParameterDefinition param, RemoteCallType callType, bool isNetworkConnection)
+        {
+            if (callType != RemoteCallType.Command)
+            {
+                return false;
+            }
+            if (!isNetworkConnection)
+            {
+                // Sender Param must be a NetworkConnection
+                return false;
+            }
+
+            return param.HasCustomAttribute("Mirror.SenderConnectionAttribute");
         }
 
         void ProcessMethods()

@@ -41,10 +41,15 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void ErrorWithCommandThatIgnoresAuthorityWithNetworkConnection()
+        public void ErrorForOptionalNetworkConnectionThatIsNotSenderConnection()
         {
-            // should give an error because there is no custom read/write for NetworkConnection
-            Assert.That(weaverErrors, Contains.Item("No Network Writer for NetworkConnection in CmdFunction, use '[SenderConnection] NetworkConnection conn' attribute get the senders connection on the server (at System.Void WeaverCommandTests.ErrorWithCommandThatIgnoresAuthorityWithNetworkConnection.ErrorWithCommandThatIgnoresAuthorityWithNetworkConnection::CmdFunction())"));
+            Assert.That(weaverErrors, Contains.Item("CmdFunction has invalid parameter connection, Cannot pass NeworkConnections. Instead use use '[SenderConnection] NetworkConnection conn = null' to get the sender's connection on the server (at System.Void WeaverCommandTests.ErrorForOptionalNetworkConnectionThatIsNotSenderConnection.ErrorForOptionalNetworkConnectionThatIsNotSenderConnection::CmdFunction(Mirror.NetworkConnection))"));
+        }
+
+        [Test]
+        public void ErrorForNetworkConnectionThatIsNotSenderConnection()
+        {
+            Assert.That(weaverErrors, Contains.Item("CmdFunction has invalid parameter connection, Cannot pass NeworkConnections. Instead use use '[SenderConnection] NetworkConnection conn = null' to get the sender's connection on the server (at System.Void WeaverCommandTests.ErrorForNetworkConnectionThatIsNotSenderConnection.ErrorForNetworkConnectionThatIsNotSenderConnection::CmdFunction(Mirror.NetworkConnection))"));
         }
 
         [Test]

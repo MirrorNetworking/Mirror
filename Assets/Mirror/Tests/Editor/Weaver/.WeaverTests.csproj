@@ -99,7 +99,8 @@
     <Compile Include="WeaverCommandTests~\OverrideAbstractCommand.cs" />
     <Compile Include="WeaverCommandTests~\OverrideVirtualCommand.cs" />
     <Compile Include="WeaverCommandTests~\VirtualCommand.cs" />
-    <Compile Include="WeaverCommandTests~\ErrorWithCommandThatIgnoresAuthorityWithNetworkConnection.cs" />
+    <Compile Include="WeaverCommandTests~\ErrorForNetworkConnectionThatIsNotSenderConnection.cs" />
+    <Compile Include="WeaverCommandTests~\ErrorForOptionalNetworkConnectionThatIsNotSenderConnection.cs" />
     <Compile Include="WeaverGeneralTests~\RecursionCount.cs" />
     <Compile Include="WeaverGeneralTests~\TestingScriptableObjectArraySerialization.cs" />
     <Compile Include="WeaverMessageTests~\MessageMemberGeneric.cs" />
