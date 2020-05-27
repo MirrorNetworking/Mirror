@@ -37,7 +37,7 @@ namespace Mirror
         /// Diagnostic index of the player, e.g. Player1, Player2, etc.
         /// </summary>
         [Tooltip("Diagnostic index of the player, e.g. Player1, Player2, etc.")]
-        [SyncVar]
+        [SyncVar(hook = nameof(IndexChanged))]
         public int index;
 
         #region Unity Callbacks
@@ -82,6 +82,13 @@ namespace Mirror
         #endregion
 
         #region SyncVar Hooks
+
+        /// <summary>
+        /// This is a hook that is invoked on clients when the index changes.
+        /// </summary>
+        /// <param name="oldIndex">The old index value</param>
+        /// <param name="newIndex">The new index value</param>
+        public virtual void IndexChanged(int oldIndex, int newIndex) { }
 
         /// <summary>
         /// This is a hook that is invoked on clients when a RoomPlayer switches between ready or not ready.
