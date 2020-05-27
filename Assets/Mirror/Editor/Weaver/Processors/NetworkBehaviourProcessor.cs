@@ -796,6 +796,13 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodsValidateParameters(MethodReference md, CustomAttribute ca)
         {
+            bool isTargetRpc = ca.AttributeType.FullName == Weaver.TargetRpcType.FullName;
+            if (isTargetRpc && md.Parameters.Count == 0)
+            {
+                Weaver.Error($"{md.Name} must have NetworkConnection as the first parameter", md);
+                return false;
+            }
+
             for (int i = 0; i < md.Parameters.Count; ++i)
             {
                 ParameterDefinition p = md.Parameters[i];
@@ -810,7 +817,6 @@ namespace Mirror.Weaver
                     return false;
                 }
                 // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
-                bool isTargetRpc = ca.AttributeType.FullName == Weaver.TargetRpcType.FullName;
                 bool isFirstParam = i == 0;
 
                 if (isTargetRpc && isFirstParam)
