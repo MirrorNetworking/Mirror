@@ -25,10 +25,15 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void ErrorWhenTargetRpcIsMissingNetworkConnection()
+        public void TargetRpcCanSkipNetworkConnection()
         {
-            Assert.That(weaverErrors, Contains.Item("TargetRpcMethod must have NetworkConnection as the first parameter " +
-                "(at System.Void WeaverTargetRpcTests.ErrorWhenTargetRpcIsMissingNetworkConnection.ErrorWhenTargetRpcIsMissingNetworkConnection::TargetRpcMethod())"));
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void TargetRpcCanHaveOtherParametersWhileSkipingNetworkConnection()
+        {
+            Assert.That(weaverErrors, Is.Empty);
         }
 
         [Test]
