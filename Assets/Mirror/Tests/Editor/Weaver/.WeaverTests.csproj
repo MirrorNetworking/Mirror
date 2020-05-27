@@ -53,6 +53,7 @@
     <None Remove="WeaverMonoBehaviourTests.cs.meta" />
     <None Remove="WeaverNetworkBehaviourTests.cs.meta" />
     <None Remove="WeaverSyncDictionaryTests.cs.meta" />
+    <None Remove="WeaverSyncEventTests.cs.meta" />
     <None Remove="WeaverSyncListTests.cs.meta" />
     <None Remove="WeaverSyncSetTests.cs.meta" />
     <None Remove="WeaverSyncVarHookTests.cs.meta" />
