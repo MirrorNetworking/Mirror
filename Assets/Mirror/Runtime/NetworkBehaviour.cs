@@ -224,9 +224,9 @@ namespace Mirror
         /// <param name="reader">Parameters to pass to the command.</param>
         /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeCommand(int cmdHash, NetworkReader reader, NetworkConnection conn = null)
+        public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
         {
-            return InvokeHandlerDelegate(cmdHash, MirrorInvokeType.Command, reader, conn);
+            return InvokeHandlerDelegate(cmdHash, MirrorInvokeType.Command, reader);
         }
         #endregion
 
@@ -358,7 +358,7 @@ namespace Mirror
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="reader"></param>
-        public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader, NetworkConnection conn = null);
+        public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
 
         protected class Invoker
         {
@@ -447,11 +447,11 @@ namespace Mirror
         }
 
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
-        internal bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkConnection conn = null)
+        internal bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader)
         {
             if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(this))
             {
-                invoker.invokeFunction(this, reader, conn);
+                invoker.invokeFunction(this, reader);
                 return true;
             }
             return false;
