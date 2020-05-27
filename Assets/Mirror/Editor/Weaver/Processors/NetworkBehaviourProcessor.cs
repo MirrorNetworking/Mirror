@@ -14,7 +14,7 @@ namespace Mirror.Weaver
         // <SyncVarField,NetIdField>
         readonly Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
         readonly List<MethodDefinition> commands = new List<MethodDefinition>();
-        readonly List<MethodDefinition> clientRpcs = new List<MethodDefinition>();
+        readonly List<ClientRpcResult> clientRpcs = new List<ClientRpcResult>();
         readonly List<MethodDefinition> targetRpcs = new List<MethodDefinition>();
         readonly List<EventDefinition> eventRpcs = new List<EventDefinition>();
         readonly List<MethodDefinition> commandInvocationFuncs = new List<MethodDefinition>();
@@ -23,6 +23,12 @@ namespace Mirror.Weaver
         readonly List<MethodDefinition> eventRpcInvocationFuncs = new List<MethodDefinition>();
 
         readonly TypeDefinition netBehaviourSubclass;
+
+        public struct ClientRpcResult
+        {
+            public MethodDefinition method;
+            public bool includeOwner;
+        }
 
         public NetworkBehaviourProcessor(TypeDefinition td)
         {
@@ -233,7 +239,8 @@ namespace Mirror.Weaver
 
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcs[i].Name);
+                ClientRpcResult clientRpcResult = clientRpcs[i];
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcResult);
             }
 
             for (int i = 0; i < targetRpcs.Count; ++i)

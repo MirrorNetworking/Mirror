@@ -32,6 +32,7 @@ namespace Mirror
     {
         // this is zero
         public int channel = Channels.DefaultReliable;
+        public bool includeOwner = true;
     }
 
     /// <summary>
