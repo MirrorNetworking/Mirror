@@ -633,7 +633,6 @@ namespace Mirror
 
         /// <summary>
         /// This is called on the server when CheckReadyToBegin finds that players are not ready
-        ///
         /// <para>May be called multiple times while not ready players are joining</para>
         /// </summary>
         public virtual void OnRoomServerPlayersNotReady() { }
