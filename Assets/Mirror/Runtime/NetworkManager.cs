@@ -1020,6 +1020,18 @@ namespace Mirror
             }
         }
 
+        // finish load scene part for server-only. . makes code easier and is
+        // necessary for FinishStartServer later.
+        void FinishLoadSceneServerOnly()
+        {
+            // debug message is very important. if we ever break anything then
+            // it's very obvious to notice.
+            logger.Log("Finished loading scene in server-only mode.");
+
+            NetworkServer.SpawnObjects();
+            OnServerSceneChanged(networkSceneName);
+        }
+
         // finish load scene part for client-only. makes code easier and is
         // necessary for FinishStartClient later.
         void FinishLoadSceneClientOnly()
@@ -1039,18 +1051,6 @@ namespace Mirror
             {
                 OnClientSceneChanged(NetworkClient.connection);
             }
-        }
-
-        // finish load scene part for server-only. . makes code easier and is
-        // necessary for FinishStartServer later.
-        void FinishLoadSceneServerOnly()
-        {
-            // debug message is very important. if we ever break anything then
-            // it's very obvious to notice.
-            logger.Log("Finished loading scene in server-only mode.");
-
-            NetworkServer.SpawnObjects();
-            OnServerSceneChanged(networkSceneName);
         }
 
         #endregion
