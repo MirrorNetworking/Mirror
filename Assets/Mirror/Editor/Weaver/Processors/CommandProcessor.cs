@@ -61,6 +61,10 @@ namespace Mirror.Weaver
                 cmdName = cmdName.Substring(CmdPrefix.Length);
             }
 
+            int channel = commandAttr.GetField("channel", 0);
+            bool ignoreAuthority = commandAttr.GetField("ignoreAuthority", false);
+
+
             // invoke internal send and return
             // load 'base.' to call the SendCommand function with
             worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -70,7 +74,8 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Ldc_I4, commandAttr.GetField("channel", 0)));
+            worker.Append(worker.Create(OpCodes.Ldc_I4, channel));
+            worker.Append(worker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Call, Weaver.sendCommandInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);

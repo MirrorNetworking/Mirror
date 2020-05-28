@@ -114,6 +114,12 @@ public class #SCRIPTNAME# : NetworkRoomManager
         base.OnRoomServerPlayersReady();
     }
 
+    /// <summary>
+    /// This is called on the server when CheckReadyToBegin finds that players are not ready
+    /// <para>May be called multiple times while not ready players are joining</para>
+    /// </summary>
+    public override void OnRoomServerPlayersNotReady() { }
+
     #endregion
 
     #region Client Callbacks

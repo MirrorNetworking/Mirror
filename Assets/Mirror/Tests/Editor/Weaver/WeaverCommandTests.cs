@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
@@ -20,6 +20,19 @@ namespace Mirror.Weaver.Tests
         public void CommandCantBeStatic()
         {
             Assert.That(weaverErrors, Contains.Item("CmdCantBeStatic cannot be static (at System.Void WeaverCommandTests.CommandCantBeStatic.CommandCantBeStatic::CmdCantBeStatic())"));
+        }
+
+        [Test]
+        public void CommandThatIgnoresAuthority()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+
+        [Test]
+        public void CommandWithArguments()
+        {
+            Assert.That(weaverErrors, Is.Empty);
         }
     }
 }
