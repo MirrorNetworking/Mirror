@@ -1092,6 +1092,31 @@ namespace Mirror
             startPositions.Remove(start);
         }
 
+        /// <summary>
+        /// This finds a spawn position based on NetworkStartPosition objects in the scene.
+        /// <para>This is used by the default implementation of OnServerAddPlayer.</para>
+        /// </summary>
+        /// <returns>Returns the transform to spawn a player at, or null.</returns>
+        public Transform GetStartPosition()
+        {
+            // first remove any dead transforms
+            startPositions.RemoveAll(t => t == null);
+
+            if (startPositions.Count == 0)
+                return null;
+
+            if (playerSpawnMethod == PlayerSpawnMethod.Random)
+            {
+                return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
+            }
+            else
+            {
+                Transform startPosition = startPositions[startPositionIndex];
+                startPositionIndex = (startPositionIndex + 1) % startPositions.Count;
+                return startPosition;
+            }
+        }
+
         #endregion
 
         #region Server Internal Message Handlers
@@ -1304,31 +1329,6 @@ namespace Mirror
                 : Instantiate(playerPrefab);
 
             NetworkServer.AddPlayerForConnection(conn, player);
-        }
-
-        /// <summary>
-        /// This finds a spawn position based on NetworkStartPosition objects in the scene.
-        /// <para>This is used by the default implementation of OnServerAddPlayer.</para>
-        /// </summary>
-        /// <returns>Returns the transform to spawn a player at, or null.</returns>
-        public Transform GetStartPosition()
-        {
-            // first remove any dead transforms
-            startPositions.RemoveAll(t => t == null);
-
-            if (startPositions.Count == 0)
-                return null;
-
-            if (playerSpawnMethod == PlayerSpawnMethod.Random)
-            {
-                return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
-            }
-            else
-            {
-                Transform startPosition = startPositions[startPositionIndex];
-                startPositionIndex = (startPositionIndex + 1) % startPositions.Count;
-                return startPosition;
-            }
         }
 
         // Deprecated 5/2/2020
