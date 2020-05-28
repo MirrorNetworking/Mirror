@@ -1000,6 +1000,28 @@ namespace Mirror
             HandleRemoteCall(componentIndex, cmdHash, MirrorInvokeType.Command, reader);
         }
 
+        // happens on server
+        internal NetworkBehaviour.CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
+        {
+            if (gameObject == null)
+            {
+                // error can be logged later
+                return default;
+            }
+
+            // find the right component to invoke the function on
+            if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
+            {
+                NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
+                return invokeComponent.GetCommandInfo(cmdHash);
+            }
+            else
+            {
+                // error can be logged later
+                return default;
+            }
+        }
+
         // happens on client
         internal void HandleRPC(int componentIndex, int rpcHash, NetworkReader reader)
         {

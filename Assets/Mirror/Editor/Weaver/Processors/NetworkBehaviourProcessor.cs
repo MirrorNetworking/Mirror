@@ -13,7 +13,7 @@ namespace Mirror.Weaver
         readonly List<FieldDefinition> syncObjects = new List<FieldDefinition>();
         // <SyncVarField,NetIdField>
         readonly Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
-        readonly List<MethodDefinition> commands = new List<MethodDefinition>();
+        readonly List<CmdResult> commands = new List<CmdResult>();
         readonly List<MethodDefinition> clientRpcs = new List<MethodDefinition>();
         readonly List<MethodDefinition> targetRpcs = new List<MethodDefinition>();
         readonly List<EventDefinition> eventRpcs = new List<EventDefinition>();
@@ -23,6 +23,12 @@ namespace Mirror.Weaver
         readonly List<MethodDefinition> eventRpcInvocationFuncs = new List<MethodDefinition>();
 
         readonly TypeDefinition netBehaviourSubclass;
+
+        public struct CmdResult
+        {
+            public MethodDefinition method;
+            public bool ignoreAuthority;
+        }
 
         public NetworkBehaviourProcessor(TypeDefinition td)
         {
@@ -228,22 +234,23 @@ namespace Mirror.Weaver
 
             for (int i = 0; i < commands.Count; ++i)
             {
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, commandInvocationFuncs[i], commands[i].Name);
+                CmdResult cmdResult = commands[i];
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, commandInvocationFuncs[i], cmdResult);
             }
 
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcs[i].Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcs[i].Name);
             }
 
             for (int i = 0; i < targetRpcs.Count; ++i)
             {
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].Name);
             }
 
             for (int i = 0; i < eventRpcs.Count; ++i)
             {
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerEventDelegateReference, eventRpcInvocationFuncs[i], eventRpcs[i].Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerEventDelegateReference, eventRpcInvocationFuncs[i], eventRpcs[i].Name);
             }
 
             foreach (FieldDefinition fd in syncObjects)
@@ -268,7 +275,7 @@ namespace Mirror.Weaver
             // This generates code like:
             NetworkBehaviour.RegisterCommandDelegate(base.GetType(), "CmdThrust", new NetworkBehaviour.CmdDelegate(ShipControl.InvokeCmdCmdThrust));
         */
-        void GenerateRegisterCommandDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, string cmdName)
+        void GenerateRegisterRemoteDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, string cmdName)
         {
             worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
             worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
@@ -279,6 +286,25 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
             //
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
+        }
+        
+        void GenerateRegisterCommandDelegate(ILProcessor awakeWorker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
+        {
+            string cmdName = cmdResult.method.Name;
+            bool ignoreAuthority = cmdResult.ignoreAuthority;
+
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldstr, cmdName));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldnull));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldftn, func));
+
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
+
+            awakeWorker.Append(awakeWorker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
+
+            //
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Call, registerMethod));
         }
 
         void GenerateSerialization()
@@ -915,8 +941,14 @@ namespace Mirror.Weaver
                 return;
             }
 
+            bool ignoreAuthority = commandAttr.GetField("ignoreAuthority", false);
+
             names.Add(md.Name);
-            commands.Add(md);
+            commands.Add(new CmdResult
+            {
+                method = md,
+                ignoreAuthority = ignoreAuthority
+            });
 
             MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(netBehaviourSubclass, md, commandAttr);
 
