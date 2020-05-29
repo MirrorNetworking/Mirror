@@ -41,6 +41,12 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void CommandWithSenderConnectionAndOtherArgs()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
         public void ErrorForOptionalNetworkConnectionThatIsNotSenderConnection()
         {
             Assert.That(weaverErrors, Contains.Item("CmdFunction has invalid parameter connection, Cannot pass NeworkConnections. Instead use use '[SenderConnection] NetworkConnection conn = null' to get the sender's connection on the server (at System.Void WeaverCommandTests.ErrorForOptionalNetworkConnectionThatIsNotSenderConnection.ErrorForOptionalNetworkConnectionThatIsNotSenderConnection::CmdFunction(Mirror.NetworkConnection))"));
