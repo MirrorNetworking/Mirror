@@ -1,4 +1,3 @@
-using UnityEngine;
 using Mirror;
 
 namespace WeaverSyncDictionaryTests.SyncDictionaryStructItemWithCustomMethods

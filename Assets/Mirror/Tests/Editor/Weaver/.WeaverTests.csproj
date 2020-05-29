@@ -232,6 +232,9 @@
     <Reference Include="UnityEditor">
       <HintPath>G:\UnityEditors\2018.3.6f1\Editor\Data\Managed/UnityEditor.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>G:\UnityEditors\2018.3.6f1\Editor\Data\Managed\UnityEngine\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../../../../Mirror.csproj">

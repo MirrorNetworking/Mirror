@@ -1,5 +1,3 @@
-using System;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent
@@ -12,6 +10,6 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent
         }
 
         [Command]
-        public void CmdCantHaveParamComponent(ComponentClass monkeyComp) {}
+        public void CmdCantHaveParamComponent(ComponentClass monkeyComp) { }
     }
 }
