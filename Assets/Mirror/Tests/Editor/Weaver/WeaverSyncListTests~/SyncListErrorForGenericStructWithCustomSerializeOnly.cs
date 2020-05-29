@@ -5,7 +5,7 @@ namespace WeaverSyncListTests.SyncListErrorForGenericStructWithCustomSerializeOn
     class SyncListErrorForGenericStructWithCustomSerializeOnly : NetworkBehaviour
     {
         MyGenericStructList harpseals;
-    
+
 
         struct MyGenericStruct<T>
         {

@@ -1,5 +1,4 @@
 using Mirror;
-using Mirror.Weaver.Tests.Extra;
 
 namespace GeneratedReaderWriter.CreatesForClassWithValidConstructor
 {
@@ -19,6 +18,6 @@ namespace GeneratedReaderWriter.CreatesForClassWithValidConstructor
         public SomeOtherData()
         {
             // empty
-        } 
+        }
     }
 }

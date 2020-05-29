@@ -12,7 +12,7 @@ namespace GeneratedReaderWriter.GivesErrorWhenUsingTypeInheritedFromMonoBehaviou
         }
     }
 
-    public class MyBehaviour : MonoBehaviour 
+    public class MyBehaviour : MonoBehaviour
     {
         public int usefulNumber;
     }

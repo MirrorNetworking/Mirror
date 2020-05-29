@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverClientRpcTests.ClientRpcValid
@@ -8,6 +5,6 @@ namespace WeaverClientRpcTests.ClientRpcValid
     class ClientRpcValid : NetworkBehaviour
     {
         [ClientRpc]
-        void RpcThatIsTotallyValid() {}
+        void RpcThatIsTotallyValid() { }
     }
 }

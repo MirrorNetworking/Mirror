@@ -1,5 +1,4 @@
 using Mirror;
-using Mirror.Weaver.Tests.Extra;
 using UnityEngine;
 
 namespace GeneratedReaderWriter.CreatesForInheritedFromScriptableObject
@@ -13,7 +12,7 @@ namespace GeneratedReaderWriter.CreatesForInheritedFromScriptableObject
         }
     }
 
-    public class DataScriptableObject :ScriptableObject
+    public class DataScriptableObject : ScriptableObject
     {
         public int usefulNumber;
     }

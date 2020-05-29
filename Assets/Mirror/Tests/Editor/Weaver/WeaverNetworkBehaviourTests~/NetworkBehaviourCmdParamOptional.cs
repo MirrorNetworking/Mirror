@@ -1,5 +1,3 @@
-using System;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOptional
@@ -7,6 +5,6 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOptional
     class NetworkBehaviourCmdParamOptional : NetworkBehaviour
     {
         [Command]
-        public void CmdCantHaveParamOptional(int monkeys = 12) {}
+        public void CmdCantHaveParamOptional(int monkeys = 12) { }
     }
 }

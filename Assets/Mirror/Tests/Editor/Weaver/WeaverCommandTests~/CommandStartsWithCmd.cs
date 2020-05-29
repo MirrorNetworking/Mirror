@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverCommandTests.CommandStartsWithCmd
@@ -8,6 +5,6 @@ namespace WeaverCommandTests.CommandStartsWithCmd
     class CommandStartsWithCmd : NetworkBehaviour
     {
         [Command]
-        void DoesntStartWithCmd() {}
+        void DoesntStartWithCmd() { }
     }
 }

@@ -1,13 +1,11 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
 namespace WeaverMonoBehaviourTests.MonoBehaviourTargetRpc
 {
     class MonoBehaviourTargetRpc : MonoBehaviour
     {
         [TargetRpc]
-        void TargetThisCantBeOutsideNetworkBehaviour(NetworkConnection nc) {}
+        void TargetThisCantBeOutsideNetworkBehaviour(NetworkConnection nc) { }
     }
 }
