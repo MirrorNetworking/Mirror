@@ -121,28 +121,40 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, Weaver.RecycleWriterReference));
         }
 
-        public static bool WriteArguments(ILProcessor worker, MethodDefinition md, bool skipFirst)
+        public static bool WriteArguments(ILProcessor worker, MethodDefinition method, bool skipFirst)
         {
             // write each argument
-            short argNum = 1;
-            foreach (ParameterDefinition pd in md.Parameters)
+            // example result
+            /*
+            writer.WritePackedInt32(someNumber);
+            writer.WriteNetworkIdentity(someTarget);
+             */
+
+            // arg of calling  function, arg 0 is "this" so start counting at 1
+            int argNum = 1;
+            foreach (ParameterDefinition param in method.Parameters)
             {
+                // NetworkConnection is not sent via the NetworkWriter so skip it here
+                // skip first for NetworkConnection in TargetRpc
                 if (argNum == 1 && skipFirst)
                 {
                     argNum += 1;
                     continue;
                 }
 
-                MethodReference writeFunc = Writers.GetWriteFunc(pd.ParameterType);
+                MethodReference writeFunc = Writers.GetWriteFunc(param.ParameterType);
                 if (writeFunc == null)
                 {
-                    Weaver.Error($"{md.Name} has invalid parameter {pd}", md);
+                    Weaver.Error($"{method.Name} has invalid parameter {param}", method);
                     return false;
                 }
+
                 // use built-in writer func on writer object
-                worker.Append(worker.Create(OpCodes.Ldloc_0));         // writer object
-                worker.Append(worker.Create(OpCodes.Ldarg, argNum));   // argument
-                // call writer func on writer object
+                // NetworkWriter object
+                worker.Append(worker.Create(OpCodes.Ldloc_0));
+                // add argument to call
+                worker.Append(worker.Create(OpCodes.Ldarg, argNum));
+                // call writer extension method
                 worker.Append(worker.Create(OpCodes.Call, writeFunc));
                 argNum += 1;
             }
@@ -758,6 +770,12 @@ namespace Mirror.Weaver
 
         public static bool ReadArguments(MethodDefinition method, ILProcessor worker, bool skipFirst)
         {
+            // read each argument
+            // example result
+            /*
+             * CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
+             */
+
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
             foreach (ParameterDefinition param in method.Parameters)
