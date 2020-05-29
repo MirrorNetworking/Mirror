@@ -141,7 +141,7 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        public static bool ProcessMethodsValidateTargetRpc(MethodDefinition md, CustomAttribute targetRpcAttr)
+        public static bool ProcessMethodsValidateTargetRpc(MethodDefinition md)
         {
             if (!md.Name.StartsWith("Target"))
             {
@@ -161,7 +161,7 @@ namespace Mirror.Weaver
             }
 
             // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, targetRpcAttr);
+            return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, RemoteCallType.TargetRpc);
         }
     }
 }

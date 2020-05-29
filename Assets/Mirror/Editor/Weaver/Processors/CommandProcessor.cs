@@ -123,7 +123,7 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        public static bool ProcessMethodsValidateCommand(MethodDefinition md, CustomAttribute commandAttr)
+        public static bool ProcessMethodsValidateCommand(MethodDefinition md)
         {
             if (!md.Name.StartsWith("Cmd"))
             {
@@ -139,7 +139,7 @@ namespace Mirror.Weaver
 
             // validate
             return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, commandAttr);
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, RemoteCallType.Command);
         }
     }
 }
