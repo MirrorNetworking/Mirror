@@ -291,7 +291,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldftn, func));
 
             worker.Append(worker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
-            //
+
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
 
@@ -310,7 +310,6 @@ namespace Mirror.Weaver
 
             awakeWorker.Append(awakeWorker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
 
-            //
             awakeWorker.Append(awakeWorker.Create(OpCodes.Call, registerMethod));
         }
 
@@ -329,7 +328,6 @@ namespace Mirror.Weaver
 
             awakeWorker.Append(awakeWorker.Create(excludeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
 
-            //
             awakeWorker.Append(awakeWorker.Create(OpCodes.Call, registerMethod));
         }
 
