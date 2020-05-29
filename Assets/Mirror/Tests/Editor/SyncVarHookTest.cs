@@ -43,7 +43,7 @@ namespace Mirror.Tests
             HookCalled.Invoke(oldValue, newValue);
         }
     }
-    
+
     class StaticHookBehaviour : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnValueChanged))]

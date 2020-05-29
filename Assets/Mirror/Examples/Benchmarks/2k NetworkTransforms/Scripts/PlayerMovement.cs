@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace  Mirror.Examples.OneK
+namespace Mirror.Examples.OneK
 {
     public class PlayerMovement : NetworkBehaviour
     {
