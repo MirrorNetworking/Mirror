@@ -1242,7 +1242,9 @@ namespace Mirror.Tests
         {
             // add component
             CommandTestNetworkBehaviour comp0 = gameObject.AddComponent<CommandTestNetworkBehaviour>();
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
             Assert.That(comp0.called, Is.EqualTo(0));
+            Assert.That(comp0.senderConnectionInCall, Is.Null);
 
             // register the command delegate, otherwise it's not found
             NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), CommandTestNetworkBehaviour.CommandGenerated, false);
@@ -1254,20 +1256,22 @@ namespace Mirror.Tests
             // call HandleCommand and check if the command was called in the component
             int functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated));
             NetworkReader payload = new NetworkReader(new byte[0]);
-            identity.HandleCommand(0, functionHash, payload);
+            identity.HandleCommand(0, functionHash, payload, connection);
             Assert.That(comp0.called, Is.EqualTo(1));
+            Assert.That(comp0.senderConnectionInCall, Is.EqualTo(connection));
+
 
             // try wrong component index. command shouldn't be called again.
             // warning is expected
             LogAssert.ignoreFailingMessages = true;
-            identity.HandleCommand(1, functionHash, payload);
+            identity.HandleCommand(1, functionHash, payload, connection);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // try wrong function hash. command shouldn't be called again.
             // warning is expected
             LogAssert.ignoreFailingMessages = true;
-            identity.HandleCommand(0, functionHash + 1, payload);
+            identity.HandleCommand(0, functionHash + 1, payload, connection);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
 

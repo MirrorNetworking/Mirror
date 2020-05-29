@@ -32,7 +32,7 @@ namespace Mirror.Tests
 
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
         {
             ++((NetworkBehaviourSendCommandInternalComponent)comp).called;
         }
@@ -749,27 +749,24 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            NetworkBehaviour.RegisterCommandDelegate(
+            NetworkBehaviour.RegisterRpcDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate,
-                false);
+                NetworkBehaviourDelegateComponent.Delegate);
 
             // registering the exact same one should be fine. it should simply
             // do nothing.
-            NetworkBehaviour.RegisterCommandDelegate(
+            NetworkBehaviour.RegisterRpcDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate,
-                false);
+                NetworkBehaviourDelegateComponent.Delegate);
             // registering the same name with a different callback shouldn't
             // work
             LogAssert.Expect(LogType.Error, "Function " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate) + " and " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate2) + " have the same hash.  Please rename one of them");
-            NetworkBehaviour.RegisterCommandDelegate(
+            NetworkBehaviour.RegisterRpcDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate2,
-                false);
+                NetworkBehaviourDelegateComponent.Delegate2);
 
             // clean up
             NetworkBehaviour.ClearDelegates();
@@ -780,20 +777,19 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            NetworkBehaviour.RegisterCommandDelegate(
+            NetworkBehaviour.RegisterRpcDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate,
-                false);
+                NetworkBehaviourDelegateComponent.Delegate);
 
             // get handler
             int cmdHash = NetworkBehaviour.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
-            NetworkBehaviour.CmdDelegate func = NetworkBehaviour.GetDelegate(cmdHash);
-            NetworkBehaviour.CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
+            NetworkBehaviour.RemoteDelegate func = NetworkBehaviour.GetRemoteDelegate(cmdHash);
+            NetworkBehaviour.RemoteDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
             Assert.That(func, Is.EqualTo(expected));
 
             // invalid hash should return null handler
-            NetworkBehaviour.CmdDelegate funcNull = NetworkBehaviour.GetDelegate(1234);
+            NetworkBehaviour.RemoteDelegate funcNull = NetworkBehaviour.GetRemoteDelegate(1234);
             Assert.That(funcNull, Is.Null);
 
             // clean up
