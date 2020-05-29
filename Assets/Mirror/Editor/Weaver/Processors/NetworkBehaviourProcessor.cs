@@ -854,7 +854,7 @@ namespace Mirror.Weaver
             }
 
 
-            // if not SenderConnection And not TargetRpc NetworkConnection first param
+            // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
             if (isNetworkConnection && !(callType == RemoteCallType.TargetRpc && firstParam))
             {
                 Weaver.Error($"{method.Name} has invalid parameter {param}. Cannot pass NeworkConnections", method);
