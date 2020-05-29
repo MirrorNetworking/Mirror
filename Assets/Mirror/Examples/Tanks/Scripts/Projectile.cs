@@ -4,7 +4,7 @@ namespace Mirror.Examples.Tanks
 {
     public class Projectile : NetworkBehaviour
     {
-        public float destroyAfter = 5;
+        public float destroyAfter = 1;
         public Rigidbody rigidBody;
         public float force = 1000;
 
