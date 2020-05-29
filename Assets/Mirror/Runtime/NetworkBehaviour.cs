@@ -358,15 +358,54 @@ namespace Mirror
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="reader"></param>
-        public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
+        public delegate void CommandDelegate(NetworkBehaviour obj, NetworkReader reader, NetworkConnectionToClient senderConnection);
 
-        protected class Invoker
+        /// <summary>
+        /// Delegate for Remote functions.
+        /// <remarks>Used for remote functiopns that are not [Command], Commands use CommandDelegate
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="reader"></param>
+        public delegate void RemoteDelegate(NetworkBehaviour obj, NetworkReader reader);
+
+        protected abstract class Invoker
         {
-            public MirrorInvokeType invokeType;
             public Type invokeClass;
-            public CmdDelegate invokeFunction;
-            public bool cmdIgnoreAuthority;
+            public MirrorInvokeType invokeType;
+
+            public abstract string GetFunctionName();
+            public abstract bool AreEqual(Type invokeClass, MirrorInvokeType invokeType, Delegate function);
         }
+
+        protected class RemoteInvoker : Invoker
+        {
+            public RemoteDelegate invokeFunction;
+
+            public override string GetFunctionName() => invokeFunction.GetMethodName();
+
+            public override bool AreEqual(Type invokeClass, MirrorInvokeType invokeType, Delegate function)
+            {
+                return (this.invokeClass == invokeClass &&
+                     this.invokeType == invokeType &&
+                     invokeFunction == function as RemoteDelegate);
+            }
+        }
+
+        protected class CommandInvoker : Invoker
+        {
+            public CommandDelegate invokeFunction;
+            public bool ignoreAuthority;
+
+            public override string GetFunctionName() => invokeFunction.GetMethodName();
+
+            public override bool AreEqual(Type invokeClass, MirrorInvokeType invokeType, Delegate function)
+            {
+                return (this.invokeClass == invokeClass &&
+                     this.invokeType == invokeType &&
+                     invokeFunction == function as CommandDelegate);
+            }
+        }
+
         public struct CommandInfo
         {
             public bool ignoreAuthority;
@@ -376,50 +415,70 @@ namespace Mirror
 
         // helper function register a Command/Rpc/SyncEvent delegate
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func, bool cmdIgnoreAuthority = false)
+        protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, RemoteDelegate func)
         {
             // type+func so Inventory.RpcUse != Equipment.RpcUse
             int cmdHash = GetMethodHash(invokeClass, cmdName);
 
-            if (cmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                // something already registered this hash
-                Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
-                if (oldInvoker.invokeClass == invokeClass &&
-                    oldInvoker.invokeType == invokerType &&
-                    oldInvoker.invokeFunction == func)
-                {
-                    // it's all right,  it was the same function
-                    return;
-                }
+            if (CheckIfDeligateExists(invokeClass, invokerType, func, cmdHash))
+                return;
 
-                logger.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
-            }
-            Invoker invoker = new Invoker
+            RemoteInvoker invoker = new RemoteInvoker
             {
                 invokeType = invokerType,
                 invokeClass = invokeClass,
                 invokeFunction = func,
-                cmdIgnoreAuthority = cmdIgnoreAuthority,
             };
             cmdHandlerDelegates[cmdHash] = invoker;
             if (logger.LogEnabled()) logger.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName());
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func, bool ignoreAuthority)
+        static bool CheckIfDeligateExists(Type invokeClass, MirrorInvokeType invokerType, Delegate func, int cmdHash)
         {
-            RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func, ignoreAuthority);
+            if (cmdHandlerDelegates.ContainsKey(cmdHash))
+            {
+                // something already registered this hash
+                Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
+                if (oldInvoker.AreEqual(invokeClass, invokerType, func))
+                {
+                    // it's all right,  it was the same function
+                    return true;
+                }
+
+                logger.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.GetFunctionName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
+            }
+
+            return false;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
+        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, CommandDelegate func, bool ignoreAuthority)
+        {
+            // type+func so Inventory.RpcUse != Equipment.RpcUse
+            int cmdHash = GetMethodHash(invokeClass, cmdName);
+
+            if (CheckIfDeligateExists(invokeClass, MirrorInvokeType.Command, func, cmdHash))
+                return;
+
+            CommandInvoker invoker = new CommandInvoker
+            {
+                invokeType = MirrorInvokeType.Command,
+                invokeClass = invokeClass,
+                invokeFunction = func,
+                ignoreAuthority = ignoreAuthority
+            };
+            cmdHandlerDelegates[cmdHash] = invoker;
+            if (logger.LogEnabled()) logger.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + MirrorInvokeType.Command + " method:" + func.GetMethodName());
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, RemoteDelegate func)
         {
             RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
+        public static void RegisterEventDelegate(Type invokeClass, string eventName, RemoteDelegate func)
         {
             RegisterDelegate(invokeClass, eventName, MirrorInvokeType.SyncEvent, func);
         }
@@ -447,11 +506,19 @@ namespace Mirror
         }
 
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
-        internal bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader)
+        internal bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
             if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(this))
             {
-                invoker.invokeFunction(this, reader);
+                if (invoker is RemoteInvoker remoteInvoker)
+                {
+                    remoteInvoker.invokeFunction(this, reader);
+                }
+                else if (invoker is CommandInvoker commandInvoker)
+                {
+                    commandInvoker.invokeFunction(this, reader, senderConnection);
+                }
+
                 return true;
             }
             return false;
@@ -463,26 +530,38 @@ namespace Mirror
             {
                 return new CommandInfo
                 {
-                    ignoreAuthority = invoker.cmdIgnoreAuthority
+                    ignoreAuthority = ((CommandInvoker)invoker).ignoreAuthority
                 };
             }
             return default;
         }
 
-        [Obsolete("Use NetworkBehaviour.GetDelegate instead.")]
-        public static CmdDelegate GetRpcHandler(int cmdHash) => GetDelegate(cmdHash);
-
         /// <summary>
-        /// Gets the handler function for a given hash
+        /// Gets the Remote handler function for a given hash
         /// Can be used by profilers and debuggers
         /// </summary>
         /// <param name="cmdHash">rpc function hash</param>
         /// <returns>The function delegate that will handle the command</returns>
-        public static CmdDelegate GetDelegate(int cmdHash)
+        public static RemoteDelegate GetRemoteDelegate(int cmdHash)
         {
-            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker) && invoker is RemoteInvoker remoteInvoker)
             {
-                return invoker.invokeFunction;
+                return remoteInvoker.invokeFunction;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the Command handler function for a given hash
+        /// Can be used by profilers and debuggers
+        /// </summary>
+        /// <param name="cmdHash">rpc function hash</param>
+        /// <returns>The function delegate that will handle the command</returns>
+        public static CommandDelegate GetCommandDelegate(int cmdHash)
+        {
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker) && invoker is CommandInvoker commandInvoker)
+            {
+                return commandInvoker.invokeFunction;
             }
             return null;
         }
