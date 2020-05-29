@@ -232,7 +232,7 @@ namespace Mirror
 
         #region Client RPCs
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, bool excludeOwner, int channelId)
+        protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId, bool excludeOwner)
         {
             // this was in Weaver before
             if (!NetworkServer.active)
@@ -370,9 +370,15 @@ namespace Mirror
             public CmdDelegate invokeFunction;
             public bool cmdIgnoreAuthority;
         }
+
         public struct CommandInfo
         {
             public bool ignoreAuthority;
+        }
+
+        public struct ClientRpcInfo
+        {
+            public bool excludeOwner;
         }
 
         static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
@@ -416,9 +422,9 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
+        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func, bool excludeOwner = false)
         {
-            RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func);
+            RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func, excludeOwner);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

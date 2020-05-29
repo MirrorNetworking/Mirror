@@ -31,9 +31,9 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Method)]
     public class ClientRpcAttribute : Attribute
     {
-        public bool excludeOwner = false;
         // this is zero
         public int channel = Channels.DefaultReliable;
+        public bool excludeOwner = false;
     }
 
     /// <summary>

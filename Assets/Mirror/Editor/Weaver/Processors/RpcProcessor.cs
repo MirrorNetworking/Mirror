@@ -93,8 +93,8 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldstr, rpcName));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(excludeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4, channel));
+            worker.Append(worker.Create(excludeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);

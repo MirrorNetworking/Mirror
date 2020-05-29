@@ -58,7 +58,7 @@ namespace Mirror.Tests
         // SendCommandInternal is protected. let's expose it so we can test it.
         public void CallSendRPCInternal()
         {
-            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(), false, 0);
+            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(), 0, false);
         }
     }
 
