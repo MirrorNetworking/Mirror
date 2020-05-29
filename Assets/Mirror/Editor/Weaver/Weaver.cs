@@ -151,7 +151,7 @@ namespace Mirror.Weaver
         }
 
         public static void Error(string message, MemberReference mr)
-        {    
+        {
             Log.Error($"{message} (at {mr})");
             WeavingFailed = true;
         }
@@ -418,7 +418,7 @@ namespace Mirror.Weaver
         static bool WeaveSyncObject(TypeDefinition td)
         {
             bool modified = false;
-            
+
             // ignore generic classes
             // we can not process generic classes
             // we give error if a generic syncObject is used in NetworkBehaviour

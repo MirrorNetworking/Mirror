@@ -287,7 +287,7 @@ namespace Mirror.Weaver
             //
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
-        
+
         void GenerateRegisterCommandDelegate(ILProcessor awakeWorker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
         {
             string cmdName = cmdResult.method.Name;
