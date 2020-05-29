@@ -111,7 +111,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, worker, false))
+            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, false))
                 return null;
 
             // invoke actual command function
