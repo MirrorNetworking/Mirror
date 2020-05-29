@@ -13,6 +13,7 @@ namespace Mirror.Discovery
         Vector2 scrollViewPos = Vector2.zero;
 
         public NetworkDiscovery networkDiscovery;
+        private NetworkManager manager;
 
 #if UNITY_EDITOR
         void OnValidate()
@@ -25,31 +26,35 @@ namespace Mirror.Discovery
             }
         }
 #endif
+        private void Awake()
+        {
+            manager = GetComponent<NetworkManager>();
+        }
 
         void OnGUI()
         {
             if (NetworkManager.singleton == null)
                 return;
 
-            if (NetworkServer.active || NetworkClient.active)
-                return;
-
-            if (!NetworkClient.isConnected && !NetworkServer.active && !NetworkClient.active)
-                DrawGUI();
+            DrawGUI();
         }
 
         void DrawGUI()
         {
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button("Find Servers"))
+            if (GUILayout.Button("Find Servers", GUILayout.Width(100), GUILayout.Height(100)))
             {
                 discoveredServers.Clear();
                 networkDiscovery.StartDiscovery();
             }
 
+            if (GUILayout.Button("Stop Discovery", GUILayout.Width(100), GUILayout.Height(100)))
+            {
+                networkDiscovery.StopDiscovery();
+            }
             // LAN Host
-            if (GUILayout.Button("Start Host"))
+            if (GUILayout.Button("Start Host", GUILayout.Width(100), GUILayout.Height(100)))
             {
                 discoveredServers.Clear();
                 NetworkManager.singleton.StartHost();
@@ -57,12 +62,36 @@ namespace Mirror.Discovery
             }
 
             // Dedicated server
-            if (GUILayout.Button("Start Server"))
+            if (GUILayout.Button("Start Server", GUILayout.Width(100), GUILayout.Height(100)))
             {
                 discoveredServers.Clear();
                 NetworkManager.singleton.StartServer();
 
                 networkDiscovery.AdvertiseServer();
+            }
+
+            if (NetworkServer.active && NetworkClient.isConnected)
+            {
+                if (GUILayout.Button("Stop Host", GUILayout.Width(100), GUILayout.Height(100)))
+                {
+                    manager.StopHost();
+                }
+            }
+            // stop client if client-only
+            else if (NetworkClient.isConnected)
+            {
+                if (GUILayout.Button("Stop Client", GUILayout.Width(100), GUILayout.Height(100)))
+                {
+                    manager.StopClient();
+                }
+            }
+            // stop server if server-only
+            else if (NetworkServer.active)
+            {
+                if (GUILayout.Button("Stop Server", GUILayout.Width(100), GUILayout.Height(100)))
+                {
+                    manager.StopServer();
+                }
             }
 
             GUILayout.EndHorizontal();
