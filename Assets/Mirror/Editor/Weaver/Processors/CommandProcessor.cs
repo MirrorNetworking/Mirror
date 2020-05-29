@@ -87,7 +87,7 @@ namespace Mirror.Weaver
 
         /*
             // generates code like:
-            protected static void InvokeCmdCmdThrust(NetworkBehaviour obj, NetworkReader reader)
+            protected static void InvokeCmdCmdThrust(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection)
             {
                 if (!NetworkServer.active)
                 {
@@ -121,6 +121,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
+            cmd.Parameters.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkConnectionType)));
 
             td.Methods.Add(cmd);
             return cmd;
@@ -132,8 +133,9 @@ namespace Mirror.Weaver
             {
                 if (NetworkBehaviourProcessor.IsSenderConnection(param, RemoteCallType.Command))
                 {
-                    // TODO Write Sender's Connection here
-                    worker.Append(worker.Create(OpCodes.Ldnull));
+                    // NetworkConnection is 3nd arg (arg0 is "obj" not "this" because method is static)
+                    // exmaple: static void InvokeCmdCmdSendCommand(NetworkBehaviour obj, NetworkReader reader, NetworkConnection connection)
+                    worker.Append(worker.Create(OpCodes.Ldarg_2));
                 }
             }
         }
