@@ -14,7 +14,7 @@ namespace Mirror.Weaver
         // <SyncVarField,NetIdField>
         readonly Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
         readonly List<CmdResult> commands = new List<CmdResult>();
-        readonly List<MethodDefinition> clientRpcs = new List<MethodDefinition>();
+        readonly List<ClientRpcResult> clientRpcs = new List<ClientRpcResult>();
         readonly List<MethodDefinition> targetRpcs = new List<MethodDefinition>();
         readonly List<EventDefinition> eventRpcs = new List<EventDefinition>();
         readonly List<MethodDefinition> commandInvocationFuncs = new List<MethodDefinition>();
@@ -28,6 +28,12 @@ namespace Mirror.Weaver
         {
             public MethodDefinition method;
             public bool ignoreAuthority;
+        }
+
+        public struct ClientRpcResult
+        {
+            public MethodDefinition method;
+            public bool excludeOwner;
         }
 
         public NetworkBehaviourProcessor(TypeDefinition td)
@@ -240,7 +246,8 @@ namespace Mirror.Weaver
 
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
-                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcs[i].Name);
+                ClientRpcResult clientRpcResult = clientRpcs[i];
+                GenerateRegisterClientRpcDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcResult);
             }
 
             for (int i = 0; i < targetRpcs.Count; ++i)
@@ -287,7 +294,7 @@ namespace Mirror.Weaver
             //
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
-        
+
         void GenerateRegisterCommandDelegate(ILProcessor awakeWorker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
         {
             string cmdName = cmdResult.method.Name;
@@ -302,6 +309,25 @@ namespace Mirror.Weaver
             awakeWorker.Append(awakeWorker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
 
             awakeWorker.Append(awakeWorker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
+
+            //
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Call, registerMethod));
+        }
+
+        void GenerateRegisterClientRpcDelegate(ILProcessor awakeWorker, MethodReference registerMethod, MethodDefinition func, ClientRpcResult rpcResult)
+        {
+            string rpcName = rpcResult.method.Name;
+            bool excludeOwner = rpcResult.excludeOwner;
+
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldstr, rpcName));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldnull));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldftn, func));
+
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
+
+            awakeWorker.Append(awakeWorker.Create(excludeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
 
             //
             awakeWorker.Append(awakeWorker.Create(OpCodes.Call, registerMethod));
@@ -896,8 +922,15 @@ namespace Mirror.Weaver
                 Weaver.Error($"Duplicate ClientRpc name {md.Name}", md);
                 return;
             }
+
+            bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
+
             names.Add(md.Name);
-            clientRpcs.Add(md);
+            clientRpcs.Add(new ClientRpcResult
+            {
+                method = md,
+                excludeOwner = excludeOwner
+            });
 
             MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, clientRpcAttr);
 

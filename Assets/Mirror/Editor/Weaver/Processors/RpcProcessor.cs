@@ -80,7 +80,7 @@ namespace Mirror.Weaver
             {
                 rpcName = rpcName.Substring(RpcPrefix.Length);
             }
-            bool includeOwner = clientRpcAttr.GetField("includeOwner", true);
+            bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
 
             // invoke SendInternal and return
             // this
@@ -92,7 +92,7 @@ namespace Mirror.Weaver
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4, clientRpcAttr.GetField("channel", 0)));
-            worker.Append(worker.Create(includeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
+            worker.Append(worker.Create(excludeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
