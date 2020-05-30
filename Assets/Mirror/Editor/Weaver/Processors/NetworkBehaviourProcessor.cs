@@ -9,7 +9,9 @@ namespace Mirror.Weaver
         Command,
         ClientRpc,
         TargetRpc,
+        SyncEvent
     }
+
 
     /// <summary>
     /// processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
@@ -128,7 +130,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, Weaver.RecycleWriterReference));
         }
 
-        public static bool WriteArguments(ILProcessor worker, MethodDefinition method, bool skipFirst)
+        public static bool WriteArguments(ILProcessor worker, MethodDefinition method, RemoteCallType callType)
         {
             // write each argument
             // example result
@@ -136,6 +138,9 @@ namespace Mirror.Weaver
             writer.WritePackedInt32(someNumber);
             writer.WriteNetworkIdentity(someTarget);
              */
+
+            bool skipFirst = (callType == RemoteCallType.TargetRpc
+                && TargetRpcProcessor.HasNetworkConnectionParameter(method));
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
@@ -775,13 +780,16 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Methods.Add(serialize);
         }
 
-        public static bool ReadArguments(MethodDefinition method, ILProcessor worker, bool skipFirst)
+        public static bool ReadArguments(MethodDefinition method, ILProcessor worker, RemoteCallType callType)
         {
             // read each argument
             // example result
             /*
             CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
              */
+
+            bool skipFirst = (callType == RemoteCallType.TargetRpc
+                && TargetRpcProcessor.HasNetworkConnectionParameter(method));
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;

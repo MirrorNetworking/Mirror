@@ -34,15 +34,15 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Castclass, td));
 
             // NetworkConnection parameter is optional
-            bool hasNetworkConnection = HasNetworkConnectionParameter(md);
-            if (hasNetworkConnection)
+            if (HasNetworkConnectionParameter(md))
             {
+                // if call has NetworkConnection write clients connection as first arg 
                 //ClientScene.readyconnection
                 worker.Append(worker.Create(OpCodes.Call, Weaver.ReadyConnectionReference));
             }
 
             // process reader parameters and skip first one if first one is NetworkConnection
-            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, hasNetworkConnection))
+            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, RemoteCallType.TargetRpc))
                 return null;
 
             // invoke actual command function
@@ -97,12 +97,9 @@ namespace Mirror.Weaver
 
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
-            // NetworkConnection parameter is optional
-            bool hasNetworkConnection = HasNetworkConnectionParameter(md);
-
             // write all the arguments that the user passed to the TargetRpc call
             // (skip first one if first one is NetworkConnection)
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, hasNetworkConnection))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.TargetRpc))
                 return null;
 
             string rpcName = md.Name;

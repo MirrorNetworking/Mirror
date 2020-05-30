@@ -51,7 +51,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Cmd call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, false))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.Command))
                 return null;
 
             string cmdName = md.Name;
@@ -111,7 +111,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ReadArguments(method, worker, false))
+            if (!NetworkBehaviourProcessor.ReadArguments(method, worker, RemoteCallType.Command))
                 return null;
 
             // invoke actual command function
