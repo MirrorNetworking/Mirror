@@ -69,7 +69,7 @@ namespace Mirror.Discovery
             {
                 if (GUILayout.Button("Stop Host", GUILayout.Width(100), GUILayout.Height(100)))
                 {
-                    manager.StopHost();
+                    NetworkManager.singleton.StopHost();
                 }
             }
             // stop client if client-only
