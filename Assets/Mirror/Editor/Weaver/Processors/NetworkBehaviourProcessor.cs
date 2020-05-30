@@ -924,6 +924,12 @@ namespace Mirror.Weaver
 
         void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
+            if (md.IsAbstract)
+            {
+                Weaver.Error("Abstract ClientRpc are currently not supported, use virtual method instead", md);
+                return;
+            }
+
             if (!RpcProcessor.ProcessMethodsValidateRpc(md))
             {
                 return;
@@ -948,6 +954,12 @@ namespace Mirror.Weaver
 
         void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
+            if (md.IsAbstract)
+            {
+                Weaver.Error("Abstract TargetRpc are currently not supported, use virtual method instead", md);
+                return;
+            }
+
             if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md))
                 return;
 
@@ -970,6 +982,12 @@ namespace Mirror.Weaver
 
         void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute commandAttr)
         {
+            if (md.IsAbstract)
+            {
+                Weaver.Error("Abstract Commands are currently not supported, use virtual method instead", md);
+                return;
+            }
+
             if (!CommandProcessor.ProcessMethodsValidateCommand(md))
                 return;
 
