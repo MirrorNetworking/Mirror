@@ -148,7 +148,7 @@ namespace Mirror.Weaver
             }
             return null;
         }
-        
+
         public static CustomAttribute GetCustomAttribute(this ICustomAttributeProvider method, TypeReference attribute)
         {
             foreach (CustomAttribute ca in method.CustomAttributes)
