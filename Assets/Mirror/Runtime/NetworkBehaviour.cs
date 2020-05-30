@@ -358,7 +358,7 @@ namespace Mirror
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="reader"></param>
-        public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
+        public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection);
 
         protected class Invoker
         {
