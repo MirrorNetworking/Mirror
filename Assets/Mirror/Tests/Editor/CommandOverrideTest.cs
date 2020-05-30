@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests.CommandAttrributeTest
 {
-    class VirtualHookBase : NetworkBehaviour
+    class VirtualCommand : NetworkBehaviour
     {
         public event Action<int> onVirtualSendInt;
 
@@ -14,7 +14,7 @@ namespace Mirror.Tests.CommandAttrributeTest
         }
     }
 
-    class VirtualOverrideHook : VirtualHookBase
+    class VirtualOverrideCommand : VirtualCommand
     {
         public event Action<int> onOverrideSendInt;
 
@@ -30,7 +30,7 @@ namespace Mirror.Tests.CommandAttrributeTest
         [Test]
         public void VirtualCommandIsCalled()
         {
-            VirtualHookBase hostBehaviour = CreateHostObject<VirtualHookBase>(true);
+            VirtualCommand hostBehaviour = CreateHostObject<VirtualCommand>(true);
 
             const int someInt = 20;
 
@@ -50,7 +50,7 @@ namespace Mirror.Tests.CommandAttrributeTest
         [Test]
         public void OverrideVirtualCommandIsCalled()
         {
-            VirtualOverrideHook hostBehaviour = CreateHostObject<VirtualOverrideHook>(true);
+            VirtualOverrideCommand hostBehaviour = CreateHostObject<VirtualOverrideCommand>(true);
 
             const int someInt = 20;
 
