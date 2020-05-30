@@ -21,11 +21,28 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger(typeof(ClientScene));
 
         static bool isSpawnFinished;
+        static NetworkIdentity _localPlayer;
 
         /// <summary>
         /// NetworkIdentity of the localPlayer
         /// </summary>
-        public static NetworkIdentity localPlayer { get; private set; }
+        public static NetworkIdentity localPlayer
+        {
+            get => _localPlayer;
+            private set
+            {
+                NetworkIdentity oldPlayer = _localPlayer;
+                NetworkIdentity newPlayer = value;
+                if (oldPlayer != newPlayer)
+                {
+                    _localPlayer = value;
+                    onLocalPlayerChanged?.Invoke(oldPlayer, newPlayer);
+                }
+            }
+        }
+
+        public delegate void LocalplayerChanged(NetworkIdentity oldPlayer, NetworkIdentity newPlayer);
+        public static event LocalplayerChanged onLocalPlayerChanged;
 
         /// <summary>
         /// Returns true when a client's connection has been set to ready.
