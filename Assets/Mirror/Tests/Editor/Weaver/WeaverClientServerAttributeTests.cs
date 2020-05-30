@@ -11,18 +11,41 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourServer()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
+
             string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
+        }
 
+        [Test]
+        public void ServerAttributeOnVirutalMethod()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkServerGetActive = Weaver.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnVirutalMethod.ServerAttributeOnVirutalMethod", "ServerOnlyMethod");
+        }
+
+        [Test]
+        public void ServerAttributeOnAbstractMethod()
+        {
+            Assert.That(weaverErrors, Contains.Item("Server Attribute can't be added to abstract method (at System.Void WeaverClientServerAttributeTests.ServerAttributeOnAbstractMethod.ServerAttributeOnAbstractMethod::ServerOnlyMethod())"));
+        }
+
+        [Test]
+        public void ServerAttributeOnOverrideMethod()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkServerGetActive = Weaver.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnOverrideMethod.ServerAttributeOnOverrideMethod", "ServerOnlyMethod");
         }
 
         [Test]
         public void NetworkBehaviourClient()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
+
             string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
         }

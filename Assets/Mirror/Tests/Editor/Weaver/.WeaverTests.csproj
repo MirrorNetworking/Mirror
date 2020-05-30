@@ -91,6 +91,9 @@
     <Compile Include="WeaverClientRpcTests~\VirtualClientRpc.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourClient.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourServer.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ServerAttributeOnAbstractMethod.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ServerAttributeOnOverrideMethod.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ServerAttributeOnVirutalMethod.cs" />
     <Compile Include="WeaverCommandTests~\AbstractCommand.cs" />
     <Compile Include="WeaverCommandTests~\CommandCantBeStatic.cs" />
     <Compile Include="WeaverCommandTests~\CommandStartsWithCmd.cs" />
