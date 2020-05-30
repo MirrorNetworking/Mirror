@@ -13,7 +13,6 @@ namespace Mirror.Discovery
         Vector2 scrollViewPos = Vector2.zero;
 
         public NetworkDiscovery networkDiscovery;
-        private NetworkManager manager;
 
 #if UNITY_EDITOR
         void OnValidate()
