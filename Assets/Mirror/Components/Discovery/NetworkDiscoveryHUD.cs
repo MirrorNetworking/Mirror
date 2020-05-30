@@ -107,8 +107,12 @@ namespace Mirror.Discovery
             scrollViewPos = GUILayout.BeginScrollView(scrollViewPos);
 
             foreach (ServerResponse info in discoveredServers.Values)
+            {
                 if (GUILayout.Button(info.EndPoint.Address.ToString(), buttonStyle))
+                {
                     Connect(info);
+                }
+            }
 
             GUILayout.EndScrollView();
         }
