@@ -362,8 +362,8 @@ namespace Mirror
 
         protected class Invoker
         {
-            public MirrorInvokeType invokeType;
             public Type invokeClass;
+            public MirrorInvokeType invokeType;
             public CmdDelegate invokeFunction;
             public bool cmdIgnoreAuthority;
 
@@ -374,6 +374,7 @@ namespace Mirror
                      invokeFunction == function);
             }
         }
+
         public struct CommandInfo
         {
             public bool ignoreAuthority;
