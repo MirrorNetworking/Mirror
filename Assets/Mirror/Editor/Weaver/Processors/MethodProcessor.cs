@@ -1,5 +1,6 @@
 using Mono.CecilX;
 using Mono.CecilX.Cil;
+using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -41,6 +42,24 @@ namespace Mirror.Weaver
 
             // swap bodies
             (cmd.Body, md.Body) = (md.Body, cmd.Body);
+
+            Debug.Log("************");
+
+            Debug.Log(newName);
+            foreach (Instruction instruction in cmd.Body.Instructions)
+            {
+                if (instruction.OpCode == OpCodes.Call)
+                {
+                    if (instruction.Operand is MethodDefinition baseMethod)
+                    {
+                        if (baseMethod.Name == md.Name)
+                        {
+                            Debug.Log("Base Called");
+                        }
+                    }
+                }
+            }
+            Debug.Log("************");
 
             // Move over all the debugging information
             foreach (SequencePoint sequencePoint in md.DebugInformation.SequencePoints)
