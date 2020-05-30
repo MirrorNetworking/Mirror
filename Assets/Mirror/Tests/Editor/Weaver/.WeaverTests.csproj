@@ -85,11 +85,15 @@
     <Compile Include="WeaverClientRpcTests~\ClientRpcValid.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourClient.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourServer.cs" />
+    <Compile Include="WeaverCommandTests~\AbstractCommand.cs" />
     <Compile Include="WeaverCommandTests~\CommandCantBeStatic.cs" />
     <Compile Include="WeaverCommandTests~\CommandStartsWithCmd.cs" />
     <Compile Include="WeaverCommandTests~\CommandThatIgnoresAuthority.cs" />
     <Compile Include="WeaverCommandTests~\CommandValid.cs" />
     <Compile Include="WeaverCommandTests~\CommandWithArguments.cs" />
+    <Compile Include="WeaverCommandTests~\OverrideAbstractCommand.cs" />
+    <Compile Include="WeaverCommandTests~\OverrideVirtualCommand.cs" />
+    <Compile Include="WeaverCommandTests~\VirtualCommand.cs" />
     <Compile Include="WeaverGeneralTests~\RecursionCount.cs" />
     <Compile Include="WeaverGeneralTests~\TestingScriptableObjectArraySerialization.cs" />
     <Compile Include="WeaverMessageTests~\MessageMemberGeneric.cs" />

@@ -34,5 +34,29 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(weaverErrors, Is.Empty);
         }
+
+        [Test]
+        public void VirtualCommand()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void OverrideVirtualCommand()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void AbstractCommand()
+        {
+            Assert.That(weaverErrors, Contains.Item("Abstract Commands are currently not supported, use virual method instead (at System.Void WeaverCommandTests.AbstractCommand.AbstractCommand::CmdDoSomething())"));
+        }
+
+        [Test]
+        public void OverrideAbstractCommand()
+        {
+            Assert.That(weaverErrors, Contains.Item("Abstract Commands are currently not supported, use virual method instead (at System.Void WeaverCommandTests.OverrideAbstractCommand.BaseBehaviour::CmdDoSomething())"));
+        }
     }
 }
