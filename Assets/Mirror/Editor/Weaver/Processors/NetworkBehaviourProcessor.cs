@@ -970,6 +970,12 @@ namespace Mirror.Weaver
 
         void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute commandAttr)
         {
+            if (md.IsAbstract)
+            {
+                Weaver.Error("Abstract Commands are currently not supported, use virual method instead", md);
+                return;
+            }
+
             if (!CommandProcessor.ProcessMethodsValidateCommand(md))
                 return;
 
