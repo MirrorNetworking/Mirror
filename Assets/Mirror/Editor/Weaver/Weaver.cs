@@ -273,6 +273,7 @@ namespace Mirror.Weaver
 
             CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, CurrentAssembly, ".ctor");
+
             CurrentAssembly.MainModule.ImportReference(gameObjectType);
             CurrentAssembly.MainModule.ImportReference(transformType);
 
