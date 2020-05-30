@@ -42,7 +42,6 @@ namespace Mirror.Weaver
 
         // Network types
         public static TypeReference NetworkBehaviourType;
-        public static TypeReference NetworkBehaviourType2;
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
         public static TypeReference NetworkConnectionType;
@@ -281,7 +280,6 @@ namespace Mirror.Weaver
             NetworkIdentityType = CurrentAssembly.MainModule.ImportReference(networkIdentityTmp);
 
             NetworkBehaviourType = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
-            NetworkBehaviourType2 = CurrentAssembly.MainModule.ImportReference(NetworkBehaviourType);
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
 
             MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
