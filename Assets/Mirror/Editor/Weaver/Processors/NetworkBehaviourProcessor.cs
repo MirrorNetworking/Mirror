@@ -780,7 +780,7 @@ namespace Mirror.Weaver
             // read each argument
             // example result
             /*
-             * CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
+            CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
              */
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
