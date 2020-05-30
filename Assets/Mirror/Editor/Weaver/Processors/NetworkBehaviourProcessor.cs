@@ -307,23 +307,23 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
 
-        void GenerateRegisterCommandDelegate(ILProcessor awakeWorker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
+        void GenerateRegisterCommandDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
         {
             string cmdName = cmdResult.method.Name;
             bool ignoreAuthority = cmdResult.ignoreAuthority;
 
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldstr, cmdName));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldnull));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldftn, func));
+            worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
+            worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
+            worker.Append(worker.Create(OpCodes.Ldnull));
+            worker.Append(worker.Create(OpCodes.Ldftn, func));
 
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
+            worker.Append(worker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
 
-            awakeWorker.Append(awakeWorker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
+            worker.Append(worker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
 
             //
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Call, registerMethod));
+            worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
 
         void GenerateSerialization()
@@ -780,7 +780,7 @@ namespace Mirror.Weaver
             // read each argument
             // example result
             /*
-             * CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
+            CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
              */
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
@@ -822,7 +822,7 @@ namespace Mirror.Weaver
 
         public static void AddInvokeParameters(ICollection<ParameterDefinition> collection)
         {
-            collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, Weaver.NetworkBehaviourType2));
+            collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkBehaviourType)));
             collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
         }
 
