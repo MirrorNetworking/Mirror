@@ -25,6 +25,18 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
+    class VirtualOverrideCommandWithBase : VirtualCommand
+    {
+        public event Action<int> onOverrideSendInt;
+
+        [Command]
+        public override void CmdSendInt(int someInt)
+        {
+            base.CmdSendInt(someInt);
+            onOverrideSendInt?.Invoke(someInt);
+        }
+    }
+
     public class CommandOverrideTest : RemoteTestBase
     {
         [Test]
@@ -69,6 +81,32 @@ namespace Mirror.Tests.RemoteAttrributeTest
             hostBehaviour.CmdSendInt(someInt);
             ProcessMessages();
             Assert.That(virtualCallCount, Is.EqualTo(0));
+            Assert.That(overrideCallCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void OverrideVirtualWithBaseCallsBothVirtualAndBase()
+        {
+            VirtualOverrideCommandWithBase hostBehaviour = CreateHostObject<VirtualOverrideCommandWithBase>(true);
+
+            const int someInt = 20;
+
+            int virtualCallCount = 0;
+            int overrideCallCount = 0;
+            hostBehaviour.onVirtualSendInt += incomingInt =>
+            {
+                virtualCallCount++;
+                Assert.That(incomingInt, Is.EqualTo(someInt));
+            };
+            hostBehaviour.onOverrideSendInt += incomingInt =>
+            {
+                overrideCallCount++;
+                Assert.That(incomingInt, Is.EqualTo(someInt));
+            };
+
+            hostBehaviour.CmdSendInt(someInt);
+            ProcessMessages();
+            Assert.That(virtualCallCount, Is.EqualTo(1));
             Assert.That(overrideCallCount, Is.EqualTo(1));
         }
     }
