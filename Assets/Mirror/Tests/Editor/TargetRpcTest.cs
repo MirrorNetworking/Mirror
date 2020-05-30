@@ -17,7 +17,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
     public class TargetRpcTest : RemoteTestBase
     {
         [Test]
-        public void RpcIscalled()
+        public void RpcIsCalled()
         {
             TargetRpcBehaviour hostBehaviour = CreateHostObject<TargetRpcBehaviour>(true);
 
