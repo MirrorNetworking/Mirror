@@ -28,7 +28,6 @@ namespace Mirror.Weaver.Tests
             Assert.That(weaverErrors, Is.Empty);
         }
 
-
         [Test]
         public void CommandWithArguments()
         {
