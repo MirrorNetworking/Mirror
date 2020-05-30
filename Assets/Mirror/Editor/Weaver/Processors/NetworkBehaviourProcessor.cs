@@ -865,6 +865,7 @@ namespace Mirror.Weaver
         static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
         {
             bool isNetworkConnection = param.ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
+            bool isSenderConnection = IsSenderConnection(param, callType);
 
             if (param.IsOut)
             {
@@ -873,21 +874,44 @@ namespace Mirror.Weaver
             }
 
 
-            // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
-            if (isNetworkConnection && !(callType == RemoteCallType.TargetRpc && firstParam))
+            // if not SenderConnection And not TargetRpc NetworkConnection first param
+            if (!isSenderConnection && isNetworkConnection && !(callType == RemoteCallType.TargetRpc && firstParam))
             {
-                Weaver.Error($"{method.Name} has invalid parameter {param}. Cannot pass NeworkConnections", method);
+                if (callType == RemoteCallType.Command)
+                {
+                    Weaver.Error($"{method.Name} has invalid parameter {param}, Cannot pass NeworkConnections. Instead use use '[SenderConnection] NetworkConnection conn = null' to get the sender's connection on the server", method);
+                }
+                else
+                {
+                    Weaver.Error($"{method.Name} has invalid parameter {param}. Cannot pass NeworkConnections", method);
+                }
                 return false;
             }
 
             // sender connection can be optional
-            if (param.IsOptional)
+            if (param.IsOptional && !isSenderConnection)
             {
                 Weaver.Error($"{method.Name} cannot have optional parameters", method);
                 return false;
             }
 
             return true;
+        }
+
+        public static bool IsSenderConnection(ParameterDefinition param, RemoteCallType callType)
+        {
+            if (callType != RemoteCallType.Command)
+            {
+                return false;
+            }
+
+            // Sender Param must be a NetworkConnection
+            if (param.ParameterType.FullName != Weaver.NetworkConnectionType.FullName)
+            {
+                return false;
+            }
+
+            return param.HasCustomAttribute("Mirror.SenderConnectionAttribute");
         }
 
         void ProcessMethods()
