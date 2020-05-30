@@ -1,3 +1,5 @@
+using Mirror;
+
 namespace WeaverClientRpcTests.VirtualClientRpc
 {
     class VirtualCommand : NetworkBehaviour
