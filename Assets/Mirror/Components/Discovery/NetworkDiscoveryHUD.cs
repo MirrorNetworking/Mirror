@@ -13,6 +13,7 @@ namespace Mirror.Discovery
         Vector2 scrollViewPos = Vector2.zero;
 
         public NetworkDiscovery networkDiscovery;
+        private GUIStyle buttonStyle;
 
 #if UNITY_EDITOR
         void OnValidate()
@@ -31,6 +32,14 @@ namespace Mirror.Discovery
             if (NetworkManager.singleton == null)
                 return;
 
+            if (buttonStyle == null)
+            {
+                buttonStyle = new GUIStyle("button");
+                buttonStyle.fontSize = 22;
+                buttonStyle.fixedWidth = 160;
+                buttonStyle.fixedHeight = 80;
+            }
+
             DrawGUI();
         }
 
@@ -38,18 +47,18 @@ namespace Mirror.Discovery
         {
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button("Find Servers", GUILayout.Width(100), GUILayout.Height(100)))
+            if (GUILayout.Button("Find Servers", buttonStyle))
             {
                 discoveredServers.Clear();
                 networkDiscovery.StartDiscovery();
             }
 
-            if (GUILayout.Button("Stop Discovery", GUILayout.Width(100), GUILayout.Height(100)))
+            if (GUILayout.Button("Stop Discovery", buttonStyle))
             {
                 networkDiscovery.StopDiscovery();
             }
             // LAN Host
-            if (GUILayout.Button("Start Host", GUILayout.Width(100), GUILayout.Height(100)))
+            if (GUILayout.Button("Start Host", buttonStyle))
             {
                 discoveredServers.Clear();
                 NetworkManager.singleton.StartHost();
@@ -57,17 +66,16 @@ namespace Mirror.Discovery
             }
 
             // Dedicated server
-            if (GUILayout.Button("Start Server", GUILayout.Width(100), GUILayout.Height(100)))
+            if (GUILayout.Button("Start Server", buttonStyle))
             {
                 discoveredServers.Clear();
                 NetworkManager.singleton.StartServer();
-
                 networkDiscovery.AdvertiseServer();
             }
 
             if (NetworkServer.active && NetworkClient.isConnected)
             {
-                if (GUILayout.Button("Stop Host", GUILayout.Width(100), GUILayout.Height(100)))
+                if (GUILayout.Button("Stop Host", buttonStyle))
                 {
                     NetworkManager.singleton.StopHost();
                 }
@@ -75,7 +83,7 @@ namespace Mirror.Discovery
             // stop client if client-only
             else if (NetworkClient.isConnected)
             {
-                if (GUILayout.Button("Stop Client", GUILayout.Width(100), GUILayout.Height(100)))
+                if (GUILayout.Button("Stop Client", buttonStyle))
                 {
                     NetworkManager.singleton.StopClient();
                 }
@@ -83,7 +91,7 @@ namespace Mirror.Discovery
             // stop server if server-only
             else if (NetworkServer.active)
             {
-                if (GUILayout.Button("Stop Server", GUILayout.Width(100), GUILayout.Height(100)))
+                if (GUILayout.Button("Stop Server", buttonStyle))
                 {
                     NetworkManager.singleton.StopServer();
                 }
@@ -99,7 +107,7 @@ namespace Mirror.Discovery
             scrollViewPos = GUILayout.BeginScrollView(scrollViewPos);
 
             foreach (ServerResponse info in discoveredServers.Values)
-                if (GUILayout.Button(info.EndPoint.Address.ToString()))
+                if (GUILayout.Button(info.EndPoint.Address.ToString(), buttonStyle))
                     Connect(info);
 
             GUILayout.EndScrollView();
