@@ -25,10 +25,6 @@ namespace Mirror.Discovery
             }
         }
 #endif
-        private void Awake()
-        {
-            manager = GetComponent<NetworkManager>();
-        }
 
         void OnGUI()
         {
