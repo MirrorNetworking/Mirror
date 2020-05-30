@@ -85,7 +85,7 @@ namespace Mirror.Discovery
             {
                 if (GUILayout.Button("Stop Server", GUILayout.Width(100), GUILayout.Height(100)))
                 {
-                    manager.StopServer();
+                    NetworkManager.singleton.StopServer();
                 }
             }
 
