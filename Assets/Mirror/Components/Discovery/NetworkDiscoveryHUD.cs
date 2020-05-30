@@ -77,7 +77,7 @@ namespace Mirror.Discovery
             {
                 if (GUILayout.Button("Stop Client", GUILayout.Width(100), GUILayout.Height(100)))
                 {
-                    manager.StopClient();
+                    NetworkManager.singleton.StopClient();
                 }
             }
             // stop server if server-only
