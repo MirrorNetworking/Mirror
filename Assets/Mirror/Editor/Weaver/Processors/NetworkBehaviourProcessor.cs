@@ -4,6 +4,13 @@ using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
+    public enum RemoteCallType
+    {
+        Command,
+        ClientRpc,
+        TargetRpc,
+    }
+
     /// <summary>
     /// processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
     /// </summary>
@@ -820,33 +827,45 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool ProcessMethodsValidateParameters(MethodReference md, CustomAttribute ca)
+        public static bool ProcessMethodsValidateParameters(MethodReference method, RemoteCallType callType)
         {
-            bool isTargetRpc = ca.AttributeType.FullName == Weaver.TargetRpcType.FullName;
-
-            for (int i = 0; i < md.Parameters.Count; ++i)
+            for (int i = 0; i < method.Parameters.Count; ++i)
             {
-                ParameterDefinition p = md.Parameters[i];
-                if (p.IsOut)
-                {
-                    Weaver.Error($"{md.Name} cannot have out parameters", md);
-                    return false;
-                }
-                if (p.IsOptional)
-                {
-                    Weaver.Error($"{md.Name} cannot have optional parameters", md);
-                    return false;
-                }
+                ParameterDefinition param = method.Parameters[i];
 
-                bool isFirstParam = i == 0;
-                bool isNetworkConnection = p.ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
+                bool valid = ValidateParameter(method, param, callType, i == 0);
 
-                // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
-                if (isNetworkConnection && !(isTargetRpc && isFirstParam))
+                if (!valid)
                 {
-                    Weaver.Error($"{md.Name} has invalid parameter {p}. Cannot pass NeworkConnections", md);
                     return false;
                 }
+            }
+            return true;
+        }
+
+        static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
+        {
+            bool isNetworkConnection = param.ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
+
+            if (param.IsOut)
+            {
+                Weaver.Error($"{method.Name} cannot have out parameters", method);
+                return false;
+            }
+
+
+            // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
+            if (isNetworkConnection && !(callType == RemoteCallType.TargetRpc && firstParam))
+            {
+                Weaver.Error($"{method.Name} has invalid parameter {param}. Cannot pass NeworkConnections", method);
+                return false;
+            }
+
+            // sender connection can be optional
+            if (param.IsOptional)
+            {
+                Weaver.Error($"{method.Name} cannot have optional parameters", method);
+                return false;
             }
 
             return true;
@@ -886,7 +905,7 @@ namespace Mirror.Weaver
 
         void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            if (!RpcProcessor.ProcessMethodsValidateRpc(md, clientRpcAttr))
+            if (!RpcProcessor.ProcessMethodsValidateRpc(md))
             {
                 return;
             }
@@ -910,7 +929,7 @@ namespace Mirror.Weaver
 
         void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
-            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md, targetRpcAttr))
+            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md))
                 return;
 
             if (names.Contains(md.Name))
@@ -932,7 +951,7 @@ namespace Mirror.Weaver
 
         void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute commandAttr)
         {
-            if (!CommandProcessor.ProcessMethodsValidateCommand(md, commandAttr))
+            if (!CommandProcessor.ProcessMethodsValidateCommand(md))
                 return;
 
             if (names.Contains(md.Name))
