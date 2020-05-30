@@ -153,6 +153,12 @@ namespace Mirror.Weaver
                     argNum += 1;
                     continue;
                 }
+                // skip SenderConnection in Command
+                if (IsSenderConnection(param, callType))
+                {
+                    argNum += 1;
+                    continue;
+                }
 
                 MethodReference writeFunc = Writers.GetWriteFunc(param.ParameterType);
                 if (writeFunc == null)
@@ -798,6 +804,12 @@ namespace Mirror.Weaver
                 // NetworkConnection is not sent via the NetworkWriter so skip it here
                 // skip first for NetworkConnection in TargetRpc
                 if (argNum == 1 && skipFirst)
+                {
+                    argNum += 1;
+                    continue;
+                }
+                // skip SenderConnection in Command
+                if (IsSenderConnection(param, callType))
                 {
                     argNum += 1;
                     continue;
