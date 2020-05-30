@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 
-namespace Mirror.Tests.CommandAttrributeTest
+namespace Mirror.Tests.RemoteAttrributeTest
 {
     class VirtualCommand : NetworkBehaviour
     {
@@ -25,7 +25,7 @@ namespace Mirror.Tests.CommandAttrributeTest
         }
     }
 
-    public class CommandOverrideTest : CommandTestBase
+    public class CommandOverrideTest : RemoteTestBase
     {
         [Test]
         public void VirtualCommandIsCalled()

@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.CommandAttrributeTest
+namespace Mirror.Tests.RemoteAttrributeTest
 {
-    public class CommandTestBase
+    public class RemoteTestBase
     {
         List<GameObject> spawned = new List<GameObject>();
 

@@ -3,7 +3,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests.CommandAttrributeTest
+namespace Mirror.Tests.RemoteAttrributeTest
 {
     class AuthorityBehaviour : NetworkBehaviour
     {
@@ -27,7 +27,7 @@ namespace Mirror.Tests.CommandAttrributeTest
         }
     }
 
-    public class CommandTest : CommandTestBase
+    public class CommandTest : RemoteTestBase
     {
         [Test]
         public void CommandIsSentWithAuthority()
