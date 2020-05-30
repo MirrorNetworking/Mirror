@@ -307,23 +307,23 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
 
-        void GenerateRegisterCommandDelegate(ILProcessor awakeWorker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
+        void GenerateRegisterCommandDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
         {
             string cmdName = cmdResult.method.Name;
             bool ignoreAuthority = cmdResult.ignoreAuthority;
 
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldstr, cmdName));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldnull));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldftn, func));
+            worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
+            worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
+            worker.Append(worker.Create(OpCodes.Ldnull));
+            worker.Append(worker.Create(OpCodes.Ldftn, func));
 
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
+            worker.Append(worker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
 
-            awakeWorker.Append(awakeWorker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
+            worker.Append(worker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
 
             //
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Call, registerMethod));
+            worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
 
         void GenerateSerialization()
