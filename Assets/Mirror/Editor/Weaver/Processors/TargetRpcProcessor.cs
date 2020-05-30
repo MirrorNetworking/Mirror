@@ -42,7 +42,7 @@ namespace Mirror.Weaver
             }
 
             // process reader parameters and skip first one if first one is NetworkConnection
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, worker, hasNetworkConnection))
+            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, hasNetworkConnection))
                 return null;
 
             // invoke actual command function
