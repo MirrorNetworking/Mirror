@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
+using Mirror.RemoteCalls;
 #if UNITY_2018_3_OR_NEWER
 using UnityEditor.Experimental.SceneManagement;
 #endif
@@ -996,7 +997,7 @@ namespace Mirror
             if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
             {
                 NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader, senderConnection))
+                if (!RemoteCallHelper.InvokeHandlerDelegate(functionHash, invokeType, reader, invokeComponent, senderConnection))
                 {
                     logger.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
                 }
@@ -1020,7 +1021,7 @@ namespace Mirror
         }
 
         // happens on server
-        internal NetworkBehaviour.CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
+        internal CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
         {
             // check if unity object has been destroyed
             if (this == null)
@@ -1033,7 +1034,7 @@ namespace Mirror
             if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
             {
                 NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                return invokeComponent.GetCommandInfo(cmdHash);
+                return RemoteCallHelper.GetCommandInfo(cmdHash, invokeComponent);
             }
             else
             {
