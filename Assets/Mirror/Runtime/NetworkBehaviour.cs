@@ -442,7 +442,7 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func, bool excludeOwner = false)
+        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func, bool excludeOwner)
         {
             RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func, excludeOwner);
         }
