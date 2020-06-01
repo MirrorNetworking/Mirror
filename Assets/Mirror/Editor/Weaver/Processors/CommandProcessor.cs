@@ -96,22 +96,22 @@ namespace Mirror.Weaver
                 ((ShipControl)obj).CmdThrust(reader.ReadSingle(), (int)reader.ReadPackedUInt32());
             }
         */
-        public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition md, MethodDefinition cmdCallFunc)
+        public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition method, MethodDefinition cmdCallFunc)
         {
-            MethodDefinition cmd = new MethodDefinition(CmdPrefix + md.Name,
+            MethodDefinition cmd = new MethodDefinition(CmdPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
             ILProcessor worker = cmd.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteServerActiveCheck(worker, md.Name, label, "Command");
+            NetworkBehaviourProcessor.WriteServerActiveCheck(worker, method.Name, label, "Command");
 
             // setup for reader
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, worker, false))
+            if (!NetworkBehaviourProcessor.ReadArguments(method, worker, false))
                 return null;
 
             // invoke actual command function
@@ -119,11 +119,12 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
+
             td.Methods.Add(cmd);
             return cmd;
         }
 
-        public static bool ProcessMethodsValidateCommand(MethodDefinition md, CustomAttribute commandAttr)
+        public static bool ProcessMethodsValidateCommand(MethodDefinition md)
         {
             if (!md.Name.StartsWith("Cmd"))
             {
@@ -139,7 +140,7 @@ namespace Mirror.Weaver
 
             // validate
             return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, commandAttr);
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, RemoteCallType.Command);
         }
     }
 }

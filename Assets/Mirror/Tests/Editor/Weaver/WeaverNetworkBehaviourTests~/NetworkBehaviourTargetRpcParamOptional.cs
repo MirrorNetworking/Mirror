@@ -1,5 +1,3 @@
-using System;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamOptional
@@ -7,6 +5,6 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamOptional
     class NetworkBehaviourTargetRpcParamOptional : NetworkBehaviour
     {
         [TargetRpc]
-        public void TargetRpcCantHaveParamOptional(NetworkConnection monkeyCon, int monkeys = 12) {}
+        public void TargetRpcCantHaveParamOptional(NetworkConnection monkeyCon, int monkeys = 12) { }
     }
 }

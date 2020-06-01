@@ -13,7 +13,7 @@ namespace Mirror
         /// logHandler used for new loggers
         /// </summary>
         static ILogHandler defaultLogHandler = Debug.unityLogger;
-        
+
         /// <summary>
         /// if true sets all log level to LogType.Log
         /// </summary>

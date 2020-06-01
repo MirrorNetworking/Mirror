@@ -26,7 +26,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, worker, false))
+            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, false))
                 return null;
 
             // invoke actual command function
@@ -104,7 +104,7 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        public static bool ProcessMethodsValidateRpc(MethodDefinition md, CustomAttribute clientRpcAttr)
+        public static bool ProcessMethodsValidateRpc(MethodDefinition md)
         {
             if (!md.Name.StartsWith("Rpc"))
             {
@@ -120,7 +120,7 @@ namespace Mirror.Weaver
 
             // validate
             return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, clientRpcAttr);
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, RemoteCallType.ClientRpc);
         }
     }
 }

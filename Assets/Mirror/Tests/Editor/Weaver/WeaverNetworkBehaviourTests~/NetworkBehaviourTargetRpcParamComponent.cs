@@ -1,5 +1,3 @@
-using System;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamComponent
@@ -12,6 +10,6 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamComponent
         }
 
         [TargetRpc]
-        public void TargetRpcCantHaveParamComponent(NetworkConnection monkeyCon, ComponentClass monkeyComp) {}
+        public void TargetRpcCantHaveParamComponent(NetworkConnection monkeyCon, ComponentClass monkeyComp) { }
     }
 }

@@ -42,7 +42,7 @@ namespace Mirror.Weaver
             }
 
             // process reader parameters and skip first one if first one is NetworkConnection
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, worker, hasNetworkConnection))
+            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, hasNetworkConnection))
                 return null;
 
             // invoke actual command function
@@ -141,7 +141,7 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        public static bool ProcessMethodsValidateTargetRpc(MethodDefinition md, CustomAttribute targetRpcAttr)
+        public static bool ProcessMethodsValidateTargetRpc(MethodDefinition md)
         {
             if (!md.Name.StartsWith("Target"))
             {
@@ -161,7 +161,7 @@ namespace Mirror.Weaver
             }
 
             // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, targetRpcAttr);
+            return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, RemoteCallType.TargetRpc);
         }
     }
 }

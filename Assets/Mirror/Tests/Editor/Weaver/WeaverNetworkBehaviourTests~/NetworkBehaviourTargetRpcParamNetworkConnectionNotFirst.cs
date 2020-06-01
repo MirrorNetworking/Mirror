@@ -5,6 +5,6 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamNetworkConne
     class NetworkBehaviourTargetRpcParamNetworkConnectionNotFirst : NetworkBehaviour
     {
         [TargetRpc]
-        public void TargetRpcCantHaveParamOptional(int abc, NetworkConnection monkeyCon) {}
+        public void TargetRpcCantHaveParamOptional(int abc, NetworkConnection monkeyCon) { }
     }
 }

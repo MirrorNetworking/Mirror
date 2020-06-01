@@ -4,7 +4,7 @@ namespace Mirror.Examples.Tanks
 {
     public class Projectile : NetworkBehaviour
     {
-        public float destroyAfter = 5;
+        public float destroyAfter = 1;
         public Rigidbody rigidBody;
         public float force = 1000;
 
@@ -40,7 +40,7 @@ namespace Mirror.Examples.Tanks
             if (co.tag.Equals("Player") && co.gameObject != source)
             {
                 //Apply damage
-                co.GetComponent<Tank>().health -=damage;
+                co.GetComponent<Tank>().health -= damage;
 
                 //update score on source
                 source.GetComponent<Tank>().score += damage;

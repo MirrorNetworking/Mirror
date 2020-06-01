@@ -1,5 +1,3 @@
-using System;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamRef
@@ -7,6 +5,6 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamRef
     class NetworkBehaviourTargetRpcParamRef : NetworkBehaviour
     {
         [TargetRpc]
-        public void TargetRpcCantHaveParamRef(NetworkConnection monkeyCon, ref int monkeys) {}
+        public void TargetRpcCantHaveParamRef(NetworkConnection monkeyCon, ref int monkeys) { }
     }
 }

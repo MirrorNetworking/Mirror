@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverClientServerAttributeTests.NetworkBehaviourServer
@@ -8,7 +5,7 @@ namespace WeaverClientServerAttributeTests.NetworkBehaviourServer
     class NetworkBehaviourServer : NetworkBehaviour
     {
         [Server]
-        void ServerOnlyMethod() 
+        void ServerOnlyMethod()
         {
             // test method
         }

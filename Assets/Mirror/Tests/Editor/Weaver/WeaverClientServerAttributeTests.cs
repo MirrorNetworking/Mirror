@@ -34,7 +34,7 @@ namespace Mirror.Weaver.Tests
         /// <param name="methodName"></param>
         static void CheckAddedCode(string addedString, string className, string methodName)
         {
-            string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory,  WeaverAssembler.OutputFile);
+            string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory, WeaverAssembler.OutputFile);
             using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(assemblyName))
             {
                 TypeDefinition type = assembly.MainModule.GetType(className);
