@@ -47,7 +47,6 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Call, Weaver.logErrorReference));
             }
 
-            // NetworkWriter writer = new NetworkWriter();
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Cmd call
