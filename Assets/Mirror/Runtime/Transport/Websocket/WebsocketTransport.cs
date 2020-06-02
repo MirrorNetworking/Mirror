@@ -13,6 +13,8 @@ namespace Mirror.Websocket
         protected Client client = new Client();
         protected Server server = new Server();
 
+
+        [Header("Server Configurtations")]
         public int port = 7778;
 
         public bool Secure;
@@ -21,6 +23,13 @@ namespace Mirror.Websocket
 
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
+
+        [Tooltip("Whether or not we should use ping pong messages to disconnect users if idle to long.")]
+        public bool KeepAlive = true;
+
+        [Tooltip("How long between each ping pong message before we disconnect end users. Note" +
+                 " if server is overwhelmed or slammed with messages may need to increase this timer or disable altogether.")]
+        public float KeepAliveTimer = 300f;
 
         public WebsocketTransport()
         {
@@ -102,20 +111,21 @@ namespace Mirror.Websocket
 
         public override void ServerStart()
         {
-            server._secure = Secure;
             if (Secure)
             {
                 server._secure = Secure;
                 server._sslConfig = new Server.SslConfiguration
                 {
-                    Certificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(
-                        System.IO.Path.Combine(Application.dataPath, CertificatePath),
+                    Certificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(CertificatePath,
                         CertificatePassword),
                     ClientCertificateRequired = false,
                     CheckCertificateRevocation = false,
                     EnabledSslProtocols = System.Security.Authentication.SslProtocols.Default
                 };
             }
+
+            server.KeepAliveTimer = KeepAlive ? KeepAliveTimer : 0;
+
             _ = server.Listen(port);
         }
 

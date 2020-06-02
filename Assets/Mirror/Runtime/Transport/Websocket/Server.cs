@@ -32,6 +32,7 @@ namespace Mirror.Websocket
         Dictionary<int, WebSocket> clients = new Dictionary<int, WebSocket>();
 
         public bool NoDelay = true;
+        public float KeepAliveTimer;
 
         // connectionId counter
         // (right now we only use it from one listener thread, but we might have
@@ -131,7 +132,7 @@ namespace Mirror.Websocket
                 WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(tcpClient, stream, token);
                 if (context.IsWebSocketRequest)
                 {
-                    WebSocketServerOptions options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
+                    WebSocketServerOptions options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(KeepAliveTimer), SubProtocol = "binary" };
 
                     WebSocket webSocket = await webSocketServerFactory.AcceptWebSocketAsync(context, options);
 

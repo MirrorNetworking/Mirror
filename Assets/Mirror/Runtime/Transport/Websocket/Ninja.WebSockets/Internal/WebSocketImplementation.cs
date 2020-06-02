@@ -530,24 +530,21 @@ namespace Ninja.WebSockets.Internal
         async Task WriteStreamToNetwork(MemoryStream stream, CancellationToken cancellationToken)
         {
             ArraySegment<byte> buffer = GetBuffer(stream);
-            if (_stream is SslStream)
+
+            if (writeTask.IsCompleted)
             {
-                if (writeTask.IsCompleted)
-                {
-                    writeTask = _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken);
-                }
-                else
-                {
-                    writeTask = writeTask.ContinueWith((prevTask) =>
-                        _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
-                }
-                await writeTask;
-                await _stream.FlushAsync();
+                writeTask = Task.Run(() =>
+                    _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
             }
             else
             {
-                await _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken).ConfigureAwait(false);
+                writeTask.ContinueWith((prevTask) =>
+                    _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
             }
+
+            Task.WaitAny(writeTask);
+
+            await _stream.FlushAsync();
         }
 
         /// <summary>
