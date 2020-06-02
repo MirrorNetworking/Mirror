@@ -167,7 +167,7 @@ void CmdFire()
 
 public IEnumerator Destroy(GameObject go, float timer)
 {
-    yield return new WaitForSeconds (timer);
+    yield return new WaitForSeconds(timer);
     spawnManager.UnSpawnObject(go);
     NetworkServer.UnSpawn(go);
 }
