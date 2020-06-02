@@ -90,7 +90,8 @@ namespace Mirror.Weaver
             int channel = clientRpcAttr.GetField("channel", 0);
             bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
 
-            // invoke SendInternal and return this
+            // invoke SendInternal and return
+            // this
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldtoken, td));
             // invokerClass
