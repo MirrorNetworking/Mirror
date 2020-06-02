@@ -42,7 +42,6 @@ namespace Mirror.Weaver
 
         // Network types
         public static TypeReference NetworkBehaviourType;
-        public static TypeReference NetworkBehaviourType2;
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
         public static TypeReference NetworkConnectionType;
@@ -151,7 +150,7 @@ namespace Mirror.Weaver
         }
 
         public static void Error(string message, MemberReference mr)
-        {    
+        {
             Log.Error($"{message} (at {mr})");
             WeavingFailed = true;
         }
@@ -274,6 +273,7 @@ namespace Mirror.Weaver
 
             CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, CurrentAssembly, ".ctor");
+
             CurrentAssembly.MainModule.ImportReference(gameObjectType);
             CurrentAssembly.MainModule.ImportReference(transformType);
 
@@ -281,7 +281,6 @@ namespace Mirror.Weaver
             NetworkIdentityType = CurrentAssembly.MainModule.ImportReference(networkIdentityTmp);
 
             NetworkBehaviourType = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
-            NetworkBehaviourType2 = CurrentAssembly.MainModule.ImportReference(NetworkBehaviourType);
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
 
             MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
@@ -418,7 +417,7 @@ namespace Mirror.Weaver
         static bool WeaveSyncObject(TypeDefinition td)
         {
             bool modified = false;
-            
+
             // ignore generic classes
             // we can not process generic classes
             // we give error if a generic syncObject is used in NetworkBehaviour

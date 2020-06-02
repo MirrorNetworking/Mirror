@@ -11,7 +11,7 @@ namespace WeaverSyncListTests.SyncListGenericInheritanceWithMultipleGeneric
     class SyncListGenericInheritanceWithMultipleGeneric : NetworkBehaviour
     {
         readonly SomeListInt someList = new SomeListInt();
-    
+
 
         public class SomeList<G, T> : SyncList<T> { }
 

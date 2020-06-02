@@ -1,5 +1,3 @@
-using System;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamAbstract
@@ -12,6 +10,6 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamAbstract
         }
 
         [Command]
-        public void CmdCantHaveParamAbstract(AbstractClass monkeys) {}
+        public void CmdCantHaveParamAbstract(AbstractClass monkeys) { }
     }
 }

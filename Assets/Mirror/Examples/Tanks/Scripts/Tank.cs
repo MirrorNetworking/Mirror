@@ -96,7 +96,7 @@ namespace Mirror.Examples.Tanks
         [Command]
         void CmdReady(string playername)
         {
-            if(string.IsNullOrEmpty(playername))
+            if (string.IsNullOrEmpty(playername))
             {
                 playerName = "PLAYER" + Random.Range(1, 99);
             }

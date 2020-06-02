@@ -19,55 +19,55 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourGeneric()
         {
-            Assert.That(weaverErrors, Contains.Item("NetworkBehaviourGeneric`1 cannot have generic parameters (at WeaverNetworkBehaviourTests.NetworkBehaviourGeneric.NetworkBehaviourGeneric`1)" ));
+            Assert.That(weaverErrors, Contains.Item("NetworkBehaviourGeneric`1 cannot have generic parameters (at WeaverNetworkBehaviourTests.NetworkBehaviourGeneric.NetworkBehaviourGeneric`1)"));
         }
 
         [Test]
         public void NetworkBehaviourCmdGenericParam()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveGeneric cannot have generic parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdGenericParam.NetworkBehaviourCmdGenericParam::CmdCantHaveGeneric())" ));
+            Assert.That(weaverErrors, Contains.Item("CmdCantHaveGeneric cannot have generic parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdGenericParam.NetworkBehaviourCmdGenericParam::CmdCantHaveGeneric())"));
         }
 
         [Test]
         public void NetworkBehaviourCmdCoroutine()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveCoroutine cannot be a coroutine (at System.Collections.IEnumerator WeaverNetworkBehaviourTests.NetworkBehaviourCmdCoroutine.NetworkBehaviourCmdCoroutine::CmdCantHaveCoroutine())" ));
+            Assert.That(weaverErrors, Contains.Item("CmdCantHaveCoroutine cannot be a coroutine (at System.Collections.IEnumerator WeaverNetworkBehaviourTests.NetworkBehaviourCmdCoroutine.NetworkBehaviourCmdCoroutine::CmdCantHaveCoroutine())"));
         }
 
         [Test]
         public void NetworkBehaviourCmdVoidReturn()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveNonVoidReturn cannot return a value.  Make it void instead (at System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourCmdVoidReturn.NetworkBehaviourCmdVoidReturn::CmdCantHaveNonVoidReturn())" ));
+            Assert.That(weaverErrors, Contains.Item("CmdCantHaveNonVoidReturn cannot return a value.  Make it void instead (at System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourCmdVoidReturn.NetworkBehaviourCmdVoidReturn::CmdCantHaveNonVoidReturn())"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcGenericParam()
         {
-            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveGeneric cannot have generic parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcGenericParam.NetworkBehaviourTargetRpcGenericParam::TargetRpcCantHaveGeneric())" ));
+            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveGeneric cannot have generic parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcGenericParam.NetworkBehaviourTargetRpcGenericParam::TargetRpcCantHaveGeneric())"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcCoroutine()
         {
-            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveCoroutine cannot be a coroutine (at System.Collections.IEnumerator WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcCoroutine.NetworkBehaviourTargetRpcCoroutine::TargetRpcCantHaveCoroutine())" ));
+            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveCoroutine cannot be a coroutine (at System.Collections.IEnumerator WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcCoroutine.NetworkBehaviourTargetRpcCoroutine::TargetRpcCantHaveCoroutine())"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcVoidReturn()
         {
-            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveNonVoidReturn cannot return a value.  Make it void instead (at System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcVoidReturn.NetworkBehaviourTargetRpcVoidReturn::TargetRpcCantHaveNonVoidReturn())" ));
+            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveNonVoidReturn cannot return a value.  Make it void instead (at System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcVoidReturn.NetworkBehaviourTargetRpcVoidReturn::TargetRpcCantHaveNonVoidReturn())"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcParamOut()
         {
-            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveParamOut cannot have out parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamOut.NetworkBehaviourTargetRpcParamOut::TargetRpcCantHaveParamOut(Mirror.NetworkConnection,System.Int32&))" ));
+            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveParamOut cannot have out parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamOut.NetworkBehaviourTargetRpcParamOut::TargetRpcCantHaveParamOut(Mirror.NetworkConnection,System.Int32&))"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcParamOptional()
         {
-            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveParamOptional cannot have optional parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamOptional.NetworkBehaviourTargetRpcParamOptional::TargetRpcCantHaveParamOptional(Mirror.NetworkConnection,System.Int32))" ));
+            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveParamOptional cannot have optional parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamOptional.NetworkBehaviourTargetRpcParamOptional::TargetRpcCantHaveParamOptional(Mirror.NetworkConnection,System.Int32))"));
         }
 
         [Test]
@@ -76,13 +76,13 @@ namespace Mirror.Weaver.Tests
             Assert.That(weaverErrors, Contains.Item("Cannot pass Int32& by reference (at System.Int32&)"));
             Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveParamRef has invalid parameter monkeys (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamRef.NetworkBehaviourTargetRpcParamRef::TargetRpcCantHaveParamRef(Mirror.NetworkConnection,System.Int32&))"));
             Assert.That(weaverErrors, Contains.Item("Cannot pass type Int32& by reference (at System.Int32&)"));
-            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported Mirror type instead (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamRef.NetworkBehaviourTargetRpcParamRef::TargetRpcCantHaveParamRef(Mirror.NetworkConnection,System.Int32&))" ));
+            Assert.That(weaverErrors, Contains.Item("TargetRpcCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported Mirror type instead (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamRef.NetworkBehaviourTargetRpcParamRef::TargetRpcCantHaveParamRef(Mirror.NetworkConnection,System.Int32&))"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcParamAbstract()
         {
-            Assert.That(weaverErrors, Contains.Item("AbstractClass can't be deserialized because it has no default constructor (at WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamAbstract.NetworkBehaviourTargetRpcParamAbstract/AbstractClass)" ));
+            Assert.That(weaverErrors, Contains.Item("AbstractClass can't be deserialized because it has no default constructor (at WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamAbstract.NetworkBehaviourTargetRpcParamAbstract/AbstractClass)"));
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourTargetRpcDuplicateName()
         {
-            Assert.That(weaverErrors, Contains.Item("Duplicate Target Rpc name TargetRpcCantHaveSameName (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcDuplicateName.NetworkBehaviourTargetRpcDuplicateName::TargetRpcCantHaveSameName(Mirror.NetworkConnection,System.Int32,System.Int32))" ));
+            Assert.That(weaverErrors, Contains.Item("Duplicate Target Rpc name TargetRpcCantHaveSameName (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcDuplicateName.NetworkBehaviourTargetRpcDuplicateName::TargetRpcCantHaveSameName(Mirror.NetworkConnection,System.Int32,System.Int32))"));
         }
 
         [Test]
@@ -115,12 +115,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourClientRpcCoroutine()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveCoroutine cannot be a coroutine (at System.Collections.IEnumerator WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcCoroutine.NetworkBehaviourClientRpcCoroutine::RpcCantHaveCoroutine())"));        }
+            Assert.That(weaverErrors, Contains.Item("RpcCantHaveCoroutine cannot be a coroutine (at System.Collections.IEnumerator WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcCoroutine.NetworkBehaviourClientRpcCoroutine::RpcCantHaveCoroutine())"));
+        }
 
         [Test]
         public void NetworkBehaviourClientRpcVoidReturn()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveNonVoidReturn cannot return a value.  Make it void instead (at System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcVoidReturn.NetworkBehaviourClientRpcVoidReturn::RpcCantHaveNonVoidReturn())" ));
+            Assert.That(weaverErrors, Contains.Item("RpcCantHaveNonVoidReturn cannot return a value.  Make it void instead (at System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcVoidReturn.NetworkBehaviourClientRpcVoidReturn::RpcCantHaveNonVoidReturn())"));
         }
 
         [Test]
@@ -175,13 +176,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourCmdParamOut()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamOut cannot have out parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOut.NetworkBehaviourCmdParamOut::CmdCantHaveParamOut(System.Int32&))" ));
+            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamOut cannot have out parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOut.NetworkBehaviourCmdParamOut::CmdCantHaveParamOut(System.Int32&))"));
         }
 
         [Test]
         public void NetworkBehaviourCmdParamOptional()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamOptional cannot have optional parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOptional.NetworkBehaviourCmdParamOptional::CmdCantHaveParamOptional(System.Int32))" ));
+            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamOptional cannot have optional parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOptional.NetworkBehaviourCmdParamOptional::CmdCantHaveParamOptional(System.Int32))"));
         }
 
         [Test]
@@ -190,13 +191,13 @@ namespace Mirror.Weaver.Tests
             Assert.That(weaverErrors, Contains.Item("Cannot pass Int32& by reference (at System.Int32&)"));
             Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamRef has invalid parameter monkeys (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef.NetworkBehaviourCmdParamRef::CmdCantHaveParamRef(System.Int32&))"));
             Assert.That(weaverErrors, Contains.Item("Cannot pass type Int32& by reference (at System.Int32&)"));
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported Mirror type instead (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef.NetworkBehaviourCmdParamRef::CmdCantHaveParamRef(System.Int32&))" ));
+            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported Mirror type instead (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef.NetworkBehaviourCmdParamRef::CmdCantHaveParamRef(System.Int32&))"));
         }
 
         [Test]
         public void NetworkBehaviourCmdParamAbstract()
         {
-            Assert.That(weaverErrors, Contains.Item("AbstractClass can't be deserialized because it has no default constructor (at WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass)" ));
+            Assert.That(weaverErrors, Contains.Item("AbstractClass can't be deserialized because it has no default constructor (at WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass)"));
         }
 
         [Test]
@@ -211,13 +212,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourCmdParamNetworkConnection()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamOptional has invalid parameter monkeyCon. Cannot pass NeworkConnections (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamNetworkConnection.NetworkBehaviourCmdParamNetworkConnection::CmdCantHaveParamOptional(Mirror.NetworkConnection))" ));
+            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamOptional has invalid parameter monkeyCon. Cannot pass NeworkConnections (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamNetworkConnection.NetworkBehaviourCmdParamNetworkConnection::CmdCantHaveParamOptional(Mirror.NetworkConnection))"));
         }
 
         [Test]
         public void NetworkBehaviourCmdDuplicateName()
         {
-            Assert.That(weaverErrors, Contains.Item("Duplicate Command name CmdCantHaveSameName (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName.NetworkBehaviourCmdDuplicateName::CmdCantHaveSameName(System.Int32,System.Int32))" ));
+            Assert.That(weaverErrors, Contains.Item("Duplicate Command name CmdCantHaveSameName (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName.NetworkBehaviourCmdDuplicateName::CmdCantHaveSameName(System.Int32,System.Int32))"));
         }
     }
 }

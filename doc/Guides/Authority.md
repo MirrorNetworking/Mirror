@@ -20,13 +20,18 @@ Assigning authority to a client causes Mirror to call `OnStartAuthority()` on ea
 
 Player objects always have client authority. This is required for controlling movement and other player actions.
 
-**Client Authority is not to be confused with client authoritative architecture** Any action must still go to the server via a [Command](Communications/RemoteActions.md). The client cannot modify SyncVars or affect other clients directly
+**Client Authority is not to be confused with client authoritative architecture** Any action must still go to the server via a [Command](Communications/RemoteActions.md). The client cannot modify SyncVars or affect other clients directly.
 
 ## Non-Player Game Objects
 
-It is possible to have client authority over non-player game objects. There are two ways to do this. One is to spawn the game object using `NetworkServer.Spawn` and pass the network connection of the client to take ownership. The other is to use `NetworkIdentity.AssignClientAuthority` with the network connection of the client to take ownership.
+There are two ways to grant client authority over non-player game objects:
 
-The example below spawns a game object and assigns authority to the client of the player that spawned it.
+1. Spawn the game object using `NetworkServer.Spawn` and pass the network connection of the client to take ownership.
+2. Use `NetworkIdentity.AssignClientAuthority` with the network connection of the client to take ownership.
+
+Additionally, there is an optional parameter for [Command] that bypasses the authority check: `[Command(ignoreAuthority = true)]` which allows them to be invoked without the client having authority of the object.
+
+The example below spawns a game object and assigns authority to the client of the player that spawned it, and also shows how to assign authority on request.
 
 ``` cs
 [Command]
@@ -34,6 +39,14 @@ void CmdSpawn()
 {
     GameObject go = Instantiate(otherPrefab, transform.position + new Vector3(0,1,0), Quaternion.identity);
     NetworkServer.Spawn(go, connectionToClient);
+}
+
+[Command]
+void GrantAuthority(GameObject target)
+{
+    // target must have a NetworkIdentity component to be passed through a Command
+    // and must already exist on both server and client
+    target.GetComponent<NetworkIdentity>().AssignClientAuthority(connectionToClient);
 }
 ```
 

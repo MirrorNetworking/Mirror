@@ -1,13 +1,11 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
 namespace WeaverMonoBehaviourTests.MonoBehaviourServerCallback
 {
     class MonoBehaviourServerCallback : MonoBehaviour
     {
         [ServerCallback]
-        void ThisCantBeOutsideNetworkBehaviour() {}
+        void ThisCantBeOutsideNetworkBehaviour() { }
     }
 }

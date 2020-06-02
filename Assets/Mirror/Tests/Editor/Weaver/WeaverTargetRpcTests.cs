@@ -42,5 +42,29 @@ namespace Mirror.Weaver.Tests
             Assert.That(weaverErrors, Contains.Item($"TargetRpcMethod has invalid parameter nc. Cannot pass NeworkConnections " +
                 "(at System.Void WeaverTargetRpcTests.ErrorWhenNetworkConnectionIsNotTheFirstParameter.ErrorWhenNetworkConnectionIsNotTheFirstParameter::TargetRpcMethod(System.Int32,Mirror.NetworkConnection))"));
         }
+
+        [Test]
+        public void VirtualTargetRpc()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void OverrideVirtualTargetRpc()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void AbstractTargetRpc()
+        {
+            Assert.That(weaverErrors, Contains.Item("Abstract TargetRpc are currently not supported, use virtual method instead (at System.Void WeaverTargetRpcTests.AbstractTargetRpc.AbstractTargetRpc::TargetDoSomething())"));
+        }
+
+        [Test]
+        public void OverrideAbstractTargetRpc()
+        {
+            Assert.That(weaverErrors, Contains.Item("Abstract TargetRpc are currently not supported, use virtual method instead (at System.Void WeaverTargetRpcTests.OverrideAbstractTargetRpc.BaseBehaviour::TargetDoSomething())"));
+        }
     }
 }

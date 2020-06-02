@@ -362,11 +362,19 @@ namespace Mirror
 
         protected class Invoker
         {
-            public MirrorInvokeType invokeType;
             public Type invokeClass;
+            public MirrorInvokeType invokeType;
             public CmdDelegate invokeFunction;
             public bool cmdIgnoreAuthority;
+
+            public bool AreEqual(Type invokeClass, MirrorInvokeType invokeType, CmdDelegate function)
+            {
+                return (this.invokeClass == invokeClass &&
+                     this.invokeType == invokeType &&
+                     invokeFunction == function);
+            }
         }
+
         public struct CommandInfo
         {
             public bool ignoreAuthority;
@@ -381,20 +389,9 @@ namespace Mirror
             // type+func so Inventory.RpcUse != Equipment.RpcUse
             int cmdHash = GetMethodHash(invokeClass, cmdName);
 
-            if (cmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                // something already registered this hash
-                Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
-                if (oldInvoker.invokeClass == invokeClass &&
-                    oldInvoker.invokeType == invokerType &&
-                    oldInvoker.invokeFunction == func)
-                {
-                    // it's all right,  it was the same function
-                    return;
-                }
+            if (CheckIfDeligateExists(invokeClass, invokerType, func, cmdHash))
+                return;
 
-                logger.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
-            }
             Invoker invoker = new Invoker
             {
                 invokeType = invokerType,
@@ -402,8 +399,32 @@ namespace Mirror
                 invokeFunction = func,
                 cmdIgnoreAuthority = cmdIgnoreAuthority,
             };
+
             cmdHandlerDelegates[cmdHash] = invoker;
-            if (logger.LogEnabled()) logger.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName());
+
+            if (logger.LogEnabled())
+            {
+                string ingoreAuthorityMessage = invokerType == MirrorInvokeType.Command ? $" IgnoreAuthority:{cmdIgnoreAuthority}" : "";
+                logger.Log($"RegisterDelegate hash: {cmdHash} invokerType: {invokerType} method: {func.GetMethodName()}{ingoreAuthorityMessage}");
+            }
+        }
+
+        static bool CheckIfDeligateExists(Type invokeClass, MirrorInvokeType invokerType, CmdDelegate func, int cmdHash)
+        {
+            if (cmdHandlerDelegates.ContainsKey(cmdHash))
+            {
+                // something already registered this hash
+                Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
+                if (oldInvoker.AreEqual(invokeClass, invokerType, func))
+                {
+                    // it's all right,  it was the same function
+                    return true;
+                }
+
+                logger.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
+            }
+
+            return false;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

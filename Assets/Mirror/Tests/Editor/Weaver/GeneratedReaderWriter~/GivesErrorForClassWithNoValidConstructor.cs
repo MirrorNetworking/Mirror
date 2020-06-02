@@ -1,5 +1,4 @@
 using Mirror;
-using Mirror.Weaver.Tests.Extra;
 
 namespace GeneratedReaderWriter.GivesErrorForClassWithNoValidConstructor
 {
@@ -19,6 +18,6 @@ namespace GeneratedReaderWriter.GivesErrorForClassWithNoValidConstructor
         public SomeOtherData(int usefulNumber)
         {
             this.usefulNumber = usefulNumber;
-        } 
+        }
     }
 }

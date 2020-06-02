@@ -1,4 +1,3 @@
-using UnityEngine;
 using Mirror;
 
 namespace WeaverSyncListTests.SyncListNestedStruct
@@ -6,7 +5,7 @@ namespace WeaverSyncListTests.SyncListNestedStruct
     class SyncListNestedStruct : NetworkBehaviour
     {
         MyNestedStructList Foo;
-        
+
         struct MyNestedStruct
         {
             int potato;
