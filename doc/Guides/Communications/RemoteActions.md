@@ -1,7 +1,5 @@
 # Remote Actions
 
-[![Remote Calls video tutorial](../../images/video_tutorial.png)](https://www.youtube.com/watch?v=Ie0JQB2bCpk&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=5)
-
 The network system has ways to perform actions across the network. These type of actions are sometimes called Remote Procedure Calls. There are two types of RPCs in the network system, Commands - which are called from the client and run on the server; and ClientRpc calls - which are called on the server and run on clients.
 
 The diagram below shows the directions that remote actions take:
