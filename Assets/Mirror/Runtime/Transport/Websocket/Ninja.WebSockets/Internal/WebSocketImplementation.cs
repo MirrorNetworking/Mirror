@@ -534,14 +534,17 @@ namespace Ninja.WebSockets.Internal
             {
                 if (writeTask.IsCompleted)
                 {
-                    writeTask = _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken);
+                    writeTask = Task.Run(() =>
+                        _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
                 }
                 else
                 {
-                    writeTask = writeTask.ContinueWith((prevTask) =>
+                    writeTask.ContinueWith((prevTask) =>
                         _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken));
                 }
-                await writeTask;
+
+                Task.WaitAny(writeTask);
+
                 await _stream.FlushAsync();
             }
             else
