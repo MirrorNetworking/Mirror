@@ -7,6 +7,7 @@ namespace Mirror.Websocket
 {
     public class WebsocketTransport : Transport
     {
+        [Header("Server Configurtations")]
         public const string Scheme = "ws";
         public const string SecureScheme = "wss";
 
@@ -21,6 +22,10 @@ namespace Mirror.Websocket
 
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
+
+        [Tooltip("How long between each ping pong message before we disconnect end users Set to 0 to disable. Note" +
+                 " if server is overwhelmed or slammed with messages may need to increase this timer or disable altogether.")]
+        public int KeepAliveTimer = 300;
 
         public WebsocketTransport()
         {
@@ -116,6 +121,9 @@ namespace Mirror.Websocket
                     EnabledSslProtocols = System.Security.Authentication.SslProtocols.Default
                 };
             }
+
+            server.KeepAliveTimer = Mathf.Max(0, KeepAliveTimer);
+
             _ = server.Listen(port);
         }
 
