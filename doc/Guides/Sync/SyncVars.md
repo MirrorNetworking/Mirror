@@ -1,7 +1,5 @@
 # SyncVars
 
-[![SyncVar video tutorial](../../images/video_tutorial.png)](https://www.youtube.com/watch?v=T7AoozedYfI&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=5)
-
 SyncVars are properties of classes that inherit from NetworkBehaviour, which are synchronized from the server to clients. When a game object is spawned, or a new player joins a game in progress, they are sent the latest state of all SyncVars on networked objects that are visible to them. Use the `SyncVar` custom attribute to specify which variables in your script you want to synchronize.
 
 The state of SyncVars is applied to game objects on clients before `OnStartClient()` is called, so the state of the object is always up-to-date inside `OnStartClient()`.
