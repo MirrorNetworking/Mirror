@@ -14,6 +14,17 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
+    class ExcludeOwnerBehaviour : NetworkBehaviour
+    {
+        public event Action<int> onSendInt;
+
+        [ClientRpc(excludeOwner = true)]
+        public void RpcSendInt(int someInt)
+        {
+            onSendInt?.Invoke(someInt);
+        }
+    }
+
     public class ClientRpcTest : RemoteTestBase
     {
         [Test]
@@ -32,6 +43,44 @@ namespace Mirror.Tests.RemoteAttrributeTest
             hostBehaviour.RpcSendInt(someInt);
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void RpcIsCalledForNotOwnerd()
+        {
+            bool owner = false;
+            ExcludeOwnerBehaviour hostBehaviour = CreateHostObject<ExcludeOwnerBehaviour>(owner);
+
+            const int someInt = 20;
+
+            int callCount = 0;
+            hostBehaviour.onSendInt += incomingInt =>
+            {
+                callCount++;
+                Assert.That(incomingInt, Is.EqualTo(someInt));
+            };
+            hostBehaviour.RpcSendInt(someInt);
+            ProcessMessages();
+            Assert.That(callCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void RpcNotCalledForOwnerd()
+        {
+            bool owner = true;
+            ExcludeOwnerBehaviour hostBehaviour = CreateHostObject<ExcludeOwnerBehaviour>(owner);
+
+            const int someInt = 20;
+
+            int callCount = 0;
+            hostBehaviour.onSendInt += incomingInt =>
+            {
+                callCount++;
+                Assert.That(incomingInt, Is.EqualTo(someInt));
+            };
+            hostBehaviour.RpcSendInt(someInt);
+            ProcessMessages();
+            Assert.That(callCount, Is.EqualTo(0));
         }
     }
 }
