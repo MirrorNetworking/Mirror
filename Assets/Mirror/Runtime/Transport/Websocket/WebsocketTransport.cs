@@ -23,7 +23,7 @@ namespace Mirror.Websocket
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
 
-        [Tooltip("How long between each ping pong message before we disconnect end users Set to 0 to disable. Note" +
+        [Tooltip("How long between each ping pong message before we disconnect end users. Set to 0 to disable. Note" +
                  " if server is overwhelmed or slammed with messages may need to increase this timer or disable altogether.")]
         public int KeepAliveTimer = 300;
 
