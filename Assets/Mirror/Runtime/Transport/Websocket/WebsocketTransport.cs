@@ -7,7 +7,7 @@ namespace Mirror.Websocket
 {
     public class WebsocketTransport : Transport
     {
-        [Header("Server Configurtations")]
+        [Header("Server Configurations")]
         public const string Scheme = "ws";
         public const string SecureScheme = "wss";
 
