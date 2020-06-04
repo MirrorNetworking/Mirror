@@ -83,6 +83,7 @@
     <Compile Include="WeaverClientRpcTests~\AbstractClientRpc.cs" />
     <Compile Include="WeaverClientRpcTests~\ClientRpcCantBeStatic.cs" />
     <Compile Include="WeaverClientRpcTests~\ClientRpcStartsWithRpc.cs" />
+    <Compile Include="WeaverClientRpcTests~\ClientRpcThatExcludesOwner.cs" />
     <Compile Include="WeaverClientRpcTests~\ClientRpcValid.cs" />
     <Compile Include="WeaverClientRpcTests~\OverrideAbstractClientRpc.cs" />
     <Compile Include="WeaverClientRpcTests~\OverrideVirtualClientRpc.cs" />
