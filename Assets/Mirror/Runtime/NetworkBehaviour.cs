@@ -383,11 +383,6 @@ namespace Mirror
             public bool ignoreAuthority;
         }
 
-        public struct ClientRpcInfo
-        {
-            public bool excludeOwner;
-        }
-
         static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
         // helper function register a Command/Rpc/SyncEvent delegate
@@ -442,9 +437,9 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func, bool excludeOwner)
+        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
         {
-            RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func, excludeOwner);
+            RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
