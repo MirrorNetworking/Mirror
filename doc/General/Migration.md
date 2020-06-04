@@ -159,9 +159,9 @@ public  class MyBehaviour : NetworkBehaviour
 {
     public SyncListInt m_ints = new SyncListInt();
 
-    private void OnIntChanged(SyncListInt.Operation op, int index, int item)
+    private void OnIntChanged(SyncListInt.Operation op, int index, int oldItem, int newItem)
     {
-        Debug.Log("list changed " + op + " item " + item);
+        Debug.Log("list changed " + op + " old item: " + item + " new item: " + newItem);
     }
 
     public override void OnStartClient()
