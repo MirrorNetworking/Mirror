@@ -1285,7 +1285,7 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterRpcDelegate(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated), RpcTestNetworkBehaviour.RpcGenerated, false);
+            NetworkBehaviour.RegisterRpcDelegate(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated), RpcTestNetworkBehaviour.RpcGenerated);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it

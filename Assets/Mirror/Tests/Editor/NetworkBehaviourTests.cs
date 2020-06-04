@@ -493,7 +493,7 @@ namespace Mirror.Tests
             // register the command delegate, otherwise it's not found
             NetworkBehaviour.RegisterRpcDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
                 nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
-                NetworkBehaviourSendRPCInternalComponent.RPCGenerated, false);
+                NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
 
             // identity needs to be in spawned dict, otherwise rpc handler
             // won't find it
@@ -584,7 +584,7 @@ namespace Mirror.Tests
             // register the command delegate, otherwise it's not found
             NetworkBehaviour.RegisterRpcDelegate(typeof(NetworkBehaviourSendTargetRPCInternalComponent),
                 nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated),
-                NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated, false);
+                NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated);
 
             // identity needs to be in spawned dict, otherwise rpc handler
             // won't find it
@@ -620,7 +620,7 @@ namespace Mirror.Tests
             // register the command delegate, otherwise it's not found
             NetworkBehaviour.RegisterRpcDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
                 nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
-                NetworkBehaviourSendRPCInternalComponent.RPCGenerated, false);
+                NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
 
             // invoke command
             int rpcHash = NetworkBehaviour.GetMethodHash(
