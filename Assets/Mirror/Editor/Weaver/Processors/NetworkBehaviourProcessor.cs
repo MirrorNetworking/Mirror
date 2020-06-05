@@ -322,7 +322,6 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
 
-            //
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
 
