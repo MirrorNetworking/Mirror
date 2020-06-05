@@ -1,6 +1,5 @@
 using Mirror;
 
-
 namespace WeaverClientRpcTests.ClientRpcThatExcludesOwner
 {
     class ClientRpcThatExcludesOwner : NetworkBehaviour
