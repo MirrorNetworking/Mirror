@@ -21,7 +21,7 @@ namespace Mirror.Weaver
         // <SyncVarField,NetIdField>
         readonly Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
         readonly List<CmdResult> commands = new List<CmdResult>();
-        readonly List<MethodDefinition> clientRpcs = new List<MethodDefinition>();
+        readonly List<ClientRpcResult> clientRpcs = new List<ClientRpcResult>();
         readonly List<MethodDefinition> targetRpcs = new List<MethodDefinition>();
         readonly List<EventDefinition> eventRpcs = new List<EventDefinition>();
         readonly List<MethodDefinition> commandInvocationFuncs = new List<MethodDefinition>();
@@ -35,6 +35,12 @@ namespace Mirror.Weaver
         {
             public MethodDefinition method;
             public bool ignoreAuthority;
+        }
+
+        public struct ClientRpcResult
+        {
+            public MethodDefinition method;
+            public bool excludeOwner;
         }
 
         public NetworkBehaviourProcessor(TypeDefinition td)
@@ -259,7 +265,8 @@ namespace Mirror.Weaver
 
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
-                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcs[i].Name);
+                ClientRpcResult clientRpcResult = clientRpcs[i];
+                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcResult.method.Name);
             }
 
             for (int i = 0; i < targetRpcs.Count; ++i)
@@ -939,8 +946,15 @@ namespace Mirror.Weaver
                 Weaver.Error($"Duplicate ClientRpc name {md.Name}", md);
                 return;
             }
+
+            bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
+
             names.Add(md.Name);
-            clientRpcs.Add(md);
+            clientRpcs.Add(new ClientRpcResult
+            {
+                method = md,
+                excludeOwner = excludeOwner
+            });
 
             MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, clientRpcAttr);
 

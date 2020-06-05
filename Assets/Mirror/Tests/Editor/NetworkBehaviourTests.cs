@@ -4,9 +4,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    class EmptyBehaviour : NetworkBehaviour
-    {
-    }
+    class EmptyBehaviour : NetworkBehaviour { }
 
     class SyncVarGameObjectEqualExposedBehaviour : NetworkBehaviour
     {
@@ -50,7 +48,7 @@ namespace Mirror.Tests
         // counter to make sure that it's called exactly once
         public int called;
 
-        // weaver generates this from [Command]
+        // weaver generates this from [ClientRpc]
         // but for tests we need to add it manually
         public static void RPCGenerated(NetworkBehaviour comp, NetworkReader reader)
         {
@@ -60,7 +58,7 @@ namespace Mirror.Tests
         // SendCommandInternal is protected. let's expose it so we can test it.
         public void CallSendRPCInternal()
         {
-            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(), 0);
+            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(), 0, false);
         }
     }
 
@@ -70,7 +68,7 @@ namespace Mirror.Tests
         // counter to make sure that it's called exactly once
         public int called;
 
-        // weaver generates this from [Command]
+        // weaver generates this from [TargetRpc]
         // but for tests we need to add it manually
         public static void TargetRPCGenerated(NetworkBehaviour comp, NetworkReader reader)
         {
@@ -90,7 +88,7 @@ namespace Mirror.Tests
         // counter to make sure that it's called exactly once
         public int called;
 
-        // weaver generates this from [Command]
+        // weaver generates this from [SyncEvent]
         // but for tests we need to add it manually
         public static void EventGenerated(NetworkBehaviour comp, NetworkReader reader)
         {

@@ -45,5 +45,11 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(weaverErrors, Contains.Item("Abstract ClientRpc are currently not supported, use virtual method instead (at System.Void WeaverClientRpcTests.OverrideAbstractClientRpc.BaseBehaviour::RpcDoSomething())"));
         }
+
+        [Test]
+        public void ClientRpcThatExcludesOwner()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
     }
 }

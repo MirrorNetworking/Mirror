@@ -68,6 +68,12 @@ namespace Mirror.Weaver
 
             NetworkBehaviourProcessor.WriteSetupLocals(worker);
 
+            if (Weaver.GenerateLogErrors)
+            {
+                worker.Append(worker.Create(OpCodes.Ldstr, "Call ClientRpc function " + md.Name));
+                worker.Append(worker.Create(OpCodes.Call, Weaver.logErrorReference));
+            }
+
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Rpc call
@@ -81,6 +87,9 @@ namespace Mirror.Weaver
                 rpcName = rpcName.Substring(RpcPrefix.Length);
             }
 
+            int channel = clientRpcAttr.GetField("channel", 0);
+            bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
+
             // invoke SendInternal and return
             // this
             worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -90,7 +99,8 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldstr, rpcName));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Ldc_I4, clientRpcAttr.GetField("channel", 0)));
+            worker.Append(worker.Create(OpCodes.Ldc_I4, channel));
+            worker.Append(worker.Create(excludeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
