@@ -436,6 +436,56 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SetAssetId_GivesErrorIfOneExists()
+        {
+            if (identity.assetId == Guid.Empty)
+            {
+                identity.assetId = Guid.NewGuid();
+            }
+
+            Guid guid1 = identity.assetId;
+
+            // assign a guid
+            Guid guid2 = Guid.NewGuid();
+            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' becasue it already had an assetId, current assetId '{guid1.ToString("N")}', attempted new assetId '{guid2.ToString("N")}'");
+            identity.assetId = guid2;
+
+            // guid was changed
+            Assert.That(identity.assetId, Is.EqualTo(guid1));
+        }
+
+        [Test]
+        public void SetAssetId_GivesErrorForEmptyGuid()
+        {
+            if (identity.assetId == Guid.Empty)
+            {
+                identity.assetId = Guid.NewGuid();
+            }
+
+            Guid guid1 = identity.assetId;
+
+            // assign a guid
+            Guid guid2 = new Guid();
+            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1.ToString("N")}'");
+            identity.assetId = guid2;
+
+            // guid was NOT changed
+            Assert.That(identity.assetId, Is.EqualTo(guid1));
+        }
+        [Test]
+        public void SetAssetId_DoesNotGiveErrorIfBothOldAndNewAreEmpty()
+        {
+            Debug.Assert(identity.assetId == Guid.Empty, "assetId needs to be empty at the start of this test");
+            // assign a guid
+            Guid guid2 = new Guid();
+            // expect no errors
+            identity.assetId = guid2;
+
+            // guid was still empty
+            Assert.That(identity.assetId, Is.EqualTo(Guid.Empty));
+        }
+
+        [Test]
         public void SetClientOwner()
         {
             // SetClientOwner
