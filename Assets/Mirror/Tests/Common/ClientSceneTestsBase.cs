@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
+
+    /// <summary>
+    /// Used by both runtime and edittime tests
+    /// </summary>
     [TestFixture]
     public abstract class ClientSceneTestsBase
     {
