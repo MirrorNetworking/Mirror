@@ -471,12 +471,6 @@ namespace Mirror
                 return;
             }
 
-            if (assetId == Guid.Empty)
-            {
-                logger.LogError($"Can not Register handler for '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
-                return;
-            }
-
             if (spawnHandlers.ContainsKey(assetId) || unspawnHandlers.ContainsKey(assetId))
             {
                 logger.LogWarning($"Replacing existing spawnHandlers for prefab '{prefab.name}' with assetId '{assetId}'");
