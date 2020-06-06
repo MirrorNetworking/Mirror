@@ -94,5 +94,7 @@ namespace Mirror
         }
 
         public static bool LogEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Log);
+        public static bool WarnEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Warning);
+        public static bool ErrorEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Error);
     }
 }
