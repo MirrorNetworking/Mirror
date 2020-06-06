@@ -32,32 +32,36 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
-        public void PrefabNewGuid_ChangePrefabsAssetId(RegisterPrefabOverload overload)
+        public void PrefabNewGuid_ErrorDoesNotChangePrefabsAssetId(RegisterPrefabOverload overload)
         {
             Guid guid = anotherGuid;
+
+            LogAssert.Expect(LogType.Error, $"Could not register '{validPrefab.name}' to {guid} because it already had an AssetId, Existing assetId {validPrefabGuid}");
             CallRegisterPrefab(validPrefab, overload);
 
-            Assert.IsTrue(prefabs.ContainsKey(guid));
-            Assert.AreEqual(prefabs[guid], validPrefab);
-
-            NetworkIdentity netId = prefabs[guid].GetComponent<NetworkIdentity>();
-
-            Assert.AreEqual(netId.assetId, guid);
-        }
-
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void HandlerNewGuid_ChangePrefabsAssetId(RegisterPrefabOverload overload)
-        {
-            Guid guid = anotherGuid;
-            CallRegisterPrefab(validPrefab, overload);
-
-            Assert.IsTrue(spawnHandlers.ContainsKey(guid));
-            Assert.IsTrue(unspawnHandlers.ContainsKey(guid));
+            Assert.IsFalse(prefabs.ContainsKey(guid));
 
             NetworkIdentity netId = validPrefab.GetComponent<NetworkIdentity>();
 
-            Assert.AreEqual(netId.assetId, guid);
+            Assert.AreEqual(netId.assetId, validPrefabGuid);
+        }
+
+        [Test]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
+        public void HandlerNewGuid_ErrorDoesNotChangePrefabsAssetId(RegisterPrefabOverload overload)
+        {
+            Guid guid = anotherGuid;
+
+            LogAssert.Expect(LogType.Error, $"Could not register Handler for '{validPrefab.name}' to {guid} because it already had an AssetId, Existing assetId {validPrefabGuid}");
+            CallRegisterPrefab(validPrefab, overload);
+
+            Assert.IsFalse(spawnHandlers.ContainsKey(guid));
+            Assert.IsFalse(unspawnHandlers.ContainsKey(guid));
+
+            NetworkIdentity netId = validPrefab.GetComponent<NetworkIdentity>();
+
+            Assert.AreEqual(netId.assetId, validPrefabGuid);
         }
 
         [Test]
