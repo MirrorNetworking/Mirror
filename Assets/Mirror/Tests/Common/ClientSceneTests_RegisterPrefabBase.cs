@@ -208,17 +208,5 @@ namespace Mirror.Tests
         }
 
         protected Guid GuidForOverload(RegisterPrefabOverload overload) => OverloadWithAssetId(overload) ? anotherGuid : validPrefabGuid;
-
-        protected static void CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity)
-        {
-            runtimeObject = new GameObject("Runtime GameObject");
-            networkIdentity = runtimeObject.AddComponent<NetworkIdentity>();
-            // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
-            networkIdentity.sceneId = 0;
-
-
-            Debug.Assert(networkIdentity.sceneId == 0, "SceneId was not set to 0");
-            Debug.Assert(runtimeObject.GetComponent<NetworkIdentity>().sceneId == 0, "SceneId was not set to 0");
-        }
     }
 }
