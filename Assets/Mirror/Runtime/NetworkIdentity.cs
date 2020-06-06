@@ -224,15 +224,14 @@ namespace Mirror
                     // old not empty
                     if (!string.IsNullOrEmpty(oldAssetIdSrting))
                     {
-                        logger.LogWarning($"Replacing existing AssetId on NetworkIdentity '{name}', old assetId '{oldAssetIdSrting}', new assetId '{newAssetIdString}'");
-                    }
-                    // old is empty
-                    else if (logger.LogEnabled())
-                    {
-                        logger.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
+                        logger.LogError($"Can not Set AssetId on NetworkIdentity '{name}' becasue it already had an assetId, current assetId '{oldAssetIdSrting}', attempted new assetId '{newAssetIdString}'");
+                        return;
                     }
 
+                    // old is empty
                     m_AssetId = newAssetIdString;
+
+                    if (logger.LogEnabled()) logger.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
                 }
             }
         }
