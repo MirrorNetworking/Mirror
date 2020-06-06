@@ -436,7 +436,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SetAssetId_GivesWarningIfOneExists()
+        public void SetAssetId_GivesErrorIfOneExists()
         {
             if (identity.assetId == Guid.Empty)
             {
@@ -447,11 +447,11 @@ namespace Mirror.Tests
 
             // assign a guid
             Guid guid2 = Guid.NewGuid();
-            LogAssert.Expect(LogType.Warning, $"Replacing existing AssetId on NetworkIdentity '{identity.name}', old assetId '{guid1.ToString("N")}', new assetId '{guid2.ToString("N")}'");
+            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' becasue it already had an assetId, current assetId '{guid1.ToString("N")}', attempted new assetId '{guid2.ToString("N")}'");
             identity.assetId = guid2;
 
             // guid was changed
-            Assert.That(identity.assetId, Is.EqualTo(guid2));
+            Assert.That(identity.assetId, Is.EqualTo(guid1));
         }
 
         [Test]
