@@ -109,7 +109,7 @@ namespace Mirror.Weaver
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
-        static MethodDefinition GenerateArrayReadFunc( TypeReference variable, int recursionCount)
+        static MethodDefinition GenerateArrayReadFunc(TypeReference variable, int recursionCount)
         {
             if (!variable.IsArrayType())
             {

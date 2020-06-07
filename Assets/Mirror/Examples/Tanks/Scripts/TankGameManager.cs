@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Mirror.Examples.Tanks
 {
-    public class TanksNetworkManager : NetworkManager
+    public class TankGameManager : MonoBehaviour
     {
         public int MinimumPlayersForGame = 1;
 
@@ -23,12 +23,12 @@ namespace Mirror.Examples.Tanks
 
         void Update()
         {
-            if (isNetworkActive)
+            if (NetworkManager.singleton.isNetworkActive)
             {
                 GameReadyCheck();
                 GameOverCheck();
 
-                if(LocalPlayer == null)
+                if (LocalPlayer == null)
                 {
                     FindLocalTank();
                 }
@@ -38,11 +38,18 @@ namespace Mirror.Examples.Tanks
                     UpdateStats();
                 }
             }
+            else
+            {
+                //Cleanup state once network goes offline
+                IsGameReady = false;
+                LocalPlayer = null;
+                players.Clear();
+            }
         }
 
         void ShowReadyMenu()
         {
-            if (mode == NetworkManagerMode.ServerOnly)
+            if (NetworkManager.singleton.mode == NetworkManagerMode.ServerOnly)
                 return;
 
             if (LocalPlayer.isReady)
@@ -53,15 +60,15 @@ namespace Mirror.Examples.Tanks
 
         void GameReadyCheck()
         {
-            if(!IsGameReady)
+            if (!IsGameReady)
             {
                 //Look for connections that are not in the player list
                 foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
                 {
                     Tank comp = kvp.Value.GetComponent<Tank>();
-                    if(comp != null)
+                    if (comp != null)
                     {
-                        if(!players.Contains(comp))
+                        if (!players.Contains(comp))
                         {
                             //Add if new
                             players.Add(comp);
@@ -73,14 +80,14 @@ namespace Mirror.Examples.Tanks
                 if (players.Count >= MinimumPlayersForGame)
                 {
                     bool AllReady = true;
-                    foreach(Tank tank in players)
+                    foreach (Tank tank in players)
                     {
-                        if(!tank.isReady)
+                        if (!tank.isReady)
                         {
                             AllReady = false;
                         }
                     }
-                    if(AllReady)
+                    if (AllReady)
                     {
                         IsGameReady = true;
                         AllowTankMovement();
@@ -115,7 +122,7 @@ namespace Mirror.Examples.Tanks
                 }
             }
 
-            if(alivePlayerCount == 1)
+            if (alivePlayerCount == 1)
             {
                 IsGameOver = true;
                 GameOverPanel.SetActive(true);

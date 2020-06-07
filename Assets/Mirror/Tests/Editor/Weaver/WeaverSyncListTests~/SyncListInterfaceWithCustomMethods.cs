@@ -1,4 +1,3 @@
-using UnityEngine;
 using Mirror;
 
 namespace WeaverSyncListTests.SyncListInterfaceWithCustomMethods
@@ -7,17 +6,17 @@ namespace WeaverSyncListTests.SyncListInterfaceWithCustomMethods
     {
         MyInterfaceList Foo;
     }
-   
+
     interface IMyInterface
     {
         int someNumber { get; set; }
     }
-    
+
     class MyUser : IMyInterface
     {
         public int someNumber { get; set; }
     }
-    
+
     class MyInterfaceList : SyncList<IMyInterface>
     {
         protected override void SerializeItem(NetworkWriter writer, IMyInterface item)

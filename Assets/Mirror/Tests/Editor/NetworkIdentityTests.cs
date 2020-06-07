@@ -436,6 +436,56 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SetAssetId_GivesErrorIfOneExists()
+        {
+            if (identity.assetId == Guid.Empty)
+            {
+                identity.assetId = Guid.NewGuid();
+            }
+
+            Guid guid1 = identity.assetId;
+
+            // assign a guid
+            Guid guid2 = Guid.NewGuid();
+            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' becasue it already had an assetId, current assetId '{guid1.ToString("N")}', attempted new assetId '{guid2.ToString("N")}'");
+            identity.assetId = guid2;
+
+            // guid was changed
+            Assert.That(identity.assetId, Is.EqualTo(guid1));
+        }
+
+        [Test]
+        public void SetAssetId_GivesErrorForEmptyGuid()
+        {
+            if (identity.assetId == Guid.Empty)
+            {
+                identity.assetId = Guid.NewGuid();
+            }
+
+            Guid guid1 = identity.assetId;
+
+            // assign a guid
+            Guid guid2 = new Guid();
+            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1.ToString("N")}'");
+            identity.assetId = guid2;
+
+            // guid was NOT changed
+            Assert.That(identity.assetId, Is.EqualTo(guid1));
+        }
+        [Test]
+        public void SetAssetId_DoesNotGiveErrorIfBothOldAndNewAreEmpty()
+        {
+            Debug.Assert(identity.assetId == Guid.Empty, "assetId needs to be empty at the start of this test");
+            // assign a guid
+            Guid guid2 = new Guid();
+            // expect no errors
+            identity.assetId = guid2;
+
+            // guid was still empty
+            Assert.That(identity.assetId, Is.EqualTo(Guid.Empty));
+        }
+
+        [Test]
         public void SetClientOwner()
         {
             // SetClientOwner
@@ -1242,10 +1292,12 @@ namespace Mirror.Tests
         {
             // add component
             CommandTestNetworkBehaviour comp0 = gameObject.AddComponent<CommandTestNetworkBehaviour>();
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
             Assert.That(comp0.called, Is.EqualTo(0));
+            Assert.That(comp0.senderConnectionInCall, Is.Null);
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), CommandTestNetworkBehaviour.CommandGenerated);
+            NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), CommandTestNetworkBehaviour.CommandGenerated, false);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
@@ -1254,20 +1306,22 @@ namespace Mirror.Tests
             // call HandleCommand and check if the command was called in the component
             int functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated));
             NetworkReader payload = new NetworkReader(new byte[0]);
-            identity.HandleCommand(0, functionHash, payload);
+            identity.HandleCommand(0, functionHash, payload, connection);
             Assert.That(comp0.called, Is.EqualTo(1));
+            Assert.That(comp0.senderConnectionInCall, Is.EqualTo(connection));
+
 
             // try wrong component index. command shouldn't be called again.
             // warning is expected
             LogAssert.ignoreFailingMessages = true;
-            identity.HandleCommand(1, functionHash, payload);
+            identity.HandleCommand(1, functionHash, payload, connection);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // try wrong function hash. command shouldn't be called again.
             // warning is expected
             LogAssert.ignoreFailingMessages = true;
-            identity.HandleCommand(0, functionHash + 1, payload);
+            identity.HandleCommand(0, functionHash + 1, payload, connection);
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp0.called, Is.EqualTo(1));
 

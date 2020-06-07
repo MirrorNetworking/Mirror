@@ -92,17 +92,19 @@ namespace Mirror
         /// <summary>
         /// Creates a new NetworkConnection
         /// </summary>
-        internal NetworkConnection() { }
+        internal NetworkConnection()
+        {
+            // set lastTime to current time when creating connection to make sure it isn't instantly kicked for inactivity 
+            lastMessageTime = Time.time;
+        }
 
         /// <summary>
         /// Creates a new NetworkConnection with the specified connectionId
         /// </summary>
         /// <param name="networkConnectionId"></param>
-        internal NetworkConnection(int networkConnectionId)
+        internal NetworkConnection(int networkConnectionId) : this()
         {
             connectionId = networkConnectionId;
-            // set lastTime to current time when creating connection to make sure it isn't instantly kicked for inactivity 
-            lastMessageTime = Time.time;
         }
 
         ~NetworkConnection()

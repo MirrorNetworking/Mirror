@@ -5,15 +5,21 @@
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
 ## Version 14.x.x -- In Progress
+- Added: [Command] now has an `ignoreAuthority` option for invoking Commands on objects the client doesn't have authority over.
 - Added: [NetworkLogSettings](../Components/NetworkLogSettings.md) component and Log Settings Window.
 - Added: SyncLists now support `AddRange`, `InsertRange`, and `RemoveAll`.
+- Added: Network Room Manager now has a virtual `OnRoomServerPlayersNotReady` that fires on server from `CheckReadyToBegin`.
 - Added: Network Room Player template now includes base Network Behaviour overrides.
+- Added: Network Room Player now has a virtual hook for the index SyncVar, and the override is in the template.
 - Fixed: Network Room Manager.minPlayers is now protected so it's available for derived classes.
 - Fixed: Network Room Manager no longer does redundant player prefab registration in `OnStartClient`.
+- Fixed: Network Room Player `OnClientEnterRoom` now correctly only fires on clients.
 - Fixed: `RegisterClientMessages` was being incorrectly invoked for every scene change.
 - Fixed: Network Behaviour `SyncMode` and `SyncInterval` was not showing in the inspector in some cases (regression).
 - Fixed: Network Manager now cleans up network objects better when server stops.
 - Fixed: Network Manager no longer tries to change to offline scene redundantly in `StopClient`.
+- Fixed: Network Connection's `lastMessageTime` wasn't being properly initialized, causing incorrect idle timeout disconnects.
+- Changed: Improvements were made to the Tanks example.
 - Changed: Network Room Player now uses virtual SyncVar hook for ReadyStateChanged.
 - Changed: Network Proximity Checker now uses direct distance check against player objects instead of Physics.SphereCastNonAlloc for better performance.
 - Removed: Discord Transport

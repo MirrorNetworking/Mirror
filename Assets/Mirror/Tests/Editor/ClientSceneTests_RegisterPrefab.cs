@@ -1,223 +1,14 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace Mirror.Tests.ClientSceneTests
 {
-    public class ClientSceneTests_RegisterPrefab : ClientSceneTestsBase
+    public class ClientSceneTests_RegisterPrefab : ClientSceneTests_RegisterPrefabBase
     {
         [Test]
-        [TestCase(RegisterPrefabOverload.Prefab, false)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, true)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate, false)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, true)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate, false)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, true)]
-        public void CheckOverloadWithAssetId(RegisterPrefabOverload overload, bool expected)
-        {
-            // test to make sure OverloadWithAssetId correctly works with flags
-            Assert.That(OverloadWithAssetId(overload), Is.EqualTo(expected));
-        }
-
-        [Test]
-        [TestCase(RegisterPrefabOverload.Prefab, false)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, false)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate, true)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, true)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate, true)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, true)]
-        public void CheckOverloadWithHandler(RegisterPrefabOverload overload, bool expected)
-        {
-            // test to make sure OverloadWithHandler correctly works with flags
-            Assert.That(OverloadWithHandler(overload), Is.EqualTo(expected));
-        }
-
-        /// <summary>
-        /// Allows TestCases to call different overloads for RegisterPrefab.
-        /// Without this we would need duplicate tests for each overload
-        /// </summary>
-        [Flags]
-        public enum RegisterPrefabOverload
-        {
-            Prefab = 1,
-            Prefab_NewAssetId = 2,
-            Prefab_SpawnDelegate = 4,
-            Prefab_SpawnDelegate_NewAssetId = 8,
-            Prefab_SpawnHandlerDelegate = 16,
-            Prefab_SpawnHandlerDelegate_NewAssetId = 32,
-
-            WithAssetId = Prefab_NewAssetId | Prefab_SpawnDelegate_NewAssetId | Prefab_SpawnHandlerDelegate_NewAssetId,
-            WithHandler = Prefab_SpawnDelegate | Prefab_SpawnDelegate_NewAssetId | Prefab_SpawnHandlerDelegate | Prefab_SpawnHandlerDelegate_NewAssetId
-        }
-
-        static bool OverloadWithAssetId(RegisterPrefabOverload overload)
-        {
-            return (overload & RegisterPrefabOverload.WithAssetId) != 0;
-        }
-
-        static bool OverloadWithHandler(RegisterPrefabOverload overload)
-        {
-            return (overload & RegisterPrefabOverload.WithHandler) != 0;
-        }
-
-        void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload)
-        {
-            SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
-            SpawnHandlerDelegate spawnHandlerDelegate = new SpawnHandlerDelegate(x => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
-
-            switch (overload)
-            {
-                case RegisterPrefabOverload.Prefab:
-                    ClientScene.RegisterPrefab(prefab);
-                    break;
-                case RegisterPrefabOverload.Prefab_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandler, unspawnHandler);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandlerDelegate, unspawnHandler);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandlerDelegate, unspawnHandler);
-                    break;
-
-                default:
-                    Debug.LogError("Overload not found");
-                    break;
-            }
-        }
-
-        void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload, Guid guid)
-        {
-            SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
-            SpawnHandlerDelegate spawnHandlerDelegate = new SpawnHandlerDelegate(x => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
-
-            switch (overload)
-            {
-                case RegisterPrefabOverload.Prefab_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, guid);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, guid, spawnHandler, unspawnHandler);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, guid, spawnHandlerDelegate, unspawnHandler);
-                    break;
-
-                case RegisterPrefabOverload.Prefab:
-                case RegisterPrefabOverload.Prefab_SpawnDelegate:
-                case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate:
-                    Debug.LogError("Overload did not have guid parameter");
-                    break;
-                default:
-                    Debug.LogError("Overload not found");
-                    break;
-            }
-        }
-
-        void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload, SpawnDelegate spawnHandler)
-        {
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
-
-            switch (overload)
-            {
-                case RegisterPrefabOverload.Prefab_SpawnDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandler, unspawnHandler);
-                    break;
-
-                case RegisterPrefabOverload.Prefab:
-                case RegisterPrefabOverload.Prefab_NewAssetId:
-                case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate:
-                case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId:
-                    Debug.LogError("Overload did not have SpawnDelegate parameter");
-                    break;
-                default:
-                    Debug.LogError("Overload not found");
-                    break;
-            }
-        }
-
-        void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload, SpawnHandlerDelegate spawnHandlerDelegate)
-        {
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
-
-            switch (overload)
-            {
-                case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandlerDelegate, unspawnHandler);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandlerDelegate, unspawnHandler);
-                    break;
-
-                case RegisterPrefabOverload.Prefab:
-                case RegisterPrefabOverload.Prefab_NewAssetId:
-                case RegisterPrefabOverload.Prefab_SpawnDelegate:
-                case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
-                    Debug.LogError("Overload did not have SpawnHandlerDelegate parameter");
-                    break;
-                default:
-                    Debug.LogError("Overload not found");
-                    break;
-            }
-        }
-
-        void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload, UnSpawnDelegate unspawnHandler)
-        {
-            SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
-            SpawnHandlerDelegate spawnHandlerDelegate = new SpawnHandlerDelegate(x => null);
-
-            switch (overload)
-            {
-
-                case RegisterPrefabOverload.Prefab_SpawnDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandler, unspawnHandler);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandlerDelegate, unspawnHandler);
-                    break;
-                case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandlerDelegate, unspawnHandler);
-                    break;
-
-                case RegisterPrefabOverload.Prefab:
-                case RegisterPrefabOverload.Prefab_NewAssetId:
-                    Debug.LogError("Overload did not have UnSpawnDelegate parameter");
-                    break;
-                default:
-                    Debug.LogError("Overload not found");
-                    break;
-            }
-        }
-
-        Guid GuidForOverload(RegisterPrefabOverload overload) => OverloadWithAssetId(overload) ? anotherGuid : validPrefabGuid;
-
-        static void CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity)
-        {
-            runtimeObject = new GameObject("Runtime GameObject");
-            networkIdentity = runtimeObject.AddComponent<NetworkIdentity>();
-            // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
-            networkIdentity.sceneId = 0;
-        }
-
-
-        [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void Prefab_AddsPrefabToDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -229,20 +20,37 @@ namespace Mirror.Tests.ClientSceneTests
         }
 
         [Test]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
-        public void NewGuid_ChangePrefabsAssetId(RegisterPrefabOverload overload)
+        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
+        public void PrefabNewGuid_ErrorDoesNotChangePrefabsAssetId(RegisterPrefabOverload overload)
         {
             Guid guid = anotherGuid;
+
+            LogAssert.Expect(LogType.Error, $"Could not register '{validPrefab.name}' to {guid} because it already had an AssetId, Existing assetId {validPrefabGuid}");
             CallRegisterPrefab(validPrefab, overload);
 
-            Assert.IsTrue(prefabs.ContainsKey(guid));
-            Assert.AreEqual(prefabs[guid], validPrefab);
+            Assert.IsFalse(prefabs.ContainsKey(guid));
 
-            NetworkIdentity netId = prefabs[guid].GetComponent<NetworkIdentity>();
+            NetworkIdentity netId = validPrefab.GetComponent<NetworkIdentity>();
 
-            Assert.AreEqual(netId.assetId, guid);
+            Assert.AreEqual(netId.assetId, validPrefabGuid);
+        }
+
+        [Test]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
+        public void HandlerNewGuid_ErrorDoesNotChangePrefabsAssetId(RegisterPrefabOverload overload)
+        {
+            Guid guid = anotherGuid;
+
+            LogAssert.Expect(LogType.Error, $"Could not register Handler for '{validPrefab.name}' to {guid} because it already had an AssetId, Existing assetId {validPrefabGuid}");
+            CallRegisterPrefab(validPrefab, overload);
+
+            Assert.IsFalse(spawnHandlers.ContainsKey(guid));
+            Assert.IsFalse(unspawnHandlers.ContainsKey(guid));
+
+            NetworkIdentity netId = validPrefab.GetComponent<NetworkIdentity>();
+
+            Assert.AreEqual(netId.assetId, validPrefabGuid);
         }
 
         [Test]
@@ -280,80 +88,6 @@ namespace Mirror.Tests.ClientSceneTests
         }
 
         [Test]
-        [TestCase(RegisterPrefabOverload.Prefab)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        public void ErrorForEmptyGuid(RegisterPrefabOverload overload)
-        {
-            // setup
-            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
-
-            //test
-            string msg = OverloadWithHandler(overload)
-               ? $"Can not Register handler for '{runtimeObject.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead"
-               : $"Can not Register '{runtimeObject.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead";
-
-            LogAssert.Expect(LogType.Error, msg);
-            CallRegisterPrefab(runtimeObject, overload);
-
-            // teardown
-            GameObject.DestroyImmediate(runtimeObject);
-        }
-
-        [Test]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
-        public void PrefabNewGuid_AddsRuntimeObjectToDictionary(RegisterPrefabOverload overload)
-        {
-            // setup
-            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
-
-            //test
-            CallRegisterPrefab(runtimeObject, overload);
-
-            Assert.IsTrue(prefabs.ContainsKey(anotherGuid));
-            Assert.AreEqual(prefabs[anotherGuid], runtimeObject);
-
-            Assert.AreEqual(networkIdentity.assetId, anotherGuid);
-
-            // teardown
-            GameObject.DestroyImmediate(runtimeObject);
-        }
-
-        [Test]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void Handler_AddsSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
-        {
-            // setup
-            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
-
-            //test
-            CallRegisterPrefab(runtimeObject, overload);
-
-            Assert.IsTrue(spawnHandlers.ContainsKey(anotherGuid));
-
-            // teardown
-            GameObject.DestroyImmediate(runtimeObject);
-        }
-
-        [Test]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
-        public void Handler_AddsUnSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
-        {
-            // setup
-            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
-
-            //test
-            CallRegisterPrefab(runtimeObject, overload);
-
-            Assert.IsTrue(unspawnHandlers.ContainsKey(anotherGuid));
-
-            // teardown
-            GameObject.DestroyImmediate(runtimeObject);
-        }
-
-        [Test]
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
@@ -368,11 +102,8 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
         public void ErrorIfPrefabHadSceneId(RegisterPrefabOverload overload)
         {
             GameObject clone = GameObject.Instantiate(validPrefab);
@@ -388,11 +119,8 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
         public void WarningForNetworkIdentityInChildren(RegisterPrefabOverload overload)
         {
             LogAssert.Expect(LogType.Warning, $"Prefab '{prefabWithChildren.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
@@ -402,7 +130,6 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void Prefab_WarningForAssetIdAlreadyExistingInPrefabsDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -415,9 +142,7 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void Handler_ErrorForAssetIdAlreadyExistingInPrefabsDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -430,11 +155,8 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void WarningForAssetIdAlreadyExistingInHandlersDictionary(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -453,7 +175,6 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void SpawnDelegate_AddsHandlerToSpawnHandlers(RegisterPrefabOverload overload)
         {
             int handlerCalled = 0;
@@ -478,7 +199,6 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void SpawnDelegate_AddsHandlerToSpawnHandlersWithCorrectArguments(RegisterPrefabOverload overload)
         {
             int handlerCalled = 0;
@@ -515,7 +235,6 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void SpawnHandleDelegate_AddsHandlerToSpawnHandlers(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -530,7 +249,6 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void SpawnHandleDelegate_ErrorWhenSpawnHandlerIsNull(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
@@ -540,15 +258,12 @@ namespace Mirror.Tests.ClientSceneTests
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, IgnoreReason = NewAssetIdIgnoreMessage)]
         public void Handler_ErrorWhenUnSpawnHandlerIsNull(RegisterPrefabOverload overload)
         {
             Guid guid = GuidForOverload(overload);
             LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {guid}");
             CallRegisterPrefab(validPrefab, overload, unspawnHandler: null);
         }
-
     }
 }

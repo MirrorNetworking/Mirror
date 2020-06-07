@@ -22,6 +22,7 @@ namespace Mirror
     {
         // this is zero
         public int channel = Channels.DefaultReliable;
+        public bool ignoreAuthority = false;
     }
 
     /// <summary>
@@ -32,6 +33,7 @@ namespace Mirror
     {
         // this is zero
         public int channel = Channels.DefaultReliable;
+        public bool excludeOwner = false;
     }
 
     /// <summary>

@@ -1,11 +1,8 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
 
-namespace WeaverTargetRpcTests.SyncEventParamGeneric
+namespace WeaverSyncEventTests.ErrorWhenSyncEventUsesGenericParameter
 {
-    class SyncEventParamGeneric : NetworkBehaviour
+    class ErrorWhenSyncEventUsesGenericParameter : NetworkBehaviour
     {
         public delegate void MySyncEventDelegate<T>(T amount, float dir);
 

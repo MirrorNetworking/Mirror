@@ -1,11 +1,8 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
 
-namespace WeaverTargetRpcTests.SyncEventStartsWithEvent
+namespace WeaverSyncEventTests.ErrorWhenSyncEventDoesntStartWithEvent
 {
-    class SyncEventStartsWithEvent : NetworkBehaviour
+    class ErrorWhenSyncEventDoesntStartWithEvent : NetworkBehaviour
     {
         public delegate void MySyncEventDelegate(int amount, float dir);
 

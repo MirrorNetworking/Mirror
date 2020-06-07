@@ -13,7 +13,7 @@ namespace Mirror
         /// logHandler used for new loggers
         /// </summary>
         static ILogHandler defaultLogHandler = Debug.unityLogger;
-        
+
         /// <summary>
         /// if true sets all log level to LogType.Log
         /// </summary>
@@ -94,5 +94,7 @@ namespace Mirror
         }
 
         public static bool LogEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Log);
+        public static bool WarnEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Warning);
+        public static bool ErrorEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Error);
     }
 }

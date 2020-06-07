@@ -993,10 +993,13 @@ namespace Mirror
                 return;
             }
 
+            NetworkBehaviour.CommandInfo commandInfo = identity.GetCommandInfo(msg.componentIndex, msg.functionHash);
+
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            if (identity.connectionToClient != conn)
+            bool needAuthority = !commandInfo.ignoreAuthority;
+            if (needAuthority && identity.connectionToClient != conn)
             {
                 logger.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
                 return;
@@ -1005,7 +1008,7 @@ namespace Mirror
             if (logger.LogEnabled()) logger.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader);
+                identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader, conn as NetworkConnectionToClient);
         }
 
         internal static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)

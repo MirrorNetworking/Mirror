@@ -1,5 +1,3 @@
-using System;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamOut

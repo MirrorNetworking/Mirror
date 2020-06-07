@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
 
 namespace WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcDuplicateName
@@ -8,9 +5,9 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcDuplicateName
     class NetworkBehaviourClientRpcDuplicateName : NetworkBehaviour
     {
         [ClientRpc]
-        public void RpcCantHaveSameName(int abc) {}
+        public void RpcCantHaveSameName(int abc) { }
 
         [ClientRpc]
-        public void RpcCantHaveSameName(int abc, int def) {}
+        public void RpcCantHaveSameName(int abc, int def) { }
     }
 }

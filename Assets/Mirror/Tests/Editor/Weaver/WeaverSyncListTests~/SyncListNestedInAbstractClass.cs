@@ -1,4 +1,3 @@
-using UnityEngine;
 using Mirror;
 
 namespace WeaverSyncListTests.SyncListNestedInAbstractClass
@@ -6,7 +5,7 @@ namespace WeaverSyncListTests.SyncListNestedInAbstractClass
     class SyncListNestedStruct : NetworkBehaviour
     {
         SomeAbstractClass.MyNestedStructList Foo;
-    
+
 
         public abstract class SomeAbstractClass
         {

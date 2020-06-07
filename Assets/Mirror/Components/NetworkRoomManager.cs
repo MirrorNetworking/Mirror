@@ -69,7 +69,8 @@ namespace Mirror
         /// True when all players have submitted a Ready message
         /// </summary>
         [Tooltip("Diagnostic flag indicating all players are ready to play")]
-        public bool allPlayersReady;
+        [FormerlySerializedAs("allPlayersReady")]
+        [SerializeField] bool _allPlayersReady;
 
         /// <summary>
         /// These slots track players that enter the room.
@@ -77,6 +78,30 @@ namespace Mirror
         /// </summary>
         [Tooltip("List of Room Player objects")]
         public List<NetworkRoomPlayer> roomSlots = new List<NetworkRoomPlayer>();
+
+        public bool allPlayersReady
+        {
+            get => _allPlayersReady;
+            set
+            {
+                bool wasReady = _allPlayersReady;
+                bool nowReady = value;
+
+                if (wasReady != nowReady)
+                {
+                    _allPlayersReady = value;
+
+                    if (nowReady)
+                    {
+                        OnRoomServerPlayersReady();
+                    }
+                    else
+                    {
+                        OnRoomServerPlayersNotReady();
+                    }
+                }
+            }
+        }
 
         public override void OnValidate()
         {
@@ -183,15 +208,17 @@ namespace Mirror
             if (!IsSceneActive(RoomScene))
                 return;
 
-            if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
+            int numberOfReadyPlayers = NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin);
+            bool enoughReadyPlayers = minPlayers <= 0 || numberOfReadyPlayers >= minPlayers;
+            if (enoughReadyPlayers)
+            {
+                pendingPlayers.Clear();
+                allPlayersReady = true;
+            }
+            else
             {
                 allPlayersReady = false;
-                return;
             }
-
-            pendingPlayers.Clear();
-            allPlayersReady = true;
-            OnRoomServerPlayersReady();
         }
 
         void CallOnClientEnterRoom()
@@ -603,6 +630,12 @@ namespace Mirror
             // all players are readyToBegin, start the game
             ServerChangeScene(GameplayScene);
         }
+
+        /// <summary>
+        /// This is called on the server when CheckReadyToBegin finds that players are not ready
+        /// <para>May be called multiple times while not ready players are joining</para>
+        /// </summary>
+        public virtual void OnRoomServerPlayersNotReady() { }
 
         #endregion
 

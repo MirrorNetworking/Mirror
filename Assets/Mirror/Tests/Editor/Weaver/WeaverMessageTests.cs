@@ -13,7 +13,8 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MessageSelfReferencing()
         {
-            Assert.That(weaverErrors, Contains.Item("MessageSelfReferencing has field selfReference that references itself (at WeaverMessageTests.MessageSelfReferencing.MessageSelfReferencing WeaverMessageTests.MessageSelfReferencing.MessageSelfReferencing::selfReference)"));        }
+            Assert.That(weaverErrors, Contains.Item("MessageSelfReferencing has field selfReference that references itself (at WeaverMessageTests.MessageSelfReferencing.MessageSelfReferencing WeaverMessageTests.MessageSelfReferencing.MessageSelfReferencing::selfReference)"));
+        }
 
         [Test]
         public void MessageMemberGeneric()

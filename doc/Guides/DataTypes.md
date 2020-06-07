@@ -1,7 +1,5 @@
 # Data types
 
-[![built in data types video tutorial](../images/video_tutorial.png)](https://www.youtube.com/watch?v=DIIeGYAawY0&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=9)
-
 The client and server can pass data to each other via [Remote methods](Communications/RemoteActions.md), [State Synchronization](Sync/index.md) or via [Network Messages](Communications/NetworkMessages.md)
 
 Mirror supports a number of data types you can use with these, including:
@@ -18,8 +16,6 @@ Mirror supports a number of data types you can use with these, including:
 - ArraySegments of any of the above (not supported with syncvars or synclists)
 
 ## Custom Data Types
-
-[![built in data types video tutorial](../images/video_tutorial.png)](https://www.youtube.com/watch?v=svXHy2TGaS8&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=10)
 
 Sometimes you don't want mirror to generate serialization for your own types. For example, instead of serializing quest data, you may want to serialize just the quest id, and the receiver can look up the quest by id in a predefined list.
 

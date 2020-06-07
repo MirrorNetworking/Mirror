@@ -5,6 +5,6 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamNetworkConne
     class NetworkBehaviourClientRpcParamNetworkConnection : NetworkBehaviour
     {
         [ClientRpc]
-        public void RpcCantHaveParamOptional(NetworkConnection monkeyCon) {}
+        public void RpcCantHaveParamOptional(NetworkConnection monkeyCon) { }
     }
 }

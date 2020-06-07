@@ -1,7 +1,5 @@
 # Remote Actions
 
-[![Remote Calls video tutorial](../../images/video_tutorial.png)](https://www.youtube.com/watch?v=Ie0JQB2bCpk&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=5)
-
 The network system has ways to perform actions across the network. These type of actions are sometimes called Remote Procedure Calls. There are two types of RPCs in the network system, Commands - which are called from the client and run on the server; and ClientRpc calls - which are called on the server and run on clients.
 
 The diagram below shows the directions that remote actions take:
@@ -10,7 +8,9 @@ The diagram below shows the directions that remote actions take:
 
 ## Commands
 
-Commands are sent from player objects on the client to player objects on the server. For security, Commands can only be sent from YOUR player object, so you cannot control the objects of other players. To make a function into a command, add the [Command] custom attribute to it, and add the “Cmd” prefix. This function will now be run on the server when it is called on the client. Any arguments will automatically be passed to the server with the command.
+Commands are sent from player objects on the client to player objects on the server. For security, Commands can only be sent from YOUR player object by default, so you cannot control the objects of other players.  You can bypass the authority check using `[Command(ignoreAuthority = true)]`.
+
+To make a function into a command, add the [Command] custom attribute to it, and add the “Cmd” prefix. This function will now be run on the server when it is called on the client. Any parameters of [allowed data type](../DataTypes.md) will be automatically passed to the server with the command.
 
 Commands functions must have the prefix “Cmd” and cannot be static. This is a hint when reading code that calls the command - this function is special and is not invoked locally like a normal function.
 

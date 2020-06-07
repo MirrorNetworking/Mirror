@@ -11,11 +11,13 @@ namespace Mirror.Tests
     {
         // counter to make sure that it's called exactly once
         public int called;
+        public NetworkConnection senderConnectionInCall;
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
         {
             ++((CommandTestNetworkBehaviour)comp).called;
+            ((CommandTestNetworkBehaviour)comp).senderConnectionInCall = senderConnection;
         }
     }
 
@@ -25,7 +27,7 @@ namespace Mirror.Tests
         public int called;
         // weaver generates this from [Rpc]
         // but for tests we need to add it manually
-        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void RpcGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
         {
             ++((RpcTestNetworkBehaviour)comp).called;
         }
@@ -37,7 +39,7 @@ namespace Mirror.Tests
         public int called;
         // weaver generates this from [SyncEvent]
         // but for tests we need to add it manually
-        public static void SyncEventGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void SyncEventGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
         {
             ++((SyncEventTestNetworkBehaviour)comp).called;
         }
@@ -580,7 +582,7 @@ namespace Mirror.Tests
             connection.identity = identity;
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), CommandTestNetworkBehaviour.CommandGenerated);
+            NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), CommandTestNetworkBehaviour.CommandGenerated, false);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it

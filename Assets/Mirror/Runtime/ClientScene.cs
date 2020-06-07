@@ -21,11 +21,28 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger(typeof(ClientScene));
 
         static bool isSpawnFinished;
+        static NetworkIdentity _localPlayer;
 
         /// <summary>
         /// NetworkIdentity of the localPlayer
         /// </summary>
-        public static NetworkIdentity localPlayer { get; private set; }
+        public static NetworkIdentity localPlayer
+        {
+            get => _localPlayer;
+            private set
+            {
+                NetworkIdentity oldPlayer = _localPlayer;
+                NetworkIdentity newPlayer = value;
+                if (oldPlayer != newPlayer)
+                {
+                    _localPlayer = value;
+                    onLocalPlayerChanged?.Invoke(oldPlayer, newPlayer);
+                }
+            }
+        }
+
+        public delegate void LocalplayerChanged(NetworkIdentity oldPlayer, NetworkIdentity newPlayer);
+        public static event LocalplayerChanged onLocalPlayerChanged;
 
         /// <summary>
         /// Returns true when a client's connection has been set to ready.
@@ -263,20 +280,21 @@ namespace Mirror
         /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
         /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
         /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
+        /// <para>NOTE: newAssetId can not be set on GameObjects that already have an assetId</para>
         /// </summary>
-        /// <param name="prefab">A Prefab that will be spawned.</param>
-        /// <param name="newAssetId">An assetId to be assigned to this prefab. This allows a dynamically created game object to be registered for an already known asset Id.</param>
+        /// <param name="prefab">A GameObject that will be spawned.</param>
+        /// <param name="newAssetId">An assetId to be assigned to this GameObject. This allows a dynamically created game object to be registered for an already known asset Id.</param>
         public static void RegisterPrefab(GameObject prefab, Guid newAssetId)
         {
-            if (newAssetId == Guid.Empty)
-            {
-                logger.LogError($"Could not register '{prefab.name}' with new assetId because the new assetId was empty");
-                return;
-            }
-
             if (prefab == null)
             {
                 logger.LogError("Could not register prefab because it was null");
+                return;
+            }
+
+            if (newAssetId == Guid.Empty)
+            {
+                logger.LogError($"Could not register '{prefab.name}' with new assetId because the new assetId was empty");
                 return;
             }
 
@@ -287,6 +305,11 @@ namespace Mirror
                 return;
             }
 
+            if (identity.assetId != Guid.Empty)
+            {
+                logger.LogError($"Could not register '{prefab.name}' to {newAssetId} because it already had an AssetId, Existing assetId {identity.assetId}");
+                return;
+            }
 
             identity.assetId = newAssetId;
 
@@ -323,9 +346,10 @@ namespace Mirror
         /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
         /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
         /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
+        /// <para>NOTE: newAssetId can not be set on GameObjects that already have an assetId</para>
         /// </summary>
-        /// <param name="prefab">A Prefab that will be spawned.</param>
-        /// <param name="newAssetId">An assetId to be assigned to this prefab. This allows a dynamically created game object to be registered for an already known asset Id.</param>
+        /// <param name="prefab">A GameObject that will be spawned.</param>
+        /// <param name="newAssetId">An assetId to be assigned to this GameObject. This allows a dynamically created game object to be registered for an already known asset Id.</param>
         /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
         /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
         public static void RegisterPrefab(GameObject prefab, Guid newAssetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
@@ -393,9 +417,10 @@ namespace Mirror
         /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
         /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
         /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
+        /// <para>NOTE: newAssetId can not be set on GameObjects that already have an assetId</para>
         /// </summary>
-        /// <param name="prefab">A Prefab that will be spawned.</param>
-        /// <param name="newAssetId">An assetId to be assigned to this prefab. This allows a dynamically created game object to be registered for an already known asset Id.</param>
+        /// <param name="prefab">A GameObject that will be spawned.</param>
+        /// <param name="newAssetId">An assetId to be assigned to this GameObject. This allows a dynamically created game object to be registered for an already known asset Id.</param>
         /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
         /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
         public static void RegisterPrefab(GameObject prefab, Guid newAssetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
@@ -419,6 +444,12 @@ namespace Mirror
                 return;
             }
 
+            if (identity.assetId != Guid.Empty)
+            {
+                logger.LogError($"Could not register Handler for '{prefab.name}' to {newAssetId} because it already had an AssetId, Existing assetId {identity.assetId}");
+                return;
+            }
+
             if (identity.sceneId != 0)
             {
                 logger.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
@@ -437,12 +468,6 @@ namespace Mirror
             if (unspawnHandler == null)
             {
                 logger.LogError($"Can not Register null UnSpawnHandler for {assetId}");
-                return;
-            }
-
-            if (assetId == Guid.Empty)
-            {
-                logger.LogError($"Can not Register handler for '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
                 return;
             }
 

@@ -1,13 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using NSubstitute;
+﻿using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-
     public class LogFactoryTests
     {
         // A Test behaves as an ordinary method
