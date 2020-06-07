@@ -450,9 +450,19 @@ namespace Mirror
 
         // we need a way to clean up delegates after tests
         [EditorBrowsable(EditorBrowsableState.Never)]
+        [System.Obsolete("Removing all delegates will cause problems with other tests as their hashs can not be re-added without reloading scripts", true)]
         internal static void ClearDelegates()
         {
             cmdHandlerDelegates.Clear();
+        }
+
+        /// <summary>
+        /// We need this in order to clean up tests
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal static void RemoveDelegates(int hash)
+        {
+            cmdHandlerDelegates.Remove(hash);
         }
 
         static bool GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType, out Invoker invoker)
