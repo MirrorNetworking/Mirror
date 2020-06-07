@@ -14,6 +14,11 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
+    class VirtualNoOverrideCommand : VirtualCommand
+    {
+
+    }
+
     class VirtualOverrideCommand : VirtualCommand
     {
         public event Action<int> onOverrideSendInt;
@@ -58,6 +63,24 @@ namespace Mirror.Tests.RemoteAttrributeTest
             Assert.That(virtualCallCount, Is.EqualTo(1));
         }
 
+        [Test]
+        public void VirtualCommandWithNoOverrideIsCalled()
+        {
+            VirtualNoOverrideCommand hostBehaviour = CreateHostObject<VirtualNoOverrideCommand>(true);
+
+            const int someInt = 20;
+
+            int virtualCallCount = 0;
+            hostBehaviour.onVirtualSendInt += incomingInt =>
+            {
+                virtualCallCount++;
+                Assert.That(incomingInt, Is.EqualTo(someInt));
+            };
+
+            hostBehaviour.CmdSendInt(someInt);
+            ProcessMessages();
+            Assert.That(virtualCallCount, Is.EqualTo(1));
+        }
 
         [Test]
         public void OverrideVirtualCommandIsCalled()
