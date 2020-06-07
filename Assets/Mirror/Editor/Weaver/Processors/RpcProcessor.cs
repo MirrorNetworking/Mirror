@@ -26,7 +26,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, false))
+            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, RemoteCallType.ClientRpc))
                 return null;
 
             // invoke actual command function
@@ -77,7 +77,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, false))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.ClientRpc))
                 return null;
 
             string rpcName = md.Name;

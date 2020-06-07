@@ -9,7 +9,9 @@ namespace Mirror.Weaver
         Command,
         ClientRpc,
         TargetRpc,
+        SyncEvent
     }
+
 
     /// <summary>
     /// processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
@@ -134,7 +136,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, Weaver.RecycleWriterReference));
         }
 
-        public static bool WriteArguments(ILProcessor worker, MethodDefinition method, bool skipFirst)
+        public static bool WriteArguments(ILProcessor worker, MethodDefinition method, RemoteCallType callType)
         {
             // write each argument
             // example result
@@ -143,6 +145,9 @@ namespace Mirror.Weaver
             writer.WriteNetworkIdentity(someTarget);
              */
 
+            bool skipFirst = (callType == RemoteCallType.TargetRpc
+                && TargetRpcProcessor.HasNetworkConnectionParameter(method));
+
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
             foreach (ParameterDefinition param in method.Parameters)
@@ -150,6 +155,12 @@ namespace Mirror.Weaver
                 // NetworkConnection is not sent via the NetworkWriter so skip it here
                 // skip first for NetworkConnection in TargetRpc
                 if (argNum == 1 && skipFirst)
+                {
+                    argNum += 1;
+                    continue;
+                }
+                // skip SenderConnection in Command
+                if (IsSenderConnection(param, callType))
                 {
                     argNum += 1;
                     continue;
@@ -781,13 +792,16 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Methods.Add(serialize);
         }
 
-        public static bool ReadArguments(MethodDefinition method, ILProcessor worker, bool skipFirst)
+        public static bool ReadArguments(MethodDefinition method, ILProcessor worker, RemoteCallType callType)
         {
             // read each argument
             // example result
             /*
             CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
              */
+
+            bool skipFirst = (callType == RemoteCallType.TargetRpc
+                && TargetRpcProcessor.HasNetworkConnectionParameter(method));
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
@@ -796,6 +810,12 @@ namespace Mirror.Weaver
                 // NetworkConnection is not sent via the NetworkWriter so skip it here
                 // skip first for NetworkConnection in TargetRpc
                 if (argNum == 1 && skipFirst)
+                {
+                    argNum += 1;
+                    continue;
+                }
+                // skip SenderConnection in Command
+                if (IsSenderConnection(param, callType))
                 {
                     argNum += 1;
                     continue;
@@ -830,6 +850,8 @@ namespace Mirror.Weaver
         {
             collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkBehaviourType)));
             collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
+            // senderConnection is only used for commands but NetworkBehaviour.CmdDelegate is used for all remote calls
+            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkConnectionType)));
         }
 
         public static bool ProcessMethodsValidateFunction(MethodReference md)
@@ -871,6 +893,7 @@ namespace Mirror.Weaver
         static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
         {
             bool isNetworkConnection = param.ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
+            bool isSenderConnection = IsSenderConnection(param, callType);
 
             if (param.IsOut)
             {
@@ -879,21 +902,43 @@ namespace Mirror.Weaver
             }
 
 
-            // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
-            if (isNetworkConnection && !(callType == RemoteCallType.TargetRpc && firstParam))
+            // if not SenderConnection And not TargetRpc NetworkConnection first param
+            if (!isSenderConnection && isNetworkConnection && !(callType == RemoteCallType.TargetRpc && firstParam))
             {
-                Weaver.Error($"{method.Name} has invalid parameter {param}. Cannot pass NeworkConnections", method);
+                if (callType == RemoteCallType.Command)
+                {
+                    Weaver.Error($"{method.Name} has invalid parameter {param}, Cannot pass NeworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server", method);
+                }
+                else
+                {
+                    Weaver.Error($"{method.Name} has invalid parameter {param}. Cannot pass NeworkConnections", method);
+                }
                 return false;
             }
 
             // sender connection can be optional
-            if (param.IsOptional)
+            if (param.IsOptional && !isSenderConnection)
             {
                 Weaver.Error($"{method.Name} cannot have optional parameters", method);
                 return false;
             }
 
             return true;
+        }
+
+        public static bool IsSenderConnection(ParameterDefinition param, RemoteCallType callType)
+        {
+            if (callType != RemoteCallType.Command)
+            {
+                return false;
+            }
+
+            TypeReference type = param.ParameterType;
+
+            const string ConnectionToClient = "Mirror.NetworkConnectionToClient";
+            bool isConnectionToClient = type.FullName == ConnectionToClient || type.Resolve().IsDerivedFrom(ConnectionToClient);
+
+            return isConnectionToClient;
         }
 
         void ProcessMethods()

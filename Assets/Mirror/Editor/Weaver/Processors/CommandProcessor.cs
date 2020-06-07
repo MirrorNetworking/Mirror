@@ -51,7 +51,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Cmd call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, false))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.Command))
                 return null;
 
             string cmdName = md.Name;
@@ -87,7 +87,7 @@ namespace Mirror.Weaver
 
         /*
             // generates code like:
-            protected static void InvokeCmdCmdThrust(NetworkBehaviour obj, NetworkReader reader)
+            protected static void InvokeCmdCmdThrust(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection)
             {
                 if (!NetworkServer.active)
                 {
@@ -111,8 +111,10 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ReadArguments(method, worker, false))
+            if (!NetworkBehaviourProcessor.ReadArguments(method, worker, RemoteCallType.Command))
                 return null;
+
+            AddSenderConnection(method, worker);
 
             // invoke actual command function
             worker.Append(worker.Create(OpCodes.Callvirt, cmdCallFunc));
@@ -122,6 +124,19 @@ namespace Mirror.Weaver
 
             td.Methods.Add(cmd);
             return cmd;
+        }
+
+        static void AddSenderConnection(MethodDefinition method, ILProcessor worker)
+        {
+            foreach (ParameterDefinition param in method.Parameters)
+            {
+                if (NetworkBehaviourProcessor.IsSenderConnection(param, RemoteCallType.Command))
+                {
+                    // NetworkConnection is 3nd arg (arg0 is "obj" not "this" because method is static)
+                    // exmaple: static void InvokeCmdCmdSendCommand(NetworkBehaviour obj, NetworkReader reader, NetworkConnection connection)
+                    worker.Append(worker.Create(OpCodes.Ldarg_2));
+                }
+            }
         }
 
         public static bool ProcessMethodsValidateCommand(MethodDefinition md)

@@ -8,6 +8,11 @@ namespace Mirror.Weaver
     {
         public static bool IsDerivedFrom(this TypeDefinition td, TypeReference baseClass)
         {
+            return IsDerivedFrom(td, baseClass.FullName);
+        }
+
+        public static bool IsDerivedFrom(this TypeDefinition td, string baseClassFullName)
+        {
             if (!td.IsClass)
                 return false;
 
@@ -24,7 +29,7 @@ namespace Mirror.Weaver
                     parentName = parentName.Substring(0, index);
                 }
 
-                if (parentName == baseClass.FullName)
+                if (parentName == baseClassFullName)
                 {
                     return true;
                 }

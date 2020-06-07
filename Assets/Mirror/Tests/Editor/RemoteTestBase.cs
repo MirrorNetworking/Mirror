@@ -66,6 +66,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             if (spawnWithAuthority)
             {
                 NetworkServer.Spawn(gameObject, NetworkServer.localConnection);
+                Debug.Assert(behaviour.connectionToClient != null, $"Behaviour did not have connection to client, This means that the test is broken and will give the wrong results");
             }
             else
             {

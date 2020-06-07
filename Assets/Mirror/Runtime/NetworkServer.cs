@@ -1008,7 +1008,7 @@ namespace Mirror
             if (logger.LogEnabled()) logger.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader);
+                identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader, conn as NetworkConnectionToClient);
         }
 
         internal static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)

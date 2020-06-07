@@ -53,7 +53,7 @@ namespace Mirror.Weaver
 
             // read the event arguments
             MethodReference invoke = Resolvers.ResolveMethod(eventField.FieldType, Weaver.CurrentAssembly, "Invoke");
-            if (!NetworkBehaviourProcessor.ReadArguments(invoke.Resolve(), worker, false))
+            if (!NetworkBehaviourProcessor.ReadArguments(invoke.Resolve(), worker, RemoteCallType.SyncEvent))
                 return null;
 
             // invoke actual event delegate function
@@ -87,7 +87,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the syncevent
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, invoke.Resolve(), false))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, invoke.Resolve(), RemoteCallType.SyncEvent))
                 return null;
 
             // invoke interal send and return
