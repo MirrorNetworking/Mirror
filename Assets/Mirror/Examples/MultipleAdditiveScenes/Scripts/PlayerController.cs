@@ -11,7 +11,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     {
         public CharacterController characterController;
         public CapsuleCollider capsuleCollider;
-        public Rigidbody rigidbody3D;
 
         void OnValidate()
         {
@@ -19,8 +18,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 characterController = GetComponent<CharacterController>();
             if (capsuleCollider == null)
                 capsuleCollider = GetComponent<CapsuleCollider>();
-            if (rigidbody3D == null)
-                rigidbody3D = GetComponent<Rigidbody>();
         }
 
         void Start()
@@ -30,7 +27,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         public override void OnStartLocalPlayer()
         {
-            base.OnStartLocalPlayer();
+            characterController.enabled = true;
 
             Camera.main.orthographic = false;
             Camera.main.transform.SetParent(transform);
@@ -67,7 +64,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         void Update()
         {
-            if (!isLocalPlayer)
+            if (!isLocalPlayer || !characterController.enabled)
                 return;
 
             horizontal = Input.GetAxis("Horizontal");

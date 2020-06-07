@@ -176,7 +176,7 @@ CharacterController:
   m_GameObject: {fileID: 1480027675339556}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Height: 2
   m_Radius: 0.5
@@ -231,7 +231,6 @@ MonoBehaviour:
   syncInterval: 0
   characterController: {fileID: 143011667059871024}
   capsuleCollider: {fileID: 4839740653866577337}
-  rigidbody3D: {fileID: 1849877933717427647}
   moveSpeed: 8
   turnSensitivity: 5
   maxTurnSpeed: 150
