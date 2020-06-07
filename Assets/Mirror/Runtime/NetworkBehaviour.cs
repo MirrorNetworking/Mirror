@@ -385,15 +385,23 @@ namespace Mirror
 
         static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
-        // helper function register a Command/Rpc/SyncEvent delegate
+        /// <summary>
+        /// helper function register a Command/Rpc/SyncEvent delegate
+        /// </summary>
+        /// <param name="invokeClass"></param>
+        /// <param name="cmdName"></param>
+        /// <param name="invokerType"></param>
+        /// <param name="func"></param>
+        /// <param name="cmdIgnoreAuthority"></param>
+        /// <returns>remote function hash</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func, bool cmdIgnoreAuthority = false)
+        internal static int RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func, bool cmdIgnoreAuthority = false)
         {
             // type+func so Inventory.RpcUse != Equipment.RpcUse
             int cmdHash = GetMethodHash(invokeClass, cmdName);
 
             if (CheckIfDeligateExists(invokeClass, invokerType, func, cmdHash))
-                return;
+                return cmdHash;
 
             Invoker invoker = new Invoker
             {
@@ -410,6 +418,8 @@ namespace Mirror
                 string ingoreAuthorityMessage = invokerType == MirrorInvokeType.Command ? $" IgnoreAuthority:{cmdIgnoreAuthority}" : "";
                 logger.Log($"RegisterDelegate hash: {cmdHash} invokerType: {invokerType} method: {func.GetMethodName()}{ingoreAuthorityMessage}");
             }
+
+            return cmdHash;
         }
 
         static bool CheckIfDeligateExists(Type invokeClass, MirrorInvokeType invokerType, CmdDelegate func, int cmdHash)
