@@ -57,7 +57,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         public float vertical;
         public float turn;
         public float jumpSpeed;
-        public float jumpTime;
         public bool isGrounded = true;
         public bool isFalling;
         public Vector3 velocity;

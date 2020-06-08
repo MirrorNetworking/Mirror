@@ -1297,7 +1297,11 @@ namespace Mirror.Tests
             Assert.That(comp0.senderConnectionInCall, Is.Null);
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterCommandDelegate(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated), CommandTestNetworkBehaviour.CommandGenerated, false);
+            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(CommandTestNetworkBehaviour),
+                nameof(CommandTestNetworkBehaviour.CommandGenerated),
+                MirrorInvokeType.Command,
+                CommandTestNetworkBehaviour.CommandGenerated,
+                false);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
@@ -1326,9 +1330,8 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
             NetworkIdentity.spawned.Clear();
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
         }
 
         [Test]
@@ -1339,7 +1342,10 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterRpcDelegate(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated), RpcTestNetworkBehaviour.RpcGenerated);
+            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(RpcTestNetworkBehaviour),
+                nameof(RpcTestNetworkBehaviour.RpcGenerated),
+                MirrorInvokeType.ClientRpc,
+                RpcTestNetworkBehaviour.RpcGenerated);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
@@ -1367,7 +1373,7 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
         }
 
         [Test]
@@ -1378,7 +1384,10 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterEventDelegate(typeof(SyncEventTestNetworkBehaviour), nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated), SyncEventTestNetworkBehaviour.SyncEventGenerated);
+            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(SyncEventTestNetworkBehaviour),
+                nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated),
+                MirrorInvokeType.SyncEvent,
+                SyncEventTestNetworkBehaviour.SyncEventGenerated);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
@@ -1407,7 +1416,7 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
         }
 
         [Test]
