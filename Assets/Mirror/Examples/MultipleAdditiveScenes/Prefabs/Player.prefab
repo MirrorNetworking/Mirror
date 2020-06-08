@@ -162,15 +162,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.1
   clientAuthority: 1
   excludeOwnerUpdate: 1
   syncPosition: 1
   syncRotation: 1
-  syncScale: 1
+  syncScale: 0
   interpolatePosition: 1
   interpolateRotation: 1
-  interpolateScale: 1
+  interpolateScale: 0
   localPositionSensitivity: 0.01
   localRotationSensitivity: 0.01
   localScaleSensitivity: 0.01
@@ -262,7 +262,6 @@ MonoBehaviour:
   vertical: 0
   turn: 0
   jumpSpeed: 0
-  jumpTime: 0
   isGrounded: 1
   isFalling: 0
   velocity: {x: 0, y: 0, z: 0}
