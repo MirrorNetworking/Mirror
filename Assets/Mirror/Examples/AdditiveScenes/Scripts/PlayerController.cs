@@ -4,19 +4,29 @@ namespace Mirror.Examples.Additive
 {
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkTransform))]
+    [RequireComponent(typeof(CapsuleCollider))]
+    [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
         public CharacterController characterController;
+        public CapsuleCollider capsuleCollider;
 
         void OnValidate()
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
+            if (capsuleCollider == null)
+                capsuleCollider = GetComponent<CapsuleCollider>();
+        }
+
+        void Start()
+        {
+            capsuleCollider.enabled = isServer;
         }
 
         public override void OnStartLocalPlayer()
         {
-            base.OnStartLocalPlayer();
+            characterController.enabled = true;
 
             Camera.main.orthographic = false;
             Camera.main.transform.SetParent(transform);
@@ -26,7 +36,7 @@ namespace Mirror.Examples.Additive
 
         void OnDisable()
         {
-            if (isLocalPlayer)
+            if (isLocalPlayer && Camera.main != null)
             {
                 Camera.main.orthographic = true;
                 Camera.main.transform.SetParent(null);
@@ -51,7 +61,7 @@ namespace Mirror.Examples.Additive
 
         void Update()
         {
-            if (!isLocalPlayer)
+            if (!isLocalPlayer || !characterController.enabled)
                 return;
 
             horizontal = Input.GetAxis("Horizontal");

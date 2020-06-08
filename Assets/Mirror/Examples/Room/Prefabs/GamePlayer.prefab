@@ -90,6 +90,8 @@ GameObject:
   - component: {fileID: 114402732107420660}
   - component: {fileID: 114265392388239132}
   - component: {fileID: 143011667059871024}
+  - component: {fileID: 6799120071495980942}
+  - component: {fileID: -6233809968765690729}
   - component: {fileID: 114892629901890886}
   - component: {fileID: 6261579163786439309}
   - component: {fileID: 115187108610643062}
@@ -130,6 +132,7 @@ MonoBehaviour:
   sceneId: 0
   serverOnly: 0
   m_AssetId: 
+  hasSpawned: 0
 --- !u!114 &114265392388239132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,7 +160,7 @@ CharacterController:
   m_GameObject: {fileID: 1480027675339556}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Height: 2
   m_Radius: 0.5
@@ -166,6 +169,36 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!136 &6799120071495980942
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480027675339556}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 0
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &-6233809968765690729
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480027675339556}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!114 &114892629901890886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,12 +214,13 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   characterController: {fileID: 143011667059871024}
+  capsuleCollider: {fileID: 6799120071495980942}
   moveSpeed: 8
   turnSensitivity: 5
   maxTurnSpeed: 150
   horizontal: 0
   vertical: 0
-  turn: 0
+  turn: 6.57
   jumpSpeed: 0
   isGrounded: 1
   isFalling: 0
