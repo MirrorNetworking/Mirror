@@ -495,7 +495,7 @@ namespace Mirror
 
         public static void WriteTransform(this NetworkWriter writer, Transform value)
         {
-            if (value == null || value.gameObject == null)
+            if (value == null)
             {
                 writer.WritePackedUInt32(0);
                 return;
