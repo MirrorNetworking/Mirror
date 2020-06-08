@@ -985,7 +985,8 @@ namespace Mirror
         // helper function to handle SyncEvent/Command/Rpc
         void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
-            if (gameObject == null)
+            // check if unity object has been destroyed
+            if (this == null)
             {
                 logger.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + netId + "]");
                 return;
@@ -1021,7 +1022,8 @@ namespace Mirror
         // happens on server
         internal NetworkBehaviour.CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
         {
-            if (gameObject == null)
+            // check if unity object has been destroyed
+            if (this == null)
             {
                 // error can be logged later
                 return default;
