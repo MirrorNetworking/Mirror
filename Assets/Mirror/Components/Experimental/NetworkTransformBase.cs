@@ -34,7 +34,7 @@ namespace Mirror.Experimental
 
         [Tooltip("Set to true if updates from server should be ignored by owner")]
         [SyncVar]
-        public bool excludeOwnerUpdate;
+        public bool excludeOwnerUpdate = true;
 
         [Header("Synchronization")]
 
