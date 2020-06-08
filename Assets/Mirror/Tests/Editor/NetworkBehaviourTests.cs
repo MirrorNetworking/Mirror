@@ -377,10 +377,11 @@ namespace Mirror.Tests
             NetworkServer.AddConnection(connection);
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
-                nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
-                false);
+            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
+                    nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
+                    MirrorInvokeType.Command,
+                    NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
+                    false);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
@@ -401,7 +402,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkClient.Shutdown();
@@ -418,8 +419,9 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
+            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
                 nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
+                MirrorInvokeType.Command,
                 NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
                 false);
 
@@ -431,7 +433,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
         }
 
         [Test]
@@ -491,8 +493,9 @@ namespace Mirror.Tests
             Assert.That(comp.isServer, Is.True);
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterRpcDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
+            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
                 nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
+                MirrorInvokeType.ClientRpc,
                 NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
 
             // identity needs to be in spawned dict, otherwise rpc handler
@@ -509,7 +512,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -582,8 +585,9 @@ namespace Mirror.Tests
             Assert.That(comp.isServer, Is.True);
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterRpcDelegate(typeof(NetworkBehaviourSendTargetRPCInternalComponent),
+            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendTargetRPCInternalComponent),
                 nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated),
+                MirrorInvokeType.ClientRpc,
                 NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated);
 
             // identity needs to be in spawned dict, otherwise rpc handler
@@ -600,7 +604,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -618,8 +622,9 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterRpcDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
+            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
                 nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
+                MirrorInvokeType.ClientRpc,
                 NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
 
             // invoke command
@@ -630,7 +635,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
         }
 
         [Test]
@@ -690,9 +695,10 @@ namespace Mirror.Tests
             Assert.That(comp.isServer, Is.True);
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterEventDelegate(
+            int registeredHash = NetworkBehaviour.RegisterDelegate(
                 typeof(NetworkBehaviourSendEventInternalComponent),
                 nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated),
+                MirrorInvokeType.SyncEvent,
                 NetworkBehaviourSendEventInternalComponent.EventGenerated);
 
             // identity needs to be in spawned dict, otherwise event handler
@@ -709,7 +715,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -727,8 +733,9 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterEventDelegate(typeof(NetworkBehaviourSendEventInternalComponent),
+            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendEventInternalComponent),
                 nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated),
+                MirrorInvokeType.SyncEvent,
                 NetworkBehaviourSendEventInternalComponent.EventGenerated);
 
             // invoke command
@@ -739,7 +746,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
         }
 
         [Test]
@@ -747,30 +754,35 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            NetworkBehaviour.RegisterCommandDelegate(
+            int registeredHash1 = NetworkBehaviour.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
+                MirrorInvokeType.Command,
                 NetworkBehaviourDelegateComponent.Delegate,
                 false);
 
             // registering the exact same one should be fine. it should simply
             // do nothing.
-            NetworkBehaviour.RegisterCommandDelegate(
+            int registeredHash2 = NetworkBehaviour.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
+                MirrorInvokeType.Command,
                 NetworkBehaviourDelegateComponent.Delegate,
                 false);
             // registering the same name with a different callback shouldn't
             // work
             LogAssert.Expect(LogType.Error, "Function " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate) + " and " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate2) + " have the same hash.  Please rename one of them");
-            NetworkBehaviour.RegisterCommandDelegate(
+            int registeredHash3 = NetworkBehaviour.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
+                MirrorInvokeType.Command,
                 NetworkBehaviourDelegateComponent.Delegate2,
                 false);
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash1);
+            NetworkBehaviour.RemoveDelegates(registeredHash2);
+            NetworkBehaviour.RemoveDelegates(registeredHash3);
         }
 
         [Test]
@@ -778,9 +790,10 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            NetworkBehaviour.RegisterCommandDelegate(
+            int registeredHash = NetworkBehaviour.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
+                MirrorInvokeType.Command,
                 NetworkBehaviourDelegateComponent.Delegate,
                 false);
 
@@ -795,7 +808,7 @@ namespace Mirror.Tests
             Assert.That(funcNull, Is.Null);
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            NetworkBehaviour.RemoveDelegates(registeredHash);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later
