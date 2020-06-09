@@ -164,7 +164,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourClientRpcParamNetworkConnection()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveParamOptional has invalid parameter monkeyCon. Cannot pass NeworkConnections (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamNetworkConnection.NetworkBehaviourClientRpcParamNetworkConnection::RpcCantHaveParamOptional(Mirror.NetworkConnection))"));
+            Assert.That(weaverErrors, Contains.Item("RpcCantHaveParamOptional has invalid parameter monkeyCon. Cannot pass NetworkConnections (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamNetworkConnection.NetworkBehaviourClientRpcParamNetworkConnection::RpcCantHaveParamOptional(Mirror.NetworkConnection))"));
         }
 
         [Test]
@@ -212,7 +212,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourCmdParamNetworkConnection()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamOptional has invalid parameter monkeyCon, Cannot pass NeworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamNetworkConnection.NetworkBehaviourCmdParamNetworkConnection::CmdCantHaveParamOptional(Mirror.NetworkConnection))"));
+            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamOptional has invalid parameter monkeyCon, Cannot pass NetworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamNetworkConnection.NetworkBehaviourCmdParamNetworkConnection::CmdCantHaveParamOptional(Mirror.NetworkConnection))"));
         }
 
         [Test]

@@ -907,11 +907,11 @@ namespace Mirror.Weaver
             {
                 if (callType == RemoteCallType.Command)
                 {
-                    Weaver.Error($"{method.Name} has invalid parameter {param}, Cannot pass NeworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server", method);
+                    Weaver.Error($"{method.Name} has invalid parameter {param}, Cannot pass NetworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server", method);
                 }
                 else
                 {
-                    Weaver.Error($"{method.Name} has invalid parameter {param}. Cannot pass NeworkConnections", method);
+                    Weaver.Error($"{method.Name} has invalid parameter {param}. Cannot pass NetworkConnections", method);
                 }
                 return false;
             }
