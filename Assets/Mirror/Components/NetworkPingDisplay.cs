@@ -1,8 +1,11 @@
 using UnityEngine;
 
-namespace Mirror.DebugScripts
+namespace Mirror
 {
-    public class PingDisplay : MonoBehaviour
+    /// <summary>
+    /// Component that will display the clients ping in milliseconds
+    /// </summary>
+    public class NetworkPingDisplay : MonoBehaviour
     {
         [SerializeField] bool showPing = true;
         [SerializeField] Vector2 position = new Vector2(200, 0);
@@ -11,7 +14,7 @@ namespace Mirror.DebugScripts
 
         GUIStyle style;
 
-        private void Awake()
+        void Awake()
         {
             style = new GUIStyle();
             style.alignment = TextAnchor.UpperLeft;
@@ -19,11 +22,11 @@ namespace Mirror.DebugScripts
             style.normal.textColor = textColor;
         }
 
-        private void OnGUI()
+        void OnGUI()
         {
             if (!showPing) { return; }
 
-            string text = string.Format("{0}ms", (int)(Mirror.NetworkTime.rtt * 1000));
+            string text = string.Format("{0}ms", (int)(NetworkTime.rtt * 1000));
 
             int width = Screen.width;
             int height = Screen.height;
