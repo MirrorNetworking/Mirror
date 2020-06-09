@@ -5,6 +5,8 @@ namespace Mirror
     /// <summary>
     /// Component that will display the clients ping in milliseconds
     /// </summary>
+    [AddComponentMenu("Network/NetworkPingDisplay")]
+    [HelpURL("https://mirror-networking.com/docs/Components/NetworkPingDisplay.html")]
     public class NetworkPingDisplay : MonoBehaviour
     {
         [SerializeField] bool showPing = true;
