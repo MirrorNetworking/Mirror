@@ -137,7 +137,7 @@ namespace Mirror.RemoteCalls
         /// <summary>
         /// We need this in order to clean up tests
         /// </summary>
-        internal static void RemoveDelegates(int hash)
+        internal static void RemoveDelegate(int hash)
         {
             cmdHandlerDelegates.Remove(hash);
         }

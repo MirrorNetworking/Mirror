@@ -653,7 +653,7 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             NetworkServer.Shutdown();
             // destroy the test gameobject AFTER server was stopped.
             // otherwise isServer is true in OnDestroy, which means it would try

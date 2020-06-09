@@ -403,7 +403,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkClient.Shutdown();
@@ -434,7 +434,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -513,7 +513,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -605,7 +605,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -636,7 +636,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -716,7 +716,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -747,7 +747,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -781,9 +781,9 @@ namespace Mirror.Tests
                 false);
 
             // clean up
-            RemoteCallHelper.RemoveDelegates(registeredHash1);
-            RemoteCallHelper.RemoveDelegates(registeredHash2);
-            RemoteCallHelper.RemoveDelegates(registeredHash3);
+            RemoteCallHelper.RemoveDelegate(registeredHash1);
+            RemoteCallHelper.RemoveDelegate(registeredHash2);
+            RemoteCallHelper.RemoveDelegate(registeredHash3);
         }
 
         [Test]
@@ -809,7 +809,7 @@ namespace Mirror.Tests
             Assert.That(funcNull, Is.Null);
 
             // clean up
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later

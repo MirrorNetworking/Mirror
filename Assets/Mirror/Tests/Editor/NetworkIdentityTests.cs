@@ -1332,7 +1332,7 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -1374,7 +1374,7 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -1417,7 +1417,7 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            RemoteCallHelper.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
