@@ -7,13 +7,18 @@ Mirror supports a number of data types you can use with these, including:
 - Built-in Unity math type (Vector3, Quaternion, Rect, Plane, Vector3Int, etc)
 - URI
 - NetworkIdentity
-- Game object with a NetworkIdentity component attached (see important details in [Game Objects](#game-objects) section below).
+- Game object with a NetworkIdentity component attached 
+    - See important details in [Game Objects](#game-objects) section below.
 - Structures with any of the above  
     - It's recommended to implement IEquatable\<T\> to avoid boxing, and to have the struct readonly because modifying one of fields doesn't cause a resync
-- Classes as long as each field has a supported data type (these will allocate garbage and will be instantiated new on the receiver every time they're sent).
-- ScriptableObject as long as each field has a supported data type (these will allocate garbage and will be instantiated new on the receiver every time they're sent)
-- Arrays of any of the above (not supported with syncvars or synclists)
-- ArraySegments of any of the above (not supported with syncvars or synclists)
+- Classes as long as each field has a supported data type 
+    - These will allocate garbage and will be instantiated new on the receiver every time they're sent.
+- ScriptableObject as long as each field has a supported data type 
+    - These will allocate garbage and will be instantiated new on the receiver every time they're sent.
+- Arrays of any of the above 
+    - Not supported with syncvars or synclists
+- ArraySegments of any of the above 
+    - Not supported with syncvars or synclists
 
 ## Game Objects
 
@@ -21,8 +26,7 @@ Game Objects in SyncVars, SyncLists, and SyncDictionaries are fragile in some ca
 
 - As long as the game object *already exists* on both the server and the client, the reference should be fine.
 
-When the sync data arrives at the client, the referenced game object may not yet exist on that client, resulting in null values in the sync data.  
-This is because interally Mirror passes the `netId` from the `NetworkIdentity` and tries to look it up on the client's `NetworkIdentity.spawned` dictionary.
+When the sync data arrives at the client, the referenced game object may not yet exist on that client, resulting in null values in the sync data.  This is because interally Mirror passes the `netId` from the `NetworkIdentity` and tries to look it up on the client's `NetworkIdentity.spawned` dictionary.
 
 If the object hasn't been spawned on the client yet, no match will be found. It could be in the same payload, especially for joining clients, but after the sync data from another object.  
 It could also be null because the game object is excluded from a client due to network visibility, e.g. `NetworkProximityChecker`.  
