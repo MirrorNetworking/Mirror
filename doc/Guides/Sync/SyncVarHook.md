@@ -1,7 +1,5 @@
 # SyncVar Hook
 
-[![SyncVar hook video tutorial](../../images/video_tutorial.png)](https://www.youtube.com/watch?v=T7AoozedYfI&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=5)
-
 The hook attribute can be used to specify a function to be called when the SyncVar changes value on the client.
 -   The Hook method must have two parameters of the same type as the SyncVar property. One for the old value, one for the new value.
 -   The Hook is always called after the property value is set. You don't need to set it yourself.
