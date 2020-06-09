@@ -5,7 +5,8 @@
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
 ## Version 14.x.x -- In Progress
-- Added: [Command] now has an `ignoreAuthority` option for invoking Commands on objects the client doesn't have authority over.
+- Added: [Command] now has an `ignoreAuthority` option for invoking Commands on objects the client doesn't have authority over, and Command methods can have an optional `NetworkConnectionToClient sender` parameter.
+- Added: [ClientRpc] now has an `excludeOwner` option to prevent messages from going to the client that owns the object.
 - Added: [NetworkLogSettings](../Components/NetworkLogSettings.md) component and Log Settings Window.
 - Added: SyncLists now support `AddRange`, `InsertRange`, and `RemoveAll`.
 - Added: Network Room Manager now has a virtual `OnRoomServerPlayersNotReady` that fires on server from `CheckReadyToBegin`.
