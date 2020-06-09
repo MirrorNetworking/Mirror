@@ -67,6 +67,7 @@
     <Compile Include="GeneratedReaderWriter~\CreatesForClass.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForClassFromDifferentAssemblies.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForClassFromDifferentAssembliesWithValidConstructor.cs" />
+    <Compile Include="GeneratedReaderWriter~\CreatesForClassInherited.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForClassWithValidConstructor.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForEnums.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForInheritedFromScriptableObject.cs" />
