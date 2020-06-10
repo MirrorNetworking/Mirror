@@ -1,3 +1,4 @@
+using Mirror.RemoteCalls;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -377,7 +378,7 @@ namespace Mirror.Tests
             NetworkServer.AddConnection(connection);
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
                     nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
                     MirrorInvokeType.Command,
                     NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
@@ -402,7 +403,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkClient.Shutdown();
@@ -419,21 +420,21 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
                 nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
                 MirrorInvokeType.Command,
                 NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
                 false);
 
             // invoke command
-            int cmdHash = NetworkBehaviour.GetMethodHash(
+            int cmdHash = RemoteCallHelper.GetMethodHash(
                 typeof(NetworkBehaviourSendCommandInternalComponent),
                 nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated));
             comp.InvokeCommand(cmdHash, new NetworkReader(new byte[0]));
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -493,7 +494,7 @@ namespace Mirror.Tests
             Assert.That(comp.isServer, Is.True);
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
                 nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
                 MirrorInvokeType.ClientRpc,
                 NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
@@ -512,7 +513,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -585,7 +586,7 @@ namespace Mirror.Tests
             Assert.That(comp.isServer, Is.True);
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendTargetRPCInternalComponent),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendTargetRPCInternalComponent),
                 nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated),
                 MirrorInvokeType.ClientRpc,
                 NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated);
@@ -604,7 +605,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -622,20 +623,20 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
                 nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
                 MirrorInvokeType.ClientRpc,
                 NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
 
             // invoke command
-            int rpcHash = NetworkBehaviour.GetMethodHash(
+            int rpcHash = RemoteCallHelper.GetMethodHash(
                 typeof(NetworkBehaviourSendRPCInternalComponent),
                 nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated));
             comp.InvokeRPC(rpcHash, new NetworkReader(new byte[0]));
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -695,7 +696,7 @@ namespace Mirror.Tests
             Assert.That(comp.isServer, Is.True);
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(
+            int registeredHash = RemoteCallHelper.RegisterDelegate(
                 typeof(NetworkBehaviourSendEventInternalComponent),
                 nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated),
                 MirrorInvokeType.SyncEvent,
@@ -715,7 +716,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -733,20 +734,20 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(NetworkBehaviourSendEventInternalComponent),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendEventInternalComponent),
                 nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated),
                 MirrorInvokeType.SyncEvent,
                 NetworkBehaviourSendEventInternalComponent.EventGenerated);
 
             // invoke command
-            int eventHash = NetworkBehaviour.GetMethodHash(
+            int eventHash = RemoteCallHelper.GetMethodHash(
                 typeof(NetworkBehaviourSendEventInternalComponent),
                 nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated));
             comp.InvokeSyncEvent(eventHash, new NetworkReader(new byte[0]));
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -754,7 +755,7 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            int registeredHash1 = NetworkBehaviour.RegisterDelegate(
+            int registeredHash1 = RemoteCallHelper.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
                 MirrorInvokeType.Command,
@@ -763,7 +764,7 @@ namespace Mirror.Tests
 
             // registering the exact same one should be fine. it should simply
             // do nothing.
-            int registeredHash2 = NetworkBehaviour.RegisterDelegate(
+            int registeredHash2 = RemoteCallHelper.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
                 MirrorInvokeType.Command,
@@ -772,7 +773,7 @@ namespace Mirror.Tests
             // registering the same name with a different callback shouldn't
             // work
             LogAssert.Expect(LogType.Error, "Function " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate) + " and " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate2) + " have the same hash.  Please rename one of them");
-            int registeredHash3 = NetworkBehaviour.RegisterDelegate(
+            int registeredHash3 = RemoteCallHelper.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
                 MirrorInvokeType.Command,
@@ -780,9 +781,9 @@ namespace Mirror.Tests
                 false);
 
             // clean up
-            NetworkBehaviour.RemoveDelegates(registeredHash1);
-            NetworkBehaviour.RemoveDelegates(registeredHash2);
-            NetworkBehaviour.RemoveDelegates(registeredHash3);
+            RemoteCallHelper.RemoveDelegate(registeredHash1);
+            RemoteCallHelper.RemoveDelegate(registeredHash2);
+            RemoteCallHelper.RemoveDelegate(registeredHash3);
         }
 
         [Test]
@@ -790,7 +791,7 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            int registeredHash = NetworkBehaviour.RegisterDelegate(
+            int registeredHash = RemoteCallHelper.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
                 MirrorInvokeType.Command,
@@ -798,17 +799,17 @@ namespace Mirror.Tests
                 false);
 
             // get handler
-            int cmdHash = NetworkBehaviour.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
-            NetworkBehaviour.CmdDelegate func = NetworkBehaviour.GetDelegate(cmdHash);
-            NetworkBehaviour.CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
+            int cmdHash = RemoteCallHelper.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
+            CmdDelegate func = RemoteCallHelper.GetDelegate(cmdHash);
+            CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
             Assert.That(func, Is.EqualTo(expected));
 
             // invalid hash should return null handler
-            NetworkBehaviour.CmdDelegate funcNull = NetworkBehaviour.GetDelegate(1234);
+            CmdDelegate funcNull = RemoteCallHelper.GetDelegate(1234);
             Assert.That(funcNull, Is.Null);
 
             // clean up
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later

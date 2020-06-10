@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Mirror.RemoteCalls;
 using UnityEngine;
 
 namespace Mirror
@@ -993,7 +994,7 @@ namespace Mirror
                 return;
             }
 
-            NetworkBehaviour.CommandInfo commandInfo = identity.GetCommandInfo(msg.componentIndex, msg.functionHash);
+            CommandInfo commandInfo = identity.GetCommandInfo(msg.componentIndex, msg.functionHash);
 
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then

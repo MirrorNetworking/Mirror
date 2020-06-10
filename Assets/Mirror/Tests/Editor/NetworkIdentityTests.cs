@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Mirror.RemoteCalls;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -1297,7 +1298,7 @@ namespace Mirror.Tests
             Assert.That(comp0.senderConnectionInCall, Is.Null);
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(CommandTestNetworkBehaviour),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(CommandTestNetworkBehaviour),
                 nameof(CommandTestNetworkBehaviour.CommandGenerated),
                 MirrorInvokeType.Command,
                 CommandTestNetworkBehaviour.CommandGenerated,
@@ -1308,7 +1309,7 @@ namespace Mirror.Tests
             NetworkIdentity.spawned[identity.netId] = identity;
 
             // call HandleCommand and check if the command was called in the component
-            int functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated));
+            int functionHash = RemoteCallHelper.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated));
             NetworkReader payload = new NetworkReader(new byte[0]);
             identity.HandleCommand(0, functionHash, payload, connection);
             Assert.That(comp0.called, Is.EqualTo(1));
@@ -1331,7 +1332,7 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -1342,7 +1343,7 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(RpcTestNetworkBehaviour),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(RpcTestNetworkBehaviour),
                 nameof(RpcTestNetworkBehaviour.RpcGenerated),
                 MirrorInvokeType.ClientRpc,
                 RpcTestNetworkBehaviour.RpcGenerated);
@@ -1352,7 +1353,7 @@ namespace Mirror.Tests
             NetworkIdentity.spawned[identity.netId] = identity;
 
             // call HandleRpc and check if the rpc was called in the component
-            int functionHash = NetworkBehaviour.GetMethodHash(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated));
+            int functionHash = RemoteCallHelper.GetMethodHash(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated));
             NetworkReader payload = new NetworkReader(new byte[0]);
             identity.HandleRPC(0, functionHash, payload);
             Assert.That(comp0.called, Is.EqualTo(1));
@@ -1373,7 +1374,7 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -1384,7 +1385,7 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(SyncEventTestNetworkBehaviour),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(SyncEventTestNetworkBehaviour),
                 nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated),
                 MirrorInvokeType.SyncEvent,
                 SyncEventTestNetworkBehaviour.SyncEventGenerated);
@@ -1395,7 +1396,7 @@ namespace Mirror.Tests
 
             // call HandleSyncEvent and check if the event was called in the component
             int componentIndex = 0;
-            int functionHash = NetworkBehaviour.GetMethodHash(typeof(SyncEventTestNetworkBehaviour), nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated));
+            int functionHash = RemoteCallHelper.GetMethodHash(typeof(SyncEventTestNetworkBehaviour), nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated));
             NetworkReader payload = new NetworkReader(new byte[0]);
             identity.HandleSyncEvent(componentIndex, functionHash, payload);
             Assert.That(comp0.called, Is.EqualTo(1));
@@ -1416,7 +1417,7 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
