@@ -253,5 +253,46 @@ namespace Mirror.Weaver
 
             return false;
         }
+
+        /// <summary>
+        /// Finds public fields in type and base type
+        /// </summary>
+        /// <param name="variable"></param>
+        /// <returns></returns>
+        public static IEnumerable<FieldDefinition> FindAllPublicFields(this TypeReference variable)
+        {
+            return FindAllPublicFields(variable.Resolve());
+        }
+
+        /// <summary>
+        /// Finds public fields in type and base type
+        /// </summary>
+        /// <param name="variable"></param>
+        /// <returns></returns>
+        public static IEnumerable<FieldDefinition> FindAllPublicFields(this TypeDefinition typeDefinition)
+        {
+            while (typeDefinition != null)
+            {
+                foreach (FieldDefinition field in typeDefinition.Fields)
+                {
+                    if (field.IsStatic || field.IsPrivate)
+                        continue;
+
+                    if (field.IsNotSerialized)
+                        continue;
+
+                    yield return field;
+                }
+
+                try
+                {
+                    typeDefinition = typeDefinition.BaseType.Resolve();
+                }
+                catch (System.Exception e)
+                {
+                    break;
+                }
+            }
+        }
     }
 }
