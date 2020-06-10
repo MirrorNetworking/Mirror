@@ -54,7 +54,58 @@ namespace Mirror.Weaver
             (md.DebugInformation.Scope, cmd.DebugInformation.Scope) = (cmd.DebugInformation.Scope, md.DebugInformation.Scope);
 
             td.Methods.Add(cmd);
+
+            FixRemoteCallToBaseMethod(td, cmd);
             return cmd;
+        }
+
+        /// <summary>
+        /// Finds and fixes call to base methods within remote calls
+        /// <para>For example, changes `base.CmdDoSomething` to `base.CallCmdDoSomething` within `this.CallCmdDoSomething`</para>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="method"></param>
+        public static void FixRemoteCallToBaseMethod(TypeDefinition type, MethodDefinition method)
+        {
+            string callName = method.Name;
+
+            // all Commands/Rpc start with "Call"
+            // eg CallCmdDoSomething
+            if (!callName.StartsWith("Call"))
+                return;
+
+            // eg CmdDoSomething
+            string baseRemoteCallName = method.Name.Substring(4);
+
+            foreach (Instruction instruction in method.Body.Instructions)
+            {
+                // if call to base.CmdDoSomething within this.CallCmdDoSomething
+                if (IsCallToMethod(instruction, out MethodDefinition calledMethod) &&
+                    calledMethod.Name == baseRemoteCallName)
+                {
+                    TypeDefinition baseType = type.BaseType.Resolve();
+                    MethodDefinition baseMethod = baseType.GetMethod(callName);
+
+                    instruction.Operand = baseMethod;
+
+                    Weaver.DLog(type, "Replacing call to '{0}' with '{1}' inside '{2}'", calledMethod.FullName, baseMethod.FullName, method.FullName);
+                }
+            }
+        }
+
+        static bool IsCallToMethod(Instruction instruction, out MethodDefinition calledMethod)
+        {
+            if (instruction.OpCode == OpCodes.Call &&
+                instruction.Operand is MethodDefinition method)
+            {
+                calledMethod = method;
+                return true;
+            }
+            else
+            {
+                calledMethod = null;
+                return false;
+            }
         }
     }
 }
