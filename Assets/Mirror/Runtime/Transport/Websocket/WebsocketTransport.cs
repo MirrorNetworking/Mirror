@@ -109,9 +109,9 @@ namespace Mirror.Websocket
                 server._sslConfig = new Server.SslConfiguration
                 {
                         Certificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(CertificatePath, CertificatePassword),
-                    ClientCertificateRequired = false,
-                    CheckCertificateRevocation = false,
-                    EnabledSslProtocols = System.Security.Authentication.SslProtocols.Default
+                        ClientCertificateRequired = false,
+                        CheckCertificateRevocation = false,
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Default
                 };
             }
             _ = server.Listen(port);
