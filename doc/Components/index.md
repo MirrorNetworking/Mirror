@@ -8,6 +8,8 @@ These core components are included in Mirror:
     Network Authenticators facilitate integration of user accounts and credentials into your application.
 -   [Network Discovery](NetworkDiscovery.md)  
     Network Discovery uses a UDP broadcast on the LAN enabling clients to find the running server and connect to it.
+-   [Network Ping Display](NetworkPingDisplay.md)
+    Network Ping Display shows the Ping time for clients using OnGUI
 -   [Network Identity](NetworkIdentity.md)  
     The Network Identity component is at the heart of the Mirror networking high-level API. It controls a game object’s unique identity on the network, and it uses that identity to make the networking system aware of the game object. It offers two different options for configuration and they are mutually exclusive, which means either one of the options or none can be checked.
 -   [Network Log Settings](NetworkLogSettings.md)  
