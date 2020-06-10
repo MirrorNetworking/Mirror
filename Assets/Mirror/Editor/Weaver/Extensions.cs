@@ -288,7 +288,7 @@ namespace Mirror.Weaver
                 {
                     typeDefinition = typeDefinition.BaseType.Resolve();
                 }
-                catch (System.Exception e)
+                catch
                 {
                     break;
                 }
