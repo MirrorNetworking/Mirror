@@ -31,6 +31,12 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void CreatesForClassInherited()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
         public void CreatesForClassWithValidConstructor()
         {
             Assert.That(weaverErrors, Is.Empty);

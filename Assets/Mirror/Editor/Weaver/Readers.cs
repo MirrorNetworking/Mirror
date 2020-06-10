@@ -332,7 +332,7 @@ namespace Mirror.Weaver
             TypeDefinition td = variable.Resolve();
 
             CreateNew(variable, worker, td);
-            DeserializeFields(variable, recursionCount, worker);
+            ReadAllFields(variable, recursionCount, worker);
 
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ret));
@@ -373,17 +373,11 @@ namespace Mirror.Weaver
             }
         }
 
-        static void DeserializeFields(TypeReference variable, int recursionCount, ILProcessor worker)
+        static void ReadAllFields(TypeReference variable, int recursionCount, ILProcessor worker)
         {
             uint fields = 0;
-            foreach (FieldDefinition field in variable.Resolve().Fields)
+            foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
-                if (field.IsStatic || field.IsPrivate)
-                    continue;
-
-                if (field.IsNotSerialized)
-                    continue;
-
                 // mismatched ldloca/ldloc for struct/class combinations is invalid IL, which causes crash at runtime
                 OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
                 worker.Append(worker.Create(opcode, 0));
@@ -403,6 +397,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Stfld, fieldRef));
                 fields++;
             }
+
             if (fields == 0)
             {
                 Log.Warning($"{variable} has no public or non-static fields to deserialize");
