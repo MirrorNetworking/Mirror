@@ -8,7 +8,11 @@ namespace Mirror.EditorScripts
     public static class CleanupOldScripts
     {
         const string RuntimeFolderGuid = "9f4328ccc5f724e45afe2215d275b5d5";
-
+        /// <summary>
+        /// Only try to delete old scripts if marker file exist
+        /// <para>This file will be deleted after old scripts</para>
+        /// </summary>
+        const string MarkerFile = "DeleteMovedAssets.txt";
         static readonly string[] oldScripts = new string[] {
             "ClientScene.cs",
             "CustomAttributes.cs",
@@ -45,7 +49,19 @@ namespace Mirror.EditorScripts
             "UNetwork.cs",
         };
 
-        public static void DeleteOldScripts()
+        public static void TryDeleteOldScripts(bool showPrompt)
+        {
+            try
+            {
+                DeleteOldScripts(showPrompt);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Failed to delete Old Scripts files, Exception:{e.Message}");
+            }
+        }
+
+        static void DeleteOldScripts(bool showPrompt)
         {
             string basePath = FindBasePath();
             if (string.IsNullOrEmpty(basePath))
@@ -54,6 +70,55 @@ namespace Mirror.EditorScripts
                 return;
             }
 
+            if (ScriptsAlreadyDeleted(basePath))
+            {
+                return;
+            }
+
+
+            bool shouldDelete = !showPrompt || AskUserIfTheyWantToDelete();
+            if (shouldDelete)
+            {
+                FindAndDeleteFiles(basePath);
+            }
+            else
+            {
+                // delete marker file so that prompt isnt shown every time
+                DeleteMarkerFile(basePath);
+            }
+        }
+
+        static string FindBasePath()
+        {
+            string path = AssetDatabase.GUIDToAssetPath(RuntimeFolderGuid);
+            return path;
+        }
+
+        static bool AskUserIfTheyWantToDelete()
+        {
+            const string title = "Delete Old File?";
+            const string message = "Mirror has moved some of the script files in the Runtime folder into sub folders, " +
+                "because of Unity Packages the old files still exist but are now empty. " +
+                "Mirror will try to find and delete these old empty files.";
+            return EditorUtility.DisplayDialog(title, message, "Ok");
+        }
+
+        static bool ScriptsAlreadyDeleted(string basePath)
+        {
+            string path = Path.Combine(basePath, MarkerFile);
+
+            return !File.Exists(path);
+        }
+
+        static void DeleteMarkerFile(string basePath)
+        {
+            string path = Path.Combine(basePath, MarkerFile);
+
+            File.Delete(path);
+        }
+
+        static void FindAndDeleteFiles(string basePath)
+        {
             bool anyDeleted = false;
             foreach (string relativePath in oldScripts)
             {
@@ -66,7 +131,7 @@ namespace Mirror.EditorScripts
                 }
 
                 string text = File.ReadAllText(path);
-                if (text.Contains("// DELETE ME"))
+                if (SafeToDelete(text))
                 {
                     DeleteFile(path);
                     anyDeleted = true;
@@ -77,6 +142,7 @@ namespace Mirror.EditorScripts
                 }
             }
 
+            DeleteMarkerFile(basePath);
 
             if (anyDeleted)
             {
@@ -85,11 +151,11 @@ namespace Mirror.EditorScripts
             }
         }
 
-        static string FindBasePath()
+        static bool SafeToDelete(string text)
         {
-            string path = AssetDatabase.GUIDToAssetPath(RuntimeFolderGuid);
-            return path;
+            return text.Length == 0 || text.Contains("// DELETE ME");
         }
+
         static void DeleteFile(string path)
         {
             try

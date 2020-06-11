@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 
 namespace Mirror.EditorScripts
@@ -9,7 +9,8 @@ namespace Mirror.EditorScripts
         public static void OnProjectLoadedInEditor()
         {
             Debug.Log("Cleaning up old Scripts");
-            CleanupOldScripts.DeleteOldScripts();
+
+            CleanupOldScripts.TryDeleteOldScripts(true);
         }
     }
 }
