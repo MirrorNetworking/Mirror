@@ -98,11 +98,11 @@ namespace Mirror.EditorScripts
 
         static bool AskUserIfTheyWantToDelete()
         {
-            const string title = "Delete Old File?";
+            const string title = "Mirror has moved files";
             const string message = "Mirror has moved some of the script files in the Runtime folder into sub folders.\n\n" +
                 "Unity Packages do not delete old files when they are moved so instead they have to be replaced with empty files\n\n" +
                 "Mirror will try to find and delete these old empty files.";
-            return EditorUtility.DisplayDialog(title, message, "Ok");
+            return EditorUtility.DisplayDialog(title, message, "Automically Delete", "Manually Delete");
         }
 
         static bool ScriptsAlreadyDeleted(string basePath)
