@@ -84,7 +84,7 @@ namespace Mirror.EditorScripts
             }
             else
             {
-                Debug.Log("Automatic Cleaning up stoped, empty scripts will need to be manually deleted");
+                Debug.LogWarning("Automatic Cleaning up cancelled, empty scripts have not been deleted and need to be manually deleted");
 
                 // delete marker file so that prompt isnt shown every time
                 DeleteMarkerFile(basePath);
