@@ -79,11 +79,13 @@ namespace Mirror.EditorScripts
             bool shouldDelete = !showPrompt || AskUserIfTheyWantToDelete();
             if (shouldDelete)
             {
-                Debug.Log("Cleaning up old script files");
+                Debug.Log("Automically Cleaning up old script files");
                 FindAndDeleteFiles(basePath);
             }
             else
             {
+                Debug.Log("Automatic Cleaning up stoped, empty scripts will need to be manually deleted");
+
                 // delete marker file so that prompt isnt shown every time
                 DeleteMarkerFile(basePath);
             }
@@ -98,8 +100,8 @@ namespace Mirror.EditorScripts
         static bool AskUserIfTheyWantToDelete()
         {
             const string title = "Delete Old File?";
-            const string message = "Mirror has moved some of the script files in the Runtime folder into sub folders, " +
-                "because of Unity Packages the old files still exist but are now empty. " +
+            const string message = "Mirror has moved some of the script files in the Runtime folder into sub folders.\n" +
+                "Unity Packages do not delete old files when they are moved so instead they have to be replaced with empty files\n" +
                 "Mirror will try to find and delete these old empty files.";
             return EditorUtility.DisplayDialog(title, message, "Ok");
         }
