@@ -61,7 +61,7 @@ Use the `initialState` flag to differentiate between the first time a game objec
 
 If a class has SyncVars, then implementations of these functions are added automatically to the class, meaning that a class that has SyncVars cannot also have custom serialization functions.
 
-The `OnSerialize` function is only called for `initialState` or when the `NetworkBehavior` is dirty. A `NetworkBehavior` will only be dirty if a `SyncVar` or `SyncObject` (eg `SyncList`) has changed since the last OnSerialize call. After data has been sent the `NetworkBehavior` will not be dirty again until the next `syncInterval` (set in the inspector). A `NetworkBehavior` can also be marked as dirty by manually calling `SetDirtyBit` (this does not bypass the syncInterval limit).
+The `OnSerialize` function is only called for `initialState` or when the `NetworkBehavior` is dirty. A `NetworkBehavior` will only be dirty if a `SyncVar` or `SyncObject` (e.g. `SyncList`) has changed since the last OnSerialize call. After data has been sent the `NetworkBehavior` will not be dirty again until the next `syncInterval` (set in the inspector). A `NetworkBehavior` can also be marked as dirty by manually calling `SetDirtyBit` (this does not bypass the syncInterval limit).
  
 Although this works,  it is usually better to let Mirror generate these methods and provide [custom serializers](../DataTypes.md) for your specific field.
 
