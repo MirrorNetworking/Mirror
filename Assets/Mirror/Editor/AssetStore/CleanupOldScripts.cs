@@ -79,6 +79,7 @@ namespace Mirror.EditorScripts
             bool shouldDelete = !showPrompt || AskUserIfTheyWantToDelete();
             if (shouldDelete)
             {
+                Debug.Log("Cleaning up old script files");
                 FindAndDeleteFiles(basePath);
             }
             else
