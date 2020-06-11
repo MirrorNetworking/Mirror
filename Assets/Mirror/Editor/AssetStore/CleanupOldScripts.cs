@@ -40,7 +40,6 @@ namespace Mirror.EditorScripts
             "NetworkWriter.cs",
             "NetworkWriterPool.cs",
             "RemoteCallHelper.cs",
-            "RemoteCallHelper.cs.meta",
             "StringHash.cs",
             "SyncDictionary.cs",
             "SyncList.cs",
