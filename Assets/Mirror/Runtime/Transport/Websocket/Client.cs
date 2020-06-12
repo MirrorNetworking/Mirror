@@ -89,7 +89,7 @@ namespace Mirror.Websocket
             {
                 WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
 
-                while (!enabled) { Thread.Sleep(10); }
+                await Task.Run(WaitForEnabled);
 
                 if (result == null)
                     break;
@@ -111,6 +111,11 @@ namespace Mirror.Websocket
                     ReceivedError?.Invoke(exception);
                 }
             }
+        }
+
+        void WaitForEnabled()
+        {
+            while (!enabled) { Task.Delay(10); }
         }
 
         // a message might come splitted in multiple frames
