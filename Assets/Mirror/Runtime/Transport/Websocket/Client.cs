@@ -79,6 +79,8 @@ namespace Mirror.Websocket
             }
         }
 
+        public bool enabled;
+
         async Task ReceiveLoop(WebSocket webSocket, CancellationToken token)
         {
             byte[] buffer = new byte[MaxMessageSize];
@@ -86,6 +88,8 @@ namespace Mirror.Websocket
             while (true)
             {
                 WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
+
+                while (!enabled) { Thread.Sleep(10); }
 
                 if (result == null)
                     break;
@@ -107,6 +111,11 @@ namespace Mirror.Websocket
                     ReceivedError?.Invoke(exception);
                 }
             }
+        }
+
+        void WaitForEnabled()
+        {
+            while (!enabled) { Thread.Sleep(10); }
         }
 
         // a message might come splitted in multiple frames

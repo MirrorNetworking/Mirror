@@ -49,6 +49,20 @@ namespace Mirror.Websocket
             return true;
         }
 
+        void OnEnable()
+        {
+            Debug.LogWarning("WebsocketTransport Enabled");
+            server.enabled = true;
+            client.enabled = true;
+        }
+
+        void OnDisable()
+        {
+            Debug.LogWarning("WebsocketTransport Disabled");
+            server.enabled = false;
+            client.enabled = false;
+        }
+
         // client
         public override bool ClientConnected() => client.IsConnected;
 
