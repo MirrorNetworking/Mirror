@@ -51,14 +51,12 @@ namespace Mirror.Websocket
 
         void OnEnable()
         {
-            Debug.LogWarning("WebsocketTransport Enabled");
             server.enabled = true;
             client.enabled = true;
         }
 
         void OnDisable()
         {
-            Debug.LogWarning("WebsocketTransport Disabled");
             server.enabled = false;
             client.enabled = false;
         }
