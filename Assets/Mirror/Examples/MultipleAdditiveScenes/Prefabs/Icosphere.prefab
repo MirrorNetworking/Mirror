@@ -107,6 +107,7 @@ GameObject:
   - component: {fileID: -8786580539857106334}
   - component: {fileID: -73998256042230442}
   - component: {fileID: -2850352209440038129}
+  - component: {fileID: -186569029146559994}
   m_Layer: 0
   m_Name: Icosphere
   m_TagString: Untagged
@@ -234,3 +235,20 @@ MonoBehaviour:
   syncInterval: 0.1
   force: 12
   rigidbody3D: {fileID: -73998256042230442}
+--- !u!114 &-186569029146559994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5513112217680870098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 218520098fbe58b4b8f0963ef41953f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  color:
+    serializedVersion: 2
+    rgba: 4278190080
