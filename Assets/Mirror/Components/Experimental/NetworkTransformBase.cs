@@ -109,10 +109,6 @@ namespace Mirror.Experimental
         public DataPoint start = new DataPoint();
         public DataPoint goal = new DataPoint();
 
-        // local authority send time
-        public float lastClientSendTime;
-        public float lastServerSendTime;
-
         void FixedUpdate()
         {
             // if server then always sync to others.
@@ -122,7 +118,6 @@ namespace Mirror.Experimental
                 if (HasEitherMovedRotatedScaled())
                 {
                     RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
-                    lastServerSendTime = Time.time;
                 }
             }
 
@@ -141,7 +136,6 @@ namespace Mirror.Experimental
                             // send to server
                             CmdClientToServerSync(targetTransform.transform.localPosition, targetTransform.transform.localRotation, targetTransform.transform.localScale);
                         }
-                        lastClientSendTime = Time.time;
                     }
                 }
                 else if (goal.isValid)
