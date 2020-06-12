@@ -131,7 +131,8 @@ namespace Mirror.Websocket
                 WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(tcpClient, stream, token);
                 if (context.IsWebSocketRequest)
                 {
-                    WebSocketServerOptions options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
+                    // Force KeepAliveInterval to Zero, otherwise the transport is unstable and causes random disconnects
+                    WebSocketServerOptions options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.Zero, SubProtocol = "binary" };
 
                     WebSocket webSocket = await webSocketServerFactory.AcceptWebSocketAsync(context, options);
 
