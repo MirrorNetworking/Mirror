@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Mirror.Websocket
 {
+    [HelpURL("https://mirror-networking.com/docs/Transports/WebSockets.html")]
     public class WebsocketTransport : Transport
     {
         public const string Scheme = "ws";
@@ -13,14 +14,24 @@ namespace Mirror.Websocket
         protected Client client = new Client();
         protected Server server = new Server();
 
+        [Header("Transport Settings")]
+
+        [Tooltip("Connection Port.")]
         public int port = 7778;
 
-        public bool Secure;
-        public string CertificatePath;
-        public string CertificatePassword;
-
-        [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
+        [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay.")]
         public bool NoDelay = true;
+
+        [Header("Secure Sockets (SSL/WSS).")]
+
+        [Tooltip("Indicates if SSL/WSS protocol will be used with the PFX Certificate file below.")]
+        public bool Secure;
+
+        [Tooltip("Full path and filename to PFX Certificate file generated from web hosting environment.")]
+        public string CertificatePath;
+
+        [Tooltip("Password for PFX Certificate file above.")]
+        public string CertificatePassword;
 
         public WebsocketTransport()
         {
@@ -108,9 +119,7 @@ namespace Mirror.Websocket
                 server._secure = Secure;
                 server._sslConfig = new Server.SslConfiguration
                 {
-                    Certificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(
-                        System.IO.Path.Combine(Application.dataPath, CertificatePath),
-                        CertificatePassword),
+                    Certificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(CertificatePath, CertificatePassword),
                     ClientCertificateRequired = false,
                     CheckCertificateRevocation = false,
                     EnabledSslProtocols = System.Security.Authentication.SslProtocols.Default
