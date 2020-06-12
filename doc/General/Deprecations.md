@@ -122,9 +122,9 @@ The currently defined channels are:
 -   `OnSetLocalVisibility(bool visible)`  
     Override `OnSetHostVisibility(bool visible)` instead.
 
--   In Mirror 12, `OnRebuildObservers`, `OnCheckObserver`, and `OnSetHostVisibility` were moved to a separate class called `NetworkVisibility`
+-   `OnRebuildObservers`, `OnCheckObserver`, and `OnSetHostVisibility` were moved to a separate class called `NetworkVisibility`
 
--   In Mirror 12, `NetworkBehaviour.OnNetworkDestroy` was renamed to `NetworkBehaviour.OnStopClient`.
+-   `NetworkBehaviour.OnNetworkDestroy` was renamed to `NetworkBehaviour.OnStopClient`.
 
 ### NetworkConnection
 
@@ -182,13 +182,13 @@ The currently defined channels are:
     Use `SendToReady<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable)` instead.
 
 -   `SpawnWithClientAuthority(GameObject obj, GameObject player)`  
-    Use `Spawn(GameObject, GameObject)` instead.
+    Use `Spawn(GameObject obj, GameObject player)` instead.
 
 -   `SpawnWithClientAuthority(GameObject obj, NetworkConnection ownerConnection)`  
-    Use `Spawn(obj, connection)` instead.
+    Use `Spawn(GameObject obj, NetworkConnection ownerConnection)` instead.
 
 -   `SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection ownerConnection)`  
-    Use `Spawn(obj, assetId, connection)` instead
+    Use `Spawn(GameObject obj, Guid assetId, NetworkConnection ownerConnection)` instead
 
 ### NetworkClient
 

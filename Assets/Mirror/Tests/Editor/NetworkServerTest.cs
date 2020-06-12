@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Mirror.RemoteCalls;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -582,7 +583,7 @@ namespace Mirror.Tests
             connection.identity = identity;
 
             // register the command delegate, otherwise it's not found
-            int registeredHash = NetworkBehaviour.RegisterDelegate(typeof(CommandTestNetworkBehaviour),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(CommandTestNetworkBehaviour),
                 nameof(CommandTestNetworkBehaviour.CommandGenerated),
                 MirrorInvokeType.Command,
                 CommandTestNetworkBehaviour.CommandGenerated,
@@ -596,7 +597,7 @@ namespace Mirror.Tests
             CommandMessage message = new CommandMessage
             {
                 componentIndex = 0,
-                functionHash = NetworkBehaviour.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
+                functionHash = RemoteCallHelper.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
                 netId = identity.netId,
                 payload = new ArraySegment<byte>(new byte[0])
             };
@@ -652,7 +653,7 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            NetworkBehaviour.RemoveDelegates(registeredHash);
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             NetworkServer.Shutdown();
             // destroy the test gameobject AFTER server was stopped.
             // otherwise isServer is true in OnDestroy, which means it would try

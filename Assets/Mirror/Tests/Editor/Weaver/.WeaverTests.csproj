@@ -67,6 +67,7 @@
     <Compile Include="GeneratedReaderWriter~\CreatesForClass.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForClassFromDifferentAssemblies.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForClassFromDifferentAssembliesWithValidConstructor.cs" />
+    <Compile Include="GeneratedReaderWriter~\CreatesForClassInherited.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForClassWithValidConstructor.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForEnums.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForInheritedFromScriptableObject.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="WeaverCommandTests~\CommandValid.cs" />
     <Compile Include="WeaverCommandTests~\CommandWithArguments.cs" />
     <Compile Include="WeaverCommandTests~\OverrideAbstractCommand.cs" />
+    <Compile Include="WeaverCommandTests~\OverrideVirtualCallBaseCommand.cs" />
     <Compile Include="WeaverCommandTests~\OverrideVirtualCommand.cs" />
     <Compile Include="WeaverCommandTests~\VirtualCommand.cs" />
     <Compile Include="WeaverCommandTests~\CommandWithSenderConnectionAndOtherArgs.cs" />
