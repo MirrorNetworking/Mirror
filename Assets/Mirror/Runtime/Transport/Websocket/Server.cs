@@ -232,11 +232,6 @@ namespace Mirror.Websocket
             }
         }
 
-        void WaitForEnabled()
-        {
-            while (!enabled) { Thread.Sleep(10); }
-        }
-
         // a message might come splitted in multiple frames
         // collect all frames
         async Task<ArraySegment<byte>> ReadFrames(int connectionId, WebSocketReceiveResult result, WebSocket webSocket, byte[] buffer, CancellationToken token)
