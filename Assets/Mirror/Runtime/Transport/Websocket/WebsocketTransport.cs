@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Mirror.Websocket
 {
+    [HelpURL("https://mirror-networking.com/docs/Transports/WebSockets.html")]
     public class WebsocketTransport : Transport
     {
         public const string Scheme = "ws";
