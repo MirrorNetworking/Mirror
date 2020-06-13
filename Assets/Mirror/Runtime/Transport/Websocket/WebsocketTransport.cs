@@ -60,6 +60,45 @@ namespace Mirror.Websocket
             return true;
         }
 
+        void OnEnable()
+        {
+            server.enabled = true;
+            client.enabled = true;
+        }
+
+        void OnDisable()
+        {
+            server.enabled = false;
+            client.enabled = false;
+        }
+
+        void LateUpdate()
+        {
+            // note: we need to check enabled in case we set it to false
+            // when LateUpdate already started.
+            // (https://github.com/vis2k/Mirror/pull/379)
+            if (!enabled)
+                return;
+
+            // process a maximum amount of client messages per tick
+            // TODO add clientMaxReceivesPerTick same as telepathy
+            while (true)
+            {
+                // stop when there is no more message
+                if (!client.ProcessClientMessage())
+                {
+                    break;
+                }
+
+                // Some messages can disable transport
+                // If this is disabled stop processing message in queue
+                if (!enabled)
+                {
+                    break;
+                }
+            }
+        }
+
         // client
         public override bool ClientConnected() => client.IsConnected;
 
