@@ -1,8 +1,7 @@
 #if UNITY_WEBGL && !UNITY_EDITOR
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using AOT;
@@ -10,21 +9,18 @@ using AOT;
 namespace Mirror.Websocket
 {
     // this is the client implementation used by browsers
-    public class Client
+    public class Client : Common
     {
         static int idGenerator = 0;
-        static readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
-
-        public bool NoDelay = true;
-
-        public bool enabled;
+        static Client client;
 
         public event Action Connected;
         public event Action<ArraySegment<byte>> ReceivedData;
         public event Action Disconnected;
+#pragma warning disable CS0067 // The event is never used
         public event Action<Exception> ReceivedError;
+#pragma warning restore CS0067 // The event is never used
 
-        public bool Connecting { get; set; }
         public bool IsConnected
         {
             get
@@ -43,7 +39,7 @@ namespace Mirror.Websocket
 
         public void Connect(Uri uri)
         {
-            clients[id] = this;
+            client = this;
 
             Connecting = true;
 
@@ -61,7 +57,14 @@ namespace Mirror.Websocket
             SocketSend(nativeRef, segment.Array, segment.Count);
         }
 
-#region Javascript native functions
+        public void ProcessClientMessage()
+        {
+            if (client.GetNextMessage(out byte[] data))
+                client.ReceivedData(new ArraySegment<byte>(data));
+        }
+
+        #region Javascript native functions
+
         [DllImport("__Internal")]
         static extern int SocketCreate(
             string url,
@@ -79,23 +82,22 @@ namespace Mirror.Websocket
         [DllImport("__Internal")]
         static extern void SocketClose(int socketInstance);
 
-#endregion
+        #endregion
 
-#region Javascript callbacks
+        #region Javascript callbacks
 
         [MonoPInvokeCallback(typeof(Action))]
         public static void OnOpen(int id)
         {
-            clients[id].Connecting = false;
-            clients[id].Connected?.Invoke();
+            client.Connecting = false;
+            client.Connected?.Invoke();
         }
 
         [MonoPInvokeCallback(typeof(Action))]
         public static void OnClose(int id)
         {
-            clients[id].Connecting = false;
-            clients[id].Disconnected?.Invoke();
-            clients.Remove(id);
+            client.Connecting = false;
+            client.Disconnected?.Invoke();
         }
 
         [MonoPInvokeCallback(typeof(Action))]
@@ -104,9 +106,13 @@ namespace Mirror.Websocket
             byte[] data = new byte[length];
             Marshal.Copy(ptr, data, 0, length);
 
-            clients[id].ReceivedData(new ArraySegment<byte>(data));
+            UnityEngine.Debug.LogError(client.enabled);
+
+            //client.ReceivedData(new ArraySegment<byte>(data));
+            client.receiveQueue.Enqueue(data);
         }
-#endregion
+
+        #endregion
     }
 }
 

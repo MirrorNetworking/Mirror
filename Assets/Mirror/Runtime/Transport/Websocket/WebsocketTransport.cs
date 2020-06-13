@@ -61,6 +61,12 @@ namespace Mirror.Websocket
             client.enabled = false;
         }
 
+        void LateUpdate()
+        {
+            if (client.enabled)
+                client.ProcessClientMessage();
+        }
+
         // client
         public override bool ClientConnected() => client.IsConnected;
 
