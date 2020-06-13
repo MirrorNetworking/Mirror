@@ -3,15 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using AOT;
-using Ninja.WebSockets;
-using UnityEngine;
 
 namespace Mirror.Websocket
 {
@@ -22,6 +16,8 @@ namespace Mirror.Websocket
         static readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
 
         public bool NoDelay = true;
+
+        public bool enabled;
 
         public event Action Connected;
         public event Action<ArraySegment<byte>> ReceivedData;
