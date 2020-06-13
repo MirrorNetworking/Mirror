@@ -9,8 +9,7 @@ using Ninja.WebSockets;
 
 namespace Mirror.Websocket
 {
-
-    public class Client
+    public class Client : Common
     {
         public event Action Connected;
         public event Action<ArraySegment<byte>> ReceivedData;
@@ -21,12 +20,11 @@ namespace Mirror.Websocket
         WebSocket webSocket;
         CancellationTokenSource cancellation;
 
-        public bool NoDelay = true;
-
-        public bool Connecting { get; set; }
         public bool IsConnected { get; set; }
 
         Uri uri;
+
+        public void ProcessClientMessage() { }
 
         public async void Connect(Uri uri)
         {
@@ -78,8 +76,6 @@ namespace Mirror.Websocket
                 Disconnected?.Invoke();
             }
         }
-
-        public bool enabled;
 
         async Task ReceiveLoop(WebSocket webSocket, CancellationToken token)
         {
