@@ -4,7 +4,7 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
-## Version 16.2.0 -- In Progress
+## Version 16.1.1 -- 2020-Jun-13
 - Added: [Command] now has an `ignoreAuthority` option for invoking Commands on objects the client doesn't have authority over, and Command methods can have an optional `NetworkConnectionToClient sender` parameter.
 - Added: [ClientRpc] now has an `excludeOwner` option to prevent messages from going to the client that owns the object.
 - Added: Commands and Rpc's can now be declared as virtual and overridden in derived classes.
