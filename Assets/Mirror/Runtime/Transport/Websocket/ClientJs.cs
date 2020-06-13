@@ -20,7 +20,9 @@ namespace Mirror.Websocket
         public event Action Connected;
         public event Action<ArraySegment<byte>> ReceivedData;
         public event Action Disconnected;
+#pragma warning disable CS0067 // The event is never used
         public event Action<Exception> ReceivedError;
+#pragma warning restore CS0067 // The event is never used
 
         readonly ConcurrentQueue<byte[]> receivedQueue = new ConcurrentQueue<byte[]>();
 
