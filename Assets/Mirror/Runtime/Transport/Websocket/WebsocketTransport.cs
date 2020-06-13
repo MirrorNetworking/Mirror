@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
@@ -38,13 +39,11 @@ namespace Mirror.Websocket
             // dispatch the events from the server
             server.Connected += (connectionId) => OnServerConnected.Invoke(connectionId);
             server.Disconnected += (connectionId) => OnServerDisconnected.Invoke(connectionId);
-            server.ReceivedData += (connectionId, data) => OnServerDataReceived.Invoke(connectionId, data, Channels.DefaultReliable);
             server.ReceivedError += (connectionId, error) => OnServerError.Invoke(connectionId, error);
 
             // dispatch events from the client
             client.Connected += () => OnClientConnected.Invoke();
             client.Disconnected += () => OnClientDisconnected.Invoke();
-            client.ReceivedData += (data) => OnClientDataReceived.Invoke(data, Channels.DefaultReliable);
             client.ReceivedError += (error) => OnClientError.Invoke(error);
 
             // configure
@@ -53,6 +52,8 @@ namespace Mirror.Websocket
 
             Debug.Log("Websocket transport initialized!");
         }
+
+
 
         public override bool Available()
         {
@@ -172,5 +173,108 @@ namespace Mirror.Websocket
             }
             return "";
         }
+
+
+        #region MessageProcessor
+        // concept copied from TelepathyTransport
+
+        public struct Message
+        {
+            public int connectionId;
+            public ArraySegment<byte> data;
+        }
+
+        ConcurrentQueue<Message> serverQueue;
+        ConcurrentQueue<Message> clientQueue;
+
+        int clientMaxReceivesPerTick;
+        int serverMaxReceivesPerTick;
+
+        public void SetupMessageEvents()
+        {
+            server.ReceivedData += serverReceivedData;
+            client.ReceivedData += clientReceivedData;
+        }
+
+        public void LateUpdate()
+        {
+            // note: we need to check enabled in case we set it to false
+            // when LateUpdate already started.
+            // (https://github.com/vis2k/Mirror/pull/379)
+            if (!enabled)
+                return;
+
+            // process a maximum amount of client messages per tick
+            for (int i = 0; i < clientMaxReceivesPerTick; ++i)
+            {
+                // stop when there is no more message
+                if (!ProcessClientMessage())
+                {
+                    break;
+                }
+
+                // Some messages can disable transport
+                // If this is disabled stop processing message in queue
+                if (!enabled)
+                {
+                    break;
+                }
+            }
+
+            // process a maximum amount of server messages per tick
+            for (int i = 0; i < serverMaxReceivesPerTick; ++i)
+            {
+                // stop when there is no more message
+                if (!ProcessServerMessage())
+                {
+                    break;
+                }
+
+                // Some messages can disable transport
+                // If this is disabled stop processing message in queue
+                if (!enabled)
+                {
+                    break;
+                }
+            }
+        }
+
+        void serverReceivedData(int connectionId, ArraySegment<byte> data)
+        {
+            serverQueue.Enqueue(new Message
+            {
+                connectionId = connectionId,
+                data = data,
+            });
+        }
+
+        void clientReceivedData(ArraySegment<byte> data)
+        {
+            clientQueue.Enqueue(new Message
+            {
+                data = data,
+            });
+        }
+
+        bool ProcessServerMessage()
+        {
+            if (serverQueue.TryDequeue(out Message message))
+            {
+                OnServerDataReceived.Invoke(message.connectionId, message.data, Channels.DefaultReliable);
+                return true;
+            }
+            return false;
+        }
+
+        bool ProcessClientMessage()
+        {
+            if (clientQueue.TryDequeue(out Message message))
+            {
+                OnClientDataReceived.Invoke(message.data, Channels.DefaultReliable);
+                return true;
+            }
+            return false;
+        }
+        #endregion
     }
 }
