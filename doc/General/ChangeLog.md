@@ -4,14 +4,16 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
-## Version 14.x.x -- In Progress
+## Version 16.2.0 -- In Progress
 - Added: [Command] now has an `ignoreAuthority` option for invoking Commands on objects the client doesn't have authority over, and Command methods can have an optional `NetworkConnectionToClient sender` parameter.
 - Added: [ClientRpc] now has an `excludeOwner` option to prevent messages from going to the client that owns the object.
+- Added: Commands and Rpc's can now be declared as virtual and overridden in derived classes.
 - Added: [NetworkLogSettings](../Components/NetworkLogSettings.md) component and Log Settings Window.
 - Added: SyncLists now support `AddRange`, `InsertRange`, and `RemoveAll`.
 - Added: Network Room Manager now has a virtual `OnRoomServerPlayersNotReady` that fires on server from `CheckReadyToBegin`.
 - Added: Network Room Player template now includes base Network Behaviour overrides.
 - Added: Network Room Player now has a virtual hook for the index SyncVar, and the override is in the template.
+- Added: Experimental Network Transform with more control settings and features.
 - Fixed: Network Room Manager.minPlayers is now protected so it's available for derived classes.
 - Fixed: Network Room Manager no longer does redundant player prefab registration in `OnStartClient`.
 - Fixed: Network Room Player `OnClientEnterRoom` now correctly only fires on clients.
@@ -20,6 +22,8 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Network Manager now cleans up network objects better when server stops.
 - Fixed: Network Manager no longer tries to change to offline scene redundantly in `StopClient`.
 - Fixed: Network Connection's `lastMessageTime` wasn't being properly initialized, causing incorrect idle timeout disconnects.
+- Fixed: Websockets transport now correctly pauses and queues messages during scene changes and should otherwise be more stable with SSL
+- Changed: **Breaking** Websockets Transport now requires full path to PFX Certificate file.
 - Changed: Improvements were made to the Tanks example.
 - Changed: Network Room Player now uses virtual SyncVar hook for ReadyStateChanged.
 - Changed: Network Proximity Checker now uses direct distance check against player objects instead of Physics.SphereCastNonAlloc for better performance.
