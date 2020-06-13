@@ -118,6 +118,12 @@ namespace Mirror.Websocket
             while (!enabled) { Task.Delay(10); }
         }
 
+        public bool ProcessClientMessage()
+        {
+            // message in standalone client don't use queue to process
+            return false;
+        }
+
         // a message might come splitted in multiple frames
         // collect all frames
         async Task<ArraySegment<byte>> ReadFrames(WebSocketReceiveResult result, WebSocket webSocket, byte[] buffer)

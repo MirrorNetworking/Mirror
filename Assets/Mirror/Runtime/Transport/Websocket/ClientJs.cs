@@ -1,17 +1,11 @@
 #if UNITY_WEBGL && !UNITY_EDITOR
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using AOT;
-using Ninja.WebSockets;
-using UnityEngine;
 
 namespace Mirror.Websocket
 {
@@ -28,6 +22,9 @@ namespace Mirror.Websocket
         public event Action Disconnected;
         public event Action<Exception> ReceivedError;
 
+        readonly ConcurrentQueue<byte[]> receivedQueue = new ConcurrentQueue<byte[]>();
+
+        public bool enabled;
         public bool Connecting { get; set; }
         public bool IsConnected
         {
@@ -63,6 +60,17 @@ namespace Mirror.Websocket
         public void Send(ArraySegment<byte> segment)
         {
             SocketSend(nativeRef, segment.Array, segment.Count);
+        }
+
+        public bool ProcessClientMessage()
+        {
+            if (receivedQueue.TryDequeue(out byte[] data))
+            {
+                clients[id].ReceivedData(new ArraySegment<byte>(data));
+
+                return true;
+            }
+            return false;
         }
 
 #region Javascript native functions
@@ -108,7 +116,7 @@ namespace Mirror.Websocket
             byte[] data = new byte[length];
             Marshal.Copy(ptr, data, 0, length);
 
-            clients[id].ReceivedData(new ArraySegment<byte>(data));
+            clients[id].receivedQueue.Enqueue(data);
         }
 #endregion
     }
