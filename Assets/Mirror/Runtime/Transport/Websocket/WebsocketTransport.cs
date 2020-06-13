@@ -46,6 +46,8 @@ namespace Mirror.Websocket
             client.Disconnected += () => OnClientDisconnected.Invoke();
             client.ReceivedError += (error) => OnClientError.Invoke(error);
 
+            SetupMessageEvents();
+
             // configure
             client.NoDelay = NoDelay;
             server.NoDelay = NoDelay;
