@@ -1012,7 +1012,7 @@ namespace Mirror
                 identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader, conn as NetworkConnectionToClient);
         }
 
-        internal static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
+        internal static void SpawnObject(GameObject obj, SpawnSettings spawnSettings)
         {
             if (!active)
             {
@@ -1034,11 +1034,11 @@ namespace Mirror
                 return;
             }
 
-            identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
+            identity.connectionToClient = (NetworkConnectionToClient)spawnSettings.ownerConnection;
 
             // special case to make sure hasAuthority is set
             // on start server in host mode
-            if (ownerConnection is ULocalConnectionToClient)
+            if (spawnSettings.ownerConnection is ULocalConnectionToClient)
                 identity.hasAuthority = true;
 
             identity.OnStartServer();
@@ -1129,7 +1129,7 @@ namespace Mirror
         {
             if (VerifyCanSpawn(obj))
             {
-                SpawnObject(obj, ownerConnection);
+                SpawnObject(obj, new SpawnSettings { ownerConnection = ownerConnection });
             }
         }
 
@@ -1172,7 +1172,15 @@ namespace Mirror
                 {
                     identity.assetId = assetId;
                 }
-                SpawnObject(obj, ownerConnection);
+                SpawnObject(obj, new SpawnSettings { ownerConnection = ownerConnection });
+            }
+        }
+
+        public static void Spawn(GameObject obj, SpawnSettings spawnSettings)
+        {
+            if (VerifyCanSpawn(obj))
+            {
+                SpawnObject(obj, spawnSettings);
             }
         }
 
