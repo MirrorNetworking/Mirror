@@ -15,10 +15,10 @@ namespace Mirror.Logging
         public void LogException(Exception exception, UnityEngine.Object context)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(string.Format("Exception: {0}", exception.Message));
+            Console.WriteLine("Exception: {0}", exception.Message);
             if (showExceptionStackTrace)
             {
-                Console.WriteLine(string.Format("    {0}", exception.StackTrace));
+                Console.WriteLine("    {0}", exception.StackTrace);
             }
             Console.ResetColor();
         }
@@ -37,7 +37,7 @@ namespace Mirror.Logging
                     break;
             }
 
-            Console.WriteLine(string.Format(format, args));
+            Console.WriteLine(format, args);
             Console.ResetColor();
         }
     }
