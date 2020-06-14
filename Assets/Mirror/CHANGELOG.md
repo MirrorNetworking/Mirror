@@ -1,3 +1,10 @@
+## [34.9.2](https://github.com/MirrorNG/MirrorNG/compare/34.9.1-master...34.9.2-master) (2020-06-14)
+
+
+### Bug Fixes
+
+* Spawn Handler Order ([#223](https://github.com/MirrorNG/MirrorNG/issues/223)) ([8674274](https://github.com/MirrorNG/MirrorNG/commit/86742740ef2707f420d5cb6aeeb257bf07511f0b)), closes [#222](https://github.com/MirrorNG/MirrorNG/issues/222)
+
 ## [34.9.1](https://github.com/MirrorNG/MirrorNG/compare/34.9.0-master...34.9.1-master) (2020-05-24)
 
 
