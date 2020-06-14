@@ -1,6 +1,5 @@
 ﻿using Mirror;
 
-
 namespace WeaverClientServerAttributeTests.ServerAttributeOnVirutalMethod
 {
     class ServerAttributeOnVirutalMethod : NetworkBehaviour

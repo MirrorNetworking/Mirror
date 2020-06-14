@@ -50,6 +50,30 @@ namespace Mirror.Weaver.Tests
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
         }
 
+        [Test]
+        public void ClientAttributeOnVirutalMethod()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkClientGetActive = Weaver.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnVirutalMethod.ClientAttributeOnVirutalMethod", "ClientOnlyMethod");
+        }
+
+        [Test]
+        public void ClientAttributeOnAbstractMethod()
+        {
+            Assert.That(weaverErrors, Contains.Item("Client Attribute can't be added to abstract method (at System.Void WeaverClientServerAttributeTests.ClientAttributeOnAbstractMethod.ClientAttributeOnAbstractMethod::ClientOnlyMethod())"));
+        }
+
+        [Test]
+        public void ClientAttributeOnOverrideMethod()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkClientGetActive = Weaver.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnOverrideMethod.ClientAttributeOnOverrideMethod", "ClientOnlyMethod");
+        }
+
         /// <summary>
         /// Checks that first Instructions in MethodBody is addedString
         /// </summary>

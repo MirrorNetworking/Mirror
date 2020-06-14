@@ -89,6 +89,9 @@
     <Compile Include="WeaverClientRpcTests~\OverrideAbstractClientRpc.cs" />
     <Compile Include="WeaverClientRpcTests~\OverrideVirtualClientRpc.cs" />
     <Compile Include="WeaverClientRpcTests~\VirtualClientRpc.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ClientAttributeOnAbstractMethod.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ClientAttributeOnOverrideMethod.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ClientAttributeOnVirutalMethod.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourClient.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourServer.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\ServerAttributeOnAbstractMethod.cs" />
