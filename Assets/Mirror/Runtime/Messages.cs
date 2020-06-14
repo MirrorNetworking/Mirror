@@ -209,6 +209,7 @@ namespace Mirror
         public bool isOwner;
         public ulong sceneId;
         public Guid assetId;
+        public bool useWorldPosition;
         public Vector3 position;
         public Quaternion rotation;
         public Vector3 scale;
@@ -226,6 +227,7 @@ namespace Mirror
             {
                 assetId = reader.ReadGuid();
             }
+            useWorldPosition = reader.ReadBoolean();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
             scale = reader.ReadVector3();
@@ -242,6 +244,7 @@ namespace Mirror
             {
                 writer.WriteGuid(assetId);
             }
+            writer.WriteBoolean(useWorldPosition);
             writer.WriteVector3(position);
             writer.WriteQuaternion(rotation);
             writer.WriteVector3(scale);

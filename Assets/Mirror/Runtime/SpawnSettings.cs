@@ -6,5 +6,6 @@ namespace Mirror
     public struct SpawnSettings
     {
         public NetworkConnection ownerConnection;
+        public bool useWorldPosition;
     }
 }

@@ -116,6 +116,11 @@ namespace Mirror
         public bool serverOnly;
 
         /// <summary>
+        /// Settings that change what is sent in spawn message
+        /// </summary>
+        internal SpawnSettings spawnSettings;
+
+        /// <summary>
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
         /// </summary>
         public NetworkConnection connectionToServer { get; internal set; }

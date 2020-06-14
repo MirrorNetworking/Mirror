@@ -1042,6 +1042,7 @@ namespace Mirror
                 identity.hasAuthority = true;
 
             identity.OnStartServer();
+            identity.spawnSettings = spawnSettings;
 
             if (logger.LogEnabled()) logger.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
 
@@ -1063,6 +1064,8 @@ namespace Mirror
 
                 ArraySegment<byte> payload = CreateSpawnMessagePayload(isOwner, identity, ownerWriter, observersWriter);
 
+                GetPositionRotationScale(identity, out Vector3 position, out Quaternion rotation, out Vector3 scale);
+
                 SpawnMessage msg = new SpawnMessage
                 {
                     netId = identity.netId,
@@ -1071,14 +1074,33 @@ namespace Mirror
                     sceneId = identity.sceneId,
                     assetId = identity.assetId,
                     // use local values for VR support
-                    position = identity.transform.localPosition,
-                    rotation = identity.transform.localRotation,
-                    scale = identity.transform.localScale,
+                    useWorldPosition = identity.spawnSettings.useWorldPosition,
+                    position = position,
+                    rotation = rotation,
+                    scale = scale,
 
                     payload = payload,
                 };
 
                 conn.Send(msg);
+            }
+        }
+
+        static void GetPositionRotationScale(NetworkIdentity identity, out Vector3 position, out Quaternion rotation, out Vector3 scale)
+        {
+            Transform transform = identity.transform;
+
+            if (identity.spawnSettings.useWorldPosition)
+            {
+                position = identity.transform.position;
+                rotation = identity.transform.rotation;
+                scale = identity.transform.lossyScale;
+            }
+            else
+            {
+                position = identity.transform.localPosition;
+                rotation = identity.transform.localRotation;
+                scale = identity.transform.localScale;
             }
         }
 
