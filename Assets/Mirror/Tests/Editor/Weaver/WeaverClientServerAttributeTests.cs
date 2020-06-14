@@ -29,7 +29,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ServerAttributeOnAbstractMethod()
         {
-            Assert.That(weaverErrors, Contains.Item("Server Attribute can't be added to abstract method (at System.Void WeaverClientServerAttributeTests.ServerAttributeOnAbstractMethod.ServerAttributeOnAbstractMethod::ServerOnlyMethod())"));
+            Assert.That(weaverErrors, Contains.Item("Server or Client Attributes can't be added to abstract method (at System.Void WeaverClientServerAttributeTests.ServerAttributeOnAbstractMethod.ServerAttributeOnAbstractMethod::ServerOnlyMethod())"));
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ClientAttributeOnAbstractMethod()
         {
-            Assert.That(weaverErrors, Contains.Item("Client Attribute can't be added to abstract method (at System.Void WeaverClientServerAttributeTests.ClientAttributeOnAbstractMethod.ClientAttributeOnAbstractMethod::ClientOnlyMethod())"));
+            Assert.That(weaverErrors, Contains.Item("Server or Client Attributes can't be added to abstract method (at System.Void WeaverClientServerAttributeTests.ClientAttributeOnAbstractMethod.ClientAttributeOnAbstractMethod::ClientOnlyMethod())"));
         }
 
         [Test]
