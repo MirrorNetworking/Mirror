@@ -1092,15 +1092,15 @@ namespace Mirror
 
             if (identity.spawnSettings.useWorldPosition)
             {
-                position = identity.transform.position;
-                rotation = identity.transform.rotation;
-                scale = identity.transform.lossyScale;
+                position = transform.position;
+                rotation = transform.rotation;
+                scale = transform.lossyScale;
             }
             else
             {
-                position = identity.transform.localPosition;
-                rotation = identity.transform.localRotation;
-                scale = identity.transform.localScale;
+                position = transform.localPosition;
+                rotation = transform.localRotation;
+                scale = transform.localScale;
             }
         }
 
