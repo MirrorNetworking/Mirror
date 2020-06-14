@@ -392,6 +392,7 @@ namespace Mirror
                     return;
                 }
 
+                HandleAnimTriggerMsg(hash);
                 RpcOnAnimationTriggerClientMessage(hash);
             }
         }
@@ -437,6 +438,7 @@ namespace Mirror
                     return;
                 }
 
+                HandleAnimResetTriggerMsg(hash);
                 RpcOnAnimationResetTriggerClientMessage(hash);
             }
         }
@@ -520,6 +522,7 @@ namespace Mirror
         [ClientRpc]
         void RpcOnAnimationTriggerClientMessage(int hash)
         {
+            // host handles this before it is sent
             if (isServer) return;
 
             HandleAnimTriggerMsg(hash);
@@ -528,6 +531,7 @@ namespace Mirror
         [ClientRpc]
         void RpcOnAnimationResetTriggerClientMessage(int hash)
         {
+            // host handles this before it is sent
             if (isServer) return;
 
             HandleAnimResetTriggerMsg(hash);
