@@ -35,11 +35,7 @@ namespace Mirror.Logging
                 case LogType.Warning:
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     break;
-                case LogType.Log:
-                default:
-                    break;
             }
-
 
             Console.WriteLine(string.Format(format, args));
             Console.ResetColor();
