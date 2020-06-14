@@ -1071,11 +1071,11 @@ namespace Mirror
                     sceneId = identity.sceneId,
                     assetId = identity.assetId,
                     // use local values for VR support
-                    position = identity.transform.localPosition,
-                    rotation = identity.transform.localRotation,
+                    position = identity.transform.position,
+                    rotation = identity.transform.rotation,
                     scale = identity.transform.localScale,
 
-                    payload = payload,
+                    payload = payload
                 };
 
                 conn.Send(msg);
