@@ -735,10 +735,7 @@ namespace Mirror
                 identity.gameObject.SetActive(true);
             }
 
-            // apply local values for VR support
-            identity.transform.localPosition = msg.position;
-            identity.transform.localRotation = msg.rotation;
-            identity.transform.localScale = msg.scale;
+            ApplyPositionRotationScale(identity, msg);
             identity.hasAuthority = msg.isOwner;
             identity.netId = msg.netId;
 
@@ -763,6 +760,26 @@ namespace Mirror
                 identity.NotifyAuthority();
                 identity.OnStartClient();
                 CheckForLocalPlayer(identity);
+            }
+        }
+
+        static void ApplyPositionRotationScale(NetworkIdentity identity, SpawnMessage msg)
+        {
+            Transform transform = identity.transform;
+            if (msg.useWorldPosition)
+            {
+                transform.position = msg.position;
+                transform.rotation = msg.rotation;
+                // cant set lossyScale
+                // setting localScale here may cause problems if parents have non 1 scale
+                transform.localScale = msg.scale;
+            }
+            else
+            {
+                // apply local values for VR support
+                transform.localPosition = msg.position;
+                transform.localRotation = msg.rotation;
+                transform.localScale = msg.scale;
             }
         }
 
