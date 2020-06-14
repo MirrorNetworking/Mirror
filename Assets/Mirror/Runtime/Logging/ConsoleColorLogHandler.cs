@@ -18,7 +18,7 @@ namespace Mirror.Logging
             Console.WriteLine(string.Format("Exception: {0}", exception.Message));
             if (showExceptionStackTrace)
             {
-                Console.WriteLine(string.Format("    ", exception.StackTrace));
+                Console.WriteLine(string.Format("    {0}", exception.StackTrace));
             }
             Console.ResetColor();
         }
