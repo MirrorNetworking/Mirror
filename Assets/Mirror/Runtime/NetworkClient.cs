@@ -774,16 +774,6 @@ namespace Mirror
 
         NetworkIdentity SpawnPrefab(SpawnMessage msg)
         {
-            if (GetPrefab(msg.assetId, out GameObject prefab))
-            {
-                GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
-                if (logger.LogEnabled())
-                {
-                    logger.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
-                }
-
-                return obj.GetComponent<NetworkIdentity>();
-            }
             if (spawnHandlers.TryGetValue(msg.assetId, out SpawnHandlerDelegate handler))
             {
                 GameObject obj = handler(msg);
@@ -792,6 +782,16 @@ namespace Mirror
                     logger.LogWarning("Client spawn handler for " + msg.assetId + " returned null");
                     return null;
                 }
+                return obj.GetComponent<NetworkIdentity>();
+            }
+            if (GetPrefab(msg.assetId, out GameObject prefab))
+            {
+                GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
+                if (logger.LogEnabled())
+                {
+                    logger.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
+                }
+
                 return obj.GetComponent<NetworkIdentity>();
             }
             logger.LogError("Failed to spawn server object, did you forget to add it to the NetworkManager? assetId=" + msg.assetId + " netId=" + msg.netId);
