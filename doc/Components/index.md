@@ -14,6 +14,8 @@ These core components are included in Mirror:
     The Network Identity component is at the heart of the Mirror networking high-level API. It controls a game object’s unique identity on the network, and it uses that identity to make the networking system aware of the game object. It offers two different options for configuration and they are mutually exclusive, which means either one of the options or none can be checked.
 -   [Network Log Settings](NetworkLogSettings.md)  
     The Network Log Settings component allows you to configure logging levels and load the settings in a build.
+-   [Network Headless Logger](NetworkHeadlessLogger.md)
+    Network Headless Logger adds color to log when running in headless mode
 -   [Network Manager](NetworkManager.md)  
     The Network Manager is a component for managing the networking aspects of a multiplayer game.
 -   [Network Manager HUD](NetworkManagerHUD.md)  
