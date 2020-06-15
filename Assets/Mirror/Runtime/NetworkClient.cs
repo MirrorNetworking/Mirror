@@ -32,9 +32,10 @@ namespace Mirror
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
 
-        // spawn handlers
-        readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
-        readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
+        // spawn handlers. internal for testing purposes. do not use directly.
+        internal readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
+        internal readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
+        internal readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
         [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
         [Serializable] public class ClientSceneChangeEvent : UnityEvent<string, SceneOperation, bool> { }
@@ -94,8 +95,6 @@ namespace Mirror
         /// <para>For each of these prefabs, ClientManager.RegisterPrefab() will be automatically invoke.</para>
         /// </summary>
         public List<GameObject> spawnPrefabs = new List<GameObject>();
-
-        readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
         public readonly NetworkTime Time = new NetworkTime();
 
