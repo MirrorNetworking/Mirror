@@ -15,10 +15,10 @@ namespace Mirror.Logging
         public void LogException(Exception exception, UnityEngine.Object context)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Exception: {0}", exception.Message);
+            Console.WriteLine($"Exception: {exception.Message}");
             if (showExceptionStackTrace)
             {
-                Console.WriteLine("    {0}", exception.StackTrace);
+                Console.WriteLine($"    {exception.StackTrace}");
             }
             Console.ResetColor();
         }
