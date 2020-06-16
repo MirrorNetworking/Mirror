@@ -824,8 +824,13 @@ namespace Mirror
 
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
-            // notify all clients about the new scene
-            NetworkServer.SendToAll(new SceneMessage { sceneName = newSceneName });
+            // ServerChangeScene can be called when stopping the server
+            // when this happens the server is not active so does not need to tell clients about the change
+            if (NetworkServer.active)
+            {
+                // notify all clients about the new scene
+                NetworkServer.SendToAll(new SceneMessage { sceneName = newSceneName });
+            }
 
             startPositionIndex = 0;
             startPositions.Clear();
