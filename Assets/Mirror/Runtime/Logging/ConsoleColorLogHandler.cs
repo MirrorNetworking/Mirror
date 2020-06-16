@@ -37,7 +37,7 @@ namespace Mirror.Logging
                     break;
             }
 
-            Console.WriteLine(format, args);
+            Console.WriteLine(string.Format(format, args));
             Console.ResetColor();
         }
     }
