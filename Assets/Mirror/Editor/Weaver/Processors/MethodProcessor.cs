@@ -84,7 +84,19 @@ namespace Mirror.Weaver
                     calledMethod.Name == baseRemoteCallName)
                 {
                     TypeDefinition baseType = type.BaseType.Resolve();
-                    MethodDefinition baseMethod = baseType.GetMethod(callName);
+                    MethodDefinition baseMethod = baseType.GetMethodInBaseType(callName);
+
+                    if (baseMethod == null)
+                    {
+                        Weaver.Error($"Could not find base method for {callName}", method);
+                        return;
+                    }
+
+                    if (!baseMethod.IsVirtual)
+                    {
+                        Weaver.Error($"Could not find base method that was virutal {callName}", method);
+                        return;
+                    }
 
                     instruction.Operand = baseMethod;
 
