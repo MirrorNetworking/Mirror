@@ -229,6 +229,7 @@ namespace Mirror
                 {
                     float newFloatValue = animator.GetFloat(par.nameHash);
                     changed = Mathf.Abs(newFloatValue - lastFloatParameters[i]) > 0.001f;
+                    // only set lastValue if it was changed, otherwise value could slowly drift within the 0.001f limit each frame
                     if (changed)
                         lastFloatParameters[i] = newFloatValue;
                 }
