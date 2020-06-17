@@ -86,6 +86,12 @@ namespace Mirror.Weaver
                     TypeDefinition baseType = type.BaseType.Resolve();
                     MethodDefinition baseMethod = baseType.GetMethod(callName);
 
+                    if (baseMethod == null)
+                    {
+                        Weaver.Error($"Could not find base method for {callName}", method);
+                        return;
+                    }
+
                     instruction.Operand = baseMethod;
 
                     Weaver.DLog(type, "Replacing call to '{0}' with '{1}' inside '{2}'", calledMethod.FullName, baseMethod.FullName, method.FullName);
