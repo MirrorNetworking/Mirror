@@ -1,8 +1,8 @@
 using Mirror;
 
-namespace WeaverCommandTests.OverrideVirtualCallBaseCommand
+namespace WeaverCommandTests.OverrideVirtualCallsBaseCommandWithMultipleBaseClasses
 {
-    class OverrideVirtualCallBaseCommand : baseBehaviour
+    class OverrideVirtualCallsBaseCommandWithMultipleBaseClasses : middleBehaviour
     {
         [Command]
         protected override void CmdDoSomething()
@@ -10,6 +10,10 @@ namespace WeaverCommandTests.OverrideVirtualCallBaseCommand
             // do somethin
             base.CmdDoSomething();
         }
+    }
+
+    class middleBehaviour : baseBehaviour
+    {
     }
 
     class baseBehaviour : NetworkBehaviour

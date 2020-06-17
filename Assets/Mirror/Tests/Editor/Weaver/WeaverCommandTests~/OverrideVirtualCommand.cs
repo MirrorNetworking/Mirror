@@ -1,6 +1,5 @@
 using Mirror;
 
-
 namespace WeaverCommandTests.OverrideVirtualCommand
 {
     class OverrideVirtualCommand : baseBehaviour
