@@ -83,6 +83,12 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void OverrideVirtualCallsBaseCommandWithOverride()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
         public void AbstractCommand()
         {
             Assert.That(weaverErrors, Contains.Item("Abstract Commands are currently not supported, use virtual method instead (at System.Void WeaverCommandTests.AbstractCommand.AbstractCommand::CmdDoSomething())"));

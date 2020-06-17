@@ -100,6 +100,8 @@
     <Compile Include="WeaverCommandTests~\CommandWithArguments.cs" />
     <Compile Include="WeaverCommandTests~\OverrideAbstractCommand.cs" />
     <Compile Include="WeaverCommandTests~\OverrideVirtualCallBaseCommand.cs" />
+    <Compile Include="WeaverCommandTests~\OverrideVirtualCallsBaseCommandWithMultipleBaseClasses.cs" />
+    <Compile Include="WeaverCommandTests~\OverrideVirtualCallsBaseCommandWithOverride.cs" />
     <Compile Include="WeaverCommandTests~\OverrideVirtualCommand.cs" />
     <Compile Include="WeaverCommandTests~\VirtualCommand.cs" />
     <Compile Include="WeaverCommandTests~\CommandWithSenderConnectionAndOtherArgs.cs" />
