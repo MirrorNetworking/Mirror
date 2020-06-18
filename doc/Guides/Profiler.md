@@ -1,16 +1,16 @@
 # Mirror Network Profiler
 
-The [mirror profiler](https://mirror-networking.com/download/mirror-profiler/) is part of the Mirror Pro suit.
+The Mirror Profiler is part of the Mirror Pro suit.
 As of this writing it is accessible to our Github Supporters.
 
 ![Network Profiler](Profiler.png)
 
 ## Installation
 
-1. Make sure you have the latest version of Mirror
+1. Make sure you have the latest version of Mirror.
 2. Become a [Github Supporter](https://github.com/sponsors/vis2k) if you haven't.
-3. [Download](https://mirror-networking.com/download/mirror-profiler/) the profiler
-4. Install the unity package in your project
+3. Download the profiler.
+4. Install the unity package in your project.
 
 
 ## Usage
