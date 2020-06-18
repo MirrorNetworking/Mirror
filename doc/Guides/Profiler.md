@@ -1,7 +1,7 @@
 # Mirror Network Profiler
 
 The Mirror Profiler is part of the Mirror Pro suit.
-As of this writing it is accessible to our GitHub Supporters.
+As of this writing it is accessible to our [GitHub Sponsors](https://github.com/sponsors/vis2k).
 
 ![Network Profiler](Profiler.png)
 
