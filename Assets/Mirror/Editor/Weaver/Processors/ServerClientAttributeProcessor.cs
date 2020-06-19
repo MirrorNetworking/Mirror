@@ -25,6 +25,18 @@ namespace Mirror.Weaver
                     case "Mirror.ClientCallbackAttribute":
                         InjectClientGuard(td, md, false);
                         break;
+                    case "Mirror.HasAuthorityAttribute":
+                        InjectHasAuthorityGuard(td, md, true);
+                        break;
+                    case "Mirror.HasAuthorityCallbackAttribute":
+                        InjectHasAuthorityGuard(td, md, false);
+                        break;
+                    case "Mirror.LocalPlayerAttribute":
+                        InjectLocalPlayerGuard(td, md, true);
+                        break;
+                    case "Mirror.LocalPlayerCallbackAttribute":
+                        InjectLocalPlayerGuard(td, md, false);
+                        break;
                     default:
                         break;
                 }
@@ -70,6 +82,54 @@ namespace Mirror.Weaver
             if (logWarning)
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Client] function '" + md.FullName + "' called on server"));
+                worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.logWarningReference));
+            }
+
+            InjectGuardParameters(md, worker, top);
+            InjectGuardReturnValue(md, worker, top);
+            worker.InsertBefore(top, worker.Create(OpCodes.Ret));
+        }
+
+        static void InjectHasAuthorityGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
+        {
+            if (!Weaver.IsNetworkBehaviour(td))
+            {
+                Weaver.Error($"Has Authority method {md.Name} must be declared in a NetworkBehaviour", md);
+                return;
+            }
+            ILProcessor worker = md.Body.GetILProcessor();
+            Instruction top = md.Body.Instructions[0];
+
+            worker.InsertBefore(top, worker.Create(OpCodes.Ldarg_0));
+            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkBehaviourHasAuthority));
+            worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
+            if (logWarning)
+            {
+                worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Has Authority] function '" + md.FullName + "' called on player without authority"));
+                worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.logWarningReference));
+            }
+
+            InjectGuardParameters(md, worker, top);
+            InjectGuardReturnValue(md, worker, top);
+            worker.InsertBefore(top, worker.Create(OpCodes.Ret));
+        }
+
+        static void InjectLocalPlayerGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
+        {
+            if (!Weaver.IsNetworkBehaviour(td))
+            {
+                Weaver.Error($"Local Player method {md.Name} must be declared in a NetworkBehaviour", md);
+                return;
+            }
+            ILProcessor worker = md.Body.GetILProcessor();
+            Instruction top = md.Body.Instructions[0];
+
+            worker.InsertBefore(top, worker.Create(OpCodes.Ldarg_0));
+            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkBehaviourIsLocalPlayer));
+            worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
+            if (logWarning)
+            {
+                worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Local Player] function '" + md.FullName + "' called on nonlocal player"));
                 worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.logWarningReference));
             }
 

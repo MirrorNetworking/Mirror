@@ -84,6 +84,34 @@ namespace Mirror
     public class ClientCallbackAttribute : Attribute { }
 
     /// <summary>
+    /// Prevents players without authority from running this method.
+    /// <para>Prints a warning if a player without authority tries to execute this method.</para>
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class HasAuthorityAttribute : Attribute { }
+
+    /// <summary>
+    /// Prevents players without authority from running this method.
+    /// <para>No warning is printed.</para>
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class HasAuthorityCallbackAttribute : Attribute { }
+
+    /// <summary>
+    /// Prevents nonlocal players from running this method.
+    /// <para>Prints a warning if a nonlocal player tries to execute this method.</para>
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class LocalPlayerAttribute : Attribute { }
+
+    /// <summary>
+    /// Prevents a nonlocal player from running this method.
+    /// <para>No warning is printed.</para>
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class LocalPlayerCallbackAttribute : Attribute { }
+
+    /// <summary>
     /// Converts a string property into a Scene property in the inspector
     /// </summary>
     public class SceneAttribute : PropertyAttribute { }
