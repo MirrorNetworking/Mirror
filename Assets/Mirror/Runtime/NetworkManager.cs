@@ -79,7 +79,7 @@ namespace Mirror
         /// <summary>
         /// virtual so that inheriting classes' Reset() can call base.Reset() too
         /// </summary>
-        public virtual void Reset()
+        public virtual void OnValidate()
         {
             // add transport if there is none yet. makes upgrading easier.
             if (transport == null)

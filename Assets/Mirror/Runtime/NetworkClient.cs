@@ -151,7 +151,7 @@ namespace Mirror
         /// <summary>
         /// Called when the script gets added to an object. Useful for getting other needed scripts.
         /// </summary>
-        private void Reset()
+        private void OnValidate()
         {
             // add transport if there is none yet. makes upgrading easier.
             if (Transport == null)
