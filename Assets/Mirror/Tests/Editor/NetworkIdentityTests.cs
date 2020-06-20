@@ -175,7 +175,6 @@ namespace Mirror.Tests
         public void SetUp()
         {
             networkServerGameObject = new GameObject();
-            networkServerGameObject.AddComponent<MockTransport>();
             server = networkServerGameObject.AddComponent<NetworkServer>();
             client = networkServerGameObject.AddComponent<NetworkClient>();
 
