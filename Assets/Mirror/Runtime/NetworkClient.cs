@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mirror.AsyncTcp;
 using UnityEngine;
 using UnityEngine.Events;
 using Guid = System.Guid;
@@ -146,6 +147,28 @@ namespace Mirror
         /// NetworkClient can connect to local server in host mode too
         /// </summary>
         public bool IsLocalClient => hostServer != null;
+
+        /// <summary>
+        /// Called when the script gets added to an object. Useful for getting other needed scripts.
+        /// </summary>
+        private void Reset()
+        {
+            // add transport if there is none yet. makes upgrading easier.
+            if (Transport == null)
+            {
+                // First try to get the transport.
+                Transport = GetComponent<AsyncTransport>();
+                // was a transport added yet? if not, add one
+                if (Transport == null)
+                {
+                    Transport = gameObject.AddComponent<AsyncTcpTransport>();
+                    logger.Log("NetworkClient: added default Transport because there was none yet.");
+                }
+#if UNITY_EDITOR
+                UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
+#endif
+            }
+        }
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
