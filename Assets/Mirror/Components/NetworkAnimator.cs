@@ -85,6 +85,9 @@ namespace Mirror
             if (!SendMessagesAllowed)
                 return;
 
+            if (!animator.enabled)
+                return;
+
             CheckSendRate();
 
             for (int i = 0; i < animator.layerCount; i++)
@@ -187,7 +190,8 @@ namespace Mirror
             // NOTE: there is no API to play a transition(?)
             if (stateHash != 0)
             {
-                animator.Play(stateHash, layerId, normalizedTime);
+                if (animator.enabled)
+                    animator.Play(stateHash, layerId, normalizedTime);
             }
 
             ReadParameters(reader);
@@ -203,12 +207,14 @@ namespace Mirror
 
         void HandleAnimTriggerMsg(int hash)
         {
-            animator.SetTrigger(hash);
+            if (animator.enabled)
+                animator.SetTrigger(hash);
         }
 
         void HandleAnimResetTriggerMsg(int hash)
         {
-            animator.ResetTrigger(hash);
+            if (animator.enabled)
+                animator.ResetTrigger(hash);
         }
 
         ulong NextDirtyBits()
@@ -279,6 +285,9 @@ namespace Mirror
 
         void ReadParameters(NetworkReader reader)
         {
+            bool animatorEnabled = animator.enabled;
+            // need to read values from NetworkReader even if animator is disabled
+
             ulong dirtyBits = reader.ReadPackedUInt64();
             for (int i = 0; i < parameters.Length; i++)
             {
@@ -289,17 +298,20 @@ namespace Mirror
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     int newIntValue = reader.ReadPackedInt32();
-                    animator.SetInteger(par.nameHash, newIntValue);
+                    if (animatorEnabled)
+                        animator.SetInteger(par.nameHash, newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = reader.ReadSingle();
-                    animator.SetFloat(par.nameHash, newFloatValue);
+                    if (animatorEnabled)
+                        animator.SetFloat(par.nameHash, newFloatValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = reader.ReadBoolean();
-                    animator.SetBool(par.nameHash, newBoolValue);
+                    if (animatorEnabled)
+                        animator.SetBool(par.nameHash, newBoolValue);
                 }
             }
         }
