@@ -89,7 +89,10 @@ namespace Mirror.Websocket
             {
                 WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
 
-                await Task.Run(WaitForEnabled);
+                if (!enabled)
+                {
+                    await WaitForEnabledAsync();
+                }
 
                 if (result == null)
                     break;
@@ -113,9 +116,12 @@ namespace Mirror.Websocket
             }
         }
 
-        void WaitForEnabled()
+        async Task WaitForEnabledAsync()
         {
-            while (!enabled) { Task.Delay(10); }
+            while (!enabled)
+            {
+                await Task.Delay(10);
+            }
         }
 
         public bool ProcessClientMessage()
