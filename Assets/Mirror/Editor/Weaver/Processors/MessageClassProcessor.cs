@@ -44,7 +44,8 @@ namespace Mirror.Weaver
             }
 
             // check for self-referencing types
-            foreach (FieldDefinition field in td.FindAllPublicFields())
+            // foreach (FieldDefinition field in td.FindAllPublicFields())
+            foreach (FieldDefinition field in td.Fields)
             {
                 if (field.FieldType.FullName == td.FullName)
                 {
@@ -76,7 +77,8 @@ namespace Mirror.Weaver
                 CallBase(td, worker, "Serialize");
             }
 
-            foreach (FieldDefinition field in td.FindAllPublicFields())
+            // foreach (FieldDefinition field in td.FindAllPublicFields())
+            foreach (FieldDefinition field in td.Fields)
             {
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
