@@ -1,0 +1,16 @@
+{
+    "name": "Mirror.Examples.CloudService",
+    "references": [
+        "Mirror",
+        "Mirror.Components",
+        "Mirror.CloudServices"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}
