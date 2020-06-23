@@ -1,5 +1,5 @@
 {
-    "name": "Mirror.CloudServices",
+    "name": "Mirror.Cloud",
     "references": [
         "Mirror"
     ],

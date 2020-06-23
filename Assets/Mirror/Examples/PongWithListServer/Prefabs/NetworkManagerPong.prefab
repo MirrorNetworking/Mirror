@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1442807832621757098}
   - component: {fileID: 4798169800353248834}
   m_Layer: 0
-  m_Name: NetworkManager
+  m_Name: NetworkManagerPong
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -82,7 +82,7 @@ MonoBehaviour:
   startOnHeadless: 1
   showDebugMessages: 1
   serverTickRate: 30
-  offlineScene: Assets/Mirror/Examples/PongWithListServer/Scenes/ListServerLobbyScene.unity
+  offlineScene: Assets/Mirror/Examples/PongWithListServer/Scenes/ListServerLobbyScenePong.unity
   onlineScene: Assets/Mirror/Examples/PongWithListServer/Scenes/PongGameScene.unity
   transport: {fileID: 4798169800353248834}
   networkAddress: localhost
