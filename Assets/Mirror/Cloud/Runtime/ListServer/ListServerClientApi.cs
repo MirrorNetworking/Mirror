@@ -9,7 +9,6 @@ namespace Mirror.CloudServices.ListServerService
     {
         readonly ServerListEvent _onServerListUpdated;
 
-        ServerCollectionJson _serverlist;
         Coroutine getServerListRepeatCoroutine;
 
         public event UnityAction<ServerCollectionJson> onServerListUpdated
@@ -63,8 +62,8 @@ namespace Mirror.CloudServices.ListServerService
 
             void onSuccess(string responseBody)
             {
-                _serverlist = JsonUtility.FromJson<ServerCollectionJson>(responseBody);
-                _onServerListUpdated?.Invoke(_serverlist);
+                ServerCollectionJson serverlist = JsonUtility.FromJson<ServerCollectionJson>(responseBody);
+                _onServerListUpdated?.Invoke(serverlist);
             }
         }
     }

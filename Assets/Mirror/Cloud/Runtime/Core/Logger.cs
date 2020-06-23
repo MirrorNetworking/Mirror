@@ -29,9 +29,9 @@ namespace Mirror.CloudServices
                 : LogType.Error;
 
             string format = "Response: {0} {1} {2} {3}";
-            // TODO: make sure statusRequest.url doesn't leak api key
             if (logger.IsLogTypeAllowed(logType))
             {
+                // we split path like this to make sure api key doesn't leak
                 Uri uri = new Uri(statusRequest.url);
                 string path = string.Join("", uri.Segments);
                 logger.LogFormat(logType, format, statusRequest.method, code, path, statusRequest.downloadHandler.text);
