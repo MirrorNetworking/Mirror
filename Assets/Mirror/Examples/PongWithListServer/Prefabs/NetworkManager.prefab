@@ -53,11 +53,6 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: Mirror.CloudServices.ServerListEvent, Mirror.CloudServices, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  _onMatchFound:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Mirror.CloudServices.MatchFoundEvent, Mirror.CloudServices, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &5399210850297115757
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87,8 +82,8 @@ MonoBehaviour:
   startOnHeadless: 1
   showDebugMessages: 1
   serverTickRate: 30
-  offlineScene: Assets/MirrorCloudServices/Examples/PongWithListServer/Scenes/ListServerLobbyScene.unity
-  onlineScene: Assets/MirrorCloudServices/Examples/PongWithListServer/Scenes/PongGameScene.unity
+  offlineScene: Assets/Mirror/Examples/PongWithListServer/Scenes/ListServerLobbyScene.unity
+  onlineScene: Assets/Mirror/Examples/PongWithListServer/Scenes/PongGameScene.unity
   transport: {fileID: 4798169800353248834}
   networkAddress: localhost
   maxConnections: 2
