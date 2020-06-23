@@ -32,11 +32,6 @@ namespace Mirror.CloudServices
 
         [Tooltip("Triggered when server list updates")]
         [SerializeField] ServerListEvent _onServerListUpdated = new ServerListEvent();
-
-        [Tooltip("**Not Implemented** Triggers when match is found")]
-        [HideInInspector()]
-        [SerializeField] MatchFoundEvent _onMatchFound = new MatchFoundEvent();
-
         #endregion
 
         IRequestCreator requestCreator;
