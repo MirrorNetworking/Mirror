@@ -1,9 +1,11 @@
 using System;
-using UnityEngine;
 
 namespace Mirror.CloudServices.Example
 {
-    public class NetworkManagerListServerPong : NetworkManager
+    /// <summary>
+    /// Network Manager with events that are used by the list server
+    /// </summary>
+    public class NetworkManagerListServer : NetworkManager
     {
         /// <summary>
         /// Called when Server Starts
@@ -41,19 +43,6 @@ namespace Mirror.CloudServices.Example
         {
             base.OnServerDisconnect(conn);
             onPlayerListChanged?.Invoke(connectionCount);
-        }
-
-        public override void OnServerAddPlayer(NetworkConnection conn)
-        {
-            Debug.Assert(startPositions.Count == 2, "Pong Scene should have 2 start Poitions");
-            // add player at correct spawn position
-            Transform startPos = numPlayers == 0 ? startPositions[0] : startPositions[1];
-
-            GameObject player = startPos != null
-                ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
-                : Instantiate(playerPrefab);
-
-            NetworkServer.AddPlayerForConnection(conn, player);
         }
 
         public override void OnStartServer()

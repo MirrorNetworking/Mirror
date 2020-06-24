@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Mirror.CloudServices.Example
 {
+    /// <summary>
+    /// Displays the list of servers
+    /// </summary>
     public class ServerListUI : MonoBehaviour
     {
         [SerializeField] ServerListUIItem itemPrefab = null;

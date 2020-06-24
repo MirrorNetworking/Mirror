@@ -4,14 +4,17 @@ using UnityEngine;
 
 namespace Mirror.CloudServices.Example
 {
+    /// <summary>
+    /// This component should be put on the NetworkManager object
+    /// </summary>
     public class ApiUpdater : MonoBehaviour
     {
-        NetworkManagerListServerPong manager;
+        NetworkManagerListServer manager;
         ApiConnector connector;
 
         void Start()
         {
-            manager = NetworkManager.singleton as NetworkManagerListServerPong;
+            manager = NetworkManager.singleton as NetworkManagerListServer;
             connector = manager.GetComponent<ApiConnector>();
 
             manager.onPlayerListChanged += onPlayerListChanged;

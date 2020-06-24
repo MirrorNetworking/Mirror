@@ -1,0 +1,15 @@
+{
+    "name": "Mirror.Examples.Cloud.GUI",
+    "references": [
+        "Mirror",
+        "Mirror.Cloud"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}
