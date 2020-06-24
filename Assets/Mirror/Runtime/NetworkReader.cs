@@ -340,8 +340,19 @@ namespace Mirror
         }
 
         public static Guid ReadGuid(this NetworkReader reader) => new Guid(reader.ReadBytes(16));
-        public static Transform ReadTransform(this NetworkReader reader) => reader.ReadNetworkIdentity()?.transform;
-        public static GameObject ReadGameObject(this NetworkReader reader) => reader.ReadNetworkIdentity()?.gameObject;
+        public static Transform ReadTransform(this NetworkReader reader)
+        {
+            // Dont use null propagation here as it could lead to MissingReferenceException
+            NetworkIdentity networkIdentity = reader.ReadNetworkIdentity();
+            return networkIdentity != null ? networkIdentity.transform : null;
+        }
+
+        public static GameObject ReadGameObject(this NetworkReader reader)
+        {
+            // Dont use null propagation here as it could lead to MissingReferenceException
+            NetworkIdentity networkIdentity = reader.ReadNetworkIdentity();
+            return networkIdentity != null ? networkIdentity.gameObject : null;
+        }
 
         public static NetworkIdentity ReadNetworkIdentity(this NetworkReader reader)
         {
