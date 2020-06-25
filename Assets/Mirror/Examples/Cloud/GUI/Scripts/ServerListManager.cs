@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Mirror.CloudServices.Example
+namespace Mirror.Cloud.Example
 {
     /// <summary>
     /// Uses the ApiConnector on NetworkManager to update the Server list

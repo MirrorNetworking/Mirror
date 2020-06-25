@@ -52,7 +52,7 @@ MonoBehaviour:
   _onServerListUpdated:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.CloudServices.ServerListEvent, Mirror.Cloud, Version=0.0.0.0,
+    m_TypeName: Mirror.Cloud.ServerListEvent, Mirror.Cloud, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &5399210850297115757
 MonoBehaviour:

@@ -1,9 +1,9 @@
 using System;
-using Mirror.CloudServices.ListServerService;
+using Mirror.Cloud.ListServerService;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Mirror.CloudServices.Example
+namespace Mirror.Cloud.Example
 {
     /// <summary>
     /// Displays a server created by ServerListUI

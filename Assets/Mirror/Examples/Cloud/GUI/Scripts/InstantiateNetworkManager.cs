@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror.CloudServices.Examples
+namespace Mirror.Cloud.Examples
 {
     /// <summary>
     /// Instantiate a new NetworkManager if one does not already exist
