@@ -1,4 +1,4 @@
-namespace Mirror.CloudServices.ListServerService
+namespace Mirror.Cloud.ListServerService
 {
     public abstract class ListServerBaseApi : BaseApi
     {

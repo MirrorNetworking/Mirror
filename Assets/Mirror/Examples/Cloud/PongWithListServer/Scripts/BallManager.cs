@@ -1,7 +1,7 @@
-using Mirror.CloudServices.Example;
+using Mirror.Cloud.Example;
 using UnityEngine;
 
-namespace Mirror.CloudServices.Examples.Pong
+namespace Mirror.Cloud.Examples.Pong
 {
     public class BallManager : NetworkBehaviour
     {

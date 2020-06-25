@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror.CloudServices.Examples.Pong
+namespace Mirror.Cloud.Examples.Pong
 {
     public class Ball : NetworkBehaviour
     {

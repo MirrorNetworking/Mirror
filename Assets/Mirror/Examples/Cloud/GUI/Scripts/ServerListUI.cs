@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Mirror.CloudServices.ListServerService;
+using Mirror.Cloud.ListServerService;
 using UnityEngine;
 
-namespace Mirror.CloudServices.Example
+namespace Mirror.Cloud.Example
 {
     /// <summary>
     /// Displays the list of servers

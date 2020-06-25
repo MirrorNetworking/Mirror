@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Mirror.CloudServices.ListServerService
+namespace Mirror.Cloud.ListServerService
 {
     public sealed class ListServerServerApi : ListServerBaseApi, IListServerServerApi
     {

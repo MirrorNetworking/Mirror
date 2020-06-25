@@ -1,6 +1,6 @@
 using UnityEngine.Networking;
 
-namespace Mirror.CloudServices
+namespace Mirror.Cloud
 {
     public static class Extensions
     {

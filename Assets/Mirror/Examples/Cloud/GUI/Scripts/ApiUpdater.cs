@@ -1,8 +1,8 @@
 using System;
-using Mirror.CloudServices.ListServerService;
+using Mirror.Cloud.ListServerService;
 using UnityEngine;
 
-namespace Mirror.CloudServices.Example
+namespace Mirror.Cloud.Example
 {
     /// <summary>
     /// This component should be put on the NetworkManager object

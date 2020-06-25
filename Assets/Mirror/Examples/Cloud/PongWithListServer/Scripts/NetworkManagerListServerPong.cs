@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror.CloudServices.Example
+namespace Mirror.Cloud.Example
 {
     public sealed class NetworkManagerListServerPong : NetworkManagerListServer
     {

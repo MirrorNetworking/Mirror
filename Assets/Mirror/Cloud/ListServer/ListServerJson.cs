@@ -1,6 +1,6 @@
 using System;
 
-namespace Mirror.CloudServices.ListServerService
+namespace Mirror.Cloud.ListServerService
 {
     [Serializable]
     public struct ServerCollectionJson : ICanBeJson

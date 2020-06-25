@@ -1,6 +1,6 @@
 using System;
 
-namespace Mirror.CloudServices.Example
+namespace Mirror.Cloud.Example
 {
     /// <summary>
     /// Network Manager with events that are used by the list server
