@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.Events;
 
-namespace Mirror.CloudServices.ListServerService
+namespace Mirror.Cloud.ListServerService
 {
     public sealed class ListServer
     {

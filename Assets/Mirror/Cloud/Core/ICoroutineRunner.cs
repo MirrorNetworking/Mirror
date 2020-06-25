@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Mirror.CloudServices
+namespace Mirror.Cloud
 {
     public interface ICoroutineRunner : IUnityEqualCheck
     {
