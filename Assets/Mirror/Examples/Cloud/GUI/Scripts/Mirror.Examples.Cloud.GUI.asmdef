@@ -1,7 +1,8 @@
 {
-    "name": "Mirror.CloudServices",
+    "name": "Mirror.Examples.Cloud.GUI",
     "references": [
-        "Mirror"
+        "Mirror",
+        "Mirror.Cloud"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

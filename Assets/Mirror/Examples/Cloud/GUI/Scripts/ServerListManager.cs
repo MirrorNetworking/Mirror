@@ -3,6 +3,9 @@ using UnityEngine.UI;
 
 namespace Mirror.CloudServices.Example
 {
+    /// <summary>
+    /// Uses the ApiConnector on NetworkManager to update the Server list
+    /// </summary>
     public class ServerListManager : MonoBehaviour
     {
         [Header("UI")]

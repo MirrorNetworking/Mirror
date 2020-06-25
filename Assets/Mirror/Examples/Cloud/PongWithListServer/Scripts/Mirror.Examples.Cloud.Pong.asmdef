@@ -1,9 +1,9 @@
 {
-    "name": "Mirror.Examples.CloudService",
+    "name": "Mirror.Examples.Cloud.Pong",
     "references": [
         "Mirror",
-        "Mirror.Components",
-        "Mirror.CloudServices"
+        "Mirror.Cloud",
+        "Mirror.Examples.Cloud.GUI"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

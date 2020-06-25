@@ -2,7 +2,10 @@ using System;
 
 namespace Mirror.CloudServices.Example
 {
-    public class NetworkManagerListServerPong : NetworkManager
+    /// <summary>
+    /// Network Manager with events that are used by the list server
+    /// </summary>
+    public class NetworkManagerListServer : NetworkManager
     {
         /// <summary>
         /// Called when Server Starts

@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 namespace Mirror.CloudServices.Example
 {
+    /// <summary>
+    /// Displays a server created by ServerListUI
+    /// </summary>
     public class ServerListUIItem : MonoBehaviour
     {
         [SerializeField] Text nameText = null;
