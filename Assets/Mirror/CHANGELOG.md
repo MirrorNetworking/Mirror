@@ -1,3 +1,10 @@
+## [34.9.3](https://github.com/MirrorNG/MirrorNG/compare/34.9.2-master...34.9.3-master) (2020-06-25)
+
+
+### Bug Fixes
+
+* Optional Server or Client for PlayerSpawner ([#231](https://github.com/MirrorNG/MirrorNG/issues/231)) ([3fa5f89](https://github.com/MirrorNG/MirrorNG/commit/3fa5f89d8c934b233330efe52b42e59198a920cb))
+
 ## [34.9.2](https://github.com/MirrorNG/MirrorNG/compare/34.9.1-master...34.9.2-master) (2020-06-14)
 
 
