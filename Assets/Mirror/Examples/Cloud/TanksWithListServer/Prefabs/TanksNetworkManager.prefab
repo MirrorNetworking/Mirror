@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4798169800353248837}
   - component: {fileID: 4798169800353248833}
   - component: {fileID: 5399210850297115757}
+  - component: {fileID: 5256484632236059241}
   - component: {fileID: 1442807832621757098}
   - component: {fileID: 4798169800353248834}
   m_Layer: 0
@@ -63,6 +64,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1f6e5d5acb5879f45a2235ae0f44dc92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameName: Tanks Game
+--- !u!114 &5256484632236059241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4798169800353248846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76dab753e7255254687cd57985d8d675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1442807832621757098
