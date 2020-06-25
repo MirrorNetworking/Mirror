@@ -472,7 +472,7 @@ namespace Mirror
         }
 
         // The user should never need to pump the update loop manually
-        internal static void Update()
+        public static void Update()
         {
             if (!active)
                 return;
