@@ -76,7 +76,7 @@ namespace Mirror.Experimental
 
         bool ClientWithAuthority => clientAuthority && hasAuthority;
 
-        void OnVelocityChanged(Vector3 oldValue, Vector3 newValue)
+        void OnVelocityChanged(Vector3 _, Vector3 newValue)
         {
             if (IgnoreSync)
                 return;
@@ -85,7 +85,7 @@ namespace Mirror.Experimental
         }
 
 
-        void OnAngularVelocityChanged(Vector3 oldValue, Vector3 newValue)
+        void OnAngularVelocityChanged(Vector3 _, Vector3 newValue)
         {
             if (IgnoreSync)
                 return;
@@ -93,7 +93,7 @@ namespace Mirror.Experimental
             target.angularVelocity = newValue;
         }
 
-        void OnIsKinematicChanged(bool oldValue, bool newValue)
+        void OnIsKinematicChanged(bool _, bool newValue)
         {
             if (IgnoreSync)
                 return;
@@ -101,7 +101,7 @@ namespace Mirror.Experimental
             target.isKinematic = newValue;
         }
 
-        void OnUseGravityChanged(bool oldValue, bool newValue)
+        void OnUseGravityChanged(bool _, bool newValue)
         {
             if (IgnoreSync)
                 return;
@@ -109,7 +109,7 @@ namespace Mirror.Experimental
             target.useGravity = newValue;
         }
 
-        void OnuDragChanged(float oldValue, float newValue)
+        void OnuDragChanged(float _, float newValue)
         {
             if (IgnoreSync)
                 return;
@@ -117,7 +117,7 @@ namespace Mirror.Experimental
             target.drag = newValue;
         }
 
-        void OnAngularDragChanged(float oldValue, float newValue)
+        void OnAngularDragChanged(float _, float newValue)
         {
             if (IgnoreSync)
                 return;
