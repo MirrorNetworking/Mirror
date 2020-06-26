@@ -289,7 +289,7 @@ namespace Mirror.Experimental
         /// <summary>
         /// holds previously synced values
         /// </summary>
-        public class ClientSyncState
+        class ClientSyncState
         {
             public Vector3 velocity;
             public Vector3 angularVelocity;
