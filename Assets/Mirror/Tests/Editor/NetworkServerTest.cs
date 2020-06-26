@@ -663,36 +663,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ActivateHostSceneCallsOnStartClient()
-        {
-            // add an identity with a networkbehaviour to .spawned
-            GameObject go = new GameObject();
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
-            identity.netId = 42;
-            // for authority check
-            //identity.connectionToClient = connection;
-            OnStartClientTestNetworkBehaviour comp = go.AddComponent<OnStartClientTestNetworkBehaviour>();
-            Assert.That(comp.called, Is.EqualTo(0));
-            //connection.identity = identity;
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // ActivateHostScene
-            NetworkHost.ActivateHostScene();
-
-            // was OnStartClient called for all .spawned networkidentities?
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            NetworkIdentity.spawned.Clear();
-            NetworkServer.Shutdown();
-            // destroy the test gameobject AFTER server was stopped.
-            // otherwise isServer is true in OnDestroy, which means it would try
-            // to call Destroy(go). but we need to use DestroyImmediate in
-            // Editor
-            GameObject.DestroyImmediate(go);
-        }
-
-        [Test]
         public void SendToAllTest()
         {
             // message handlers

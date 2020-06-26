@@ -4,7 +4,10 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class NetworkClientTests
+    /// <summary>
+    /// Used by NetworkClientTests and NetworkHostTests
+    /// </summary>
+    public class NetworkClientTestsBase
     {
         GameObject transportGO;
 
@@ -34,22 +37,10 @@ namespace Mirror.Tests
             GameObject.DestroyImmediate(transportGO);
             Transport.activeTransport = null;
         }
+    }
 
-        [Test]
-        public void serverIp()
-        {
-            NetworkHost.ConnectHost();
-            Assert.That(NetworkClient.serverIp, Is.EqualTo("localhost"));
-        }
-
-        [Test]
-        public void isConnected()
-        {
-            Assert.That(NetworkClient.isConnected, Is.False);
-            NetworkHost.ConnectHost();
-            Assert.That(NetworkClient.isConnected, Is.True);
-        }
-
+    public class NetworkClientTests : NetworkClientTestsBase
+    {
         [Test]
         public void ConnectUri()
         {
@@ -57,18 +48,6 @@ namespace Mirror.Tests
             // update transport so connect event is processed
             ((MemoryTransport)Transport.activeTransport).LateUpdate();
             Assert.That(NetworkClient.isConnected, Is.True);
-        }
-
-        [Test]
-        public void DisconnectInHostMode()
-        {
-            NetworkHost.ConnectHost();
-            Assert.That(NetworkClient.isConnected, Is.True);
-            Assert.That(NetworkServer.localConnection, !Is.Null);
-
-            NetworkClient.Disconnect();
-            Assert.That(NetworkClient.isConnected, Is.False);
-            Assert.That(NetworkServer.localConnection, Is.Null);
         }
 
         [Test]
