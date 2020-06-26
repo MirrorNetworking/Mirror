@@ -530,7 +530,7 @@ namespace Mirror
             //             isn't called in host mode!
             //
             // TODO call this after spawnobjects and worry about the syncvar hook fix later?
-            NetworkClient.ConnectHost();
+            NetworkHost.ConnectHost();
 
             // server scene was loaded. now spawn all the objects
             NetworkServer.SpawnObjects();
@@ -554,12 +554,12 @@ namespace Mirror
             }
 
             networkAddress = "localhost";
-            NetworkServer.ActivateHostScene();
+            NetworkHost.ActivateHostScene();
             RegisterClientMessages();
 
             // ConnectLocalServer needs to be called AFTER RegisterClientMessages
             // (https://github.com/vis2k/Mirror/pull/1249/)
-            NetworkClient.ConnectLocalServer();
+            NetworkHost.ConnectLocalServer();
 
             OnStartClient();
         }
@@ -577,7 +577,7 @@ namespace Mirror
             // DisconnectLocalServer needs to be called so that the host client
             // receives a DisconnectMessage too.
             // fixes: https://github.com/vis2k/Mirror/issues/1515
-            NetworkClient.DisconnectLocalServer();
+            NetworkHost.DisconnectLocalServer();
 
             StopClient();
             StopServer();

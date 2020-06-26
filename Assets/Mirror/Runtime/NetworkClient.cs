@@ -56,6 +56,13 @@ namespace Mirror
         /// </summary>
         public static bool isLocalClient => connection is ULocalConnectionToServer;
 
+        internal static void SetConnection(NetworkConnectionToServer conn)
+        {
+            connection = conn;
+            // setup all the handlers
+            connection.SetHandlers(handlers);
+        }
+
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
@@ -71,9 +78,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(address);
 
-            // setup all the handlers
-            connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
+            SetConnection(new NetworkConnectionToServer());
         }
 
         /// <summary>
@@ -91,56 +96,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(uri);
 
-            // setup all the handlers
-            connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
-        }
-
-        internal static void ConnectHost()
-        {
-            logger.Log("Client Connect Host to Server");
-
-            RegisterSystemHandlers(true);
-
-            connectState = ConnectState.Connected;
-
-            // create local connection objects and connect them
-            ULocalConnectionToServer connectionToServer = new ULocalConnectionToServer();
-            ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
-            connectionToServer.connectionToClient = connectionToClient;
-            connectionToClient.connectionToServer = connectionToServer;
-
-            connection = connectionToServer;
-            connection.SetHandlers(handlers);
-
-            // create server connection to local client
-            NetworkServer.SetLocalConnection(connectionToClient);
-        }
-
-        /// <summary>
-        /// connect host mode
-        /// </summary>
-        internal static void ConnectLocalServer()
-        {
-            NetworkServer.OnConnected(NetworkServer.localConnection);
-            NetworkServer.localConnection.Send(new ConnectMessage());
-        }
-
-        /// <summary>
-        /// disconnect host mode. this is needed to call DisconnectMessage for
-        /// the host client too.
-        /// </summary>
-        internal static void DisconnectLocalServer()
-        {
-            // only if host connection is running
-            if (NetworkServer.localConnection != null)
-            {
-                // TODO ConnectLocalServer manually sends a ConnectMessage to the
-                // local connection. should we send a DisconnectMessage here too?
-                // (if we do then we get an Unknown Message ID log)
-                //NetworkServer.localConnection.Send(new DisconnectMessage());
-                NetworkServer.OnDisconnected(NetworkServer.localConnection.connectionId);
-            }
+            SetConnection(new NetworkConnectionToServer());
         }
 
         static void InitializeTransportHandlers()

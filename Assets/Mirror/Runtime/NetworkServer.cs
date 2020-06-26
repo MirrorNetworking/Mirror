@@ -238,19 +238,6 @@ namespace Mirror
             RemoveConnection(0);
         }
 
-        internal static void ActivateHostScene()
-        {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
-                if (!identity.isClient)
-                {
-                    if (logger.LogEnabled()) logger.Log("ActivateHostScene " + identity.netId + " " + identity);
-
-                    identity.OnStartClient();
-                }
-            }
-        }
-
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
         static void SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
