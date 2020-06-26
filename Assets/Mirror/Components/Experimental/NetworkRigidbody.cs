@@ -186,6 +186,13 @@ namespace Mirror.Experimental
                 return;
             }
 
+            SendVelocity();
+            SendRigidBodySettings();
+        }
+
+        [Client]
+        void SendVelocity()
+        {
             Vector3 currentVelocity = syncVelocity ? target.velocity : default;
             Vector3 currentAngularVelocity = syncAngularVelocity ? target.angularVelocity : default;
 
@@ -205,7 +212,11 @@ namespace Mirror.Experimental
                 CmdSendVelocity(currentVelocity);
                 previousValue.velocity = currentVelocity;
             }
+        }
 
+        [Client]
+        void SendRigidBodySettings()
+        {
             // These shouldn't change often so it is ok to send in their own Command
             if (previousValue.isKinematic != target.isKinematic)
             {
