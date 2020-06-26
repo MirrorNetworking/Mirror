@@ -1,11 +1,17 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Mirror
 {
+    /// <summary>
+    /// The NetworkHost helps to set up the NetworkClient and NetworkServer in host mode
+    /// </summary>
     public static class NetworkHost
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkHost));
 
+        /// <summary>
+        /// Creates and Connects Local connection to server
+        /// </summary>
         public static void ConnectHost()
         {
             logger.Log("Client Connect Host to Server");
@@ -53,7 +59,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        /// Calls OnStartClient on spawned objects
         /// </summary>
         public static void ActivateHostScene()
         {
