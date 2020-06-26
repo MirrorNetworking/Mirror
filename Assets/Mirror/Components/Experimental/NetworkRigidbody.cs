@@ -38,7 +38,7 @@ namespace Mirror.Experimental
         /// <summary>
         /// Values sent on client with authoirty after they are sent to the server
         /// </summary>
-        ClientSyncState previousValue = new ClientSyncState();
+        readonly ClientSyncState previousValue = new ClientSyncState();
 
         void OnValidate()
         {
@@ -273,7 +273,6 @@ namespace Mirror.Experimental
         void CmdSendAngularDrag(float angularDrag)
         {
             this.angularDrag = angularDrag;
-            //target.angularDrag = angularDrag;
         }
 
         /// <summary>
