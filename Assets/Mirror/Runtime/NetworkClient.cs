@@ -96,7 +96,7 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
-        internal static void ConnectHost()
+        public static void ConnectHost()
         {
             logger.Log("Client Connect Host to Server");
 
@@ -120,7 +120,7 @@ namespace Mirror
         /// <summary>
         /// connect host mode
         /// </summary>
-        internal static void ConnectLocalServer()
+        public static void ConnectLocalServer()
         {
             NetworkServer.OnConnected(NetworkServer.localConnection);
             NetworkServer.localConnection.Send(new ConnectMessage());
@@ -130,7 +130,7 @@ namespace Mirror
         /// disconnect host mode. this is needed to call DisconnectMessage for
         /// the host client too.
         /// </summary>
-        internal static void DisconnectLocalServer()
+        public static void DisconnectLocalServer()
         {
             // only if host connection is running
             if (NetworkServer.localConnection != null)
@@ -253,7 +253,7 @@ namespace Mirror
             return false;
         }
 
-        internal static void Update()
+        public static void Update()
         {
             // local connection?
             if (connection is ULocalConnectionToServer localConnection)

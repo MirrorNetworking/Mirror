@@ -238,7 +238,7 @@ namespace Mirror
             RemoveConnection(0);
         }
 
-        internal static void ActivateHostScene()
+        public static void ActivateHostScene()
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
@@ -472,7 +472,7 @@ namespace Mirror
         }
 
         // The user should never need to pump the update loop manually
-        internal static void Update()
+        public static void Update()
         {
             if (!active)
                 return;
