@@ -253,7 +253,7 @@ namespace Mirror
             return false;
         }
 
-        internal static void Update()
+        public static void Update()
         {
             // local connection?
             if (connection is ULocalConnectionToServer localConnection)
