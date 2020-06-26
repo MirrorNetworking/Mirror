@@ -45,6 +45,9 @@ namespace Mirror.Cloud.Example
 
         void OnDestroy()
         {
+            if (connector == null)
+                return;
+
             if (autoRefreshServerlist)
             {
                 connector.ListServer.ClientApi.StopGetServerListRepeat();
