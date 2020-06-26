@@ -466,7 +466,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.active, Is.True);
 
             // connect host client
-            NetworkClient.ConnectHost();
+            NetworkHost.ConnectHost();
             Assert.That(NetworkClient.active, Is.True);
 
             // get the host connection which already has client->server and
@@ -552,7 +552,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.active, Is.True);
 
             // connect host client
-            NetworkClient.ConnectHost();
+            NetworkHost.ConnectHost();
             Assert.That(NetworkClient.active, Is.True);
 
             // get the host connection which already has client->server and
@@ -668,7 +668,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.active, Is.True);
 
             // connect host client
-            NetworkClient.ConnectHost();
+            NetworkHost.ConnectHost();
             Assert.That(NetworkClient.active, Is.True);
 
             // get the host connection which already has client->server and

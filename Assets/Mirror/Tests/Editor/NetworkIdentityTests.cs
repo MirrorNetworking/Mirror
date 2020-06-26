@@ -396,7 +396,7 @@ namespace Mirror.Tests
             NetworkServer.Listen(1000);
 
             // start the client
-            NetworkClient.ConnectHost();
+            NetworkHost.ConnectHost();
 
             // add component
             IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();

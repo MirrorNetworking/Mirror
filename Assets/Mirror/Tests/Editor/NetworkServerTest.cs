@@ -677,7 +677,7 @@ namespace Mirror.Tests
             NetworkIdentity.spawned[identity.netId] = identity;
 
             // ActivateHostScene
-            NetworkServer.ActivateHostScene();
+            NetworkHost.ActivateHostScene();
 
             // was OnStartClient called for all .spawned networkidentities?
             Assert.That(comp.called, Is.EqualTo(1));

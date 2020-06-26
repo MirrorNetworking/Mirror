@@ -15,10 +15,10 @@ namespace Mirror.Tests.RemoteAttrributeTest
 
             // start server/client
             NetworkServer.Listen(1);
-            NetworkClient.ConnectHost();
+            NetworkHost.ConnectHost();
             NetworkServer.SpawnObjects();
-            NetworkServer.ActivateHostScene();
-            NetworkClient.ConnectLocalServer();
+            NetworkHost.ActivateHostScene();
+            NetworkHost.ConnectLocalServer();
 
             NetworkServer.localConnection.isAuthenticated = true;
             NetworkClient.connection.isAuthenticated = true;
@@ -30,7 +30,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void TearDown()
         {
             // stop server/client
-            NetworkClient.DisconnectLocalServer();
+            NetworkHost.DisconnectLocalServer();
 
             NetworkClient.Disconnect();
             NetworkClient.Shutdown();

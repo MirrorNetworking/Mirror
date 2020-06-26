@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -38,7 +38,7 @@ namespace Mirror.Tests
         [Test]
         public void serverIp()
         {
-            NetworkClient.ConnectHost();
+            NetworkHost.ConnectHost();
             Assert.That(NetworkClient.serverIp, Is.EqualTo("localhost"));
         }
 
@@ -46,7 +46,7 @@ namespace Mirror.Tests
         public void isConnected()
         {
             Assert.That(NetworkClient.isConnected, Is.False);
-            NetworkClient.ConnectHost();
+            NetworkHost.ConnectHost();
             Assert.That(NetworkClient.isConnected, Is.True);
         }
 
@@ -62,7 +62,7 @@ namespace Mirror.Tests
         [Test]
         public void DisconnectInHostMode()
         {
-            NetworkClient.ConnectHost();
+            NetworkHost.ConnectHost();
             Assert.That(NetworkClient.isConnected, Is.True);
             Assert.That(NetworkServer.localConnection, !Is.Null);
 
