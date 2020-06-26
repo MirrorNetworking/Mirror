@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -18,15 +18,15 @@ namespace Mirror.Tests.Runtime
             yield return null;
 
             // connection host and wait 1 frame
-            NetworkClient.ConnectHost();
-            NetworkClient.ConnectLocalServer();
+            NetworkHost.ConnectHost();
+            NetworkHost.ConnectLocalServer();
             yield return null;
         }
 
         [TearDown]
         public void TearDown()
         {
-            NetworkClient.DisconnectLocalServer();
+            NetworkHost.DisconnectLocalServer();
             NetworkClient.Disconnect();
             NetworkClient.Shutdown();
 
