@@ -50,7 +50,7 @@ namespace Mirror
         /// <para>This is read-only. To change the ready state of a client, use ClientScene.Ready(). The server is able to set the ready state of clients using NetworkServer.SetClientReady(), NetworkServer.SetClientNotReady() and NetworkServer.SetAllClientsNotReady().</para>
         /// <para>This is done when changing scenes so that clients don't receive state update messages during scene loading.</para>
         /// </summary>
-        public static bool ready { get; internal set; }
+        public static bool ready { get; set; }
 
         /// <summary>
         /// The NetworkConnection object that is currently "ready". This is the connection to the server where objects are spawned from.
