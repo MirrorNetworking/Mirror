@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4465934, g: 0.49642956, b: 0.57482487, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -339,7 +339,10 @@ MonoBehaviour:
   OnStopAuthority:
     m_PersistentCalls:
       m_Calls: []
-  OnNetworkDestroy:
+  OnStopClient:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopServer:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1 &90143746
@@ -3032,7 +3035,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   startOnHeadless: 1
-  showDebugMessages: 0
   serverTickRate: 30
   server: {fileID: 1783103028}
   client: {fileID: 1783103027}
@@ -3080,12 +3082,21 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
+  ClientNotReady:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
   spawnPrefabs:
   - {fileID: 5075528875289742095, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
-  Transport: {fileID: 0}
+  Transport: {fileID: 1783103024}
 --- !u!114 &1783103028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3108,6 +3119,12 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
+  ServerChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
@@ -3116,7 +3133,7 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  transport: {fileID: 0}
+  transport: {fileID: 1783103024}
 --- !u!1 &1863915624
 GameObject:
   m_ObjectHideFlags: 0
@@ -3234,6 +3251,7 @@ GameObject:
   - component: {fileID: 1897504369}
   - component: {fileID: 1897504368}
   - component: {fileID: 1897504367}
+  - component: {fileID: 1897504370}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3306,6 +3324,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1897504370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1897504366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc6b510c425006f458e9b99cb817c55b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1904406264
 GameObject:
   m_ObjectHideFlags: 0

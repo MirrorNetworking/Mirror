@@ -287,6 +287,7 @@ GameObject:
   - component: {fileID: 88936776}
   - component: {fileID: 88936775}
   - component: {fileID: 88936774}
+  - component: {fileID: 88936778}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -367,6 +368,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 45, y: 180, z: 0}
+--- !u!114 &88936778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88936773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc6b510c425006f458e9b99cb817c55b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &123981370
 GameObject:
   m_ObjectHideFlags: 0
@@ -2522,6 +2535,15 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
+  ClientNotReady:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
@@ -2529,7 +2551,7 @@ MonoBehaviour:
   - {fileID: 1916082411674582, guid: 6f43bf5488a7443d19ab2a83c6b91f35, type: 3}
   - {fileID: 2011878188}
   - {fileID: 9081919128954505657, guid: ecd52c53a6ef7496693343d3e32dace1, type: 3}
-  Transport: {fileID: 0}
+  Transport: {fileID: 1282001521}
 --- !u!114 &1282001520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2544,7 +2566,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   startOnHeadless: 1
-  showDebugMessages: 0
   serverTickRate: 30
   server: {fileID: 1282001523}
   client: {fileID: 1282001519}
@@ -2610,6 +2631,12 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
+  ServerChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
@@ -2618,7 +2645,7 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  transport: {fileID: 0}
+  transport: {fileID: 1282001521}
 --- !u!1 &1291804677
 GameObject:
   m_ObjectHideFlags: 0
@@ -3324,7 +3351,10 @@ MonoBehaviour:
   OnStopAuthority:
     m_PersistentCalls:
       m_Calls: []
-  OnNetworkDestroy:
+  OnStopClient:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopServer:
     m_PersistentCalls:
       m_Calls: []
 --- !u!4 &2011878191
