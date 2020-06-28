@@ -88,7 +88,11 @@ var LibraryWebSockets = {
 	SocketState: function (socketInstance)
 	{
 		var socket = webSocketInstances[socketInstance];
-		return socket.readyState;
+
+		if(socket)
+			return socket.readyState;
+
+		return false; 
 	},
 
 	SocketSend: function (socketInstance, ptr, length)
