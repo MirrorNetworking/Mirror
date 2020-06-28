@@ -26,6 +26,22 @@ namespace Mirror
             InitServer();
         }
 
+        void OnEnable()
+        {
+            foreach (Transport transport in transports)
+            {
+                transport.enabled = true;
+            }
+        }
+
+        void OnDisable()
+        {
+            foreach (Transport transport in transports)
+            {
+                transport.enabled = false;
+            }
+        }
+
         public override bool Available()
         {
             // available if any of the transports is available
