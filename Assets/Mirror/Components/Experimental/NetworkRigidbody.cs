@@ -168,13 +168,13 @@ namespace Mirror.Experimental
 
             if (velocityChanged)
             {
-                velocity = target.velocity;
+                velocity = currentVelocity;
                 previousValue.velocity = currentVelocity;
             }
 
             if (angularVelocityChanged)
             {
-                angularVelocity = target.angularVelocity;
+                angularVelocity = currentVelocity;
                 previousValue.angularVelocity = currentAngularVelocity;
             }
 
