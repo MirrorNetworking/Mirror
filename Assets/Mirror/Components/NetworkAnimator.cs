@@ -81,6 +81,9 @@ namespace Mirror
             get => _animator;
             set
             {
+                // Changing animator after one is already set can cause problems 
+                // if new set up message is received before the new animator is set on the client then the values would applied to the wrong aniamtor
+                // the user would have to find a way to synchronize setting the animator to the right animator on both the client and server
                 if (HasAnimator)
                 {
                     logger.LogError("setting animator when one has already been set");
