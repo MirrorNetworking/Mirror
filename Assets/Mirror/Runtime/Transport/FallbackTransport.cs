@@ -27,6 +27,16 @@ namespace Mirror
             Debug.Log("FallbackTransport available: " + available.GetType());
         }
 
+        void OnEnable()
+        {
+            available.enabled = true;
+        }
+
+        void OnDisable()
+        {
+            available.enabled = false;
+        }
+
         // The client just uses the first transport available
         Transport GetAvailableTransport()
         {
