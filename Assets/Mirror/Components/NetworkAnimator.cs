@@ -28,6 +28,7 @@ namespace Mirror
         /// <summary>
         /// The animator component to synchronize.
         /// </summary>
+        [FormerlySerializedAs("m_Animator")]
         [FormerlySerializedAs("animator")]
         [Header("Animator")]
         [Tooltip("Animator that will have parameters synchronized")]
