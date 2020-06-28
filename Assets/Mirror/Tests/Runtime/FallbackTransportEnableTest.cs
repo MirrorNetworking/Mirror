@@ -14,14 +14,15 @@ namespace Mirror.Tests.Runtime
         public void Setup()
         {
             GameObject gameObject = new GameObject();
+            // set inactive so that awake isnt called
+            gameObject.SetActive(false);
 
             transport1 = Substitute.For<Transport>();
             transport2 = gameObject.AddComponent<MemoryTransport>();
 
-            // set inactive so that awake isnt called
-            gameObject.SetActive(false);
             transport = gameObject.AddComponent<FallbackTransport>();
             transport.transports = new[] { transport1, transport2 };
+
             gameObject.SetActive(true);
         }
 
@@ -29,7 +30,6 @@ namespace Mirror.Tests.Runtime
         public void TearDown()
         {
             GameObject.DestroyImmediate(transport.gameObject);
-            GameObject.DestroyImmediate(transport2.gameObject);
         }
 
         [Test]
