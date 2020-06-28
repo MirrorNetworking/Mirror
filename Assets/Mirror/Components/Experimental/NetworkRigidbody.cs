@@ -158,14 +158,32 @@ namespace Mirror.Experimental
         [Server]
         void SyncToClients()
         {
-            if (syncVelocity)
+            // if client Authority just update the syncVars
+            if (clientAuthority)
             {
                 velocity = target.velocity;
-            }
-
-            if (syncAngularVelocity)
-            {
                 angularVelocity = target.angularVelocity;
+            }
+            // else only update if they have changed more than Sensitivity
+            else
+            {
+                Vector3 currentVelocity = syncVelocity ? target.velocity : default;
+                Vector3 currentAngularVelocity = syncAngularVelocity ? target.angularVelocity : default;
+
+                bool velocityChanged = syncVelocity && ((previousValue.velocity - currentVelocity).sqrMagnitude > velocitySensitivity * velocitySensitivity);
+                bool angularVelocityChanged = syncAngularVelocity && ((previousValue.angularVelocity - currentAngularVelocity).sqrMagnitude > angularVelocitySensitivity * angularVelocitySensitivity);
+
+                if (velocityChanged)
+                {
+                    velocity = target.velocity;
+                    previousValue.velocity = currentVelocity;
+                }
+
+                if (angularVelocityChanged)
+                {
+                    angularVelocity = target.angularVelocity;
+                    previousValue.angularVelocity = currentAngularVelocity;
+                }
             }
 
             isKinematic = target.isKinematic;
@@ -200,8 +218,8 @@ namespace Mirror.Experimental
             Vector3 currentVelocity = syncVelocity ? target.velocity : default;
             Vector3 currentAngularVelocity = syncAngularVelocity ? target.angularVelocity : default;
 
-            bool velocityChanged = (previousValue.velocity - currentVelocity).sqrMagnitude > velocitySensitivity * velocitySensitivity;
-            bool angularVelocityChanged = (previousValue.angularVelocity - currentAngularVelocity).sqrMagnitude > angularVelocitySensitivity * angularVelocitySensitivity;
+            bool velocityChanged = syncVelocity && ((previousValue.velocity - currentVelocity).sqrMagnitude > velocitySensitivity * velocitySensitivity);
+            bool angularVelocityChanged = syncAngularVelocity && ((previousValue.angularVelocity - currentAngularVelocity).sqrMagnitude > angularVelocitySensitivity * angularVelocitySensitivity);
 
             // if angularVelocity has changed it is likely that velocity has also changed so just sync both values
             // however if only velocity has changed just send velocity
