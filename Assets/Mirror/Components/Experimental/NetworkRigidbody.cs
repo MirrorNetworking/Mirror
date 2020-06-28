@@ -158,34 +158,27 @@ namespace Mirror.Experimental
         [Server]
         void SyncToClients()
         {
-            // if client Authority just update the syncVars
-            if (clientAuthority)
+            // only update if they have changed more than Sensitivity
+
+            Vector3 currentVelocity = syncVelocity ? target.velocity : default;
+            Vector3 currentAngularVelocity = syncAngularVelocity ? target.angularVelocity : default;
+
+            bool velocityChanged = syncVelocity && ((previousValue.velocity - currentVelocity).sqrMagnitude > velocitySensitivity * velocitySensitivity);
+            bool angularVelocityChanged = syncAngularVelocity && ((previousValue.angularVelocity - currentAngularVelocity).sqrMagnitude > angularVelocitySensitivity * angularVelocitySensitivity);
+
+            if (velocityChanged)
             {
                 velocity = target.velocity;
-                angularVelocity = target.angularVelocity;
+                previousValue.velocity = currentVelocity;
             }
-            // else only update if they have changed more than Sensitivity
-            else
+
+            if (angularVelocityChanged)
             {
-                Vector3 currentVelocity = syncVelocity ? target.velocity : default;
-                Vector3 currentAngularVelocity = syncAngularVelocity ? target.angularVelocity : default;
-
-                bool velocityChanged = syncVelocity && ((previousValue.velocity - currentVelocity).sqrMagnitude > velocitySensitivity * velocitySensitivity);
-                bool angularVelocityChanged = syncAngularVelocity && ((previousValue.angularVelocity - currentAngularVelocity).sqrMagnitude > angularVelocitySensitivity * angularVelocitySensitivity);
-
-                if (velocityChanged)
-                {
-                    velocity = target.velocity;
-                    previousValue.velocity = currentVelocity;
-                }
-
-                if (angularVelocityChanged)
-                {
-                    angularVelocity = target.angularVelocity;
-                    previousValue.angularVelocity = currentAngularVelocity;
-                }
+                angularVelocity = target.angularVelocity;
+                previousValue.angularVelocity = currentAngularVelocity;
             }
 
+            // other rigidbody settings
             isKinematic = target.isKinematic;
             useGravity = target.useGravity;
             drag = target.drag;
@@ -276,6 +269,7 @@ namespace Mirror.Experimental
         void CmdSendVelocity(Vector3 velocity)
         {
             this.velocity = velocity;
+            target.velocity = velocity;
         }
 
         /// <summary>
@@ -287,32 +281,40 @@ namespace Mirror.Experimental
             if (syncVelocity)
             {
                 this.velocity = velocity;
+
+                target.velocity = velocity;
+
             }
             this.angularVelocity = angularVelocity;
+            target.angularVelocity = angularVelocity;
         }
 
         [Command]
         void CmdSendIsKinematic(bool isKinematic)
         {
             this.isKinematic = isKinematic;
+            target.isKinematic = isKinematic;
         }
 
         [Command]
         void CmdSendUseGravity(bool useGravity)
         {
             this.useGravity = useGravity;
+            target.useGravity = useGravity;
         }
 
         [Command]
         void CmdSendDrag(float drag)
         {
             this.drag = drag;
+            target.drag = drag;
         }
 
         [Command]
         void CmdSendAngularDrag(float angularDrag)
         {
             this.angularDrag = angularDrag;
+            target.angularDrag = angularDrag;
         }
 
         /// <summary>
