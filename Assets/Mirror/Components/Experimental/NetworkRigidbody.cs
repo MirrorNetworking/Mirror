@@ -193,6 +193,10 @@ namespace Mirror.Experimental
         [Client]
         void SendVelocity()
         {
+            float now = Time.time;
+            if (now < previousValue.nextSyncTime)
+                return;
+
             Vector3 currentVelocity = syncVelocity ? target.velocity : default;
             Vector3 currentAngularVelocity = syncAngularVelocity ? target.angularVelocity : default;
 
@@ -211,6 +215,13 @@ namespace Mirror.Experimental
             {
                 CmdSendVelocity(currentVelocity);
                 previousValue.velocity = currentVelocity;
+            }
+
+
+            // only update syncTime if either has changed
+            if (angularVelocityChanged || velocityChanged)
+            {
+                previousValue.nextSyncTime = now + syncInterval;
             }
         }
 
@@ -291,6 +302,10 @@ namespace Mirror.Experimental
         /// </summary>
         public class ClientSyncState
         {
+            /// <summary>
+            /// Next sync time that velocity will be synced, based on syncInterval.
+            /// </summary>
+            public float nextSyncTime;
             public Vector3 velocity;
             public Vector3 angularVelocity;
             public bool isKinematic;
