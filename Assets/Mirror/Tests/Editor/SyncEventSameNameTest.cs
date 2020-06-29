@@ -19,10 +19,10 @@ namespace Mirror.Tests.RemoteAttrributeTest
     class EventBehaviour2 : NetworkBehaviour
     {
         [SyncEvent]
-        public event MySyncEventDelegate EventWithName;
+        public event SomeEventDelegate EventWithName;
 
         [SyncEvent]
-        public event MySyncEventDelegate2 EventSecond;
+        public event SomeEventDelegate EventSecond;
 
         public void CallEvent(int i)
         {
