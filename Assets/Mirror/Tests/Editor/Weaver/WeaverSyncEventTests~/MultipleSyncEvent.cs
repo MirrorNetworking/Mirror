@@ -9,6 +9,8 @@ namespace WeaverSyncEventTests.MultipleSyncEvent
 
         [SyncEvent]
         public event MySyncEventDelegate EventDoCoolThingsWithExcitingPeople;
+
+        [SyncEvent]
         public event MySyncEventDelegate2 EventDoMoreCoolThingsWithExcitingPeople;
     }
 }
