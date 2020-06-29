@@ -188,8 +188,7 @@ namespace Mirror.Weaver
             // so the earlier instruction that loads the event field is replaced with a Noop.
 
             // go backwards until find a ldfld instruction that matches ANY event
-            bool found = false;
-            while (iCount > 0 && !found)
+            while (iCount > 0)
             {
                 iCount -= 1;
                 Instruction inst = md.Body.Instructions[iCount];
@@ -200,11 +199,11 @@ namespace Mirror.Weaver
                     // find replaceEvent with matching name
                     // NOTE: original weaver compared .Name, not just the MethodDefinition,
                     //       that's why we use dict<string,method>.
-                    if (Weaver.WeaveLists.replaceEvents.TryGetValue(opField.Name, out MethodDefinition replacement))
+                    if (Weaver.WeaveLists.replaceEvents.TryGetValue(opField.FullName, out MethodDefinition replacement))
                     {
                         instr.Operand = replacement;
                         inst.OpCode = OpCodes.Nop;
-                        found = true;
+                        return;
                     }
                 }
             }
