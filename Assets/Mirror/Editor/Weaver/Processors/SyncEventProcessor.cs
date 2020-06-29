@@ -149,7 +149,6 @@ namespace Mirror.Weaver
                     Weaver.WeaveLists.replaceEvents[ed.Name] = eventCallFunc;
 
                     Weaver.DLog(td, "  Event: " + ed.Name);
-                    break;
                 }
             }
         }
