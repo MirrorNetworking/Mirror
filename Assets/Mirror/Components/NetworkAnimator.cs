@@ -41,7 +41,7 @@ namespace Mirror
         // multiple layers
         int[] animationHash;
         int[] transitionHash;
-        float sendTimer;
+        float nextSendTime;
 
         bool SendMessagesAllowed
         {
@@ -144,9 +144,10 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            if (SendMessagesAllowed && syncInterval > 0 && sendTimer < Time.time)
+            float now = Time.time;
+            if (SendMessagesAllowed && syncInterval >= 0 && now > nextSendTime)
             {
-                sendTimer = Time.time + syncInterval;
+                nextSendTime = now + syncInterval;
 
                 using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                 {
