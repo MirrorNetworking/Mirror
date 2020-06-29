@@ -178,6 +178,7 @@
     <Compile Include="WeaverSyncDictionaryTests~\SyncDictionaryStructKeyWithCustomDeserializeOnly.cs" />
     <Compile Include="WeaverSyncDictionaryTests~\SyncDictionaryStructKeyWithCustomMethods.cs" />
     <Compile Include="WeaverSyncDictionaryTests~\SyncDictionaryStructKeyWithCustomSerializeOnly.cs" />
+    <Compile Include="WeaverSyncEventTests~\MultipleSyncEvent.cs" />
     <Compile Include="WeaverSyncListTests~\SyncList.cs" />
     <Compile Include="WeaverSyncListTests~\SyncListByteValid.cs" />
     <Compile Include="WeaverSyncListTests~\SyncListErrorForGenericStruct.cs" />
