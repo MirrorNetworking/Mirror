@@ -170,6 +170,8 @@ public virtual void Start() {}
 ```cs
 public bool StartServer() {}
 
+public bool StartHost() {}
+
 public void StartClient() {}
 
 public void StopHost() {}
