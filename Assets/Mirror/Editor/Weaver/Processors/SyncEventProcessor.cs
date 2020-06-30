@@ -146,7 +146,7 @@ namespace Mirror.Weaver
                     td.Methods.Add(eventCallFunc);
 
                     // original weaver compares .Name, not EventDefinition.
-                    Weaver.WeaveLists.replaceEvents[ed.Name] = eventCallFunc;
+                    Weaver.WeaveLists.replaceEvents[ed.FullName] = eventCallFunc;
 
                     Weaver.DLog(td, "  Event: " + ed.Name);
                     break;
