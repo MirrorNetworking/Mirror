@@ -70,7 +70,7 @@ jobs:
         uses: actions/upload-artifact@v1
         if: always()
         with:
-          name: Test results (editor mode)
+          name: Test results
           path: Tests
 
       - name: Publish test results
