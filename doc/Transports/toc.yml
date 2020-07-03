@@ -12,5 +12,7 @@
   href: Ignorance.md
 - name: UDP - LiteNetLib4Mirror
   href: LiteNetLib4Mirror.md
-- name: Steam - Fizzy
-  href: Fizzy.md
+- name: Steam - FizzySteamworks
+  href: FizzySteamworks.md
+- name: Steam - FizzyFacepunch
+  href: FizzyFacepunch.md
