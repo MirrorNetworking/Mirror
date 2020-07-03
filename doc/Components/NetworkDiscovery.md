@@ -53,7 +53,7 @@ To do this, we've provided a [Template](../General/ScriptTemplates.md), so from 
 
 This will create a script in your project with 2 empty message classes and a custom NetworkDiscovery class that inherits from NetworkDiscoveryBase and has all the override methods included and documented for you.
 
-The message classes define what is sent between the client and server. As long as you keep your messages simple using the [data types](DataTypes.md) that Mirror can serialize, you won't need to write custom serializers for them.
+The message classes define what is sent between the client and server. As long as you keep your messages simple using the [data types](../Guides/DataTypes.md) that Mirror can serialize, you won't need to write custom serializers for them.
 
 ```cs
 public class DiscoveryRequest : MessageBase

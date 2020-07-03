@@ -27,11 +27,6 @@
 - Connection statisitcs (need DEBUG or STATS_ENABLED flag)
 - Multicasting (for discovering hosts in local network)
 
-## IL2CPP Warning!
-With IL2CPP, IPv6 is only supported on Unity 2018.3.6f1 and later because of this:  
-![Unity ChangeLog](unity2018.3.6f1il2cpp.png)  
-Also, socket Reuse Address option isn't available in IL2CPP.
-
 ## Credits
 RevenantX - for [LiteNetLib](https://github.com/RevenantX/LiteNetLib/releases)  
 vis2k & Paul - for [Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321)  
