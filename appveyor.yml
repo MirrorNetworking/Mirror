@@ -26,8 +26,8 @@ install:
 skip_tags: true
 
 build_script:
-  - docfx metadata doc\docfx.json
-  - docfx build doc\docfx.json
+  - docfx metadata --logLevel Warning --warningsAsErrors doc\docfx.json
+  - docfx build --logLevel Warning --warningsAsErrors doc\docfx.json
 
 image: Visual Studio 2017
 
