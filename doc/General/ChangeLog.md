@@ -170,7 +170,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Removed: Network Identity: Local Player Authority has been removed as no longer necessary.
 
 ## Version 4.0.7 - 2019-Oct-03
-- Added: [Authenticators](/Components/Authenticators/index.md) support to authenticate clients in the Connect phase.
+- Added: [Authenticators](../Components/Authenticators/index.md) support to authenticate clients in the Connect phase.
 - Added: Profiler events. These events can be subscribed to by the [Network Profiler](../Guides/Profiler.md) to provide visual information.
 - Added: Transports now include channel in profiler events.
 - Added: Transport abstract class now supports sending a message to a list of connection id's.
