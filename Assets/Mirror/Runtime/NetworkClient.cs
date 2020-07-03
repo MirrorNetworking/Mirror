@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mirror.AsyncTcp;
 using UnityEngine;
 using UnityEngine.Events;
 using Guid = System.Guid;
@@ -32,9 +33,10 @@ namespace Mirror
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
 
-        // spawn handlers
-        readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
-        readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
+        // spawn handlers. internal for testing purposes. do not use directly.
+        internal readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
+        internal readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
+        internal readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
         [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
         [Serializable] public class ClientSceneChangeEvent : UnityEvent<string, SceneOperation, bool> { }
@@ -95,8 +97,6 @@ namespace Mirror
         /// </summary>
         public List<GameObject> spawnPrefabs = new List<GameObject>();
 
-        readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
-
         public readonly NetworkTime Time = new NetworkTime();
 
         bool isSpawnFinished;
@@ -147,6 +147,28 @@ namespace Mirror
         /// NetworkClient can connect to local server in host mode too
         /// </summary>
         public bool IsLocalClient => hostServer != null;
+
+        /// <summary>
+        /// Called when the script gets added to an object. Useful for getting other needed scripts.
+        /// </summary>
+        private void OnValidate()
+        {
+            // add transport if there is none yet. makes upgrading easier.
+            if (Transport == null)
+            {
+                // First try to get the transport.
+                Transport = GetComponent<AsyncTransport>();
+                // was a transport added yet? if not, add one
+                if (Transport == null)
+                {
+                    Transport = gameObject.AddComponent<AsyncTcpTransport>();
+                    logger.Log("NetworkClient: added default Transport because there was none yet.");
+                }
+#if UNITY_EDITOR
+                UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
+#endif
+            }
+        }
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
@@ -751,16 +773,6 @@ namespace Mirror
 
         NetworkIdentity SpawnPrefab(SpawnMessage msg)
         {
-            if (GetPrefab(msg.assetId, out GameObject prefab))
-            {
-                GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
-                if (logger.LogEnabled())
-                {
-                    logger.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
-                }
-
-                return obj.GetComponent<NetworkIdentity>();
-            }
             if (spawnHandlers.TryGetValue(msg.assetId, out SpawnHandlerDelegate handler))
             {
                 GameObject obj = handler(msg);
@@ -769,6 +781,16 @@ namespace Mirror
                     logger.LogWarning("Client spawn handler for " + msg.assetId + " returned null");
                     return null;
                 }
+                return obj.GetComponent<NetworkIdentity>();
+            }
+            if (GetPrefab(msg.assetId, out GameObject prefab))
+            {
+                GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
+                if (logger.LogEnabled())
+                {
+                    logger.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
+                }
+
                 return obj.GetComponent<NetworkIdentity>();
             }
             logger.LogError("Failed to spawn server object, did you forget to add it to the NetworkManager? assetId=" + msg.assetId + " netId=" + msg.netId);

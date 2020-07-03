@@ -1,3 +1,25 @@
+## [34.9.4](https://github.com/MirrorNG/MirrorNG/compare/34.9.3-master...34.9.4-master) (2020-06-27)
+
+
+### Bug Fixes
+
+* Additive Scene Example was missing Player Auth on movement. ([#234](https://github.com/MirrorNG/MirrorNG/issues/234)) ([09bbd68](https://github.com/MirrorNG/MirrorNG/commit/09bbd686e6c294f24412b35785cfa7a5aa47b5f2))
+* examples run in background ([#233](https://github.com/MirrorNG/MirrorNG/issues/233)) ([4755650](https://github.com/MirrorNG/MirrorNG/commit/47556500eed7c0e2719e41c0e996925ddf1799bb))
+
+## [34.9.3](https://github.com/MirrorNG/MirrorNG/compare/34.9.2-master...34.9.3-master) (2020-06-25)
+
+
+### Bug Fixes
+
+* Optional Server or Client for PlayerSpawner ([#231](https://github.com/MirrorNG/MirrorNG/issues/231)) ([3fa5f89](https://github.com/MirrorNG/MirrorNG/commit/3fa5f89d8c934b233330efe52b42e59198a920cb))
+
+## [34.9.2](https://github.com/MirrorNG/MirrorNG/compare/34.9.1-master...34.9.2-master) (2020-06-14)
+
+
+### Bug Fixes
+
+* Spawn Handler Order ([#223](https://github.com/MirrorNG/MirrorNG/issues/223)) ([8674274](https://github.com/MirrorNG/MirrorNG/commit/86742740ef2707f420d5cb6aeeb257bf07511f0b)), closes [#222](https://github.com/MirrorNG/MirrorNG/issues/222)
+
 ## [34.9.1](https://github.com/MirrorNG/MirrorNG/compare/34.9.0-master...34.9.1-master) (2020-05-24)
 
 

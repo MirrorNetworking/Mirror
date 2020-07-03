@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Mirror.EditorScripts.Logging
 {
-    public static class LogLevelsGUI
+    public static class LogLevelsGui
     {
         public static LogSettings DrawCreateNewButton()
         {

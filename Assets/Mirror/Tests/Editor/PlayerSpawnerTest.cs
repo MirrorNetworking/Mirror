@@ -25,6 +25,8 @@ namespace Mirror.Tests
             client = go.AddComponent<NetworkClient>();
             server = go.AddComponent<NetworkServer>();
             spawner = go.AddComponent<PlayerSpawner>();
+            spawner.client = client;
+            spawner.server = server;
 
             playerPrefab = new GameObject();
             NetworkIdentity playerId = playerPrefab.AddComponent<NetworkIdentity>();

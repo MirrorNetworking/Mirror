@@ -14,7 +14,7 @@ namespace Mirror.EditorScripts.Logging
 
             if (target.settings == null)
             {
-                LogSettings newSettings = LogLevelsGUI.DrawCreateNewButton();
+                LogSettings newSettings = LogLevelsGui.DrawCreateNewButton();
                 if (newSettings != null)
                 {
                     SerializedProperty settingsProp = serializedObject.FindProperty("settings");
@@ -24,7 +24,7 @@ namespace Mirror.EditorScripts.Logging
             }
             else
             {
-                LogLevelsGUI.DrawLogFactoryDictionary(target.settings);
+                LogLevelsGui.DrawLogFactoryDictionary(target.settings);
             }
         }
     }

@@ -11,7 +11,7 @@ namespace Mirror.EditorScripts.Logging
         {
             CurrentScriptField();
 
-            LogLevelsGUI.DrawLogFactoryDictionary(target as LogSettings);
+            LogLevelsGui.DrawLogFactoryDictionary(target as LogSettings);
         }
 
         public void CurrentScriptField()

@@ -85,6 +85,8 @@ namespace Mirror.Weaver
         public static MethodReference NetworkBehaviourIsServer;
         public static MethodReference NetworkBehaviourIsClient;
         public static MethodReference NetworkBehaviourIsLocalClient;
+        public static MethodReference NetworkBehaviourHasAuthority;
+        public static MethodReference NetworkBehaviourIsLocalPlayer;
 
         // custom attribute types
         public static TypeReference SyncVarType;
@@ -295,7 +297,8 @@ namespace Mirror.Weaver
             NetworkBehaviourIsClient = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsClient");
             NetworkBehaviourIsLocalClient = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsLocalClient");
             RemoteCallHelperType = NetAssembly.MainModule.GetType("Mirror.RemoteCalls.RemoteCallHelper");
-            //NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
+            NetworkBehaviourHasAuthority = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "HasAuthority");
+            NetworkBehaviourIsLocalPlayer = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsLocalPlayer");
 
             MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = UnityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");

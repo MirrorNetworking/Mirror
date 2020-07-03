@@ -17,7 +17,7 @@ namespace Mirror
         /// <summary>
         /// if true sets all log level to LogType.Log
         /// </summary>
-        static bool debugMode = false;
+        static bool debugMode;
 
         public static ILogger GetLogger<T>(LogType defaultLogLevel = LogType.Warning)
         {

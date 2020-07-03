@@ -24,15 +24,15 @@ namespace Mirror
             {
                 throw new InvalidOperationException("Assign a player in the PlayerSpawner");
             }
-
-            if (client == null)
-                client = GetComponent<NetworkClient>();
-            if (server == null)
-                server = GetComponent<NetworkServer>();
-
-            client.Authenticated.AddListener(OnClientAuthenticated);
-            server.Authenticated.AddListener(OnServerAuthenticated);
-            client.RegisterPrefab(playerPrefab.gameObject);
+            if (client != null)
+            {
+                client.Authenticated.AddListener(OnClientAuthenticated);
+                client.RegisterPrefab(playerPrefab.gameObject);
+            }
+            if (server != null)
+            {
+                server.Authenticated.AddListener(OnServerAuthenticated);
+            }
         }
 
         private void OnServerAuthenticated(INetworkConnection connection)
