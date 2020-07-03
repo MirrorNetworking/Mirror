@@ -270,6 +270,10 @@ namespace Mirror.Experimental
         [Command]
         void CmdSendVelocity(Vector3 velocity)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!clientAuthority)
+                return;
+
             this.velocity = velocity;
             target.velocity = velocity;
         }
@@ -280,6 +284,10 @@ namespace Mirror.Experimental
         [Command]
         void CmdSendVelocityAndAngular(Vector3 velocity, Vector3 angularVelocity)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!clientAuthority)
+                return;
+
             if (syncVelocity)
             {
                 this.velocity = velocity;
@@ -294,6 +302,10 @@ namespace Mirror.Experimental
         [Command]
         void CmdSendIsKinematic(bool isKinematic)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!clientAuthority)
+                return;
+
             this.isKinematic = isKinematic;
             target.isKinematic = isKinematic;
         }
@@ -301,6 +313,10 @@ namespace Mirror.Experimental
         [Command]
         void CmdSendUseGravity(bool useGravity)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!clientAuthority)
+                return;
+
             this.useGravity = useGravity;
             target.useGravity = useGravity;
         }
@@ -308,6 +324,10 @@ namespace Mirror.Experimental
         [Command]
         void CmdSendDrag(float drag)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!clientAuthority)
+                return;
+
             this.drag = drag;
             target.drag = drag;
         }
@@ -315,6 +335,10 @@ namespace Mirror.Experimental
         [Command]
         void CmdSendAngularDrag(float angularDrag)
         {
+            // Ignore messages from client if not in client authority mode
+            if (!clientAuthority)
+                return;
+
             this.angularDrag = angularDrag;
             target.angularDrag = angularDrag;
         }
