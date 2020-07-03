@@ -77,7 +77,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: `NetworkReader.ReadMessage<T>`.
 - Added: Network Discovery now handles headless server mode.
 - Added: SyncVar, Cmd's and Rpc's now support Scriptable Objects via CreateInstance on the receiving side.
-- Added: [Discord Transport](../Transports/Discord.md).
+- Added: Discord Transport *Removed in v16.1.1*
 - Fixed: `isClient` now returns true on clients in OnDestroy for networked objects.
 - Fixed: Host Player race condition for Ready message.
 - Fixed: Network Animator and Network Transform now correctly check for client authority in their respective Command methods.
@@ -170,7 +170,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Removed: Network Identity: Local Player Authority has been removed as no longer necessary.
 
 ## Version 4.0.7 - 2019-Oct-03
-- Added: [Authenticators](Components/Authenticators/index.md) support to authenticate clients in the Connect phase.
+- Added: [Authenticators](/Components/Authenticators/index.md) support to authenticate clients in the Connect phase.
 - Added: Profiler events. These events can be subscribed to by the [Network Profiler](../Guides/Profiler.md) to provide visual information.
 - Added: Transports now include channel in profiler events.
 - Added: Transport abstract class now supports sending a message to a list of connection id's.
