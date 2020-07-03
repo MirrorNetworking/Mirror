@@ -8,8 +8,6 @@ namespace Mirror
     {
         bool GetPrefab(Guid assetId, out GameObject prefab);
 
-        bool RemovePlayer();
-
         void RegisterPrefab(GameObject prefab);
 
         void RegisterPrefab(GameObject prefab, Guid newAssetId);

@@ -9,6 +9,7 @@ namespace Mirror
     /// <para>Any object with this component on it will only be visible to other objects in the same match.</para>
     /// <para>This would be used to isolate players to their respective matches within a single game server instance. </para>
     /// </summary>
+    [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkMatchChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkMatchChecker.html")]

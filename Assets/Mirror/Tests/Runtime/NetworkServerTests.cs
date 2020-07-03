@@ -88,7 +88,7 @@ namespace Mirror.Tests
                 server.Spawn(new GameObject(), player);
             });
 
-            Assert.That(ex.Message, Is.EqualTo("Player object is not a " + nameof(player) + "."));
+            Assert.That(ex.Message, Is.EqualTo("Player object is not a player in the connection"));
         }
 
         [UnityTest]

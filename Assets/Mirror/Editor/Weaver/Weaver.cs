@@ -39,7 +39,7 @@ namespace Mirror.Weaver
 
         // Network types
         public static TypeReference NetworkBehaviourType;
-        public static TypeReference NetworkBehaviourType2;
+        public static TypeReference RemoteCallHelperType;
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
         public static TypeReference INetworkConnectionType;
@@ -152,7 +152,7 @@ namespace Mirror.Weaver
         }
 
         public static void Error(string message, MemberReference mr)
-        {    
+        {
             Log.Error($"{message} (at {mr})");
             WeavingFailed = true;
         }
@@ -273,8 +273,9 @@ namespace Mirror.Weaver
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_LocalClientActive");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, CurrentAssembly, "get_Active");
 
-            CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
+            CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.RemoteCalls.CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, CurrentAssembly, ".ctor");
+
             CurrentAssembly.MainModule.ImportReference(gameObjectType);
             CurrentAssembly.MainModule.ImportReference(transformType);
 
@@ -282,7 +283,7 @@ namespace Mirror.Weaver
             NetworkIdentityType = CurrentAssembly.MainModule.ImportReference(networkIdentityTmp);
 
             NetworkBehaviourType = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
-            NetworkBehaviourType2 = CurrentAssembly.MainModule.ImportReference(NetworkBehaviourType);
+            //NetworkBehaviourType2 = CurrentAssembly.MainModule.ImportReference(NetworkBehaviourType);
             INetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.INetworkConnection");
             INetworkConnectionType = CurrentAssembly.MainModule.ImportReference(INetworkConnectionType);
 
@@ -293,6 +294,8 @@ namespace Mirror.Weaver
             NetworkBehaviourIsServer = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsServer");
             NetworkBehaviourIsClient = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsClient");
             NetworkBehaviourIsLocalClient = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsLocalClient");
+            RemoteCallHelperType = NetAssembly.MainModule.GetType("Mirror.RemoteCalls.RemoteCallHelper");
+            //NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
 
             MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = UnityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");
@@ -328,16 +331,16 @@ namespace Mirror.Weaver
             getSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "GetSyncVarGameObject");
             setSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SetSyncVarNetworkIdentity");
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "GetSyncVarNetworkIdentity");
-            registerCommandDelegateReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "RegisterCommandDelegate");
-            registerRpcDelegateReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "RegisterRpcDelegate");
-            registerEventDelegateReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "RegisterEventDelegate");
+            registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, CurrentAssembly, "RegisterCommandDelegate");
+            registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, CurrentAssembly, "RegisterRpcDelegate");
+            registerEventDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, CurrentAssembly, "RegisterEventDelegate");
             getTypeReference = Resolvers.ResolveMethod(objectType, CurrentAssembly, "GetType");
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, CurrentAssembly, "GetTypeFromHandle");
             logErrorReference = Resolvers.ResolveMethod(UnityAssembly.MainModule.GetType("UnityEngine.Debug"), CurrentAssembly, "LogError");
             logWarningReference = Resolvers.ResolveMethod(UnityAssembly.MainModule.GetType("UnityEngine.Debug"), CurrentAssembly, "LogWarning");
             sendCommandInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendCommandInternal");
-            sendRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendRpcInternal");
-            sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendTargetRpcInternal");
+            sendRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendRPCInternal");
+            sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendTargetRPCInternal");
             sendEventInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendEventInternal");
 
             SyncObjectType = CurrentAssembly.MainModule.ImportReference(SyncObjectType);
@@ -424,7 +427,7 @@ namespace Mirror.Weaver
         static bool WeaveSyncObject(TypeDefinition td)
         {
             bool modified = false;
-            
+
             // ignore generic classes
             // we can not process generic classes
             // we give error if a generic syncObject is used in NetworkBehaviour
@@ -532,7 +535,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        private static bool WeaveModule(ModuleDefinition moduleDefinition)
+        static bool WeaveModule(ModuleDefinition moduleDefinition)
         {
             try
             {

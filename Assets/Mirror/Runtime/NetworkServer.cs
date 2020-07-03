@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mirror.RemoteCalls;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -166,7 +167,6 @@ namespace Mirror
         {
             connection.RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             connection.RegisterHandler<CommandMessage>(OnCommandMessage);
-            connection.RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
         }
 
         /// <summary>
@@ -669,8 +669,6 @@ namespace Mirror
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
 
-            //NOTE: DONT set connection ready.
-
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
             if (conn == LocalConnection)
             {
@@ -773,12 +771,20 @@ namespace Mirror
             SetClientReady(conn);
         }
 
-        // default remove player handler
-        void OnRemovePlayerMessage(INetworkConnection conn, RemovePlayerMessage msg)
+        /// <summary>
+        /// Removes the player object from the connection
+        /// </summary>
+        /// <param name="conn">The connection of the client to remove from</param>
+        /// <param name="destroyServerObject">Indicates whether the server object should be destroyed</param>
+        public void RemovePlayerForConnection(NetworkConnection conn, bool destroyServerObject)
         {
             if (conn.Identity != null)
             {
-                Destroy(conn.Identity.gameObject);
+                if (destroyServerObject)
+                    Destroy(conn.Identity.gameObject);
+                else
+                    UnSpawn(conn.Identity.gameObject);
+
                 conn.Identity = null;
             }
             else
@@ -796,10 +802,12 @@ namespace Mirror
                 return;
             }
 
+            CommandInfo commandInfo = identity.GetCommandInfo(msg.componentIndex, msg.functionHash);
+
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            if (identity.ConnectionToClient != conn)
+            if (commandInfo.requireAuthority && identity.ConnectionToClient != conn)
             {
                 logger.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
                 return;
@@ -808,7 +816,7 @@ namespace Mirror
             if (logger.LogEnabled()) logger.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader);
+                identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader, conn);
         }
 
         internal void SpawnObject(GameObject obj, INetworkConnection ownerConnection)
@@ -870,7 +878,6 @@ namespace Mirror
                     payload = payload,
                 };
 
-
                 conn.Send(msg);
             }
         }
@@ -899,13 +906,7 @@ namespace Mirror
         bool CheckForPrefab(GameObject obj)
         {
 #if UNITY_EDITOR
-#if UNITY_2018_3_OR_NEWER
             return UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj);
-#elif UNITY_2018_2_OR_NEWER
-            return (UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
-#else
-            return (UnityEditor.PrefabUtility.GetPrefabParent(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
-#endif
 #else
             return false;
 #endif
@@ -927,10 +928,10 @@ namespace Mirror
         /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
         /// </summary>
         /// <param name="obj">The object to spawn.</param>
-        /// <param name="player">The player object to set Client Authority to.</param>
-        public void Spawn(GameObject obj, GameObject player)
+        /// <param name="ownerPlayer">The player object to set Client Authority to.</param>
+        public void Spawn(GameObject obj, GameObject ownerPlayer)
         {
-            NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
+            NetworkIdentity identity = ownerPlayer.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
                 throw new InvalidOperationException("Player object has no NetworkIdentity");
@@ -938,7 +939,7 @@ namespace Mirror
 
             if (identity.ConnectionToClient == null)
             {
-                throw new InvalidOperationException("Player object is not a " + nameof(player) + ".");
+                throw new InvalidOperationException("Player object is not a player in the connection");
             }
 
             Spawn(obj, identity.ConnectionToClient);
@@ -981,7 +982,6 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("DestroyObject instance:" + identity.NetId);
             spawned.Remove(identity.NetId);
-
             identity.ConnectionToClient?.RemoveOwnedObject(identity);
 
             var msg = new ObjectDestroyMessage
@@ -1074,7 +1074,6 @@ namespace Mirror
                 if (ValidateSceneObject(identity))
                 {
                     if (logger.LogEnabled()) logger.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
-
                     identity.gameObject.SetActive(true);
 
                     Spawn(identity.gameObject);

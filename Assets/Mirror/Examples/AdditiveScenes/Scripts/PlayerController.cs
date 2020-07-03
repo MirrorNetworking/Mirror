@@ -4,9 +4,12 @@ namespace Mirror.Examples.Additive
 {
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkTransform))]
+    [RequireComponent(typeof(CapsuleCollider))]
+    [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
         public CharacterController characterController;
+        public CapsuleCollider capsuleCollider;
 
         void Awake()
         {
@@ -17,10 +20,19 @@ namespace Mirror.Examples.Additive
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
+            if (capsuleCollider == null)
+                capsuleCollider = GetComponent<CapsuleCollider>();
+        }
+
+        void Start()
+        {
+            capsuleCollider.enabled = IsServer;
         }
 
         public void OnStartLocalPlayer()
         {
+            characterController.enabled = true;
+
             Camera.main.orthographic = false;
             Camera.main.transform.SetParent(transform);
             Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
@@ -29,7 +41,7 @@ namespace Mirror.Examples.Additive
 
         void OnDisable()
         {
-            if (IsLocalPlayer)
+            if (IsLocalPlayer && Camera.main != null)
             {
                 Camera.main.orthographic = true;
                 Camera.main.transform.SetParent(null);
@@ -54,7 +66,7 @@ namespace Mirror.Examples.Additive
 
         void Update()
         {
-            if (!IsLocalPlayer)
+            if (!IsLocalPlayer || !characterController.enabled)
                 return;
 
             horizontal = Input.GetAxis("Horizontal");
@@ -74,7 +86,9 @@ namespace Mirror.Examples.Additive
                 isFalling = false;
 
             if ((isGrounded || !isFalling) && jumpSpeed < 1f && Input.GetKey(KeyCode.Space))
+            {
                 jumpSpeed = Mathf.Lerp(jumpSpeed, 1f, 0.5f);
+            }
             else if (!isGrounded)
             {
                 isFalling = true;

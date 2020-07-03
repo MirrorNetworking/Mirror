@@ -157,29 +157,6 @@ namespace Mirror.Tests
             GameObject.DestroyImmediate(extraObject);
         }
 
-        [Test]
-        public void GetDelegate()
-        {
-            // registerdelegate is protected, but we can use
-            // RegisterCommandDelegate which calls RegisterDelegate
-            NetworkBehaviour.RegisterCommandDelegate(
-                typeof(NetworkBehaviourDelegateComponent),
-                nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate);
-
-            // get handler
-            int cmdHash = NetworkBehaviour.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
-            NetworkBehaviour.CmdDelegate func = NetworkBehaviour.GetDelegate(cmdHash);
-            NetworkBehaviour.CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
-            Assert.That(func, Is.EqualTo(expected));
-
-            // invalid hash should return null handler
-            NetworkBehaviour.CmdDelegate funcNull = NetworkBehaviour.GetDelegate(1234);
-            Assert.That(funcNull, Is.Null);
-
-            // clean up
-            NetworkBehaviour.ClearDelegates();
-        }
 
         // NOTE: SyncVarGameObjectEqual should be static later
         [Test]

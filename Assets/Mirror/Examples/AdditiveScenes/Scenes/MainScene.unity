@@ -1886,6 +1886,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   networkSceneName: 
+  offlineScene: 
+  onlineScene: 
+  networkAddress: localhost
+  maxConnections: 4
+  disconnectInactiveConnections: 0
+  disconnectInactiveTimeout: 60
+  authenticator: {fileID: 0}
+  playerPrefab: {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7,
+    type: 3}
+  autoCreatePlayer: 1
+  playerSpawnMethod: 1
+  spawnPrefabs: []
   subScenes:
   - Assets/Mirror/Examples/AdditiveScenes/Scenes/SubScene.unity
 --- !u!4 &1661834279

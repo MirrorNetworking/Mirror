@@ -54,21 +54,21 @@ namespace Mirror.Weaver
 
             serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
             serializeFunc.Parameters.Add(new ParameterDefinition("item", ParameterAttributes.None, itemType));
-            ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
+            ILProcessor worker = serializeFunc.Body.GetILProcessor();
 
             MethodReference writeFunc = Writers.GetWriteFunc(itemType);
             if (writeFunc != null)
             {
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
-                serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
+                worker.Append(worker.Create(OpCodes.Ldarg_1));
+                worker.Append(worker.Create(OpCodes.Ldarg_2));
+                worker.Append(worker.Create(OpCodes.Call, writeFunc));
             }
             else
             {
                 Weaver.Error($"{td.Name} has sync object generic type {itemType.Name}.  Use a type supported by mirror instead", td);
                 return false;
             }
-            serWorker.Append(serWorker.Create(OpCodes.Ret));
+            worker.Append(worker.Create(OpCodes.Ret));
 
             td.Methods.Add(serializeFunc);
             return true;
@@ -97,14 +97,14 @@ namespace Mirror.Weaver
 
             deserializeFunction.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
 
-            ILProcessor serWorker = deserializeFunction.Body.GetILProcessor();
+            ILProcessor worker = deserializeFunction.Body.GetILProcessor();
 
             MethodReference readerFunc = Readers.GetReadFunc(itemType);
             if (readerFunc != null)
             {
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                serWorker.Append(serWorker.Create(OpCodes.Call, readerFunc));
-                serWorker.Append(serWorker.Create(OpCodes.Ret));
+                worker.Append(worker.Create(OpCodes.Ldarg_1));
+                worker.Append(worker.Create(OpCodes.Call, readerFunc));
+                worker.Append(worker.Create(OpCodes.Ret));
             }
             else
             {

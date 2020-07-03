@@ -1,13 +1,12 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListInheritance
 {
     class SyncListInheritance : NetworkBehaviour
     {
         readonly SuperSyncListString superSyncListString = new SuperSyncListString();
-    
-        
+
+
         public class SuperSyncListString : SyncListString
         {
 

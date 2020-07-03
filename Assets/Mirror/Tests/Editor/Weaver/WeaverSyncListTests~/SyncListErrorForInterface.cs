@@ -1,7 +1,6 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListErrorForInterface
 {
     class SyncListErrorForInterface : NetworkBehaviour
     {

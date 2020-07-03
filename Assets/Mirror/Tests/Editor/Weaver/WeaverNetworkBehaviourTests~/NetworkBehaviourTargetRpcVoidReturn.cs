@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcVoidReturn
 {
     class NetworkBehaviourTargetRpcVoidReturn : NetworkBehaviour
     {

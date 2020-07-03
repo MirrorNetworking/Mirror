@@ -1,12 +1,11 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListMissingParamlessCtor
 {
     class SyncListMissingParamlessCtor : NetworkBehaviour
     {
         public SyncListString2 Foo;
-    
+
 
         public class SyncListString2 : SyncList<string>
         {

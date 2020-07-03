@@ -159,7 +159,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static HashSet<string> GetDependecyPaths(string assemblyPath)
+        static HashSet<string> GetDependecyPaths(string assemblyPath)
         {
             // build directory list for later asm/symbol resolving using CompilationPipeline refs
             var dependencyPaths = new HashSet<string>();

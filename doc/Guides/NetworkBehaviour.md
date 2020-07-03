@@ -57,7 +57,7 @@ public class SpaceShip : NetworkBehaviour
 
 The built-in callbacks are:
 -   **OnStartServer** called on server when a game object spawns on the server, or when the server is started for game objects in the Scene
--   **OnStopServer** called on server when a game object spawns on the server, or when the server is started for game objects in the Scene
+-   **OnStopServer** called on server when a game object is destroyed on the server, or when the server is stopped for game objects in the Scene
 -   **OnStartClient** called on clients when the game object spawns on the client, or when the client connects to a server for game objects in the Scene
 -   **OnStopClient** called on clients when the server destroys the game object
 -   **OnStartLocalPlayer** called on clients for player game objects on the local client (only)

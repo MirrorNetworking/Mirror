@@ -1,9 +1,7 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
-namespace MirrorTest
+namespace WeaverMonoBehaviourTests.MonoBehaviourSyncVar
 {
     class MonoBehaviourSyncVar : MonoBehaviour
     {

@@ -1,11 +1,11 @@
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncSetTests.SyncSetGenericAbstractInheritance
 {
     class SyncSetGenericAbstractInheritance : NetworkBehaviour
     {
         readonly SomeSetInt superSyncSetString = new SomeSetInt();
-    
+
 
         public abstract class SomeSet<T> : SyncHashSet<T> { }
 

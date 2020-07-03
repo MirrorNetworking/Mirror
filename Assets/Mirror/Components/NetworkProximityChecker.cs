@@ -15,15 +15,6 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkProximityChecker));
 
         /// <summary>
-        /// Enumeration of methods to use to check proximity.
-        /// </summary>
-        public enum CheckMethod
-        {
-            Physics3D,
-            Physics2D
-        }
-
-        /// <summary>
         /// The maximim range that objects will be visible at.
         /// </summary>
         [Tooltip("The maximum range that objects will be visible at.")]
@@ -36,41 +27,17 @@ namespace Mirror
         public float VisibilityUpdateInterval = 1;
 
         /// <summary>
-        /// Which method to use for checking proximity of players.
-        /// <para>Physics3D uses 3D physics to determine proximity.</para>
-        /// <para>Physics2D uses 2D physics to determine proximity.</para>
-        /// </summary>
-        [Tooltip("Which method to use for checking proximity of players.\n\nPhysics3D uses 3D physics to determine proximity.\nPhysics2D uses 2D physics to determine proximity.")]
-        public CheckMethod ActualCheckMethod = CheckMethod.Physics3D;
-
-        /// <summary>
         /// Flag to force this object to be hidden for players.
         /// <para>If this object is a player object, it will not be hidden for that player.</para>
         /// </summary>
         [Tooltip("Enable to force this object to be hidden from players.")]
         public bool ForceHidden;
 
-        // Layers are used anyway, might as well expose them to the user.
-        /// <summary>
-        /// Select only the Player's layer to avoid unnecessary SphereCasts against the Terrain, etc.
-        /// <para>~0 means 'Everything'.</para>
-        /// </summary>
-        [Tooltip("Select only the Player's layer to avoid unnecessary SphereCasts against the Terrain, etc.")]
-        public LayerMask CastLayers = ~0;
-
         float lastUpdateTime;
-
-        // OverlapSphereNonAlloc array to avoid allocations.
-        // -> static so we don't create one per component
-        // -> this is worth it because proximity checking happens for just about
-        //    every entity on the server!
-        // -> should be big enough to work in just about all cases
-        static readonly Collider[] hitsBuffer3D = new Collider[10000];
-        static readonly Collider2D[] hitsBuffer2D = new Collider2D[10000];
 
         void Update()
         {
-            if (!Server.Active)
+            if (!IsServer)
                 return;
 
             if (Time.time - lastUpdateTime > VisibilityUpdateInterval)
@@ -107,55 +74,25 @@ namespace Mirror
             if (ForceHidden)
                 return;
 
-            // find players within range
-            switch (ActualCheckMethod)
+            // 'transform.' calls GetComponent, only do it once
+            Vector3 position = transform.position;
+
+            // brute force distance check
+            // -> only player connections can be observers, so it's enough if we
+            //    go through all connections instead of all spawned identities.
+            // -> compared to UNET's sphere cast checking, this one is orders of
+            //    magnitude faster. if we have 10k monsters and run a sphere
+            //    cast 10k times, we will see a noticeable lag even with physics
+            //    layers. but checking to every connection is fast.
+            foreach (INetworkConnection conn in Server.connections)
             {
-                case CheckMethod.Physics3D:
-                    Add3DHits(observers);
-                    break;
-
-                case CheckMethod.Physics2D:
-                    Add2DHits(observers);
-                    break;
-            }
-        }
-
-        void Add3DHits(HashSet<INetworkConnection> observers)
-        {
-            // cast without allocating GC for maximum performance
-            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, VisibilityRange, hitsBuffer3D, CastLayers);
-            if (hitCount == hitsBuffer3D.Length) logger.LogWarning("NetworkProximityChecker's OverlapSphere test for " + name + " has filled the whole buffer(" + hitsBuffer3D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
-
-            for (int i = 0; i < hitCount; i++)
-            {
-                Collider hit = hitsBuffer3D[i];
-                // collider might be on pelvis, often the NetworkIdentity is in a parent
-                // (looks in the object itself and then parents)
-                NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
-                // (if an object has a connectionToClient, it is a player)
-                if (identity != null && identity.ConnectionToClient != null)
+                if (conn != null && conn.Identity != null)
                 {
-                    observers.Add(identity.ConnectionToClient);
-                }
-            }
-        }
-
-        void Add2DHits(HashSet<INetworkConnection> observers)
-        {
-            // cast without allocating GC for maximum performance
-            int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, VisibilityRange, hitsBuffer2D, CastLayers);
-            if (hitCount == hitsBuffer2D.Length) logger.LogWarning("NetworkProximityChecker's OverlapCircle test for " + name + " has filled the whole buffer(" + hitsBuffer2D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
-
-            for (int i = 0; i < hitCount; i++)
-            {
-                Collider2D hit = hitsBuffer2D[i];
-                // collider might be on pelvis, often the NetworkIdentity is in a parent
-                // (looks in the object itself and then parents)
-                NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
-                // (if an object has a connectionToClient, it is a player)
-                if (identity != null && identity.ConnectionToClient != null)
-                {
-                    observers.Add(identity.ConnectionToClient);
+                    // check distance
+                    if (Vector3.Distance(conn.Identity.transform.position, position) < VisibilityRange)
+                    {
+                        observers.Add(conn);
+                    }
                 }
             }
         }

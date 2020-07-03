@@ -14,11 +14,12 @@ uMMORPG was possible with \<6000 lines of code. We needed a networking library t
 -   Alpha / Beta Unity versions cannot be supported
 
 **Multiple Transports Available:**
--   **TCP** ([Telepathy](Transports/Telepathy.md))
+-   **TCP** ([Telepathy](Transports/Telepathy.md) and [Apathy](https://mirror-networking.com/apathy/) and [Booster](https://mirror-networking.com/booster/))
 -   **UDP** ([ENet](Transports/Ignorance.md) and [LiteNetLib](Transports/LiteNetLib4Mirror.md))
 -   **WebGL** ([Secure Web Sockets](Transports/WebSockets.md))
--   **Steam** ([Steamworks.Net](Transports/Fizzy.md))
--   **Discord** ([Discord DSK](Transports/Discord.md))
+-   **Steam** ([Steamworks.Net or FacePunch](Transports/Fizzy.md))
+-   **Multiplexer** ([Multiplexer](Transports/Multiplexer.md))
+-   **Fallback** ([Fallback](Fallback.md))
 
 **List Server**
 
@@ -26,10 +27,10 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 
 **Key Features & Components:**
 -   [Transports](Transports/index.md) are interchangeable components
--   Additive Scene Loading
+-   Additive Scene handling
 -   Single and separated Unity projects supported
--   Network [Authenticators](Guides/Authentication.md) to protect your game
--   Network [Discovery](Guides/NetworkDiscovery.md) to easily connect LAN players to a LAN Server or Host
+-   Network [Authenticators](Components/Authenticators/index.md) to manage access to your game
+-   Network [Discovery](Components/NetworkDiscovery.md) to easily connect LAN players to a LAN Server or Host
 -   Network [Manager](Components/NetworkManager.md) and [HUD](Components/NetworkManagerHUD.md)
 -   Network [Room Manager](Components/NetworkRoomManager.md) and [Room Player](Components/NetworkRoomPlayer.md)
 -   Network [Identity](Components/NetworkIdentity.md)
@@ -37,6 +38,7 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 -   Network [Animator](Components/NetworkAnimator.md) with 64 parameters
 -   Network [Proximity Checker](Components/NetworkProximityChecker.md) to help with Area of Interest
 -   Network [Scene Checker](Components/NetworkSceneChecker.md) to islolate players and networked objects to Additive scene instances
+-   Network [Match Checker](Components/NetworkMatchChecker.md) to islolate players and networked objects by [Network Visibility](Guides/Visibility.md)
 -   [SyncVar](Guides/Sync/SyncVars.md), [SyncList](Guides/Sync/SyncLists.md), [SyncEvent](Guides/Sync/SyncEvent.md), [SyncDictionary](Guides/Sync/SyncDictionary.md), and [SyncHashSet](Guides/Sync/SyncHashSet.md)
 
 **Integrations**

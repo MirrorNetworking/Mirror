@@ -1,11 +1,11 @@
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListGenericInheritance
 {
     class SyncListGenericInheritance : NetworkBehaviour
     {
         readonly SomeListInt someList = new SomeListInt();
-    
+
 
         public class SomeList<T> : SyncList<T> { }
 

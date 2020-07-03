@@ -1,11 +1,11 @@
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListErrorForGenericStruct
 {
     class SyncListErrorForGenericStruct : NetworkBehaviour
     {
         MyGenericStructList harpseals;
-    
+
 
         struct MyGenericStruct<T>
         {

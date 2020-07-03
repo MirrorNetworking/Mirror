@@ -1,8 +1,7 @@
 using Mirror;
-using Mirror.Weaver.Tests.Extra;
 using UnityEngine;
 
-namespace MirrorTest
+namespace GeneratedReaderWriter.CreatesForInheritedFromScriptableObject
 {
     public class CreatesForInheritedFromScriptableObject : NetworkBehaviour
     {
@@ -13,7 +12,7 @@ namespace MirrorTest
         }
     }
 
-    public class DataScriptableObject :ScriptableObject
+    public class DataScriptableObject : ScriptableObject
     {
         public int usefulNumber;
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Security.Cryptography;
+using Mirror.RemoteCalls;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.Events;
@@ -43,16 +44,15 @@ namespace Mirror
     /// <para>* If the dirty mask is non-zero value, then the OnDeserialize function reads the values for the SyncVars that correspond to the dirty bits that are set</para>
     /// <para>* If there are SyncVar hook functions, those are invoked with the value read from the stream.</para>
     /// </remarks>
-    [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkIdentity")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkIdentity.html")]
     public sealed class NetworkIdentity : MonoBehaviour
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkIdentity));
+        static readonly ILogger logger = LogFactory.GetLogger<NetworkIdentity>();
 
-        // configuration
-        NetworkBehaviour[] networkBehavioursCache;
+        [NonSerialized]
+        NetworkBehaviour[] networkBehavioursCache = null;
 
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
@@ -151,6 +151,7 @@ namespace Mirror
                     return networkBehavioursCache;
 
                 var components = GetComponents<NetworkBehaviour>();
+
                 if (components.Length > 64)
                     throw new InvalidOperationException("Only 64 NetworkBehaviour per gameobject allowed");
 
@@ -203,12 +204,30 @@ namespace Mirror
             }
             internal set
             {
-                string newAssetIdString = value.ToString("N");
-                if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
+                string newAssetIdString = value == Guid.Empty ? string.Empty : value.ToString("N");
+                string oldAssetIdSrting = m_AssetId;
+
+                if (oldAssetIdSrting != newAssetIdString)
                 {
+                    // new is empty
+                    if (string.IsNullOrEmpty(newAssetIdString))
+                    {
+                        logger.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{oldAssetIdSrting}'");
+                        return;
+                    }
+
+                    // old not empty
+                    if (!string.IsNullOrEmpty(oldAssetIdSrting))
+                    {
+                        logger.LogError($"Can not Set AssetId on NetworkIdentity '{name}' becasue it already had an assetId, current assetId '{oldAssetIdSrting}', attempted new assetId '{newAssetIdString}'");
+                        return;
+                    }
+
+                    // old is empty
                     m_AssetId = newAssetIdString;
+
+                    if (logger.LogEnabled()) logger.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
                 }
-                else logger.LogWarning($"SetDynamicAssetId object {name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
             }
         }
 
@@ -309,36 +328,29 @@ namespace Mirror
             observers.Remove(conn);
         }
 
+        // hasSpawned should always be false before runtime
+        [SerializeField, HideInInspector] bool hasSpawned;
+        public bool SpawnedFromInstantiate { get; private set; }
+
         void Awake()
         {
-            // detect runtime sceneId duplicates, e.g. if a user tries to
-            // Instantiate a sceneId object at runtime. if we don't detect it,
-            // then the client won't know which of the two objects to use for a
-            // SpawnSceneObject message, and it's likely going to be the wrong
-            // object.
-            //
-            // This might happen if for example we have a Dungeon GameObject
-            // which contains a Skeleton monster as child, and when a player
-            // runs into the Dungeon we create a Dungeon Instance of that
-            // Dungeon, which would duplicate a scene object.
-            //
-            // see also: https://github.com/vis2k/Mirror/issues/384
-            if (Application.isPlaying && sceneId != 0)
+            if (hasSpawned)
             {
-                if (sceneIds.TryGetValue(sceneId, out NetworkIdentity existing) && existing != this)
-                {
-                    logger.LogError(name + "'s sceneId: " + sceneId.ToString("X") + " is already taken by: " + existing.name + ". Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects). Otherwise the client won't know which object to use for a SpawnSceneObject message.");
-                    Destroy(gameObject);
-                }
-                else
-                {
-                    sceneIds[sceneId] = this;
-                }
+                logger.LogError($"{name} has already spawned. Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects).  Otherwise the client won't know which object to use for a SpawnSceneObject message.");
+
+                SpawnedFromInstantiate = true;
+                Destroy(gameObject);
             }
+
+            hasSpawned = true;
         }
 
         void OnValidate()
         {
+            // OnValidate is not called when using Instantiate, so we can use
+            // it to make sure that hasSpawned is false
+            hasSpawned = false;
+
 #if UNITY_EDITOR
             SetupIDs();
 #endif
@@ -554,11 +566,10 @@ namespace Mirror
         // That means we cannot have any warning or logging in this method.
         void OnDestroy()
         {
-            // remove from sceneIds
-            // -> remove with (0xFFFFFFFFFFFFFFFF) and without (0x00000000FFFFFFFF)
-            //    sceneHash to be 100% safe.
-            sceneIds.Remove(sceneId);
-            sceneIds.Remove(sceneId & 0x00000000FFFFFFFF);
+            // Objects spawned from Instantiate are not allowed so are destroyed right away
+            // we don't want to call NetworkServer.Destroy if this is the case
+            if (SpawnedFromInstantiate)
+                return;
 
             // If false the object has already been unspawned
             // if it is still true, then we need to unspawn it
@@ -834,9 +845,10 @@ namespace Mirror
         }
 
         // helper function to handle SyncEvent/Command/Rpc
-        void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader)
+        void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader, INetworkConnection senderConnection = null)
         {
-            if (gameObject == null)
+            // check if unity object has been destroyed
+            if (this == null)
             {
                 logger.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + NetId + "]");
                 return;
@@ -851,7 +863,7 @@ namespace Mirror
             if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
             {
                 NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
+                if (!RemoteCallHelper.InvokeHandlerDelegate(functionHash, invokeType, reader, invokeComponent, senderConnection))
                 {
                     logger.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + NetId + "].");
                 }
@@ -869,9 +881,32 @@ namespace Mirror
         }
 
         // happens on server
-        internal void HandleCommand(int componentIndex, int cmdHash, NetworkReader reader)
+        internal void HandleCommand(int componentIndex, int cmdHash, NetworkReader reader, INetworkConnection senderConnection)
         {
-            HandleRemoteCall(componentIndex, cmdHash, MirrorInvokeType.Command, reader);
+            HandleRemoteCall(componentIndex, cmdHash, MirrorInvokeType.Command, reader, senderConnection);
+        }
+
+        // happens on server
+        internal CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
+        {
+            // check if unity object has been destroyed
+            if (this == null)
+            {
+                // error can be logged later
+                return default;
+            }
+
+            // find the right component to invoke the function on
+            if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
+            {
+                NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
+                return RemoteCallHelper.GetCommandInfo(cmdHash, invokeComponent);
+            }
+            else
+            {
+                // error can be logged later
+                return default;
+            }
         }
 
         // happens on client
@@ -1121,6 +1156,8 @@ namespace Mirror
         internal void Reset()
         {
             ResetSyncObjects();
+
+            hasSpawned = false;
             clientStarted = false;
             localPlayerStarted = false;
             NetId = 0;

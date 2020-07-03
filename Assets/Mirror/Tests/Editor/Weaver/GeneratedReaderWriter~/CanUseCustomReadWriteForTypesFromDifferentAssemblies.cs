@@ -1,7 +1,7 @@
 using Mirror;
 using Mirror.Weaver.Tests.Extra;
 
-namespace MirrorTest
+namespace GeneratedReaderWriter.CanUseCustomReadWriteForTypesFromDifferentAssemblies
 {
     public class CanUseCustomReadWriteForTypesFromDifferentAssemblies : NetworkBehaviour
     {

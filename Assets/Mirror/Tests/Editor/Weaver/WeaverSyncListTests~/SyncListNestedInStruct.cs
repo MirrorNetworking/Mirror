@@ -1,14 +1,13 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListNestedInStruct
 {
     class SyncListNestedStruct : NetworkBehaviour
     {
         SomeData.SyncList Foo;
-    
 
-        public struct SomeData 
+
+        public struct SomeData
         {
             public int usefulNumber;
 

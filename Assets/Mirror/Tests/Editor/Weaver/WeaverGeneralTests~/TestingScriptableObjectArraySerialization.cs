@@ -1,7 +1,7 @@
 using Mirror;
 using UnityEngine;
 
-namespace MirrorTest
+namespace WeaverGeneralTests.TestingScriptableObjectArraySerialization
 {
     public static class CustomSerializer
     {

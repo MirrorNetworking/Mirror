@@ -1,9 +1,7 @@
-using System;
 using System.Collections;
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdCoroutine
 {
     class NetworkBehaviourCmdCoroutine : NetworkBehaviour
     {

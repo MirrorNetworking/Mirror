@@ -1,6 +1,6 @@
 using Mirror;
 
-namespace MirrorTest
+namespace GeneratedReaderWriter.CreatesForEnums
 {
     class CreatesForEnums : NetworkBehaviour
     {

@@ -432,7 +432,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   startOnHeadless: 1
-  showDebugMessages: 0
   serverTickRate: 30
   server: {fileID: 1556883250}
   client: {fileID: 1556883249}
@@ -487,7 +486,7 @@ MonoBehaviour:
   secretHandshake: 1558261479176021378
   serverBroadcastListenPort: 47777
   ActiveDiscoveryInterval: 3
-  transport: {fileID: 0}
+  transport: {fileID: 1556883252}
   OnServerFound:
     m_PersistentCalls:
       m_Calls:
@@ -521,6 +520,15 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
+  ClientNotReady:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
@@ -549,6 +557,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   Authenticated:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerSceneChanged:
     m_PersistentCalls:
       m_Calls: []
   Disconnected:
@@ -648,7 +662,7 @@ Light:
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
-  m_InnerSpotAngle: 21.802082
+  m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2

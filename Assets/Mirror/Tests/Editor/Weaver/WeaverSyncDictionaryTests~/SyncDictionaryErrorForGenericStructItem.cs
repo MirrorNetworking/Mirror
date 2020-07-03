@@ -1,17 +1,17 @@
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncDictionaryTests.SyncDictionaryErrorForGenericStructItem
 {
     class SyncDictionaryErrorForGenericStructItem : NetworkBehaviour
     {
-         struct MyGenericStruct<T>
+        struct MyGenericStruct<T>
         {
             T genericpotato;
         }
 
         class MyGenericStructDictionary : SyncDictionary<int, MyGenericStruct<float>> { };
-        
+
         MyGenericStructDictionary harpseals;
     }
-   
+
 }

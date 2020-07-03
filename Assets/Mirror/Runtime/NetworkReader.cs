@@ -373,7 +373,7 @@ namespace Mirror
 
             }
 
-            if (logger.LogEnabled()) logger.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
+            if (logger.WarnEnabled()) logger.LogFormat(LogType.Warning, "ReadNetworkIdentity netId:{0} not found in spawned", netId);
             return null;
         }
 

@@ -332,6 +332,14 @@ namespace Mirror
             AddOperation(Operation.OP_ADD, objects.Count - 1, default, item);
         }
 
+        public void AddRange(IEnumerable<T> range)
+        {
+            foreach (T entry in range)
+            {
+                Add(entry);
+            }
+        }
+
         public void Clear()
         {
             objects.Clear();
@@ -379,6 +387,15 @@ namespace Mirror
             AddOperation(Operation.OP_INSERT, index, default, item);
         }
 
+        public void InsertRange(int index, IEnumerable<T> range)
+        {
+            foreach (T entry in range)
+            {
+                Insert(index, entry);
+                index++;
+            }
+        }
+
         public bool Remove(T item)
         {
             int index = IndexOf(item);
@@ -395,6 +412,21 @@ namespace Mirror
             T oldItem = objects[index];
             objects.RemoveAt(index);
             AddOperation(Operation.OP_REMOVEAT, index, oldItem, default);
+        }
+
+        public int RemoveAll(Predicate<T> match)
+        {
+            List<T> toRemove = new List<T>();
+            for (int i = 0; i < objects.Count; ++i)
+                if (match(objects[i]))
+                    toRemove.Add(objects[i]);
+
+            foreach (T entry in toRemove)
+            {
+                Remove(entry);
+            }
+
+            return toRemove.Count;
         }
 
         public T this[int i]

@@ -17,10 +17,38 @@ namespace Mirror.Examples.Tanks
         public GameObject projectilePrefab;
         public Transform projectileMount;
 
+        [Header("Game Stats")]
+        [SyncVar]
+        public int health;
+        [SyncVar]
+        public int score;
+        [SyncVar]
+        public string playerName;
+        [SyncVar]
+        public bool allowMovement;
+        [SyncVar]
+        public bool isReady;
+
+        public bool isDead => health <= 0;
+        public TextMesh nameText;
+
+
         void Update()
         {
+            nameText.text = playerName;
+            nameText.transform.rotation = Camera.main.transform.rotation;
+
             // movement for local player
             if (!IsLocalPlayer)
+                return;
+
+            //Set local players name color to green
+            nameText.color = Color.green;
+
+            if (!allowMovement)
+                return;
+
+            if (isDead)
                 return;
 
             // rotate
@@ -45,6 +73,7 @@ namespace Mirror.Examples.Tanks
         void CmdFire()
         {
             GameObject projectile = Instantiate(projectilePrefab, projectileMount.position, transform.rotation);
+            projectile.GetComponent<Projectile>().source = gameObject;
             Server.Spawn(projectile);
             RpcOnFire();
         }
@@ -54,6 +83,29 @@ namespace Mirror.Examples.Tanks
         void RpcOnFire()
         {
             animator.SetTrigger("Shoot");
+        }
+
+        public void SendReadyToServer(string playername)
+        {
+            if (!IsLocalPlayer)
+                return;
+
+            CmdReady(playername);
+        }
+
+        [Command]
+        void CmdReady(string playername)
+        {
+            if (string.IsNullOrEmpty(playername))
+            {
+                playerName = "PLAYER" + Random.Range(1, 99);
+            }
+            else
+            {
+                playerName = playername;
+            }
+
+            isReady = true;
         }
     }
 }

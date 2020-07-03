@@ -48,7 +48,7 @@ namespace Mirror.Tests
             matchPlayers = g;
         }
 
-        private static Dictionary<Guid, HashSet<NetworkIdentity>> GetMatchPlayersDictionary()
+        static Dictionary<Guid, HashSet<NetworkIdentity>> GetMatchPlayersDictionary()
         {
             Type type = typeof(NetworkMatchChecker);
             FieldInfo fieldInfo = type.GetField("matchPlayers", BindingFlags.Static | BindingFlags.NonPublic);

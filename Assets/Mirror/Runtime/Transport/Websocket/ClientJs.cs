@@ -1,9 +1,9 @@
 #if UNITY_WEBGL && !UNITY_EDITOR
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using AOT;
 
 namespace Mirror.Websocket
@@ -19,8 +19,13 @@ namespace Mirror.Websocket
         public event Action Connected;
         public event Action<ArraySegment<byte>> ReceivedData;
         public event Action Disconnected;
+#pragma warning disable CS0067 // The event is never used.
         public event Action<Exception> ReceivedError;
+#pragma warning restore CS0067 // The event is never used.
 
+        readonly ConcurrentQueue<byte[]> receivedQueue = new ConcurrentQueue<byte[]>();
+
+        public bool enabled;
         public bool Connecting { get; set; }
         public bool IsConnected
         {
@@ -58,6 +63,17 @@ namespace Mirror.Websocket
         {
             SocketSend(nativeRef, segment.Array, segment.Count);
             return Task.CompletedTask;
+        }
+
+        public bool ProcessClientMessage()
+        {
+            if (receivedQueue.TryDequeue(out byte[] data))
+            {
+                clients[id].ReceivedData(new ArraySegment<byte>(data));
+
+                return true;
+            }
+            return false;
         }
 
 #region Javascript native functions
@@ -103,7 +119,7 @@ namespace Mirror.Websocket
             byte[] data = new byte[length];
             Marshal.Copy(ptr, data, 0, length);
 
-            clients[id].ReceivedData(new ArraySegment<byte>(data));
+            clients[id].receivedQueue.Enqueue(data);
         }
 #endregion
     }

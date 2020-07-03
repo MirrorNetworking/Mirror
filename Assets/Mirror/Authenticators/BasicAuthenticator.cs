@@ -50,7 +50,7 @@ namespace Mirror.Authenticators
 
         public void OnAuthRequestMessage(INetworkConnection conn, AuthRequestMessage msg)
         {
-            logger.LogFormat(LogType.Log, "Authentication Request: {0} {1}", msg.AuthUsername, msg.AuthPassword);
+            if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Authentication Request: {0} {1}", msg.AuthUsername, msg.AuthPassword);
 
             // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
             if (msg.AuthUsername == Username && msg.AuthPassword == Password)
@@ -93,7 +93,7 @@ namespace Mirror.Authenticators
         {
             if (msg.Code == 100)
             {
-                logger.LogFormat(LogType.Log, "Authentication Response: {0}", msg.Message);
+                if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Authentication Response: {0}", msg.Message);
 
                 // Invoke the event to complete a successful authentication
                 base.OnClientAuthenticate(conn);
@@ -101,7 +101,6 @@ namespace Mirror.Authenticators
             else
             {
                 logger.LogFormat(LogType.Error, "Authentication Response: {0}", msg.Message);
-
                 // disconnect the client
                 conn.Disconnect();
             }

@@ -1,7 +1,6 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListByteValid
 {
     class SyncListByteValid : NetworkBehaviour
     {

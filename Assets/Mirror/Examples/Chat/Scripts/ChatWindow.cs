@@ -18,7 +18,7 @@ namespace Mirror.Examples.Chat
             Player.OnMessage += OnPlayerMessage;
         }
 
-        private void OnPlayerMessage(Player player, string message)
+        void OnPlayerMessage(Player player, string message)
         {
             string prettyMessage = player.IsLocalPlayer ?
                 $"<color=red>{player.playerName}: </color> {message}" :

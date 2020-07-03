@@ -1,14 +1,13 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncDictionaryTests.SyncDictionary
 {
     class SyncDictionaryValid : NetworkBehaviour
     {
         public class SyncDictionaryIntString : SyncDictionary<int, string> { }
-        
+
         public SyncDictionaryIntString Foo;
     }
 
-    
+
 }

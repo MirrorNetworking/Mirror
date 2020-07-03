@@ -12,8 +12,7 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourServer()
         {
             Assert.That(weaverErrors, Is.Empty);
-            string networkServerGetActive = Weaver.NetworkBehaviourIsServer.ToString();
-            CheckAddedCode(networkServerGetActive, "MirrorTest.NetworkBehaviourServer", "ServerOnlyMethod");
+            CheckAddedCode(Weaver.NetworkBehaviourIsServer, "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
 
         }
 
@@ -21,8 +20,7 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourClient()
         {
             Assert.That(weaverErrors, Is.Empty);
-            string networkClientGetActive = Weaver.NetworkBehaviourIsClient.ToString();
-            CheckAddedCode(networkClientGetActive, "MirrorTest.NetworkBehaviourClient", "ClientOnlyMethod");
+            CheckAddedCode(Weaver.NetworkBehaviourIsClient, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
         }
 
         /// <summary>
@@ -30,10 +28,10 @@ namespace Mirror.Weaver.Tests
         /// </summary>
         /// <param name="addedString"></param>
         /// <param name="methodName"></param>
-        static void CheckAddedCode(string addedString, string className, string methodName)
+        static void CheckAddedCode(MethodReference methodRef, string className, string methodName)
         {
-            string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory,  WeaverAssembler.OutputFile);
-            using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(assemblyName))
+            string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory, WeaverAssembler.OutputFile);
+            using (var assembly = AssemblyDefinition.ReadAssembly(assemblyName))
             {
                 TypeDefinition type = assembly.MainModule.GetType(className);
                 MethodDefinition method = type.Methods.First(m => m.Name == methodName);
@@ -45,7 +43,7 @@ namespace Mirror.Weaver.Tests
                 Instruction call = body.Instructions[1];
 
                 Assert.That(call.OpCode, Is.EqualTo(OpCodes.Call));
-                Assert.That(call.Operand.ToString(), Is.EqualTo(addedString));
+                Assert.That(call.Operand.ToString(), Is.EqualTo(methodRef.ToString()));
             }
         }
     }

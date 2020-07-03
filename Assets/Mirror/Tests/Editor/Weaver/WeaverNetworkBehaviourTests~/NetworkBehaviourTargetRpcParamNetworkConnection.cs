@@ -1,6 +1,6 @@
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamNetworkConnection
 {
     class NetworkBehaviourTargetRpcParamNetworkConnection : NetworkBehaviour
     {

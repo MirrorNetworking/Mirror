@@ -23,6 +23,15 @@ namespace Mirror
         // does this type sync anything? otherwise we don't need to show syncInterval
         bool SyncsAnything(Type scriptClass)
         {
+            // check for all SyncVar fields, they don't have to be visible
+            foreach (FieldInfo field in InspectorHelper.GetAllFields(scriptClass, typeof(NetworkBehaviour)))
+            {
+                if (field.IsSyncVar())
+                {
+                    return true;
+                }
+            }
+
             // has OnSerialize that is not in NetworkBehaviour?
             // then it either has a syncvar or custom OnSerialize. either way
             // this means we have something to sync.
@@ -109,8 +118,8 @@ namespace Mirror
     }
     public class SyncListDrawer
     {
-        private readonly UnityEngine.Object targetObject;
-        private readonly List<SyncListField> syncListFields;
+        readonly UnityEngine.Object targetObject;
+        readonly List<SyncListField> syncListFields;
 
         public SyncListDrawer(UnityEngine.Object targetObject)
         {

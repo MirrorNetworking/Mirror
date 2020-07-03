@@ -1,8 +1,6 @@
-using System;
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverGeneralTests.RecursionCount
 {
     class RecursionCount : NetworkBehaviour
     {

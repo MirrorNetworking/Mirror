@@ -104,12 +104,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RemovePlayerMessageTest()
-        {
-            TestSerializeDeserialize(new RemovePlayerMessage());
-        }
-
-        [Test]
         public void RpcMessageTest()
         {
             // try setting value with constructor

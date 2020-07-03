@@ -1,7 +1,6 @@
 using Mirror;
-using Mirror.Weaver.Tests.Extra;
 
-namespace MirrorTest
+namespace GeneratedReaderWriter.GivesErrorForClassWithNoValidConstructor
 {
     public class GivesErrorForClassWithNoValidConstructor : NetworkBehaviour
     {
@@ -19,6 +18,6 @@ namespace MirrorTest
         public SomeOtherData(int usefulNumber)
         {
             this.usefulNumber = usefulNumber;
-        } 
+        }
     }
 }

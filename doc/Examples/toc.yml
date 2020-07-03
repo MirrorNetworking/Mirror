@@ -6,7 +6,9 @@
   href: Tanks/index.md
 - name: Pong
   href: Pong/index.md
-- name: AdditiveScenes
+- name: Additive Scenes
   href: AdditiveScenes/index.md
+- name: Multiple Additive Scenes
+  href: MultipleAdditiveScenes/index.md
 - name: Room
   href: Room/index.md

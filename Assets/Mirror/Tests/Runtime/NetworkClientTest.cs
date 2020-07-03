@@ -58,15 +58,6 @@ namespace Mirror.Tests
             });
         }
 
-        [UnityTest]
-        public IEnumerator RemovePlayerTest()
-        {
-            Assert.That(client.RemovePlayer(), Is.True);
-            yield return null;
-
-            Assert.That(client.LocalPlayer == null);
-        }
-
         [Test]
         public void RegisterPrefabExceptionTest()
         {
@@ -184,23 +175,6 @@ namespace Mirror.Tests
             client.ClientNotReady.AddListener(ClientNotReady);
             client.OnClientNotReady(client.Connection);
             Assert.That(ClientNotReadyCalled, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void RemovePlayerExceptionTest()
-        {
-            client.Connection = null;
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                client.RemovePlayer();
-            });
-        }
-
-        [Test]
-        public void RemovePlayerNullIdentTest()
-        {
-            client.Connection.Identity = null;
-            Assert.That(client.RemovePlayer(), Is.False);
         }
 
         [UnityTest]

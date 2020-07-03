@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using Mirror.RemoteCalls;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -53,7 +55,7 @@ namespace Mirror.Tests
                 valuePassed = conn;
                 throw new Exception("some exception");
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class CheckObserverTrueNetworkBehaviour : NetworkVisibility
@@ -65,7 +67,7 @@ namespace Mirror.Tests
                 ++called;
                 return true;
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class CheckObserverFalseNetworkBehaviour : NetworkVisibility
@@ -77,7 +79,7 @@ namespace Mirror.Tests
                 ++called;
                 return false;
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class SerializeTest1NetworkBehaviour : NetworkBehaviour
@@ -144,7 +146,7 @@ namespace Mirror.Tests
             {
                 observers.Add(observer);
             }
-            public override void OnSetHostVisibility(bool visible) {}
+            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class RebuildEmptyObserversNetworkBehaviour : NetworkVisibility
@@ -222,6 +224,56 @@ namespace Mirror.Tests
 
             // did it work?
             Assert.That(identity.AssetId, Is.EqualTo(guid));
+        }
+
+        [Test]
+        public void SetAssetId_GivesErrorIfOneExists()
+        {
+            if (identity.AssetId == Guid.Empty)
+            {
+                identity.AssetId = Guid.NewGuid();
+            }
+
+            Guid guid1 = identity.AssetId;
+
+            // assign a guid
+            Guid guid2 = Guid.NewGuid();
+            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' becasue it already had an assetId, current assetId '{guid1.ToString("N")}', attempted new assetId '{guid2.ToString("N")}'");
+            identity.AssetId = guid2;
+
+            // guid was changed
+            Assert.That(identity.AssetId, Is.EqualTo(guid1));
+        }
+
+        [Test]
+        public void SetAssetId_GivesErrorForEmptyGuid()
+        {
+            if (identity.AssetId == Guid.Empty)
+            {
+                identity.AssetId = Guid.NewGuid();
+            }
+
+            Guid guid1 = identity.AssetId;
+
+            // assign a guid
+            Guid guid2 = new Guid();
+            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1.ToString("N")}'");
+            identity.AssetId = guid2;
+
+            // guid was NOT changed
+            Assert.That(identity.AssetId, Is.EqualTo(guid1));
+        }
+        [Test]
+        public void SetAssetId_DoesNotGiveErrorIfBothOldAndNewAreEmpty()
+        {
+            Debug.Assert(identity.AssetId == Guid.Empty, "assetId needs to be empty at the start of this test");
+            // assign a guid
+            Guid guid2 = new Guid();
+            // expect no errors
+            identity.AssetId = guid2;
+
+            // guid was still empty
+            Assert.That(identity.AssetId, Is.EqualTo(Guid.Empty));
         }
 
         [Test]

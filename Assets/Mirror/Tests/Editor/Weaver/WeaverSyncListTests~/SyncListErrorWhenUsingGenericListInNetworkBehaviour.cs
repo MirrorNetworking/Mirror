@@ -1,11 +1,11 @@
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListErrorWhenUsingGenericListInNetworkBehaviour
 {
     class SyncListErrorWhenUsingGenericListInNetworkBehaviour : NetworkBehaviour
     {
         readonly SomeList<int> someList;
-    
+
 
         public class SomeList<T> : SyncList<T> { }
     }

@@ -17,7 +17,7 @@ namespace Mirror
     [DisallowMultipleComponent]
     public class NetworkManager : MonoBehaviour, INetworkManager
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkManager));
+        static readonly ILogger logger = LogFactory.GetLogger<NetworkManager>();
 
         /// <summary>
         /// A flag to control whether the NetworkManager object is destroyed when the scene changes.
@@ -359,7 +359,7 @@ namespace Mirror
             if (!client.Active && SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
             {
                 Application.targetFrameRate = serverTickRate;
-                logger.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
+                if (logger.logEnabled) logger.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
             }
 #endif
         }

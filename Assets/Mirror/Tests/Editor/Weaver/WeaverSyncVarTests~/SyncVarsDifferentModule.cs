@@ -1,7 +1,7 @@
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
-namespace MirrorTest
+namespace WeaverSyncVarTests.SyncVarsDifferentModule
 {
     class SyncVarsDifferentModule : NetworkBehaviour
     {

@@ -6,20 +6,20 @@ namespace Mirror.Weaver
 {
     public static class SyncObjectInitializer
     {
-        public static void GenerateSyncObjectInitializer(ILProcessor methodWorker, FieldDefinition fd)
+        public static void GenerateSyncObjectInitializer(ILProcessor worker, FieldDefinition fd)
         {
             // call syncobject constructor
-            GenerateSyncObjectInstanceInitializer(methodWorker, fd);
+            GenerateSyncObjectInstanceInitializer(worker, fd);
 
             // register syncobject in network behaviour
-            GenerateSyncObjectRegistration(methodWorker, fd);
+            GenerateSyncObjectRegistration(worker, fd);
         }
 
         // generates 'syncListInt = new SyncListInt()' if user didn't do that yet
-        static void GenerateSyncObjectInstanceInitializer(ILProcessor ctorWorker, FieldDefinition fd)
+        static void GenerateSyncObjectInstanceInitializer(ILProcessor worker, FieldDefinition fd)
         {
             // check the ctor's instructions for an Stfld op-code for this specific sync list field.
-            foreach (Instruction ins in ctorWorker.Body.Instructions)
+            foreach (Instruction ins in worker.Body.Instructions)
             {
                 if (ins.OpCode.Code == Code.Stfld)
                 {
@@ -41,14 +41,14 @@ namespace Mirror.Weaver
             MethodDefinition ctor = fieldType.Methods.FirstOrDefault(x => x.Name == ".ctor" && !x.HasParameters);
             if (ctor == null)
             {
-                Weaver.Error($"Can not intialize field {fd.Name} because no default constructor was found. Manually intialize the field (call the constructor) or add constructor without Parameter", fd);
+                Weaver.Error($"Can not initialize field {fd.Name} because no default constructor was found. Manually initialize the field (call the constructor) or add constructor without Parameter", fd);
                 return;
             }
             MethodReference objectConstructor = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);
 
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Ldarg_0));
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Newobj, objectConstructor));
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Stfld, fd));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Newobj, objectConstructor));
+            worker.Append(worker.Create(OpCodes.Stfld, fd));
         }
 
         public static bool ImplementsSyncObject(TypeReference typeRef)
@@ -75,13 +75,13 @@ namespace Mirror.Weaver
             // generates code like:
             this.InitSyncObject(m_sizes);
         */
-        static void GenerateSyncObjectRegistration(ILProcessor methodWorker, FieldDefinition fd)
+        static void GenerateSyncObjectRegistration(ILProcessor worker, FieldDefinition fd)
         {
-            methodWorker.Append(methodWorker.Create(OpCodes.Ldarg_0));
-            methodWorker.Append(methodWorker.Create(OpCodes.Ldarg_0));
-            methodWorker.Append(methodWorker.Create(OpCodes.Ldfld, fd));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldfld, fd));
 
-            methodWorker.Append(methodWorker.Create(OpCodes.Call, Weaver.InitSyncObjectReference));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.InitSyncObjectReference));
         }
     }
 }

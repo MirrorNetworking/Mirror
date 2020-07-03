@@ -1,12 +1,12 @@
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
-namespace MirrorTest
+namespace WeaverSyncListTests.SyncListNestedInAbstractClassWithInvalid
 {
     class SyncListNestedStructWithInvalid : NetworkBehaviour
     {
         SomeAbstractClass.MyNestedStructList Foo;
-    
+
 
         public abstract class SomeAbstractClass
         {

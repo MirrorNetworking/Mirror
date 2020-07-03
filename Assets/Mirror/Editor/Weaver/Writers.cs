@@ -139,15 +139,25 @@ namespace Mirror.Weaver
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
+            if (!WriteAllFields(variable, recursionCount, worker))
+                return null;
+
+            worker.Append(worker.Create(OpCodes.Ret));
+            return writerFunc;
+        }
+
+        /// <summary>
+        /// Fiends all fields in 
+        /// </summary>
+        /// <param name="variable"></param>
+        /// <param name="recursionCount"></param>
+        /// <param name="worker"></param>
+        /// <returns>false if fail</returns>
+        static bool WriteAllFields(TypeReference variable, int recursionCount, ILProcessor worker)
+        {
             uint fields = 0;
-            foreach (FieldDefinition field in variable.Resolve().Fields)
+            foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
-                if (field.IsStatic || field.IsPrivate)
-                    continue;
-
-                if (field.IsNotSerialized)
-                    continue;
-
                 MethodReference writeFunc = GetWriteFunc(field.FieldType, recursionCount + 1);
                 if (writeFunc != null)
                 {
@@ -162,20 +172,20 @@ namespace Mirror.Weaver
                 else
                 {
                     Weaver.Error($"{field.Name} has unsupported type. Use a type supported by Mirror instead", field);
-                    return null;
+                    return false;
                 }
             }
+
             if (fields == 0)
             {
-                Log.Warning($" {variable} has no no public or non-static fields to serialize");
+                Log.Warning($"{variable} has no no public or non-static fields to serialize");
             }
-            worker.Append(worker.Create(OpCodes.Ret));
-            return writerFunc;
+
+            return true;
         }
 
         static MethodDefinition GenerateArrayWriteFunc(TypeReference variable, int recursionCount)
         {
-
             if (!variable.IsArrayType())
             {
                 Weaver.Error($"{variable.Name} is an unsupported type. Jagged and multidimensional arrays are not supported", variable);

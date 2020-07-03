@@ -116,7 +116,7 @@ namespace Mirror
 
         }
 
-        private float DrawNetworkIdentityInfo(NetworkIdentity identity, float initialX, float Y)
+        float DrawNetworkIdentityInfo(NetworkIdentity identity, float initialX, float Y)
         {
             IEnumerable<NetworkIdentityInfo> infos = GetNetworkIdentityInfo(identity);
             // Get required label size for the names of the information values we're going to show
@@ -139,7 +139,7 @@ namespace Mirror
             return labelRect.y;
         }
 
-        private float DrawNetworkBehaviors(NetworkIdentity identity, float initialX, float Y)
+        float DrawNetworkBehaviors(NetworkIdentity identity, float initialX, float Y)
         {
             IEnumerable<NetworkBehaviourInfo> behavioursInfo = GetNetworkBehaviorInfo(identity);
 
@@ -170,7 +170,7 @@ namespace Mirror
             return Y;
         }
 
-        private float DrawObservers(NetworkIdentity identity, float initialX, float Y)
+        float DrawObservers(NetworkIdentity identity, float initialX, float Y)
         {
             if (identity.observers.Count > 0)
             {
@@ -193,7 +193,7 @@ namespace Mirror
             return Y;
         }
 
-        private float DrawOwner(NetworkIdentity identity, float initialX, float Y)
+        float DrawOwner(NetworkIdentity identity, float initialX, float Y)
         {
             if (identity.ConnectionToClient != null)
             {

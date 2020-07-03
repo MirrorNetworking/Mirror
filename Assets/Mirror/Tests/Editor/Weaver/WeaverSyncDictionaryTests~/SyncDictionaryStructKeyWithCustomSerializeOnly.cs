@@ -1,7 +1,6 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncDictionaryTests.SyncDictionaryStructKeyWithCustomSerializeOnly
 {
     class SyncDictionaryStructKeyWithCustomSerializeOnly : NetworkBehaviour
     {

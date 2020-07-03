@@ -1,7 +1,7 @@
 using Mirror;
 using UnityEngine;
 
-namespace MirrorTest
+namespace GeneratedReaderWriter.GivesErrorWhenUsingMonoBehaviour
 {
     public class GivesErrorWhenUsingMonoBehaviour : NetworkBehaviour
     {

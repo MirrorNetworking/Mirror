@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Weaver.Tests
 {
@@ -25,7 +26,10 @@ namespace Mirror.Weaver.Tests
         protected List<string> weaverErrors = new List<string>();
         void HandleWeaverError(string msg)
         {
+            LogAssert.ignoreFailingMessages = true;
             logger.LogError(msg);
+            LogAssert.ignoreFailingMessages = false;
+
             weaverErrors.Add(msg);
         }
 

@@ -1,12 +1,11 @@
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverSyncSetTests.SyncSetInheritance
 {
     class SyncSetInheritance : NetworkBehaviour
     {
         readonly SuperSet superSet = new SuperSet();
-    
+
 
         public class SomeSet : SyncHashSet<string> { }
 

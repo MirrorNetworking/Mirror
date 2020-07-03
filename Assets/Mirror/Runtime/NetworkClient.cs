@@ -395,29 +395,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Removes the player from the game.
-        /// </summary>
-        /// <returns>True if succcessful</returns>
-        public bool RemovePlayer()
-        {
-            if (logger.LogEnabled()) logger.Log("ClientScene.RemovePlayer() called with connection [" + Connection + "]");
-
-            if (Connection == null)
-                throw new InvalidOperationException("RemovePlayer() failed. NetworkClient is not connected");
-
-            if (Connection.Identity == null)
-                return false;
-
-            Connection.Send(new RemovePlayerMessage());
-
-            Destroy(Connection.Identity.gameObject);
-
-            Connection.Identity = null;
-
-            return true;
-        }
-
-        /// <summary>
         /// Signal that the client connection is ready to enter the game.
         /// <para>This could be for example when a client enters an ongoing game and has finished loading the current scene. The server should respond to the SYSTEM_READY event with an appropriate handler which instantiates the players object for example.</para>
         /// </summary>
