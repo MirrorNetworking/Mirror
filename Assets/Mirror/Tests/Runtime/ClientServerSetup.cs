@@ -77,7 +77,7 @@ namespace Mirror.Tests
             server.AddPlayerForConnection(connectionToClient, serverPlayerGO);
 
             // wait for client to spawn it
-            await Task.Delay(100);
+            await Task.Delay(1);
 
             clientPlayerGO = connectionToServer.Identity.gameObject;
             clientIdentity = clientPlayerGO.GetComponent<NetworkIdentity>();
