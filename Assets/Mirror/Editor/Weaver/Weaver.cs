@@ -422,8 +422,6 @@ namespace Mirror.Weaver
                 modified = true;
             }
 
-
-
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
