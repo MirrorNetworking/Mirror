@@ -1,4 +1,4 @@
-﻿// vis2k:
+// vis2k:
 // base class for NetworkTransform and NetworkTransformChild.
 // New method is simple and stupid. No more 1500 lines of code.
 //
@@ -134,7 +134,7 @@ namespace Mirror.Experimental
                             // serialize
                             // local position/rotation for VR support
                             // send to server
-                            CmdClientToServerSync(targetTransform.transform.localPosition, targetTransform.transform.localRotation, targetTransform.transform.localScale);
+                            CmdClientToServerSync(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
                         }
                     }
                 }

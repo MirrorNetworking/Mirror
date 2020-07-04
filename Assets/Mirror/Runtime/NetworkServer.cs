@@ -330,8 +330,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ServerChangeScene().
-        /// </summary>
+        /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ServerChangeScene().        /// </summary>
         /// <param name="sceneName">The name of the new scene.</param>
         internal void OnServerSceneChanged(string sceneName)
         {

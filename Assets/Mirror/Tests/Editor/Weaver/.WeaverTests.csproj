@@ -100,6 +100,8 @@
     <Compile Include="WeaverCommandTests~\CommandWithArguments.cs" />
     <Compile Include="WeaverCommandTests~\OverrideAbstractCommand.cs" />
     <Compile Include="WeaverCommandTests~\OverrideVirtualCallBaseCommand.cs" />
+    <Compile Include="WeaverCommandTests~\OverrideVirtualCallsBaseCommandWithMultipleBaseClasses.cs" />
+    <Compile Include="WeaverCommandTests~\OverrideVirtualCallsBaseCommandWithOverride.cs" />
     <Compile Include="WeaverCommandTests~\OverrideVirtualCommand.cs" />
     <Compile Include="WeaverCommandTests~\VirtualCommand.cs" />
     <Compile Include="WeaverCommandTests~\CommandWithSenderConnectionAndOtherArgs.cs" />
@@ -176,6 +178,7 @@
     <Compile Include="WeaverSyncDictionaryTests~\SyncDictionaryStructKeyWithCustomDeserializeOnly.cs" />
     <Compile Include="WeaverSyncDictionaryTests~\SyncDictionaryStructKeyWithCustomMethods.cs" />
     <Compile Include="WeaverSyncDictionaryTests~\SyncDictionaryStructKeyWithCustomSerializeOnly.cs" />
+    <Compile Include="WeaverSyncEventTests~\MultipleSyncEvent.cs" />
     <Compile Include="WeaverSyncListTests~\SyncList.cs" />
     <Compile Include="WeaverSyncListTests~\SyncListByteValid.cs" />
     <Compile Include="WeaverSyncListTests~\SyncListErrorForGenericStruct.cs" />

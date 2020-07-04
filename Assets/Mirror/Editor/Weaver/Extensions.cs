@@ -219,6 +219,32 @@ namespace Mirror.Weaver
             return methods;
         }
 
+        public static MethodDefinition GetMethodInBaseType(this TypeDefinition td, string methodName)
+        {
+            TypeDefinition typedef = td;
+            while (typedef != null)
+            {
+                foreach (MethodDefinition md in typedef.Methods)
+                {
+                    if (md.Name == methodName)
+                        return md;
+                }
+
+                try
+                {
+                    TypeReference parent = typedef.BaseType;
+                    typedef = parent?.Resolve();
+                }
+                catch (AssemblyResolutionException)
+                {
+                    // this can happen for pluins.
+                    break;
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// 
         /// </summary>

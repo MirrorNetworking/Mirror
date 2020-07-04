@@ -3,6 +3,9 @@
 Networking attributes are added to member functions of NetworkBehaviour scripts, to make them run on either the client or server.
 
 These attributes can be used for Unity game loop methods like Start or Update, as well as other implemented methods.
+
+> **NOTE**: when using abstract or virtual methods the Attributes need to be applied to the override methods too.
+
 -   **NetworkSettings**  
     This attribute has been deprecated because `channels` were moved to transports (where applicable) and `interval` was moved to an inspector property
 -   **Server**  
