@@ -612,17 +612,10 @@ namespace Mirror
 
         #region Server Internal Message Handlers
 
-        void RegisterServerMessages(INetworkConnection connection)
-        {
-            //Currently no messages are regsitered to the Server from NetworkManager
-        }
-
         // called after successful authentication
         void OnServerAuthenticated(INetworkConnection conn)
         {
             // a connection has been established,  register for our messages
-            RegisterServerMessages(conn);
-
             logger.Log("NetworkManager.OnServerAuthenticated");
 
             // proceed with the login handshake by calling OnServerConnect
