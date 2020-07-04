@@ -313,7 +313,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 251893065}
-  - component: {fileID: 251893066}
   m_Layer: 0
   m_Name: Spawn
   m_TagString: Untagged
@@ -335,18 +334,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &251893066
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 251893064}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &472317786
 GameObject:
   m_ObjectHideFlags: 0
@@ -434,7 +421,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 535739936}
-  - component: {fileID: 535739937}
   m_Layer: 0
   m_Name: Spawn
   m_TagString: Untagged
@@ -456,18 +442,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &535739937
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 535739935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &597109994
 GameObject:
   m_ObjectHideFlags: 0
@@ -1510,6 +1484,8 @@ GameObject:
   - component: {fileID: 1282001524}
   - component: {fileID: 1282001523}
   - component: {fileID: 1282001521}
+  - component: {fileID: 1282001525}
+  - component: {fileID: 1282001526}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -1562,8 +1538,8 @@ MonoBehaviour:
   dontDestroyOnLoad: 1
   startOnHeadless: 1
   serverTickRate: 30
-  server: {fileID: 1282001524}
-  client: {fileID: 1282001523}
+  server: {fileID: 1282001523}
+  client: {fileID: 1282001525}
   transport: {fileID: 1282001522}
   OnStartHost:
     m_PersistentCalls:
@@ -1584,12 +1560,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7aaac73a16c040fd871cb977b5c557b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 0}
-  server: {fileID: 0}
+  client: {fileID: 1282001525}
+  server: {fileID: 1282001523}
   playerPrefab: {fileID: 114118589361100106, guid: 6f43bf5488a7443d19ab2a83c6b91f35,
     type: 3}
   startPositionIndex: 0
-  startPositions: []
+  startPositions:
+  - {fileID: 535739936}
+  - {fileID: 1501912663}
+  - {fileID: 251893065}
+  - {fileID: 1458789073}
   playerSpawnMethod: 0
 --- !u!114 &1282001522
 MonoBehaviour:
@@ -1604,40 +1584,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Port: 7777
---- !u!114 &1282001523
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282001517}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: abe6be14204d94224a3e7cd99dd2ea73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  authenticator: {fileID: 0}
-  Connected:
-    m_PersistentCalls:
-      m_Calls: []
-  Authenticated:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientNotReady:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientSceneChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  Disconnected:
-    m_PersistentCalls:
-      m_Calls: []
-  spawnPrefabs:
-  - {fileID: 1916082411674582, guid: 6f43bf5488a7443d19ab2a83c6b91f35, type: 3}
-  Transport: {fileID: 1282001524}
 --- !u!114 &1282001523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1688,6 +1634,70 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Port: 7777
+--- !u!114 &1282001525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282001517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abe6be14204d94224a3e7cd99dd2ea73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  authenticator: {fileID: 0}
+  Connected:
+    m_PersistentCalls:
+      m_Calls: []
+  Authenticated:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientNotReady:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  Disconnected:
+    m_PersistentCalls:
+      m_Calls: []
+  spawnPrefabs: []
+  Transport: {fileID: 1282001522}
+--- !u!114 &1282001526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282001517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  client: {fileID: 1282001525}
+  server: {fileID: 1282001523}
+  ClientChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+    m_CallsDirty: 1
+  ClientSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_CallsDirty: 1
+  ServerChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+    m_CallsDirty: 1
+  ServerSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_CallsDirty: 1
+  networkSceneName: 
 --- !u!1 &1458789072
 GameObject:
   m_ObjectHideFlags: 0
@@ -1697,7 +1707,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1458789073}
-  - component: {fileID: 1458789074}
   m_Layer: 0
   m_Name: Spawn
   m_TagString: Untagged
@@ -1719,18 +1728,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1458789074
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1458789072}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1501912662
 GameObject:
   m_ObjectHideFlags: 0
@@ -1740,7 +1737,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1501912663}
-  - component: {fileID: 1501912664}
   m_Layer: 0
   m_Name: Spawn
   m_TagString: Untagged
@@ -1762,18 +1758,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1501912664
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1501912662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41f84591ce72545258ea98cb7518d8b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1633146726
 GameObject:
   m_ObjectHideFlags: 0
