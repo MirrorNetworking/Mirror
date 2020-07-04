@@ -1,3 +1,12 @@
+## [34.10.1](https://github.com/MirrorNG/MirrorNG/compare/34.10.0-master...34.10.1-master) (2020-07-04)
+
+
+### Bug Fixes
+
+* assign spawn locations and fix null refs in example ([#242](https://github.com/MirrorNG/MirrorNG/issues/242)) ([3adf343](https://github.com/MirrorNG/MirrorNG/commit/3adf3438578ff304f1216022aae8e043c52cd71d))
+* folders for meta files no longer in the codebase ([#237](https://github.com/MirrorNG/MirrorNG/issues/237)) ([192fd16](https://github.com/MirrorNG/MirrorNG/commit/192fd1645986c515a804a01e0707c78241882676))
+* remove pause network comment and log ([#238](https://github.com/MirrorNG/MirrorNG/issues/238)) ([1a8c09d](https://github.com/MirrorNG/MirrorNG/commit/1a8c09d8a5a8cf70508d4e42e4912e3989478ff1))
+
 # [34.10.0](https://github.com/MirrorNG/MirrorNG/compare/34.9.4-master...34.10.0-master) (2020-07-04)
 
 
