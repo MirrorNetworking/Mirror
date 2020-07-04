@@ -631,7 +631,7 @@ namespace Mirror
             // set server to the NetworkIdentity
             identity.Server = this;
 
-            identity.Client = this.LocalClient;
+            identity.Client = LocalClient;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
