@@ -1,3 +1,70 @@
+# [34.10.0](https://github.com/MirrorNG/MirrorNG/compare/34.9.4-master...34.10.0-master) (2020-07-04)
+
+
+### Bug Fixes
+
+* [#1659](https://github.com/MirrorNG/MirrorNG/issues/1659) Telepathy LateUpdate processes a limited amount of messages per tick to avoid deadlocks ([#1830](https://github.com/MirrorNG/MirrorNG/issues/1830)) ([d3dccd7](https://github.com/MirrorNG/MirrorNG/commit/d3dccd7a25e4b9171ac04e43a05954b56caefd4b))
+* Added ClientOnly check ([fb927f8](https://github.com/MirrorNG/MirrorNG/commit/fb927f814110327867821dac8b0d69ca4251d4f6))
+* Adding warning when adding handler with RegisterSpawnHandler if assetid already exists ([#1819](https://github.com/MirrorNG/MirrorNG/issues/1819)) ([7f26329](https://github.com/MirrorNG/MirrorNG/commit/7f26329e2db9d00da04bed40399af053436218bd))
+* Adding warning when adding prefab with RegisterPrefab if assetid already exists ([#1828](https://github.com/MirrorNG/MirrorNG/issues/1828)) ([9f59e0c](https://github.com/MirrorNG/MirrorNG/commit/9f59e0c439707d66409a617b8f209187856eaf5f))
+* Allowing overrides for virtual commands to call base method ([#1944](https://github.com/MirrorNG/MirrorNG/issues/1944)) ([b92da91](https://github.com/MirrorNG/MirrorNG/commit/b92da91d7a04f41098615ff2e2a35cf7ff479201))
+* better error for Command, ClientRpc and TargetRpc marked as abstract ([#1947](https://github.com/MirrorNG/MirrorNG/issues/1947)) ([62257d8](https://github.com/MirrorNG/MirrorNG/commit/62257d8c4fc307ba3e23fbd01dcc950515c31e79))
+* Better errors when trying to replace existing assetid ([#1827](https://github.com/MirrorNG/MirrorNG/issues/1827)) ([822b041](https://github.com/MirrorNG/MirrorNG/commit/822b04155def9859b24900c6e55a4253f85ebb3f))
+* Cleaning up network objects when server stops ([#1864](https://github.com/MirrorNG/MirrorNG/issues/1864)) ([4c25122](https://github.com/MirrorNG/MirrorNG/commit/4c25122958978557173ec37ca400c47b2d8e834f))
+* clear all message handlers on Shutdown ([#1829](https://github.com/MirrorNG/MirrorNG/issues/1829)) ([a6ab352](https://github.com/MirrorNG/MirrorNG/commit/a6ab3527acb9af8f6a68f0151e5231e4ee1a98e9))
+* Don't call RegisterClientMessages every scene change ([#1865](https://github.com/MirrorNG/MirrorNG/issues/1865)) ([05c119f](https://github.com/MirrorNG/MirrorNG/commit/05c119f505390094c8f33e11568d40117360c49e))
+* Don't call RegisterClientMessages twice ([#1842](https://github.com/MirrorNG/MirrorNG/issues/1842)) ([2a08aac](https://github.com/MirrorNG/MirrorNG/commit/2a08aac7cb8887934eb7eb8c232ce07976defe35))
+* Fixed Capitalization ([c45deb8](https://github.com/MirrorNG/MirrorNG/commit/c45deb808e8e01a7b697e703be783aea2799d4d1))
+* Fixing ClientScene UnregisterPrefab ([#1815](https://github.com/MirrorNG/MirrorNG/issues/1815)) ([9270765](https://github.com/MirrorNG/MirrorNG/commit/9270765bebf45c34a466694473b43c6d802b99d9))
+* Improved error checking for ClientScene.RegisterPrefab ([#1823](https://github.com/MirrorNG/MirrorNG/issues/1823)) ([a0aa4f9](https://github.com/MirrorNG/MirrorNG/commit/a0aa4f9c1425d4eca3fe08cd2d87361f092ded6f))
+* Improved error checking for ClientScene.RegisterPrefab with handler ([#1841](https://github.com/MirrorNG/MirrorNG/issues/1841)) ([54071da](https://github.com/MirrorNG/MirrorNG/commit/54071da3afb18d6289de5d0e41dc248e21088641))
+* making weaver include public fields in base classes in auto generated Read/Write ([#1977](https://github.com/MirrorNG/MirrorNG/issues/1977)) ([3db57e5](https://github.com/MirrorNG/MirrorNG/commit/3db57e5f61ac0748d3a6296d8ea44c202830796f))
+* NetworkRoomManager.minPlayers is now protected so it's available for derived classes. ([3179f08](https://github.com/MirrorNG/MirrorNG/commit/3179f08e3dc11340227a57da0104b1c8d1d7b45d))
+* no longer requires hook to be the first overload in a class ([#1913](https://github.com/MirrorNG/MirrorNG/issues/1913)) ([0348699](https://github.com/MirrorNG/MirrorNG/commit/03486997fb0abb91d14f233658d375f21afbc3e3))
+* OnClientEnterRoom should only fire on clients ([d9b7bb7](https://github.com/MirrorNG/MirrorNG/commit/d9b7bb735729e68ae399e1175d6c485a873b379e))
+* Prevent host client redundantly changing to offline scene ([b4511a0](https://github.com/MirrorNG/MirrorNG/commit/b4511a0637958f10f4a482364c654d1d9add5ef2))
+* Removed unnecessary registration of player prefab in NetworkRoomManager ([b2f52d7](https://github.com/MirrorNG/MirrorNG/commit/b2f52d78921ff0136c74bbed0980e3aaf5e2b379))
+* Removed unused variable ([ae3dc04](https://github.com/MirrorNG/MirrorNG/commit/ae3dc04fb999c3b7133589ab631c1d23f1a8bdde))
+* Replaced Icosphere with centered pivot ([1dc0d98](https://github.com/MirrorNG/MirrorNG/commit/1dc0d9837458c0403916476805f58442ff87e364))
+* Replacing ClearDelegates with RemoveDelegates for test ([#1971](https://github.com/MirrorNG/MirrorNG/issues/1971)) ([927c4de](https://github.com/MirrorNG/MirrorNG/commit/927c4dede5930b320537150466e05112ebe70c3e))
+* Suppress warning ([fffd462](https://github.com/MirrorNG/MirrorNG/commit/fffd462df8cc1c0265890cdfa4ceb3e24606b1c1))
+* Use ReplaceHandler instead of RegisterHandler in NetworkManager ([ffc276c](https://github.com/MirrorNG/MirrorNG/commit/ffc276cb79c4202964275642097451b78a817c8a))
+* Websockets Transport now handles being disabled for scene changes ([#1994](https://github.com/MirrorNG/MirrorNG/issues/1994)) ([5480a58](https://github.com/MirrorNG/MirrorNG/commit/5480a583e13b9183a3670450af639f4e766cc358))
+* WebSockets: Force KeepAliveInterval to Zero ([9a42fe3](https://github.com/MirrorNG/MirrorNG/commit/9a42fe334251852ab12e721db72cb12e98de82e8))
+* Wrong method names in ClientSceneTests ([ab3f353](https://github.com/MirrorNG/MirrorNG/commit/ab3f353b33b3068a6ac1649613a28b0977a72685))
+
+
+### Features
+
+* Add excludeOwner option to ClientRpc ([#1954](https://github.com/MirrorNG/MirrorNG/issues/1954)) ([864fdd5](https://github.com/MirrorNG/MirrorNG/commit/864fdd5fdce7a35ee4bf553176ed7a4ec3dc0653)), closes [#1963](https://github.com/MirrorNG/MirrorNG/issues/1963) [#1962](https://github.com/MirrorNG/MirrorNG/issues/1962) [#1961](https://github.com/MirrorNG/MirrorNG/issues/1961) [#1960](https://github.com/MirrorNG/MirrorNG/issues/1960) [#1959](https://github.com/MirrorNG/MirrorNG/issues/1959) [#1958](https://github.com/MirrorNG/MirrorNG/issues/1958) [#1957](https://github.com/MirrorNG/MirrorNG/issues/1957) [#1956](https://github.com/MirrorNG/MirrorNG/issues/1956)
+* Add NetworkServer.RemovePlayerForConnection ([#1772](https://github.com/MirrorNG/MirrorNG/issues/1772)) ([e3790c5](https://github.com/MirrorNG/MirrorNG/commit/e3790c51eb9b79bebc48522fb832ae39f11d31e2))
+* add SyncList.RemoveAll ([#1881](https://github.com/MirrorNG/MirrorNG/issues/1881)) ([eb7c87d](https://github.com/MirrorNG/MirrorNG/commit/eb7c87d15aa2fe0a5b0c08fc9cde0adbeba0b416))
+* Added virtual SyncVar hook for index in NetworkRoomPlayer ([0c3e079](https://github.com/MirrorNG/MirrorNG/commit/0c3e079d04a034f4d4ca8a34c88188013f36c377))
+* Adding ignoreAuthority Option to Command ([#1918](https://github.com/MirrorNG/MirrorNG/issues/1918)) ([3ace2c6](https://github.com/MirrorNG/MirrorNG/commit/3ace2c6eb68ad94d78c57df6f63107cca466effa))
+* Adding onLocalPlayerChanged to ClientScene for when localPlayer is changed ([#1920](https://github.com/MirrorNG/MirrorNG/issues/1920)) ([b4acf7d](https://github.com/MirrorNG/MirrorNG/commit/b4acf7d9a20c05eadba8d433ebfd476a30e914dd))
+* adding OnRoomServerPlayersNotReady to NetworkRoomManager that is called when player ready changes and atleast 1 player is not ready ([#1921](https://github.com/MirrorNG/MirrorNG/issues/1921)) ([9ae7fa2](https://github.com/MirrorNG/MirrorNG/commit/9ae7fa2a8c683f5d2a7ebe6c243a2d95acad9683))
+* Adding ReplaceHandler functions to NetworkServer and NetworkClient ([#1775](https://github.com/MirrorNG/MirrorNG/issues/1775)) ([877f4e9](https://github.com/MirrorNG/MirrorNG/commit/877f4e9c729e5242d4f8c9653868a3cb27c933db))
+* adding script that displays ping ([#1975](https://github.com/MirrorNG/MirrorNG/issues/1975)) ([7e93030](https://github.com/MirrorNG/MirrorNG/commit/7e93030849c98f0bc8d95fa310d208fef3028b29))
+* Allowing Multiple Concurrent Additive Scenes ([#1697](https://github.com/MirrorNG/MirrorNG/issues/1697)) ([e32a9b6](https://github.com/MirrorNG/MirrorNG/commit/e32a9b6f0b0744b6bd0eeeb0d9fca0b4dc33cbdf))
+* ClientScene uses log window ([b3656a9](https://github.com/MirrorNG/MirrorNG/commit/b3656a9edc5ff00329ce00847671ade7b8f2add2))
+* Creating method to replace all log handlers ([#1880](https://github.com/MirrorNG/MirrorNG/issues/1880)) ([d8aaf76](https://github.com/MirrorNG/MirrorNG/commit/d8aaf76fb972dd153f6002edb96cd2b9350e572c))
+* Experimental Network Transform ([#1990](https://github.com/MirrorNG/MirrorNG/issues/1990)) ([7e2b733](https://github.com/MirrorNG/MirrorNG/commit/7e2b7338a18855f156e52b663ac24eef153b43a7))
+* Improved Log Settings Window Appearance ([#1885](https://github.com/MirrorNG/MirrorNG/issues/1885)) ([69b8451](https://github.com/MirrorNG/MirrorNG/commit/69b845183c099744455e34c6f12e75acecb9098a))
+* Improved RoomPayer template ([042b4e1](https://github.com/MirrorNG/MirrorNG/commit/042b4e1965580a4cdbd5ea50b11a1377fe3bf3cc))
+* LogSettings that can be saved and included in a build ([#1863](https://github.com/MirrorNG/MirrorNG/issues/1863)) ([fd4357c](https://github.com/MirrorNG/MirrorNG/commit/fd4357cd264b257aa648a26f9392726b2921b870))
+* Multiple Concurrent Additive Physics Scenes Example ([#1686](https://github.com/MirrorNG/MirrorNG/issues/1686)) ([87c6ebc](https://github.com/MirrorNG/MirrorNG/commit/87c6ebc5ddf71b3fc358bb1a90bd9ee2470e333c))
+* NetworkConnection to client and server use logger framework ([72154f1](https://github.com/MirrorNG/MirrorNG/commit/72154f1daddaa141fb3b8fe02bcfdf098ef1d44a))
+* NetworkConnection uses logging framework ([ec319a1](https://github.com/MirrorNG/MirrorNG/commit/ec319a165dc8445b00b096d09061adda2c7b8b9d))
+* NetworkIdentity use logger framework ([2e39e13](https://github.com/MirrorNG/MirrorNG/commit/2e39e13c012aa79d50a54fc5d07b85da3e52391b))
+* NetworkServer uses new logging framework ([8b4f105](https://github.com/MirrorNG/MirrorNG/commit/8b4f1051f27f1d5b845e6bd0a090368082ab1603))
+* Prettify Log Names ([c7d8c09](https://github.com/MirrorNG/MirrorNG/commit/c7d8c0933d37abc919305b660cbf3a57828eaace))
+* Use SortedDictionary for LogSettings ([#1914](https://github.com/MirrorNG/MirrorNG/issues/1914)) ([7d4c0a9](https://github.com/MirrorNG/MirrorNG/commit/7d4c0a9cb6f24fa3c2834b9bf351e30dde88665f))
+
+
+### Performance Improvements
+
+* NetworkProximityChecker checks Server.connections instead of doing 10k sphere casts for 10k monsters. 2k NetworkTransforms demo is significantly faster. Stable 80fps instead of 500ms freezes in between. ([#1852](https://github.com/MirrorNG/MirrorNG/issues/1852)) ([2d89f05](https://github.com/MirrorNG/MirrorNG/commit/2d89f059afd9175dd7e6d81a0e2e38c0a28915c8))
+
 ## [34.9.4](https://github.com/MirrorNG/MirrorNG/compare/34.9.3-master...34.9.4-master) (2020-06-27)
 
 
