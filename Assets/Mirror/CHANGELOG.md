@@ -1,3 +1,10 @@
+# [34.12.0](https://github.com/MirrorNG/MirrorNG/compare/34.11.0-master...34.12.0-master) (2020-07-04)
+
+
+### Features
+
+* Example with 10k monster that change unfrequently ([2b2e71c](https://github.com/MirrorNG/MirrorNG/commit/2b2e71cc007dba2c1d90b565c4983814c1e0b7d1))
+
 # [34.11.0](https://github.com/MirrorNG/MirrorNG/compare/34.10.1-master...34.11.0-master) (2020-07-04)
 
 
