@@ -405,35 +405,24 @@ namespace Mirror.Weaver
             {
                 // process this and base classes from parent to child order
 
-                List<TypeDefinition> messageClasses = new List<TypeDefinition>();
-
-                TypeDefinition parent = td;
-                while (parent != null)
+                try
                 {
-                    // IMessageBsae might not be on parent class
-                    if (!parent.ImplementsInterface(IMessageBaseType))
-                    {
-                        break;
-                    }
-                    try
-                    {
-                        messageClasses.Insert(0, parent);
-                        parent = parent.BaseType.Resolve();
-                    }
-                    catch (AssemblyResolutionException)
-                    {
-                        // this can happen for plugins.
-                        //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                        break;
-                    }
+                    TypeDefinition parent = td.BaseType.Resolve();
+                    // process parent
+                    WeaveMessage(parent);
+                }
+                catch (AssemblyResolutionException)
+                {
+                    // this can happen for plugins.
+                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                 }
 
-                foreach (TypeDefinition messageType in messageClasses)
-                {
-                    MessageClassProcessor.Process(messageType);
-                    modified = true;
-                }
+                // process this
+                MessageClassProcessor.Process(td);
+                modified = true;
             }
+
+
 
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
