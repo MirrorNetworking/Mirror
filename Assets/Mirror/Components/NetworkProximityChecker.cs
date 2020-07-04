@@ -43,7 +43,7 @@ namespace Mirror
 
         void RebuildObservers()
         {
-                netIdentity.RebuildObservers(false);
+            netIdentity.RebuildObservers(false);
         }
 
         /// <summary>
