@@ -70,6 +70,8 @@ namespace Mirror.Tests
             // wait for manager to stop
             await Task.Delay(1);
 
+            Assert.That(server.Active, Is.False);
+            Assert.That(client.Active, Is.False);
             Assert.That(manager.IsNetworkActive, Is.False);
         });
 
