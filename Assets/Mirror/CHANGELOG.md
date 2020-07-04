@@ -1,3 +1,26 @@
+# [34.11.0](https://github.com/MirrorNG/MirrorNG/compare/34.10.1-master...34.11.0-master) (2020-07-04)
+
+
+### Bug Fixes
+
+* addingNetwork rigidbody icon and AddComponentMenu attribute ([#2051](https://github.com/MirrorNG/MirrorNG/issues/2051)) ([ab1b92f](https://github.com/MirrorNG/MirrorNG/commit/ab1b92f74b56787feb7c6fde87c0b9838b8d9d0f))
+* calling base method when the first base class did not have the virtual method ([#2014](https://github.com/MirrorNG/MirrorNG/issues/2014)) ([4af72c3](https://github.com/MirrorNG/MirrorNG/commit/4af72c3a63e72dac6b3bab193dc58bfa3c44a975))
+* changing namespace to match folder name ([#2037](https://github.com/MirrorNG/MirrorNG/issues/2037)) ([e36449c](https://github.com/MirrorNG/MirrorNG/commit/e36449cb22d8a2dede0133cf229bc12885c36bdb))
+* Clean up roomSlots on clients in NetworkRoomPlayer ([5032ceb](https://github.com/MirrorNG/MirrorNG/commit/5032ceb00035679e0b80f59e91131cdfa8e0b1bb))
+* Fallback and Multiplex now disable their transports when they are disabled  ([#2048](https://github.com/MirrorNG/MirrorNG/issues/2048)) ([61d44b2](https://github.com/MirrorNG/MirrorNG/commit/61d44b2d80c9616f784e855131ba6d1ee8a30136))
+* If socket is undefined it will return false. See [#1486](https://github.com/MirrorNG/MirrorNG/issues/1486) ([#2017](https://github.com/MirrorNG/MirrorNG/issues/2017)) ([4ffff19](https://github.com/MirrorNG/MirrorNG/commit/4ffff192a69108b993cf963cfdece47b14ffdbf2))
+* Network rigidbody fixes ([#2050](https://github.com/MirrorNG/MirrorNG/issues/2050)) ([0c30d33](https://github.com/MirrorNG/MirrorNG/commit/0c30d3398aaabcbf094a88a9c9c77ab4d5062acf))
+* sync events can not have the same name if they are in different classes ([#2054](https://github.com/MirrorNG/MirrorNG/issues/2054)) ([c91308f](https://github.com/MirrorNG/MirrorNG/commit/c91308fb0461e54292940ce6fa42bb6cd9800d89))
+* weaver now processes multiple SyncEvent per class ([#2055](https://github.com/MirrorNG/MirrorNG/issues/2055)) ([b316b35](https://github.com/MirrorNG/MirrorNG/commit/b316b35d46868a7e11c7b2005570efeec843efe1))
+
+
+### Features
+
+* adding demo for mirror cloud services ([#2026](https://github.com/MirrorNG/MirrorNG/issues/2026)) ([f1fdc95](https://github.com/MirrorNG/MirrorNG/commit/f1fdc959dcd62e7228ecfd656bc87cbabca8c1bc))
+* adding log handler that sets console color ([#2001](https://github.com/MirrorNG/MirrorNG/issues/2001)) ([4623978](https://github.com/MirrorNG/MirrorNG/commit/46239783f313159ac47e192499aa8e7fcc5df0ec))
+* Experimental NetworkRigidbody  ([#1822](https://github.com/MirrorNG/MirrorNG/issues/1822)) ([25285b1](https://github.com/MirrorNG/MirrorNG/commit/25285b1574c4e025373e86735ec3eb9734272fd2))
+* More examples for Mirror Cloud Service ([#2029](https://github.com/MirrorNG/MirrorNG/issues/2029)) ([7d0e907](https://github.com/MirrorNG/MirrorNG/commit/7d0e907b73530c9a625eaf663837b7eeb36fcee6))
+
 ## [34.10.1](https://github.com/MirrorNG/MirrorNG/compare/34.10.0-master...34.10.1-master) (2020-07-04)
 
 
