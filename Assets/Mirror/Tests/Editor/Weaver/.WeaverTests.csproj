@@ -113,6 +113,7 @@
     <Compile Include="WeaverMessageTests~\MessageMemberInterface.cs" />
     <Compile Include="WeaverMessageTests~\MessageSelfReferencing.cs" />
     <Compile Include="WeaverMessageTests~\MessageValid.cs" />
+    <Compile Include="WeaverMessageTests~\MessageWithBaseClass.cs" />
     <Compile Include="WeaverMonoBehaviourTests~\MonoBehaviourClient.cs" />
     <Compile Include="WeaverMonoBehaviourTests~\MonoBehaviourClientCallback.cs" />
     <Compile Include="WeaverMonoBehaviourTests~\MonoBehaviourClientRpc.cs" />
