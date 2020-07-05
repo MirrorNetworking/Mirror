@@ -747,7 +747,8 @@ namespace Mirror
 
             // add connection to each nearby NetworkIdentity's observers, which
             // internally sends a spawn message for each one to the connection.
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            // we order them by netId so the gameObjects get initiatialized in the same order as on the server
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.OrderBy(e => e.netId))
             {
                 // try with far away ones in ummorpg!
                 if (identity.gameObject.activeSelf) //TODO this is different
