@@ -46,6 +46,8 @@ namespace Mirror.Tests.Performance.Runtime
         {
             // shutdown
             benchmarker.StopHost();
+            yield return null;
+
             // unload scene
             Scene scene = SceneManager.GetSceneByPath(ScenePath);
             yield return SceneManager.UnloadSceneAsync(scene);
@@ -57,7 +59,7 @@ namespace Mirror.Tests.Performance.Runtime
         [Performance]
         public IEnumerator Benchmark10kLight()
         { 
-            yield return Measure.Frames().MeasurementCount(320).WarmupCount(60).Run();
+            yield return Measure.Frames().MeasurementCount(120).WarmupCount(10).Run();
         }
 
     }

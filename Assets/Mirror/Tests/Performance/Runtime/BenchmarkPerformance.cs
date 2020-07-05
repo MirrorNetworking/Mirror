@@ -88,6 +88,8 @@ namespace Mirror.Tests.Performance.Runtime
         {
             // shutdown
             benchmarker.StopHost();
+            yield return null;
+
             // unload scene
             Scene scene = SceneManager.GetSceneByPath(ScenePath);
             yield return SceneManager.UnloadSceneAsync(scene);
