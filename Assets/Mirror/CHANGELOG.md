@@ -1,3 +1,10 @@
+# [34.13.0](https://github.com/MirrorNG/MirrorNG/compare/34.12.0-master...34.13.0-master) (2020-07-05)
+
+
+### Features
+
+* Spawn objects in clients in same order as server ([#247](https://github.com/MirrorNG/MirrorNG/issues/247)) ([b786646](https://github.com/MirrorNG/MirrorNG/commit/b786646f1859bb0e1836460c6319a507e1cc31aa))
+
 # [34.12.0](https://github.com/MirrorNG/MirrorNG/compare/34.11.0-master...34.12.0-master) (2020-07-04)
 
 
