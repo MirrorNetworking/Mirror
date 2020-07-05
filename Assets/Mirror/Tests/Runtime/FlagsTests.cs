@@ -39,101 +39,64 @@ namespace Mirror.Tests
         }
     }
 
-    public class FlagsTests : ClientServerTests
+    public class FlagsTests : ClientServerSetup<Flags>
     {
-        #region Setup
-        GameObject playerGO;
-        GameObject playerGO2;
-
-        SampleBehavior behavior;
-        SampleBehavior behavior2;
-        Flags flags;
-
-        [UnitySetUp]
-        public IEnumerator SetupNetworkServer() => RunAsync(async () =>
-        {
-            SetupServer();
-
-            await manager.StartServer();
-
-            playerGO = new GameObject();
-            playerGO.AddComponent<NetworkIdentity>();
-            behavior = playerGO.AddComponent<SampleBehavior>();
-            flags = playerGO.AddComponent<Flags>();
-        });
-
-        [TearDown]
-        public void ShutdownNetworkServer()
-        {
-            GameObject.DestroyImmediate(playerGO);
-
-            ShutdownServer();
-        }
-
-        #endregion
 
         [Test]
         public void CanCallServerFunctionAsServer()
         {
-            manager.server.Spawn(playerGO);
-            Assert.That(behavior.IsServer, Is.True);
-            Assert.That(behavior.IsClient, Is.False);
+            serverComponent.CallServerFunction();
+            Assert.That(serverComponent.serverFunctionCalled, Is.True);
+        }
 
-            flags.CallServerFunction();
-            flags.CallServerCallbackFunction();
-
-            Assert.That(flags.serverFunctionCalled, Is.True);
-            Assert.That(flags.serverCallbackFunctionCalled, Is.True);
+        [Test]
+        public void CanCallServerFunctionCallbackAsServer()
+        {
+            serverComponent.CallServerCallbackFunction();
+            Assert.That(serverComponent.serverCallbackFunctionCalled, Is.True);
         }
 
         [Test]
         public void CannotCallClientFunctionAsServer()
         {
-            manager.server.Spawn(playerGO);
-            Assert.That(behavior.IsServer, Is.True);
-            Assert.That(behavior.IsClient, Is.False);
-
-            flags.CallClientFunction();
-            flags.CallClientCallbackFunction();
-
-            Assert.That(flags.clientFunctionCalled, Is.False);
-            Assert.That(flags.clientCallbackFunctionCalled, Is.False);
+            serverComponent.CallClientFunction();
+            Assert.That(serverComponent.clientFunctionCalled, Is.False);
         }
 
-        // TODO: fix #68 in order to make sure these tests are working
-
-        /*[Test]
-        public void CanCallClientFunctionAsClient()
+        [Test]
+        public void CannotCallClientCallbackFunctionAsServer()
         {
-            SetupNetworkClient();
-
-            Assert.That(behavior2.IsServer, Is.False);
-            Assert.That(behavior2.IsClient, Is.True);
-
-            flags.CallClientFunction();
-            flags.CallClientCallbackFunction();
-
-            Assert.That(flags.clientFunctionCalled, Is.True);
-            Assert.That(flags.clientCallbackFunctionCalled, Is.True);
-
-            ShutdownNetworkClient();
+            serverComponent.CallClientFunction();
+            Assert.That(serverComponent.clientCallbackFunctionCalled, Is.False);
         }
 
         [Test]
         public void CannotCallServerFunctionAsClient()
         {
-            SetupNetworkClient();
+            clientComponent.CallServerFunction();
+            Assert.That(clientComponent.serverFunctionCalled, Is.False);
+        }
 
-            Assert.That(behavior2.IsServer, Is.False);
-            Assert.That(behavior2.IsClient, Is.True);
+        [Test]
+        public void CannotCallServerFunctionCallbackAsClient()
+        {
+            clientComponent.CallServerCallbackFunction();
+            Assert.That(clientComponent.serverCallbackFunctionCalled, Is.False);
+        }
 
-            flags.CallServerFunction();
-            flags.CallServerCallbackFunction();
+        [Test]
+        public void CanCallClientFunctionAsClient()
+        {
+            clientComponent.CallClientFunction();
+            Assert.That(clientComponent.clientFunctionCalled, Is.True);
+        }
 
-            Assert.That(flags.serverFunctionCalled, Is.False);
-            Assert.That(flags.serverCallbackFunctionCalled, Is.False);
+        [Test]
+        public void CanCallClientCallbackFunctionAsClient()
+        {
+            clientComponent.CallClientCallbackFunction();
+            Assert.That(clientComponent.clientCallbackFunctionCalled, Is.True);
+        }
 
-            ShutdownNetworkClient();
-        }*/
     }
 }
