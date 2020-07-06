@@ -23,6 +23,16 @@ namespace Mirror.Authenticators
             authenticator.OnServerAuthenticated.AddListener(connection => OnServerAuthenticated.Invoke(connection));
         }
 
+        public override void OnStartClient()
+        {
+            authenticator.OnStartClient();
+        }
+
+        public override void OnStartServer()
+        {
+            authenticator.OnStartServer();
+        }
+
         public override void OnClientAuthenticate(NetworkConnection conn)
         {
             authenticator.OnClientAuthenticate(conn);
