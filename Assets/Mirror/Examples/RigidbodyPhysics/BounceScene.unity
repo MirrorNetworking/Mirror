@@ -215,6 +215,7 @@ GameObject:
   - component: {fileID: 492096636}
   - component: {fileID: 492096635}
   - component: {fileID: 492096634}
+  - component: {fileID: 492096637}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -321,6 +322,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &492096637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492096633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showGUI: 1
+  offsetX: 0
+  offsetY: 0
 --- !u!1 &746548597
 GameObject:
   m_ObjectHideFlags: 0
@@ -433,6 +449,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+  force: 500
 --- !u!114 &1019217377
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -662,6 +679,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+  force: 500
 --- !u!114 &1200292992
 MonoBehaviour:
   m_ObjectHideFlags: 0
