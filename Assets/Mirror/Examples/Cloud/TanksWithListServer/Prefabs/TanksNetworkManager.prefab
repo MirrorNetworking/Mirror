@@ -52,8 +52,8 @@ MonoBehaviour:
   _onServerListUpdated:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.Cloud.ServerListEvent, Mirror.Cloud, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    m_TypeName: Mirror.Cloud.ServerListEvent, Mirror.Cloud, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
 --- !u!114 &5399210850297115757
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88,7 +88,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4798169800353248846}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 068feff770f710141afa4a90063a5e6c, type: 3}
+  m_Script: {fileID: 11500000, guid: 95bebb8e810e2954485291a26324f7d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
