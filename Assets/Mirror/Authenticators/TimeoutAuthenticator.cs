@@ -17,9 +17,15 @@ namespace Mirror.Authenticators
         [Range(0, 600), Tooltip("Timeout to auto-disconnect in seconds. Set to 0 for no timeout.")]
         public float timeout = 60;
 
-        public void Awake()
+        public override void OnStartClient()
         {
+            authenticator.OnStartClient();
             authenticator.OnClientAuthenticated.AddListener(connection => OnClientAuthenticated.Invoke(connection));
+        }
+
+        public override void OnStartServer()
+        {
+            authenticator.OnStartServer();
             authenticator.OnServerAuthenticated.AddListener(connection => OnServerAuthenticated.Invoke(connection));
         }
 
