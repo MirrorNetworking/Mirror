@@ -103,6 +103,12 @@ namespace Mirror.Cloud.ListServerService
         {
             if (!added) { return; }
 
+            if (string.IsNullOrEmpty(serverId))
+            {
+                Debug.LogWarning("Can not remove server because serverId was empty");
+                return;
+            }
+
             stopPingCoroutine();
             runner.StartCoroutine(removeServer());
         }
@@ -210,6 +216,12 @@ namespace Mirror.Cloud.ListServerService
 
         void removeServerWithoutCoroutine()
         {
+            if (string.IsNullOrEmpty(serverId))
+            {
+                Debug.LogWarning("Can not remove server becuase serverId was empty");
+                return;
+            }
+
             UnityWebRequest request = requestCreator.Delete("servers/" + serverId);
             UnityWebRequestAsyncOperation operation = request.SendWebRequest();
 
