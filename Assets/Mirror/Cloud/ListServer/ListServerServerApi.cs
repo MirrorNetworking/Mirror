@@ -6,8 +6,8 @@ namespace Mirror.Cloud.ListServerService
 {
     public sealed class ListServerServerApi : ListServerBaseApi, IListServerServerApi
     {
-        const int PingInterval = 15;
-        const int MaxPingFails = 3;
+        const int PingInterval = 20;
+        const int MaxPingFails = 15;
 
         ServerJson currentServer;
         string serverId;
