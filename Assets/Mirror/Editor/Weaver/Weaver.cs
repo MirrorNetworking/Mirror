@@ -197,9 +197,7 @@ namespace Mirror.Weaver
         static bool ProcessNetworkBehaviourType(TypeDefinition td)
         {
             if (!NetworkBehaviourProcessor.WasProcessed(td))
-            {
-                DLog(td, "Found NetworkBehaviour " + td.FullName);
-
+            {                
                 var proc = new NetworkBehaviourProcessor(td);
                 proc.Process();
                 return true;
