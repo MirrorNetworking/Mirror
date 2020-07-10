@@ -26,10 +26,6 @@ namespace Mirror.Weaver.Tests
         protected List<string> weaverErrors = new List<string>();
         void HandleWeaverError(string msg)
         {
-            LogAssert.ignoreFailingMessages = true;
-            logger.LogError(msg);
-            LogAssert.ignoreFailingMessages = false;
-
             weaverErrors.Add(msg);
         }
 
