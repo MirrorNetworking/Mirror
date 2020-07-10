@@ -13,7 +13,5 @@ namespace Mirror
         void StopClient();
 
         void OnDestroy();
-
-        void ServerChangeScene(string newSceneName);
     }
 }

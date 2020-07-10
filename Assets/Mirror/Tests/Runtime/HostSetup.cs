@@ -17,6 +17,7 @@ namespace Mirror.Tests
         protected NetworkManager manager;
         protected NetworkServer server;
         protected NetworkClient client;
+        protected NetworkSceneManager sceneManager;
 
         protected GameObject playerGO;
         protected NetworkIdentity identity;
@@ -27,11 +28,14 @@ namespace Mirror.Tests
         {
             networkManagerGo = new GameObject();
             networkManagerGo.AddComponent<MockTransport>();
+            sceneManager = networkManagerGo.AddComponent<NetworkSceneManager>();
             manager = networkManagerGo.AddComponent<NetworkManager>();
             manager.client = networkManagerGo.GetComponent<NetworkClient>();
             manager.server = networkManagerGo.GetComponent<NetworkServer>();
             server = manager.server;
             client = manager.client;
+            server.sceneManager = sceneManager;
+            client.sceneManager = sceneManager;
             manager.startOnHeadless = false;
 
             // wait for client and server to initialize themselves

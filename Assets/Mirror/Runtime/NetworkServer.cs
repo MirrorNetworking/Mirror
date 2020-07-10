@@ -53,16 +53,6 @@ namespace Mirror
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
 
         /// <summary>
-        /// Event fires before Server changes scene.
-        /// </summary>
-        public NetworkSceneEvent ServerChangeScene = new NetworkSceneEvent();
-
-        /// <summary>
-        /// Event fires after Server has completed scene change.
-        /// </summary>
-        public NetworkSceneEvent ServerSceneChanged = new NetworkSceneEvent();
-
-        /// <summary>
         /// Event fires once a Client has Disconnected from the Server.
         /// </summary>
         public NetworkConnectionEvent Disconnected = new NetworkConnectionEvent();
@@ -72,6 +62,8 @@ namespace Mirror
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
+
+        public NetworkSceneManager sceneManager;
 
         /// <summary>
         /// The connection to the host mode client (if any).
@@ -144,6 +136,23 @@ namespace Mirror
                 UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
 #endif
             }
+
+            // add serverSceneManager if there is none yet. makes upgrading easier.
+            if (sceneManager == null)
+            {
+                // First try to get the SceneManager.
+                sceneManager = GetComponent<NetworkSceneManager>();
+                // was a SceneManager added yet? if not, add one
+                if (sceneManager == null)
+                {
+                    sceneManager = gameObject.AddComponent<NetworkSceneManager>();
+                    logger.Log("NetworkServer: added default SceneManager because there was none yet.");
+                }
+                sceneManager.server = this;
+#if UNITY_EDITOR
+                UnityEditor.Undo.RecordObject(gameObject, "Added default SceneManager");
+#endif
+            }
         }
 
         /// <summary>
@@ -158,7 +167,7 @@ namespace Mirror
             if (transport != null)
                 transport.Disconnect();
         }
-
+        
         void Initialize()
         {
             if (initialized)
@@ -317,24 +326,6 @@ namespace Mirror
                     identity.StartClient();
                 }
             }
-        }
-
-        /// <summary>
-        /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
-        /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
-        /// </summary>
-        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-        internal void OnServerChangeScene(string newSceneName)
-        {
-            ServerChangeScene.Invoke(newSceneName);
-        }
-
-        /// <summary>
-        /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ServerChangeScene().        /// </summary>
-        /// <param name="sceneName">The name of the new scene.</param>
-        internal void OnServerSceneChanged(string sceneName)
-        {
-            ServerSceneChanged.Invoke(sceneName);
         }
 
         // this is like SendToReady - but it doesn't check the ready flag on the connection.

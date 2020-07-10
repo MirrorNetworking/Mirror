@@ -31,34 +31,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ReadyTest()
-        {
-            client.Ready(client.Connection);
-            Assert.That(client.ready);
-            Assert.That(client.Connection.IsReady);
-        }
-
-        [Test]
-        public void ReadyTwiceTest()
-        {
-            client.Ready(client.Connection);
-
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                client.Ready(client.Connection);
-            });
-        }
-
-        [Test]
-        public void ReadyNull()
-        {
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                client.Ready(null);
-            });
-        }
-
-        [Test]
         public void RegisterPrefabExceptionTest()
         {
             var gameObject = new GameObject();
@@ -133,48 +105,6 @@ namespace Mirror.Tests
             server.ReplacePlayerForConnection(server.LocalConnection, client, playerReplacement, true);
 
             Assert.That(server.LocalClient.Connection.Identity, Is.EqualTo(replacementIdentity));
-        }
-
-        int ClientChangeCalled;
-        public void ClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
-        {
-            ClientChangeCalled++;
-        }
-
-        [Test]
-        public void ClientChangeSceneTest()
-        {
-            client.ClientChangeScene.AddListener(ClientChangeScene);
-            client.OnClientChangeScene("", SceneOperation.Normal, false);
-            Assert.That(ClientChangeCalled, Is.EqualTo(1));
-        }
-
-        int ClientSceneChangedCalled;
-        public void ClientSceneChanged(INetworkConnection conn)
-        {
-            ClientSceneChangedCalled++;
-        }
-
-        [Test]
-        public void ClientSceneChangedTest()
-        {
-            client.ClientSceneChanged.AddListener(ClientSceneChanged);
-            client.OnClientSceneChanged(client.Connection);
-            Assert.That(ClientSceneChangedCalled, Is.EqualTo(1));
-        }
-
-        int ClientNotReadyCalled;
-        public void ClientNotReady(INetworkConnection conn)
-        {
-            ClientNotReadyCalled++;
-        }
-
-        [Test]
-        public void ClientNotReadyTest()
-        {
-            client.ClientNotReady.AddListener(ClientNotReady);
-            client.OnClientNotReady(client.Connection);
-            Assert.That(ClientNotReadyCalled, Is.EqualTo(1));
         }
 
         [UnityTest]

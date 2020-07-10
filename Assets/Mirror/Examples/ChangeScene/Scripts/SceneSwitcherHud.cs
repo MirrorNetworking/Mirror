@@ -12,12 +12,12 @@ namespace Mirror.Examples.SceneChange
 
             if (GUILayout.Button("Switch to Room1"))
             {
-                networkManager.ServerChangeScene("Room1");
+                networkManager.server.sceneManager.ChangeServerScene("Room1");
             }
 
             if (GUILayout.Button("Switch to Room2"))
             {
-                networkManager.ServerChangeScene("Room2");
+                networkManager.server.sceneManager.ChangeServerScene("Room2");
             }
 
             GUILayout.EndArea();

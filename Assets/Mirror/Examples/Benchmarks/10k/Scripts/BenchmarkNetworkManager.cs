@@ -14,10 +14,10 @@ namespace Mirror.Examples
         public Action AfterLateUpdate;
 
 
-        public override void LateUpdate()
+        public void LateUpdate()
         {
             BeforeLateUpdate?.Invoke();
-            base.LateUpdate();
+            base.server.sceneManager.LateUpdate();
             AfterLateUpdate?.Invoke();
         }
     }

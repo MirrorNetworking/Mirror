@@ -10,6 +10,8 @@ using Object = UnityEngine.Object;
 
 namespace Mirror
 {
+    [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
+
     public enum ConnectState
     {
         None,
@@ -32,13 +34,13 @@ namespace Mirror
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
+        public NetworkSceneManager sceneManager;
 
         // spawn handlers. internal for testing purposes. do not use directly.
         internal readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
         internal readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
         internal readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
-        [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
         [Serializable] public class ClientSceneChangeEvent : UnityEvent<string, SceneOperation, bool> { }
 
         /// <summary>
@@ -50,18 +52,6 @@ namespace Mirror
         /// Event fires after the Client connection has sucessfully been authenticated with its Server.
         /// </summary>
         public NetworkConnectionEvent Authenticated = new NetworkConnectionEvent();
-
-        public NetworkConnectionEvent ClientNotReady = new NetworkConnectionEvent();
-
-        /// <summary>
-        /// Event fires when the Client starts changing scene.
-        /// </summary>
-        public ClientSceneChangeEvent ClientChangeScene = new ClientSceneChangeEvent();
-
-        /// <summary>
-        /// Event fires after the Client has completed its scene change.
-        /// </summary>
-        public NetworkConnectionEvent ClientSceneChanged = new NetworkConnectionEvent();
 
         /// <summary>
         /// Event fires after the Client has disconnected from its Server and Cleanup has been called.
@@ -102,14 +92,6 @@ namespace Mirror
         bool isSpawnFinished;
 
         public AsyncTransport Transport;
-
-        /// <summary>
-        /// Returns true when a client's connection has been set to ready.
-        /// <para>A client that is ready recieves state updates from the server, while a client that is not ready does not. This useful when the state of the game is not normal, such as a scene change or end-of-game.</para>
-        /// <para>This is read-only. To change the ready state of a client, use ClientScene.Ready(). The server is able to set the ready state of clients using NetworkServer.SetClientReady(), NetworkServer.SetClientNotReady() and NetworkServer.SetAllClientsNotReady().</para>
-        /// <para>This is done when changing scenes so that clients don't receive state update messages during scene loading.</para>
-        /// </summary>
-        public bool ready { get; internal set; }
 
         /// <summary>
         /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
@@ -166,6 +148,23 @@ namespace Mirror
                 }
 #if UNITY_EDITOR
                 UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
+#endif
+            }
+
+            // add clientSceneManager if there is none yet. makes upgrading easier.
+            if (sceneManager == null)
+            {
+                // First try to get the SceneManager.
+                sceneManager = GetComponent<NetworkSceneManager>();
+                // was a SceneManager added yet? if not, add one
+                if (sceneManager == null)
+                {
+                    sceneManager = gameObject.AddComponent<NetworkSceneManager>();
+                    logger.Log("NetworkClient: added default SceneManager because there was none yet.");
+                }
+                sceneManager.client = this;
+#if UNITY_EDITOR
+                UnityEditor.Undo.RecordObject(gameObject, "Added default SceneManager");
 #endif
             }
         }
@@ -353,8 +352,9 @@ namespace Mirror
 
             ClearSpawners();
             DestroyAllClientObjects();
-            ready = false;
+            sceneManager.ready = false;
             isSpawnFinished = false;
+            hostServer = null;
 
             connectState = ConnectState.None;
 
@@ -371,42 +371,6 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
-        /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
-        /// </summary>
-        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-        /// <param name="sceneOperation">Scene operation that's about to happen</param>
-        /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
-        internal void OnClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
-        {
-            ClientChangeScene.Invoke(sceneName, sceneOperation, customHandling);
-        }
-
-        /// <summary>
-        /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
-        /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
-        /// </summary>
-        /// <param name="conn">The network connection that the scene change message arrived on.</param>
-        internal void OnClientSceneChanged(INetworkConnection conn)
-        {
-            // always become ready.
-            if (!ready)
-                Ready(conn);
-
-            ClientSceneChanged.Invoke(conn);
-        }
-
-        /// <summary>
-        /// Called on clients when a servers tells the client it is no longer ready.
-        /// <para>This is commonly used when switching scenes.</para>
-        /// </summary>
-        /// <param name="conn">Connection to the server.</param>
-        internal void OnClientNotReady(INetworkConnection conn)
-        {
-            ClientNotReady.Invoke(conn);
-        }
-
         static bool ConsiderForSpawning(NetworkIdentity identity)
         {
             // not spawned yet, not hidden, etc.?
@@ -414,32 +378,6 @@ namespace Mirror
                    identity.gameObject.hideFlags != HideFlags.NotEditable &&
                    identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
                    identity.sceneId != 0;
-        }
-
-        /// <summary>
-        /// Signal that the client connection is ready to enter the game.
-        /// <para>This could be for example when a client enters an ongoing game and has finished loading the current scene. The server should respond to the SYSTEM_READY event with an appropriate handler which instantiates the players object for example.</para>
-        /// </summary>
-        /// <param name="conn">The client connection which is ready.</param>
-        public void Ready(INetworkConnection conn)
-        {
-            if (ready)
-            {
-                throw new InvalidOperationException("A connection has already been set as ready. There can only be one.");
-            }
-
-            if (conn == null)
-                throw new InvalidOperationException("Ready() called with invalid connection object: conn=null");
-
-            if (logger.LogEnabled()) logger.Log("ClientScene.Ready() called with connection [" + conn + "]");
-
-            // Set these before sending the ReadyMessage, otherwise host client
-            // will fail in InternalAddPlayer with null readyConnection.
-            ready = true;
-            Connection.IsReady = true;
-
-            // Tell server we're ready to have a player object spawned
-            conn.Send(new ReadyMessage());
         }
 
         // this is called from message handler for Owner message

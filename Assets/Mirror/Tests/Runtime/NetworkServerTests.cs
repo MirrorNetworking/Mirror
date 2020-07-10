@@ -234,8 +234,8 @@ namespace Mirror.Tests
         [Test]
         public void ServerChangeSceneTest()
         {
-            server.ServerChangeScene.AddListener(ServerChangeScene);
-            server.OnServerChangeScene("");
+            server.sceneManager.ServerChangeScene.AddListener(ServerChangeScene);
+            server.sceneManager.OnServerChangeScene("");
             Assert.That(ServerChangeCalled, Is.EqualTo(1));
         }
 
@@ -248,8 +248,8 @@ namespace Mirror.Tests
         [Test]
         public void ServerSceneChangedTest()
         {
-            server.ServerSceneChanged.AddListener(ServerSceneChanged);
-            server.OnServerSceneChanged("");
+            server.sceneManager.ServerSceneChanged.AddListener(ServerSceneChanged);
+            server.sceneManager.OnServerSceneChanged("");
             Assert.That(ServerSceneChangedCalled, Is.EqualTo(1));
         }
 

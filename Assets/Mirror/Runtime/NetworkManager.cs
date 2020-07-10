@@ -4,8 +4,6 @@ using Mirror.AsyncTcp;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
-using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 namespace Mirror
 {
@@ -18,15 +16,6 @@ namespace Mirror
     public class NetworkManager : MonoBehaviour, INetworkManager
     {
         static readonly ILogger logger = LogFactory.GetLogger<NetworkManager>();
-
-        /// <summary>
-        /// A flag to control whether the NetworkManager object is destroyed when the scene changes.
-        /// <para>This should be set if your game has a single NetworkManager that exists for the lifetime of the process. If there is a NetworkManager in each scene, then this should not be set.</para>
-        /// </summary>
-        [Header("Configuration")]
-        [FormerlySerializedAs("m_DontDestroyOnLoad")]
-        [Tooltip("Should the Network Manager object be persisted through scene changes?")]
-        public bool dontDestroyOnLoad = true;
 
         /// <summary>
         /// Automatically invoke StartServer()
@@ -55,13 +44,6 @@ namespace Mirror
         /// <para>This is set True in StartServer / StartClient, and set False in StopServer / StopClient</para>
         /// </summary>
         public bool IsNetworkActive => server.Active || client.Active;
-
-        /// <summary>
-        /// This is true if the client loaded a new scene when connecting to the server.
-        /// <para>This is set before OnClientConnect is called, so it can be checked there to perform different logic if a scene load occurred.</para>
-        /// </summary>
-        [NonSerialized]
-        public bool clientLoadedScene;
 
         /// <summary>
         /// This is invoked when a host is started.
@@ -128,15 +110,6 @@ namespace Mirror
         {
             logger.Log("Thank you for using Mirror! https://mirror-networking.com");
 
-            // Set the networkSceneName to prevent a scene reload
-            // if client connection to server fails.
-            networkSceneName = null;
-
-            Initialize();
-
-            // setup OnSceneLoaded callback
-            SceneManager.sceneLoaded += OnSceneLoaded;
-
             // headless mode? then start the server
             // can't do this in Awake because Awake is for initialization.
             // some transports might not be ready until Start.
@@ -146,16 +119,6 @@ namespace Mirror
             {
                 _ = StartServer();
             }
-        }
-
-        // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
-        // If we want TCP then we need to call it manually. Probably best from NetworkManager, although this means that we can't use NetworkServer/NetworkClient without a NetworkManager invoking Update anymore.
-        /// <summary>
-        /// virtual so that inheriting classes' LateUpdate() can call base.LateUpdate() too
-        /// </summary>
-        public virtual void LateUpdate()
-        {
-            UpdateScene();
         }
 
         #endregion
@@ -179,22 +142,6 @@ namespace Mirror
         /// <returns></returns>
         public async Task StartServer()
         {
-            // StartServer is inherently ASYNCHRONOUS (=doesn't finish immediately)
-            //
-            // Here is what it does:
-            //   Listen
-            //   if onlineScene:
-            //       LoadSceneAsync
-            //       ...
-            //       FinishLoadSceneServerOnly
-            //           SpawnObjects
-            //   else:
-            //       SpawnObjects
-            //
-            // there is NO WAY to make it synchronous because both LoadSceneAsync
-            // and LoadScene do not finish loading immediately. as long as we
-            // have the onlineScene feature, it will be asynchronous!
-
             await SetupServer();
 
             server.SpawnObjects();
@@ -272,8 +219,6 @@ namespace Mirror
             logger.Log("NetworkManager ConnectLocalClient");
 
             server.ActivateHostScene();
-
-            RegisterClientMessages(client.Connection);
         }
 
         /// <summary>
@@ -320,298 +265,12 @@ namespace Mirror
 #endif
         }
 
-        void Initialize()
-        {
-            if (dontDestroyOnLoad)
-            {
-                DontDestroyOnLoad(gameObject);
-            }
-
-            // subscribe to the server
-            if (server != null)
-                server.Authenticated.AddListener(OnServerAuthenticated);
-
-            // subscribe to the client
-            if (client != null)
-                client.Authenticated.AddListener(OnClientAuthenticated);
-        }
-
         /// <summary>
         /// virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
         /// </summary>
         public virtual void OnDestroy()
         {
             logger.Log("NetworkManager destroyed");
-        }
-
-        #endregion
-
-        #region Scene Management
-
-        /// <summary>
-        /// The name of the current network scene.
-        /// </summary>
-        /// <remarks>
-        /// <para>This is populated if the NetworkManager is doing scene management. This should not be changed directly. Calls to ServerChangeScene() cause this to change. New clients that connect to a server will automatically load this scene.</para>
-        /// <para>This is used to make sure that all scene changes are initialized by Mirror.</para>
-        /// <para>Loading a scene manually wont set networkSceneName, so Mirror would still load it again on start.</para>
-        /// </remarks>
-        public string networkSceneName = "";
-
-        [NonSerialized]
-        public AsyncOperation loadingSceneAsync;
-
-        /// <summary>
-        /// This causes the server to switch scenes and sets the networkSceneName.
-        /// <para>Clients that connect to this server will automatically switch to this scene. This is called autmatically if onlineScene or offlineScene are set, but it can be called from user code to switch scenes again while the game is in progress. This automatically sets clients to be not-ready. The clients must call NetworkClient.Ready() again to participate in the new scene.</para>
-        /// </summary>
-        /// <param name="newSceneName"></param>
-        public virtual void ServerChangeScene(string newSceneName)
-        {
-            if (string.IsNullOrEmpty(newSceneName))
-            {
-                throw new ArgumentNullException(nameof(newSceneName), "ServerChangeScene: " + nameof(newSceneName) + " cannot be empty or null");
-            }
-
-            if (logger.LogEnabled()) logger.Log("ServerChangeScene " + newSceneName);
-            server.SetAllClientsNotReady();
-            networkSceneName = newSceneName;
-
-            // Let server prepare for scene change
-            server.OnServerChangeScene(newSceneName);
-
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
-
-            // notify all clients about the new scene
-            server.SendToAll(new SceneMessage { sceneName = newSceneName });
-        }
-
-        internal void ClientChangeScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal, bool customHandling = false)
-        {
-            if (string.IsNullOrEmpty(newSceneName))
-            {
-                throw new ArgumentNullException(nameof(newSceneName), "ClientChangeScene: " + nameof(newSceneName) + " cannot be empty or null");
-            }
-
-            if (logger.LogEnabled()) logger.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
-
-            // Let client prepare for scene change
-            client.OnClientChangeScene(newSceneName, sceneOperation, customHandling);
-
-            // scene handling will happen in overrides of OnClientChangeScene and/or OnClientSceneChanged
-            if (customHandling)
-            {
-                FinishLoadScene();
-                return;
-            }
-
-            switch (sceneOperation)
-            {
-                case SceneOperation.Normal:
-                    loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
-                    break;
-                case SceneOperation.LoadAdditive:
-                    // Ensure additive scene is not already loaded on client by name or path
-                    // since we don't know which was passed in the Scene message
-                    if (!SceneManager.GetSceneByName(newSceneName).IsValid() && !SceneManager.GetSceneByPath(newSceneName).IsValid())
-                        loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, LoadSceneMode.Additive);
-                    else
-                    {
-                        logger.LogWarning($"Scene {newSceneName} is already loaded");
-                    }
-                    break;
-                case SceneOperation.UnloadAdditive:
-                    // Ensure additive scene is actually loaded on client by name or path
-                    // since we don't know which was passed in the Scene message
-                    if (SceneManager.GetSceneByName(newSceneName).IsValid() || SceneManager.GetSceneByPath(newSceneName).IsValid())
-                        loadingSceneAsync = SceneManager.UnloadSceneAsync(newSceneName, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
-                    else
-                    {
-                        logger.LogWarning($"Cannot unload {newSceneName} with UnloadAdditive operation");
-                    }
-                    break;
-            }
-
-            // don't change the client's current networkSceneName when loading additive scene content
-            if (sceneOperation == SceneOperation.Normal)
-                networkSceneName = newSceneName;
-        }
-
-        // support additive scene loads:
-        //   NetworkScenePostProcess disables all scene objects on load, and
-        //   * NetworkServer.SpawnObjects enables them again on the server when
-        //     calling OnStartServer
-        //   * ClientScene.PrepareToSpawnSceneObjects enables them again on the
-        //     client after the server sends ObjectSpawnStartedMessage to client
-        //     in SpawnObserversForConnection. this is only called when the
-        //     client joins, so we need to rebuild scene objects manually again
-        // TODO merge this with FinishLoadScene()?
-        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if (mode == LoadSceneMode.Additive)
-            {
-                if (server.Active)
-                {
-                    // TODO only respawn the server objects from that scene later!
-                    server.SpawnObjects();
-                    if (logger.LogEnabled()) logger.Log("Respawned Server objects after additive scene load: " + scene.name);
-                }
-                if (client.Active)
-                {
-                    client.PrepareToSpawnSceneObjects();
-                    if (logger.LogEnabled()) logger.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
-                }
-            }
-        }
-
-        void UpdateScene()
-        {
-            if (loadingSceneAsync != null && loadingSceneAsync.isDone)
-            {
-                if (logger.LogEnabled()) logger.Log("ClientChangeScene done readyCon:" + client.Connection);
-                FinishLoadScene();
-                loadingSceneAsync.allowSceneActivation = true;
-                loadingSceneAsync = null;
-            }
-        }
-
-        void FinishLoadScene()
-        {
-            // NOTE: this cannot use NetworkClient.allClients[0] - that client may be for a completely different purpose.
-
-            // host mode?
-            if (client.IsLocalClient)
-            {
-                FinishLoadSceneHost();
-            }
-            // server-only mode?
-            else if (server.Active)
-            {
-                FinishLoadSceneServerOnly();
-            }
-            // client-only mode?
-            else if (client.Active)
-            {
-                FinishLoadSceneClientOnly();
-            }
-        }
-
-        // finish load scene part for host mode. makes code easier and is
-        // necessary for FinishStartHost later.
-        // (the 3 things have to happen in that exact order)
-        void FinishLoadSceneHost()
-        {
-            // debug message is very important. if we ever break anything then
-            // it's very obvious to notice.
-            logger.Log("Finished loading scene in host mode.");
-
-            if (client.Connection != null)
-            {
-                client.OnAuthenticated(client.Connection);
-                clientLoadedScene = true;
-            }
-
-            FinishStartHost();
-
-            // call OnServerSceneChanged
-            server.OnServerSceneChanged(networkSceneName);
-
-            if (client.IsConnected)
-            {
-                // let client know that we changed scene
-                client.OnClientSceneChanged(client.Connection);
-            }
-        }
-
-        // finish load scene part for client-only. makes code easier and is
-        // necessary for FinishStartClient later.
-        void FinishLoadSceneClientOnly()
-        {
-            // debug message is very important. if we ever break anything then
-            // it's very obvious to notice.
-            logger.Log("Finished loading scene in client-only mode.");
-
-            if (client.Connection != null)
-            {
-                client.OnAuthenticated(client.Connection);
-                clientLoadedScene = true;
-            }
-
-            if (client.IsConnected)
-            {
-                client.OnClientSceneChanged(client.Connection);
-            }
-        }
-
-        // finish load scene part for server-only. . makes code easier and is
-        // necessary for FinishStartServer later.
-        void FinishLoadSceneServerOnly()
-        {
-            // debug message is very important. if we ever break anything then
-            // it's very obvious to notice.
-            logger.Log("Finished loading scene in server-only mode.");
-
-            server.SpawnObjects();
-            server.OnServerSceneChanged(networkSceneName);
-        }
-
-        #endregion
-
-        #region Server Internal Message Handlers
-
-        // called after successful authentication
-        void OnServerAuthenticated(INetworkConnection conn)
-        {
-            // a connection has been established,  register for our messages
-            logger.Log("NetworkManager.OnServerAuthenticated");
-
-            // proceed with the login handshake by calling OnServerConnect
-            if (!string.IsNullOrEmpty(networkSceneName))
-            {
-                var msg = new SceneMessage { sceneName = networkSceneName };
-                conn.Send(msg);
-            }
-        }
-
-        #endregion
-
-        #region Client Internal Message Handlers
-
-        void RegisterClientMessages(INetworkConnection connection)
-        {
-            connection.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            connection.RegisterHandler<SceneMessage>(OnClientSceneInternal);
-        }
-
-        // called after successful authentication
-        void OnClientAuthenticated(INetworkConnection conn)
-        {
-            RegisterClientMessages(conn);
-
-            logger.Log("NetworkManager.OnClientAuthenticated");
-
-            // will wait for scene id to come from the server.
-            clientLoadedScene = true;
-        }
-
-        void OnClientNotReadyMessageInternal(INetworkConnection conn, NotReadyMessage msg)
-        {
-            logger.Log("NetworkManager.OnClientNotReadyMessageInternal");
-
-            client.ready = false;
-            client.OnClientNotReady(conn);
-
-            // NOTE: clientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
-        }
-
-        void OnClientSceneInternal(INetworkConnection conn, SceneMessage msg)
-        {
-            logger.Log("NetworkManager.OnClientSceneInternal");
-
-            if (client.IsConnected && !server.Active)
-            {
-                ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
-            }
         }
 
         #endregion

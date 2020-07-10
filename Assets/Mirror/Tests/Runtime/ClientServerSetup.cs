@@ -19,6 +19,7 @@ namespace Mirror.Tests
         protected NetworkManager manager;
         protected NetworkServer server;
         protected NetworkClient client;
+        protected NetworkSceneManager sceneManager;
 
         protected GameObject serverPlayerGO;
         protected NetworkIdentity serverIdentity;
@@ -40,14 +41,17 @@ namespace Mirror.Tests
         [UnitySetUp]
         public IEnumerator Setup() => RunAsync(async () =>
         {
-            networkManagerGo = new GameObject("NetworkManager", typeof(LoopbackTransport), typeof(NetworkClient), typeof(NetworkServer), typeof(NetworkManager));
+            networkManagerGo = new GameObject("NetworkManager", typeof(LoopbackTransport), typeof(NetworkClient), typeof(NetworkServer), typeof(NetworkManager), typeof(NetworkSceneManager));
 
+            sceneManager = networkManagerGo.GetComponent<NetworkSceneManager>();
             manager = networkManagerGo.GetComponent<NetworkManager>();
             manager.client = networkManagerGo.GetComponent<NetworkClient>();
             manager.server = networkManagerGo.GetComponent<NetworkServer>();
 
             server = manager.server;
             client = manager.client;
+            server.sceneManager = sceneManager;
+            client.sceneManager = sceneManager;
             manager.startOnHeadless = false;
 
             ExtraSetup();
