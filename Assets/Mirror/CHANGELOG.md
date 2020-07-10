@@ -1,3 +1,15 @@
+# [35.0.0](https://github.com/MirrorNG/MirrorNG/compare/34.13.0-master...35.0.0-master) (2020-07-10)
+
+
+### Features
+
+* Component based NetworkSceneManager ([#244](https://github.com/MirrorNG/MirrorNG/issues/244)) ([7579d71](https://github.com/MirrorNG/MirrorNG/commit/7579d712ad97db98cd729c51568631e4c3257b58))
+
+
+### BREAKING CHANGES
+
+* NetworkManager no longer handles scene changes
+
 # [34.13.0](https://github.com/MirrorNG/MirrorNG/compare/34.12.0-master...34.13.0-master) (2020-07-05)
 
 
