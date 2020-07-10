@@ -35,13 +35,13 @@ However, the project is not moving forward as fast as I would like. There is a b
 
 Mirror relies heavily on manual testing.  Manual testing does not scale. I can cover so much more code with automated tests, and have much more confidence on my changes. This will require large breaking changes that will be hard to swallow for many people,  but at the end of the day I should be able to reduce the amount of defects significantly. While there has been signficiant progress in improving test coverage in Mirror, the code is not designed to be tested. There is a limit to how much can be tested.  This can be fixed, but not without bold changes.
 
-Mirror makes heavy use of singletons, an [anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons. 
+Mirror makes heavy use of the [singleton anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in Unity 2019.3 and later.  A lot of people will disable domain reloading which completely breaks singletons. 
 
-Mirror has very poor error handling. Many methods return true/false to indicate success/failure and use Debug.LogError to report errors. True/false is terrible for reporting errors,  it does not tell you why it failed, and in many places in mirror we don't even check the result, a hidden and subtle bug. Debug.LogError is not easy to test, and you can't use it to display a sensible error to the user. Since day 1, C# has had a much better mechanism to handle abnormal conditions: Exceptions. Methods in MirrorNG should either succeed or throw exceptions if something is wrong with full explanation. This lets the developer catch the exception and take action:  display an error message to the user, report it to your servers, report it to google play, etc...
+Mirror has very poor error handling. Many methods return true/false to indicate success/failure and use Debug.LogError to report errors. True/false is terrible for reporting errors,  it does not tell you why it failed, and in many places in mirror we forget to check the result, a hidden and subtle bug. Debug.LogError is not easy to test. I would like to show a popup and display a sensible error to the user, but I can't do it if the error is simply sent to Debug.LogError. Since day 1, C# has had a much better mechanism to handle abnormal conditions: Exceptions. Methods in MirrorNG should either succeed or throw exceptions if something is wrong with full explanation. This lets the developer catch the exception and take action:  display an error message to the user, report it to your servers, report it to google play, etc...
 
 Mirror is distributed in the unity asset store and github. Both of these are majorly inconvenient to work with when you want to stay up to date.  I am developing a game,  and I spent significant amount of time just updating Mirror in my game. Fortunately Unity has a new mechanism that eliminates most of the pain:  Unity Package Manager.  There has been resistance in Mirror to distribute it using UPM.
 
-There is not a whole lot of innovation in Mirror anymore.  Just bug fixes. I have a very difficult time getting any new feature merged.  I have tons of ideas of things we can add to make things easier and better, most of them get shut down.
+There is not a whole lot of innovation in Mirror anymore.  Just bug fixes and minor changes. I have a very difficult time getting any new feature merged.  I have tons of ideas of things we can add to make things easier and better, most of them get shut down.
 
 I want to adhere as much as possible to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID). Many things in Mirror do not.
 
@@ -60,7 +60,7 @@ These are some notable differences between Mirror and MirrorNG:
 * [Done] Make it work in unity 2019.3.0 with domain reload turned off 
 * [WIP] Allow connection to multiple servers simultaneously
 * [WIP] Error handling via Exceptions
-* [WIP] Events instead of overrides for lifecycle events
+* [Done] Events instead of overrides for lifecycle events
 
 ## Documentation
 Check out our [Documentation](https://mirrorng.github.io/MirrorNG/).
@@ -80,7 +80,7 @@ If you are using unity 2019.3 or later:
 
 If you are using unity 2019.2, you can use [openupm](https://openupm.com/packages/com.mirrorng.mirrorng/) or you can manually add the url to your [packages.json](https://docs.unity3d.com/Manual/upm-git.html) file. 
 
-Alternatively you can download it from [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases) 
+Alternatively you can download it from [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases).  You will need to install some dependencies yourself such as cecil.
 
 ## Examples
 We included several small example projects.
@@ -118,4 +118,3 @@ When contributing code, please keep these things in mind:
 * Follow [SOLID principles](https://en.wikipedia.org/wiki/SOLID) as much as possible. 
 * Keep your pull requests small and obvious,  if a PR can be split into several small ones, do so.
 
-Pull Requests for bug fixes are always highly appreciated. New features will be considered very carefully and will only be merged if they are the most simple solution to the given problem.
