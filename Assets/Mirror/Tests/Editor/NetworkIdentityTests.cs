@@ -228,15 +228,11 @@ namespace Mirror.Tests
         [Test]
         public void SetAssetId_GivesErrorIfOneExists()
         {
-            if (identity.AssetId == Guid.Empty)
-            {
-                identity.AssetId = Guid.NewGuid();
-            }
-
-            Guid guid1 = identity.AssetId;
+            var guid1 = Guid.NewGuid();
+            identity.AssetId = guid1;
 
             // assign a guid
-            Guid guid2 = Guid.NewGuid();
+            var guid2 = Guid.NewGuid();
             LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' becasue it already had an assetId, current assetId '{guid1.ToString("N")}', attempted new assetId '{guid2.ToString("N")}'");
             identity.AssetId = guid2;
 
@@ -247,15 +243,11 @@ namespace Mirror.Tests
         [Test]
         public void SetAssetId_GivesErrorForEmptyGuid()
         {
-            if (identity.AssetId == Guid.Empty)
-            {
-                identity.AssetId = Guid.NewGuid();
-            }
-
-            Guid guid1 = identity.AssetId;
+            var guid1 = Guid.NewGuid();
+            identity.AssetId = guid1;
 
             // assign a guid
-            Guid guid2 = new Guid();
+            var guid2 = new Guid();
             LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1.ToString("N")}'");
             identity.AssetId = guid2;
 
@@ -267,7 +259,7 @@ namespace Mirror.Tests
         {
             Debug.Assert(identity.AssetId == Guid.Empty, "assetId needs to be empty at the start of this test");
             // assign a guid
-            Guid guid2 = new Guid();
+            var guid2 = new Guid();
             // expect no errors
             identity.AssetId = guid2;
 
