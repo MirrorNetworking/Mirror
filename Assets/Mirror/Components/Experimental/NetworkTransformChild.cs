@@ -13,6 +13,6 @@ namespace Mirror.Experimental
         [Header("Target")]
         public Transform target;
 
-        protected override Transform targetTransform => target;
+        protected override Transform TargetTransform => target;
     }
 }

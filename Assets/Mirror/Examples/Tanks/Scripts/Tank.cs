@@ -29,7 +29,7 @@ namespace Mirror.Examples.Tanks
         [SyncVar]
         public bool isReady;
 
-        public bool isDead => health <= 0;
+        public bool IsDead => health <= 0;
         public TextMesh nameText;
 
 
@@ -48,7 +48,7 @@ namespace Mirror.Examples.Tanks
             if (!allowMovement)
                 return;
 
-            if (isDead)
+            if (IsDead)
                 return;
 
             // rotate

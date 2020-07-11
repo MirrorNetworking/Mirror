@@ -7,6 +7,6 @@ namespace Mirror.Experimental
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkTransform.html")]
     public class NetworkTransform : NetworkTransformBase
     {
-        protected override Transform targetTransform => transform;
+        protected override Transform TargetTransform => transform;
     }
 }

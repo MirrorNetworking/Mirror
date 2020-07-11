@@ -9,10 +9,10 @@ namespace Mirror.Experimental
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkRigidbody));
 
         [Header("Settings")]
-        [SerializeField] internal Rigidbody target = null;
+        [SerializeField] internal Rigidbody target;
 
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        [SerializeField] bool clientAuthority = false;
+        [SerializeField] bool clientAuthority;
 
         [Header("Velocity")]
 
@@ -20,11 +20,10 @@ namespace Mirror.Experimental
         [SerializeField] bool syncVelocity = true;
 
         [Tooltip("Set velocity to 0 each frame (only works if syncVelocity is false")]
-        [SerializeField] bool clearVelocity = false;
+        [SerializeField] bool clearVelocity;
 
         [Tooltip("Only Syncs Value if distance between previous and current is great than sensitivity")]
         [SerializeField] float velocitySensitivity = 0.1f;
-
 
         [Header("Angular Velocity")]
 
@@ -32,7 +31,7 @@ namespace Mirror.Experimental
         [SerializeField] bool syncAngularVelocity = true;
 
         [Tooltip("Set angularVelocity to 0 each frame (only works if syncAngularVelocity is false")]
-        [SerializeField] bool clearAngularVelocity = false;
+        [SerializeField] bool clearAngularVelocity;
 
         [Tooltip("Only Syncs Value if distance between previous and current is great than sensitivity")]
         [SerializeField] float angularVelocitySensitivity = 0.1f;
@@ -49,7 +48,6 @@ namespace Mirror.Experimental
                 target = GetComponent<Rigidbody>();
             }
         }
-
 
         #region Sync vars
         [SyncVar(hook = nameof(OnVelocityChanged))]

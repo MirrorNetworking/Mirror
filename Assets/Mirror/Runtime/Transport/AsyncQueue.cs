@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Mirror
 {
@@ -11,7 +8,6 @@ namespace Mirror
     {
         private readonly Queue<T> queue = new Queue<T>();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(0);
-
 
         internal void Equeue(T v)
         {

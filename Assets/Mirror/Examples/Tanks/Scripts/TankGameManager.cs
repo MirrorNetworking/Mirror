@@ -66,31 +66,12 @@ namespace Mirror.Examples.Tanks
             if (!IsGameReady)
             {
                 //Look for connections that are not in the player list
-                foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkManager.client.Spawned)
-                {
-                    Tank comp = kvp.Value.GetComponent<Tank>();
-                    if (comp != null)
-                    {
-                        if (!players.Contains(comp))
-                        {
-                            //Add if new
-                            players.Add(comp);
-                        }
-                    }
-                }
+                CheckPlayersNotInList();
 
                 //If minimum connections has been check if they are all ready
                 if (players.Count >= MinimumPlayersForGame)
                 {
-                    bool AllReady = true;
-                    foreach (Tank tank in players)
-                    {
-                        if (!tank.isReady)
-                        {
-                            AllReady = false;
-                        }
-                    }
-                    if (AllReady)
+                    if (GetAllReadyState())
                     {
                         IsGameReady = true;
                         AllowTankMovement();
@@ -104,6 +85,32 @@ namespace Mirror.Examples.Tanks
             }
         }
 
+        void CheckPlayersNotInList()
+        {
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkManager.client.Spawned)
+            {
+                Tank comp = kvp.Value.GetComponent<Tank>();
+                if (comp != null && !players.Contains(comp))
+                {
+                    //Add if new
+                    players.Add(comp);
+                }
+            }
+        }
+
+        bool GetAllReadyState()
+        {
+            bool AllReady = true;
+            foreach (Tank tank in players)
+            {
+                if (!tank.isReady)
+                {
+                    AllReady = false;
+                }
+            }
+            return AllReady;
+        }
+
         void GameOverCheck()
         {
             if (!IsGameReady)
@@ -113,10 +120,20 @@ namespace Mirror.Examples.Tanks
             if (players.Count == 1)
                 return;
 
+            if (GetAlivePlayerCount() == 1)
+            {
+                IsGameOver = true;
+                GameOverPanel.SetActive(true);
+                DisallowTankMovement();
+            }
+        }
+
+        int GetAlivePlayerCount()
+        {
             int alivePlayerCount = 0;
             foreach (Tank tank in players)
             {
-                if (!tank.isDead)
+                if (!tank.IsDead)
                 {
                     alivePlayerCount++;
 
@@ -124,13 +141,7 @@ namespace Mirror.Examples.Tanks
                     WinnerNameText.text = tank.playerName;
                 }
             }
-
-            if (alivePlayerCount == 1)
-            {
-                IsGameOver = true;
-                GameOverPanel.SetActive(true);
-                DisallowTankMovement();
-            }
+            return alivePlayerCount;
         }
 
         void FindLocalTank()

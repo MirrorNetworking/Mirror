@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Diagnostics;
-using Mirror.Examples;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
 using UnityEditor.SceneManagement;

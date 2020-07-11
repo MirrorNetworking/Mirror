@@ -157,8 +157,8 @@ namespace Mirror.Tests
             string guidMatch1 = Guid.NewGuid().ToString();
 
             // make players join same match
-            player1MatchChecker.matchId = new Guid(guidMatch1);
-            player2MatchChecker.matchId = new Guid(guidMatch1);
+            player1MatchChecker.MatchId = new Guid(guidMatch1);
+            player2MatchChecker.MatchId = new Guid(guidMatch1);
 
             // check player1's observers contains player 2
             Assert.That(player1MatchChecker.Identity.observers, Contains.Item(player2MatchChecker.ConnectionToClient));
@@ -173,11 +173,11 @@ namespace Mirror.Tests
             string guidMatch2 = Guid.NewGuid().ToString();
 
             // make players join same match
-            player1MatchChecker.matchId = new Guid(guidMatch1);
-            player2MatchChecker.matchId = new Guid(guidMatch1);
+            player1MatchChecker.MatchId = new Guid(guidMatch1);
+            player2MatchChecker.MatchId = new Guid(guidMatch1);
 
             // make player2 join different match
-            player2MatchChecker.matchId = new Guid(guidMatch2);
+            player2MatchChecker.MatchId = new Guid(guidMatch2);
 
             // check player1's observers does NOT contain player 2
             Assert.That(player1MatchChecker.Identity.observers, !Contains.Item(player2MatchChecker.ConnectionToClient));
@@ -191,11 +191,11 @@ namespace Mirror.Tests
             string guidMatch1 = Guid.NewGuid().ToString();
 
             // make players join same match
-            player1MatchChecker.matchId = new Guid(guidMatch1);
-            player2MatchChecker.matchId = new Guid(guidMatch1);
+            player1MatchChecker.MatchId = new Guid(guidMatch1);
+            player2MatchChecker.MatchId = new Guid(guidMatch1);
 
             // make player 2 leave match
-            player2MatchChecker.matchId = Guid.Empty;
+            player2MatchChecker.MatchId = Guid.Empty;
 
             // check player1's observers does NOT contain player 2
             Assert.That(player1MatchChecker.Identity.observers, !Contains.Item(player2MatchChecker.ConnectionToClient));

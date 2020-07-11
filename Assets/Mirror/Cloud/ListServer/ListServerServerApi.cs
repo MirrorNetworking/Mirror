@@ -28,7 +28,7 @@ namespace Mirror.Cloud.ListServerService
         /// <summary>
         /// How many failed pings in a row
         /// </summary>
-        int pingFails = 0;
+        int pingFails;
 
         public bool ServerInList => added;
 
@@ -38,10 +38,10 @@ namespace Mirror.Cloud.ListServerService
 
         public void Shutdown()
         {
-            stopPingCoroutine();
+            StopPingCoroutine();
             if (added)
             {
-                removeServerWithoutCoroutine();
+                InternalRemoveServerWithoutCoroutine();
             }
             added = false;
         }
@@ -52,7 +52,7 @@ namespace Mirror.Cloud.ListServerService
             bool valid = ValidateServerJson(server);
             if (!valid) { return; }
 
-            runner.StartCoroutine(addServer(server));
+            runner.StartCoroutine(InternalAddServer(server));
         }
 
         bool ValidateServerJson(ServerJson server)
@@ -96,18 +96,18 @@ namespace Mirror.Cloud.ListServerService
                 maxPlayerCount = server.maxPlayerCount,
             };
 
-            runner.StartCoroutine(updateServer(partialServer));
+            runner.StartCoroutine(InternalUpdateServer(partialServer));
         }
 
         public void RemoveServer()
         {
             if (!added) { return; }
 
-            stopPingCoroutine();
-            runner.StartCoroutine(removeServer());
+            StopPingCoroutine();
+            runner.StartCoroutine(InternalRemoveServer());
         }
 
-        void stopPingCoroutine()
+        void StopPingCoroutine()
         {
             if (_pingCoroutine != null)
             {
@@ -116,7 +116,7 @@ namespace Mirror.Cloud.ListServerService
             }
         }
 
-        IEnumerator addServer(ServerJson server)
+        IEnumerator InternalAddServer(ServerJson server)
         {
             added = true;
             sending = true;
@@ -132,7 +132,7 @@ namespace Mirror.Cloud.ListServerService
                 serverId = created.id;
 
                 // Start ping to keep server alive
-                _pingCoroutine = runner.StartCoroutine(ping());
+                _pingCoroutine = runner.StartCoroutine(InternalPing());
             }
             void onFail(string responseBody)
             {
@@ -140,7 +140,7 @@ namespace Mirror.Cloud.ListServerService
             }
         }
 
-        IEnumerator updateServer(PartialServerJson server)
+        IEnumerator InternalUpdateServer(PartialServerJson server)
         {
             // wait to not be sending
             while (sending)
@@ -162,7 +162,7 @@ namespace Mirror.Cloud.ListServerService
 
                 if (_pingCoroutine == null)
                 {
-                    _pingCoroutine = runner.StartCoroutine(ping());
+                    _pingCoroutine = runner.StartCoroutine(InternalPing());
                 }
             }
         }
@@ -171,7 +171,7 @@ namespace Mirror.Cloud.ListServerService
         /// Keeps server alive in database
         /// </summary>
         /// <returns></returns>
-        IEnumerator ping()
+        IEnumerator InternalPing()
         {
             while (pingFails <= MaxPingFails)
             {
@@ -180,7 +180,7 @@ namespace Mirror.Cloud.ListServerService
 
                 sending = true;
                 UnityWebRequest request = requestCreator.Patch("servers/" + serverId, new EmptyJson());
-                yield return requestCreator.SendRequestEnumerator(request, onSuccess, onFail);
+                yield return requestCreator.SendRequestEnumerator(request, OnSuccess, OnFail);
                 sending = false;
             }
 
@@ -188,17 +188,17 @@ namespace Mirror.Cloud.ListServerService
             _pingCoroutine = null;
 
 
-            void onSuccess(string responseBody)
+            void OnSuccess(string responseBody)
             {
                 pingFails = 0;
             }
-            void onFail(string responseBody)
+            void OnFail(string responseBody)
             {
                 pingFails++;
             }
         }
 
-        IEnumerator removeServer()
+        IEnumerator InternalRemoveServer()
         {
             sending = true;
             UnityWebRequest request = requestCreator.Delete("servers/" + serverId);
@@ -208,7 +208,7 @@ namespace Mirror.Cloud.ListServerService
             added = false;
         }
 
-        void removeServerWithoutCoroutine()
+        void InternalRemoveServerWithoutCoroutine()
         {
             UnityWebRequest request = requestCreator.Delete("servers/" + serverId);
             UnityWebRequestAsyncOperation operation = request.SendWebRequest();

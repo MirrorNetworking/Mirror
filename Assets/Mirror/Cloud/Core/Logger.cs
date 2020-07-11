@@ -6,7 +6,7 @@ namespace Mirror.Cloud
 {
     public static class Logger
     {
-        public static bool VerboseLogging = false;
+        public readonly static bool VerboseLogging;
         static readonly ILogger logger = LogFactory.GetLogger("MirrorCloudServices");
 
         public static void LogRequest(string page, string method, bool hasJson, string json)
@@ -28,7 +28,7 @@ namespace Mirror.Cloud
                 ? LogType.Log
                 : LogType.Error;
 
-            string format = "Response: {0} {1} {2} {3}";
+            const string format = "Response: {0} {1} {2} {3}";
             if (logger.IsLogTypeAllowed(logType))
             {
                 // we split path like this to make sure api key doesn't leak

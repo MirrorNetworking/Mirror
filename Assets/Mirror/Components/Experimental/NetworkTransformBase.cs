@@ -24,7 +24,7 @@ namespace Mirror.Experimental
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
         // target transform to sync. can be on a child.
-        protected abstract Transform targetTransform { get; }
+        protected abstract Transform TargetTransform { get; }
 
         [Header("Authority")]
 
@@ -98,7 +98,7 @@ namespace Mirror.Experimental
             public Vector3 localScale;
             public float movementSpeed;
 
-            public bool isValid => timeStamp != 0;
+            public bool IsValid => timeStamp != 0;
         }
 
         // Is this a client with authority over this transform?
@@ -117,7 +117,7 @@ namespace Mirror.Experimental
                 // let the clients know that this has moved
                 if (HasEitherMovedRotatedScaled())
                 {
-                    RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+                    RpcMove(TargetTransform.localPosition, TargetTransform.localRotation, TargetTransform.localScale);
                 }
             }
 
@@ -134,11 +134,11 @@ namespace Mirror.Experimental
                             // serialize
                             // local position/rotation for VR support
                             // send to server
-                            CmdClientToServerSync(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+                            CmdClientToServerSync(TargetTransform.localPosition, TargetTransform.localRotation, TargetTransform.localScale);
                         }
                     }
                 }
-                else if (goal.isValid)
+                else if (goal.IsValid)
                 {
                     // teleport or interpolate
                     if (NeedsTeleport())
@@ -153,9 +153,9 @@ namespace Mirror.Experimental
                     else
                     {
                         // local position/rotation for VR support
-                        ApplyPositionRotationScale(InterpolatePosition(start, goal, targetTransform.localPosition),
-                                                   InterpolateRotation(start, goal, targetTransform.localRotation),
-                                                   InterpolateScale(start, goal, targetTransform.localScale));
+                        ApplyPositionRotationScale(InterpolatePosition(start, goal, TargetTransform.localPosition),
+                                                   InterpolateRotation(start, goal, TargetTransform.localRotation),
+                                                   InterpolateScale(start, goal, TargetTransform.localScale));
                     }
 
                 }
@@ -172,9 +172,9 @@ namespace Mirror.Experimental
             if (changed)
             {
                 // local position/rotation for VR support
-                if (syncPosition) lastPosition = targetTransform.localPosition;
-                if (syncRotation) lastRotation = targetTransform.localRotation;
-                if (syncScale) lastScale = targetTransform.localScale;
+                if (syncPosition) lastPosition = TargetTransform.localPosition;
+                if (syncRotation) lastRotation = TargetTransform.localRotation;
+                if (syncScale) lastScale = TargetTransform.localScale;
             }
             return changed;
         }
@@ -183,9 +183,9 @@ namespace Mirror.Experimental
         // SqrMagnitude is faster than Distance per Unity docs
         // https://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
 
-        bool HasMoved => syncPosition && Vector3.SqrMagnitude(lastPosition - targetTransform.localPosition) > localPositionSensitivity * localPositionSensitivity;
-        bool HasRotated => syncRotation && Quaternion.Angle(lastRotation, targetTransform.localRotation) > localRotationSensitivity;
-        bool HasScaled => syncScale && Vector3.SqrMagnitude(lastScale - targetTransform.localScale) > localScaleSensitivity * localScaleSensitivity;
+        bool HasMoved => syncPosition && Vector3.SqrMagnitude(lastPosition - TargetTransform.localPosition) > localPositionSensitivity * localPositionSensitivity;
+        bool HasRotated => syncRotation && Quaternion.Angle(lastRotation, TargetTransform.localRotation) > localRotationSensitivity;
+        bool HasScaled => syncScale && Vector3.SqrMagnitude(lastScale - TargetTransform.localScale) > localScaleSensitivity * localScaleSensitivity;
 
         // teleport / lag / stuck detection
         // - checking distance is not enough since there could be just a tiny fence between us and the goal
@@ -193,8 +193,8 @@ namespace Mirror.Experimental
         bool NeedsTeleport()
         {
             // calculate time between the two data points
-            float startTime = start.isValid ? start.timeStamp : Time.time - Time.fixedDeltaTime;
-            float goalTime = goal.isValid ? goal.timeStamp : Time.time;
+            float startTime = start.IsValid ? start.timeStamp : Time.time - Time.fixedDeltaTime;
+            float goalTime = goal.IsValid ? goal.timeStamp : Time.time;
             float difference = goalTime - startTime;
             float timeSinceGoalReceived = Time.time - goalTime;
             return timeSinceGoalReceived > difference * 5;
@@ -241,7 +241,7 @@ namespace Mirror.Experimental
             };
 
             // movement speed: based on how far it moved since last time has to be calculated before 'start' is overwritten
-            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetTransform, Time.fixedDeltaTime);
+            temp.movementSpeed = EstimateMovementSpeed(goal, temp, TargetTransform, Time.fixedDeltaTime);
 
             // reassign start wisely
             // first ever data point? then make something up for previous one so that we can start interpolation without waiting for next.
@@ -251,9 +251,9 @@ namespace Mirror.Experimental
                 {
                     timeStamp = Time.time - Time.fixedDeltaTime,
                     // local position/rotation for VR support
-                    localPosition = targetTransform.localPosition,
-                    localRotation = targetTransform.localRotation,
-                    localScale = targetTransform.localScale,
+                    localPosition = TargetTransform.localPosition,
+                    localRotation = TargetTransform.localRotation,
+                    localScale = TargetTransform.localScale,
                     movementSpeed = temp.movementSpeed
                 };
             }
@@ -295,11 +295,11 @@ namespace Mirror.Experimental
                 // local position/rotation for VR support
                 // teleport / lag / obstacle detection: only continue at current position if we aren't too far away
                 // XC  < AB + BC (see comments above)
-                if (Vector3.Distance(targetTransform.localPosition, start.localPosition) < oldDistance + newDistance)
+                if (Vector3.Distance(TargetTransform.localPosition, start.localPosition) < oldDistance + newDistance)
                 {
-                    start.localPosition = targetTransform.localPosition;
-                    start.localRotation = targetTransform.localRotation;
-                    start.localScale = targetTransform.localScale;
+                    start.localPosition = TargetTransform.localPosition;
+                    start.localRotation = TargetTransform.localRotation;
+                    start.localScale = TargetTransform.localScale;
                 }
             }
 
@@ -314,7 +314,7 @@ namespace Mirror.Experimental
         static float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
         {
             Vector3 delta = to.localPosition - (from.localPosition != transform.localPosition ? from.localPosition : transform.localPosition);
-            float elapsed = from.isValid ? to.timeStamp - from.timeStamp : sendInterval;
+            float elapsed = from.IsValid ? to.timeStamp - from.timeStamp : sendInterval;
 
             // avoid NaN
             return elapsed > 0 ? delta.magnitude / elapsed : 0;
@@ -324,9 +324,9 @@ namespace Mirror.Experimental
         void ApplyPositionRotationScale(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // local position/rotation for VR support
-            if (syncPosition) targetTransform.localPosition = position;
-            if (syncRotation) targetTransform.localRotation = rotation;
-            if (syncScale) targetTransform.localScale = scale;
+            if (syncPosition) TargetTransform.localPosition = position;
+            if (syncRotation) TargetTransform.localRotation = rotation;
+            if (syncScale) TargetTransform.localScale = scale;
         }
 
         // where are we in the timeline between start and goal? [0,1]
@@ -382,7 +382,7 @@ namespace Mirror.Experimental
 
         static float CurrentInterpolationFactor(DataPoint start, DataPoint goal)
         {
-            if (start.isValid)
+            if (start.IsValid)
             {
                 float difference = goal.timeStamp - start.timeStamp;
 

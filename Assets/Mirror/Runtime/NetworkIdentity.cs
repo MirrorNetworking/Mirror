@@ -8,7 +8,6 @@ using UnityEngine.Serialization;
 using UnityEngine.Events;
 #if UNITY_EDITOR
 using UnityEditor;
-using System.IO;
 #if UNITY_2018_3_OR_NEWER
 using UnityEditor.Experimental.SceneManagement;
 #endif
@@ -52,7 +51,7 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger<NetworkIdentity>();
 
         [NonSerialized]
-        NetworkBehaviour[] networkBehavioursCache = null;
+        NetworkBehaviour[] networkBehavioursCache;
 
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
@@ -691,7 +690,7 @@ namespace Mirror
         //    -> we can properly track down errors
         void OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
-            bool result = comp.OnSerialize(writer, initialState);
+            comp.OnSerialize(writer, initialState);
             if (logger.LogEnabled()) logger.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId);
 
             // serialize a barrier to be checked by the deserializer
@@ -702,7 +701,6 @@ namespace Mirror
         // -> check ownerWritten/observersWritten to know if anything was written
         internal (int ownerWritten, int observersWritten) OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
-
             ulong dirtyComponentsMask = initialState ? GetIntialComponentsMask() : GetDirtyComponentsMask();
 
             // calculate syncMode mask at runtime. this allows users to change
@@ -1078,12 +1076,9 @@ namespace Mirror
             //   => that was not intended, but let's keep it as it is so we
             //      don't break anything in host mode. it's way easier than
             //      iterating all identities in a special function in StartHost.
-            if (initialize)
+            if (initialize && !newObservers.Contains(Server.LocalConnection))
             {
-                if (!newObservers.Contains(Server.LocalConnection))
-                {
-                    OnSetHostVisibility(false);
-                }
+                OnSetHostVisibility(false);
             }
         }
 

@@ -11,7 +11,7 @@ namespace Mirror.Logging
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkHeadlessLogger.html")]
     public class NetworkHeadlessLogger : MonoBehaviour
     {
-        [SerializeField] bool showExceptionStackTrace = false;
+        [SerializeField] bool showExceptionStackTrace;
 
         void Awake()
         {

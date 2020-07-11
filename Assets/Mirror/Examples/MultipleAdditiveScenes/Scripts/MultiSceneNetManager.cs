@@ -36,8 +36,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             yield return new WaitForSeconds(.5f);
             conn.Send(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.LoadAdditive });
 
-            //base.OnServerAddPlayer(conn);
-
             PlayerScore playerScore = conn.Identity.GetComponent<PlayerScore>();
             playerScore.playerNumber = playerId;
             playerScore.scoreIndex = playerId / subScenes.Count;

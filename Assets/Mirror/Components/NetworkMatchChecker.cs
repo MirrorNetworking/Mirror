@@ -28,7 +28,7 @@ namespace Mirror
         /// <summary>
         /// Set this to the same value on all networked objects that belong to a given match
         /// </summary>
-        public Guid matchId
+        public Guid MatchId
         {
             get { return currentMatch; }
             set
@@ -108,7 +108,7 @@ namespace Mirror
         public override bool OnCheckObserver(INetworkConnection conn)
         {
             // Not Visible if not in a match
-            if (matchId == Guid.Empty)
+            if (MatchId == Guid.Empty)
                 return false;
 
             NetworkMatchChecker networkMatchChecker = conn.Identity.GetComponent<NetworkMatchChecker>();
@@ -116,7 +116,7 @@ namespace Mirror
             if (networkMatchChecker == null)
                 return false;
 
-            return networkMatchChecker.matchId == matchId;
+            return networkMatchChecker.MatchId == MatchId;
         }
 
         /// <summary>

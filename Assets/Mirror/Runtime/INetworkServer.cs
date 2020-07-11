@@ -13,7 +13,7 @@ namespace Mirror
 
         bool ReplacePlayerForConnection(INetworkConnection conn, NetworkClient client, GameObject player, Guid assetId, bool keepAuthority = false);
 
-        void Spawn(GameObject obj, GameObject player);
+        void Spawn(GameObject obj, GameObject ownerPlayer);
 
         void Spawn(GameObject obj, INetworkConnection ownerConnection = null);
 

@@ -29,7 +29,7 @@ namespace Mirror.Cloud.ListServerService
 
         public void GetServerList()
         {
-            runner.StartCoroutine(getServerList());
+            runner.StartCoroutine(InternalGetServerList());
         }
 
         public void StartGetServerListRepeat(int interval)
@@ -50,17 +50,17 @@ namespace Mirror.Cloud.ListServerService
         {
             while (true)
             {
-                yield return getServerList();
+                yield return InternalGetServerList();
 
                 yield return new WaitForSeconds(interval);
             }
         }
-        IEnumerator getServerList()
+        IEnumerator InternalGetServerList()
         {
             UnityWebRequest request = requestCreator.Get("servers");
-            yield return requestCreator.SendRequestEnumerator(request, onSuccess);
+            yield return requestCreator.SendRequestEnumerator(request, OnSuccess);
 
-            void onSuccess(string responseBody)
+            void OnSuccess(string responseBody)
             {
                 ServerCollectionJson serverlist = JsonUtility.FromJson<ServerCollectionJson>(responseBody);
                 _onServerListUpdated?.Invoke(serverlist);
