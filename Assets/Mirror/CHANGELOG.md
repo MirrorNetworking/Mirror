@@ -1,3 +1,11 @@
+## [35.0.3](https://github.com/MirrorNG/MirrorNG/compare/35.0.2-master...35.0.3-master) (2020-07-11)
+
+
+### Bug Fixes
+
+* code smell rename Ready ([#256](https://github.com/MirrorNG/MirrorNG/issues/256)) ([6d92d14](https://github.com/MirrorNG/MirrorNG/commit/6d92d1482cdd31fa663f7475f103476c65b7d875))
+* Misc Code Smells ([#257](https://github.com/MirrorNG/MirrorNG/issues/257)) ([278a127](https://github.com/MirrorNG/MirrorNG/commit/278a1279dabefe04b0829015841de68b41e60a7b))
+
 ## [35.0.2](https://github.com/MirrorNG/MirrorNG/compare/35.0.1-master...35.0.2-master) (2020-07-11)
 
 
