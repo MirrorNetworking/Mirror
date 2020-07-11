@@ -41,7 +41,7 @@ namespace Mirror.Tests
         [UnitySetUp]
         public IEnumerator Setup() => RunAsync(async () =>
         {
-            networkManagerGo = new GameObject("NetworkManager", typeof(LoopbackTransport), typeof(NetworkClient), typeof(NetworkServer), typeof(NetworkManager), typeof(NetworkSceneManager));
+            networkManagerGo = new GameObject("NetworkManager", typeof(LoopbackTransport), typeof(NetworkSceneManager), typeof(NetworkClient), typeof(NetworkServer), typeof(NetworkManager) );
 
             sceneManager = networkManagerGo.GetComponent<NetworkSceneManager>();
             manager = networkManagerGo.GetComponent<NetworkManager>();
