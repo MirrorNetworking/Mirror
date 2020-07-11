@@ -1,3 +1,10 @@
+## [35.0.1](https://github.com/MirrorNG/MirrorNG/compare/35.0.0-master...35.0.1-master) (2020-07-11)
+
+
+### Bug Fixes
+
+* fix adding and saving Components ([2de7ecd](https://github.com/MirrorNG/MirrorNG/commit/2de7ecd93029bf5fd2fbb04ad4e47936cbb802cc))
+
 # [35.0.0](https://github.com/MirrorNG/MirrorNG/compare/34.13.0-master...35.0.0-master) (2020-07-10)
 
 
