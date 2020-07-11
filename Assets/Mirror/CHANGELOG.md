@@ -1,3 +1,10 @@
+## [35.0.2](https://github.com/MirrorNG/MirrorNG/compare/35.0.1-master...35.0.2-master) (2020-07-11)
+
+
+### Bug Fixes
+
+* cleanup the server even after error ([#255](https://github.com/MirrorNG/MirrorNG/issues/255)) ([7bd015e](https://github.com/MirrorNG/MirrorNG/commit/7bd015eac1b77f0ad5974abb5c4c87a5d3da7b6d))
+
 ## [35.0.1](https://github.com/MirrorNG/MirrorNG/compare/35.0.0-master...35.0.1-master) (2020-07-11)
 
 
