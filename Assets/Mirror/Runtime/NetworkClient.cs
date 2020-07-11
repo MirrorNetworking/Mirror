@@ -351,7 +351,7 @@ namespace Mirror
 
             ClearSpawners();
             DestroyAllClientObjects();
-            sceneManager.ready = false;
+            sceneManager.Ready = false;
             isSpawnFinished = false;
             hostServer = null;
 

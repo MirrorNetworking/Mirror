@@ -63,7 +63,7 @@ namespace Mirror
         /// <para>This is read-only. To change the ready state of a client, use ClientScene.Ready(). The server is able to set the ready state of clients using NetworkServer.SetClientReady(), NetworkServer.SetClientNotReady() and NetworkServer.SetAllClientsNotReady().</para>
         /// <para>This is done when changing scenes so that clients don't receive state update messages during scene loading.</para>
         /// </summary>
-        public bool ready { get; internal set; }
+        public bool Ready { get; internal set; }
 
         public void Start()
         {
@@ -263,7 +263,7 @@ namespace Mirror
         {
             logger.Log("NetworkSceneManager.OnClientNotReadyMessageInternal");
 
-            ready = false;
+            Ready = false;
             OnClientNotReady(conn);
         }
 
@@ -287,8 +287,8 @@ namespace Mirror
         internal void OnClientSceneChanged(INetworkConnection conn)
         {
             //set ready after scene change has completed
-            if (!ready)
-                Ready(conn);
+            if (!Ready)
+                SetClientReady(conn);
 
             ClientSceneChanged.Invoke(conn);
         }
@@ -308,9 +308,9 @@ namespace Mirror
         /// <para>This could be for example when a client enters an ongoing game and has finished loading the current scene. The server should respond to the message with an appropriate handler which instantiates the players object for example.</para>
         /// </summary>
         /// <param name="conn">The client connection which is ready.</param>
-        public void Ready(INetworkConnection conn)
+        public void SetClientReady(INetworkConnection conn)
         {
-            if (ready)
+            if (Ready)
             {
                 throw new InvalidOperationException("A connection has already been set as ready. There can only be one.");
             }
@@ -322,7 +322,7 @@ namespace Mirror
 
             // Set these before sending the ReadyMessage, otherwise host client
             // will fail in InternalAddPlayer with null readyConnection.
-            ready = true;
+            Ready = true;
             client.Connection.IsReady = true;
 
             // Tell server we're ready to have a player object spawned

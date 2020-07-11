@@ -4,6 +4,6 @@ namespace Mirror
     {
         void ChangeServerScene(string newSceneName);
 
-        void Ready(INetworkConnection conn);
+        void SetClientReady(INetworkConnection conn);
     }
 }

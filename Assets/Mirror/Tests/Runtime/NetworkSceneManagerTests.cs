@@ -108,19 +108,19 @@ namespace Mirror.Tests
         [Test]
         public void ReadyTest()
         {
-            client.sceneManager.Ready(client.Connection);
-            Assert.That(sceneManager.ready);
+            client.sceneManager.SetClientReady(client.Connection);
+            Assert.That(sceneManager.Ready);
             Assert.That(client.Connection.IsReady);
         }
 
         [Test]
         public void ReadyTwiceTest()
         {
-            sceneManager.Ready(client.Connection);
+            sceneManager.SetClientReady(client.Connection);
 
             Assert.Throws<InvalidOperationException>(() =>
             {
-                sceneManager.Ready(client.Connection);
+                sceneManager.SetClientReady(client.Connection);
             });
         }
 
@@ -129,7 +129,7 @@ namespace Mirror.Tests
         {
             Assert.Throws<InvalidOperationException>(() =>
             {
-                sceneManager.Ready(null);
+                sceneManager.SetClientReady(null);
             });
         }
 
