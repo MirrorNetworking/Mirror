@@ -242,12 +242,14 @@ namespace Mirror
 
                     _ = ConnectionAcceptedAsync(networkConnectionToClient);
                 }
-
-                Cleanup();
             }
             catch (Exception ex)
             {
                 logger.LogException(ex);
+            }
+            finally
+            {
+                Cleanup();
             }
         }
 
