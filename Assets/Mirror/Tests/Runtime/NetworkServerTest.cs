@@ -97,6 +97,9 @@ namespace Mirror.Tests
             server = serverGO.AddComponent<NetworkServer>();
             client = serverGO.AddComponent<NetworkClient>();
 
+            server.transport = transport;
+            client.Transport = transport;
+
             gameObject = new GameObject();
             identity = gameObject.AddComponent<NetworkIdentity>();
 
