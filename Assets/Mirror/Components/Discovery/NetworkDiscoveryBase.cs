@@ -47,8 +47,8 @@ namespace Mirror.Discovery
         {
             if (secretHandshake == 0)
             {
-                secretHandshake = RandomLong();
                 UnityEditor.Undo.RecordObject(this, "Set secret handshake");
+                secretHandshake = RandomLong();
             }
         }
 #endif

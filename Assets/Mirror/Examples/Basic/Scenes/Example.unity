@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.574817, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 249891958}
   - component: {fileID: 249891955}
   - component: {fileID: 249891961}
+  - component: {fileID: 249891960}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -190,7 +191,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 0
   startOnHeadless: 0
   serverTickRate: 30
   server: {fileID: 249891959}
@@ -202,7 +202,6 @@ MonoBehaviour:
   OnStopHost:
     m_PersistentCalls:
       m_Calls: []
-  networkSceneName: 
 --- !u!4 &249891957
 Transform:
   m_ObjectHideFlags: 0
@@ -230,19 +229,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   authenticator: {fileID: 0}
+  sceneManager: {fileID: 249891960}
   Connected:
     m_PersistentCalls:
       m_Calls: []
   Authenticated:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientNotReady:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientSceneChanged:
     m_PersistentCalls:
       m_Calls: []
   Disconnected:
@@ -278,12 +269,6 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
-  ServerChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ServerSceneChanged:
-    m_PersistentCalls:
-      m_Calls: []
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
@@ -291,8 +276,39 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   authenticator: {fileID: 0}
+  sceneManager: {fileID: 249891960}
   Listening: 1
   transport: {fileID: 249891961}
+--- !u!114 &249891960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 249891953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  client: {fileID: 249891958}
+  server: {fileID: 249891959}
+  ClientNotReady:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  networkSceneName: 
 --- !u!114 &249891961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -454,6 +470,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 0
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []

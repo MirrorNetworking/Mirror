@@ -58,24 +58,24 @@ namespace Mirror
 
         #region Unity Callbacks
 
+#if UNITY_EDITOR
         /// <summary>
         /// virtual so that inheriting classes' Reset() can call base.Reset() too
         /// </summary>
         public virtual void OnValidate()
         {
             // add transport if there is none yet. makes upgrading easier.
+            UnityEditor.Undo.RecordObject(this, "Added NetworkServer");
+
             if (transport == null)
             {
                 // was a transport added yet? if not, add one
                 transport = GetComponent<AsyncTransport>();
                 if (transport == null)
                 {
-                    transport = gameObject.AddComponent<AsyncTcpTransport>();
+                    transport = UnityEditor.Undo.AddComponent<AsyncTcpTransport>(gameObject);
                     logger.Log("NetworkManager: added default Transport because there was none yet.");
                 }
-#if UNITY_EDITOR
-                UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
-#endif
             }
 
             // Try and get the server first.
@@ -83,11 +83,8 @@ namespace Mirror
             // add NetworkServer if there is none yet. makes upgrading easier.
             if (server == null)
             {
-                server = gameObject.AddComponent<NetworkServer>();
+                server = UnityEditor.Undo.AddComponent<NetworkServer>(gameObject);
                 logger.Log("NetworkManager: added NetworkServer because there was none yet.");
-#if UNITY_EDITOR
-                UnityEditor.Undo.RecordObject(gameObject, "Added NetworkServer");
-#endif
             }
 
             // Try and get the client first.
@@ -95,13 +92,11 @@ namespace Mirror
             // add NetworkClient if there is none yet. makes upgrading easier.
             if (client == null)
             {
-                client = gameObject.AddComponent<NetworkClient>();
+                client = UnityEditor.Undo.AddComponent<NetworkClient>(gameObject);
                 logger.Log("NetworkManager: added NetworkClient because there was none yet.");
-#if UNITY_EDITOR
-                UnityEditor.Undo.RecordObject(gameObject, "Added NetworkClient");
-#endif
             }
         }
+#endif
 
         /// <summary>
         /// virtual so that inheriting classes' Start() can call base.Start() too

@@ -15,8 +15,8 @@ namespace Mirror
 
             if (GUILayout.Button("Register All Prefabs"))
             {
-                RegisterPrefabs((NetworkClient)target);
                 Undo.RecordObject(target, "Changed Area Of Effect");
+                RegisterPrefabs((NetworkClient)target);
             }
         }
 

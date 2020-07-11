@@ -405,6 +405,7 @@ GameObject:
   - component: {fileID: 1556883249}
   - component: {fileID: 1556883244}
   - component: {fileID: 1556883252}
+  - component: {fileID: 1556883251}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -443,7 +444,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 1
   startOnHeadless: 1
   serverTickRate: 30
   server: {fileID: 1556883250}
@@ -455,7 +455,6 @@ MonoBehaviour:
   OnStopHost:
     m_PersistentCalls:
       m_Calls: []
-  networkSceneName: 
 --- !u!114 &1556883246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -527,19 +526,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   authenticator: {fileID: 0}
+  sceneManager: {fileID: 1556883251}
   Connected:
     m_PersistentCalls:
       m_Calls: []
   Authenticated:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientNotReady:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientSceneChanged:
     m_PersistentCalls:
       m_Calls: []
   Disconnected:
@@ -572,12 +563,6 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
-  ServerChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ServerSceneChanged:
-    m_PersistentCalls:
-      m_Calls: []
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
@@ -585,8 +570,39 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   authenticator: {fileID: 0}
+  sceneManager: {fileID: 1556883251}
   Listening: 1
   transport: {fileID: 1556883252}
+--- !u!114 &1556883251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1556883243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  client: {fileID: 1556883249}
+  server: {fileID: 1556883250}
+  ClientNotReady:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  networkSceneName: 
 --- !u!114 &1556883252
 MonoBehaviour:
   m_ObjectHideFlags: 0

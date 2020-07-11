@@ -19,18 +19,16 @@ namespace Mirror.Discovery
 #if UNITY_EDITOR
         void OnValidate()
         {
+            UnityEditor.Undo.RecordObjects(new Object[] { this, networkDiscovery }, "Set NetworkDiscovery");
             if (networkDiscovery == null)
             {
                 networkDiscovery = GetComponent<NetworkDiscovery>();
                 UnityEditor.Events.UnityEventTools.AddPersistentListener(networkDiscovery.OnServerFound, OnDiscoveredServer);
-                UnityEditor.Undo.RecordObjects(new Object[] { this, networkDiscovery }, "Set NetworkDiscovery");
             }
 
             if (networkManager == null)
             {
                 networkManager = GetComponent<NetworkManager>();
-                UnityEditor.Undo.RecordObjects(new Object[] { this }, "Set NetworkManager");
-
             }
         }
 #endif

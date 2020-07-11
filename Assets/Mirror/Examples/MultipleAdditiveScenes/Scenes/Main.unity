@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 690741348}
-  m_IndirectSpecularColor: {r: 0.4366757, g: 0.48427194, b: 0.5645252, a: 1}
+  m_IndirectSpecularColor: {r: 0.43667555, g: 0.48427176, b: 0.5645241, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -219,6 +219,7 @@ GameObject:
   - component: {fileID: 69965672}
   - component: {fileID: 69965671}
   - component: {fileID: 69965668}
+  - component: {fileID: 69965674}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -281,7 +282,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b982a1fd37427e64e8310a863d03d2c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 0
   startOnHeadless: 1
   serverTickRate: 30
   server: {fileID: 69965672}
@@ -293,7 +293,6 @@ MonoBehaviour:
   OnStopHost:
     m_PersistentCalls:
       m_Calls: []
-  networkSceneName: 
   instances: 3
   gameScene: Assets/Mirror/Examples/MultipleAdditiveScenes/Scenes/Game.unity
 --- !u!4 &69965670
@@ -323,19 +322,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   authenticator: {fileID: 0}
+  sceneManager: {fileID: 69965674}
   Connected:
     m_PersistentCalls:
       m_Calls: []
   Authenticated:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientNotReady:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientSceneChanged:
     m_PersistentCalls:
       m_Calls: []
   Disconnected:
@@ -365,12 +356,6 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
-  ServerChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ServerSceneChanged:
-    m_PersistentCalls:
-      m_Calls: []
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
@@ -378,6 +363,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   authenticator: {fileID: 0}
+  sceneManager: {fileID: 69965674}
   Listening: 1
   transport: {fileID: 69965673}
 --- !u!114 &69965673
@@ -393,6 +379,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Port: 7777
+--- !u!114 &69965674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 69965666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  client: {fileID: 69965671}
+  server: {fileID: 69965672}
+  ClientNotReady:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  networkSceneName: 
 --- !u!1 &204334129
 GameObject:
   m_ObjectHideFlags: 0
