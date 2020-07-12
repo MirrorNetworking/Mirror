@@ -11,13 +11,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void ErrorWhenMethodDoesNotStartWithTarget()
-        {
-            Assert.That(weaverErrors, Contains.Item("DoesntStartWithTarget must start with Target.  Consider renaming it to TargetDoesntStartWithTarget " +
-                "(at System.Void WeaverTargetRpcTests.ErrorWhenMethodDoesNotStartWithTarget.ErrorWhenMethodDoesNotStartWithTarget::DoesntStartWithTarget(Mirror.NetworkConnection))"));
-        }
-
-        [Test]
         public void ErrorWhenTargetRpcIsStatic()
         {
             Assert.That(weaverErrors, Contains.Item("TargetCantBeStatic must not be static " +
