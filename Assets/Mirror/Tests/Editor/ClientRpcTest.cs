@@ -8,7 +8,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public event Action<int> onSendInt;
 
         [ClientRpc]
-        public void RpcSendInt(int someInt)
+        public void SendInt(int someInt)
         {
             onSendInt?.Invoke(someInt);
         }
@@ -40,7 +40,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
                 callCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
-            hostBehaviour.RpcSendInt(someInt);
+            hostBehaviour.SendInt(someInt);
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }

@@ -112,12 +112,6 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodsValidateRpc(MethodDefinition md)
         {
-            if (!md.Name.StartsWith("Rpc"))
-            {
-                Weaver.Error($"{md.Name} must start with Rpc.  Consider renaming it to Rpc{md.Name}", md);
-                return false;
-            }
-
             if (md.IsStatic)
             {
                 Weaver.Error($"{md.Name} must not be static", md);
