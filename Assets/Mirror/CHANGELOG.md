@@ -1,3 +1,10 @@
+# [35.1.0](https://github.com/MirrorNG/MirrorNG/compare/35.0.3-master...35.1.0-master) (2020-07-12)
+
+
+### Features
+
+* Add Network Menu  ([#253](https://github.com/MirrorNG/MirrorNG/issues/253)) ([d81f444](https://github.com/MirrorNG/MirrorNG/commit/d81f444c42475439d24bf5b4abd2bbf15fd34e92))
+
 ## [35.0.3](https://github.com/MirrorNG/MirrorNG/compare/35.0.2-master...35.0.3-master) (2020-07-11)
 
 
