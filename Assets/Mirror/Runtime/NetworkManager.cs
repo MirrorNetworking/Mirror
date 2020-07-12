@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Mirror.AsyncTcp;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
@@ -37,7 +36,7 @@ namespace Mirror
         [Header("Network Info")]
         [Tooltip("Transport component attached to this object that server and client will use to connect")]
         [SerializeField]
-        protected AsyncTransport transport;
+        public AsyncTransport transport;
 
         /// <summary>
         /// True if the server or client is started and running
@@ -57,46 +56,6 @@ namespace Mirror
         public UnityEvent OnStopHost = new UnityEvent();
 
         #region Unity Callbacks
-
-#if UNITY_EDITOR
-        /// <summary>
-        /// virtual so that inheriting classes' Reset() can call base.Reset() too
-        /// </summary>
-        public virtual void OnValidate()
-        {
-            // add transport if there is none yet. makes upgrading easier.
-            UnityEditor.Undo.RecordObject(this, "Added NetworkServer");
-
-            if (transport == null)
-            {
-                // was a transport added yet? if not, add one
-                transport = GetComponent<AsyncTransport>();
-                if (transport == null)
-                {
-                    transport = UnityEditor.Undo.AddComponent<AsyncTcpTransport>(gameObject);
-                    logger.Log("NetworkManager: added default Transport because there was none yet.");
-                }
-            }
-
-            // Try and get the server first.
-            server = GetComponent<NetworkServer>();
-            // add NetworkServer if there is none yet. makes upgrading easier.
-            if (server == null)
-            {
-                server = UnityEditor.Undo.AddComponent<NetworkServer>(gameObject);
-                logger.Log("NetworkManager: added NetworkServer because there was none yet.");
-            }
-
-            // Try and get the client first.
-            client = GetComponent<NetworkClient>();
-            // add NetworkClient if there is none yet. makes upgrading easier.
-            if (client == null)
-            {
-                client = UnityEditor.Undo.AddComponent<NetworkClient>(gameObject);
-                logger.Log("NetworkManager: added NetworkClient because there was none yet.");
-            }
-        }
-#endif
 
         /// <summary>
         /// virtual so that inheriting classes' Start() can call base.Start() too

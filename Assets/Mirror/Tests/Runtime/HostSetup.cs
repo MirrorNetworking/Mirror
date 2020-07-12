@@ -36,6 +36,8 @@ namespace Mirror.Tests
             server.sceneManager = sceneManager;
             client.sceneManager = sceneManager;
             manager.startOnHeadless = false;
+            sceneManager.client = client;
+            sceneManager.server = server;
 
             // wait for client and server to initialize themselves
             await Task.Delay(1);

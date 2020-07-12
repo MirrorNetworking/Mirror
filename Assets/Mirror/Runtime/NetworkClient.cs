@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Mirror.AsyncTcp;
 using UnityEngine;
 using UnityEngine.Events;
 using Guid = System.Guid;
@@ -129,44 +128,6 @@ namespace Mirror
         /// NetworkClient can connect to local server in host mode too
         /// </summary>
         public bool IsLocalClient => hostServer != null;
-
-
-#if UNITY_EDITOR
-        /// <summary>
-        /// Called when the script gets added to an object. Useful for getting other needed scripts.
-        /// </summary>
-        private void OnValidate()
-        {
-            UnityEditor.Undo.RecordObject(this, "Added default Transport");
-            // add transport if there is none yet. makes upgrading easier.
-            if (Transport == null)
-            {
-                // First try to get the transport.
-                Transport = GetComponent<AsyncTransport>();
-                // was a transport added yet? if not, add one
-                if (Transport == null)
-                {
-                    Transport = UnityEditor.Undo.AddComponent<AsyncTcpTransport>(gameObject);
-                    logger.Log("NetworkClient: added default Transport because there was none yet.");
-                }
-            }
-
-            // add clientSceneManager if there is none yet. makes upgrading easier.
-            if (sceneManager == null)
-            {
-                // First try to get the SceneManager.
-                sceneManager = GetComponent<NetworkSceneManager>();
-                // was a SceneManager added yet? if not, add one
-                if (sceneManager == null)
-                {
-
-                    sceneManager = UnityEditor.Undo.AddComponent<NetworkSceneManager>(gameObject) ;
-                    logger.Log("NetworkClient: added default SceneManager because there was none yet.");
-                }
-                sceneManager.client = this;
-            }
-        }
-#endif
 
         /// <summary>
         /// Connect client to a NetworkServer instance.

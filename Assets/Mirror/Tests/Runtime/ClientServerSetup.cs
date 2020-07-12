@@ -47,12 +47,19 @@ namespace Mirror.Tests
             manager = networkManagerGo.GetComponent<NetworkManager>();
             manager.client = networkManagerGo.GetComponent<NetworkClient>();
             manager.server = networkManagerGo.GetComponent<NetworkServer>();
+            AsyncTransport transport = networkManagerGo.GetComponent<AsyncTransport>();
 
+            manager.transport = transport;
             server = manager.server;
             client = manager.client;
+            client.Transport = transport;
+            server.transport = transport;
             server.sceneManager = sceneManager;
             client.sceneManager = sceneManager;
             manager.startOnHeadless = false;
+
+            sceneManager.client = client;
+            sceneManager.server = server;
 
             ExtraSetup();
 

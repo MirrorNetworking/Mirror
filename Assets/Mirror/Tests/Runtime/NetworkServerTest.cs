@@ -96,7 +96,7 @@ namespace Mirror.Tests
             transport = serverGO.AddComponent<MockTransport>();
             server = serverGO.AddComponent<NetworkServer>();
             client = serverGO.AddComponent<NetworkClient>();
-
+            
             server.transport = transport;
             client.Transport = transport;
 

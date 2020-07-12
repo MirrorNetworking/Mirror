@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mirror.RemoteCalls;
-using Mirror.AsyncTcp;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -115,42 +114,6 @@ namespace Mirror
 
         // transport to use to accept connections
         public AsyncTransport transport;
-
-#if UNITY_EDITOR
-        /// <summary>
-        /// Called when the script gets added to an object. Useful for getting other needed scripts.
-        /// </summary>
-        private void OnValidate()
-        {
-            // add transport if there is none yet. makes upgrading easier.
-            UnityEditor.Undo.RecordObject(this, "Added default Transport");
-            if (transport == null)
-            {
-                // First try to get the transport.
-                transport = GetComponent<AsyncTransport>();
-                // was a transport added yet? if not, add one
-                if (transport == null)
-                {
-                    transport = UnityEditor.Undo.AddComponent<AsyncTcpTransport>(gameObject);
-                    logger.Log("NetworkServer: added default Transport because there was none yet.");
-                }
-            }
-
-            // add serverSceneManager if there is none yet. makes upgrading easier.
-            if (sceneManager == null)
-            {
-                // First try to get the SceneManager.
-                sceneManager = GetComponent<NetworkSceneManager>();
-                // was a SceneManager added yet? if not, add one
-                if (sceneManager == null)
-                {
-                    sceneManager = UnityEditor.Undo.AddComponent<NetworkSceneManager>(gameObject);
-                    logger.Log("NetworkServer: added default SceneManager because there was none yet.");
-                }
-                sceneManager.server = this;
-            }
-        }
-#endif
 
         /// <summary>
         /// This shuts down the server and disconnects all clients.
