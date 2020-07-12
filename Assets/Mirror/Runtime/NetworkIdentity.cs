@@ -211,15 +211,13 @@ namespace Mirror
                     // new is empty
                     if (string.IsNullOrEmpty(newAssetIdString))
                     {
-                        logger.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{oldAssetIdSrting}'");
-                        return;
+                        throw new ArgumentException($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{oldAssetIdSrting}'");
                     }
 
                     // old not empty
                     if (!string.IsNullOrEmpty(oldAssetIdSrting))
                     {
-                        logger.LogError($"Can not Set AssetId on NetworkIdentity '{name}' becasue it already had an assetId, current assetId '{oldAssetIdSrting}', attempted new assetId '{newAssetIdString}'");
-                        return;
+                        throw new InvalidOperationException($"Can not Set AssetId on NetworkIdentity '{name}' becasue it already had an assetId, current assetId '{oldAssetIdSrting}', attempted new assetId '{newAssetIdString}'");
                     }
 
                     // old is empty
