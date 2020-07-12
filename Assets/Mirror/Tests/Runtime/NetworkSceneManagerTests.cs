@@ -187,7 +187,7 @@ namespace Mirror.Tests
         {
             Assert.Throws<ArgumentNullException>(() =>
             {
-                sceneManager.ClientSceneMessage(null, new SceneMessage());
+                client.sceneManager.ClientSceneMessage(null, new SceneMessage());
             });
         }
     }

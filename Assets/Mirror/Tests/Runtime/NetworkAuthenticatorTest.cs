@@ -12,24 +12,26 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkAuthenticatorTest : ClientServerSetup<MockComponent>
     {
-        NetworkAuthenticator testAuthenticator;
+        NetworkAuthenticator serverAuthenticator;
+        NetworkAuthenticator clientAuthenticator;
 
         class NetworkAuthenticationImpl : NetworkAuthenticator { };
 
         public override void ExtraSetup()
         {
-            testAuthenticator = networkManagerGo.AddComponent<NetworkAuthenticationImpl>();
-            server.authenticator = testAuthenticator;
-            client.authenticator = testAuthenticator;
+            serverAuthenticator = serverGo.AddComponent<NetworkAuthenticationImpl>();
+            clientAuthenticator = clientGo.AddComponent<NetworkAuthenticationImpl>();
+            server.authenticator = serverAuthenticator;
+            client.authenticator = clientAuthenticator;
         }
 
         [Test]
         public void OnServerAuthenticateTest()
         {
             Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            testAuthenticator.OnServerAuthenticated += mockMethod;
+            serverAuthenticator.OnServerAuthenticated += mockMethod;
 
-            testAuthenticator.OnServerAuthenticate(Substitute.For<INetworkConnection>());
+            serverAuthenticator.OnServerAuthenticate(Substitute.For<INetworkConnection>());
 
             mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
@@ -38,9 +40,9 @@ namespace Mirror.Tests
         public void OnServerAuthenticateInternalTest()
         {
             Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            testAuthenticator.OnServerAuthenticated += mockMethod;
+            serverAuthenticator.OnServerAuthenticated += mockMethod;
 
-            testAuthenticator.OnServerAuthenticateInternal(Substitute.For<INetworkConnection>());
+            serverAuthenticator.OnServerAuthenticateInternal(Substitute.For<INetworkConnection>());
 
             mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
@@ -49,9 +51,9 @@ namespace Mirror.Tests
         public void OnClientAuthenticateTest()
         {
             Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            testAuthenticator.OnClientAuthenticated += mockMethod;
+            clientAuthenticator.OnClientAuthenticated += mockMethod;
 
-            testAuthenticator.OnClientAuthenticate(Substitute.For<INetworkConnection>());
+            clientAuthenticator.OnClientAuthenticate(Substitute.For<INetworkConnection>());
 
             mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
@@ -60,9 +62,9 @@ namespace Mirror.Tests
         public void OnClientAuthenticateInternalTest()
         {
             Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            testAuthenticator.OnClientAuthenticated += mockMethod;
+            clientAuthenticator.OnClientAuthenticated += mockMethod;
 
-            testAuthenticator.OnClientAuthenticateInternal(Substitute.For<INetworkConnection>());
+            clientAuthenticator.OnClientAuthenticateInternal(Substitute.For<INetworkConnection>());
 
             mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
@@ -70,20 +72,20 @@ namespace Mirror.Tests
         [Test]
         public void ClientOnValidateTest()
         {
-            Assert.That(client.authenticator, Is.EqualTo(testAuthenticator));
+            Assert.That(client.authenticator, Is.EqualTo(clientAuthenticator));
         }
 
         [Test]
         public void ServerOnValidateTest()
         {
-            Assert.That(server.authenticator, Is.EqualTo(testAuthenticator));
+            Assert.That(server.authenticator, Is.EqualTo(serverAuthenticator));
         }
 
         [UnityTest]
         public IEnumerator NetworkClientCallsAuthenticator() => RunAsync(async () =>
         {
             Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            testAuthenticator.OnClientAuthenticated += mockMethod;
+            clientAuthenticator.OnClientAuthenticated += mockMethod;
 
             await Task.Delay(1);
 
@@ -98,7 +100,7 @@ namespace Mirror.Tests
         public IEnumerator NetworkServerCallsAuthenticator() => RunAsync(async () =>
         {
             Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            testAuthenticator.OnServerAuthenticated += mockMethod;
+            serverAuthenticator.OnServerAuthenticated += mockMethod;
 
             await Task.Delay(1);
 
