@@ -142,12 +142,6 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodsValidateCommand(MethodDefinition md)
         {
-            if (!md.Name.StartsWith("Cmd"))
-            {
-                Weaver.Error($"{md.Name} must start with Cmd.  Consider renaming it to Cmd{md.Name}", md);
-                return false;
-            }
-
             if (md.IsStatic)
             {
                 Weaver.Error($"{md.Name} cannot be static", md);

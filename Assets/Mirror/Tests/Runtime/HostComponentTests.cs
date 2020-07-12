@@ -26,7 +26,7 @@ namespace Mirror.Tests
             // only authorized clients can call command
             Assert.Throws<UnauthorizedAccessException>(() =>
            {
-               rpcComponent2.CmdTest(1, "hello");
+               rpcComponent2.Test(1, "hello");
            });
 
         }
@@ -34,7 +34,7 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator Command() => RunAsync(async () =>
         {
-            component.CmdTest(1, "hello");
+            component.Test(1, "hello");
 
             await WaitFor(() => component.cmdArg1 != 0);
 

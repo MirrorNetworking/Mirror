@@ -6,7 +6,7 @@
         public string cmdArg2;
 
         [Command]
-        public void CmdTest(int arg1, string arg2)
+        public void Test(int arg1, string arg2)
         {
             this.cmdArg1 = arg1;
             this.cmdArg2 = arg2;

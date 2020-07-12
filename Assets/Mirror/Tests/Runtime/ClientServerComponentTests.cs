@@ -49,7 +49,7 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator Command() => RunAsync(async () =>
         {
-            clientComponent.CmdTest(1, "hello");
+            clientComponent.Test(1, "hello");
 
             await WaitFor(() => serverComponent.cmdArg1 != 0);
 

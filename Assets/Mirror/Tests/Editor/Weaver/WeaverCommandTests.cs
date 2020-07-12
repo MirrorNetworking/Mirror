@@ -11,12 +11,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void CommandStartsWithCmd()
-        {
-            Assert.That(weaverErrors, Contains.Item("DoesntStartWithCmd must start with Cmd.  Consider renaming it to CmdDoesntStartWithCmd (at System.Void WeaverCommandTests.CommandStartsWithCmd.CommandStartsWithCmd::DoesntStartWithCmd())"));
-        }
-
-        [Test]
         public void CommandCantBeStatic()
         {
             Assert.That(weaverErrors, Contains.Item("CmdCantBeStatic cannot be static (at System.Void WeaverCommandTests.CommandCantBeStatic.CommandCantBeStatic::CmdCantBeStatic())"));
