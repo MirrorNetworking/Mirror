@@ -190,5 +190,29 @@ namespace Mirror.Tests
                 client.sceneManager.ClientSceneMessage(null, new SceneMessage());
             });
         }
+
+        int onAuthInvokeCounter;
+        void TestOnAuthenticatedInvoke(INetworkConnection conn)
+        {
+            onAuthInvokeCounter++;
+        }
+
+        int onOnClientSceneChangedCounter;
+        void TestOnClientSceneChangedInvoke(INetworkConnection conn)
+        {
+            onOnClientSceneChangedCounter++;
+        }
+
+        [Test]
+        public void FinishLoadSceneHostTest()
+        {
+            client.Authenticated.AddListener(TestOnAuthenticatedInvoke);
+            client.sceneManager.ClientSceneChanged.AddListener(TestOnClientSceneChangedInvoke);
+
+            client.sceneManager.FinishLoadScene();
+
+            Assert.That(onAuthInvokeCounter, Is.EqualTo(1));
+            Assert.That(onOnClientSceneChangedCounter, Is.EqualTo(1));
+        }
     }
 }

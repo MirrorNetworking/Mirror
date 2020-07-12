@@ -133,7 +133,7 @@ namespace Mirror
                 FinishLoadSceneHost();
             }
             // server-only mode?
-            else if (server.Active)
+            else if (server && server.Active)
             {
                 FinishLoadSceneServerOnly();
             }
