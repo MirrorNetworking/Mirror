@@ -71,8 +71,8 @@ namespace Mirror.Tests
             await manager.StartClient("localhost");
 
             // get the connections so that we can spawn players
-            connectionToServer = client.Connection;
             connectionToClient = server.connections.First();
+            connectionToServer = client.Connection;
 
             // create a player object in the server
             serverPlayerGO = GameObject.Instantiate(playerPrefab);
@@ -81,26 +81,27 @@ namespace Mirror.Tests
             server.AddPlayerForConnection(connectionToClient, serverPlayerGO);
 
             // wait for client to spawn it
-            await Task.Delay(1);
+            await WaitFor(() => connectionToServer.Identity != null);
 
-            clientPlayerGO = connectionToServer.Identity.gameObject;
-            clientIdentity = clientPlayerGO.GetComponent<NetworkIdentity>();
+            clientIdentity = connectionToServer.Identity;
+            clientPlayerGO = clientIdentity.gameObject;
             clientComponent = clientPlayerGO.GetComponent<T>();
         });
 
         [UnityTearDown]
-        public IEnumerator ShutdownHost()
+        public IEnumerator ShutdownHost() => RunAsync(async () =>
         {
             manager.StopClient();
             manager.StopServer();
 
-            yield return null;
+            await WaitFor(() => !server.Active);
 
-            Object.DestroyImmediate(playerPrefab);
-            Object.DestroyImmediate(networkManagerGo);
-            Object.DestroyImmediate(serverPlayerGO);
-            Object.DestroyImmediate(clientPlayerGO);
-        }
+            Object.Destroy(playerPrefab);
+            Object.Destroy(networkManagerGo);
+            Object.Destroy(serverPlayerGO);
+            Object.Destroy(clientPlayerGO);
+        });
+
 
         #endregion
     }

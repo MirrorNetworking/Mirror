@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -53,13 +52,15 @@ namespace Mirror.Tests
             client.Update();
         });
 
-        [TearDown]
-        public void ShutdownHost()
+        [UnityTearDown]
+        public IEnumerator ShutdownHost() => RunAsync(async () =>
         {
-            Object.DestroyImmediate(playerGO);
+            Object.Destroy(playerGO);
             manager.StopHost();
-            Object.DestroyImmediate(networkManagerGo);
-        }
+
+            await Task.Delay(1);
+            Object.Destroy(networkManagerGo);
+        });
 
         #endregion
     }

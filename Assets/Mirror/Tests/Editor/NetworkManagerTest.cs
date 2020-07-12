@@ -8,7 +8,7 @@ namespace Mirror.Tests
     public class NetworkManagerTest
     {
         [UnityTest]
-        public IEnumerator NetworkManagerSetupHasComponents()
+        public IEnumerator NetworkManagerSetupHasComponents() 
         {
             NetworkManager networkManager = new GameObject("Network Manager Test").AddComponent<NetworkManager>();
             yield return null;

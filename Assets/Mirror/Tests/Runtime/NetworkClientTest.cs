@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
+using static Mirror.Tests.AsyncUtil;
+using System.Threading.Tasks;
+
 namespace Mirror.Tests
 {
     [TestFixture]
@@ -38,7 +41,7 @@ namespace Mirror.Tests
             {
                 client.RegisterPrefab(gameObject);
             });
-            Object.DestroyImmediate(gameObject);
+            Object.Destroy(gameObject);
         }
 
         [Test]
@@ -51,7 +54,7 @@ namespace Mirror.Tests
             {
                 client.RegisterPrefab(gameObject, guid);
             });
-            Object.DestroyImmediate(gameObject);
+            Object.Destroy(gameObject);
         }
 
         [Test]
@@ -74,25 +77,25 @@ namespace Mirror.Tests
             {
                 client.UnregisterPrefab(gameObject);
             });
-            Object.DestroyImmediate(gameObject);
+            Object.Destroy(gameObject);
         }
 
         [UnityTest]
-        public IEnumerator GetPrefabTest()
+        public IEnumerator GetPrefabTest() => RunAsync(async () =>
         {
             var guid = Guid.NewGuid();
             var prefabObject = new GameObject("prefab", typeof(NetworkIdentity));
 
             client.RegisterPrefab(prefabObject, guid);
 
-            yield return null;
+            await Task.Delay(1);
 
             client.GetPrefab(guid, out GameObject result);
 
             Assert.That(result, Is.SameAs(prefabObject));
 
             Object.Destroy(prefabObject);
-        }
+        });
 
         [Test]
         public void ReplacePlayerHostTest()
@@ -108,29 +111,29 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator ObjectHideTest()
+        public IEnumerator ObjectHideTest() => RunAsync(async () =>
         {
             client.OnObjectHide(new ObjectHideMessage
             {
                 netId = identity.NetId
             });
 
-            yield return null;
+            await Task.Delay(1);
 
             Assert.That(identity == null);
-        }
+        });
 
         [UnityTest]
-        public IEnumerator ObjectDestroyTest()
+        public IEnumerator ObjectDestroyTest() => RunAsync(async () =>
         {
             client.OnObjectDestroy(new ObjectDestroyMessage
             {
                 netId = identity.NetId
             });
 
-            yield return null;
+            await Task.Delay(1);
 
             Assert.That(identity == null);
-        }
+        });
     }
 }

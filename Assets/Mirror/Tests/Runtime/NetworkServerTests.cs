@@ -1,9 +1,13 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+
+using static Mirror.Tests.AsyncUtil;
+
 
 namespace Mirror.Tests
 {
@@ -92,18 +96,18 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator ReadyMessageSetsClientReadyTest()
+        public IEnumerator ReadyMessageSetsClientReadyTest() => RunAsync(async () =>
         {
             connectionToServer.Send(new ReadyMessage());
 
-            yield return null;
+            await WaitFor(() => connectionToClient.IsReady);
 
             // ready?
             Assert.That(connectionToClient.IsReady, Is.True);
-        }
+        });
 
         [UnityTest]
-        public IEnumerator SendToAll()
+        public IEnumerator SendToAll() => RunAsync(async () =>
         {
             Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
 
@@ -113,15 +117,15 @@ namespace Mirror.Tests
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            yield return null;
+            await Task.Delay(1);
 
             func.Received().Invoke(
                 Arg.Is<WovenTestMessage>(msg => msg.Equals(message)
             ));
-        }
+        });
 
         [UnityTest]
-        public IEnumerator SendToClientOfPlayer()
+        public IEnumerator SendToClientOfPlayer() => RunAsync(async () =>
         {
             Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
 
@@ -131,15 +135,15 @@ namespace Mirror.Tests
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            yield return null;
+            await Task.Delay(1);
 
             func.Received().Invoke(
                 Arg.Is<WovenTestMessage>(msg => msg.Equals(message)
             ));
-        }
+        });
 
         [UnityTest]
-        public IEnumerator ShowForConnection()
+        public IEnumerator ShowForConnection() => RunAsync(async () =>
         {
             Action<SpawnMessage> func = Substitute.For<Action<SpawnMessage>>();
             connectionToServer.RegisterHandler(func);
@@ -151,11 +155,11 @@ namespace Mirror.Tests
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            yield return null;
+            await Task.Delay(1);
 
             func.Received().Invoke(
                 Arg.Any<SpawnMessage>());
-        }
+        });
 
         [Test]
         public void SpawnSceneObject()
@@ -178,22 +182,22 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator RegisterMessage1()
+        public IEnumerator RegisterMessage1() => RunAsync(async () =>
         {
             Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
 
             connectionToClient.RegisterHandler(func);
             connectionToServer.Send(message);
 
-            yield return null;
+            await Task.Delay(1);
 
             func.Received().Invoke(
                 Arg.Is<WovenTestMessage>(msg => msg.Equals(message)
             ));
-        }
+        });
 
         [UnityTest]
-        public IEnumerator RegisterMessage2()
+        public IEnumerator RegisterMessage2() => RunAsync(async () =>
         {
             Action<INetworkConnection, WovenTestMessage> func = Substitute.For<Action<INetworkConnection, WovenTestMessage>>();
 
@@ -201,16 +205,16 @@ namespace Mirror.Tests
 
             connectionToServer.Send(message);
 
-            yield return null;
+            await Task.Delay(1);
 
             func.Received().Invoke(
                 connectionToClient,
                 Arg.Is<WovenTestMessage>(msg => msg.Equals(message)
             ));
-        }
+        });
 
         [UnityTest]
-        public IEnumerator UnRegisterMessage1()
+        public IEnumerator UnRegisterMessage1() => RunAsync(async () =>
         {
             Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
 
@@ -219,11 +223,11 @@ namespace Mirror.Tests
 
             connectionToServer.Send(message);
 
-            yield return null;
+            await Task.Delay(1);
 
             func.Received(0).Invoke(
                 Arg.Any<WovenTestMessage>());
-        }
+        });
 
         int ServerChangeCalled;
         public void ServerChangeScene(string newSceneName)

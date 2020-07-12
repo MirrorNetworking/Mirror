@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
@@ -6,6 +5,8 @@ using UnityEngine.TestTools;
 
 using Guid = System.Guid;
 using Object = UnityEngine.Object;
+using static Mirror.Tests.AsyncUtil;
+using System.Threading.Tasks;
 
 namespace Mirror.Tests
 {
@@ -46,48 +47,49 @@ namespace Mirror.Tests
 
 
         [UnityTest]
-        public IEnumerator Command()
+        public IEnumerator Command() => RunAsync(async () =>
         {
             clientComponent.CmdTest(1, "hello");
-            yield return null;
+
+            await WaitFor(() => serverComponent.cmdArg1 != 0);
 
             Assert.That(serverComponent.cmdArg1, Is.EqualTo(1));
             Assert.That(serverComponent.cmdArg2, Is.EqualTo("hello"));
-        }
+        });
 
-        
+
         [UnityTest]
-        public IEnumerator CommandWithNetworkIdentity()
+        public IEnumerator CommandWithNetworkIdentity() => RunAsync(async () =>
         {
             clientComponent.CmdNetworkIdentity(clientIdentity);
 
-            yield return null;
+            await WaitFor(() => serverComponent.cmdNi != null);
 
             Assert.That(serverComponent.cmdNi, Is.SameAs(serverIdentity));
-        }
+        });
 
         [UnityTest]
-        public IEnumerator ClientRpc()
+        public IEnumerator ClientRpc() => RunAsync(async () =>
         {
             serverComponent.RpcTest(1, "hello");
             // process spawn message from server
-            yield return null;
+            await WaitFor(() => clientComponent.rpcArg1 != 0);
 
             Assert.That(clientComponent.rpcArg1, Is.EqualTo(1));
             Assert.That(clientComponent.rpcArg2, Is.EqualTo("hello"));
-        }
+        });
 
         [UnityTest]
-        public IEnumerator TargetRpc()
+        public IEnumerator TargetRpc() => RunAsync(async () =>
         {
             serverComponent.TargetRpcTest(connectionToClient, 1, "hello");
             // process spawn message from server
-            yield return null;
+            await WaitFor(() => clientComponent.targetRpcArg1 != 0);
 
             Assert.That(clientComponent.targetRpcConn, Is.SameAs(connectionToServer));
             Assert.That(clientComponent.targetRpcArg1, Is.EqualTo(1));
             Assert.That(clientComponent.targetRpcArg2, Is.EqualTo("hello"));
-        }
+        });
 
         /*
         [UnityTest]
@@ -111,7 +113,7 @@ namespace Mirror.Tests
         */
 
         [UnityTest]
-        public IEnumerator OnSpawnSpawnHandlerTest()
+        public IEnumerator OnSpawnSpawnHandlerTest() => RunAsync(async () =>
         {
             Guid guid = Guid.NewGuid();
             GameObject gameObject = new GameObject();
@@ -122,10 +124,10 @@ namespace Mirror.Tests
             client.RegisterPrefab(gameObject, guid);
             server.SendSpawnMessage(identity, connectionToClient);
 
-            yield return null;
+            await WaitFor(() => spawnDelegateTestCalled != 0);
 
             Assert.That(spawnDelegateTestCalled, Is.EqualTo(1));
-        }
+        });
 
         int spawnDelegateTestCalled;
         GameObject SpawnDelegateTest(Vector3 position, Guid assetId)

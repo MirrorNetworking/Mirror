@@ -92,7 +92,7 @@ namespace Mirror.Tests
 
             Assert.That(comp.called, Is.True);
 
-            GameObject.DestroyImmediate(gameObject);
+            GameObject.Destroy(gameObject);
         }
 
 
@@ -154,7 +154,7 @@ namespace Mirror.Tests
             // extra one is second networkbehaviour, so index is 1
             Assert.That(behaviour2.ComponentIndex, Is.EqualTo(1));
 
-            GameObject.DestroyImmediate(extraObject);
+            GameObject.Destroy(extraObject);
         }
 
 
@@ -212,7 +212,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.False);
 
             // clean up
-            GameObject.DestroyImmediate(go);
+            GameObject.Destroy(go);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later
@@ -230,7 +230,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.False);
 
             // clean up
-            GameObject.DestroyImmediate(go);
+            GameObject.Destroy(go);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later
@@ -248,7 +248,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.True);
 
             // clean up
-            GameObject.DestroyImmediate(go);
+            GameObject.Destroy(go);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later
@@ -265,7 +265,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.False);
 
             // clean up
-            GameObject.DestroyImmediate(go);
+            GameObject.Destroy(go);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later
@@ -279,7 +279,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.True);
 
             // clean up
-            GameObject.DestroyImmediate(go);
+            GameObject.Destroy(go);
         }
 
         // NOTE: SyncVarNetworkIdentityEqual should be static later
@@ -323,7 +323,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.False);
 
             // clean up
-            GameObject.DestroyImmediate(go);
+            GameObject.Destroy(go);
         }
 
         // NOTE: SyncVarNetworkIdentityEqual should be static later
@@ -341,7 +341,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.True);
 
             // clean up
-            GameObject.DestroyImmediate(go);
+            GameObject.Destroy(go);
         }
 
         // NOTE: SyncVarNetworkIdentityEqual should be static later
@@ -358,7 +358,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.False);
 
             // clean up
-            GameObject.DestroyImmediate(go);
+            GameObject.Destroy(go);
         }
 
         // NOTE: SyncVarNetworkIdentityEqual should be static later
@@ -372,7 +372,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.True);
 
             // clean up
-            GameObject.DestroyImmediate(go);
+            GameObject.Destroy(go);
         }
     }
 

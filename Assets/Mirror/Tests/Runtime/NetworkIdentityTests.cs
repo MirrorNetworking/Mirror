@@ -8,6 +8,7 @@ using System.Collections;
 using UnityEngine.Events;
 using NSubstitute;
 using System;
+using System.Threading.Tasks;
 
 namespace Mirror.Tests.Runtime
 {
@@ -37,14 +38,17 @@ namespace Mirror.Tests.Runtime
             identity = gameObject.AddComponent<NetworkIdentity>();
         });
 
-        [TearDown]
-        public void TearDown()
+        [UnityTearDown]
+        public IEnumerator TearDown() => RunAsync(async () =>
         {
-            Object.DestroyImmediate(gameObject);
+            Object.Destroy(gameObject);
             // reset all state
             server.Disconnect();
-            Object.DestroyImmediate(serverGO);
-        }
+
+            await Task.Delay(1);
+            Object.Destroy(serverGO);
+        });
+
         #endregion
 
         [Test]
@@ -216,7 +220,7 @@ namespace Mirror.Tests.Runtime
 
 
         [UnityTest]
-        public IEnumerator OnStopServer()
+        public IEnumerator OnStopServer() => RunAsync(async () =>
         {
             server.Spawn(gameObject);
 
@@ -225,8 +229,8 @@ namespace Mirror.Tests.Runtime
 
             server.UnSpawn(gameObject);
 
-            yield return null;
+            await Task.Delay(1);
             mockHandler.Received().Invoke();
-        }
+        });
     }
 }

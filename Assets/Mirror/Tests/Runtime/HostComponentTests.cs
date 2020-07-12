@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+
+using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
@@ -29,50 +32,51 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator Command()
+        public IEnumerator Command() => RunAsync(async () =>
         {
             component.CmdTest(1, "hello");
-            yield return null;
+
+            await WaitFor(() => component.cmdArg1 != 0);
 
             Assert.That(component.cmdArg1, Is.EqualTo(1));
             Assert.That(component.cmdArg2, Is.EqualTo("hello"));
-        }
+        });
 
         [UnityTest]
-        public IEnumerator CommandWithNetworkIdentity()
+        public IEnumerator CommandWithNetworkIdentity() => RunAsync(async () =>
         {
             component.CmdNetworkIdentity(identity);
 
-            yield return null;
+            await WaitFor(() => component.cmdNi != null);
 
             Assert.That(component.cmdNi, Is.SameAs(identity));
-        }
+        });
 
         [UnityTest]
-        public IEnumerator ClientRpc()
+        public IEnumerator ClientRpc() => RunAsync(async () =>
         {
             component.RpcTest(1, "hello");
             // process spawn message from server
-            yield return null;
+            await WaitFor(() => component.rpcArg1 != 0);
 
             Assert.That(component.rpcArg1, Is.EqualTo(1));
             Assert.That(component.rpcArg2, Is.EqualTo("hello"));
-        }
+        });
 
         [UnityTest]
-        public IEnumerator TargetRpc()
+        public IEnumerator TargetRpc() => RunAsync(async () =>
         {
             component.TargetRpcTest(manager.server.LocalConnection, 1, "hello");
             // process spawn message from server
-            yield return null;
+            await WaitFor(() => component.targetRpcArg1 != 0);
 
             Assert.That(component.targetRpcConn, Is.SameAs(manager.client.Connection));
             Assert.That(component.targetRpcArg1, Is.EqualTo(1));
             Assert.That(component.targetRpcArg2, Is.EqualTo("hello"));
-        }
+        });
 
         [UnityTest]
-        public IEnumerator DisconnectHostTest()
+        public IEnumerator DisconnectHostTest() => RunAsync(async () =>
         {
             // set local connection
             Assert.That(server.LocalClientActive, Is.True);
@@ -81,14 +85,14 @@ namespace Mirror.Tests
             server.Disconnect();
 
             // wait for messages to get dispatched
-            yield return null;
+            await WaitFor(() => !server.LocalClientActive);
 
             // state cleared?
             Assert.That(server.connections, Is.Empty);
             Assert.That(server.Active, Is.False);
             Assert.That(server.LocalConnection, Is.Null);
             Assert.That(server.LocalClientActive, Is.False);
-        }
+        });
 
     }
 }
