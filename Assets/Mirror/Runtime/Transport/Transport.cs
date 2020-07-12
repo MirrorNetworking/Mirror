@@ -8,7 +8,7 @@ namespace Mirror
     /// Base transport class,  any transport should implement this class
     /// and it's abstract methods
     /// </summary>
-    public abstract class AsyncTransport : MonoBehaviour
+    public abstract class Transport : MonoBehaviour
     {
         public abstract string Scheme { get; }
 

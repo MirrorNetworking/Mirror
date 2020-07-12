@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Mirror.Tests
 {
 
-    public class MockTransport : AsyncTransport
+    public class MockTransport : Transport
     {
         public TaskCompletionSource<IConnection> AcceptCompletionSource ;
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Mirror.AsyncTcp
 {
-    public class AsyncTcpTransport : AsyncTransport
+    public class AsyncTcpTransport : Transport
     {
         private TcpListener listener;
         public int Port = 7777;

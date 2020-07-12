@@ -4,16 +4,16 @@ using System.Threading.Tasks;
 
 namespace Mirror
 {
-    public class AsyncFallbackTransport : AsyncTransport
+    public class AsyncFallbackTransport : Transport
     {
 
-        public AsyncTransport[] transports;
+        public Transport[] transports;
 
         public override string Scheme
         {
             get
             {
-                foreach (AsyncTransport transport in transports)
+                foreach (Transport transport in transports)
                 {
                     try
                     {
@@ -30,7 +30,7 @@ namespace Mirror
 
         public override async Task<IConnection> AcceptAsync()
         {
-            foreach (AsyncTransport transport in transports)
+            foreach (Transport transport in transports)
             {
                 try
                 {
@@ -47,7 +47,7 @@ namespace Mirror
 
         public override async Task<IConnection> ConnectAsync(Uri uri)
         {
-            foreach (AsyncTransport transport in transports)
+            foreach (Transport transport in transports)
             {
                 try
                 {
@@ -63,7 +63,7 @@ namespace Mirror
 
         public override void Disconnect()
         {
-            foreach (AsyncTransport transport in transports)
+            foreach (Transport transport in transports)
             {
                 try
                 {
@@ -80,7 +80,7 @@ namespace Mirror
 
         public override async Task ListenAsync()
         {
-            foreach (AsyncTransport transport in transports)
+            foreach (Transport transport in transports)
             {
                 try
                 {
@@ -97,7 +97,7 @@ namespace Mirror
 
         public override Uri ServerUri()
         {
-            foreach (AsyncTransport transport in transports)
+            foreach (Transport transport in transports)
             {
                 try
                 {

@@ -36,7 +36,7 @@ namespace Mirror
         [Header("Network Info")]
         [Tooltip("Transport component attached to this object that server and client will use to connect")]
         [SerializeField]
-        public AsyncTransport transport;
+        public Transport transport;
 
         /// <summary>
         /// True if the server or client is started and running

@@ -18,8 +18,8 @@ namespace Mirror.Tests
         private GameObject transportObj;
         private AsyncFallbackTransport transport;
 
-        private AsyncTransport transport1;
-        private AsyncTransport transport2;
+        private Transport transport1;
+        private Transport transport2;
 
         IConnection conn1;
         IConnection conn2;
@@ -32,8 +32,8 @@ namespace Mirror.Tests
             transport = transportObj.AddComponent<AsyncFallbackTransport>();
 
             // this gives warnings,  it is ok
-            transport1 = Substitute.For<AsyncTransport>();
-            transport2 = Substitute.For<AsyncTransport>();
+            transport1 = Substitute.For<Transport>();
+            transport2 = Substitute.For<Transport>();
 
             transport.transports = new[] { transport1, transport2 };
             conn1 = Substitute.For<IConnection>();
@@ -43,7 +43,7 @@ namespace Mirror.Tests
 
         [TearDown]
         public void TearDown()
-        { 
+        {
             Object.DestroyImmediate(transportObj);
         }
         #endregion
@@ -158,7 +158,7 @@ namespace Mirror.Tests
         public void Disconnect2()
         {
             transport1
-                .When( x=> x.Disconnect())
+                .When(x => x.Disconnect())
                 .Do(x => { throw new PlatformNotSupportedException(); });
 
             transport.Disconnect();
@@ -178,7 +178,7 @@ namespace Mirror.Tests
 
             Assert.Throws<PlatformNotSupportedException>(() =>
             {
-               transport.Disconnect();
+                transport.Disconnect();
             });
         }
 

@@ -17,7 +17,7 @@ namespace Mirror.Tests
 {
     [TestFixture(typeof(AsyncTcpTransport), "tcp4", "tcp4://localhost", 7777)]
     [TestFixture(typeof(AsyncWsTransport), "ws", "ws://localhost", 7778)]
-    public class AsyncTransportTests<T> where T: AsyncTransport
+    public class AsyncTransportTests<T> where T : Transport
     {
         #region SetUp
 

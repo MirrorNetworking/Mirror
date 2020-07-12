@@ -113,7 +113,7 @@ namespace Mirror
         public readonly NetworkTime Time = new NetworkTime();
 
         // transport to use to accept connections
-        public AsyncTransport transport;
+        public Transport transport;
 
         /// <summary>
         /// This shuts down the server and disconnects all clients.
@@ -140,7 +140,7 @@ namespace Mirror
             connections.Clear();
 
             if (transport == null)
-                transport = GetComponent<AsyncTransport>();
+                transport = GetComponent<Transport>();
 
             if (authenticator != null)
             {

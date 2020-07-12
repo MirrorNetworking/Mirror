@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Mirror.Tests
 {
 
-    public class LoopbackTransport : AsyncTransport
+    public class LoopbackTransport : Transport
     {
         public TaskCompletionSource<IConnection> AcceptCompletionSource ;
 

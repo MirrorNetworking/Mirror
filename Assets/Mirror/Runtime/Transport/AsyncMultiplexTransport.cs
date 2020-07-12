@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace Mirror
 {
-    public class AsyncMultiplexTransport : AsyncTransport
+    public class AsyncMultiplexTransport :  Transport
     {
 
-        public AsyncTransport[] transports;
+        public  Transport[] transports;
 
-        private Dictionary<Task<IConnection>, AsyncTransport> Accepters;
+        private Dictionary<Task<IConnection>,  Transport> Accepters;
 
         public override string Scheme
         {
             get
             {
-                foreach (AsyncTransport transport in transports)
+                foreach (Transport transport in transports)
                 {
                     try
                     {
@@ -36,9 +36,9 @@ namespace Mirror
         {
             if (Accepters == null)
             {
-                Accepters = new Dictionary<Task<IConnection>, AsyncTransport>();
+                Accepters = new Dictionary<Task<IConnection>,  Transport>();
 
-                foreach (AsyncTransport transport in transports)
+                foreach (Transport transport in transports)
                 {
                     Task<IConnection> transportAccepter = transport.AcceptAsync();
                     Accepters[transportAccepter] = transport;
@@ -52,7 +52,7 @@ namespace Mirror
             // wait for any one of them to accept
             var task = await Task.WhenAny(Accepters.Keys);
 
-            AsyncTransport acceptedTransport = Accepters[task];
+            Transport acceptedTransport = Accepters[task];
             Accepters.Remove(task);
 
             IConnection value = await task;
@@ -74,7 +74,7 @@ namespace Mirror
 
         public override async Task<IConnection> ConnectAsync(Uri uri)
         {
-            foreach (AsyncTransport transport in transports)
+            foreach (Transport transport in transports)
             {
                 try
                 {
@@ -90,7 +90,7 @@ namespace Mirror
 
         public override void Disconnect()
         {
-            foreach (AsyncTransport transport in transports)
+            foreach (Transport transport in transports)
                 transport.Disconnect();
         }
 

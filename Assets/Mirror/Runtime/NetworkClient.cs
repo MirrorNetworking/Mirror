@@ -90,7 +90,7 @@ namespace Mirror
 
         bool isSpawnFinished;
 
-        public AsyncTransport Transport;
+        public Transport Transport;
 
         /// <summary>
         /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
@@ -137,9 +137,9 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("Client Connect: " + uri);
 
-            AsyncTransport transport = Transport;
+            Transport transport = Transport;
             if (transport == null)
-                transport = GetComponent<AsyncTransport>();
+                transport = GetComponent<Transport>();
 
             connectState = ConnectState.Connecting;
 

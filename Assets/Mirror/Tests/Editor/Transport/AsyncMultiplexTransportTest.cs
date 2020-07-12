@@ -18,8 +18,8 @@ namespace Mirror.Tests
         private GameObject transportObj;
         private AsyncMultiplexTransport transport;
 
-        private AsyncTransport transport1;
-        private AsyncTransport transport2;
+        private Transport transport1;
+        private Transport transport2;
 
         IConnection conn1;
         IConnection conn2;
@@ -32,8 +32,8 @@ namespace Mirror.Tests
             transport = transportObj.AddComponent<AsyncMultiplexTransport>();
 
             // this gives warnings,  it is ok
-            transport1 = Substitute.For<AsyncTransport>();
-            transport2 = Substitute.For<AsyncTransport>();
+            transport1 = Substitute.For<Transport>();
+            transport2 = Substitute.For<Transport>();
 
             transport.transports = new[] { transport1, transport2 };
             conn1 = Substitute.For<IConnection>();
@@ -43,7 +43,7 @@ namespace Mirror.Tests
 
         [TearDown]
         public void TearDown()
-        { 
+        {
             Object.DestroyImmediate(transportObj);
         }
         #endregion
@@ -85,7 +85,7 @@ namespace Mirror.Tests
             IConnection accepted1 = await transport.AcceptAsync();
             IConnection accepted2 = await transport.AcceptAsync();
 
-            Assert.That(new[] { accepted1, accepted2 }, Is.EquivalentTo( new [] { conn1, conn2}));
+            Assert.That(new[] { accepted1, accepted2 }, Is.EquivalentTo(new[] { conn1, conn2 }));
 
             Assert.That(await transport.AcceptAsync(), Is.Null);
         });

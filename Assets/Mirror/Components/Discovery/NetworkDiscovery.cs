@@ -19,7 +19,7 @@ namespace Mirror.Discovery
         public long ServerId { get; private set; }
 
         [Tooltip("Transport to be advertised during discovery")]
-        public AsyncTransport transport;
+        public Transport transport;
 
         [Tooltip("Invoked when a server is found")]
         public ServerFoundUnityEvent OnServerFound;
