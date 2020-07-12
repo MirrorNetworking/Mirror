@@ -1,3 +1,16 @@
+# [35.2.0](https://github.com/MirrorNG/MirrorNG/compare/35.1.0-master...35.2.0-master) (2020-07-12)
+
+
+### Bug Fixes
+
+* add client only test for FinishLoadScene ([#262](https://github.com/MirrorNG/MirrorNG/issues/262)) ([50e7fa6](https://github.com/MirrorNG/MirrorNG/commit/50e7fa6e287fee09afbe36a51575f41c4bd50736))
+
+
+### Features
+
+* Commands no longer need to start with Cmd ([#263](https://github.com/MirrorNG/MirrorNG/issues/263)) ([9578e19](https://github.com/MirrorNG/MirrorNG/commit/9578e19ff70bf3a09a9fe31926c8ac337f945ba9))
+* throw exception if assigning incorrect asset id ([#250](https://github.com/MirrorNG/MirrorNG/issues/250)) ([7741fb1](https://github.com/MirrorNG/MirrorNG/commit/7741fb1f11abc8eb2aec8c1a94ac53380ac5a562))
+
 # [35.1.0](https://github.com/MirrorNG/MirrorNG/compare/35.0.3-master...35.1.0-master) (2020-07-12)
 
 
