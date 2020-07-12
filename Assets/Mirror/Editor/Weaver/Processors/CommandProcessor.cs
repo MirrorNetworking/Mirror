@@ -8,8 +8,6 @@ namespace Mirror.Weaver
     /// </summary>
     public static class CommandProcessor
     {
-        const string CmdPrefix = "InvokeCmd";
-
         /*
             // generates code like:
             public void CmdThrust(float thrusting, int spin)
@@ -28,14 +26,14 @@ namespace Mirror.Weaver
             Originally HLAPI put the send message code inside the Call function
             and then proceeded to replace every call to CmdTrust with CallCmdTrust
 
-            This method moves all the user's code into the "Call" method
+            This method moves all the user's code into the "CallCmd" method
             and replaces the body of the original method with the send message code.
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
         */
         public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute commandAttr)
         {
-            MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
+            MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md, Weaver.RpcPrefix + md.Name);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
@@ -51,7 +49,6 @@ namespace Mirror.Weaver
             string cmdName = md.Name;
             int channel = commandAttr.GetField("channel", 0);
             bool ignoreAuthority = commandAttr.GetField("ignoreAuthority", false);
-
 
             // invoke internal send and return
             // load 'base.' to call the SendCommand function with
@@ -86,7 +83,7 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition method, MethodDefinition cmdCallFunc)
         {
-            MethodDefinition cmd = new MethodDefinition(CmdPrefix + method.Name,
+            MethodDefinition cmd = new MethodDefinition(Weaver.InvokeRpcPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
