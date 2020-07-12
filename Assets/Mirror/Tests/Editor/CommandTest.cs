@@ -10,7 +10,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public event Action<int> onSendInt;
 
         [Command]
-        public void CmdSendInt(int someInt)
+        public void SendInt(int someInt)
         {
             onSendInt?.Invoke(someInt);
         }
@@ -64,7 +64,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
                 callCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
-            hostBehaviour.CmdSendInt(someInt);
+            hostBehaviour.SendInt(someInt);
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
@@ -81,8 +81,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 callCount++;
             };
-            LogAssert.Expect(LogType.Warning, $"Trying to send command for object without authority. {typeof(AuthorityBehaviour).ToString()}.{nameof(AuthorityBehaviour.CmdSendInt)}");
-            hostBehaviour.CmdSendInt(someInt);
+            LogAssert.Expect(LogType.Warning, $"Trying to send command for object without authority. {typeof(AuthorityBehaviour).ToString()}.{nameof(AuthorityBehaviour.SendInt)}");
+            hostBehaviour.SendInt(someInt);
             ProcessMessages();
             Assert.That(callCount, Is.Zero);
         }
