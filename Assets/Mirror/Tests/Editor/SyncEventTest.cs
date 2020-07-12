@@ -9,11 +9,11 @@ namespace Mirror.Tests.RemoteAttrributeTest
     class SyncEventBehaviour : NetworkBehaviour
     {
         [SyncEvent]
-        public event MySyncEventDelegate EventOnly;
+        public event MySyncEventDelegate Only;
 
         public void CallEvent(int i)
         {
-            EventOnly.Invoke(i);
+            Only.Invoke(i);
         }
     }
 
@@ -51,7 +51,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             const int someInt = 20;
 
             int callCount = 0;
-            clientBehaviour.EventOnly += incomingInt =>
+            clientBehaviour.Only += incomingInt =>
             {
                 callCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));

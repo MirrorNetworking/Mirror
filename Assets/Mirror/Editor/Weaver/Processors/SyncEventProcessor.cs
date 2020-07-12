@@ -118,12 +118,6 @@ namespace Mirror.Weaver
 
                 if (syncEventAttr != null)
                 {
-                    if (!ed.Name.StartsWith("Event"))
-                    {
-                        Weaver.Error($"{ed.Name} must start with Event.  Consider renaming it to Event{ed.Name}", ed);
-                        return;
-                    }
-
                     if (ed.EventType.Resolve().HasGenericParameters)
                     {
                         Weaver.Error($"{ed.Name} must not have generic parameters.  Consider creating a new class that inherits from {ed.EventType} instead", ed);
