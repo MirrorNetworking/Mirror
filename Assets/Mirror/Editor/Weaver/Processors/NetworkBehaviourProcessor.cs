@@ -26,9 +26,9 @@ namespace Mirror.Weaver
         readonly List<ClientRpcResult> clientRpcs = new List<ClientRpcResult>();
         readonly List<MethodDefinition> targetRpcs = new List<MethodDefinition>();
         readonly List<EventDefinition> eventRpcs = new List<EventDefinition>();
-        readonly List<MethodDefinition> commandInvocationFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> clientRpcInvocationFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> targetRpcInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> commandSkeletonFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> clientRpcSkeletonFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> targetRpcSkeletonFuncs = new List<MethodDefinition>();
         readonly List<MethodDefinition> eventRpcInvocationFuncs = new List<MethodDefinition>();
 
         readonly TypeDefinition netBehaviourSubclass;
@@ -277,18 +277,18 @@ namespace Mirror.Weaver
             for (int i = 0; i < commands.Count; ++i)
             {
                 CmdResult cmdResult = commands[i];
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, commandInvocationFuncs[i], cmdResult);
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, commandSkeletonFuncs[i], cmdResult);
             }
 
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
                 ClientRpcResult clientRpcResult = clientRpcs[i];
-                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcResult.method.Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcSkeletonFuncs[i], clientRpcResult.method.Name);
             }
 
             for (int i = 0; i < targetRpcs.Count; ++i)
             {
-                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, targetRpcSkeletonFuncs[i], targetRpcs[i].Name);
             }
 
             for (int i = 0; i < eventRpcs.Count; ++i)
@@ -983,12 +983,12 @@ namespace Mirror.Weaver
                 excludeOwner = excludeOwner
             });
 
-            MethodDefinition rpcCallFunc = RpcProcessor.GenerateStub(netBehaviourSubclass, md, clientRpcAttr);
+            MethodDefinition userCodeFunc = RpcProcessor.GenerateStub(netBehaviourSubclass, md, clientRpcAttr);
 
-            MethodDefinition rpcFunc = RpcProcessor.GenerateSkeleton(netBehaviourSubclass, md, rpcCallFunc);
-            if (rpcFunc != null)
+            MethodDefinition skeletonFunc = RpcProcessor.GenerateSkeleton(netBehaviourSubclass, md, userCodeFunc);
+            if (skeletonFunc != null)
             {
-                clientRpcInvocationFuncs.Add(rpcFunc);
+                clientRpcSkeletonFuncs.Add(skeletonFunc);
             }
         }
 
@@ -1011,12 +1011,12 @@ namespace Mirror.Weaver
             names.Add(md.Name);
             targetRpcs.Add(md);
 
-            MethodDefinition rpcCallFunc = TargetRpcProcessor.GenerateStub(netBehaviourSubclass, md, targetRpcAttr);
+            MethodDefinition userCodeFunc = TargetRpcProcessor.GenerateStub(netBehaviourSubclass, md, targetRpcAttr);
 
-            MethodDefinition rpcFunc = TargetRpcProcessor.GenerateSkeleton(netBehaviourSubclass, md, rpcCallFunc);
-            if (rpcFunc != null)
+            MethodDefinition skeletonFunc = TargetRpcProcessor.GenerateSkeleton(netBehaviourSubclass, md, userCodeFunc);
+            if (skeletonFunc != null)
             {
-                targetRpcInvocationFuncs.Add(rpcFunc);
+                targetRpcSkeletonFuncs.Add(skeletonFunc);
             }
         }
 
@@ -1046,12 +1046,12 @@ namespace Mirror.Weaver
                 requireAuthority = requireAuthority
             });
 
-            MethodDefinition cmdCallFunc = CommandProcessor.GenerateStub(netBehaviourSubclass, md, commandAttr);
+            MethodDefinition userCodeFunc = CommandProcessor.GenerateStub(netBehaviourSubclass, md, commandAttr);
 
-            MethodDefinition cmdFunc = CommandProcessor.GenerateSkeleton(netBehaviourSubclass, md, cmdCallFunc);
-            if (cmdFunc != null)
+            MethodDefinition skeletonFunc = CommandProcessor.GenerateSkeleton(netBehaviourSubclass, md, userCodeFunc);
+            if (skeletonFunc != null)
             {
-                commandInvocationFuncs.Add(cmdFunc);
+                commandSkeletonFuncs.Add(skeletonFunc);
             }
         }
     }
