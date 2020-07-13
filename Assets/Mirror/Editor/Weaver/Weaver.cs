@@ -35,7 +35,6 @@ namespace Mirror.Weaver
         public static AssemblyDefinition UnityAssembly { get; private set; }
         public static AssemblyDefinition NetAssembly { get; private set; }
         public static bool WeavingFailed { get; private set; }
-        public static bool GenerateLogErrors { get; set; }
 
         // Network types
         public static TypeReference NetworkBehaviourType;

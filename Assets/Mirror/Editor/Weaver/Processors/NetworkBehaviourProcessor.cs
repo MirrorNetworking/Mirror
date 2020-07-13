@@ -479,12 +479,6 @@ namespace Mirror.Weaver
                 dirtyBit += 1;
             }
 
-            if (Weaver.GenerateLogErrors)
-            {
-                worker.Append(worker.Create(OpCodes.Ldstr, "Injected Serialize " + netBehaviourSubclass.Name));
-                worker.Append(worker.Create(OpCodes.Call, Weaver.logErrorReference));
-            }
-
             // generate: return dirtyLocal
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ret));
@@ -786,12 +780,6 @@ namespace Mirror.Weaver
 
                 serWorker.Append(varLabel);
                 dirtyBit += 1;
-            }
-
-            if (Weaver.GenerateLogErrors)
-            {
-                serWorker.Append(serWorker.Create(OpCodes.Ldstr, "Injected Deserialize " + netBehaviourSubclass.Name));
-                serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.logErrorReference));
             }
 
             serWorker.Append(serWorker.Create(OpCodes.Ret));
