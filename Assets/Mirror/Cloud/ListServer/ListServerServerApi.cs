@@ -128,10 +128,10 @@ namespace Mirror.Cloud.ListServerService
             currentServer = server;
 
             UnityWebRequest request = requestCreator.Post("servers", currentServer);
-            yield return requestCreator.SendRequestEnumerator(request, onSuccess, onFail);
+            yield return requestCreator.SendRequestEnumerator(request, OnSuccess, OnFail);
             sending = false;
 
-            void onSuccess(string responseBody)
+            void OnSuccess(string responseBody)
             {
                 CreatedIdJson created = JsonUtility.FromJson<CreatedIdJson>(responseBody);
                 serverId = created.id;
@@ -139,7 +139,7 @@ namespace Mirror.Cloud.ListServerService
                 // Start ping to keep server alive
                 _pingCoroutine = runner.StartCoroutine(InternalPing());
             }
-            void onFail(string responseBody)
+            void OnFail(string responseBody)
             {
                 added = false;
             }
@@ -158,10 +158,10 @@ namespace Mirror.Cloud.ListServerService
 
             sending = true;
             UnityWebRequest request = requestCreator.Patch("servers/" + serverId, server);
-            yield return requestCreator.SendRequestEnumerator(request, onSuccess);
+            yield return requestCreator.SendRequestEnumerator(request, OnSuccess);
             sending = false;
 
-            void onSuccess(string responseBody)
+            void OnSuccess(string responseBody)
             {
                 skipNextPing = true;
 

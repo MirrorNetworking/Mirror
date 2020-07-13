@@ -187,9 +187,8 @@ namespace Mirror
             // usually transitions will be triggered by parameters, if not, play anims directly.
             // NOTE: this plays "animations", not transitions, so any transitions will be skipped.
             // NOTE: there is no API to play a transition(?)
-            if (stateHash != 0)
+            if (stateHash != 0 && Animator.enabled)
             {
-                if (Animator.enabled)
                     Animator.Play(stateHash, layerId, normalizedTime);
             }
 

@@ -1015,17 +1015,14 @@ namespace Mirror
             {
                 // only add ready connections.
                 // otherwise the player might not be in the world yet or anymore
-                if (conn != null && conn.IsReady)
+                if (conn != null && conn.IsReady && initialize || !observers.Contains(conn))
                 {
-                    if (initialize || !observers.Contains(conn))
-                    {
                         // new observer
                         conn.AddToVisList(this);
                         // spawn identity for this conn
                         Server.ShowForConnection(this, conn);
                         if (logger.LogEnabled()) logger.Log("New Observer for " + gameObject + " " + conn);
                         changed = true;
-                    }
                 }
             }
 

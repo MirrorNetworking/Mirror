@@ -112,13 +112,10 @@ namespace Mirror.Experimental
         void FixedUpdate()
         {
             // if server then always sync to others.
-            if (IsServer)
+            // let the clients know that this has moved
+            if (IsServer && HasEitherMovedRotatedScaled())
             {
-                // let the clients know that this has moved
-                if (HasEitherMovedRotatedScaled())
-                {
-                    RpcMove(TargetTransform.localPosition, TargetTransform.localRotation, TargetTransform.localScale);
-                }
+                RpcMove(TargetTransform.localPosition, TargetTransform.localRotation, TargetTransform.localScale);
             }
 
             if (IsClient)
@@ -127,15 +124,12 @@ namespace Mirror.Experimental
                 // -> only if connectionToServer has been initialized yet too
                 if (IsOwnerWithClientAuthority)
                 {
-                    if (!IsServer)
+                    if (!IsServer && HasEitherMovedRotatedScaled())
                     {
-                        if (HasEitherMovedRotatedScaled())
-                        {
-                            // serialize
-                            // local position/rotation for VR support
-                            // send to server
-                            CmdClientToServerSync(TargetTransform.localPosition, TargetTransform.localRotation, TargetTransform.localScale);
-                        }
+                        // serialize
+                        // local position/rotation for VR support
+                        // send to server
+                        CmdClientToServerSync(TargetTransform.localPosition, TargetTransform.localRotation, TargetTransform.localScale);
                     }
                 }
                 else if (goal.IsValid)
@@ -157,7 +151,6 @@ namespace Mirror.Experimental
                                                    InterpolateRotation(start, goal, TargetTransform.localRotation),
                                                    InterpolateScale(start, goal, TargetTransform.localScale));
                     }
-
                 }
             }
         }

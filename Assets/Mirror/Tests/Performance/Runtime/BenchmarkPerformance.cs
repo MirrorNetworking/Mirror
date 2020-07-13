@@ -108,7 +108,7 @@ namespace Mirror.Tests.Performance.Runtime
 
         [UnityTest]
         [Performance]
-        public IEnumerator Benchmark10k()
+        public IEnumerator Benchmark10K()
         {
             EnableHealth(true);
 
@@ -117,7 +117,7 @@ namespace Mirror.Tests.Performance.Runtime
 
         [UnityTest]
         [Performance]
-        public IEnumerator Benchmark10kIdle()
+        public IEnumerator Benchmark10KIdle()
         {
             EnableHealth(false);
 

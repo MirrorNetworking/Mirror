@@ -88,13 +88,10 @@ namespace Mirror
             //    layers. but checking to every connection is fast.
             foreach (INetworkConnection conn in Server.connections)
             {
-                if (conn != null && conn.Identity != null)
+                // check distance
+                if (conn != null && conn.Identity != null && Vector3.Distance(conn.Identity.transform.position, position) < VisibilityRange)
                 {
-                    // check distance
-                    if (Vector3.Distance(conn.Identity.transform.position, position) < VisibilityRange)
-                    {
-                        observers.Add(conn);
-                    }
+                    observers.Add(conn);
                 }
             }
         }
