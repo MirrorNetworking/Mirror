@@ -33,18 +33,20 @@ namespace Mirror
         [Tooltip("Enable to force this object to be hidden from players.")]
         public bool ForceHidden;
 
-        float lastUpdateTime;
-
-        void Update()
+        public void Start()
         {
-            if (!IsServer)
-                return;
+            NetIdentity.OnStartServer.AddListener(() => {
+                InvokeRepeating(nameof(RebuildObservers), 0, VisibilityUpdateInterval);
+            });
 
-            if (Time.time - lastUpdateTime > VisibilityUpdateInterval)
-            {
-                NetIdentity.RebuildObservers(false);
-                lastUpdateTime = Time.time;
-            }
+            NetIdentity.OnStopServer.AddListener(() => {
+                CancelInvoke(nameof(RebuildObservers));
+            });
+        }
+        
+        void RebuildObservers()
+        {
+            NetIdentity.RebuildObservers(false);
         }
 
         /// <summary>

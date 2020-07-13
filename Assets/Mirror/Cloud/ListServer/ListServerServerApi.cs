@@ -6,8 +6,8 @@ namespace Mirror.Cloud.ListServerService
 {
     public sealed class ListServerServerApi : ListServerBaseApi, IListServerServerApi
     {
-        const int PingInterval = 15;
-        const int MaxPingFails = 3;
+        const int PingInterval = 20;
+        const int MaxPingFails = 15;
 
         ServerJson currentServer;
         string serverId;
@@ -103,6 +103,11 @@ namespace Mirror.Cloud.ListServerService
         {
             if (!added) { return; }
 
+            if (string.IsNullOrEmpty(serverId))
+            {
+                Debug.LogWarning("Can not remove server because serverId was empty");
+                return;
+            }
             StopPingCoroutine();
             runner.StartCoroutine(InternalRemoveServer());
         }
@@ -210,6 +215,12 @@ namespace Mirror.Cloud.ListServerService
 
         void InternalRemoveServerWithoutCoroutine()
         {
+            if (string.IsNullOrEmpty(serverId))
+            {
+                Debug.LogWarning("Can not remove server becuase serverId was empty");
+                return;
+            }
+
             UnityWebRequest request = requestCreator.Delete("servers/" + serverId);
             UnityWebRequestAsyncOperation operation = request.SendWebRequest();
 

@@ -140,12 +140,6 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodsValidateTargetRpc(MethodDefinition md)
         {
-            if (!md.Name.StartsWith("Target"))
-            {
-                Weaver.Error($"{md.Name} must start with Target.  Consider renaming it to Target{md.Name}", md);
-                return false;
-            }
-
             if (md.IsStatic)
             {
                 Weaver.Error($"{md.Name} must not be static", md);

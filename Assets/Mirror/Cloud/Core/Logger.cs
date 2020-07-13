@@ -34,7 +34,14 @@ namespace Mirror.Cloud
                 // we split path like this to make sure api key doesn't leak
                 Uri uri = new Uri(statusRequest.url);
                 string path = string.Join("", uri.Segments);
-                logger.LogFormat(logType, format, statusRequest.method, code, path, statusRequest.downloadHandler.text);
+                string msg = string.Format(format, statusRequest.method, code, path, statusRequest.downloadHandler.text);
+                logger.Log(logType, msg);
+            }
+
+            if (!string.IsNullOrEmpty(statusRequest.error))
+            {
+                string msg = string.Format("WEB REQUEST ERROR: {0}", statusRequest.error);
+                logger.Log(LogType.Error, msg);
             }
         }
 
