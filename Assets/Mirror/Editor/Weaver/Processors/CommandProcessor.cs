@@ -33,7 +33,7 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute commandAttr)
         {
-            MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md, Weaver.RpcPrefix + md.Name);
+            MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
