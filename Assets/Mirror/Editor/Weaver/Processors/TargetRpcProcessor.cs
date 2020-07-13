@@ -18,6 +18,26 @@ namespace Mirror.Weaver
                    md.Parameters[0].ParameterType.FullName == Weaver.INetworkConnectionType.FullName;
         }
 
+        /// <summary>
+        /// Generates a skeleton for a TargetRPC
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="method"></param>
+        /// <param name="cmdCallFunc"></param>
+        /// <returns>The newly created skeleton method</returns>
+        /// <remarks>
+        /// Generates code like this:
+        /// <code>
+        /// protected static void Skeleton_Test(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection)
+        /// {
+        ///     if (!obj.netIdentity.server.active)
+        ///     {
+        ///         return;
+        ///     }
+        ///     ((ShipControl) obj).UserCode_Test(reader.ReadSingle(), (int) reader.ReadPackedUInt32());
+        /// }
+        /// </code>
+        /// </remarks>
         public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
             var rpc = new MethodDefinition(SkeletonPrefix + md.Name, MethodAttributes.Family |
@@ -55,39 +75,45 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        /* generates code like:
-            public void TargetTest (NetworkConnection conn, int param)
-            {
-                NetworkWriter writer = new NetworkWriter ();
-                writer.WritePackedUInt32 ((uint)param);
-                base.SendTargetRPCInternal (conn, typeof(class), "TargetTest", val);
-            }
-            public void CallTargetTest (NetworkConnection conn, int param)
-            {
-                // whatever the user did before
-            }
-
-            or if optional:
-            public void TargetTest (int param)
-            {
-                NetworkWriter writer = new NetworkWriter ();
-                writer.WritePackedUInt32 ((uint)param);
-                base.SendTargetRPCInternal (null, typeof(class), "TargetTest", val);
-            }
-            public void CallTargetTest (int param)
-            {
-                // whatever the user did before
-            }
-
-            Originally HLAPI put the send message code inside the Call function
-            and then proceeded to replace every call to TargetTest with CallTargetTest
-
-            This method moves all the user's code into the "Call" method
-            and replaces the body of the original method with the send message code.
-            This way we do not need to modify the code anywhere else,  and this works
-            correctly in dependent assemblies
-
-        */
+        /// <summary>
+        /// Replaces the user code with a stub.
+        /// Moves the original code to a new method
+        /// </summary>
+        /// <param name="td">The class containing the method </param>
+        /// <param name="md">The method to be stubbed </param>
+        /// <param name="commandAttr">The attribute that made this an RPC</param>
+        /// <returns>The method containing the original code</returns>
+        /// <remarks>
+        /// Generates code like this:
+        /// <code>
+        /// public void TargetTest(NetworkConnection conn, int param)
+        /// {
+        ///     NetworkWriter writer = new NetworkWriter();
+        ///     writer.WritePackedUInt32((uint)param);
+        ///     base.SendTargetRPCInternal(conn, typeof(class), "TargetTest", val);
+        /// }
+        /// 
+        /// public void UserCode_TargetTest(NetworkConnection conn, int param)
+        /// {
+        ///     // whatever the user did before
+        /// }
+        /// </code>
+        /// or if no connection is specified
+        ///
+        /// <code>
+        /// public void TargetTest (int param)
+        /// {
+        ///     NetworkWriter writer = new NetworkWriter();
+        ///     writer.WritePackedUInt32((uint) param);
+        ///     base.SendTargetRPCInternal(null, typeof(class), "TargetTest", val);
+        /// }
+        /// 
+        /// public void UserCode_TargetTest(int param)
+        /// {
+        ///     // whatever the user did before
+        /// }
+        /// </code>
+        /// </remarks>
         public static MethodDefinition GenerateStub(TypeDefinition td, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, UserCodePrefix + md.Name);
