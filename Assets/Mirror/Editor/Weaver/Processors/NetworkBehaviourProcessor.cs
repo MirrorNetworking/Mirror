@@ -1058,9 +1058,9 @@ namespace Mirror.Weaver
                 requireAuthority = requireAuthority
             });
 
-            MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(netBehaviourSubclass, md, commandAttr);
+            MethodDefinition cmdCallFunc = CommandProcessor.GenerateStub(netBehaviourSubclass, md, commandAttr);
 
-            MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(netBehaviourSubclass, md, cmdCallFunc);
+            MethodDefinition cmdFunc = CommandProcessor.GenerateSkeleton(netBehaviourSubclass, md, cmdCallFunc);
             if (cmdFunc != null)
             {
                 commandInvocationFuncs.Add(cmdFunc);

@@ -9,44 +9,42 @@ namespace Mirror.Weaver
     /// </summary>
     public static class CommandProcessor
     {
-        const string CmdPrefix = "InvokeCmd";
+        const string SkeletonPrefix = "Skeleton_";
+        private const string UserCodePrefix = "UserCode_";
 
-        /*
-            // generates code like:
-            public void CmdThrust(float thrusting, int spin)
-            {
-                NetworkWriter networkWriter = new NetworkWriter();
-                networkWriter.Write(thrusting);
-                networkWriter.WritePackedUInt32((uint)spin);
-                base.SendCommandInternal(cmdName, networkWriter, cmdName);
-            }
-
-            public void CallCmdThrust(float thrusting, int spin)
-            {
-                // whatever the user was doing before
-            }
-
-            Originally HLAPI put the send message code inside the Call function
-            and then proceeded to replace every call to CmdTrust with CallCmdTrust
-
-            This method moves all the user's code into the "Call" method
-            and replaces the body of the original method with the send message code.
-            This way we do not need to modify the code anywhere else,  and this works
-            correctly in dependent assemblies
-        */
-        public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute commandAttr)
+        /// <summary>
+        /// Replaces the user code with a stub.
+        /// Moves the original code to a new method
+        /// </summary>
+        /// <param name="td">The class containing the method </param>
+        /// <param name="md">The method to be stubbed </param>
+        /// <param name="commandAttr">The attribute that made this an RPC</param>
+        /// <returns>The method containing the original code</returns>
+        /// <remarks>
+        /// Generates code like this:
+        /// <code>
+        /// public void CmdThrust(float thrusting, int spin)
+        /// {
+        ///     NetworkWriter networkWriter = new NetworkWriter();
+        ///     networkWriter.Write(thrusting);
+        ///     networkWriter.WritePackedUInt32((uint) spin);
+        ///     base.SendCommandInternal(cmdName, networkWriter, cmdName);
+        /// }
+        ///
+        /// public void UserCode_CmdThrust(float thrusting, int spin)
+        /// {
+        ///     // whatever the user was doing before
+        ///
+        /// }
+        /// </code>
+        /// </remarks>
+        public static MethodDefinition GenerateStub(TypeDefinition td, MethodDefinition md, CustomAttribute commandAttr)
         {
-            MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
+            MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md, UserCodePrefix + md.Name);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
             NetworkBehaviourProcessor.WriteSetupLocals(worker);
-
-            if (Weaver.GenerateLogErrors)
-            {
-                worker.Append(worker.Create(OpCodes.Ldstr, "Call Command function " + md.Name));
-                worker.Append(worker.Create(OpCodes.Call, Weaver.logErrorReference));
-            }
 
             // NetworkWriter writer = new NetworkWriter();
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
@@ -56,10 +54,10 @@ namespace Mirror.Weaver
                 return null;
 
             string cmdName = md.Name;
-            int index = cmdName.IndexOf(CmdPrefix);
+            int index = cmdName.IndexOf(SkeletonPrefix);
             if (index > -1)
             {
-                cmdName = cmdName.Substring(CmdPrefix.Length);
+                cmdName = cmdName.Substring(SkeletonPrefix.Length);
             }
 
             int channel = commandAttr.GetField("channel", 0);
@@ -86,20 +84,29 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        /*
-            // generates code like:
-            protected static void InvokeCmdCmdThrust(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection)
-            {
-                if (!obj.netIdentity.server.active)
-                {
-                    return;
-                }
-                ((ShipControl)obj).CmdThrust(reader.ReadSingle(), (int)reader.ReadPackedUInt32());
-            }
-        */
-        public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition method, MethodDefinition cmdCallFunc)
+        /// <summary>
+        /// Generates a skeleton for a command
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="method"></param>
+        /// <param name="cmdCallFunc"></param>
+        /// <returns>The newly created skeleton method</returns>
+        /// <remarks>
+        /// Generates code like this:
+        /// <code>
+        /// protected static void Skeleton_Thrust(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection)
+        /// {
+        ///     if (!obj.netIdentity.server.active)
+        ///     {
+        ///         return;
+        ///     }
+        ///     ((ShipControl) obj).UserCode_Thrust(reader.ReadSingle(), (int) reader.ReadPackedUInt32());
+        /// }
+        /// </code>
+        /// </remarks>
+    public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition method, MethodDefinition cmdCallFunc)
         {
-            var cmd = new MethodDefinition(CmdPrefix + method.Name,
+            var cmd = new MethodDefinition(SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
