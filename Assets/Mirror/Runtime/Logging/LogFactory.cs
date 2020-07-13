@@ -14,11 +14,6 @@ namespace Mirror
         /// </summary>
         static ILogHandler defaultLogHandler = Debug.unityLogger;
 
-        /// <summary>
-        /// if true sets all log level to LogType.Log
-        /// </summary>
-        static bool debugMode;
-
         public static ILogger GetLogger<T>(LogType defaultLogLevel = LogType.Warning)
         {
             return GetLogger(typeof(T).Name, defaultLogLevel);
@@ -44,19 +39,6 @@ namespace Mirror
 
             loggers[loggerName] = logger;
             return logger;
-        }
-
-        /// <summary>
-        /// Makes all log levels LogType.Log, this is so that NetworkManger.showDebugMessages can still be used
-        /// </summary>
-        internal static void EnableDebugMode()
-        {
-            debugMode = true;
-
-            foreach (ILogger logger in loggers.Values)
-            {
-                logger.filterLogType = LogType.Log;
-            }
         }
 
         /// <summary>
