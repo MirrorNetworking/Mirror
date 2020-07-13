@@ -14,7 +14,7 @@ namespace Mirror.Logging
 
         void Awake()
         {
-            if (NetworkManager.isHeadless)
+            if (NetworkManager.isServerBuild)
             {
                 LogFactory.ReplaceLogHandler(new ConsoleColorLogHandler(showExceptionStackTrace));
             }
