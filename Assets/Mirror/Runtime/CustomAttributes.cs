@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 using UnityEngine;
 
 namespace Mirror
@@ -59,17 +60,46 @@ namespace Mirror
 
     /// <summary>
     /// Prevents clients from running this method.
-    /// <para>Prints a warning if a client tries to execute this method.</para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class ServerAttribute : Attribute { }
+    public class ServerAttribute : Attribute
+    {
+        /// <summary>
+        /// If true,  when the method is called from a client, it throws an error
+        /// If false, no error is thrown, but the method won't execute
+        /// useful for unity built in methods such as Await, Update, Start, etc.
+        /// </summary>
+        public bool error = true;
+    }
+
 
     /// <summary>
-    /// Prevents clients from running this method.
-    /// <para>No warning is thrown.</para>
+    /// Exception thrown if a guarded method is invoked incorrectly
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
-    public class ServerCallbackAttribute : Attribute { }
+    [Serializable]
+    public class MethodInvocationException : Exception
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:MethodInvocationException"/> class
+        /// </summary>
+        public MethodInvocationException()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:MethodInvocationException"/> class
+        /// </summary>
+        /// <param name="message">A <see cref="T:System.String"/> that describes the exception. </param>
+        public MethodInvocationException(string message) : base(message)
+        {
+        }
+
+        // A constructor is needed for serialization when an
+        // exception propagates from a remoting server to the client.
+        protected MethodInvocationException(SerializationInfo info,StreamingContext context) : base(info, context)
+        {
+        }
+    }
 
     /// <summary>
     /// Prevents the server from running this method.

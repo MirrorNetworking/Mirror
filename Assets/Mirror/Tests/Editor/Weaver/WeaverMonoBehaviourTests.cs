@@ -49,7 +49,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MonoBehaviourServerCallback()
         {
-            Assert.That(weaverErrors, Contains.Item("ServerCallback method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourServerCallback.MonoBehaviourServerCallback::ThisCantBeOutsideNetworkBehaviour())"));
+            Assert.That(weaverErrors, Contains.Item("Server method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourServerCallback.MonoBehaviourServerCallback::ThisCantBeOutsideNetworkBehaviour())"));
         }
 
         [Test]

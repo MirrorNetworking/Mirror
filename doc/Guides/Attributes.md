@@ -8,11 +8,9 @@ These attributes can be used for Unity game loop methods like Start or Update, a
 
 -   **NetworkSettings**  
     This attribute has been deprecated because `channels` were moved to transports (where applicable) and `interval` was moved to an inspector property
--   **Server**  
-    Only a server can call the method (throws a warning or an error when called on a client).
--   **ServerCallback**  
-    Same as **Server** but does not throw warning when called on client.
--   **Client**  
+-   **<xref:Mirror.ServerAttribute>**  
+    Only a server can call the method (throws an error when called on a client unless you specify error = false).
+-   **<xref:Mirror.ClientAttribute>**  
     Only a Client can call the method (throws a warning or an error when called on the server).
 -   **ClientCallback**  
     Same as **Client** but does not throw warning when called on server.

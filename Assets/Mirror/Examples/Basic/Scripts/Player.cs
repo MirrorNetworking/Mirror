@@ -56,7 +56,7 @@ namespace Mirror.Examples.Basic
         }
 
         // This only runs on the server, called from OnStartServer via InvokeRepeating
-        [ServerCallback]
+        [Server(error=false)]
         void UpdateData()
         {
             playerData = Random.Range(100, 1000);

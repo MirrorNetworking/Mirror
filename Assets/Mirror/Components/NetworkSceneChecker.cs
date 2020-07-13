@@ -29,7 +29,7 @@ namespace Mirror
 
         Scene currentScene;
 
-        [ServerCallback]
+        [Server(error=false)]
         void Awake()
         {
             currentScene = gameObject.scene;
@@ -46,7 +46,7 @@ namespace Mirror
             sceneCheckerObjects[currentScene].Add(NetIdentity);
         }
 
-        [ServerCallback]
+        [Server(error=false)]
         void Update()
         {
             if (currentScene == gameObject.scene)

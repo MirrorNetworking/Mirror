@@ -17,7 +17,7 @@ namespace Mirror.Examples.OneK
             start = transform.position;
         }
 
-        [ServerCallback]
+        [Server(error = false)]
         void Update()
         {
             if (moving)

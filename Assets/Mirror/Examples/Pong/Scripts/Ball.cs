@@ -33,7 +33,7 @@ namespace Mirror.Examples.Pong
         }
 
         // only call this on server
-        [ServerCallback]
+        [Server(error=false)]
         void OnCollisionEnter2D(Collision2D col)
         {
             // Note: 'col' holds the collision information. If the

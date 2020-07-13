@@ -16,7 +16,7 @@ namespace Mirror.Tests
             serverFunctionCalled = true;
         }
 
-        [ServerCallback]
+        [Server(error=false)]
         public void CallServerCallbackFunction()
         {
             serverCallbackFunctionCalled = true;
@@ -70,9 +70,10 @@ namespace Mirror.Tests
         [Test]
         public void CannotCallServerFunctionAsClient()
         {
-            clientComponent.CallServerFunction();
-            LogAssert.Expect(UnityEngine.LogType.Warning, "[Server] function 'System.Void Mirror.Tests.ExampleGuards::CallServerFunction()' called on client");
-            Assert.That(clientComponent.serverFunctionCalled, Is.False);
+            Assert.Throws<MethodInvocationException>(() =>
+            {
+               clientComponent.CallServerFunction();
+            });
         }
 
         [Test]

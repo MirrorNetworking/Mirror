@@ -12,7 +12,7 @@ namespace Mirror.Examples.Additive
 
         NetworkAnimator networkAnimator;
 
-        [ServerCallback]
+        [Server(error=false)]
         void Start()
         {
             networkAnimator = GetComponent<NetworkAnimator>();

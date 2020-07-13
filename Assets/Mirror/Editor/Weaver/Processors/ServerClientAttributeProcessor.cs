@@ -15,10 +15,7 @@ namespace Mirror.Weaver
                 switch (attr.Constructor.DeclaringType.ToString())
                 {
                     case "Mirror.ServerAttribute":
-                        InjectServerGuard(td, md, true);
-                        break;
-                    case "Mirror.ServerCallbackAttribute":
-                        InjectServerGuard(td, md, false);
+                        InjectServerGuard(td, md, attr);
                         break;
                     case "Mirror.ClientAttribute":
                         InjectClientGuard(td, md, true);
@@ -44,8 +41,10 @@ namespace Mirror.Weaver
             }
         }
 
-        static void InjectServerGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
+        static void InjectServerGuard(TypeDefinition td, MethodDefinition md, CustomAttribute attribute)
         {
+            bool throwError = attribute.GetField<bool>("error", true);
+
             if (!Weaver.IsNetworkBehaviour(td))
             {
                 Weaver.Error($"Server method {md.Name} must be declared in a NetworkBehaviour", md);
@@ -57,10 +56,11 @@ namespace Mirror.Weaver
             worker.InsertBefore(top, worker.Create(OpCodes.Ldarg_0));
             worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkBehaviourIsServer));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
-            if (logWarning)
+            if (throwError)
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Server] function '" + md.FullName + "' called on client"));
-                worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.logWarningReference));
+                worker.InsertBefore(top, worker.Create(OpCodes.Newobj, Weaver.MethodInvocationExceptionConstructor));
+                worker.InsertBefore(top, worker.Create(OpCodes.Throw));
             }
             InjectGuardParameters(md, worker, top);
             InjectGuardReturnValue(md, worker, top);

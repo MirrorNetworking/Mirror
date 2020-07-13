@@ -87,6 +87,8 @@ namespace Mirror.Weaver
         public static MethodReference NetworkBehaviourHasAuthority;
         public static MethodReference NetworkBehaviourIsLocalPlayer;
 
+        public static MethodReference MethodInvocationExceptionConstructor;
+
         // custom attribute types
         public static TypeReference SyncVarType;
         public static TypeReference ServerRpcType;
@@ -304,6 +306,9 @@ namespace Mirror.Weaver
                 ScriptableObjectType, CurrentAssembly,
                 md => md.Name == "CreateInstance" && md.HasGenericParameters);
 
+            var MethodInvocationException = NetAssembly.MainModule.GetType("Mirror.MethodInvocationException");
+
+            MethodInvocationExceptionConstructor = Resolvers.ResolveMethodWithArg(MethodInvocationException, CurrentAssembly, ".ctor", "System.String");
 
             MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
             IMessageBaseType = NetAssembly.MainModule.GetType("Mirror.IMessageBase");

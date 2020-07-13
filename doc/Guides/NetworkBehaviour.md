@@ -68,11 +68,7 @@ Note that in a peer-hosted setup, when one of the clients is acting as both host
 
 ## Server and Client functions
 
-You can tag member functions in NetworkBehaviour scripts with custom attributes to designate them as server-only or client-only functions. `Server` and `ServerCallback` return immediately if the client is not active. Likewise, `Client` and `ClientCallback` return immediately if the server is not active.
-
-The `Server` and `Client` attributes are for your own custom callback functions. They do not generate compile time errors, but they do emit a warning log message if called in the wrong scope.
-
-The `ServerCallback` and `ClientCallback` attributes are for built-in callback functions that are called automatically by Mirror. These attributes do not cause a warning to be generated.
+You can tag member functions in NetworkBehaviour scripts with custom attributes to designate them as server-only or client-only functions. <xref:Mirror.ServerAttribute> will check that the function is called in the server. Likewise, <xref:Mirror.ClientAttribute> will check if the function is called in the client.
 
 For more information, see [Attributes](Attributes.md).
 

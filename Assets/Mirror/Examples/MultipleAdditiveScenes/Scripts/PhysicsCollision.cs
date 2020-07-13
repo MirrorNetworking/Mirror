@@ -21,7 +21,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             rigidbody3D.isKinematic = !IsServer;
         }
 
-        [ServerCallback]
+        [Server(error=false)]
         void OnCollisionStay(Collision other)
         {
             if (other.gameObject.CompareTag("Player"))

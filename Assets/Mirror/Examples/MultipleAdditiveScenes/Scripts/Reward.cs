@@ -17,7 +17,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 randomColor = GetComponent<RandomColor>();
         }
 
-        [ServerCallback]
+        [Server(error=false)]
         void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.CompareTag("Player"))

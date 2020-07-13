@@ -4,7 +4,7 @@ namespace Mirror.Examples
     {
         [SyncVar] public int health = 10;
 
-        [ServerCallback]
+        [Server(error = false)]
         public void Update()
         {
             health = (health + 1) % 10;

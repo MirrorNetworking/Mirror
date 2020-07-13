@@ -58,9 +58,6 @@ namespace Mirror.Weaver
                         case "Mirror.ServerAttribute":
                             Weaver.Error($"Server method {md.Name} must be declared inside a NetworkBehaviour", md);
                             break;
-                        case "Mirror.ServerCallbackAttribute":
-                            Weaver.Error($"ServerCallback method {md.Name} must be declared inside a NetworkBehaviour", md);
-                            break;
                         case "Mirror.ClientAttribute":
                             Weaver.Error($"Client method {md.Name} must be declared inside a NetworkBehaviour", md);
                             break;
