@@ -54,6 +54,38 @@ namespace Mirror.Tests.ClientSceneTests
         }
 
         [Test]
+        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
+        public void PrefabNewGuid_NoErrorWhenNewAssetIdIsSameAsCurrentPrefab(RegisterPrefabOverload overload)
+        {
+            Guid guid = validPrefabGuid;
+
+            CallRegisterPrefab(validPrefab, overload, guid);
+
+            Assert.IsTrue(prefabs.ContainsKey(guid));
+
+            NetworkIdentity netId = validPrefab.GetComponent<NetworkIdentity>();
+
+            Assert.AreEqual(netId.assetId, validPrefabGuid);
+        }
+
+        [Test]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
+        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
+        public void HandlerNewGuid_NoErrorWhenAssetIdIsSameAsCurrentPrefab(RegisterPrefabOverload overload)
+        {
+            Guid guid = validPrefabGuid;
+
+            CallRegisterPrefab(validPrefab, overload, guid);
+
+            Assert.IsTrue(spawnHandlers.ContainsKey(guid));
+            Assert.IsTrue(unspawnHandlers.ContainsKey(guid));
+
+            NetworkIdentity netId = validPrefab.GetComponent<NetworkIdentity>();
+
+            Assert.AreEqual(netId.assetId, validPrefabGuid);
+        }
+
+        [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
