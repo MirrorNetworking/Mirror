@@ -1,3 +1,24 @@
+# [35.3.0](https://github.com/MirrorNG/MirrorNG/compare/35.2.0-master...35.3.0-master) (2020-07-13)
+
+
+### Bug Fixes
+
+* Message base class not being Serialized if processed in the wrong order ([#2023](https://github.com/MirrorNG/MirrorNG/issues/2023)) ([3418fa2](https://github.com/MirrorNG/MirrorNG/commit/3418fa210602cf1a9b9331b198ac47d8a3cabe69))
+* not removing server if id is empty ([#2078](https://github.com/MirrorNG/MirrorNG/issues/2078)) ([f717945](https://github.com/MirrorNG/MirrorNG/commit/f7179455256bb7341ffa9e6921fe0de50498150a))
+
+
+### Features
+
+* ClientRpc no longer need Rpc prefix ([#2086](https://github.com/MirrorNG/MirrorNG/issues/2086)) ([eb93c34](https://github.com/MirrorNG/MirrorNG/commit/eb93c34b330189c79727b0332bb66f3675cfd641))
+* Commands no longer need Cmd prefix ([#2084](https://github.com/MirrorNG/MirrorNG/issues/2084)) ([b6d1d09](https://github.com/MirrorNG/MirrorNG/commit/b6d1d09f846f7cf0310db0db9d931a9cfbbb36b2))
+* Sync Events no longer need Event prefix ([#2087](https://github.com/MirrorNG/MirrorNG/issues/2087)) ([ed40c2d](https://github.com/MirrorNG/MirrorNG/commit/ed40c2d210f174f1ed50b1e929e4fb161414f228))
+* TargetRpc no longer need Target prefix ([#2085](https://github.com/MirrorNG/MirrorNG/issues/2085)) ([d89ac9f](https://github.com/MirrorNG/MirrorNG/commit/d89ac9fb052c17c2edfdf381aff35f70d23f4f0a))
+
+
+### Performance Improvements
+
+* Use invokeRepeating instead of Update ([#2066](https://github.com/MirrorNG/MirrorNG/issues/2066)) ([264f9b8](https://github.com/MirrorNG/MirrorNG/commit/264f9b8f945f0294a8420202abcd0c80e27e6ee6))
+
 # [35.2.0](https://github.com/MirrorNG/MirrorNG/compare/35.1.0-master...35.2.0-master) (2020-07-12)
 
 
