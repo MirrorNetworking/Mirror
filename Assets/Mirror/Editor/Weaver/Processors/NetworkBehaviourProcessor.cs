@@ -151,8 +151,8 @@ namespace Mirror.Weaver
             writer.WriteNetworkIdentity(someTarget);
              */
 
-            bool skipFirst = (callType == RemoteCallType.TargetRpc
-                && TargetRpcProcessor.HasNetworkConnectionParameter(method));
+            bool skipFirst = callType == RemoteCallType.TargetRpc
+                && TargetRpcProcessor.HasNetworkConnectionParameter(method);
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
