@@ -3,7 +3,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    public class Flags : NetworkBehaviour
+    public class ExampleGuards : NetworkBehaviour
     {
         public bool serverFunctionCalled;
         public bool serverCallbackFunctionCalled;
@@ -35,7 +35,7 @@ namespace Mirror.Tests
         }
     }
 
-    public class FlagsTests : ClientServerSetup<Flags>
+    public class GuardsTests : ClientServerSetup<ExampleGuards>
     {
 
         [Test]
@@ -56,7 +56,7 @@ namespace Mirror.Tests
         public void CannotCallClientFunctionAsServer()
         {
             serverComponent.CallClientFunction();
-            LogAssert.Expect(UnityEngine.LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Flags::CallClientFunction()' called on server");
+            LogAssert.Expect(UnityEngine.LogType.Warning, "[Client] function 'System.Void Mirror.Tests.ExampleGuards::CallClientFunction()' called on server");
             Assert.That(serverComponent.clientFunctionCalled, Is.False);
         }
 
@@ -71,7 +71,7 @@ namespace Mirror.Tests
         public void CannotCallServerFunctionAsClient()
         {
             clientComponent.CallServerFunction();
-            LogAssert.Expect(UnityEngine.LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Flags::CallServerFunction()' called on client");
+            LogAssert.Expect(UnityEngine.LogType.Warning, "[Server] function 'System.Void Mirror.Tests.ExampleGuards::CallServerFunction()' called on client");
             Assert.That(clientComponent.serverFunctionCalled, Is.False);
         }
 
