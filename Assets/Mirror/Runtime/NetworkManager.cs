@@ -45,10 +45,15 @@ namespace Mirror
 
         /// <summary>
         /// Automatically invoke StartServer()
-        /// <para>If the application is a Server Build or run with the -batchMode command line arguement, StartServer is automatically invoked.</para>
+        /// <para>If the application is a Server Build, StartServer is automatically invoked.</para>
+        /// See <see cref="isServerBuild"/> for more on Server Build
         /// </summary>
-        [Tooltip("Should the server auto-start when the game is started in a headless build?")]
-        public bool startOnHeadless = true;
+        [Tooltip("Should the server auto-start when 'Server Build' is checked in build settings")]
+        [FormerlySerializedAs("startOnHeadless")]
+        public bool startOnServerBuild = true;
+
+        [System.Obsolete("Use startOnServerBuild instead.")]
+        public bool startOnHeadless { get => startOnServerBuild; set => startOnServerBuild = value; }
 
         /// <summary>
         /// Enables verbose debug messages in the console
@@ -269,7 +274,7 @@ namespace Mirror
             // some transports might not be ready until Start.
             //
             // (tick rate is applied in StartServer!)
-            if (isServerBuild && startOnHeadless)
+            if (isServerBuild && startOnServerBuild)
             {
                 StartServer();
             }
