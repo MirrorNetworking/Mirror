@@ -99,7 +99,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-    public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition method, MethodDefinition userCodeFunc)
+        public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition method, MethodDefinition userCodeFunc)
         {
             var cmd = new MethodDefinition(SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
