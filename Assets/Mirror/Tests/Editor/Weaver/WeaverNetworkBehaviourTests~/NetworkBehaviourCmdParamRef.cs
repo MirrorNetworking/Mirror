@@ -4,7 +4,7 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef
 {
     class NetworkBehaviourCmdParamRef : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         public void CmdCantHaveParamRef(ref int monkeys) { }
     }
 }

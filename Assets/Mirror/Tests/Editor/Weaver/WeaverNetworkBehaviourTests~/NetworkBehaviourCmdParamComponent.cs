@@ -9,7 +9,7 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent
             int monkeys = 12;
         }
 
-        [Command]
+        [ServerRpc]
         public void CmdCantHaveParamComponent(ComponentClass monkeyComp) { }
     }
 }

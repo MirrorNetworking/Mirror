@@ -5,7 +5,7 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdCoroutine
 {
     class NetworkBehaviourCmdCoroutine : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         public IEnumerator CmdCantHaveCoroutine()
         {
             yield return null;

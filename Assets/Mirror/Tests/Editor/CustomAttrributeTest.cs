@@ -17,9 +17,9 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void CommandAttributeTest()
+        public void ServerRpcAttributeTest()
         {
-            var attrib = new CommandAttribute();
+            var attrib = new ServerRpcAttribute();
 
             Assert.That(attrib.channel == Channels.DefaultReliable);
 

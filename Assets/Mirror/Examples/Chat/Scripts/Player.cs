@@ -9,7 +9,7 @@ namespace Mirror.Examples.Chat
 
         public static event Action<Player, string> OnMessage;
 
-        [Command]
+        [ServerRpc]
         public void CmdSend(string message)
         {
             if (message.Trim() != "")

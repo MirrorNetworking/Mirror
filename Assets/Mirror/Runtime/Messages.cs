@@ -71,7 +71,7 @@ namespace Mirror
     #endregion
 
     #region System Messages requried for code gen path
-    public struct CommandMessage : IMessageBase
+    public struct ServerRpcMessage : IMessageBase
     {
         public uint netId;
         public int componentIndex;

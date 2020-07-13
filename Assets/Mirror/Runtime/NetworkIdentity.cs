@@ -840,7 +840,7 @@ namespace Mirror
            
         }
 
-        // helper function to handle SyncEvent/Command/Rpc
+        // helper function to handle SyncEvent/ServerRpc/Rpc
         void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader, INetworkConnection senderConnection = null)
         {
             // check if unity object has been destroyed
@@ -877,13 +877,13 @@ namespace Mirror
         }
 
         // happens on server
-        internal void HandleCommand(int componentIndex, int cmdHash, NetworkReader reader, INetworkConnection senderConnection)
+        internal void HandleServerRpc(int componentIndex, int cmdHash, NetworkReader reader, INetworkConnection senderConnection)
         {
-            HandleRemoteCall(componentIndex, cmdHash, MirrorInvokeType.Command, reader, senderConnection);
+            HandleRemoteCall(componentIndex, cmdHash, MirrorInvokeType.ServerRpc, reader, senderConnection);
         }
 
         // happens on server
-        internal CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
+        internal ServerRpcInfo GetServerRpcInfo(int componentIndex, int cmdHash)
         {
             // check if unity object has been destroyed
             if (this == null)
@@ -896,7 +896,7 @@ namespace Mirror
             if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
             {
                 NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                return RemoteCallHelper.GetCommandInfo(cmdHash, invokeComponent);
+                return RemoteCallHelper.GetServerRpcInfo(cmdHash, invokeComponent);
             }
             else
             {

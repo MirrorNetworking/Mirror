@@ -4,10 +4,10 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName
 {
     class NetworkBehaviourCmdDuplicateName : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         public void CmdCantHaveSameName(int abc) { }
 
-        [Command]
+        [ServerRpc]
         public void CmdCantHaveSameName(int abc, int def) { }
     }
 }

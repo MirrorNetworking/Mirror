@@ -4,7 +4,7 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdGenericParam
 {
     class NetworkBehaviourCmdGenericParam : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         public void CmdCantHaveGeneric<T>() { }
     }
 }

@@ -69,7 +69,7 @@ namespace Mirror.Examples.Tanks
         }
 
         // this is called on the server
-        [Command]
+        [ServerRpc]
         void CmdFire()
         {
             GameObject projectile = Instantiate(projectilePrefab, projectileMount.position, transform.rotation);
@@ -93,7 +93,7 @@ namespace Mirror.Examples.Tanks
             CmdReady(playername);
         }
 
-        [Command]
+        [ServerRpc]
         void CmdReady(string playername)
         {
             if (string.IsNullOrEmpty(playername))

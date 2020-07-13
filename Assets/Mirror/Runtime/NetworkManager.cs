@@ -18,7 +18,7 @@ namespace Mirror
 
         /// <summary>
         /// Automatically invoke StartServer()
-        /// <para>If the application is a Server Build or run with the -batchMode command line arguement, StartServer is automatically invoked.</para>
+        /// <para>If the application is a Server Build or run with the -batchMode ServerRpc line arguement, StartServer is automatically invoked.</para>
         /// </summary>
         [Tooltip("Should the server auto-start when the game is started in a headless build?")]
         public bool startOnHeadless = true;

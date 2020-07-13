@@ -1,11 +1,11 @@
 using Mirror;
 
 
-namespace WeaverCommandTests.OverrideAbstractCommand
+namespace WeaverServerRpcTests.OverrideAbstractServerRpc
 {
-    class OverrideAbstractCommand : BaseBehaviour
+    class OverrideAbstractServerRpc : BaseBehaviour
     {
-        [Command]
+        [ServerRpc]
         protected override void CmdDoSomething()
         {
             // do something
@@ -14,7 +14,7 @@ namespace WeaverCommandTests.OverrideAbstractCommand
 
     abstract class BaseBehaviour : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         protected abstract void CmdDoSomething();
     }
 }

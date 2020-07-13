@@ -1,11 +1,11 @@
-﻿namespace Mirror.Tests
+namespace Mirror.Tests
 {
     public class MockComponent : NetworkBehaviour
     {
         public int cmdArg1;
         public string cmdArg2;
 
-        [Command]
+        [ServerRpc]
         public void Test(int arg1, string arg2)
         {
             this.cmdArg1 = arg1;
@@ -14,7 +14,7 @@
 
         public NetworkIdentity cmdNi;
 
-        [Command]
+        [ServerRpc]
         public void CmdNetworkIdentity(NetworkIdentity ni)
         {
             this.cmdNi = ni;

@@ -12,7 +12,7 @@ namespace Mirror.Tests
     public class HostComponentTests : HostSetup<MockComponent>
     {
         [Test]
-        public void CommandWithoutAuthority()
+        public void ServerRpcWithoutAuthority()
         {
             var gameObject2 = new GameObject();
             MockComponent rpcComponent2 = gameObject2.AddComponent<MockComponent>();
@@ -23,7 +23,7 @@ namespace Mirror.Tests
             // process spawn message from server
             client.Update();
 
-            // only authorized clients can call command
+            // only authorized clients can call ServerRpc
             Assert.Throws<UnauthorizedAccessException>(() =>
            {
                rpcComponent2.Test(1, "hello");
@@ -32,7 +32,7 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator Command() => RunAsync(async () =>
+        public IEnumerator ServerRpc() => RunAsync(async () =>
         {
             component.Test(1, "hello");
 
@@ -43,7 +43,7 @@ namespace Mirror.Tests
         });
 
         [UnityTest]
-        public IEnumerator CommandWithNetworkIdentity() => RunAsync(async () =>
+        public IEnumerator ServerRpcWithNetworkIdentity() => RunAsync(async () =>
         {
             component.CmdNetworkIdentity(identity);
 

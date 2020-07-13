@@ -4,7 +4,7 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOut
 {
     class NetworkBehaviourCmdParamOut : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         public void CmdCantHaveParamOut(out int monkeys)
         {
             monkeys = 12;

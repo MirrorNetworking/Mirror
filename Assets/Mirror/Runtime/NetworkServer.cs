@@ -158,7 +158,7 @@ namespace Mirror
         internal void RegisterMessageHandlers(INetworkConnection connection)
         {
             connection.RegisterHandler<ReadyMessage>(OnClientReadyMessage);
-            connection.RegisterHandler<CommandMessage>(OnCommandMessage);
+            connection.RegisterHandler<ServerRpcMessage>(OnServerRpcMessage);
         }
 
         /// <summary>
@@ -768,30 +768,30 @@ namespace Mirror
             }
         }
 
-        // Handle command from specific player, this could be one of multiple players on a single client
-        void OnCommandMessage(INetworkConnection conn, CommandMessage msg)
+        // Handle ServerRpc from specific player, this could be one of multiple players on a single client
+        void OnServerRpcMessage(INetworkConnection conn, ServerRpcMessage msg)
         {
             if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
-                logger.LogWarning("Spawned object not found when handling Command message [netId=" + msg.netId + "]");
+                logger.LogWarning("Spawned object not found when handling ServerRpc message [netId=" + msg.netId + "]");
                 return;
             }
 
-            CommandInfo commandInfo = identity.GetCommandInfo(msg.componentIndex, msg.functionHash);
+            ServerRpcInfo ServerRpcInfo = identity.GetServerRpcInfo(msg.componentIndex, msg.functionHash);
 
-            // Commands can be for player objects, OR other objects with client-authority
+            // ServerRpcs can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
-            //    only allow the command if clientAuthorityOwner
-            if (commandInfo.requireAuthority && identity.ConnectionToClient != conn)
+            //    only allow the ServerRpc if clientAuthorityOwner
+            if (ServerRpcInfo.requireAuthority && identity.ConnectionToClient != conn)
             {
-                logger.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
+                logger.LogWarning("ServerRpc for object without authority [netId=" + msg.netId + "]");
                 return;
             }
 
-            if (logger.LogEnabled()) logger.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
+            if (logger.LogEnabled()) logger.Log("OnServerRpcMessage for netId=" + msg.netId + " conn=" + conn);
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                identity.HandleCommand(msg.componentIndex, msg.functionHash, networkReader, conn);
+                identity.HandleServerRpc(msg.componentIndex, msg.functionHash, networkReader, conn);
         }
 
         internal void SpawnObject(GameObject obj, INetworkConnection ownerConnection)

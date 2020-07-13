@@ -6,7 +6,7 @@ namespace Mirror.Weaver
 {
     public enum RemoteCallType
     {
-        Command,
+        ServerRpc,
         ClientRpc,
         TargetRpc,
         SyncEvent
@@ -22,11 +22,11 @@ namespace Mirror.Weaver
         readonly List<FieldDefinition> syncObjects = new List<FieldDefinition>();
         // <SyncVarField,NetIdField>
         readonly Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
-        readonly List<CmdResult> commands = new List<CmdResult>();
+        readonly List<CmdResult> serverRpcs = new List<CmdResult>();
         readonly List<ClientRpcResult> clientRpcs = new List<ClientRpcResult>();
         readonly List<MethodDefinition> targetRpcs = new List<MethodDefinition>();
         readonly List<EventDefinition> eventRpcs = new List<EventDefinition>();
-        readonly List<MethodDefinition> commandSkeletonFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> serverRpcSkeletonFuncs = new List<MethodDefinition>();
         readonly List<MethodDefinition> clientRpcSkeletonFuncs = new List<MethodDefinition>();
         readonly List<MethodDefinition> targetRpcSkeletonFuncs = new List<MethodDefinition>();
         readonly List<MethodDefinition> eventRpcInvocationFuncs = new List<MethodDefinition>();
@@ -84,7 +84,7 @@ namespace Mirror.Weaver
         /*
         generates code like:
             if (!obj.netIdentity.client.active)
-              Debug.LogError((object) "Command function CmdRespawn called on server.");
+              Debug.LogError((object) "ServerRpc function CmdRespawn called on server.");
 
             which is used in InvokeCmd, InvokeRpc, etc.
         */
@@ -105,7 +105,7 @@ namespace Mirror.Weaver
         /*
         generates code like:
             if (!obj.netIdentity.server.active)
-              Debug.LogError((object) "Command CmdMsgWhisper called on client.");
+              Debug.LogError((object) "ServerRpc CmdMsgWhisper called on client.");
         */
         public static void WriteServerActiveCheck(ILProcessor worker, string mdName, Instruction label, string errString)
         {
@@ -165,7 +165,7 @@ namespace Mirror.Weaver
                     argNum += 1;
                     continue;
                 }
-                // skip SenderConnection in Command
+                // skip SenderConnection in ServerRpc
                 if (IsNetworkConnection(param.ParameterType))
                 {
                     argNum += 1;
@@ -214,7 +214,7 @@ namespace Mirror.Weaver
 
         void GenerateConstants()
         {
-            if (commands.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0 && eventRpcs.Count == 0 && syncObjects.Count == 0)
+            if (serverRpcs.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0 && eventRpcs.Count == 0 && syncObjects.Count == 0)
                 return;
 
             Weaver.DLog(netBehaviourSubclass, "  GenerateConstants ");
@@ -274,10 +274,10 @@ namespace Mirror.Weaver
             ILProcessor ctorWorker = ctor.Body.GetILProcessor();
             ILProcessor cctorWorker = cctor.Body.GetILProcessor();
 
-            for (int i = 0; i < commands.Count; ++i)
+            for (int i = 0; i < serverRpcs.Count; ++i)
             {
-                CmdResult cmdResult = commands[i];
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, commandSkeletonFuncs[i], cmdResult);
+                CmdResult cmdResult = serverRpcs[i];
+                GenerateRegisterServerRpcDelegate(cctorWorker, Weaver.registerServerRpcDelegateReference, serverRpcSkeletonFuncs[i], cmdResult);
             }
 
             for (int i = 0; i < clientRpcs.Count; ++i)
@@ -316,7 +316,7 @@ namespace Mirror.Weaver
 
         /*
             // This generates code like:
-            NetworkBehaviour.RegisterCommandDelegate(base.GetType(), "CmdThrust", new NetworkBehaviour.CmdDelegate(ShipControl.InvokeCmdCmdThrust));
+            NetworkBehaviour.RegisterServerRpcDelegate(base.GetType(), "CmdThrust", new NetworkBehaviour.CmdDelegate(ShipControl.InvokeCmdCmdThrust));
         */
         void GenerateRegisterRemoteDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, string cmdName)
         {
@@ -331,7 +331,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
 
-        void GenerateRegisterCommandDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
+        void GenerateRegisterServerRpcDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
         {
             string cmdName = cmdResult.method.Name;
             bool requireAuthority = cmdResult.requireAuthority;
@@ -808,7 +808,7 @@ namespace Mirror.Weaver
                     argNum += 1;
                     continue;
                 }
-                // skip SenderConnection in Command
+                // skip SenderConnection in ServerRpc
                 if (IsNetworkConnection(param.ParameterType))
                 {
                     argNum += 1;
@@ -844,7 +844,7 @@ namespace Mirror.Weaver
         {
             collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkBehaviourType)));
             collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
-            // senderConnection is only used for commands but NetworkBehaviour.CmdDelegate is used for all remote calls
+            // senderConnection is only used for ServerRpcs but NetworkBehaviour.CmdDelegate is used for all remote calls
             collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.INetworkConnectionType)));
         }
 
@@ -900,7 +900,7 @@ namespace Mirror.Weaver
                     return true;
                 }
 
-                if (callType == RemoteCallType.Command)
+                if (callType == RemoteCallType.ServerRpc)
                 {
                     return true;
                 }
@@ -929,14 +929,14 @@ namespace Mirror.Weaver
 
             // copy the list of methods because we will be adding methods in the loop
             var methods = new List<MethodDefinition>(netBehaviourSubclass.Methods);
-            // find command and RPC functions
+            // find ServerRpc and RPC functions
             foreach (MethodDefinition md in methods)
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.FullName == Weaver.CommandType.FullName)
+                    if (ca.AttributeType.FullName == Weaver.ServerRpcType.FullName)
                     {
-                        ProcessCommand(names, md, ca);
+                        ProcessServerRpc(names, md, ca);
                         break;
                     }
 
@@ -1008,32 +1008,32 @@ namespace Mirror.Weaver
             }
         }
 
-        void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute commandAttr)
+        void ProcessServerRpc(HashSet<string> names, MethodDefinition md, CustomAttribute serverRpcAttr)
         {
-            if (!CommandProcessor.Validate(md))
+            if (!ServerRpcProcessor.Validate(md))
                 return;
 
             if (names.Contains(md.Name))
             {
-                Weaver.Error($"Duplicate Command name {md.Name}", md);
+                Weaver.Error($"Duplicate ServerRpc name {md.Name}", md);
                 return;
             }
 
-            bool requireAuthority = commandAttr.GetField("requireAuthority", false);
+            bool requireAuthority = serverRpcAttr.GetField("requireAuthority", false);
 
             names.Add(md.Name);
-            commands.Add(new CmdResult
+            serverRpcs.Add(new CmdResult
             {
                 method = md,
                 requireAuthority = requireAuthority
             });
 
-            MethodDefinition userCodeFunc = CommandProcessor.GenerateStub(md, commandAttr);
+            MethodDefinition userCodeFunc = ServerRpcProcessor.GenerateStub(md, serverRpcAttr);
 
-            MethodDefinition skeletonFunc = CommandProcessor.GenerateSkeleton(md, userCodeFunc);
+            MethodDefinition skeletonFunc = ServerRpcProcessor.GenerateSkeleton(md, userCodeFunc);
             if (skeletonFunc != null)
             {
-                commandSkeletonFuncs.Add(skeletonFunc);
+                serverRpcSkeletonFuncs.Add(skeletonFunc);
             }
         }
     }

@@ -7,10 +7,10 @@ namespace Mirror.Tests
     public class MessageTests
     {
         [Test]
-        public void CommandMessageTest()
+        public void ServerRpcMessageTest()
         {
             // try setting value with constructor
-            var message = new CommandMessage
+            var message = new ServerRpcMessage
             {
                 netId = 42,
                 componentIndex = 4,
@@ -20,7 +20,7 @@ namespace Mirror.Tests
             byte[] arr = MessagePacker.Pack(message);
 
             // deserialize the same data - do we get the same result?
-            CommandMessage fresh = MessagePacker.Unpack<CommandMessage>(arr);
+            ServerRpcMessage fresh = MessagePacker.Unpack<ServerRpcMessage>(arr);
             Assert.That(fresh.netId, Is.EqualTo(message.netId));
             Assert.That(fresh.componentIndex, Is.EqualTo(message.componentIndex));
             Assert.That(fresh.functionHash, Is.EqualTo(message.functionHash));

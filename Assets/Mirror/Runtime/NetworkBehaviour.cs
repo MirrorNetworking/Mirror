@@ -187,31 +187,31 @@ namespace Mirror
             syncObjects.Add(syncObject);
         }
 
-        #region Commands
+        #region ServerRpcs
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requireAuthority = true)
+        protected void SendServerRpcInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requireAuthority = true)
         {
             // this was in Weaver before
             // NOTE: we could remove this later to allow calling Cmds on Server
             //       to avoid Wrapper functions. a lot of people requested this.
             if (!Client.Active)
             {
-                throw new InvalidOperationException("Command Function " + cmdName + " called on server without an active client.");
+                throw new InvalidOperationException("ServerRpc Function " + cmdName + " called on server without an active client.");
             }
 
-            // local players can always send commands, regardless of authority, other objects must have authority.
+            // local players can always send ServerRpcs, regardless of authority, other objects must have authority.
             if (requireAuthority && !(IsLocalPlayer || HasAuthority))
             {
-                throw new UnauthorizedAccessException($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
+                throw new UnauthorizedAccessException($"Trying to send ServerRpc for object without authority. {invokeClass.ToString()}.{cmdName}");
             }
 
             if (Client.Connection == null)
             {
-                throw new InvalidOperationException("Send command attempted with no client running [client=" + ConnectionToServer + "].");
+                throw new InvalidOperationException("Send ServerRpc attempted with no client running [client=" + ConnectionToServer + "].");
             }
 
             // construct the message
-            var message = new CommandMessage
+            var message = new ServerRpcMessage
             {
                 netId = NetId,
                 componentIndex = ComponentIndex,
@@ -225,15 +225,15 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Manually invoke a Command.
+        /// Manually invoke a ServerRpc.
         /// </summary>
-        /// <param name="cmdHash">Hash of the Command name.</param>
-        /// <param name="reader">Parameters to pass to the command.</param>
+        /// <param name="cmdHash">Hash of the ServerRpc name.</param>
+        /// <param name="reader">Parameters to pass to the ServerRpc.</param>
         /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
+        public virtual bool InvokeServerRpc(int cmdHash, NetworkReader reader)
         {
-            return RemoteCallHelper.InvokeHandlerDelegate(cmdHash, MirrorInvokeType.Command, reader, this);
+            return RemoteCallHelper.InvokeHandlerDelegate(cmdHash, MirrorInvokeType.ServerRpc, reader, this);
         }
         #endregion
 

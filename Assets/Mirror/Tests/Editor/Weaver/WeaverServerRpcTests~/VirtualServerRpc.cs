@@ -1,11 +1,11 @@
 ﻿using Mirror;
 
 
-namespace WeaverCommandTests.VirtualCommand
+namespace WeaverServerRpcTests.VirtualServerRpc
 {
-    class VirtualCommand : NetworkBehaviour
+    class VirtualServerRpc : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         protected virtual void CmdDoSomething()
         {
             // do something

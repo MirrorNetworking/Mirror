@@ -4,7 +4,7 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdVoidReturn
 {
     class NetworkBehaviourCmdVoidReturn : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         public int CmdCantHaveNonVoidReturn()
         {
             return 1;

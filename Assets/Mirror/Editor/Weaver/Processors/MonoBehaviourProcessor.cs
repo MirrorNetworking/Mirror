@@ -31,14 +31,14 @@ namespace Mirror.Weaver
 
         static void ProcessMethods(TypeDefinition td)
         {
-            // find command and RPC functions
+            // find ServerRpc and RPC functions
             foreach (MethodDefinition md in td.Methods)
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.FullName == Weaver.CommandType.FullName)
+                    if (ca.AttributeType.FullName == Weaver.ServerRpcType.FullName)
                     {
-                        Weaver.Error($"Command {md.Name} must be declared inside a NetworkBehaviour", md);
+                        Weaver.Error($"ServerRpc {md.Name} must be declared inside a NetworkBehaviour", md);
                     }
 
                     if (ca.AttributeType.FullName == Weaver.ClientRpcType.FullName)

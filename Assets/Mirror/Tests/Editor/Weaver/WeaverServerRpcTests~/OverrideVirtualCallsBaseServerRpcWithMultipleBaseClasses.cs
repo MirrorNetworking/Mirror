@@ -1,10 +1,10 @@
 using Mirror;
 
-namespace WeaverCommandTests.OverrideVirtualCallsBaseCommandWithMultipleBaseClasses
+namespace WeaverServerRpcTests.OverrideVirtualCallsBaseServerRpcWithMultipleBaseClasses
 {
-    class OverrideVirtualCallsBaseCommandWithMultipleBaseClasses : middleBehaviour
+    class OverrideVirtualCallsBaseServerRpcWithMultipleBaseClasses : middleBehaviour
     {
-        [Command]
+        [ServerRpc]
         protected override void CmdDoSomething()
         {
             // do somethin
@@ -18,7 +18,7 @@ namespace WeaverCommandTests.OverrideVirtualCallsBaseCommandWithMultipleBaseClas
 
     class baseBehaviour : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         protected virtual void CmdDoSomething()
         {
             // do more stuff

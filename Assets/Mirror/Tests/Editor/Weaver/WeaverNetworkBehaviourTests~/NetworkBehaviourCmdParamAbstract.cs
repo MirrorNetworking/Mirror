@@ -9,7 +9,7 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamAbstract
             int monkeys = 12;
         }
 
-        [Command]
+        [ServerRpc]
         public void CmdCantHaveParamAbstract(AbstractClass monkeys) { }
     }
 }

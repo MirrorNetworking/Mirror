@@ -19,7 +19,7 @@ namespace Mirror
     /// <para>Make sure to validate input etc. It's not possible to call this from a server.</para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class CommandAttribute : Attribute
+    public class ServerRpcAttribute : Attribute
     {
         // this is zero
         public int channel = Channels.DefaultReliable;

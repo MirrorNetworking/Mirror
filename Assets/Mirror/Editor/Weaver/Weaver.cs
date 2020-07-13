@@ -89,7 +89,7 @@ namespace Mirror.Weaver
 
         // custom attribute types
         public static TypeReference SyncVarType;
-        public static TypeReference CommandType;
+        public static TypeReference ServerRpcType;
         public static TypeReference ClientRpcType;
         public static TypeReference TargetRpcType;
         public static TypeReference SyncEventType;
@@ -127,14 +127,14 @@ namespace Mirror.Weaver
         public static MethodReference getSyncVarGameObjectReference;
         public static MethodReference setSyncVarNetworkIdentityReference;
         public static MethodReference getSyncVarNetworkIdentityReference;
-        public static MethodReference registerCommandDelegateReference;
+        public static MethodReference registerServerRpcDelegateReference;
         public static MethodReference registerRpcDelegateReference;
         public static MethodReference registerEventDelegateReference;
         public static MethodReference getTypeReference;
         public static MethodReference getTypeFromHandleReference;
         public static MethodReference logErrorReference;
         public static MethodReference logWarningReference;
-        public static MethodReference sendCommandInternal;
+        public static MethodReference sendServerRpcInternal;
         public static MethodReference sendRpcInternal;
         public static MethodReference sendTargetRpcInternal;
         public static MethodReference sendEventInternal;
@@ -213,7 +213,7 @@ namespace Mirror.Weaver
             NetworkServerType = NetAssembly.MainModule.GetType("Mirror.NetworkServer");
 
             SyncVarType = NetAssembly.MainModule.GetType("Mirror.SyncVarAttribute");
-            CommandType = NetAssembly.MainModule.GetType("Mirror.CommandAttribute");
+            ServerRpcType = NetAssembly.MainModule.GetType("Mirror.ServerRpcAttribute");
             ClientRpcType = NetAssembly.MainModule.GetType("Mirror.ClientRpcAttribute");
             TargetRpcType = NetAssembly.MainModule.GetType("Mirror.TargetRpcAttribute");
             SyncEventType = NetAssembly.MainModule.GetType("Mirror.SyncEventAttribute");
@@ -331,14 +331,14 @@ namespace Mirror.Weaver
             getSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "GetSyncVarGameObject");
             setSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SetSyncVarNetworkIdentity");
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "GetSyncVarNetworkIdentity");
-            registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, CurrentAssembly, "RegisterCommandDelegate");
+            registerServerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, CurrentAssembly, "RegisterServerRpcDelegate");
             registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, CurrentAssembly, "RegisterRpcDelegate");
             registerEventDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, CurrentAssembly, "RegisterEventDelegate");
             getTypeReference = Resolvers.ResolveMethod(objectType, CurrentAssembly, "GetType");
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, CurrentAssembly, "GetTypeFromHandle");
             logErrorReference = Resolvers.ResolveMethod(UnityAssembly.MainModule.GetType("UnityEngine.Debug"), CurrentAssembly, "LogError");
             logWarningReference = Resolvers.ResolveMethod(UnityAssembly.MainModule.GetType("UnityEngine.Debug"), CurrentAssembly, "LogWarning");
-            sendCommandInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendCommandInternal");
+            sendServerRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendServerRpcInternal");
             sendRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendRPCInternal");
             sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendTargetRPCInternal");
             sendEventInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendEventInternal");

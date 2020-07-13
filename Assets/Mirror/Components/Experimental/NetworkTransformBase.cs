@@ -194,7 +194,7 @@ namespace Mirror.Experimental
         }
 
         // local authority client sends sync message to server for broadcasting
-        [Command]
+        [ServerRpc]
         void CmdClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // Ignore messages from client if not in client authority mode

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Mirror.RemoteCalls
 {
     /// <summary>
-    /// Delegate for Command functions.
+    /// Delegate for ServerRpc functions.
     /// </summary>
     /// <param name="obj"></param>
     /// <param name="reader"></param>
@@ -26,7 +26,7 @@ namespace Mirror.RemoteCalls
         }
     }
 
-    public struct CommandInfo
+    public struct ServerRpcInfo
     {
         public bool requireAuthority;
     }
@@ -59,7 +59,7 @@ namespace Mirror.RemoteCalls
 
 
         /// <summary>
-        /// helper function register a Command/Rpc/SyncEvent delegate
+        /// helper function register a ServerRpc/Rpc/SyncEvent delegate
         /// </summary>
         /// <param name="invokeClass"></param>
         /// <param name="cmdName"></param>
@@ -87,7 +87,7 @@ namespace Mirror.RemoteCalls
 
             if (logger.LogEnabled())
             {
-                string requireAuthorityMessage = invokerType == MirrorInvokeType.Command ? $" RequireAuthority:{cmdRequireAuthority}" : "";
+                string requireAuthorityMessage = invokerType == MirrorInvokeType.ServerRpc ? $" RequireAuthority:{cmdRequireAuthority}" : "";
                 logger.Log($"RegisterDelegate hash: {cmdHash} invokerType: {invokerType} method: {func.GetMethodName()}{requireAuthorityMessage}");
             }
 
@@ -112,9 +112,9 @@ namespace Mirror.RemoteCalls
             return false;
         }
 
-        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func, bool requireAuthority)
+        public static void RegisterServerRpcDelegate(Type invokeClass, string cmdName, CmdDelegate func, bool requireAuthority)
         {
-            RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func, requireAuthority);
+            RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.ServerRpc, func, requireAuthority);
         }
 
         public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
@@ -169,11 +169,11 @@ namespace Mirror.RemoteCalls
             return false;
         }
 
-        internal static CommandInfo GetCommandInfo(int cmdHash, NetworkBehaviour invokingType)
+        internal static ServerRpcInfo GetServerRpcInfo(int cmdHash, NetworkBehaviour invokingType)
         {
-            if (GetInvokerForHash(cmdHash, MirrorInvokeType.Command, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(invokingType))
+            if (GetInvokerForHash(cmdHash, MirrorInvokeType.ServerRpc, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(invokingType))
             {
-                return new CommandInfo
+                return new ServerRpcInfo
                 {
                     requireAuthority = invoker.cmdRequireAuthority
                 };
@@ -186,7 +186,7 @@ namespace Mirror.RemoteCalls
         /// Can be used by profilers and debuggers
         /// </summary>
         /// <param name="cmdHash">rpc function hash</param>
-        /// <returns>The function delegate that will handle the command</returns>
+        /// <returns>The function delegate that will handle the ServerRpc</returns>
         public static CmdDelegate GetDelegate(int cmdHash)
         {
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))

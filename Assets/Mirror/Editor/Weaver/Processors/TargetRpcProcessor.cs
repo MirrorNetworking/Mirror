@@ -63,7 +63,7 @@ namespace Mirror.Weaver
             if (!NetworkBehaviourProcessor.ReadArguments(md, worker, RemoteCallType.TargetRpc))
                 return null;
 
-            // invoke actual command function
+            // invoke actual ServerRpc function
             worker.Append(worker.Create(OpCodes.Callvirt, userCodeFunc));
             worker.Append(worker.Create(OpCodes.Ret));
 
@@ -78,7 +78,7 @@ namespace Mirror.Weaver
         /// </summary>
         /// <param name="td">The class containing the method </param>
         /// <param name="md">The method to be stubbed </param>
-        /// <param name="commandAttr">The attribute that made this an RPC</param>
+        /// <param name="ServerRpcAttr">The attribute that made this an RPC</param>
         /// <returns>The method containing the original code</returns>
         /// <remarks>
         /// Generates code like this:

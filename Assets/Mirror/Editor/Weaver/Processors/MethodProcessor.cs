@@ -74,7 +74,7 @@ namespace Mirror.Weaver
         {
             string callName = method.Name;
 
-            // all Commands/Rpc start with "UserCode_"
+            // all ServerRpcs/Rpc start with "UserCode_"
             // eg CallCmdDoSomething
             if (!callName.StartsWith(UserCodePrefix))
                 return;

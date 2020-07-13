@@ -212,7 +212,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourCmdDuplicateName()
         {
-            Assert.That(weaverErrors, Contains.Item("Duplicate Command name CmdCantHaveSameName (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName.NetworkBehaviourCmdDuplicateName::CmdCantHaveSameName(System.Int32,System.Int32))"));
+            Assert.That(weaverErrors, Contains.Item("Duplicate ServerRpc name CmdCantHaveSameName (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName.NetworkBehaviourCmdDuplicateName::CmdCantHaveSameName(System.Int32,System.Int32))"));
         }
     }
 }

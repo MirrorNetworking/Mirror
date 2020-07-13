@@ -26,7 +26,7 @@ namespace WeaverGeneralTests.TestingScriptableObjectArraySerialization
 
     public class TestingScriptableObjectArraySerialization : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         public void
             // This gonna give error saying-- Mirror.Weaver error: 
             // Cannot generate writer for scriptable object Data[]. Use a supported type or provide a custom writer

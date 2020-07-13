@@ -1,13 +1,13 @@
-// all the [Command] code from NetworkBehaviourProcessor in one place
+// all the [ServerRpc] code from NetworkBehaviourProcessor in one place
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
     /// <summary>
-    /// Processes [Command] methods in NetworkBehaviour
+    /// Processes [ServerRpc] methods in NetworkBehaviour
     /// </summary>
-    public static class CommandProcessor
+    public static class ServerRpcProcessor
     {
         /// <summary>
         /// Replaces the user code with a stub.
@@ -15,27 +15,27 @@ namespace Mirror.Weaver
         /// </summary>
         /// <param name="td">The class containing the method </param>
         /// <param name="md">The method to be stubbed </param>
-        /// <param name="commandAttr">The attribute that made this an RPC</param>
+        /// <param name="ServerRpcAttr">The attribute that made this an RPC</param>
         /// <returns>The method containing the original code</returns>
         /// <remarks>
         /// Generates code like this:
         /// <code>
-        /// public void MyCommand(float thrusting, int spin)
+        /// public void MyServerRpc(float thrusting, int spin)
         /// {
         ///     NetworkWriter networkWriter = new NetworkWriter();
         ///     networkWriter.Write(thrusting);
         ///     networkWriter.WritePackedUInt32((uint) spin);
-        ///     base.SendCommandInternal(cmdName, networkWriter, cmdName);
+        ///     base.SendServerRpcInternal(cmdName, networkWriter, cmdName);
         /// }
         ///
-        /// public void UserCode_MyCommand(float thrusting, int spin)
+        /// public void UserCode_MyServerRpc(float thrusting, int spin)
         /// {
         ///     // whatever the user was doing before
         ///
         /// }
         /// </code>
         /// </remarks>
-        public static MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute commandAttr)
+        public static MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute serverRpcAttr)
         {
             MethodDefinition cmd = MethodProcessor.SubstituteMethod(md);
 
@@ -47,17 +47,17 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Cmd call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.Command))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.ServerRpc))
                 return null;
 
             string cmdName = md.Name;
 
-            int channel = commandAttr.GetField("channel", 0);
-            bool requireAuthority = commandAttr.GetField("requireAuthority", true);
+            int channel = serverRpcAttr.GetField("channel", 0);
+            bool requireAuthority = serverRpcAttr.GetField("requireAuthority", true);
 
 
             // invoke internal send and return
-            // load 'base.' to call the SendCommand function with
+            // load 'base.' to call the SendServerRpc function with
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldtoken, md.DeclaringType));
             // invokerClass
@@ -67,7 +67,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4, channel));
             worker.Append(worker.Create(requireAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.sendCommandInternal));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.sendServerRpcInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 
@@ -77,7 +77,7 @@ namespace Mirror.Weaver
         }
 
         /// <summary>
-        /// Generates a skeleton for a command
+        /// Generates a skeleton for a ServerRpc
         /// </summary>
         /// <param name="td"></param>
         /// <param name="method"></param>
@@ -86,7 +86,7 @@ namespace Mirror.Weaver
         /// <remarks>
         /// Generates code like this:
         /// <code>
-        /// protected static void Skeleton_MyCommand(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection)
+        /// protected static void Skeleton_MyServerRpc(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection)
         /// {
         ///     if (!obj.netIdentity.server.active)
         ///     {
@@ -105,18 +105,18 @@ namespace Mirror.Weaver
             ILProcessor worker = cmd.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteServerActiveCheck(worker, method.Name, label, "Command");
+            NetworkBehaviourProcessor.WriteServerActiveCheck(worker, method.Name, label, "ServerRpc");
 
             // setup for reader
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Castclass, method.DeclaringType));
 
-            if (!NetworkBehaviourProcessor.ReadArguments(method, worker, RemoteCallType.Command))
+            if (!NetworkBehaviourProcessor.ReadArguments(method, worker, RemoteCallType.ServerRpc))
                 return null;
 
             AddSenderConnection(method, worker);
 
-            // invoke actual command function
+            // invoke actual ServerRpc function
             worker.Append(worker.Create(OpCodes.Callvirt, userCodeFunc));
             worker.Append(worker.Create(OpCodes.Ret));
 
@@ -133,7 +133,7 @@ namespace Mirror.Weaver
                 if (NetworkBehaviourProcessor.IsNetworkConnection(param.ParameterType))
                 {
                     // NetworkConnection is 3nd arg (arg0 is "obj" not "this" because method is static)
-                    // exmaple: static void InvokeCmdCmdSendCommand(NetworkBehaviour obj, NetworkReader reader, NetworkConnection connection)
+                    // exmaple: static void InvokeCmdCmdSendServerRpc(NetworkBehaviour obj, NetworkReader reader, NetworkConnection connection)
                     worker.Append(worker.Create(OpCodes.Ldarg_2));
                 }
             }
@@ -143,7 +143,7 @@ namespace Mirror.Weaver
         {
             if (md.IsAbstract)
             {
-                Weaver.Error("Abstract Commands are currently not supported, use virtual method instead", md);
+                Weaver.Error("Abstract ServerRpcs are currently not supported, use virtual method instead", md);
                 return false;
             }
 
@@ -155,7 +155,7 @@ namespace Mirror.Weaver
 
             // validate
             return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, RemoteCallType.Command);
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, RemoteCallType.ServerRpc);
         }
     }
 }

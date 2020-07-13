@@ -4,7 +4,7 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOptional
 {
     class NetworkBehaviourCmdParamOptional : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         public void CmdCantHaveParamOptional(int monkeys = 12) { }
     }
 }

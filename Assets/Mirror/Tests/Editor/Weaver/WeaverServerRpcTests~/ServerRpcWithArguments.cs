@@ -1,10 +1,10 @@
 ﻿using Mirror;
 
-namespace WeaverCommandTests.CommandWithArguments
+namespace WeaverServerRpcTests.ServerRpcWithArguments
 {
-    class CommandWithArguments : NetworkBehaviour
+    class ServerRpcWithArguments : NetworkBehaviour
     {
-        [Command]
+        [ServerRpc]
         void CmdThatIsTotallyValid(int someNumber, NetworkIdentity someTarget)
         {
             // do something
