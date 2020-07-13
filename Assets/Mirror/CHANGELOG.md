@@ -1,3 +1,10 @@
+## [35.3.3](https://github.com/MirrorNG/MirrorNG/compare/35.3.2-master...35.3.3-master) (2020-07-13)
+
+
+### Bug Fixes
+
+* Misc code smells ([#269](https://github.com/MirrorNG/MirrorNG/issues/269)) ([23dcca6](https://github.com/MirrorNG/MirrorNG/commit/23dcca61ff7c41e8b9f61579605fd56ee82c70e0))
+
 ## [35.3.2](https://github.com/MirrorNG/MirrorNG/compare/35.3.1-master...35.3.2-master) (2020-07-13)
 
 
