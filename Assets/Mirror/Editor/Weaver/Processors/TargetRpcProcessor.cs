@@ -9,6 +9,7 @@ namespace Mirror.Weaver
     public static class TargetRpcProcessor
     {
         const string TargetRpcPrefix = "InvokeTargetRpc";
+        private const string UserCodePrefix = "UserCode_";
 
         // helper functions to check if the method has a NetworkConnection parameter
         public static bool HasNetworkConnectionParameter(MethodDefinition md)
@@ -17,7 +18,7 @@ namespace Mirror.Weaver
                    md.Parameters[0].ParameterType.FullName == Weaver.INetworkConnectionType.FullName;
         }
 
-        public static MethodDefinition ProcessTargetRpcInvoke(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
+        public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
             var rpc = new MethodDefinition(RpcProcessor.SkeletonPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
@@ -87,9 +88,9 @@ namespace Mirror.Weaver
             correctly in dependent assemblies
 
         */
-        public static MethodDefinition ProcessTargetRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute targetRpcAttr)
+        public static MethodDefinition GenerateStub(TypeDefinition td, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
-            MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
+            MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, UserCodePrefix + md.Name);
 
             ILProcessor worker = md.Body.GetILProcessor();
 

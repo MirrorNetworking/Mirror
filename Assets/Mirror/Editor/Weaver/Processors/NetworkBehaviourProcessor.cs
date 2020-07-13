@@ -1011,9 +1011,9 @@ namespace Mirror.Weaver
             names.Add(md.Name);
             targetRpcs.Add(md);
 
-            MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(netBehaviourSubclass, md, targetRpcAttr);
+            MethodDefinition rpcCallFunc = TargetRpcProcessor.GenerateStub(netBehaviourSubclass, md, targetRpcAttr);
 
-            MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(netBehaviourSubclass, md, rpcCallFunc);
+            MethodDefinition rpcFunc = TargetRpcProcessor.GenerateSkeleton(netBehaviourSubclass, md, rpcCallFunc);
             if (rpcFunc != null)
             {
                 targetRpcInvocationFuncs.Add(rpcFunc);
