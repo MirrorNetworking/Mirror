@@ -41,12 +41,6 @@ namespace Mirror.Weaver
 
             NetworkBehaviourProcessor.WriteSetupLocals(worker);
 
-            if (Weaver.GenerateLogErrors)
-            {
-                worker.Append(worker.Create(OpCodes.Ldstr, "Call Command function " + md.Name));
-                worker.Append(worker.Create(OpCodes.Call, Weaver.logErrorReference));
-            }
-
             // NetworkWriter writer = new NetworkWriter();
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
@@ -55,12 +49,6 @@ namespace Mirror.Weaver
                 return null;
 
             string cmdName = md.Name;
-            int index = cmdName.IndexOf(CmdPrefix);
-            if (index > -1)
-            {
-                cmdName = cmdName.Substring(CmdPrefix.Length);
-            }
-
             int channel = commandAttr.GetField("channel", 0);
             bool ignoreAuthority = commandAttr.GetField("ignoreAuthority", false);
 
