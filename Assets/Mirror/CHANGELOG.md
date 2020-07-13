@@ -1,3 +1,15 @@
+# [36.0.0](https://github.com/MirrorNG/MirrorNG/compare/35.3.4-master...36.0.0-master) (2020-07-13)
+
+
+### breaking
+
+* Rename [Command] to [ServerRpc] ([#271](https://github.com/MirrorNG/MirrorNG/issues/271)) ([fff7459](https://github.com/MirrorNG/MirrorNG/commit/fff7459801fc637c641757c516f85b4d685e0ad1))
+
+
+### BREAKING CHANGES
+
+* Renamed [Command] to [ServerRpc]
+
 ## [35.3.4](https://github.com/MirrorNG/MirrorNG/compare/35.3.3-master...35.3.4-master) (2020-07-13)
 
 
