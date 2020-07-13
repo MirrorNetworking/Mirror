@@ -34,7 +34,7 @@ namespace Mirror
             logger = new Logger(defaultLogHandler)
             {
                 // by default, log warnings and up
-                filterLogType = debugMode ? LogType.Log : defaultLogLevel
+                filterLogType = defaultLogLevel
             };
 
             loggers[loggerName] = logger;
