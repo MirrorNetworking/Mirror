@@ -5,6 +5,7 @@ namespace Mirror.Weaver
 {
     public static class MethodProcessor
     {
+        private const string RpcPrefix = "UserCode_";
 
         // creates a method substitute
         // For example, if we have this:
@@ -29,8 +30,9 @@ namespace Mirror.Weaver
         //
         //  the original method definition loses all code
         //  this returns the newly created method with all the user provided code
-        public static MethodDefinition SubstituteMethod(TypeDefinition td, MethodDefinition md, string newName)
+        public static MethodDefinition SubstituteMethod(TypeDefinition td, MethodDefinition md)
         {
+            string newName = RpcPrefix + md.Name;
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
             // add parameters
@@ -71,11 +73,11 @@ namespace Mirror.Weaver
 
             // Cmd/rpc start with Weaver.RpcPrefix
             // eg CallCmdDoSomething
-            if (!callName.StartsWith(Weaver.RpcPrefix))
+            if (!callName.StartsWith(RpcPrefix))
                 return;
 
             // eg CmdDoSomething
-            string baseRemoteCallName = method.Name.Substring(Weaver.RpcPrefix.Length);
+            string baseRemoteCallName = method.Name.Substring(RpcPrefix.Length);
 
             foreach (Instruction instruction in method.Body.Instructions)
             {
