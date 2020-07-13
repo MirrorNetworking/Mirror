@@ -8,9 +8,6 @@ namespace Mirror.Weaver
     /// </summary>
     public static class TargetRpcProcessor
     {
-        private const string SkeletonPrefix = "Skeleton_";
-        private const string UserCodePrefix = "UserCode_";
-
         // helper functions to check if the method has a NetworkConnection parameter
         public static bool HasNetworkConnectionParameter(MethodDefinition md)
         {
@@ -40,7 +37,7 @@ namespace Mirror.Weaver
         /// </remarks>
         public static MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc)
         {
-            var rpc = new MethodDefinition(SkeletonPrefix + md.Name, MethodAttributes.Family |
+            var rpc = new MethodDefinition(MethodProcessor.SkeletonPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
@@ -116,7 +113,7 @@ namespace Mirror.Weaver
         /// </remarks>
         public static MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute targetRpcAttr)
         {
-            MethodDefinition rpc = MethodProcessor.SubstituteMethod(md, UserCodePrefix + md.Name);
+            MethodDefinition rpc = MethodProcessor.SubstituteMethod(md);
 
             ILProcessor worker = md.Body.GetILProcessor();
 

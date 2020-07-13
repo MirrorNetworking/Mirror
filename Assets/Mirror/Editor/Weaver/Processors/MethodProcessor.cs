@@ -5,6 +5,8 @@ namespace Mirror.Weaver
 {
     public static class MethodProcessor
     {
+        public const string SkeletonPrefix = "Skeleton_";
+        public const string UserCodePrefix = "UserCode_";
 
         // creates a method substitute
         // For example, if we have this:
@@ -29,8 +31,10 @@ namespace Mirror.Weaver
         //
         //  the original method definition loses all code
         //  this returns the newly created method with all the user provided code
-        public static MethodDefinition SubstituteMethod(MethodDefinition md, string newName)
+        public static MethodDefinition SubstituteMethod(MethodDefinition md)
         {
+            string newName = UserCodePrefix + md.Name;
+
             var cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
             // add parameters
@@ -62,7 +66,7 @@ namespace Mirror.Weaver
 
         /// <summary>
         /// Finds and fixes call to base methods within remote calls
-        /// <para>For example, changes `base.CmdDoSomething` to `base.CallCmdDoSomething` within `this.CallCmdDoSomething`</para>
+        /// <para>For example, changes `base.CmdDoSomething` to `base.UserCode_CmdDoSomething` within `this.UserCode_CmdDoSomething`</para>
         /// </summary>
         /// <param name="type"></param>
         /// <param name="method"></param>
@@ -70,9 +74,9 @@ namespace Mirror.Weaver
         {
             string callName = method.Name;
 
-            // all Commands/Rpc start with "Call"
+            // all Commands/Rpc start with "UserCode_"
             // eg CallCmdDoSomething
-            if (!callName.StartsWith("Call"))
+            if (!callName.StartsWith(UserCodePrefix))
                 return;
 
             // eg CmdDoSomething
@@ -95,7 +99,7 @@ namespace Mirror.Weaver
 
                     if (!baseMethod.IsVirtual)
                     {
-                        Weaver.Error($"Could not find base method that was virutal {callName}", method);
+                        Weaver.Error($"Could not find base method that was virtual {callName}", method);
                         return;
                     }
 

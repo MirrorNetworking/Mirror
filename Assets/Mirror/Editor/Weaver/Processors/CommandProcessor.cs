@@ -9,9 +9,6 @@ namespace Mirror.Weaver
     /// </summary>
     public static class CommandProcessor
     {
-        const string SkeletonPrefix = "Skeleton_";
-        private const string UserCodePrefix = "UserCode_";
-
         /// <summary>
         /// Replaces the user code with a stub.
         /// Moves the original code to a new method
@@ -40,7 +37,7 @@ namespace Mirror.Weaver
         /// </remarks>
         public static MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute commandAttr)
         {
-            MethodDefinition cmd = MethodProcessor.SubstituteMethod(md, UserCodePrefix + md.Name);
+            MethodDefinition cmd = MethodProcessor.SubstituteMethod(md);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
@@ -101,7 +98,7 @@ namespace Mirror.Weaver
         /// </remarks>
         public static MethodDefinition GenerateSkeleton(MethodDefinition method, MethodDefinition userCodeFunc)
         {
-            var cmd = new MethodDefinition(SkeletonPrefix + method.Name,
+            var cmd = new MethodDefinition(MethodProcessor.SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 

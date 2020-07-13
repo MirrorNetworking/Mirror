@@ -7,9 +7,6 @@ namespace Mirror.Weaver
     /// </summary>
     public static class RpcProcessor
     {
-        public const string SkeletonPrefix = "Skeleton_";
-        private const string UserCodePrefix = "UserCode_";
-
         /// <summary>
         /// Generates a skeleton for an RPC
         /// </summary>
@@ -33,7 +30,7 @@ namespace Mirror.Weaver
         public static MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc)
         {
             var rpc = new MethodDefinition(
-                SkeletonPrefix + md.Name,
+                MethodProcessor.SkeletonPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
@@ -83,7 +80,7 @@ namespace Mirror.Weaver
         /// </remarks>
         public static MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            MethodDefinition rpc = MethodProcessor.SubstituteMethod(md, UserCodePrefix + md.Name);
+            MethodDefinition rpc = MethodProcessor.SubstituteMethod(md);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
