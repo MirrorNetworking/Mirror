@@ -1,7 +1,7 @@
 {
     "name": "com.mirrorng.mirrorng",
     "displayName": "MirrorNG",
-    "version": "35.3.3",
+    "version": "35.3.4",
     "unity": "2019.1",
     "description": "MirrorNG is a high level Networking API for Unity, supporting different low level Transports.",
     "author": "Paul Pacheco",

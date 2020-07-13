@@ -1,3 +1,11 @@
+## [35.3.4](https://github.com/MirrorNG/MirrorNG/compare/35.3.3-master...35.3.4-master) (2020-07-13)
+
+
+### Bug Fixes
+
+* add tests for NetworkTransform and NetworkRigidbody ([#273](https://github.com/MirrorNG/MirrorNG/issues/273)) ([e9621dd](https://github.com/MirrorNG/MirrorNG/commit/e9621ddebd50637680fad8fe743c7c99afea3f84))
+* NinjaWS code smells ([#272](https://github.com/MirrorNG/MirrorNG/issues/272)) ([71d9428](https://github.com/MirrorNG/MirrorNG/commit/71d942804c0d404f287dc51b7bcdd1fcc39bcee8))
+
 ## [35.3.3](https://github.com/MirrorNG/MirrorNG/compare/35.3.2-master...35.3.3-master) (2020-07-13)
 
 
