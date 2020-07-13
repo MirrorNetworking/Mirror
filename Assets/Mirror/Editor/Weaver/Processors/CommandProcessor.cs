@@ -84,7 +84,7 @@ namespace Mirror.Weaver
         /// </summary>
         /// <param name="td"></param>
         /// <param name="method"></param>
-        /// <param name="cmdCallFunc"></param>
+        /// <param name="userCodeFunc"></param>
         /// <returns>The newly created skeleton method</returns>
         /// <remarks>
         /// Generates code like this:
@@ -99,7 +99,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-    public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition method, MethodDefinition cmdCallFunc)
+    public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition method, MethodDefinition userCodeFunc)
         {
             var cmd = new MethodDefinition(SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
@@ -120,7 +120,7 @@ namespace Mirror.Weaver
             AddSenderConnection(method, worker);
 
             // invoke actual command function
-            worker.Append(worker.Create(OpCodes.Callvirt, cmdCallFunc));
+            worker.Append(worker.Create(OpCodes.Callvirt, userCodeFunc));
             worker.Append(worker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
