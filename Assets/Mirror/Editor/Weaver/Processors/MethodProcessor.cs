@@ -5,7 +5,7 @@ namespace Mirror.Weaver
 {
     public static class MethodProcessor
     {
-        public const string RpcPrefix = "UserCode_";
+        private const string RpcPrefix = "UserCode_";
 
         // creates a method substitute
         // For example, if we have this:
