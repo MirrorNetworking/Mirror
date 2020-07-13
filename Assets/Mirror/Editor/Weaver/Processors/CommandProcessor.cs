@@ -144,6 +144,12 @@ namespace Mirror.Weaver
 
         public static bool Validate(MethodDefinition md)
         {
+            if (md.IsAbstract)
+            {
+                Weaver.Error("Abstract Commands are currently not supported, use virtual method instead", md);
+                return false;
+            }
+
             if (md.IsStatic)
             {
                 Weaver.Error($"{md.Name} cannot be static", md);
