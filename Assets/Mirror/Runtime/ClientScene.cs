@@ -305,7 +305,7 @@ namespace Mirror
                 return;
             }
 
-            if (identity.assetId != Guid.Empty)
+            if (identity.assetId != Guid.Empty && identity.assetId != newAssetId)
             {
                 logger.LogError($"Could not register '{prefab.name}' to {newAssetId} because it already had an AssetId, Existing assetId {identity.assetId}");
                 return;
@@ -444,7 +444,7 @@ namespace Mirror
                 return;
             }
 
-            if (identity.assetId != Guid.Empty)
+            if (identity.assetId != Guid.Empty && identity.assetId != newAssetId)
             {
                 logger.LogError($"Could not register Handler for '{prefab.name}' to {newAssetId} because it already had an AssetId, Existing assetId {identity.assetId}");
                 return;

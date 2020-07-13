@@ -215,27 +215,30 @@ namespace Mirror
                 string newAssetIdString = value == Guid.Empty ? string.Empty : value.ToString("N");
                 string oldAssetIdSrting = m_AssetId;
 
-                if (oldAssetIdSrting != newAssetIdString)
+                // they are the same, do nothing
+                if (oldAssetIdSrting == newAssetIdString)
                 {
-                    // new is empty
-                    if (string.IsNullOrEmpty(newAssetIdString))
-                    {
-                        logger.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{oldAssetIdSrting}'");
-                        return;
-                    }
-
-                    // old not empty
-                    if (!string.IsNullOrEmpty(oldAssetIdSrting))
-                    {
-                        logger.LogError($"Can not Set AssetId on NetworkIdentity '{name}' becasue it already had an assetId, current assetId '{oldAssetIdSrting}', attempted new assetId '{newAssetIdString}'");
-                        return;
-                    }
-
-                    // old is empty
-                    m_AssetId = newAssetIdString;
-
-                    if (logger.LogEnabled()) logger.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
+                    return;
                 }
+
+                // new is empty
+                if (string.IsNullOrEmpty(newAssetIdString))
+                {
+                    logger.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{oldAssetIdSrting}'");
+                    return;
+                }
+
+                // old not empty
+                if (!string.IsNullOrEmpty(oldAssetIdSrting))
+                {
+                    logger.LogError($"Can not Set AssetId on NetworkIdentity '{name}' becasue it already had an assetId, current assetId '{oldAssetIdSrting}', attempted new assetId '{newAssetIdString}'");
+                    return;
+                }
+
+                // old is empty
+                m_AssetId = newAssetIdString;
+
+                if (logger.LogEnabled()) logger.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
             }
         }
 
