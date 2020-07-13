@@ -103,11 +103,6 @@ namespace Mirror.Weaver
                 return null;
 
             string rpcName = md.Name;
-            int index = rpcName.IndexOf(TargetRpcPrefix);
-            if (index > -1)
-            {
-                rpcName = rpcName.Substring(TargetRpcPrefix.Length);
-            }
 
             // invoke SendInternal and return
             // this
