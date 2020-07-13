@@ -27,7 +27,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            MethodDefinition cmd = new MethodDefinition("InvokeSyncEvent" + ed.Name, MethodAttributes.Family |
+            MethodDefinition cmd = new MethodDefinition(Weaver.InvokeRpcPrefix + ed.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
@@ -68,7 +68,7 @@ namespace Mirror.Weaver
         public static MethodDefinition ProcessEventCall(TypeDefinition td, EventDefinition ed, CustomAttribute syncEventAttr)
         {
             MethodReference invoke = Resolvers.ResolveMethod(ed.EventType, Weaver.CurrentAssembly, "Invoke");
-            MethodDefinition evt = new MethodDefinition("Call" + ed.Name, MethodAttributes.Public |
+            MethodDefinition evt = new MethodDefinition(Weaver.SyncEventPrefix + ed.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
             // add paramters
