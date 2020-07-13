@@ -8,7 +8,6 @@ namespace Mirror.Weaver
     /// </summary>
     public static class TargetRpcProcessor
     {
-        const string TargetRpcPrefix = "InvokeTargetRpc";
         private const string UserCodePrefix = "UserCode_";
 
         // helper functions to check if the method has a NetworkConnection parameter
