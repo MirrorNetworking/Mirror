@@ -80,7 +80,7 @@ namespace Mirror.Weaver
                 return;
 
             // eg CmdDoSomething
-            string baseRemoteCallName = method.Name.Substring(4);
+            string baseRemoteCallName = method.Name.Substring(UserCodePrefix.Length);
 
             foreach (Instruction instruction in method.Body.Instructions)
             {
