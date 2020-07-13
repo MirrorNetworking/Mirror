@@ -6,7 +6,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "Mirror.Authenticators",
-        "Mirror.Weaver"
+        "Mirror.Weaver",
+        "Mirror.Experimental"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
