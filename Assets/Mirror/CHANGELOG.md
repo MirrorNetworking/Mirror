@@ -1,3 +1,10 @@
+## [35.3.2](https://github.com/MirrorNG/MirrorNG/compare/35.3.1-master...35.3.2-master) (2020-07-13)
+
+
+### Bug Fixes
+
+* remove customHandling as its no longer used ([#265](https://github.com/MirrorNG/MirrorNG/issues/265)) ([dbd9d84](https://github.com/MirrorNG/MirrorNG/commit/dbd9d84ee46ac90a8d78daba0c23fc9be71ca77d))
+
 ## [35.3.1](https://github.com/MirrorNG/MirrorNG/compare/35.3.0-master...35.3.1-master) (2020-07-13)
 
 
