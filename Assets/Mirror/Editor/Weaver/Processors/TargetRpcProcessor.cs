@@ -8,6 +8,7 @@ namespace Mirror.Weaver
     /// </summary>
     public static class TargetRpcProcessor
     {
+        private const string SkeletonPrefix = "Skeleton_";
         private const string UserCodePrefix = "UserCode_";
 
         // helper functions to check if the method has a NetworkConnection parameter
@@ -19,7 +20,7 @@ namespace Mirror.Weaver
 
         public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
-            var rpc = new MethodDefinition(RpcProcessor.SkeletonPrefix + md.Name, MethodAttributes.Family |
+            var rpc = new MethodDefinition(SkeletonPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
