@@ -396,6 +396,7 @@ MonoBehaviour:
   OnStopServer:
     m_PersistentCalls:
       m_Calls: []
+  hasSpawned: 0
 --- !u!114 &159607913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1869,6 +1870,7 @@ GameObject:
   - component: {fileID: 1661834282}
   - component: {fileID: 1661834280}
   - component: {fileID: 1661834285}
+  - component: {fileID: 1661834284}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -1888,7 +1890,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34d1daf9e7dbcb64aa647cb332054ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 0
   startOnHeadless: 1
   serverTickRate: 30
   server: {fileID: 1661834283}
@@ -1900,19 +1901,6 @@ MonoBehaviour:
   OnStopHost:
     m_PersistentCalls:
       m_Calls: []
-  networkSceneName: 
-  offlineScene: 
-  onlineScene: 
-  networkAddress: localhost
-  maxConnections: 4
-  disconnectInactiveConnections: 0
-  disconnectInactiveTimeout: 60
-  authenticator: {fileID: 0}
-  playerPrefab: {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7,
-    type: 3}
-  autoCreatePlayer: 1
-  playerSpawnMethod: 1
-  spawnPrefabs: []
   subScenes:
   - Assets/Mirror/Examples/AdditiveScenes/Scenes/SubScene.unity
 --- !u!4 &1661834279
@@ -1981,19 +1969,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   authenticator: {fileID: 0}
+  sceneManager: {fileID: 1661834284}
   Connected:
     m_PersistentCalls:
       m_Calls: []
   Authenticated:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientNotReady:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientSceneChanged:
     m_PersistentCalls:
       m_Calls: []
   Disconnected:
@@ -2031,12 +2011,6 @@ MonoBehaviour:
   Authenticated:
     m_PersistentCalls:
       m_Calls: []
-  ServerChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ServerSceneChanged:
-    m_PersistentCalls:
-      m_Calls: []
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
@@ -2044,8 +2018,39 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   authenticator: {fileID: 0}
+  sceneManager: {fileID: 1661834284}
   Listening: 1
   transport: {fileID: 1661834285}
+--- !u!114 &1661834284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1661834277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  client: {fileID: 1661834282}
+  server: {fileID: 1661834283}
+  ClientNotReady:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ClientSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerChangeScene:
+    m_PersistentCalls:
+      m_Calls: []
+  ServerSceneChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  networkSceneName: 
 --- !u!114 &1661834285
 MonoBehaviour:
   m_ObjectHideFlags: 0
