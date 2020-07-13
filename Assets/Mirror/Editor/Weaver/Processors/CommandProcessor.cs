@@ -23,7 +23,7 @@ namespace Mirror.Weaver
         /// <remarks>
         /// Generates code like this:
         /// <code>
-        /// public void CmdThrust(float thrusting, int spin)
+        /// public void MyCommand(float thrusting, int spin)
         /// {
         ///     NetworkWriter networkWriter = new NetworkWriter();
         ///     networkWriter.Write(thrusting);
@@ -31,7 +31,7 @@ namespace Mirror.Weaver
         ///     base.SendCommandInternal(cmdName, networkWriter, cmdName);
         /// }
         ///
-        /// public void UserCode_CmdThrust(float thrusting, int spin)
+        /// public void UserCode_MyCommand(float thrusting, int spin)
         /// {
         ///     // whatever the user was doing before
         ///
@@ -94,7 +94,7 @@ namespace Mirror.Weaver
         /// <remarks>
         /// Generates code like this:
         /// <code>
-        /// protected static void Skeleton_Thrust(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection)
+        /// protected static void Skeleton_MyCommand(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection)
         /// {
         ///     if (!obj.netIdentity.server.active)
         ///     {
