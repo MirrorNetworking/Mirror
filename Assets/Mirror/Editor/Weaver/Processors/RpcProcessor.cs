@@ -10,6 +10,26 @@ namespace Mirror.Weaver
         public const string SkeletonPrefix = "InvokeRpc";
         private const string UserCodePrefix = "UserCode_";
 
+        /// <summary>
+        /// Generates a skeleton for an RPC
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="method"></param>
+        /// <param name="cmdCallFunc"></param>
+        /// <returns>The newly created skeleton method</returns>
+        /// <remarks>
+        /// Generates code like this:
+        /// <code>
+        /// protected static void Skeleton_Test(NetworkBehaviour obj, NetworkReader reader, NetworkConnection senderConnection)
+        /// {
+        ///     if (!obj.netIdentity.server.active)
+        ///     {
+        ///         return;
+        ///     }
+        ///     ((ShipControl) obj).UserCode_Test(reader.ReadSingle(), (int) reader.ReadPackedUInt32());
+        /// }
+        /// </code>
+        /// </remarks>
         public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
             var rpc = new MethodDefinition(
@@ -38,28 +58,29 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        /*
-         * generates code like:
-
-            public void RpcTest (int param)
-            {
-                NetworkWriter writer = new NetworkWriter ();
-                writer.WritePackedUInt32((uint)param);
-                base.SendRPCInternal(typeof(class),"RpcTest", writer, 0);
-            }
-            public void CallRpcTest (int param)
-            {
-                // whatever the user did before
-            }
-
-            Originally HLAPI put the send message code inside the Call function
-            and then proceeded to replace every call to RpcTest with CallRpcTest
-
-            This method moves all the user's code into the "Call" method
-            and replaces the body of the original method with the send message code.
-            This way we do not need to modify the code anywhere else,  and this works
-            correctly in dependent assemblies
-        */
+        /// <summary>
+        /// Replaces the user code with a stub.
+        /// Moves the original code to a new method
+        /// </summary>
+        /// <param name="td">The class containing the method </param>
+        /// <param name="md">The method to be stubbed </param>
+        /// <param name="commandAttr">The attribute that made this an RPC</param>
+        /// <returns>The method containing the original code</returns>
+        /// <remarks>
+        /// Generates code like this:
+        /// <code>
+        /// public void Test (int param)
+        /// {
+        ///     NetworkWriter writer = new NetworkWriter();
+        ///     writer.WritePackedUInt32((uint) param);
+        ///     base.SendRPCInternal(typeof(class),"RpcTest", writer, 0);
+        /// }
+        /// public void UserCode_Test(int param)
+        /// {
+        ///     // whatever the user did before
+        /// }
+        /// </code>
+        /// </remarks>
         public static MethodDefinition GenerateStub(TypeDefinition td, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, UserCodePrefix + md.Name);
