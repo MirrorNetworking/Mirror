@@ -38,9 +38,9 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public static MethodDefinition GenerateStub(TypeDefinition td, MethodDefinition md, CustomAttribute commandAttr)
+        public static MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute commandAttr)
         {
-            MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md, UserCodePrefix + md.Name);
+            MethodDefinition cmd = MethodProcessor.SubstituteMethod(md, UserCodePrefix + md.Name);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
@@ -62,7 +62,7 @@ namespace Mirror.Weaver
             // invoke internal send and return
             // load 'base.' to call the SendCommand function with
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Ldtoken, td));
+            worker.Append(worker.Create(OpCodes.Ldtoken, md.DeclaringType));
             // invokerClass
             worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
@@ -99,7 +99,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition method, MethodDefinition userCodeFunc)
+        public static MethodDefinition GenerateSkeleton(MethodDefinition method, MethodDefinition userCodeFunc)
         {
             var cmd = new MethodDefinition(SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
@@ -112,7 +112,7 @@ namespace Mirror.Weaver
 
             // setup for reader
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Castclass, td));
+            worker.Append(worker.Create(OpCodes.Castclass, method.DeclaringType));
 
             if (!NetworkBehaviourProcessor.ReadArguments(method, worker, RemoteCallType.Command))
                 return null;
@@ -125,7 +125,7 @@ namespace Mirror.Weaver
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
 
-            td.Methods.Add(cmd);
+            method.DeclaringType.Methods.Add(cmd);
             return cmd;
         }
 

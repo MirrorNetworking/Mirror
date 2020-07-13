@@ -30,7 +30,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition md, MethodDefinition userCodeFunc)
+        public static MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc)
         {
             var rpc = new MethodDefinition(
                 SkeletonPrefix + md.Name,
@@ -44,7 +44,7 @@ namespace Mirror.Weaver
 
             // setup for reader
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Castclass, td));
+            worker.Append(worker.Create(OpCodes.Castclass, md.DeclaringType));
 
             if (!NetworkBehaviourProcessor.ReadArguments(md, worker, RemoteCallType.ClientRpc))
                 return null;
@@ -54,7 +54,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(rpc.Parameters);
-            td.Methods.Add(rpc);
+            md.DeclaringType.Methods.Add(rpc);
             return rpc;
         }
 
@@ -81,9 +81,9 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public static MethodDefinition GenerateStub(TypeDefinition td, MethodDefinition md, CustomAttribute clientRpcAttr)
+        public static MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, UserCodePrefix + md.Name);
+            MethodDefinition rpc = MethodProcessor.SubstituteMethod(md, UserCodePrefix + md.Name);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
@@ -103,7 +103,7 @@ namespace Mirror.Weaver
             // invoke SendInternal and return
             // this
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Ldtoken, td));
+            worker.Append(worker.Create(OpCodes.Ldtoken, md.DeclaringType));
             // invokerClass
             worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, rpcName));

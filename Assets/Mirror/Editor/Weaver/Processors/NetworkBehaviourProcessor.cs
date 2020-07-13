@@ -983,9 +983,9 @@ namespace Mirror.Weaver
                 excludeOwner = excludeOwner
             });
 
-            MethodDefinition userCodeFunc = RpcProcessor.GenerateStub(netBehaviourSubclass, md, clientRpcAttr);
+            MethodDefinition userCodeFunc = RpcProcessor.GenerateStub(md, clientRpcAttr);
 
-            MethodDefinition skeletonFunc = RpcProcessor.GenerateSkeleton(netBehaviourSubclass, md, userCodeFunc);
+            MethodDefinition skeletonFunc = RpcProcessor.GenerateSkeleton(md, userCodeFunc);
             if (skeletonFunc != null)
             {
                 clientRpcSkeletonFuncs.Add(skeletonFunc);
@@ -1011,9 +1011,9 @@ namespace Mirror.Weaver
             names.Add(md.Name);
             targetRpcs.Add(md);
 
-            MethodDefinition userCodeFunc = TargetRpcProcessor.GenerateStub(netBehaviourSubclass, md, targetRpcAttr);
+            MethodDefinition userCodeFunc = TargetRpcProcessor.GenerateStub(md, targetRpcAttr);
 
-            MethodDefinition skeletonFunc = TargetRpcProcessor.GenerateSkeleton(netBehaviourSubclass, md, userCodeFunc);
+            MethodDefinition skeletonFunc = TargetRpcProcessor.GenerateSkeleton(md, userCodeFunc);
             if (skeletonFunc != null)
             {
                 targetRpcSkeletonFuncs.Add(skeletonFunc);
@@ -1046,9 +1046,9 @@ namespace Mirror.Weaver
                 requireAuthority = requireAuthority
             });
 
-            MethodDefinition userCodeFunc = CommandProcessor.GenerateStub(netBehaviourSubclass, md, commandAttr);
+            MethodDefinition userCodeFunc = CommandProcessor.GenerateStub(md, commandAttr);
 
-            MethodDefinition skeletonFunc = CommandProcessor.GenerateSkeleton(netBehaviourSubclass, md, userCodeFunc);
+            MethodDefinition skeletonFunc = CommandProcessor.GenerateSkeleton(md, userCodeFunc);
             if (skeletonFunc != null)
             {
                 commandSkeletonFuncs.Add(skeletonFunc);
