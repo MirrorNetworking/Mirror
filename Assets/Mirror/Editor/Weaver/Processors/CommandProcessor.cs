@@ -54,11 +54,6 @@ namespace Mirror.Weaver
                 return null;
 
             string cmdName = md.Name;
-            int index = cmdName.IndexOf(SkeletonPrefix);
-            if (index > -1)
-            {
-                cmdName = cmdName.Substring(SkeletonPrefix.Length);
-            }
 
             int channel = commandAttr.GetField("channel", 0);
             bool requireAuthority = commandAttr.GetField("requireAuthority", true);

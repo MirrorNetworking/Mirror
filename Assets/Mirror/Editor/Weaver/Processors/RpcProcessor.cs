@@ -96,11 +96,6 @@ namespace Mirror.Weaver
                 return null;
 
             string rpcName = md.Name;
-            int index = rpcName.IndexOf(SkeletonPrefix);
-            if (index > -1)
-            {
-                rpcName = rpcName.Substring(SkeletonPrefix.Length);
-            }
 
             int channel = clientRpcAttr.GetField("channel", 0);
             bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
