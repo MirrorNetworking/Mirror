@@ -142,7 +142,7 @@ namespace Mirror.Weaver
             }
         }
 
-        public static bool ProcessMethodsValidateCommand(MethodDefinition md)
+        public static bool Validate(MethodDefinition md)
         {
             if (md.IsStatic)
             {

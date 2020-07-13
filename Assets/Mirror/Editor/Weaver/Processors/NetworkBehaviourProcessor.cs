@@ -963,7 +963,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (!RpcProcessor.ProcessMethodsValidateRpc(md))
+            if (!RpcProcessor.Validate(md))
             {
                 return;
             }
@@ -1000,7 +1000,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md))
+            if (!TargetRpcProcessor.Validate(md))
                 return;
 
             if (names.Contains(md.Name))
@@ -1028,7 +1028,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (!CommandProcessor.ProcessMethodsValidateCommand(md))
+            if (!CommandProcessor.Validate(md))
                 return;
 
             if (names.Contains(md.Name))

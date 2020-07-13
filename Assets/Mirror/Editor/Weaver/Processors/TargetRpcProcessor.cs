@@ -160,7 +160,7 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        public static bool ProcessMethodsValidateTargetRpc(MethodDefinition md)
+        public static bool Validate(MethodDefinition md)
         {
             if (md.IsStatic)
             {
