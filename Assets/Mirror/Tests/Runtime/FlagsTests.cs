@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -55,13 +56,14 @@ namespace Mirror.Tests
         public void CannotCallClientFunctionAsServer()
         {
             serverComponent.CallClientFunction();
+            LogAssert.Expect(UnityEngine.LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Flags::CallClientFunction()' called on server");
             Assert.That(serverComponent.clientFunctionCalled, Is.False);
         }
 
         [Test]
         public void CannotCallClientCallbackFunctionAsServer()
         {
-            serverComponent.CallClientFunction();
+            serverComponent.CallClientCallbackFunction();
             Assert.That(serverComponent.clientCallbackFunctionCalled, Is.False);
         }
 
@@ -69,6 +71,7 @@ namespace Mirror.Tests
         public void CannotCallServerFunctionAsClient()
         {
             clientComponent.CallServerFunction();
+            LogAssert.Expect(UnityEngine.LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Flags::CallServerFunction()' called on client");
             Assert.That(clientComponent.serverFunctionCalled, Is.False);
         }
 
