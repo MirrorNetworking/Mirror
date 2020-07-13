@@ -16,7 +16,7 @@ namespace Mirror
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkSceneManager));
 
-        [Serializable] public class ClientSceneChangeEvent : UnityEvent<string, SceneOperation, bool> { }
+        [Serializable] public class ClientSceneChangeEvent : UnityEvent<string, SceneOperation> { }
         [Serializable] public class NetworkSceneEvent : UnityEvent<string> { }
 
         public NetworkClient client;
@@ -228,7 +228,7 @@ namespace Mirror
             if (logger.LogEnabled()) logger.Log("ClientChangeScene newSceneName:" + msg.sceneName + " networkSceneName:" + networkSceneName);
 
             // Let client prepare for scene change
-            OnClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
+            OnClientChangeScene(msg.sceneName, msg.sceneOperation);
 
             switch (msg.sceneOperation)
             {
@@ -276,10 +276,9 @@ namespace Mirror
         /// </summary>
         /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
         /// <param name="sceneOperation">Scene operation that's about to happen</param>
-        /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
-        internal void OnClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
+        internal void OnClientChangeScene(string sceneName, SceneOperation sceneOperation)
         {
-            ClientChangeScene.Invoke(sceneName, sceneOperation, customHandling);
+            ClientChangeScene.Invoke(sceneName, sceneOperation);
         }
 
         /// <summary>

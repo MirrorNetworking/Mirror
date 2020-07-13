@@ -1307,7 +1307,7 @@ MonoBehaviour:
   IsGameReady: 0
   IsGameOver: 0
   players: []
-  NetworkManager: {fileID: 0}
+  NetworkManager: {fileID: 1282001520}
 --- !u!114 &1273045293
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,3 +1,18 @@
+## [35.3.2](https://github.com/MirrorNG/MirrorNG/compare/35.3.1-master...35.3.2-master) (2020-07-13)
+
+
+### Bug Fixes
+
+* remove customHandling as its no longer used ([#265](https://github.com/MirrorNG/MirrorNG/issues/265)) ([dbd9d84](https://github.com/MirrorNG/MirrorNG/commit/dbd9d84ee46ac90a8d78daba0c23fc9be71ca77d))
+
+## [35.3.1](https://github.com/MirrorNG/MirrorNG/compare/35.3.0-master...35.3.1-master) (2020-07-13)
+
+
+### Bug Fixes
+
+* AdditiveSceneExample missing comp and assignments ([#267](https://github.com/MirrorNG/MirrorNG/issues/267)) ([ab394b8](https://github.com/MirrorNG/MirrorNG/commit/ab394b8f7e823b8c3882de35eaa54c05fbd9316e))
+* NRE on gamemanager in scene ([#268](https://github.com/MirrorNG/MirrorNG/issues/268)) ([58a124a](https://github.com/MirrorNG/MirrorNG/commit/58a124a99c267091142f00adc7f8898160a9dd97))
+
 # [35.3.0](https://github.com/MirrorNG/MirrorNG/compare/35.2.0-master...35.3.0-master) (2020-07-13)
 
 

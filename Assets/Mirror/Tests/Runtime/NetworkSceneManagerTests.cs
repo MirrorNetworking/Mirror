@@ -138,7 +138,7 @@ namespace Mirror.Tests
         }
 
         int ClientChangeCalled;
-        public void ClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
+        public void ClientChangeScene(string sceneName, SceneOperation sceneOperation)
         {
             ClientChangeCalled++;
         }
@@ -147,7 +147,7 @@ namespace Mirror.Tests
         public void ClientChangeSceneTest()
         {
             sceneManager.ClientChangeScene.AddListener(ClientChangeScene);
-            sceneManager.OnClientChangeScene("", SceneOperation.Normal, false);
+            sceneManager.OnClientChangeScene("", SceneOperation.Normal);
             Assert.That(ClientChangeCalled, Is.EqualTo(1));
         }
 
