@@ -100,7 +100,7 @@ namespace Ninja.WebSockets
             Events.Log.AcceptWebSocketStarted(guid);
             await PerformHandshakeAsync(guid, context.HttpHeader, options.SubProtocol, context.Stream, token);
             Events.Log.ServerHandshakeSuccess(guid);
-            string secWebSocketExtensions = null;
+            const string secWebSocketExtensions = null;
             var websocket = new WebSocketImplementation(guid, _bufferFactory, context.Stream, options.KeepAliveInterval, secWebSocketExtensions, options.IncludeExceptionInCloseResponse, false, options.SubProtocol)
             {
                 TcpClient = context.Client

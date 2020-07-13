@@ -45,8 +45,6 @@ namespace Ninja.WebSockets
                 _ms = new MemoryStream(buffer, 0, buffer.Length, true, true);
             }
 
-            public override long Length => base.Length;
-
             public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
             {
                 return _ms.BeginRead(buffer, offset, count, callback, state);

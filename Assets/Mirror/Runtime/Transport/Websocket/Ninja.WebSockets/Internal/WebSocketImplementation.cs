@@ -54,8 +54,8 @@ namespace Ninja.WebSockets.Internal
         WebSocketState _state;
         bool _isContinuationFrame;
         WebSocketMessageType _continuationFrameMessageType = WebSocketMessageType.Binary;
-        readonly bool _usePerMessageDeflate = false;
-        bool _tryGetBufferFailureLogged = false;
+        readonly bool _usePerMessageDeflate;
+        bool _tryGetBufferFailureLogged;
         const int MAX_PING_PONG_PAYLOAD_LEN = 125;
         WebSocketCloseStatus? _closeStatus;
         string _closeStatusDescription;

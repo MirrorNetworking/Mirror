@@ -33,7 +33,7 @@ using Ninja.WebSockets.Exceptions;
 
 namespace Ninja.WebSockets
 {
-    public class HttpHelper
+    public static class HttpHelper
     {
         const string HTTP_GET_HEADER_REGEX = @"^GET(.*)HTTP\/1\.1";
 
@@ -77,7 +77,7 @@ namespace Ninja.WebSockets
         public static async Task<string> ReadHttpHeaderAsync(Stream stream, CancellationToken token)
         {
             // 16KB buffer more than enough for http header
-            int length = 1024 * 16;
+            const int length = 1024 * 16;
             byte[] buffer = new byte[length];
             int offset = 0;
             int bytesRead = 0;
@@ -159,7 +159,7 @@ namespace Ninja.WebSockets
 
                 // extract a csv list of sub protocols (in order of highest preference first)
                 string csv = match.Groups["protocols"].Value.Trim();
-                return csv.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                return csv.Split(new [] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x.Trim())
                     .ToList();
             }

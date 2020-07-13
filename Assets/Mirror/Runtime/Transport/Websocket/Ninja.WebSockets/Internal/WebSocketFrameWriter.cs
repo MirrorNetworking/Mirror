@@ -37,11 +37,11 @@ namespace Ninja.WebSockets.Internal
         /// This is used for data masking so that web proxies don't cache the data
         /// Therefore, there are no cryptographic concerns
         /// </summary>
-        static readonly Random _random;
+        static readonly Random _random = new Random((int)DateTime.Now.Ticks);
 
         static WebSocketFrameWriter()
         {
-            _random = new Random((int)DateTime.Now.Ticks);
+
         }
 
         /// <summary>

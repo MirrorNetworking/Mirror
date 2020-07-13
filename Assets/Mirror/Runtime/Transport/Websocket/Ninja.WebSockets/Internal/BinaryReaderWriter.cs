@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace Ninja.WebSockets.Internal
 {
-    internal class BinaryReaderWriter
+    internal static class BinaryReaderWriter
     {
         public static async Task ReadExactly(int length, Stream stream, ArraySegment<byte> buffer, CancellationToken cancellationToken)
         {
@@ -36,7 +36,7 @@ namespace Ninja.WebSockets.Internal
             {
                 // This will happen if the calling function supplied a buffer that was too small to fit the payload of the websocket frame.
                 // Note that this can happen on the close handshake where the message size can be larger than the regular payload
-                throw new InternalBufferOverflowException($"Unable to read {length} bytes into buffer (offset: {buffer.Offset} size: {buffer.Count}). Use a larger read buffer");
+                throw new InternalBufferOverflowException($"Unable to read {length} bytes into buffer (offset: {nameof(buffer.Offset)} size: {nameof(buffer.Count)}). Use a larger read buffer");
             }
 
             int offset = 0;
@@ -59,7 +59,7 @@ namespace Ninja.WebSockets.Internal
 
                 if (bytesRead == 0)
                 {
-                    throw new EndOfStreamException(string.Format("Unexpected end of stream encountered whilst attempting to read {0:#,##0} bytes", length));
+                    throw new EndOfStreamException(string.Format($"Unexpected end of {nameof(stream)} encountered whilst attempting to read {0:#,##0} bytes", length));
                 }
 
                 offset += bytesRead;

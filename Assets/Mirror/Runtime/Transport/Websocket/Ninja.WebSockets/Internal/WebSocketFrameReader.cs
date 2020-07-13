@@ -52,13 +52,13 @@ namespace Ninja.WebSockets.Internal
             byte byte2 = smallBuffer.Array[1];
 
             // process first byte
-            byte finBitFlag = 0x80;
-            byte opCodeFlag = 0x0F;
+            const byte finBitFlag = 0x80;
+            const byte opCodeFlag = 0x0F;
             bool isFinBitSet = (byte1 & finBitFlag) == finBitFlag;
             var opCode = (WebSocketOpCode)(byte1 & opCodeFlag);
 
             // read and process second byte
-            byte maskFlag = 0x80;
+            const byte maskFlag = 0x80;
             bool isMaskBitSet = (byte2 & maskFlag) == maskFlag;
             uint len = await ReadLength(byte2, smallBuffer, fromStream, cancellationToken);
             int count = (int)len;
@@ -143,7 +143,7 @@ namespace Ninja.WebSockets.Internal
         /// </summary>
         static async Task<uint> ReadLength(byte byte2, ArraySegment<byte> smallBuffer, Stream fromStream, CancellationToken cancellationToken)
         {
-            byte payloadLenFlag = 0x7F;
+            const byte payloadLenFlag = 0x7F;
             uint len = (uint)(byte2 & payloadLenFlag);
 
             // read a short length or a long length depending on the value of len

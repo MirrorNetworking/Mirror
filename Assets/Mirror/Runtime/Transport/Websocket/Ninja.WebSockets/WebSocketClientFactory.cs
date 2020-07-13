@@ -152,7 +152,7 @@ namespace Ninja.WebSockets
         string GetSubProtocolFromHeader(string response)
         {
             // make sure we escape the accept string which could contain special regex characters
-            string regexPattern = "Sec-WebSocket-Protocol: (.*)";
+            const string regexPattern = "Sec-WebSocket-Protocol: (.*)";
             var regex = new Regex(regexPattern, RegexOptions.IgnoreCase);
             Match match = regex.Match(response);
             if (match.Success)
@@ -166,7 +166,7 @@ namespace Ninja.WebSockets
         void ThrowIfInvalidAcceptString(Guid guid, string response, string secWebSocketKey)
         {
             // make sure we escape the accept string which could contain special regex characters
-            string regexPattern = "Sec-WebSocket-Accept: (.*)";
+            const string regexPattern = "Sec-WebSocket-Accept: (.*)";
             var regex = new Regex(regexPattern, RegexOptions.IgnoreCase);
             string actualAcceptString = regex.Match(response).Groups[1].Value.Trim();
 
@@ -189,7 +189,7 @@ namespace Ninja.WebSockets
             string responseCode = HttpHelper.ReadHttpResponseCode(responseHeader);
             if (!string.Equals(responseCode, "101 Switching Protocols", StringComparison.InvariantCultureIgnoreCase))
             {
-                string[] lines = responseHeader.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+                string[] lines = responseHeader.Split(new [] { "\r\n" }, StringSplitOptions.None);
 
                 for (int i = 0; i < lines.Length; i++)
                 {

@@ -37,7 +37,6 @@ namespace Ninja.WebSockets
         readonly WebSocketImplementation _webSocket;
         readonly Guid _guid;
         readonly TimeSpan _keepAliveInterval;
-        readonly Task _pingTask;
         readonly CancellationToken _cancellationToken;
         Stopwatch _stopwatch;
         long _pingSentTicks;

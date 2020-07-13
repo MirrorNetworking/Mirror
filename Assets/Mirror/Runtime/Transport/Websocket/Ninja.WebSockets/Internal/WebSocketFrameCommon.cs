@@ -39,7 +39,7 @@ namespace Ninja.WebSockets.Internal
         {
             if (maskKey.Count != MaskKeyLength)
             {
-                throw new Exception($"MaskKey key must be {MaskKeyLength} bytes");
+                throw new InvalidOperationException($"MaskKey key must be {nameof(MaskKeyLength)} bytes");
             }
 
             byte[] buffer = payload.Array;
