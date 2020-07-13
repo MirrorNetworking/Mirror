@@ -7,12 +7,13 @@ namespace Mirror.Weaver
     /// </summary>
     public static class RpcProcessor
     {
-        public const string RpcPrefix = "InvokeRpc";
+        public const string SkeletonPrefix = "InvokeRpc";
+        private const string UserCodePrefix = "UserCode_";
 
-        public static MethodDefinition ProcessRpcInvoke(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
+        public static MethodDefinition GenerateSkeleton(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
             var rpc = new MethodDefinition(
-                RpcPrefix + md.Name,
+                SkeletonPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
@@ -59,9 +60,9 @@ namespace Mirror.Weaver
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
         */
-        public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute clientRpcAttr)
+        public static MethodDefinition GenerateStub(TypeDefinition td, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
+            MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, UserCodePrefix + md.Name);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
@@ -74,10 +75,10 @@ namespace Mirror.Weaver
                 return null;
 
             string rpcName = md.Name;
-            int index = rpcName.IndexOf(RpcPrefix);
+            int index = rpcName.IndexOf(SkeletonPrefix);
             if (index > -1)
             {
-                rpcName = rpcName.Substring(RpcPrefix.Length);
+                rpcName = rpcName.Substring(SkeletonPrefix.Length);
             }
 
             int channel = clientRpcAttr.GetField("channel", 0);

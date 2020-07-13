@@ -983,9 +983,9 @@ namespace Mirror.Weaver
                 excludeOwner = excludeOwner
             });
 
-            MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, clientRpcAttr);
+            MethodDefinition rpcCallFunc = RpcProcessor.GenerateStub(netBehaviourSubclass, md, clientRpcAttr);
 
-            MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(netBehaviourSubclass, md, rpcCallFunc);
+            MethodDefinition rpcFunc = RpcProcessor.GenerateSkeleton(netBehaviourSubclass, md, rpcCallFunc);
             if (rpcFunc != null)
             {
                 clientRpcInvocationFuncs.Add(rpcFunc);
