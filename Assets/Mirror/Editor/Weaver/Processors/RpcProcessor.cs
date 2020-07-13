@@ -7,7 +7,7 @@ namespace Mirror.Weaver
     /// </summary>
     public static class RpcProcessor
     {
-        public const string SkeletonPrefix = "InvokeRpc";
+        public const string SkeletonPrefix = "Skeleton_";
         private const string UserCodePrefix = "UserCode_";
 
         /// <summary>
