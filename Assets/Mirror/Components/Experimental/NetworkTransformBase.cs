@@ -112,13 +112,10 @@ namespace Mirror.Experimental
         void FixedUpdate()
         {
             // if server then always sync to others.
-            if (isServer)
+            // let the clients know that this has moved
+            if (isServer && HasEitherMovedRotatedScaled())
             {
-                // let the clients know that this has moved
-                if (HasEitherMovedRotatedScaled())
-                {
-                    RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
-                }
+                RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
             }
 
             if (isClient)
@@ -127,15 +124,12 @@ namespace Mirror.Experimental
                 // -> only if connectionToServer has been initialized yet too
                 if (IsOwnerWithClientAuthority)
                 {
-                    if (!isServer)
+                    if (!isServer && HasEitherMovedRotatedScaled())
                     {
-                        if (HasEitherMovedRotatedScaled())
-                        {
-                            // serialize
-                            // local position/rotation for VR support
-                            // send to server
-                            CmdClientToServerSync(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
-                        }
+                        // serialize
+                        // local position/rotation for VR support
+                        // send to server
+                        CmdClientToServerSync(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
                     }
                 }
                 else if (goal.isValid)
