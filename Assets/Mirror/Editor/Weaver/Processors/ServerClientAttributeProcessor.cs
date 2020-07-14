@@ -24,10 +24,7 @@ namespace Mirror.Weaver
                         InjectHasAuthorityGuard(td, md, attr);
                         break;
                     case "Mirror.LocalPlayerAttribute":
-                        InjectLocalPlayerGuard(td, md, true);
-                        break;
-                    case "Mirror.LocalPlayerCallbackAttribute":
-                        InjectLocalPlayerGuard(td, md, false);
+                        InjectLocalPlayerGuard(td, md, attr);
                         break;
                     default:
                         break;
@@ -115,8 +112,10 @@ namespace Mirror.Weaver
             worker.InsertBefore(top, worker.Create(OpCodes.Ret));
         }
 
-        static void InjectLocalPlayerGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
+        static void InjectLocalPlayerGuard(TypeDefinition td, MethodDefinition md, CustomAttribute attribute)
         {
+            bool throwError = attribute.GetField<bool>("error", true);
+
             if (!Weaver.IsNetworkBehaviour(td))
             {
                 Weaver.Error($"Local Player method {md.Name} must be declared in a NetworkBehaviour", md);
@@ -128,10 +127,11 @@ namespace Mirror.Weaver
             worker.InsertBefore(top, worker.Create(OpCodes.Ldarg_0));
             worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkBehaviourIsLocalPlayer));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
-            if (logWarning)
+            if (throwError)
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Local Player] function '" + md.FullName + "' called on nonlocal player"));
-                worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.logWarningReference));
+                worker.InsertBefore(top, worker.Create(OpCodes.Newobj, Weaver.MethodInvocationExceptionConstructor));
+                worker.InsertBefore(top, worker.Create(OpCodes.Throw));
             }
 
             InjectGuardParameters(md, worker, top);

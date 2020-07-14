@@ -11,6 +11,8 @@ namespace Mirror.Tests
         public bool clientCallbackFunctionCalled;
         public bool hasAuthorityCalled;
         public bool hasAuthorityNoErrorCalled;
+        public bool localPlayerCalled;
+        public bool localPlayerNoErrorCalled;
 
         [Server]
         public void CallServerFunction()
@@ -46,6 +48,18 @@ namespace Mirror.Tests
         public void CallAuthorityNoErrorFunction() 
         {
             hasAuthorityNoErrorCalled = true;
+        }
+
+        [LocalPlayer]
+        public void CallLocalPlayer()
+        {
+            localPlayerCalled = true;
+        }
+
+        [LocalPlayer(error = false)]
+        public void CallLocalPlayerNoError()
+        {
+            localPlayerNoErrorCalled = true;
         }
     }
 
@@ -131,7 +145,6 @@ namespace Mirror.Tests
         {
             var obj = new GameObject("randomObject", typeof(NetworkIdentity), typeof(ExampleGuards));
             ExampleGuards guardedComponent = obj.GetComponent<ExampleGuards>();
-
             Assert.Throws<MethodInvocationException>( () => 
             {
                 guardedComponent.CallAuthorityFunction();
@@ -145,9 +158,50 @@ namespace Mirror.Tests
         {
             var obj = new GameObject("randomObject", typeof(NetworkIdentity), typeof(ExampleGuards));
             ExampleGuards guardedComponent = obj.GetComponent<ExampleGuards>();
-
             guardedComponent.CallAuthorityNoErrorFunction();
             Assert.That(guardedComponent.hasAuthorityNoErrorCalled, Is.False);
+
+
+            Object.Destroy(obj);
+        }
+
+        [Test]
+        public void CanCallLocalPlayer()
+        {
+            clientComponent.CallLocalPlayer();
+            Assert.That(clientComponent.localPlayerCalled, Is.True);
+        }
+
+        [Test]
+        public void CanCallLocalPlayerNoError()
+        {
+            clientComponent.CallLocalPlayerNoError();
+            Assert.That(clientComponent.localPlayerNoErrorCalled, Is.True);
+        }
+
+        [Test]
+        public void GuardLocalPlayer()
+        {
+            var obj = new GameObject("randomObject", typeof(NetworkIdentity), typeof(ExampleGuards));
+            ExampleGuards guardedComponent = obj.GetComponent<ExampleGuards>();
+
+            Assert.Throws<MethodInvocationException>(() =>
+            {
+                guardedComponent.CallLocalPlayer();
+
+            });
+
+            Object.Destroy(obj);
+        }
+
+        [Test]
+        public void GuardLocalPlayerNoError()
+        {
+            var obj = new GameObject("randomObject", typeof(NetworkIdentity), typeof(ExampleGuards));
+            ExampleGuards guardedComponent = obj.GetComponent<ExampleGuards>();
+
+            guardedComponent.CallLocalPlayerNoError();
+            Assert.That(guardedComponent.localPlayerNoErrorCalled, Is.False);
 
             Object.Destroy(obj);
         }

@@ -30,6 +30,13 @@ namespace Mirror.Weaver.Tests
             CheckAddedCode(Weaver.NetworkBehaviourHasAuthority, "WeaverClientServerAttributeTests.NetworkBehaviourHasAuthority.NetworkBehaviourHasAuthority", "HasAuthorityMethod");
         }
 
+        [Test]
+        public void NetworkBehaviourLocalPlayer()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+            CheckAddedCode(Weaver.NetworkBehaviourIsLocalPlayer, "WeaverClientServerAttributeTests.NetworkBehaviourLocalPlayer.NetworkBehaviourLocalPlayer", "LocalPlayerMethod");
+        }
+
         /// <summary>
         /// Checks that first Instructions in MethodBody is addedString
         /// </summary>
