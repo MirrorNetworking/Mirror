@@ -128,7 +128,7 @@ namespace Mirror
         internal void FinishLoadScene()
         {
             // host mode?
-            if (client.IsLocalClient)
+            if (client && client.IsLocalClient)
             {
                 FinishLoadSceneHost();
             }
@@ -138,7 +138,7 @@ namespace Mirror
                 FinishLoadSceneServerOnly();
             }
             // client-only mode?
-            else if (client.Active)
+            else if (client && client.Active)
             {
                 FinishLoadSceneClientOnly();
             }
