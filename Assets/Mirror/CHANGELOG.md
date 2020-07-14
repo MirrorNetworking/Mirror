@@ -1,3 +1,10 @@
+# [40.1.0](https://github.com/MirrorNG/MirrorNG/compare/40.0.0-master...40.1.0-master) (2020-07-14)
+
+
+### Features
+
+* Transports can tell if they are supported ([#282](https://github.com/MirrorNG/MirrorNG/issues/282)) ([890c6b8](https://github.com/MirrorNG/MirrorNG/commit/890c6b8808ccbf4f4ffffae8c00a9d897ccac7e4))
+
 # [40.0.0](https://github.com/MirrorNG/MirrorNG/compare/39.0.0-master...40.0.0-master) (2020-07-14)
 
 
