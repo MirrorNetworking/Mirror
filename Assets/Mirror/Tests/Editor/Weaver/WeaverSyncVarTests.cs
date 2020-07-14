@@ -11,6 +11,12 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void SyncVarArraySegment()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
         public void SyncVarsDerivedNetworkBehaviour()
         {
             Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MySyncVar. Use a supported type or provide a custom writer (at WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.SyncVarsDerivedNetworkBehaviour/MySyncVar)"));
