@@ -353,7 +353,8 @@ namespace Mirror
         /// <para>Clients that connect to this server will automatically switch to this scene. This automatically sets clients to be not-ready. The clients must call Ready() again to participate in the new scene.</para>
         /// </summary>
         /// <param name="newSceneName"></param>
-        public void ChangeServerScene(string newSceneName)
+        /// <param name="operation"></param>
+        public void ChangeServerScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal)
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
@@ -367,10 +368,11 @@ namespace Mirror
             // Let server prepare for scene change
             OnServerChangeScene(newSceneName);
 
+            //TODO: Server needs to handle additive scene loads also. Or provide the option to only apply to the client
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
             // notify all clients about the new scene
-            server.SendToAll(new SceneMessage { sceneName = newSceneName });
+            server.SendToAll(new SceneMessage { sceneName = newSceneName, sceneOperation = sceneOperation });
         }
 
         /// <summary>
