@@ -80,7 +80,7 @@ namespace Mirror
                     return;
                 }
             }
-            throw new Exception("No transport suitable for this platform");
+            throw new ArgumentException("No transport suitable for this platform");
         }
 
         public override void ClientConnect(Uri uri)
@@ -101,7 +101,7 @@ namespace Mirror
                     }
                 }
             }
-            throw new Exception("No transport suitable for this platform");
+            throw new ArgumentException("No transport suitable for this platform");
         }
 
         public override bool ClientConnected()

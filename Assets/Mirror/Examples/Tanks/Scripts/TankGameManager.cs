@@ -66,13 +66,11 @@ namespace Mirror.Examples.Tanks
                 foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
                 {
                     Tank comp = kvp.Value.GetComponent<Tank>();
-                    if (comp != null)
+
+                    //Add if new
+                    if (comp != null && !players.Contains(comp))
                     {
-                        if (!players.Contains(comp))
-                        {
-                            //Add if new
-                            players.Add(comp);
-                        }
+                        players.Add(comp);
                     }
                 }
 
