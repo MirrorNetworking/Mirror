@@ -230,36 +230,7 @@ namespace Mirror
             // Let client prepare for scene change
             OnClientChangeScene(msg.sceneName, msg.sceneOperation);
 
-            switch (msg.sceneOperation)
-            {
-                case SceneOperation.Normal:
-                    loadingSceneAsync = SceneManager.LoadSceneAsync(msg.sceneName);
-                    break;
-                case SceneOperation.LoadAdditive:
-                    // Ensure additive scene is not already loaded on client by name or path
-                    // since we don't know which was passed in the Scene message
-                    if (!SceneManager.GetSceneByName(msg.sceneName).IsValid() && !SceneManager.GetSceneByPath(msg.sceneName).IsValid())
-                        loadingSceneAsync = SceneManager.LoadSceneAsync(msg.sceneName, LoadSceneMode.Additive);
-                    else
-                    {
-                        logger.LogWarning($"Scene {msg.sceneName} is already loaded");
-                    }
-                    break;
-                case SceneOperation.UnloadAdditive:
-                    // Ensure additive scene is actually loaded on client by name or path
-                    // since we don't know which was passed in the Scene message
-                    if (SceneManager.GetSceneByName(msg.sceneName).IsValid() || SceneManager.GetSceneByPath(msg.sceneName).IsValid())
-                        loadingSceneAsync = SceneManager.UnloadSceneAsync(msg.sceneName, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
-                    else
-                    {
-                        logger.LogWarning($"Cannot unload {msg.sceneName} with UnloadAdditive operation");
-                    }
-                    break;
-            }
-
-            // don't change the client's current networkSceneName when loading additive scene content
-            if (msg.sceneOperation == SceneOperation.Normal)
-                networkSceneName = msg.sceneName;
+            ApplySceneOperation(msg.sceneName, msg.sceneOperation);  
         }
 
         void OnClientNotReadyMessageInternal(INetworkConnection conn, NotReadyMessage msg)
@@ -363,13 +334,11 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("ServerChangeScene " + newSceneName);
             server.SetAllClientsNotReady();
-            networkSceneName = newSceneName;
 
             // Let server prepare for scene change
             OnServerChangeScene(newSceneName);
 
-            //TODO: Server needs to handle additive scene loads also. Or provide the option to only apply to the client
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+            ApplySceneOperation(newSceneName, sceneOperation);
 
             // notify all clients about the new scene
             server.SendToAll(new SceneMessage { sceneName = newSceneName, sceneOperation = sceneOperation });
@@ -396,5 +365,33 @@ namespace Mirror
 
         #endregion
 
+        void ApplySceneOperation(string sceneName, SceneOperation sceneOperation = SceneOperation.Normal)
+        {
+            switch (sceneOperation)
+            {
+                case SceneOperation.Normal:
+                    networkSceneName = sceneName;
+                    loadingSceneAsync = SceneManager.LoadSceneAsync(sceneName);
+                    break;
+                case SceneOperation.LoadAdditive:
+                    // Ensure additive scene is not already loaded since we don't know which was passed in the Scene message
+                    if (!SceneManager.GetSceneByName(sceneName).IsValid() && !SceneManager.GetSceneByPath(sceneName).IsValid())
+                        loadingSceneAsync = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+                    else
+                    {
+                        logger.LogWarning($"Scene {sceneName} is already loaded");
+                    }
+                    break;
+                case SceneOperation.UnloadAdditive:
+                    // Ensure additive scene is actually loaded since we don't know which was passed in the Scene message
+                    if (SceneManager.GetSceneByName(sceneName).IsValid() || SceneManager.GetSceneByPath(sceneName).IsValid())
+                        loadingSceneAsync = SceneManager.UnloadSceneAsync(sceneName, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+                    else
+                    {
+                        logger.LogWarning($"Cannot unload {sceneName} with UnloadAdditive operation");
+                    }
+                    break;
+            }
+        }
     }
 }
