@@ -95,7 +95,7 @@ namespace Mirror.Tests
             connectionToServer = client.Connection;
 
             // create a player object in the server
-            serverPlayerGO = GameObject.Instantiate(playerPrefab);
+            serverPlayerGO = Object.Instantiate(playerPrefab);
             serverIdentity = serverPlayerGO.GetComponent<NetworkIdentity>();
             serverComponent = serverPlayerGO.GetComponent<T>();
             server.AddPlayerForConnection(connectionToClient, serverPlayerGO);
