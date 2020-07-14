@@ -162,8 +162,10 @@ namespace Mirror.Weaver
         static HashSet<string> GetDependecyPaths(string assemblyPath)
         {
             // build directory list for later asm/symbol resolving using CompilationPipeline refs
-            var dependencyPaths = new HashSet<string>();
-            dependencyPaths.Add(Path.GetDirectoryName(assemblyPath));
+            var dependencyPaths = new HashSet<string>
+            {
+                Path.GetDirectoryName(assemblyPath)
+            };
             foreach (UnityAssembly unityAsm in CompilationPipeline.GetAssemblies())
             {
                 if (unityAsm.outputPath != assemblyPath)
