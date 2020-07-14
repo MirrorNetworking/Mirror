@@ -413,7 +413,7 @@ namespace Mirror.Tests
 
             // make old client the host
             SyncListString hostList = clientSyncList;
-            SyncListString clientList2 = new SyncListString();
+            var clientList2 = new SyncListString();
 
             Assert.That(hostList.IsReadOnly, Is.False);
 
