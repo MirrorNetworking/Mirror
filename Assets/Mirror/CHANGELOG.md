@@ -1,3 +1,15 @@
+# [40.3.0](https://github.com/MirrorNG/MirrorNG/compare/40.2.0-master...40.3.0-master) (2020-07-14)
+
+
+### Bug Fixes
+
+* SceneManager Exceptions and Tests ([#287](https://github.com/MirrorNG/MirrorNG/issues/287)) ([388d218](https://github.com/MirrorNG/MirrorNG/commit/388d21872bb8b4c7f9d3742ecfa9b857ee734dfa))
+
+
+### Features
+
+* Server and Client share the same scene loading method ([#286](https://github.com/MirrorNG/MirrorNG/issues/286)) ([acb6dd1](https://github.com/MirrorNG/MirrorNG/commit/acb6dd192244adcfab15d013a96c7402151d226b))
+
 # [40.2.0](https://github.com/MirrorNG/MirrorNG/compare/40.1.1-master...40.2.0-master) (2020-07-14)
 
 
