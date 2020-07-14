@@ -23,6 +23,13 @@ namespace Mirror.Weaver.Tests
             CheckAddedCode(Weaver.NetworkBehaviourIsClient, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
         }
 
+        [Test]
+        public void NetworkBehaviourHasAuthority()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+            CheckAddedCode(Weaver.NetworkBehaviourHasAuthority, "WeaverClientServerAttributeTests.NetworkBehaviourHasAuthority.NetworkBehaviourHasAuthority", "HasAuthorityMethod");
+        }
+
         /// <summary>
         /// Checks that first Instructions in MethodBody is addedString
         /// </summary>

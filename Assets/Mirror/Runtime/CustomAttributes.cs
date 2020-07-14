@@ -117,17 +117,17 @@ namespace Mirror
 
     /// <summary>
     /// Prevents players without authority from running this method.
-    /// <para>Prints a warning if a player without authority tries to execute this method.</para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class HasAuthorityAttribute : Attribute { }
-
-    /// <summary>
-    /// Prevents players without authority from running this method.
-    /// <para>No warning is printed.</para>
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
-    public class HasAuthorityCallbackAttribute : Attribute { }
+    public class HasAuthorityAttribute : Attribute 
+    { 
+        /// <summary>
+        /// If true,  when the method is called from a client, it throws an error
+        /// If false, no error is thrown, but the method won't execute
+        /// useful for unity built in methods such as Await, Update, Start, etc.
+        /// </summary>
+        public bool error = true;
+    }
 
     /// <summary>
     /// Prevents nonlocal players from running this method.
