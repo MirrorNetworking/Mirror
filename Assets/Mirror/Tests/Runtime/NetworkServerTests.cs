@@ -21,21 +21,6 @@ namespace Mirror.Tests
 
     public class NetworkServerTests : ClientServerSetup<MockComponent>
     {
-        class HandlerMock<T>
-        {
-            public bool invoked = false;
-
-            public void Handler(T msg)
-            {
-                invoked = true;
-            }
-
-            public void HandlerConn(INetworkConnection conn, T msg)
-            {
-                invoked = true;
-            }
-        }
-
         WovenTestMessage message;
         GameObject playerReplacement;
 
@@ -72,10 +57,10 @@ namespace Mirror.Tests
         [Test]
         public void SpawnObjectExposeExceptionTest()
         {
-            GameObject gameObject = new GameObject();
+            var gameObject = new GameObject();
             SimpleNetworkServer comp = gameObject.AddComponent<SimpleNetworkServer>();
 
-            GameObject obj = new GameObject();
+            var obj = new GameObject();
 
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
             {
@@ -99,7 +84,7 @@ namespace Mirror.Tests
         [Test]
         public void SpawnNotPlayerExceptionTest()
         {
-            GameObject player = new GameObject();
+            var player = new GameObject();
             player.AddComponent<NetworkIdentity>();
 
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
@@ -124,37 +109,37 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator SendToAll() => RunAsync(async () =>
         {
-            var handler = new HandlerMock<WovenTestMessage>();
+            bool invoked = false;
 
-            connectionToServer.RegisterHandler((Action< WovenTestMessage>)handler.Handler);
+            connectionToServer.RegisterHandler<WovenTestMessage>(msg => invoked = true);
 
             server.SendToAll(message);
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            await WaitFor(() => handler.invoked);
+            await WaitFor(() => invoked);
         });
 
         [UnityTest]
         public IEnumerator SendToClientOfPlayer() => RunAsync(async () =>
         {
-            var handler = new HandlerMock<WovenTestMessage>();
+            bool invoked = false;
 
-            connectionToServer.RegisterHandler((Action<WovenTestMessage>)handler.Handler);
+            connectionToServer.RegisterHandler<WovenTestMessage>(msg => invoked = true) ;
 
             server.SendToClientOfPlayer(serverIdentity, message);
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            await WaitFor(() => handler.invoked);
+            await WaitFor(() => invoked);
         });
 
         [UnityTest]
         public IEnumerator ShowForConnection() => RunAsync(async () =>
         {
-            var handler = new HandlerMock<SpawnMessage>();
+            bool invoked = false;
 
-            connectionToServer.RegisterHandler((Action<SpawnMessage>)handler.Handler);
+            connectionToServer.RegisterHandler<SpawnMessage>(msg => invoked = true) ;
 
             connectionToClient.IsReady = true;
 
@@ -163,7 +148,7 @@ namespace Mirror.Tests
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            await WaitFor(() => handler.invoked);
+            await WaitFor(() => invoked);
         });
 
         [Test]
@@ -189,25 +174,25 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator RegisterMessage1() => RunAsync(async () =>
         {
-            var handler = new HandlerMock<WovenTestMessage>();
+            bool invoked = false;
 
-            connectionToClient.RegisterHandler((Action<WovenTestMessage>)handler.Handler);
+            connectionToClient.RegisterHandler< WovenTestMessage>(msg => invoked = true);
             connectionToServer.Send(message);
 
-            await WaitFor(() => handler.invoked);
+            await WaitFor(() => invoked);
 
         });
 
         [UnityTest]
         public IEnumerator RegisterMessage2() => RunAsync(async () =>
         {
-            var handler = new HandlerMock<WovenTestMessage>();
+            bool invoked = false;
 
-            connectionToClient.RegisterHandler<WovenTestMessage>((Action<INetworkConnection, WovenTestMessage>)handler.HandlerConn);
+            connectionToClient.RegisterHandler<WovenTestMessage>((conn, msg) => invoked = true);
 
             connectionToServer.Send(message);
 
-            await WaitFor(() => handler.invoked);
+            await WaitFor(() => invoked);
         });
 
         [UnityTest]
@@ -283,7 +268,7 @@ namespace Mirror.Tests
         [Test]
         public void ReplacePlayerAssetIdTest()
         {
-            Guid replacementGuid = Guid.NewGuid();
+            var replacementGuid = Guid.NewGuid();
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
             NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
             replacementIdentity.AssetId = replacementGuid;
@@ -303,7 +288,7 @@ namespace Mirror.Tests
         [Test]
         public void AddPlayerForConnectionAssetIdTest()
         {
-            Guid replacementGuid = Guid.NewGuid();
+            var replacementGuid = Guid.NewGuid();
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
             NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
             replacementIdentity.AssetId = replacementGuid;
