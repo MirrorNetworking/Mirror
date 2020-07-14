@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.TestTools;
 
 using static Mirror.Tests.AsyncUtil;
@@ -11,36 +13,22 @@ namespace Mirror.Tests
 {
     public class NetworkSceneManagerTests : HostSetup<MockComponent>
     {
-        int onAuthInvokeCounter;
-        void TestOnAuthenticatedInvoke(INetworkConnection conn)
-        {
-            onAuthInvokeCounter++;
-        }
-
-        int onOnServerSceneChangedCounter;
-        void TestOnServerSceneChangedInvoke(string scene)
-        {
-            onOnServerSceneChangedCounter++;
-        }
-
-        int onOnClientSceneChangedCounter;
-        void TestOnClientSceneChangedInvoke(INetworkConnection conn)
-        {
-            onOnClientSceneChangedCounter++;
-        }
-
         [Test]
         public void FinishLoadSceneHostTest()
         {
-            client.Authenticated.AddListener(TestOnAuthenticatedInvoke);
-            sceneManager.ServerSceneChanged.AddListener(TestOnServerSceneChangedInvoke);
-            sceneManager.ClientSceneChanged.AddListener(TestOnClientSceneChangedInvoke);
+            UnityAction<INetworkConnection> func1 = Substitute.For<UnityAction<INetworkConnection>>();
+            UnityAction<string> func2 = Substitute.For<UnityAction<string>>();
+            UnityAction<INetworkConnection> func3 = Substitute.For<UnityAction<INetworkConnection>>();
+
+            client.Authenticated.AddListener(func1);
+            sceneManager.ServerSceneChanged.AddListener(func2);
+            sceneManager.ClientSceneChanged.AddListener(func3);
 
             sceneManager.FinishLoadScene();
 
-            Assert.That(onAuthInvokeCounter, Is.EqualTo(1));
-            Assert.That(onOnServerSceneChangedCounter, Is.EqualTo(1));
-            Assert.That(onOnClientSceneChangedCounter, Is.EqualTo(1));
+            func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
+            func2.Received(1).Invoke(Arg.Any<string>());
+            func3.Received(1).Invoke(Arg.Any<INetworkConnection>());
         }
 
         int onOnServerSceneOnlyChangedCounter;
@@ -160,32 +148,22 @@ namespace Mirror.Tests
             Assert.That(ClientChangeCalled, Is.EqualTo(1));
         }
 
-        int ClientSceneChangedCalled;
-        public void ClientSceneChanged(INetworkConnection conn)
-        {
-            ClientSceneChangedCalled++;
-        }
-
         [Test]
         public void ClientSceneChangedTest()
         {
-            sceneManager.ClientSceneChanged.AddListener(ClientSceneChanged);
+            UnityAction<INetworkConnection> func1 = Substitute.For<UnityAction<INetworkConnection>>();
+            sceneManager.ClientSceneChanged.AddListener(func1);
             sceneManager.OnClientSceneChanged(client.Connection);
-            Assert.That(ClientSceneChangedCalled, Is.EqualTo(1));
-        }
-
-        int ClientNotReadyCalled;
-        public void ClientNotReady(INetworkConnection conn)
-        {
-            ClientNotReadyCalled++;
+            func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
         }
 
         [Test]
         public void ClientNotReadyTest()
         {
-            sceneManager.ClientNotReady.AddListener(ClientNotReady);
+            UnityAction<INetworkConnection> func1 = Substitute.For<UnityAction<INetworkConnection>>();
+            sceneManager.ClientNotReady.AddListener(func1);
             sceneManager.OnClientNotReady(client.Connection);
-            Assert.That(ClientNotReadyCalled, Is.EqualTo(1));
+            func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
         }
     }
 
@@ -200,28 +178,19 @@ namespace Mirror.Tests
             });
         }
 
-        int onAuthInvokeCounter;
-        void TestOnAuthenticatedInvoke(INetworkConnection conn)
-        {
-            onAuthInvokeCounter++;
-        }
-
-        int onOnClientSceneChangedCounter;
-        void TestOnClientSceneChangedInvoke(INetworkConnection conn)
-        {
-            onOnClientSceneChangedCounter++;
-        }
-
         [Test]
         public void FinishLoadSceneHostTest()
         {
-            client.Authenticated.AddListener(TestOnAuthenticatedInvoke);
-            client.sceneManager.ClientSceneChanged.AddListener(TestOnClientSceneChangedInvoke);
+            UnityAction<INetworkConnection> func1 = Substitute.For<UnityAction<INetworkConnection>>();
+            UnityAction<INetworkConnection> func2 = Substitute.For<UnityAction<INetworkConnection>>();
+
+            client.Authenticated.AddListener(func1);
+            client.sceneManager.ClientSceneChanged.AddListener(func2);
 
             client.sceneManager.FinishLoadScene();
 
-            Assert.That(onAuthInvokeCounter, Is.EqualTo(1));
-            Assert.That(onOnClientSceneChangedCounter, Is.EqualTo(1));
+            func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
+            func2.Received(1).Invoke(Arg.Any<INetworkConnection>());
         }
 
         [UnityTest]
