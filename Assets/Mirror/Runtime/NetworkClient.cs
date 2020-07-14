@@ -825,7 +825,7 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId);
 
-            if (Spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            if (Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity != null)
             {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
                     identity.HandleRpc(msg.componentIndex, msg.functionHash, networkReader);
@@ -836,7 +836,7 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("ClientScene.OnSyncEventMessage " + msg.netId);
 
-            if (Spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            if (Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity != null)
             {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
                     identity.HandleSyncEvent(msg.componentIndex, msg.functionHash, networkReader);

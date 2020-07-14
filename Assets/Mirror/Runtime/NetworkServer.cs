@@ -771,7 +771,7 @@ namespace Mirror
         // Handle ServerRpc from specific player, this could be one of multiple players on a single client
         void OnServerRpcMessage(INetworkConnection conn, ServerRpcMessage msg)
         {
-            if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity) || identity == null)
             {
                 logger.LogWarning("Spawned object not found when handling ServerRpc message [netId=" + msg.netId + "]");
                 return;

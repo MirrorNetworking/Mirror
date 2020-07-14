@@ -843,13 +843,6 @@ namespace Mirror
         // helper function to handle SyncEvent/ServerRpc/Rpc
         void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader, INetworkConnection senderConnection = null)
         {
-            // check if unity object has been destroyed
-            if (this == null)
-            {
-                logger.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + NetId + "]");
-                return;
-            }
-
             // hack sets the current client and server so that we can deserialize
             // gameobjects and network identities in the reader
             NetworkClient.Current = Client;
@@ -885,13 +878,6 @@ namespace Mirror
         // happens on server
         internal ServerRpcInfo GetServerRpcInfo(int componentIndex, int cmdHash)
         {
-            // check if unity object has been destroyed
-            if (this == null)
-            {
-                // error can be logged later
-                return default;
-            }
-
             // find the right component to invoke the function on
             if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
             {
