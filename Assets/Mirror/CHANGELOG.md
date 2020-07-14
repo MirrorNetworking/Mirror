@@ -1,3 +1,15 @@
+# [39.0.0](https://github.com/MirrorNG/MirrorNG/compare/38.0.0-master...39.0.0-master) (2020-07-14)
+
+
+### Features
+
+* Client attribute now throws error ([#274](https://github.com/MirrorNG/MirrorNG/issues/274)) ([f1b52f3](https://github.com/MirrorNG/MirrorNG/commit/f1b52f3d23e9aa50b5fab8509f3c769e97eac2e7))
+
+
+### BREAKING CHANGES
+
+* [ClientCallback] is now [Client(error = false)]
+
 # [38.0.0](https://github.com/MirrorNG/MirrorNG/compare/37.0.1-master...38.0.0-master) (2020-07-14)
 
 
