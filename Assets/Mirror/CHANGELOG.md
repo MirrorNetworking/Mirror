@@ -1,3 +1,10 @@
+## [37.0.1](https://github.com/MirrorNG/MirrorNG/compare/37.0.0-master...37.0.1-master) (2020-07-14)
+
+
+### Bug Fixes
+
+* smell cleanup left if bug. repaired with parenthesis. ([#275](https://github.com/MirrorNG/MirrorNG/issues/275)) ([dd52be3](https://github.com/MirrorNG/MirrorNG/commit/dd52be3bb9406de7b2527c72fce90c9ed6c9d5bf))
+
 # [37.0.0](https://github.com/MirrorNG/MirrorNG/compare/36.0.0-master...37.0.0-master) (2020-07-13)
 
 
