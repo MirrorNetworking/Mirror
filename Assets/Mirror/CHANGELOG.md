@@ -1,3 +1,19 @@
+# [40.0.0](https://github.com/MirrorNG/MirrorNG/compare/39.0.0-master...40.0.0-master) (2020-07-14)
+
+
+### Features
+
+* LocalPlayer attribute now throws error ([#277](https://github.com/MirrorNG/MirrorNG/issues/277)) ([15aa537](https://github.com/MirrorNG/MirrorNG/commit/15aa537947cd14e4d71853f1786c387519d8828b))
+
+
+### BREAKING CHANGES
+
+* [LocalPlayerCallback] is now [LocalPlayer(error = false)]
+
+* Local Player guard
+
+Co-authored-by: Paul Pacheco <paul.pacheco@aa.com>
+
 # [39.0.0](https://github.com/MirrorNG/MirrorNG/compare/38.0.0-master...39.0.0-master) (2020-07-14)
 
 
