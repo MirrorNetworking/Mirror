@@ -21,6 +21,21 @@ namespace Mirror.Tests
 
     public class NetworkServerTests : ClientServerSetup<MockComponent>
     {
+        class HandlerMock<T>
+        {
+            public bool invoked = false;
+
+            public void Handler(T msg)
+            {
+                invoked = true;
+            }
+
+            public void HandlerConn(INetworkConnection conn, T msg)
+            {
+                invoked = true;
+            }
+        }
+
         WovenTestMessage message;
         GameObject playerReplacement;
 
@@ -109,44 +124,37 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator SendToAll() => RunAsync(async () =>
         {
-            Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
+            var handler = new HandlerMock<WovenTestMessage>();
 
-            connectionToServer.RegisterHandler(func);
+            connectionToServer.RegisterHandler((Action< WovenTestMessage>)handler.Handler);
 
             server.SendToAll(message);
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            await Task.Delay(1);
-
-            func.Received().Invoke(
-                Arg.Is<WovenTestMessage>(msg => msg.Equals(message)
-            ));
+            await WaitFor(() => handler.invoked);
         });
 
         [UnityTest]
         public IEnumerator SendToClientOfPlayer() => RunAsync(async () =>
         {
-            Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
+            var handler = new HandlerMock<WovenTestMessage>();
 
-            connectionToServer.RegisterHandler(func);
+            connectionToServer.RegisterHandler((Action<WovenTestMessage>)handler.Handler);
 
             server.SendToClientOfPlayer(serverIdentity, message);
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            await Task.Delay(1);
-
-            func.Received().Invoke(
-                Arg.Is<WovenTestMessage>(msg => msg.Equals(message)
-            ));
+            await WaitFor(() => handler.invoked);
         });
 
         [UnityTest]
         public IEnumerator ShowForConnection() => RunAsync(async () =>
         {
-            Action<SpawnMessage> func = Substitute.For<Action<SpawnMessage>>();
-            connectionToServer.RegisterHandler(func);
+            var handler = new HandlerMock<SpawnMessage>();
+
+            connectionToServer.RegisterHandler((Action<SpawnMessage>)handler.Handler);
 
             connectionToClient.IsReady = true;
 
@@ -155,10 +163,7 @@ namespace Mirror.Tests
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            await Task.Delay(1);
-
-            func.Received().Invoke(
-                Arg.Any<SpawnMessage>());
+            await WaitFor(() => handler.invoked);
         });
 
         [Test]
@@ -184,33 +189,25 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator RegisterMessage1() => RunAsync(async () =>
         {
-            Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
+            var handler = new HandlerMock<WovenTestMessage>();
 
-            connectionToClient.RegisterHandler(func);
+            connectionToClient.RegisterHandler((Action<WovenTestMessage>)handler.Handler);
             connectionToServer.Send(message);
 
-            await Task.Delay(1);
+            await WaitFor(() => handler.invoked);
 
-            func.Received().Invoke(
-                Arg.Is<WovenTestMessage>(msg => msg.Equals(message)
-            ));
         });
 
         [UnityTest]
         public IEnumerator RegisterMessage2() => RunAsync(async () =>
         {
-            Action<INetworkConnection, WovenTestMessage> func = Substitute.For<Action<INetworkConnection, WovenTestMessage>>();
+            var handler = new HandlerMock<WovenTestMessage>();
 
-            connectionToClient.RegisterHandler<WovenTestMessage>(func);
+            connectionToClient.RegisterHandler<WovenTestMessage>((Action<INetworkConnection, WovenTestMessage>)handler.HandlerConn);
 
             connectionToServer.Send(message);
 
-            await Task.Delay(1);
-
-            func.Received().Invoke(
-                connectionToClient,
-                Arg.Is<WovenTestMessage>(msg => msg.Equals(message)
-            ));
+            await WaitFor(() => handler.invoked);
         });
 
         [UnityTest]
