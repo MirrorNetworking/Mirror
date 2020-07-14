@@ -6,6 +6,6 @@ namespace WeaverSyncVarTests.SyncVarArraySegment
     class SyncVarArraySegment : NetworkBehaviour
     {
        [SyncVar]
-       public ArraySegment<byte> data;
+       public ArraySegment<int> data;
     }
 }
