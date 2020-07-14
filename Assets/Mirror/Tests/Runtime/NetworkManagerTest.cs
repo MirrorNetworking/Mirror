@@ -29,7 +29,7 @@ namespace Mirror.Tests
         {
             manager.StopServer();
 
-            await Task.Delay(1);
+            await WaitFor(() => !client.Active);
 
             Assert.That(server.Active, Is.False);
             Assert.That(client.Active, Is.False);
@@ -41,9 +41,7 @@ namespace Mirror.Tests
         {
             manager.StopClient();
 
-            await Task.Delay(1);
-
-            Assert.That(client.Active, Is.False);
+            await WaitFor(() => !client.Active);
         });
     }
 }
