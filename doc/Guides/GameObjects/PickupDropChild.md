@@ -89,7 +89,7 @@ public class PlayerEquip : NetworkBehaviour
             CmdChangeEquippedItem(EquippedItem.cylinder);
     }
 
-    [Command]
+    [ServerRpc]
     void CmdChangeEquippedItem(EquippedItem selectedItem)
     {
         equippedItem = selectedItem;
@@ -123,7 +123,7 @@ First, let's add one more Input to the Update method above, and a `CmdDropItem` 
 ```
 
 ``` cs
-    [Command]
+    [ServerRpc]
     void CmdDropItem()
     {
         // Instantiate the scene object on the server
@@ -217,7 +217,7 @@ Now that we have a box dropped in the scene, we need to pick it up again. To do 
 
 ``` cs
     // CmdPickupItem is public because it's called from a script on the SceneObject
-    [Command]
+    [ServerRpc]
     public void CmdPickupItem(GameObject sceneObject)
     {
         // set the player's SyncVar so clients can show the equipped item

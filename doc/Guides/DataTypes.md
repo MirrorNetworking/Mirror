@@ -81,7 +81,7 @@ public static class DateTimeReaderWriter
 }
 ```
 
-...then you can use `DateTime` in your `[Command]` or `SyncList`
+...then you can use `DateTime` in your `[ServerRpc]` or `SyncList`
 
 ## Inheritance and Polymorphism
 
@@ -108,7 +108,7 @@ class Armor : Item
 
 class Player : NetworkBehaviour
 {
-    [Command]
+    [ServerRpc]
     void CmdEquip(Item item)
     {
         // IMPORTANT: this does not work. Mirror will pass you an object of type item
@@ -124,7 +124,7 @@ class Player : NetworkBehaviour
         }
     }
 
-    [Command]
+    [ServerRpc]
     void CmdEquipArmor(Armor armor)
     {
         // IMPORTANT: this does not work either, you will receive an armor, but 

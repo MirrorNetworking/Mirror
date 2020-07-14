@@ -142,7 +142,7 @@ void Update()
 
     if (Input.GetKeyDown(KeyCode.Space))
     {
-        // Command function is called on the client, but invoked on the server
+        // Server RPC Call function is called on the client, but invoked on the server
         CmdFire();
     }
 }
@@ -151,7 +151,7 @@ void Update()
 In the fire logic on the player, make it use the game object pool:
 
 ``` cs
-[Command]
+[ServerRpc]
 void CmdFire()
 {
     // Set up coin on server

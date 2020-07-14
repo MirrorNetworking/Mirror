@@ -23,7 +23,7 @@ MirrorNG is optimized for **ease of use** and **probability of success**. Projec
 
 With MirrorNG, the **Server & Client are ONE** project _(hence the name)_. Instead of having one code base for the server and one for the client, we simply use the same code for both of them.
 * `[Server]` / `[Client]` tags can be used for the server-only and client-only parts.
-* `[Command]`'s are used for Client->Server, and `[ClientRpc]` / `[TargetRpc]` for Server->Client communication.
+* `[ServerRpc]`'s are used for Client->Server, and `[ClientRpc]` / `[TargetRpc]` for Server->Client communication.
 * `[SyncVar]`'s and `SyncList`'s are used to automatically synchronize state.
 
 What previously required **10.000** lines of code, now takes **1.000** lines of code. Therein lies the **magic of Mirror**.
@@ -61,6 +61,7 @@ These are some notable differences between Mirror and MirrorNG:
 * [WIP] Allow connection to multiple servers simultaneously
 * [WIP] Error handling via Exceptions
 * [Done] Events instead of overrides for lifecycle events
+* [WIP] Global Client RPC
 
 ## Documentation
 Check out our [Documentation](https://mirrorng.github.io/MirrorNG/).

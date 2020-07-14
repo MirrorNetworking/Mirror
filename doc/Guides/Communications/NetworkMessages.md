@@ -1,6 +1,6 @@
 # Network Messages
 
-For the most part we recommend the high level [Commands and RPC](RemoteActions.md) calls and [SyncVar](../Sync/index.md), but you can also send low level network messages. This can be useful if you want clients to send messages that are not tied to game objects, such as logging, analytics or profiling information.
+For the most part we recommend the high level [RPC](RemoteActions.md) calls and [SyncVar](../Sync/index.md), but you can also send low level network messages. This can be useful if you want clients to send messages that are not tied to game objects, such as logging, analytics or profiling information.
 
 There is a class called MessageBase that you can extend to make serializable network message classes. This class has Serialize and Deserialize functions that take writer and reader objects. You can implement these functions yourself, but we recommend you let Mirror generate them for you.
 

@@ -1,18 +1,18 @@
 # Remote Actions
 
-The network system has ways to perform actions across the network. These type of actions are sometimes called Remote Procedure Calls. There are two types of RPCs in the network system, Commands - which are called from the client and run on the server; and ClientRpc calls - which are called on the server and run on clients.
+The network system has ways to perform actions across the network. These type of actions are sometimes called Remote Procedure Calls. There are two types of RPCs in the network system, ServerRpc - which are called from the client and run on the server; and ClientRpc calls - which are called on the server and run on clients.
 
 The diagram below shows the directions that remote actions take:
 
 ![Data Flow Graph](UNetDirections.jpg)
 
-## Commands
+## Server RPC Calls
 
-Commands are sent from player objects on the client to player objects on the server. For security, Commands can only be sent from YOUR player object by default, so you cannot control the objects of other players.  You can bypass the authority check using `[Command(requireAuthority = false)]`.
+Server RPC Calls are sent from player objects on the client to player objects on the server. For security, Server RPC Calls can only be sent from YOUR player object by default, so you cannot control the objects of other players.  You can bypass the authority check using `[ServerRpc(requireAuthority = false)]`.
 
-To make a function into a command, add the [Command] custom attribute to it, and add the “Cmd” prefix. This function will now be run on the server when it is called on the client. Any parameters of [allowed data type](../DataTypes.md) will be automatically passed to the server with the command.
+To make a function into a Server RPC Calls, add the [ServerRpc] custom attribute to it, and add the “Cmd” prefix. This function will now be run on the server when it is called on the client. Any parameters of [allowed data type](../DataTypes.md) will be automatically passed to the server with the Server RPC Call.
 
-Commands functions must have the prefix “Cmd” and cannot be static. This is a hint when reading code that calls the command - this function is special and is not invoked locally like a normal function.
+Server RPC Calls functions must have the prefix “Cmd” and cannot be static. This is a hint when reading code that calls the ServerRpc - this function is special and is not invoked locally like a normal function.
 
 ``` cs
 public class Player : NetworkBehaviour
@@ -28,7 +28,7 @@ public class Player : NetworkBehaviour
     // assigned in inspector
     public GameObject cubePrefab;
 
-    [Command]
+    [ServerRpc]
     void CmdDropCube()
     {
         if (cubePrefab != null)
@@ -42,19 +42,19 @@ public class Player : NetworkBehaviour
 }
 ```
 
-Be careful of sending commands from the client every frame! This can cause a lot of network traffic.
+Be careful of sending ServerRpcs from the client every frame! This can cause a lot of network traffic.
 
-### Commands and Authority
+### ServerRpc and Authority
 
-It is possible to invoke commands on non-player objects if any of the following are true:
+It is possible to invoke ServerRpcs on non-player objects if any of the following are true:
 
 - The object was spawned with client authority
 - The object has client authority set with `NetworkIdentity.AssignClientAuthority`
-- the Command has the `requireAuthority` option set false.  
-    - You can include an optional `NetworkConnectionToClient sender = null` parameter in the Command method signature and Mirror will fill in the sending client for you.
+- the Server RPC Call has the `requireAuthority` option set false.  
+    - You can include an optional `NetworkConnectionToClient sender = null` parameter in the Server RPC Call method signature and Mirror will fill in the sending client for you.
     - Do not try to set a value for this optional parameter...it will be ignored.
 
-Commands sent from these object are run on the server instance of the object, not on the associated player object for the client.
+Server RPC Calls sent from these object are run on the server instance of the object, not on the associated player object for the client.
 
 ```cs
 public enum DoorState : byte
@@ -67,7 +67,7 @@ public class Door : NetworkBehaviour
     [SyncVar]
     public DoorState doorState;
 
-    [Command(requrieAuthority = false)]
+    [ServerRpc(requrieAuthority = false)]
     public void CmdSetDoorState(DoorState newDoorState, NetworkConnectionToClient sender = null)
     {
         if (sender.identity.GetComponent<Player>().hasDoorKey)
@@ -116,14 +116,14 @@ TargetRpc functions are called by user code on the server, and then invoked on t
 -   If the first parameter of your TargetRpc method is a `NetworkConnection` then that's the connection that will receive the message regardless of context.
 -   If the first parameter is any other type, then the owner client of the object with the script containing your TargetRpc will receive the message.
 
-This example shows how a client can use a Command to make a request from the server (`CmdMagic`) by including its own `connectionToClient` as one of the parameters of the TargetRpc invoked directly from that Command:
+This example shows how a client can use a Server RPC Call to make a request from the server (`CmdMagic`) by including its own `connectionToClient` as one of the parameters of the TargetRpc invoked directly from that Server RPC Call:
 
 ``` cs
 public class Player : NetworkBehaviour
 {
     int health;
 
-    [Command]
+    [ServerRpc]
     void CmdMagic(GameObject target, int damage)
     {
         target.GetComponent<Player>().health -= damage;
@@ -139,7 +139,7 @@ public class Player : NetworkBehaviour
         Debug.Log($"Magic Damage = {damage}");
     }
 
-    [Command]
+    [ServerRpc]
     void CmdHealMe()
     {
         health += 10;
@@ -157,6 +157,6 @@ public class Player : NetworkBehaviour
 
 ## Arguments to Remote Actions
 
-The arguments passed to commands and ClientRpc calls are serialized and sent over the network. You can use any [supported mirror type](../DataTypes.md).
+The arguments passed to ServerRpc and ClientRpc calls are serialized and sent over the network. You can use any [supported mirror type](../DataTypes.md).
 
 Arguments to remote actions cannot be sub-components of game objects, such as script instances or Transforms.

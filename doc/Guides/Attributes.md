@@ -16,7 +16,7 @@ These attributes can be used for Unity game loop methods like Start or Update, a
     The server uses a Remote Procedure Call (RPC) to run that function on clients. See also: [Remote Actions](Communications/RemoteActions.md)
 -   **TargetRpc**  
     This is an attribute that can be put on methods of NetworkBehaviour classes to allow them to be invoked on clients from a server. Unlike the ClientRpc attribute, these functions are invoked on one individual target client, not all of the ready clients. See also: [Remote Actions](Communications/RemoteActions.md)
--   **Command**  
+-   **ServerRpc**  
     Call this from a client to run this function on the server. Make sure to validate input etc. It's not possible to call this from a server. Use this as a wrapper around another function, if you want to call it from the server too. See also [Remote Actions​](Communications/RemoteActions.md)  
     The allowed argument types are:
 
