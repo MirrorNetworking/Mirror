@@ -1,3 +1,10 @@
+## [40.1.1](https://github.com/MirrorNG/MirrorNG/compare/40.1.0-master...40.1.1-master) (2020-07-14)
+
+
+### Bug Fixes
+
+* prevent NRE when operating as a separated client and server ([#283](https://github.com/MirrorNG/MirrorNG/issues/283)) ([e10e198](https://github.com/MirrorNG/MirrorNG/commit/e10e198b4865fc8c941244c3e368eebc6cf73179))
+
 # [40.1.0](https://github.com/MirrorNG/MirrorNG/compare/40.0.0-master...40.1.0-master) (2020-07-14)
 
 
