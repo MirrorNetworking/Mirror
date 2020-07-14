@@ -137,6 +137,15 @@ namespace Mirror.Tests
             });
         }
 
+        [Test]
+        public void HostModeClientSceneException()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                sceneManager.ClientSceneMessage(null, new SceneMessage());
+            });
+        }
+
         int ClientChangeCalled;
         public void ClientChangeScene(string sceneName, SceneOperation sceneOperation)
         {
@@ -214,5 +223,18 @@ namespace Mirror.Tests
             Assert.That(onAuthInvokeCounter, Is.EqualTo(1));
             Assert.That(onOnClientSceneChangedCounter, Is.EqualTo(1));
         }
+
+        [UnityTest]
+        public IEnumerator ClientOfflineSceneException() => RunAsync(async () =>
+        {
+            client.Disconnect();
+
+            await WaitFor(() => !client.Active);
+
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                client.sceneManager.ClientSceneMessage(null, new SceneMessage());
+            });
+        });
     }
 }

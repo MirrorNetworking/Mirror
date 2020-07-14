@@ -215,17 +215,21 @@ namespace Mirror
         internal void ClientSceneMessage(INetworkConnection conn, SceneMessage msg)
         {
             if (!client.IsConnected)
-                return;
-
-            if (server && server.LocalClient)
-                return;
-                
-            if (string.IsNullOrEmpty(msg.sceneName))
             {
-                throw new ArgumentNullException(msg.sceneName, "ClientChangeScene: " + msg.sceneName + " cannot be empty or null");
+                throw new InvalidOperationException("ClientSceneMessage: cannot change network scene while client is disconnected");
             }
 
-            if (logger.LogEnabled()) logger.Log("ClientChangeScene newSceneName:" + msg.sceneName + " networkSceneName:" + networkSceneName);
+            if (server && server.LocalClient)
+            {
+                throw new InvalidOperationException("ClientSceneMessage: cannot change client network scene while operating in host mode");
+            }
+
+            if (string.IsNullOrEmpty(msg.sceneName))
+            {
+                throw new ArgumentNullException(msg.sceneName, "ClientSceneMessage: " + msg.sceneName + " cannot be empty or null");
+            }
+
+            if (logger.LogEnabled()) logger.Log("ClientSceneMessage: changing scenes from: " + networkSceneName + " to:" + msg.sceneName);
 
             // Let client prepare for scene change
             OnClientChangeScene(msg.sceneName, msg.sceneOperation);
