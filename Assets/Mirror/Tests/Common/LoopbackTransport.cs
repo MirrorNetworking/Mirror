@@ -17,6 +17,8 @@ namespace Mirror.Tests
 
         public override string Scheme => "local";
 
+        public override bool Supported => true;
+
         public override Task<IConnection> ConnectAsync(Uri uri)
         {
             (IConnection c1, IConnection c2) = PipeConnection.CreatePipe();

@@ -17,6 +17,8 @@ namespace Mirror.Tests
 
         public override string Scheme => "tcp4";
 
+        public override bool Supported => true;
+
         public override async Task<IConnection> ConnectAsync(Uri uri)
         {
             return await ConnectConnections.DequeueAsync();

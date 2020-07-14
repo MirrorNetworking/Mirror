@@ -13,102 +13,49 @@ namespace Mirror
         {
             get
             {
-                foreach (Transport transport in transports)
-                {
-                    try
-                    {
-                        return transport.Scheme;
-                    }
-                    catch (PlatformNotSupportedException)
-                    {
-                        // try the next transport
-                    }
-                }
-                throw new PlatformNotSupportedException("None of the transports is supported in this platform");
+                return GetTransport().Scheme;
             }
         }
 
-        public override async Task<IConnection> AcceptAsync()
+        private Transport GetTransport()
         {
             foreach (Transport transport in transports)
             {
-                try
-                {
-                    return await transport.AcceptAsync();
-                }
-                catch (PlatformNotSupportedException)
-                {
-                    // try the next transport
-                }
+                if (transport.Supported)
+                    return transport;
             }
-
             throw new PlatformNotSupportedException("None of the transports is supported in this platform");
-       }
+        }
 
-        public override async Task<IConnection> ConnectAsync(Uri uri)
+        public override bool Supported => GetTransport() != null;
+
+        public override Task<IConnection> AcceptAsync()
         {
-            foreach (Transport transport in transports)
-            {
-                try
-                {
-                    return await transport.ConnectAsync(uri);
-                }
-                catch (PlatformNotSupportedException)
-                {
-                    // try the next transport
-                }
-            }
-            throw new PlatformNotSupportedException($"No transport was able to connect to {uri}");
+            return GetTransport().AcceptAsync();
+        }
+
+        public override Task<IConnection> ConnectAsync(Uri uri)
+        {
+            return GetTransport().ConnectAsync(uri);
         }
 
         public override void Disconnect()
         {
             foreach (Transport transport in transports)
             {
-                try
-                {
+                if (transport.Supported)
                     transport.Disconnect();
-                    return;
-                }
-                catch (PlatformNotSupportedException)
-                {
-                    // try the next transport
-                }
             }
-            throw new PlatformNotSupportedException($"No transport available in this platform");
         }
 
-        public override async Task ListenAsync()
+        public override Task ListenAsync()
         {
-            foreach (Transport transport in transports)
-            {
-                try
-                {
-                    await transport.ListenAsync();
-                    return;
-                }
-                catch (PlatformNotSupportedException)
-                {
-                    // try the next transport
-                }
-            }
-            throw new PlatformNotSupportedException($"No transport available in this platform");
+            return GetTransport().ListenAsync();
         }
 
         public override Uri ServerUri()
         {
-            foreach (Transport transport in transports)
-            {
-                try
-                {
-                    return transport.ServerUri();
-                }
-                catch (PlatformNotSupportedException)
-                {
-                    // try the next transport
-                }
-            }
-            throw new PlatformNotSupportedException($"No transport available in this platform");
+            return GetTransport().ServerUri();
         }
     }
 }

@@ -35,6 +35,9 @@ namespace Mirror.Tests
             transport1 = Substitute.For<Transport>();
             transport2 = Substitute.For<Transport>();
 
+            transport1.Supported.Returns(true);
+            transport2.Supported.Returns(true);
+
             transport.transports = new[] { transport1, transport2 };
             conn1 = Substitute.For<IConnection>();
             conn2 = Substitute.For<IConnection>();
@@ -130,8 +133,8 @@ namespace Mirror.Tests
         [Test]
         public void SchemeNone()
         {
-            transport1.Scheme.Returns(x => { throw new PlatformNotSupportedException(); });
-            transport2.Scheme.Returns(x => { throw new PlatformNotSupportedException(); });
+            transport1.Supported.Returns(false);
+            transport2.Supported.Returns(false);
 
             Assert.Throws<PlatformNotSupportedException>(() =>
             {
@@ -142,6 +145,9 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator Connect() => RunAsync(async () =>
         {
+            transport1.Scheme.Returns("yomama");
+            transport2.Scheme.Returns("tcp4");
+
             transport1.ConnectAsync(Arg.Any<Uri>())
                 .Returns(Task.FromException<IConnection>(new ArgumentException("Invalid protocol")));
 

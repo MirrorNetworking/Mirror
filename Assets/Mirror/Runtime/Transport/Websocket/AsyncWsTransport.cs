@@ -18,6 +18,9 @@ namespace Mirror.Websocket
 
         public override string Scheme => "ws";
 
+        // supported in all platforms
+        public override bool Supported => true;
+
         public override async Task<IConnection> AcceptAsync()
         {
             try

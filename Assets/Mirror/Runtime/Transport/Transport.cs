@@ -26,6 +26,12 @@ namespace Mirror
         public abstract void Disconnect();
 
         /// <summary>
+        /// Determines if this transport is supported in the current platform
+        /// </summary>
+        /// <returns>true if the transport works in this platform</returns>
+        public abstract bool Supported { get; }
+
+        /// <summary>
         /// Connect to a server located at a provided uri
         /// </summary>
         /// <param name="uri">address of the server to connect to</param>

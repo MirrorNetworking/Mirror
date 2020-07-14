@@ -35,6 +35,9 @@ namespace Mirror.Tests
             transport1 = Substitute.For<Transport>();
             transport2 = Substitute.For<Transport>();
 
+            transport1.Supported.Returns(true);
+            transport2.Supported.Returns(true);
+
             transport.transports = new[] { transport1, transport2 };
             conn1 = Substitute.For<IConnection>();
             conn2 = Substitute.For<IConnection>();
@@ -59,18 +62,17 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator AcceptTransport2() => RunAsync(async () =>
         {
+            transport1.Supported.Returns(false);
             transport2.AcceptAsync().Returns(Task.FromResult(conn1));
-            // transport1 task never ends
-            transport1.AcceptAsync().Returns(Task.FromException<IConnection>(new PlatformNotSupportedException()));
             Assert.That(await transport.AcceptAsync(), Is.SameAs(conn1));
         });
 
         [UnityTest]
         public IEnumerator AcceptMultiple() => RunAsync(async () =>
         {
+            transport2.Supported.Returns(false);
             transport1.AcceptAsync().Returns(Task.FromResult(conn1), Task.FromResult(conn2));
             // transport2 task never ends
-            transport2.AcceptAsync().Returns(Task.FromException<IConnection>(new PlatformNotSupportedException()));
             Assert.That(await transport.AcceptAsync(), Is.SameAs(conn1));
             Assert.That(await transport.AcceptAsync(), Is.SameAs(conn2));
         });
@@ -78,13 +80,12 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator AcceptInvalid() => RunAsync(async () =>
         {
-            transport1.AcceptAsync().Returns(Task.FromException<IConnection>(new PlatformNotSupportedException()));
-            // transport2 task never ends
-            transport2.AcceptAsync().Returns(Task.FromException<IConnection>(new PlatformNotSupportedException()));
+            transport1.Supported.Returns(false);
+            transport2.Supported.Returns(false);
 
             try
             {
-                IConnection accepted2 = await transport.AcceptAsync();
+                _ = await transport.AcceptAsync();
                 Assert.Fail("IF no sub transport is supported transport is not supported");
             }
             catch (PlatformNotSupportedException)
@@ -119,11 +120,11 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator Listen2() => RunAsync(async () =>
         {
-            transport1.ListenAsync().Returns(Task.FromException(new PlatformNotSupportedException()));
+            transport1.Supported.Returns(false);
             transport2.ListenAsync().Returns(Task.CompletedTask);
             await transport.ListenAsync();
 
-            _ = transport1.Received().ListenAsync();
+            _ = transport1.Received(0).ListenAsync();
             _ = transport2.Received().ListenAsync();
 
         });
@@ -131,8 +132,8 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator ListenNone() => RunAsync(async () =>
         {
-            transport1.ListenAsync().Returns(Task.FromException(new PlatformNotSupportedException()));
-            transport2.ListenAsync().Returns(Task.FromException(new PlatformNotSupportedException()));
+            transport1.Supported.Returns(false);
+            transport2.Supported.Returns(false);
 
             try
             {
@@ -151,35 +152,7 @@ namespace Mirror.Tests
         {
             transport.Disconnect();
             transport1.Received().Disconnect();
-            transport2.Received(0).Disconnect();
-        }
-
-        [Test]
-        public void Disconnect2()
-        {
-            transport1
-                .When(x => x.Disconnect())
-                .Do(x => { throw new PlatformNotSupportedException(); });
-
-            transport.Disconnect();
-            transport1.Received().Disconnect();
             transport2.Received().Disconnect();
-        }
-
-        [Test]
-        public void DisconnectNone()
-        {
-            transport1
-                .When(x => x.Disconnect())
-                .Do(x => { throw new PlatformNotSupportedException(); });
-            transport2
-                .When(x => x.Disconnect())
-                .Do(x => { throw new PlatformNotSupportedException(); });
-
-            Assert.Throws<PlatformNotSupportedException>(() =>
-            {
-                transport.Disconnect();
-            });
         }
 
         [Test]
@@ -193,7 +166,7 @@ namespace Mirror.Tests
         [Test]
         public void ServerUri2()
         {
-            transport1.ServerUri().Returns(x => { throw new PlatformNotSupportedException(); });
+            transport1.Supported.Returns(false);
             transport2.ServerUri().Returns(new Uri("tcp4://myserver"));
 
             Assert.That(transport.ServerUri(), Is.EqualTo(new Uri("tcp4://myserver")));
@@ -203,8 +176,8 @@ namespace Mirror.Tests
         [Test]
         public void ServerUriNone()
         {
-            transport1.ServerUri().Returns(x => { throw new PlatformNotSupportedException(); });
-            transport2.ServerUri().Returns(x => { throw new PlatformNotSupportedException(); });
+            transport1.Supported.Returns(false);
+            transport2.Supported.Returns(false);
 
             Assert.Throws<PlatformNotSupportedException>(() =>
             {
@@ -224,7 +197,7 @@ namespace Mirror.Tests
         [Test]
         public void Scheme2()
         {
-            transport1.Scheme.Returns(x => { throw new PlatformNotSupportedException(); });
+            transport1.Supported.Returns(false);
             transport2.Scheme.Returns("tcp4");
 
             Assert.That(transport.Scheme, Is.EqualTo("tcp4"));
@@ -234,8 +207,8 @@ namespace Mirror.Tests
         [Test]
         public void SchemeNone()
         {
-            transport1.Scheme.Returns(x => { throw new PlatformNotSupportedException(); });
-            transport2.Scheme.Returns(x => { throw new PlatformNotSupportedException(); });
+            transport1.Supported.Returns(false);
+            transport2.Supported.Returns(false);
 
             Assert.Throws<PlatformNotSupportedException>(() =>
             {
@@ -246,8 +219,7 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator Connect() => RunAsync(async () =>
         {
-            transport1.ConnectAsync(Arg.Any<Uri>())
-                .Returns(Task.FromException<IConnection>(new PlatformNotSupportedException("Invalid protocol")));
+            transport1.Supported.Returns(false);
 
             // transport2 gives a connection
             transport2.ConnectAsync(Arg.Any<Uri>())
@@ -261,12 +233,8 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator CannotConnect() => RunAsync(async () =>
         {
-            transport1.ConnectAsync(Arg.Any<Uri>())
-                .Returns(Task.FromException<IConnection>(new PlatformNotSupportedException("Invalid protocol")));
-
-            // transport2 gives a connection
-            transport2.ConnectAsync(Arg.Any<Uri>())
-                .Returns(Task.FromException<IConnection>(new PlatformNotSupportedException("Invalid protocol")));
+            transport1.Supported.Returns(false);
+            transport2.Supported.Returns(false);
 
             try
             {

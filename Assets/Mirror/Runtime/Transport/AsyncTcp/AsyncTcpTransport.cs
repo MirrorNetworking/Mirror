@@ -3,6 +3,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Mirror.AsyncTcp
 {
@@ -12,6 +13,8 @@ namespace Mirror.AsyncTcp
         public int Port = 7777;
 
         public override string Scheme => "tcp4";
+
+        public override bool Supported => Application.platform != RuntimePlatform.WebGLPlayer;
 
         public override Task ListenAsync()
         {
