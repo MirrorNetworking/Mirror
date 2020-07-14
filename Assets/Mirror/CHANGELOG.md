@@ -1,3 +1,10 @@
+# [40.2.0](https://github.com/MirrorNG/MirrorNG/compare/40.1.1-master...40.2.0-master) (2020-07-14)
+
+
+### Features
+
+* additive scene msging added to server ([#285](https://github.com/MirrorNG/MirrorNG/issues/285)) ([bd7a17a](https://github.com/MirrorNG/MirrorNG/commit/bd7a17a65fbc9aed64aaef6c65641697e8d89a74))
+
 ## [40.1.1](https://github.com/MirrorNG/MirrorNG/compare/40.1.0-master...40.1.1-master) (2020-07-14)
 
 
