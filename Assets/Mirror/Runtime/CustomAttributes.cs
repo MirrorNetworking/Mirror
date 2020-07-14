@@ -103,17 +103,17 @@ namespace Mirror
 
     /// <summary>
     /// Prevents the server from running this method.
-    /// <para>Prints a warning if the server tries to execute this method.</para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class ClientAttribute : Attribute { }
-
-    /// <summary>
-    /// Prevents the server from running this method.
-    /// <para>No warning is printed.</para>
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
-    public class ClientCallbackAttribute : Attribute { }
+    public class ClientAttribute : Attribute
+    {
+        /// <summary>
+        /// If true,  when the method is called from a client, it throws an error
+        /// If false, no error is thrown, but the method won't execute
+        /// useful for unity built in methods such as Await, Update, Start, etc.
+        /// </summary>
+        public bool error = true;
+    }
 
     /// <summary>
     /// Prevents players without authority from running this method.

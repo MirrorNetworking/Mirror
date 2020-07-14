@@ -11,9 +11,7 @@ These attributes can be used for Unity game loop methods like Start or Update, a
 -   **<xref:Mirror.ServerAttribute>**  
     Only a server can call the method (throws an error when called on a client unless you specify error = false).
 -   **<xref:Mirror.ClientAttribute>**  
-    Only a Client can call the method (throws a warning or an error when called on the server).
--   **ClientCallback**  
-    Same as **Client** but does not throw warning when called on server.
+    Only a Client can call the method (throws an error when called on the server unless you specify error = false).
 -   **ClientRpc**  
     The server uses a Remote Procedure Call (RPC) to run that function on clients. See also: [Remote Actions](Communications/RemoteActions.md)
 -   **TargetRpc**  

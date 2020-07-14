@@ -61,7 +61,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MonoBehaviourClientCallback()
         {
-            Assert.That(weaverErrors, Contains.Item("ClientCallback method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourClientCallback.MonoBehaviourClientCallback::ThisCantBeOutsideNetworkBehaviour())"));
+            Assert.That(weaverErrors, Contains.Item("Client method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourClientCallback.MonoBehaviourClientCallback::ThisCantBeOutsideNetworkBehaviour())"));
         }
     }
 }

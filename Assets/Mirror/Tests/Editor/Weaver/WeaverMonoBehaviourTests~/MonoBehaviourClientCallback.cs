@@ -5,7 +5,7 @@ namespace WeaverMonoBehaviourTests.MonoBehaviourClientCallback
 {
     class MonoBehaviourClientCallback : MonoBehaviour
     {
-        [ClientCallback]
+        [Client(error = false)]
         void ThisCantBeOutsideNetworkBehaviour() { }
     }
 }
