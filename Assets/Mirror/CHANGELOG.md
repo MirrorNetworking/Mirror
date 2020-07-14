@@ -1,3 +1,19 @@
+# [38.0.0](https://github.com/MirrorNG/MirrorNG/compare/37.0.1-master...38.0.0-master) (2020-07-14)
+
+
+### Features
+
+* HasAuthority attribute now throws error ([#276](https://github.com/MirrorNG/MirrorNG/issues/276)) ([da2355b](https://github.com/MirrorNG/MirrorNG/commit/da2355b4c1a51dbcbf6ceb405b6fc7b5bb14fa14))
+
+
+### BREAKING CHANGES
+
+* [HasAuthorityCallback] is now [HasAuthority(error = false)]
+
+* fix test
+
+Co-authored-by: Paul Pacheco <paul.pacheco@aa.com>
+
 ## [37.0.1](https://github.com/MirrorNG/MirrorNG/compare/37.0.0-master...37.0.1-master) (2020-07-14)
 
 
