@@ -88,6 +88,8 @@ namespace Mirror.Tests
             // now start the client
             await client.ConnectAsync(builder.Uri);
 
+            await WaitFor(() => server.connections.Count > 0);
+
             // get the connections so that we can spawn players
             connectionToClient = server.connections.First();
             connectionToServer = client.Connection;

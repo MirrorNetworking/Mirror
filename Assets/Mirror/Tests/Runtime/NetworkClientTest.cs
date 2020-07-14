@@ -118,7 +118,7 @@ namespace Mirror.Tests
                 netId = identity.NetId
             });
 
-            await Task.Delay(1);
+            await WaitFor(() => identity == null);
 
             Assert.That(identity == null);
         });
@@ -131,7 +131,7 @@ namespace Mirror.Tests
                 netId = identity.NetId
             });
 
-            await Task.Delay(1);
+            await WaitFor(() => identity == null);
 
             Assert.That(identity == null);
         });

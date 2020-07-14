@@ -18,7 +18,7 @@ namespace Mirror.Tests
         {
             var asyncQueue = new AsyncQueue<int>();
 
-            asyncQueue.Equeue(3);
+            asyncQueue.Enqueue(3);
 
             int result = await asyncQueue.DequeueAsync();
 
@@ -34,7 +34,7 @@ namespace Mirror.Tests
 
             Assert.That(task1.IsCompleted, Is.False);
 
-            asyncQueue.Equeue(1);
+            asyncQueue.Enqueue(1);
 
             Assert.That(await task1, Is.EqualTo(1));
         });
@@ -44,8 +44,8 @@ namespace Mirror.Tests
         {
             var asyncQueue = new AsyncQueue<int>();
 
-            asyncQueue.Equeue(1);
-            asyncQueue.Equeue(2);
+            asyncQueue.Enqueue(1);
+            asyncQueue.Enqueue(2);
 
             Assert.That(await asyncQueue.DequeueAsync(), Is.EqualTo(1));
             Assert.That(await asyncQueue.DequeueAsync(), Is.EqualTo(2));

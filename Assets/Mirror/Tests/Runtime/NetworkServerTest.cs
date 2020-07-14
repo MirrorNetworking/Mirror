@@ -151,64 +151,72 @@ namespace Mirror.Tests
             Assert.That(server.Connected.GetListenerNumber(), Is.Zero);
         });
 
-        [Test]
-        public void ConnectedEventTest()
+        [UnityTest]
+        public IEnumerator ConnectedEventTest() => RunAsync(async () =>
         {
             UnityAction<INetworkConnection> func = Substitute.For<UnityAction<INetworkConnection>>();
             server.Connected.AddListener(func);
 
-            transport.AcceptCompletionSource.SetResult(tconn42);
+            transport.AcceptConnections.Enqueue(tconn42);
+
+            await WaitFor(() => transport.AcceptConnections.Count == 0);
 
             func.Received().Invoke(Arg.Any<INetworkConnection>());
-        }
+        });
 
-        [Test]
-        public void ConnectionTest()
+        [UnityTest]
+        public IEnumerator ConnectionTest() => RunAsync(async () =>
         {
-            transport.AcceptCompletionSource.SetResult(tconn42);
-            Assert.That(server.connections, Has.Count.EqualTo(1));
-        }
+            transport.AcceptConnections.Enqueue(tconn42);
 
-        [Test]
-        public void MaxConnectionsTest()
+            await WaitFor(() => transport.AcceptConnections.Count == 0);
+
+            Assert.That(server.connections, Has.Count.EqualTo(1));
+        });
+
+        [UnityTest]
+        public IEnumerator MaxConnectionsTest() => RunAsync(async () =>
         {
             // listen with maxconnections=1
             server.MaxConnections = 1;
             Assert.That(server.connections, Is.Empty);
 
             // connect first: should work
-            transport.AcceptCompletionSource.SetResult(tconn42);
+            transport.AcceptConnections.Enqueue(tconn42);
+            transport.AcceptConnections.Enqueue(tconn43);
+            await WaitFor(() => transport.AcceptConnections.Count == 0);
+
             Assert.That(server.connections, Has.Count.EqualTo(1));
-
-            // connect second: should fail
-            transport.AcceptCompletionSource.SetResult(tconn43);
-            Assert.That(server.connections, Has.Count.EqualTo(1));
-        }
+        });
 
 
-        [Test]
-        public void DisconnectMessageHandlerTest()
+        [UnityTest]
+        public IEnumerator DisconnectMessageHandlerTest() => RunAsync(async () =>
         {
             // subscribe to disconnected
             UnityAction<INetworkConnection> func = Substitute.For<UnityAction<INetworkConnection>>();
             server.Disconnected.AddListener(func);
 
             // accept a connection and disconnect
-            transport.AcceptCompletionSource.SetResult(tconn42);
+            transport.AcceptConnections.Enqueue(tconn42);
+            await WaitFor(() => transport.AcceptConnections.Count == 0);
+
             tconn42Receive.SetResult(false);
 
             // make sure the callback got invoked
             func.Received().Invoke(Arg.Any<NetworkConnection>());
-        }
+        });
 
-        [Test]
-        public void MultipleConnectionsTest()
+        [UnityTest]
+        public IEnumerator MultipleConnectionsTest() => RunAsync(async () =>
         {
-            transport.AcceptCompletionSource.SetResult(tconn42);
-            transport.AcceptCompletionSource.SetResult(tconn43);
+            transport.AcceptConnections.Enqueue(tconn42);
+            transport.AcceptConnections.Enqueue(tconn43);
+
+            await WaitFor(() => transport.AcceptConnections.Count == 0);
 
             Assert.That(server.connections, Has.Count.EqualTo(2));
-        }
+        });
 
         [Test]
         public void LocalClientActiveTest()
@@ -264,14 +272,18 @@ namespace Mirror.Tests
             Assert.That(server.connections, Is.Empty);
         }
 
-        [Test]
-        public void DisconnectAllConnectionsTest()
+        [UnityTest]
+        public IEnumerator DisconnectAllConnectionsTest() => RunAsync(async () =>
         {
-            transport.AcceptCompletionSource.SetResult(tconn42);
-            transport.AcceptCompletionSource.SetResult(tconn43);
+            transport.AcceptConnections.Enqueue(tconn42);
+            transport.AcceptConnections.Enqueue(tconn43);
+
+            await WaitFor(() => transport.AcceptConnections.Count == 0);
 
             // disconnect all connections and local connection
             server.Disconnect();
+
+            await WaitFor(() => transport.AcceptConnections.Count == 0);
 
             tconn42.Received().Disconnect();
             tconn43.Received().Disconnect();
@@ -281,7 +293,7 @@ namespace Mirror.Tests
             tconn43Receive.SetResult(false);
 
             Assert.That(server.connections, Is.Empty);
-        }
+        });
 
         [Test]
         public void SetClientReadyAndNotReadyTest()

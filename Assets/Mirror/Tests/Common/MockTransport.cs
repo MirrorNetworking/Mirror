@@ -6,27 +6,25 @@ namespace Mirror.Tests
 
     public class MockTransport : Transport
     {
-        public TaskCompletionSource<IConnection> AcceptCompletionSource ;
+        public readonly AsyncQueue<IConnection> AcceptConnections = new AsyncQueue<IConnection>();
 
-        public override Task<IConnection> AcceptAsync()
+        public override async Task<IConnection> AcceptAsync()
         {
-            AcceptCompletionSource = new TaskCompletionSource<IConnection>();
-            return AcceptCompletionSource.Task;
+            return await AcceptConnections.DequeueAsync();
         }
 
-        public TaskCompletionSource<IConnection> ConnectCompletionSource;
+        public readonly AsyncQueue<IConnection> ConnectConnections = new AsyncQueue<IConnection>();
 
         public override string Scheme => "tcp4";
 
-        public override Task<IConnection> ConnectAsync(Uri uri)
+        public override async Task<IConnection> ConnectAsync(Uri uri)
         {
-            ConnectCompletionSource = new TaskCompletionSource<IConnection>();
-            return ConnectCompletionSource.Task;
+            return await ConnectConnections.DequeueAsync();
         }
 
         public override void Disconnect()
         {
-            AcceptCompletionSource.TrySetResult(null);
+            AcceptConnections.Enqueue(null);
         }
 
         public override Task ListenAsync()
