@@ -60,7 +60,7 @@ namespace Mirror.Websocket
             var builder = new UriBuilder
             {
                 Host = Dns.GetHostName(),
-                Port = this.Port,
+                Port = Port,
                 Scheme = "ws"
             };
 
