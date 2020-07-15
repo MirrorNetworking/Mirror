@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using UnityEngine;
 using UnityEngine.Events;
@@ -55,7 +56,7 @@ namespace Mirror.Discovery
                 return new ServerResponse
                 {
                     serverId = ServerId,
-                    uri = transport.ServerUri()
+                    uri = transport.ServerUri().ToArray()
                 };
             }
             catch (NotImplementedException)
@@ -96,11 +97,13 @@ namespace Mirror.Discovery
             // the provided host
             // However we know the real ip address of the server because we just
             // received a packet from it,  so use that as host.
-            var realUri = new UriBuilder(response.uri)
-            {
-                Host = response.EndPoint.Address.ToString()
-            };
-            response.uri = realUri.Uri;
+
+            response.uri = response.uri.Select(uri =>
+                new UriBuilder(uri)
+                {
+                    Host = response.EndPoint.Address.ToString()
+                }.Uri).ToArray();
+
 
             OnServerFound.Invoke(response);
         }

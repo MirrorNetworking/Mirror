@@ -12,6 +12,7 @@ using System;
 using Object = UnityEngine.Object;
 using Mirror.Websocket;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Mirror.Tests
 {
@@ -172,7 +173,7 @@ namespace Mirror.Tests
         [Test]
         public void TestServerUri()
         {
-            Uri serverUri = transport.ServerUri();
+            Uri serverUri = transport.ServerUri().First();
 
             Assert.That(serverUri.Port, Is.EqualTo(port));
             Assert.That(serverUri.Host, Is.EqualTo(Dns.GetHostName()).IgnoreCase);

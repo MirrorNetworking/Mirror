@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Mirror.Discovery
@@ -87,7 +88,7 @@ namespace Mirror.Discovery
 
         void Connect(ServerResponse info)
         {
-            networkManager.StartClient(info.uri);
+            networkManager.StartClient(info.uri.First());
         }
 
         public void OnDiscoveredServer(ServerResponse info)

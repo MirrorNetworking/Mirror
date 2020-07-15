@@ -63,7 +63,7 @@ namespace Mirror.Tcp
             }
         }
 
-        public override Uri ServerUri()
+        public override IEnumerable<Uri> ServerUri()
         {
             var builder = new UriBuilder
             {
@@ -72,7 +72,7 @@ namespace Mirror.Tcp
                 Scheme = "tcp4"
             };
 
-            return builder.Uri;
+            return new[] { builder.Uri } ;
         }
 
         public void OnApplicationQuit()

@@ -93,9 +93,9 @@ namespace Mirror
             Accepters = null;
         }
 
-        public override Uri ServerUri()
-        {
-            return transports[0].ServerUri();
-        }
+        public override IEnumerable<Uri> ServerUri() =>
+            transports
+                .Where(transport => transport.Supported)
+                .SelectMany(transport => transport.ServerUri());
     }
 }

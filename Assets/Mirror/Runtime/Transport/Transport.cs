@@ -53,6 +53,6 @@ namespace Mirror
         /// Useful for network discovery
         /// </summary>
         /// <returns>the url at which this server can be reached</returns>
-        public abstract Uri ServerUri();
+        public abstract IEnumerable<Uri> ServerUri();
     }
 }

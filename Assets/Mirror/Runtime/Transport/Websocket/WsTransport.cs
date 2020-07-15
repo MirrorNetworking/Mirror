@@ -56,7 +56,7 @@ namespace Mirror.Websocket
             return Task.CompletedTask;
         }
 
-        public override Uri ServerUri()
+        public override IEnumerable<Uri> ServerUri()
         {
             var builder = new UriBuilder
             {
@@ -65,7 +65,7 @@ namespace Mirror.Websocket
                 Scheme = "ws"
             };
 
-            return builder.Uri;
+            return new[] { builder.Uri };
         }
         #endregion
 

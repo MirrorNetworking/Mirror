@@ -158,18 +158,18 @@ namespace Mirror.Tests
         [Test]
         public void ServerUri1()
         {
-            transport1.ServerUri().Returns(new Uri("tcp4://myserver"));
+            transport1.ServerUri().Returns(new[] { new Uri("tcp4://myserver") });
 
-            Assert.That(transport.ServerUri(), Is.EqualTo(new Uri("tcp4://myserver")));
+            Assert.That(transport.ServerUri(), Is.EquivalentTo(new[] { new Uri("tcp4://myserver") }));
         }
 
         [Test]
         public void ServerUri2()
         {
             transport1.Supported.Returns(false);
-            transport2.ServerUri().Returns(new Uri("tcp4://myserver"));
+            transport2.ServerUri().Returns(new[] { new Uri("tcp4://myserver") });
 
-            Assert.That(transport.ServerUri(), Is.EqualTo(new Uri("tcp4://myserver")));
+            Assert.That(transport.ServerUri(), Is.EquivalentTo(new[] { new Uri("tcp4://myserver") }));
         }
 
 

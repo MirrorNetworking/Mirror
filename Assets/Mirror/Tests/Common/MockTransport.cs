@@ -35,9 +35,9 @@ namespace Mirror.Tests
             return Task.CompletedTask;
         }
 
-        public override Uri ServerUri()
+        public override IEnumerable<Uri> ServerUri()
         {
-            return new Uri("tcp4://localhost");
+            return new[] { new Uri("tcp4://localhost") };
         }
     }
 }

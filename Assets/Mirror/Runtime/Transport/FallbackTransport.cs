@@ -54,7 +54,7 @@ namespace Mirror
             return GetTransport().ListenAsync();
         }
 
-        public override Uri ServerUri()
+        public override IEnumerable<Uri> ServerUri()
         {
             return GetTransport().ServerUri();
         }

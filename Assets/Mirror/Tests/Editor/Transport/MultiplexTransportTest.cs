@@ -117,9 +117,9 @@ namespace Mirror.Tests
         [Test]
         public void ServerUri()
         {
-            transport1.ServerUri().Returns(new Uri("tcp4://myserver"));
+            transport1.ServerUri().Returns(new[] { new Uri("tcp4://myserver") });
 
-            Assert.That(transport.ServerUri(), Is.EqualTo(new Uri("tcp4://myserver")));
+            Assert.That(transport.ServerUri(), Is.EquivalentTo(new[] { new Uri("tcp4://myserver") }));
         }
 
         [Test]

@@ -10,7 +10,7 @@ namespace Mirror.Discovery
         // client fills this up after we receive it
         public IPEndPoint EndPoint { get; set; }
 
-        public Uri uri;
+        public Uri[] uri;
 
         // Prevent duplicate server appearance when a connection can be made via LAN on multiple NICs
         public long serverId;

@@ -39,13 +39,15 @@ namespace Mirror.Tests
             return Task.CompletedTask;
         }
 
-        public override Uri ServerUri()
+        public override IEnumerable<Uri> ServerUri()
         {
-            return new UriBuilder
+            var builder = new UriBuilder
             {
                 Scheme = Scheme.First(),
                 Host = "localhost"
-            }.Uri;
+            };
+
+            return new[] { builder.Uri };
         }
     }
 }
