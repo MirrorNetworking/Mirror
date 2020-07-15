@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace Mirror
     /// </summary>
     public abstract class Transport : MonoBehaviour
     {
-        public abstract string Scheme { get; }
+        public abstract IEnumerable<string> Scheme { get; }
 
         /// <summary>
         /// Open up the port and listen for connections

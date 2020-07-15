@@ -125,28 +125,28 @@ namespace Mirror.Tests
         [Test]
         public void Scheme1()
         {
-            transport1.Scheme.Returns("tcp4");
+            transport1.Scheme.Returns(new[] { "tcp4" });
 
-            Assert.That(transport.Scheme, Is.EqualTo("tcp4"));
+            Assert.That(transport.Scheme, Is.EquivalentTo(new[] { "tcp4" }));
         }
 
         [Test]
         public void SchemeNone()
         {
+            transport1.Scheme.Returns(new[] { "yomama" });
+            transport2.Scheme.Returns(new[] { "pepe" });
             transport1.Supported.Returns(false);
             transport2.Supported.Returns(false);
 
-            Assert.Throws<PlatformNotSupportedException>(() =>
-            {
-                _ = transport.Scheme;
-            });
+            
+            Assert.That(transport.Scheme, Is.Empty);
         }
 
         [UnityTest]
         public IEnumerator Connect() => RunAsync(async () =>
         {
-            transport1.Scheme.Returns("yomama");
-            transport2.Scheme.Returns("tcp4");
+            transport1.Scheme.Returns(new[] { "yomama" });
+            transport2.Scheme.Returns(new[] { "tcp4" });
 
             transport1.ConnectAsync(Arg.Any<Uri>())
                 .Returns(Task.FromException<IConnection>(new ArgumentException("Invalid protocol")));

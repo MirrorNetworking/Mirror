@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
@@ -9,7 +10,7 @@ namespace Mirror
 
         public Transport[] transports;
 
-        public override string Scheme
+        public override IEnumerable<string> Scheme
         {
             get
             {

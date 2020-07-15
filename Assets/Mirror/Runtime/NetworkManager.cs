@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -112,7 +113,7 @@ namespace Mirror
             var builder = new UriBuilder
             {
                 Host = serverIp,
-                Scheme = transport.Scheme,
+                Scheme = transport.Scheme.First(),
             };
 
             return client.ConnectAsync(builder.Uri);

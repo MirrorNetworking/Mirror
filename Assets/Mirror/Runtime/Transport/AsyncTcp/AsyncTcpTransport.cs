@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Mirror.AsyncTcp
         private TcpListener listener;
         public int Port = 7777;
 
-        public override string Scheme => "tcp4";
+        public override IEnumerable<string> Scheme => new[] { "tcp4" };
 
         public override bool Supported => Application.platform != RuntimePlatform.WebGLPlayer;
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -16,7 +17,7 @@ namespace Mirror.Websocket
         private TcpListener listener;
         private readonly IWebSocketServerFactory webSocketServerFactory = new WebSocketServerFactory();
 
-        public override string Scheme => "ws";
+        public override IEnumerable<string> Scheme => new[] { "ws", "wss" };
 
         // supported in all platforms
         public override bool Supported => true;

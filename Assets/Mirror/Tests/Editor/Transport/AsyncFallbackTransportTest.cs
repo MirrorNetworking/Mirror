@@ -189,18 +189,18 @@ namespace Mirror.Tests
         [Test]
         public void Scheme1()
         {
-            transport1.Scheme.Returns("tcp4");
+            transport1.Scheme.Returns(new[] { "tcp4" });
 
-            Assert.That(transport.Scheme, Is.EqualTo("tcp4"));
+            Assert.That(transport.Scheme, Is.EquivalentTo(new[] { "tcp4" }));
         }
 
         [Test]
         public void Scheme2()
         {
             transport1.Supported.Returns(false);
-            transport2.Scheme.Returns("tcp4");
+            transport2.Scheme.Returns(new[] { "tcp4" });
 
-            Assert.That(transport.Scheme, Is.EqualTo("tcp4"));
+            Assert.That(transport.Scheme, Is.EquivalentTo(new[] { "tcp4" }));
         }
 
 

@@ -82,7 +82,7 @@ namespace Mirror.Tests
             var builder = new UriBuilder
             {
                 Host = "localhost",
-                Scheme = client.Transport.Scheme,
+                Scheme = client.Transport.Scheme.First(),
             };
 
             // now start the client

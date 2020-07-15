@@ -13,18 +13,10 @@ namespace Mirror
 
         private Dictionary<Task<IConnection>, Transport> Accepters;
 
-        public override string Scheme
-        {
-            get
-            {
-                foreach (Transport transport in transports)
-                {
-                    if (transport.Supported)
-                        return transport.Scheme;
-                }
-                throw new PlatformNotSupportedException("No transport was able to provide scheme");
-            }
-        }
+        public override IEnumerable<string> Scheme =>
+            transports
+                .Where(transport => transport.Supported)
+                .SelectMany(transport => transport.Scheme);
 
         private Transport GetTransport()
         {
@@ -82,7 +74,7 @@ namespace Mirror
         {
             foreach (Transport transport in transports)
             {
-                if (transport.Supported && transport.Scheme == uri.Scheme)
+                if (transport.Supported && transport.Scheme.Contains(uri.Scheme))
                     return transport.ConnectAsync(uri);
             }
             throw new ArgumentException($"No transport was able to connect to {uri}");

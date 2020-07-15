@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Mirror.Tests
@@ -15,7 +17,7 @@ namespace Mirror.Tests
 
         public readonly AsyncQueue<IConnection> CoonnectedConnections = new AsyncQueue<IConnection>();
 
-        public override string Scheme => "local";
+        public override IEnumerable<string> Scheme => new [] { "local" };
 
         public override bool Supported => true;
 
@@ -41,7 +43,7 @@ namespace Mirror.Tests
         {
             return new UriBuilder
             {
-                Scheme = Scheme,
+                Scheme = Scheme.First(),
                 Host = "localhost"
             }.Uri;
         }

@@ -15,8 +15,8 @@ using System.Threading.Tasks;
 
 namespace Mirror.Tests
 {
-    [TestFixture(typeof(AsyncTcpTransport), "tcp4", "tcp4://localhost", 7777)]
-    [TestFixture(typeof(AsyncWsTransport), "ws", "ws://localhost", 7778)]
+    [TestFixture(typeof(AsyncTcpTransport), new[] { "tcp4" }, "tcp4://localhost", 7777)]
+    [TestFixture(typeof(AsyncWsTransport), new[] { "ws", "wss" }, "ws://localhost", 7778)]
     public class AsyncTransportTests<T> where T : Transport
     {
         #region SetUp
@@ -25,9 +25,9 @@ namespace Mirror.Tests
         private GameObject transportObj;
         private Uri uri;
         private int port;
-        private string scheme;
+        private string[] scheme;
 
-        public AsyncTransportTests(string scheme, string uri, int port)
+        public AsyncTransportTests(string[] scheme, string uri, int port)
         {
             this.scheme = scheme;
             this.uri = new Uri(uri);
@@ -182,7 +182,7 @@ namespace Mirror.Tests
         [Test]
         public void TestScheme()
         {
-            Assert.That(transport.Scheme, Is.EqualTo(scheme));
+            Assert.That(transport.Scheme, Is.EquivalentTo(scheme));
         }
     }
 }

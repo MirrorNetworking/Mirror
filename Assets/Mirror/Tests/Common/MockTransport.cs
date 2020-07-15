@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Mirror.Tests
@@ -15,7 +16,7 @@ namespace Mirror.Tests
 
         public readonly AsyncQueue<IConnection> ConnectConnections = new AsyncQueue<IConnection>();
 
-        public override string Scheme => "tcp4";
+        public override IEnumerable<string> Scheme => new []{"tcp4"};
 
         public override bool Supported => true;
 
