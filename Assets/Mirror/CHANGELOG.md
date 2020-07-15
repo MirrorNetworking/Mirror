@@ -1,3 +1,10 @@
+# [41.1.0](https://github.com/MirrorNG/MirrorNG/compare/41.0.0-master...41.1.0-master) (2020-07-15)
+
+
+### Features
+
+* Transports can have multiple uri ([#292](https://github.com/MirrorNG/MirrorNG/issues/292)) ([155a29c](https://github.com/MirrorNG/MirrorNG/commit/155a29c053421f870241a75427db748fbef08910))
+
 # [41.0.0](https://github.com/MirrorNG/MirrorNG/compare/40.3.0-master...41.0.0-master) (2020-07-15)
 
 
