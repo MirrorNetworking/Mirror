@@ -182,7 +182,11 @@ namespace Mirror.Cloud.ListServerService
             while (pingFails <= MaxPingFails)
             {
                 yield return new WaitForSeconds(PingInterval);
-                if (skipNextPing) { continue; }
+                if (skipNextPing)
+                {
+                    skipNextPing = false;
+                    continue;
+                }
 
                 sending = true;
                 UnityWebRequest request = requestCreator.Patch("servers/" + serverId, new EmptyJson());
