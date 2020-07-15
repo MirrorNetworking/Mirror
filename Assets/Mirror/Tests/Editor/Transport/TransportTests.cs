@@ -23,9 +23,9 @@ namespace Mirror.Tests
 
         private T transport;
         private GameObject transportObj;
-        private Uri uri;
-        private int port;
-        private string[] scheme;
+        private readonly Uri uri;
+        private readonly int port;
+        private readonly string[] scheme;
 
         public AsyncTransportTests(string[] scheme, string uri, int port)
         {
