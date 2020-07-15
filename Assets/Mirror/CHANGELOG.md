@@ -1,3 +1,15 @@
+# [42.0.0](https://github.com/MirrorNG/MirrorNG/compare/41.1.0-master...42.0.0-master) (2020-07-15)
+
+
+### breaking
+
+* Removed websocket transport ([f26159b](https://github.com/MirrorNG/MirrorNG/commit/f26159b7b4d31d643a1dc2a28b1797bd2ad28f68))
+
+
+### BREAKING CHANGES
+
+* Removed websocket transport
+
 # [41.1.0](https://github.com/MirrorNG/MirrorNG/compare/41.0.0-master...41.1.0-master) (2020-07-15)
 
 
