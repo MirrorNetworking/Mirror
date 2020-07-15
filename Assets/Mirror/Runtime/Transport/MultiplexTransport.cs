@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Mirror
 {
-    public class AsyncMultiplexTransport : Transport
+    public class MultiplexTransport : Transport
     {
 
         public Transport[] transports;

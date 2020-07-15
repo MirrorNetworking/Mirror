@@ -11,12 +11,12 @@ using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
 {
-    public class AsyncMultiplexTransportTest
+    public class MultiplexTransportTest
     {
         #region SetUp
 
         private GameObject transportObj;
-        private AsyncMultiplexTransport transport;
+        private MultiplexTransport transport;
 
         private Transport transport1;
         private Transport transport2;
@@ -29,7 +29,7 @@ namespace Mirror.Tests
         {
             transportObj = new GameObject();
 
-            transport = transportObj.AddComponent<AsyncMultiplexTransport>();
+            transport = transportObj.AddComponent<MultiplexTransport>();
 
             // this gives warnings,  it is ok
             transport1 = Substitute.For<Transport>();
