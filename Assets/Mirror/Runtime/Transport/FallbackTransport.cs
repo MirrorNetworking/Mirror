@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Mirror
 {
-    public class AsyncFallbackTransport : Transport
+    public class FallbackTransport : Transport
     {
 
         public Transport[] transports;

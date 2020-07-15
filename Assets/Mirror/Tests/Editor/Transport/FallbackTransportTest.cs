@@ -11,12 +11,12 @@ using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
 {
-    public class AsyncFallbackTransportTest
+    public class FallbackTransportTest
     {
         #region SetUp
 
         private GameObject transportObj;
-        private AsyncFallbackTransport transport;
+        private FallbackTransport transport;
 
         private Transport transport1;
         private Transport transport2;
@@ -29,7 +29,7 @@ namespace Mirror.Tests
         {
             transportObj = new GameObject();
 
-            transport = transportObj.AddComponent<AsyncFallbackTransport>();
+            transport = transportObj.AddComponent<FallbackTransport>();
 
             // this gives warnings,  it is ok
             transport1 = Substitute.For<Transport>();
