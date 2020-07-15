@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace Mirror.AsyncTcp
+namespace Mirror.Tcp
 {
     internal class TcpConnection : IConnection
     {

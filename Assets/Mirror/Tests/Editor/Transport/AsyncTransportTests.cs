@@ -2,7 +2,7 @@ using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Mirror.AsyncTcp;
+using Mirror.Tcp;
 using System.Text;
 using System.IO;
 using System.Net;
@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Mirror.Tests
 {
-    [TestFixture(typeof(AsyncTcpTransport), new[] { "tcp4" }, "tcp4://localhost", 7777)]
+    [TestFixture(typeof(TcpTransport), new[] { "tcp4" }, "tcp4://localhost", 7777)]
     [TestFixture(typeof(AsyncWsTransport), new[] { "ws", "wss" }, "ws://localhost", 7778)]
     public class AsyncTransportTests<T> where T : Transport
     {

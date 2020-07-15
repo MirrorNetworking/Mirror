@@ -6,9 +6,9 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Mirror.AsyncTcp
-{
-    public class AsyncTcpTransport : Transport
+namespace Mirror.Tcp
+{ 
+    public class TcpTransport : Transport
     {
         private TcpListener listener;
         public int Port = 7777;
