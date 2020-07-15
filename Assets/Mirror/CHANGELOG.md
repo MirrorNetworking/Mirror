@@ -1,3 +1,10 @@
+# [42.1.0](https://github.com/MirrorNG/MirrorNG/compare/42.0.0-master...42.1.0-master) (2020-07-15)
+
+
+### Features
+
+* Make AsyncQueue public for transports ([5df0d98](https://github.com/MirrorNG/MirrorNG/commit/5df0d98307eff409dd16e67fddedb25710b68b6d))
+
 # [42.0.0](https://github.com/MirrorNG/MirrorNG/compare/41.1.0-master...42.0.0-master) (2020-07-15)
 
 
