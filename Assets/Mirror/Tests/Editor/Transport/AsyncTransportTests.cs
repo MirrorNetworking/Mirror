@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace Mirror.Tests
 {
     [TestFixture(typeof(TcpTransport), new[] { "tcp4" }, "tcp4://localhost", 7777)]
-    [TestFixture(typeof(AsyncWsTransport), new[] { "ws", "wss" }, "ws://localhost", 7778)]
+    [TestFixture(typeof(WsTransport), new[] { "ws", "wss" }, "ws://localhost", 7778)]
     public class AsyncTransportTests<T> where T : Transport
     {
         #region SetUp

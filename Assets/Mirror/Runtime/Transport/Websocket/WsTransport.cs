@@ -9,7 +9,7 @@ using Ninja.WebSockets;
 
 namespace Mirror.Websocket
 {
-    public class AsyncWsTransport : Transport
+    public class WsTransport : Transport
     {
         public int Port = 7778;
 
