@@ -98,7 +98,7 @@ namespace Mirror
 
         void RegisterClientMessages(INetworkConnection connection)
         {
-            connection.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
+            connection.RegisterHandler<NotReadyMessage>(ClientNotReadyMessage);
             connection.RegisterHandler<SceneMessage>(ClientSceneMessage);
         }
 
@@ -237,7 +237,7 @@ namespace Mirror
             ApplySceneOperation(msg.sceneName, msg.sceneOperation);  
         }
 
-        void OnClientNotReadyMessageInternal(INetworkConnection conn, NotReadyMessage msg)
+        internal void ClientNotReadyMessage(INetworkConnection conn, NotReadyMessage msg)
         {
             logger.Log("NetworkSceneManager.OnClientNotReadyMessageInternal");
 

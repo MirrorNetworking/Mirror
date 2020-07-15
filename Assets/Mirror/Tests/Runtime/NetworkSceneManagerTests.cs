@@ -205,5 +205,17 @@ namespace Mirror.Tests
                 client.sceneManager.ClientSceneMessage(null, new SceneMessage());
             });
         });
+
+        [Test]
+        public void ClientNotReady()
+        {
+            UnityAction<INetworkConnection> func1 = Substitute.For<UnityAction<INetworkConnection>>();
+            client.sceneManager.ClientNotReady.AddListener(func1);
+            client.sceneManager.SetClientReady(client.Connection);
+            client.sceneManager.ClientNotReadyMessage(null, new NotReadyMessage());
+
+            Assert.That(client.sceneManager.Ready, Is.False);
+            func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
+        }
     }
 }
