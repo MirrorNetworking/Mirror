@@ -10,14 +10,12 @@ using System.Net;
 using static Mirror.Tests.AsyncUtil;
 using System;
 using Object = UnityEngine.Object;
-using Mirror.Websocket;
 using System.Threading.Tasks;
 using System.Linq;
 
 namespace Mirror.Tests
 {
     [TestFixture(typeof(TcpTransport), new[] { "tcp4" }, "tcp4://localhost", 7777)]
-    [TestFixture(typeof(WsTransport), new[] { "ws", "wss" }, "ws://localhost", 7778)]
     public class AsyncTransportTests<T> where T : Transport
     {
         #region SetUp
