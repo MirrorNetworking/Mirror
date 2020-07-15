@@ -1,6 +1,8 @@
 # Created by performance test
 Assets/StreamingAssets/
 Assets/StreamingAssets.meta
+Assets/Resources
+Assets/Resources.meta
 
 # =============== #
 # Unity generated #
