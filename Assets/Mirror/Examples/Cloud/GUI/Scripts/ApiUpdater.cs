@@ -9,6 +9,8 @@ namespace Mirror.Cloud.Example
     /// </summary>
     public class ApiUpdater : MonoBehaviour
     {
+        static readonly ILogger logger = LogFactory.GetLogger<ApiUpdater>();
+
         NetworkManagerListServer manager;
         ApiConnector connector;
         public string gameName = "Game";
@@ -36,13 +38,15 @@ namespace Mirror.Cloud.Example
             if (connector.ListServer.ServerApi.ServerInList)
             {
                 // update player count so that other players can see
-                if (playerCount < 2)
+                if (playerCount < manager.maxConnections)
                 {
+                    if (logger.LogEnabled()) logger.Log($"Updating Server, player count: {playerCount} ");
                     connector.ListServer.ServerApi.UpdateServer(playerCount);
                 }
-                // remove server when there is more thasn 2 players
+                // remove server when there is max players
                 else
                 {
+                    if (logger.LogEnabled()) logger.Log($"Removing Server, player count: {playerCount}");
                     connector.ListServer.ServerApi.RemoveServer();
                 }
             }
@@ -51,6 +55,7 @@ namespace Mirror.Cloud.Example
                 // if not in list, and player counts drops below 2, add server to list
                 if (playerCount < 2)
                 {
+                    if (logger.LogEnabled()) logger.Log($"Adding Server, player count: {playerCount}");
                     AddServer(playerCount);
                 }
             }
