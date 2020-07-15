@@ -1,3 +1,24 @@
+# [41.0.0](https://github.com/MirrorNG/MirrorNG/compare/40.3.0-master...41.0.0-master) (2020-07-15)
+
+
+### breaking
+
+* AsyncFallbackTransport -> FallbackTransport ([f8f643a](https://github.com/MirrorNG/MirrorNG/commit/f8f643a6245777279de31dc8997a7ea84328533e))
+* AsyncMultiplexTransport -> MultiplexTransport ([832b7f9](https://github.com/MirrorNG/MirrorNG/commit/832b7f9528595e45769790c4be4fd94e873c96f4))
+* rename AsyncWsTransport -> WsTransport ([9c394bc](https://github.com/MirrorNG/MirrorNG/commit/9c394bc96192a50ad273371b66c9289d75402dc6))
+
+
+### Features
+
+* Transports may support any number of schemes ([#291](https://github.com/MirrorNG/MirrorNG/issues/291)) ([2af7b9d](https://github.com/MirrorNG/MirrorNG/commit/2af7b9d19cef3878147eee412adf2b9b32c91147))
+
+
+### BREAKING CHANGES
+
+* rename AsyncMultiplexTransport -> MultiplexTransport
+* rename AsyncFallbackTransport -> FallbackTransport
+* rename AsyncWsTransport -> WsTransport
+
 # [40.3.0](https://github.com/MirrorNG/MirrorNG/compare/40.2.0-master...40.3.0-master) (2020-07-14)
 
 
