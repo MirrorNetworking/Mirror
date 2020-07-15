@@ -9,19 +9,19 @@ namespace Mirror
         private readonly Queue<T> queue = new Queue<T>();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(0);
 
-        internal void Enqueue(T v)
+        public void Enqueue(T v)
         {
             queue.Enqueue(v);
             semaphore.Release();
         }
 
-        internal async Task<T> DequeueAsync()
+        public async Task<T> DequeueAsync()
         {
             await semaphore.WaitAsync();
             return queue.Dequeue();
         }
 
-        internal int Count => queue.Count;
+        public int Count => queue.Count;
 
     }
 }
