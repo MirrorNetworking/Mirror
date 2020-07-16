@@ -18,7 +18,7 @@ namespace Mirror.Weaver
             => string.Format("void {0}({1} oldValue, {1} newValue)", hookName, ValueType);
 
         // Get hook method if any
-        public static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar)
+        public static MethodDefinition GetHookMethod(FieldDefinition syncVar)
         {
             CustomAttribute syncVarAttr = syncVar.GetCustomAttribute(Weaver.SyncVarType.FullName);
 
@@ -30,12 +30,12 @@ namespace Mirror.Weaver
             if (hookFunctionName == null)
                 return null;
 
-            return FindHookMethod(td, syncVar, hookFunctionName);
+            return FindHookMethod(syncVar, hookFunctionName);
         }
 
-        static MethodDefinition FindHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName)
+        static MethodDefinition FindHookMethod(FieldDefinition syncVar, string hookFunctionName)
         {
-            List<MethodDefinition> methods = td.GetMethods(hookFunctionName);
+            List<MethodDefinition> methods = syncVar.DeclaringType.GetMethods(hookFunctionName);
 
             List<MethodDefinition> methodsWith2Param = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == 2));
 
@@ -119,10 +119,11 @@ namespace Mirror.Weaver
             get.Body.InitLocals = true;
             get.SemanticsAttributes = MethodSemanticsAttributes.Getter;
 
+            get.DeclaringType = fd.DeclaringType;
             return get;
         }
 
-        public static MethodDefinition ProcessSyncVarSet(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
+        public static MethodDefinition ProcessSyncVarSet(FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
         {
             //Create the set method
             var set = new MethodDefinition("set_Network" + originalName, MethodAttributes.Public |
@@ -217,7 +218,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Call, gm));
             }
 
-            MethodDefinition hookMethod = GetHookMethod(td, fd);
+            MethodDefinition hookMethod = GetHookMethod(fd);
 
             if (hookMethod != null)
             {
@@ -256,14 +257,15 @@ namespace Mirror.Weaver
 
             set.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.In, fd.FieldType));
             set.SemanticsAttributes = MethodSemanticsAttributes.Setter;
+            set.DeclaringType = fd.DeclaringType;
 
             return set;
         }
 
-        public static void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit)
+        public static void ProcessSyncVar(FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit)
         {
             string originalName = fd.Name;
-            Weaver.DLog(td, "Sync Var " + fd.Name + " " + fd.FieldType + " " + Weaver.gameObjectType);
+            Weaver.DLog(fd.DeclaringType, "Sync Var " + fd.Name + " " + fd.FieldType + " " + Weaver.gameObjectType);
 
             // GameObject/NetworkIdentity SyncVars have a new field for netId
             FieldDefinition netIdField = null;
@@ -278,7 +280,7 @@ namespace Mirror.Weaver
             }
 
             MethodDefinition get = ProcessSyncVarGet(fd, originalName, netIdField);
-            MethodDefinition set = ProcessSyncVarSet(td, fd, originalName, dirtyBit, netIdField);
+            MethodDefinition set = ProcessSyncVarSet(fd, originalName, dirtyBit, netIdField);
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
@@ -288,10 +290,11 @@ namespace Mirror.Weaver
                 SetMethod = set
             };
 
+            propertyDefinition.DeclaringType = fd.DeclaringType;
             //add the methods and property to the type.
-            td.Methods.Add(get);
-            td.Methods.Add(set);
-            td.Properties.Add(propertyDefinition);
+            fd.DeclaringType.Methods.Add(get);
+            fd.DeclaringType.Methods.Add(set);
+            fd.DeclaringType.Properties.Add(propertyDefinition);
             Weaver.WeaveLists.replacementSetterProperties[fd] = set;
 
             // replace getter field if GameObject/NetworkIdentity so it uses
@@ -340,7 +343,7 @@ namespace Mirror.Weaver
                     {
                         syncVars.Add(fd);
 
-                        ProcessSyncVar(td, fd, syncVarNetIds, 1L << dirtyBitCounter);
+                        ProcessSyncVar(fd, syncVarNetIds, 1L << dirtyBitCounter);
                         dirtyBitCounter += 1;
                         numSyncVars += 1;
 

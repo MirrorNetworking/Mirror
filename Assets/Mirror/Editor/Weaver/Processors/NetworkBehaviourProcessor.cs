@@ -488,7 +488,7 @@ namespace Mirror.Weaver
         void DeserializeField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize)
         {
             // check for Hook function
-            MethodDefinition hookMethod = SyncVarProcessor.GetHookMethod(netBehaviourSubclass, syncVar);
+            MethodDefinition hookMethod = SyncVarProcessor.GetHookMethod(syncVar);
 
             if (IsNetworkIdentityField(syncVar))
             {
