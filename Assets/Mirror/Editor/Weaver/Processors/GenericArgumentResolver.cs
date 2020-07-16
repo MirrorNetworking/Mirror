@@ -13,23 +13,21 @@ namespace Mirror.Weaver
             this.maxGenericArgument = maxGenericArgument;
         }
 
-        public bool GetGenericFromBaseClass(TypeDefinition td, int genericArgument, TypeReference baseType, out TypeReference itemType)
+        public TypeReference GetGenericFromBaseClass(TypeDefinition td, int genericArgument, TypeReference baseType)
         {
-            itemType = null;
             if (GetGenericBaseType(td, baseType, out GenericInstanceType parent))
             {
                 TypeReference arg = parent.GenericArguments[genericArgument];
                 if (arg.IsGenericParameter)
                 {
-                    itemType = FindParameterInStack(td, genericArgument);
+                    return FindParameterInStack(td, genericArgument);
                 }
                 else
                 {
-                    itemType = Weaver.CurrentAssembly.MainModule.ImportReference(arg);
+                    return Weaver.CurrentAssembly.MainModule.ImportReference(arg);
                 }
             }
-
-            return itemType != null;
+            return null;
         }
 
         TypeReference FindParameterInStack(TypeDefinition td, int genericArgument)

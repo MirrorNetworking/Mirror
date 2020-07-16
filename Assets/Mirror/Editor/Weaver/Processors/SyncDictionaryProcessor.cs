@@ -15,7 +15,8 @@ namespace Mirror.Weaver
         {
             GenericArgumentResolver resolver = new GenericArgumentResolver(2);
 
-            if (resolver.GetGenericFromBaseClass(td, 0, Weaver.SyncDictionaryType, out TypeReference keyType))
+            TypeReference keyType = resolver.GetGenericFromBaseClass(td, 0, Weaver.SyncDictionaryType);
+            if (keyType != null)
             {
                 SyncObjectProcessor.GenerateSerialization(td, keyType, Weaver.SyncDictionaryType, "SerializeKey", "DeserializeKey");
             }
@@ -25,7 +26,8 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (resolver.GetGenericFromBaseClass(td, 1, Weaver.SyncDictionaryType, out TypeReference itemType))
+            TypeReference itemType = resolver.GetGenericFromBaseClass(td, 1, Weaver.SyncDictionaryType);
+            if (itemType != null)
             {
                 SyncObjectProcessor.GenerateSerialization(td, itemType, Weaver.SyncDictionaryType, "SerializeItem", "DeserializeItem");
             }
