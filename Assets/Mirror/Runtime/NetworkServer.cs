@@ -216,7 +216,9 @@ namespace Mirror
             }
         }
 
-        // cleanup resources so that we can start again
+        /// <summary>
+        /// cleanup resources so that we can start again
+        /// </summary>
         private void Cleanup()
         {
 
@@ -261,7 +263,9 @@ namespace Mirror
             connections.Remove(conn);
         }
 
-        // called by LocalClient to add itself. dont call directly.
+        /// <summary>
+        /// called by LocalClient to add itself. dont call directly.
+        /// </summary>
         internal void SetLocalConnection(NetworkClient client, IConnection tconn)
         {
             if (LocalConnection != null)
@@ -277,6 +281,9 @@ namespace Mirror
 
         }
 
+        /// <summary>
+        /// Loops spawned collection for NetworkIdentieis that are not IsClient and calls StartClient().
+        /// </summary>
         internal void ActivateHostScene()
         {
             foreach (NetworkIdentity identity in spawned.Values)

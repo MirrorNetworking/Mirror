@@ -340,7 +340,8 @@ namespace Mirror
             server.SetAllClientsNotReady();
 
             // Let server prepare for scene change
-            OnServerChangeScene(newSceneName);
+            if(sceneOperation == SceneOperation.Normal)
+                OnServerChangeScene(newSceneName);
 
             ApplySceneOperation(newSceneName, sceneOperation);
 

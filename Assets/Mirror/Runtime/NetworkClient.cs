@@ -360,6 +360,7 @@ namespace Mirror
         {
             // add all unspawned NetworkIdentities to spawnable objects
             spawnableObjects.Clear();
+            //TODO: This pulls all objects in all scenes. Find a way to pass the loaded scene and use Scene.GetRootGameObjects to be more efficient?
             IEnumerable<NetworkIdentity> sceneObjects =
                 Resources.FindObjectsOfTypeAll<NetworkIdentity>()
                                .Where(ConsiderForSpawning);
