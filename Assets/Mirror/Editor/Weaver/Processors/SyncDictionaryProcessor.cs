@@ -13,7 +13,7 @@ namespace Mirror.Weaver
         /// <param name="td">The synclist class</param>
         public static void Process(TypeDefinition td)
         {
-            GenericArgumentResolver resolver = new GenericArgumentResolver(2);
+            var resolver = new GenericArgumentResolver(2);
 
             TypeReference keyType = resolver.GetGenericFromBaseClass(td, 0, Weaver.SyncDictionaryType);
             if (keyType != null)

@@ -14,7 +14,7 @@ namespace Mirror.Weaver
         /// <param name="mirrorBaseType">the base SyncObject td inherits from</param>
         public static void Process(TypeDefinition td, TypeReference mirrorBaseType)
         {
-            GenericArgumentResolver resolver = new GenericArgumentResolver(1);
+            var resolver = new GenericArgumentResolver(1);
 
             TypeReference itemType = resolver.GetGenericFromBaseClass(td, 0, mirrorBaseType);
             if (itemType != null)
