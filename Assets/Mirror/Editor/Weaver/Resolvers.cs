@@ -60,12 +60,12 @@ namespace Mirror.Weaver
         // System.Byte[] arguments need a version with a string
         public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, string argTypeFullName)
         {
-            bool match(MethodDefinition method) =>
+            bool Match(MethodDefinition method) =>
                     method.Name == name
                     && (method.Parameters.Count == 1)
                     && method.Parameters[0].ParameterType.FullName == argTypeFullName;
 
-            return ResolveMethod(tr, scriptDef, match);
+            return ResolveMethod(tr, scriptDef, Match);
         }
 
         // reuse ResolveMethodWithArg string version
