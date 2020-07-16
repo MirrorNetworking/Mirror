@@ -92,7 +92,7 @@ namespace Mirror
         public readonly HashSet<INetworkConnection> connections = new HashSet<INetworkConnection>();
 
         /// <summary>
-        /// <para>If you enable this, the server will not listen for incoming connections on the regular network port.</para>
+        /// <para>If you disable this, the server will not listen for incoming connections on the regular network port.</para>
         /// <para>This can be used if the game is running in host mode and does not want external players to be able to connect - making it like a single-player game. Also this can be useful when using AddExternalConnection().</para>
         /// </summary>
         public bool Listening = true;

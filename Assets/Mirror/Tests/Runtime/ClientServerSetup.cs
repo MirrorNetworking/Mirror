@@ -35,10 +35,7 @@ namespace Mirror.Tests
         protected INetworkConnection connectionToServer;
         protected INetworkConnection connectionToClient;
 
-        public virtual void ExtraSetup()
-        {
-
-        }
+        public virtual void ExtraSetup() { }
 
         [UnitySetUp]
         public IEnumerator Setup() => RunAsync(async () =>
@@ -108,6 +105,8 @@ namespace Mirror.Tests
             clientComponent = clientPlayerGO.GetComponent<T>();
         });
 
+        public virtual void ExtraTearDown() { }
+
         [UnityTearDown]
         public IEnumerator ShutdownHost() => RunAsync(async () =>
         {
@@ -122,6 +121,8 @@ namespace Mirror.Tests
             Object.DestroyImmediate(clientGo);
             Object.DestroyImmediate(serverPlayerGO);
             Object.DestroyImmediate(clientPlayerGO);
+
+            ExtraTearDown();
         });
 
         #endregion

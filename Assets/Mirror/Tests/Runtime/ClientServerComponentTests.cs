@@ -6,7 +6,6 @@ using UnityEngine.TestTools;
 using Guid = System.Guid;
 using Object = UnityEngine.Object;
 using static Mirror.Tests.AsyncUtil;
-using System.Threading.Tasks;
 
 namespace Mirror.Tests
 {

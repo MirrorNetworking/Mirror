@@ -22,6 +22,8 @@ namespace Mirror.Tests
         protected NetworkIdentity identity;
         protected T component;
 
+        public virtual void ExtraSetup() { }
+
         [UnitySetUp]
         public IEnumerator SetupHost() => RunAsync(async () =>
         {
@@ -39,6 +41,8 @@ namespace Mirror.Tests
             sceneManager.client = client;
             sceneManager.server = server;
 
+            ExtraSetup();
+
             // wait for client and server to initialize themselves
             await Task.Delay(1);
 
@@ -54,6 +58,8 @@ namespace Mirror.Tests
             client.Update();
         });
 
+        public virtual void ExtraTearDown() { }
+
         [UnityTearDown]
         public IEnumerator ShutdownHost() => RunAsync(async () =>
         {
@@ -62,6 +68,8 @@ namespace Mirror.Tests
 
             await Task.Delay(1);
             Object.Destroy(networkManagerGo);
+
+            ExtraTearDown();
         });
 
         #endregion

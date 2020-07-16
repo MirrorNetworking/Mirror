@@ -1,4 +1,5 @@
 using NUnit.Framework;
+
 namespace Mirror.Tests
 {
     [TestFixture]

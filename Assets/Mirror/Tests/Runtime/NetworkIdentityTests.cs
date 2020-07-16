@@ -10,7 +10,7 @@ using NSubstitute;
 using System;
 using System.Threading.Tasks;
 
-namespace Mirror.Tests.Runtime
+namespace Mirror.Tests
 {
     public class NetworkIdentityTests
     {

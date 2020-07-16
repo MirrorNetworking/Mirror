@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -42,7 +41,7 @@ namespace Mirror.Tests
         {
             client.Disconnect();
 
-            await Task.Delay(1);
+            await WaitFor(() => !client.Active);
 
             sceneManager.ServerSceneChanged.AddListener(TestOnServerOnlySceneChangedInvoke);
 
