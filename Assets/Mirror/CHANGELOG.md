@@ -1,3 +1,10 @@
+## [42.1.1](https://github.com/MirrorNG/MirrorNG/compare/42.1.0-master...42.1.1-master) (2020-07-16)
+
+
+### Bug Fixes
+
+* dont register client scene handlers while host ([#296](https://github.com/MirrorNG/MirrorNG/issues/296)) ([37c8ddd](https://github.com/MirrorNG/MirrorNG/commit/37c8ddd87595143149af942dc7e5654de3eef424))
+
 # [42.1.0](https://github.com/MirrorNG/MirrorNG/compare/42.0.0-master...42.1.0-master) (2020-07-15)
 
 
