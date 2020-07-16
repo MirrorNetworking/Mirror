@@ -37,7 +37,7 @@ namespace Mirror.Weaver
         {
             List<MethodDefinition> methods = syncVar.DeclaringType.GetMethods(hookFunctionName);
 
-            List<MethodDefinition> methodsWith2Param = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == 2));
+            var methodsWith2Param = new List<MethodDefinition>(methods.Where(m => m.Parameters.Count == 2));
 
             if (methodsWith2Param.Count == 0)
             {
