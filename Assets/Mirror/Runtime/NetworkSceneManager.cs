@@ -207,7 +207,9 @@ namespace Mirror
         // called after successful authentication
         void OnClientAuthenticated(INetworkConnection conn)
         {
-            RegisterClientMessages(conn);
+            //Dont register msg handlers in host mode
+            if (!client.IsLocalClient)
+                RegisterClientMessages(conn);
 
             logger.Log("NetworkSceneManager.OnClientAuthenticated");
         }

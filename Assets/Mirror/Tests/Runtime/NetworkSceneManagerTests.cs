@@ -161,16 +161,21 @@ namespace Mirror.Tests
             func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
         }
 
-        //Flakey Test
-        //[UnityTest]
-        //public IEnumerator ChangeSceneAdditiveLoadTest() => RunAsync(async () =>
-        //{            
-        //    server.sceneManager.ChangeServerScene("testScene", SceneOperation.LoadAdditive);
+        [UnityTest]
+        public IEnumerator ChangeSceneAdditiveLoadTest() => RunAsync(async () =>
+        {
+            server.sceneManager.ChangeServerScene("testScene", SceneOperation.LoadAdditive);
 
-        //    await WaitFor(() => SceneManager.GetSceneByName("testScene") != null);
+            await WaitFor(() => SceneManager.GetSceneByName("testScene") != null);
 
-        //    Assert.That(SceneManager.GetSceneByName("testScene"), Is.Not.Null);
-        //});
+            Assert.That(SceneManager.GetSceneByName("testScene"), Is.Not.Null);
+        });
+
+        [Test]
+        public void ClientNoHandlersInHostMode()
+        {
+            Assert.DoesNotThrow(() => { server.SendToAll(new SceneMessage()); }); 
+        }
     }
 
     public class NetworkSceneManagerNonHostTests : ClientServerSetup<MockComponent>
