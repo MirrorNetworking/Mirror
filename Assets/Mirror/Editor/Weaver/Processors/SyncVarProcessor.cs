@@ -384,7 +384,7 @@ namespace Mirror.Weaver
 
         public static void WriteCallHookMethodUsingArgument(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue)
         {
-            _WriteCallHookMethod(worker, hookMethod, oldValue, null);
+            WriteCallHookMethod(worker, hookMethod, oldValue, null);
         }
 
         public static void WriteCallHookMethodUsingField(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
@@ -394,10 +394,10 @@ namespace Mirror.Weaver
                 Weaver.Error("NewValue field was null when writing SyncVar hook");
             }
 
-            _WriteCallHookMethod(worker, hookMethod, oldValue, newValue);
+            WriteCallHookMethod(worker, hookMethod, oldValue, newValue);
         }
 
-        static void _WriteCallHookMethod(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
+        static void WriteCallHookMethod(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
         {
             WriteStartFunctionCall();
 
