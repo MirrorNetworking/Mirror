@@ -74,6 +74,7 @@ namespace Mirror
             if (client != null)
             {
                 client.Authenticated.AddListener(OnClientAuthenticated);
+                client.Disconnected.AddListener(OnClientDisconnected);
             }
             if (server != null)
             {
@@ -212,6 +213,13 @@ namespace Mirror
                 RegisterClientMessages(conn);
 
             logger.Log("NetworkSceneManager.OnClientAuthenticated");
+        }
+
+        void OnClientDisconnected()
+        {
+            Ready = false;
+            client.Authenticated.RemoveListener(OnClientAuthenticated);
+            client.Disconnected.RemoveListener(OnClientDisconnected);
         }
 
         internal void ClientSceneMessage(INetworkConnection conn, SceneMessage msg)
