@@ -790,11 +790,11 @@ namespace Mirror
         /// The name of the current network scene.
         /// </summary>
         /// <remarks>
-        /// <para>This is populated if the NetworkManager is doing scene management. This should not be changed directly. Calls to ServerChangeScene() cause this to change. New clients that connect to a server will automatically load this scene.</para>
+        /// <para>This is populated if the NetworkManager is doing scene management. Calls to ServerChangeScene() cause this to change. New clients that connect to a server will automatically load this scene.</para>
         /// <para>This is used to make sure that all scene changes are initialized by Mirror.</para>
         /// <para>Loading a scene manually wont set networkSceneName, so Mirror would still load it again on start.</para>
         /// </remarks>
-        public static string networkSceneName = "";
+        public static string networkSceneName { get; protected set; } = "";
 
         public static UnityEngine.AsyncOperation loadingSceneAsync;
 
