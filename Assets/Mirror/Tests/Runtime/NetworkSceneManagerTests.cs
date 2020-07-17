@@ -78,7 +78,7 @@ namespace Mirror.Tests
             await WaitFor(() => invokeClientSceneMessage == true && invokeNotReadyMessage == true);
 
             func1.Received(1).Invoke(Arg.Any<string>());
-            Assert.That(server.sceneManager.networkSceneName, Is.EqualTo("testScene"));
+            Assert.That(server.sceneManager.NetworkSceneName, Is.EqualTo("testScene"));
             Assert.That(invokeClientSceneMessage, Is.True);
             Assert.That(invokeNotReadyMessage, Is.True);
         });
@@ -248,9 +248,15 @@ namespace Mirror.Tests
             client.sceneManager.ClientChangeScene.AddListener(func1);
             client.sceneManager.ClientSceneMessage(null, new SceneMessage() { sceneName = "testScene" });
 
-            await WaitFor(() => client.sceneManager.networkSceneName.Equals("testScene"));
+            await WaitFor(() => client.sceneManager.NetworkSceneName.Equals("testScene"));
 
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         });
+
+        [Test]
+        public void NetworkSceneNameStringEmptyTest()
+        {
+            Assert.That(server.sceneManager.NetworkSceneName.Equals(string.Empty));
+        }
     }
 }

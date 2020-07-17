@@ -52,7 +52,7 @@ namespace Mirror
         /// <para>This is used to make sure that all scene changes are initialized by Mirror.</para>
         /// <para>Loading a scene manually wont set networkSceneName, so Mirror would still load it again on start.</para>
         /// </remarks>
-        public string networkSceneName = "";
+        public string NetworkSceneName { get; protected set; } = "";
 
         [NonSerialized]
         public AsyncOperation loadingSceneAsync;
@@ -169,7 +169,7 @@ namespace Mirror
             FinishStartHost();
 
             // call OnServerSceneChanged
-            OnServerSceneChanged(networkSceneName);
+            OnServerSceneChanged(NetworkSceneName);
 
             if (client.IsConnected)
             {
@@ -200,7 +200,7 @@ namespace Mirror
             logger.Log("Finished loading scene in server-only mode.");
 
             server.SpawnObjects();
-            OnServerSceneChanged(networkSceneName);
+            OnServerSceneChanged(NetworkSceneName);
         }
 
         #region Client
@@ -239,7 +239,7 @@ namespace Mirror
                 throw new ArgumentNullException(msg.sceneName, "ClientSceneMessage: " + msg.sceneName + " cannot be empty or null");
             }
 
-            if (logger.LogEnabled()) logger.Log("ClientSceneMessage: changing scenes from: " + networkSceneName + " to:" + msg.sceneName);
+            if (logger.LogEnabled()) logger.Log("ClientSceneMessage: changing scenes from: " + NetworkSceneName + " to:" + msg.sceneName);
 
             // Let client prepare for scene change
             OnClientChangeScene(msg.sceneName, msg.sceneOperation);
@@ -326,9 +326,9 @@ namespace Mirror
             logger.Log("NetworkSceneManager.OnServerAuthenticated");
 
             // proceed with the login handshake by calling OnServerConnect
-            if (!string.IsNullOrEmpty(networkSceneName))
+            if (!string.IsNullOrEmpty(NetworkSceneName))
             {
-                var msg = new SceneMessage { sceneName = networkSceneName };
+                var msg = new SceneMessage { sceneName = NetworkSceneName };
                 conn.Send(msg);
             }
         }
@@ -385,7 +385,7 @@ namespace Mirror
             switch (sceneOperation)
             {
                 case SceneOperation.Normal:
-                    networkSceneName = sceneName;
+                    NetworkSceneName = sceneName;
                     loadingSceneAsync = SceneManager.LoadSceneAsync(sceneName);
                     break;
                 case SceneOperation.LoadAdditive:
