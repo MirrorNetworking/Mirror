@@ -1,3 +1,10 @@
+## [42.1.3](https://github.com/MirrorNG/MirrorNG/compare/42.1.2-master...42.1.3-master) (2020-07-17)
+
+
+### Bug Fixes
+
+* dont directly set NetworkSceneName ([#297](https://github.com/MirrorNG/MirrorNG/issues/297)) ([bd043a3](https://github.com/MirrorNG/MirrorNG/commit/bd043a3001775fe32da558e17566b61c5694ee7c))
+
 ## [42.1.2](https://github.com/MirrorNG/MirrorNG/compare/42.1.1-master...42.1.2-master) (2020-07-17)
 
 
