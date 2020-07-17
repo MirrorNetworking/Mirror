@@ -1,3 +1,10 @@
+## [42.1.2](https://github.com/MirrorNG/MirrorNG/compare/42.1.1-master...42.1.2-master) (2020-07-17)
+
+
+### Bug Fixes
+
+* ClientSceneManager should be responsible for its own cleanup ([#298](https://github.com/MirrorNG/MirrorNG/issues/298)) ([92ab3ff](https://github.com/MirrorNG/MirrorNG/commit/92ab3ffe265e72b3c012dc44075f6e9752323984))
+
 ## [42.1.1](https://github.com/MirrorNG/MirrorNG/compare/42.1.0-master...42.1.1-master) (2020-07-16)
 
 
