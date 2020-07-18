@@ -376,7 +376,7 @@ namespace Mirror
             }
             else if (NetworkServer.Current != null)
             {
-                if (NetworkServer.Current.spawned.TryGetValue(netId, out NetworkIdentity identity))
+                if (NetworkServer.Current.Spawned.TryGetValue(netId, out NetworkIdentity identity))
                 {
                     return identity;
                 }

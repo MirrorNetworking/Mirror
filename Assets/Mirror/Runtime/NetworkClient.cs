@@ -113,7 +113,7 @@ namespace Mirror
             {
                 // if we are in host mode,  the list of spawned object is the same as the server list
                 if (hostServer != null)
-                    return hostServer.spawned;
+                    return hostServer.Spawned;
                 else
                     return spawned;
             }

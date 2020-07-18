@@ -103,7 +103,7 @@ namespace Mirror
         /// </summary>
         public bool Active { get; private set; }
 
-        public readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
+        public readonly Dictionary<uint, NetworkIdentity> Spawned = new Dictionary<uint, NetworkIdentity>();
 
         // just a cached memory area where we can collect connections
         // for broadcasting messages
@@ -286,7 +286,7 @@ namespace Mirror
         /// </summary>
         internal void ActivateHostScene()
         {
-            foreach (NetworkIdentity identity in spawned.Values)
+            foreach (NetworkIdentity identity in Spawned.Values)
             {
                 if (!identity.IsClient)
                 {
@@ -369,7 +369,7 @@ namespace Mirror
                 return;
 
             // update all server objects
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in spawned)
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in Spawned)
             {
                 if (kvp.Value != null && kvp.Value.gameObject != null)
                 {
@@ -507,7 +507,7 @@ namespace Mirror
 
         void SpawnObserversForConnection(INetworkConnection conn)
         {
-            if (logger.LogEnabled()) logger.Log("Spawning " + spawned.Count + " objects for conn " + conn);
+            if (logger.LogEnabled()) logger.Log("Spawning " + Spawned.Count + " objects for conn " + conn);
 
             if (!conn.IsReady)
             {
@@ -521,7 +521,7 @@ namespace Mirror
 
             // add connection to each nearby NetworkIdentity's observers, which
             // internally sends a spawn message for each one to the connection.
-            foreach (NetworkIdentity identity in spawned.Values)
+            foreach (NetworkIdentity identity in Spawned.Values)
             {
                 // try with far away ones in ummorpg!
                 //TODO this is different
@@ -778,7 +778,7 @@ namespace Mirror
         // Handle ServerRpc from specific player, this could be one of multiple players on a single client
         void OnServerRpcMessage(INetworkConnection conn, ServerRpcMessage msg)
         {
-            if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity) || identity == null)
+            if (!Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) || identity == null)
             {
                 logger.LogWarning("Spawned object not found when handling ServerRpc message [netId=" + msg.netId + "]");
                 return;
@@ -963,7 +963,7 @@ namespace Mirror
         void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
         {
             if (logger.LogEnabled()) logger.Log("DestroyObject instance:" + identity.NetId);
-            spawned.Remove(identity.NetId);
+            Spawned.Remove(identity.NetId);
             identity.ConnectionToClient?.RemoveOwnedObject(identity);
 
             var msg = new ObjectDestroyMessage

@@ -601,7 +601,7 @@ namespace Mirror
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
-            Server.spawned[NetId] = this;
+            Server.Spawned[NetId] = this;
 
             OnStartServer.Invoke();
         }

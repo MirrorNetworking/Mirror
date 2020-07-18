@@ -339,7 +339,7 @@ namespace Mirror.Tests
             OnStartClientTestNetworkBehaviour comp = go.AddComponent<OnStartClientTestNetworkBehaviour>();
             Assert.That(comp.called, Is.EqualTo(0));
             //connection.identity = identity;
-            server.spawned[identity.NetId] = identity;
+            server.Spawned[identity.NetId] = identity;
             identity.OnStartClient.AddListener(comp.OnStartClient);
 
             // ActivateHostScene
@@ -349,7 +349,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            server.spawned.Clear();
+            server.Spawned.Clear();
             // destroy the test gameobject AFTER server was stopped.
             // otherwise isServer is true in OnDestroy, which means it would try
             // to call Destroy(go). but we need to use DestroyImmediate in
