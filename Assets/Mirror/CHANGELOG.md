@@ -1,3 +1,10 @@
+## [42.1.5](https://github.com/MirrorNG/MirrorNG/compare/42.1.4-master...42.1.5-master) (2020-07-18)
+
+
+### Bug Fixes
+
+* NS call SpawnObjects. No NetMan dependency for spawning objects ([#300](https://github.com/MirrorNG/MirrorNG/issues/300)) ([e1bb8de](https://github.com/MirrorNG/MirrorNG/commit/e1bb8deba81713c8998cf47b1ec4b8b870fc55eb))
+
 ## [42.1.4](https://github.com/MirrorNG/MirrorNG/compare/42.1.3-master...42.1.4-master) (2020-07-18)
 
 
