@@ -1,3 +1,10 @@
+## [42.1.4](https://github.com/MirrorNG/MirrorNG/compare/42.1.3-master...42.1.4-master) (2020-07-18)
+
+
+### Bug Fixes
+
+* cap spawned to match client ([#301](https://github.com/MirrorNG/MirrorNG/issues/301)) ([7d1571a](https://github.com/MirrorNG/MirrorNG/commit/7d1571ab5a9eaf31cd64bff2bc47158c0e1e6ff6))
+
 ## [42.1.3](https://github.com/MirrorNG/MirrorNG/compare/42.1.2-master...42.1.3-master) (2020-07-17)
 
 
