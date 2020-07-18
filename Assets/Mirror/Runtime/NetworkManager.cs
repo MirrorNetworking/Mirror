@@ -98,8 +98,6 @@ namespace Mirror
         public async Task StartServer()
         {
             await SetupServer();
-
-            server.SpawnObjects();
         }
 
         /// <summary>
@@ -158,9 +156,6 @@ namespace Mirror
         //       host version is enough.
         void FinishStartHost()
         {
-            // server scene was loaded. now spawn all the objects
-            server.SpawnObjects();
-
             // connect client and call OnStartClient AFTER server scene was
             // loaded and all objects were spawned.
             // DO NOT do this earlier. it would cause race conditions where a
