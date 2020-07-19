@@ -18,7 +18,6 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkSceneManager));
 
         [Serializable] public class ClientSceneChangeEvent : UnityEvent<string, SceneOperation> { }
-        [Serializable] public class NetworkSceneEvent : UnityEvent<string> { }
 
         public NetworkClient client;
         public NetworkServer server;
@@ -33,17 +32,17 @@ namespace Mirror
         /// <summary>
         /// Event fires after the Client has completed its scene change.
         /// </summary>
-        public NetworkConnectionEvent ClientSceneChanged = new NetworkConnectionEvent();
+        public ClientSceneChangeEvent ClientSceneChanged = new ClientSceneChangeEvent();
 
         /// <summary>
         /// Event fires before Server changes scene.
         /// </summary>
-        public NetworkSceneEvent ServerChangeScene = new NetworkSceneEvent();
+        public ClientSceneChangeEvent ServerChangeScene = new ClientSceneChangeEvent();
 
         /// <summary>
         /// Event fires after Server has completed scene change.
         /// </summary>
-        public NetworkSceneEvent ServerSceneChanged = new NetworkSceneEvent();
+        public ClientSceneChangeEvent ServerSceneChanged = new ClientSceneChangeEvent();
 
         /// <summary>
         /// The name of the current network scene.
@@ -67,8 +66,6 @@ namespace Mirror
         {
             DontDestroyOnLoad(gameObject);
 
-            SceneManager.sceneLoaded += OnSceneLoaded;
-
             if (client != null)
             {
                 client.Authenticated.AddListener(OnClientAuthenticated);
@@ -80,112 +77,12 @@ namespace Mirror
             }
         }
 
-        public virtual void LateUpdate() { }
+        public virtual void LateUpdate() { } //TODO: Remove/move this as its only used in BenchmarkNetworkManager
 
         void RegisterClientMessages(INetworkConnection connection)
         {
             connection.RegisterHandler<NotReadyMessage>(ClientNotReadyMessage);
             connection.RegisterHandler<SceneMessage>(ClientSceneMessage);
-        }
-
-        // support additive scene loads:
-        //   * ClientScene.PrepareToSpawnSceneObjects enables them again on the
-        //     client after the server sends ObjectSpawnStartedMessage to client
-        //     in SpawnObserversForConnection. This is only called when the
-        //     client joins, so we need to rebuild scene objects manually again.
-        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if (mode == LoadSceneMode.Additive)
-            {
-                if(client.Active)
-                {
-                    client.PrepareToSpawnSceneObjects();
-                    if (logger.LogEnabled()) logger.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
-                }
-
-                if (server.Active)
-                {
-                    server.SpawnObjects();
-                    if (logger.LogEnabled()) logger.Log("Respawned Server objects after additive scene load: " + scene.name);
-                }
-            }
-        }
-
-        internal void FinishLoadScene()
-        {
-            // host mode?
-            if (client && client.IsLocalClient)
-            {
-                FinishLoadSceneHost();
-            }
-            // server-only mode?
-            else if (server && server.Active)
-            {
-                FinishLoadSceneServerOnly();
-            }
-            // client-only mode?
-            else if (client && client.Active)
-            {
-                FinishLoadSceneClientOnly();
-            }
-        }
-
-        void FinishStartHost()
-        {
-            // server scene was loaded. now spawn all the objects
-            server.SpawnObjects();
-
-            // DO NOT do this earlier. it would cause race conditions where a
-            // client will do things before the server is even fully started.
-            logger.Log("FinishStartHost called");
-
-            server.ActivateHostScene();
-        }
-
-        void FinishLoadSceneHost()
-        {
-            logger.Log("Finished loading scene in host mode.");
-
-            if (client.Connection != null)
-            {
-                client.OnAuthenticated(client.Connection);
-            }
-
-            FinishStartHost();
-
-            // call OnServerSceneChanged
-            OnServerSceneChanged(NetworkSceneName);
-
-            if (client.IsConnected)
-            {
-                // let client know that we changed scene
-                OnClientSceneChanged(client.Connection);
-            }
-        }
-
-        void FinishLoadSceneClientOnly()
-        {
-            logger.Log("Finished loading scene in client-only mode.");
-
-            if (client.Connection != null)
-            {
-                client.OnAuthenticated(client.Connection);
-            }
-
-            if (client.IsConnected)
-            {
-                OnClientSceneChanged(client.Connection);
-            }
-        }
-
-        // finish load scene part for server-only. . makes code easier and is
-        // necessary for FinishStartServer later.
-        void FinishLoadSceneServerOnly()
-        {
-            logger.Log("Finished loading scene in server-only mode.");
-
-            server.SpawnObjects();
-            OnServerSceneChanged(NetworkSceneName);
         }
 
         #region Client
@@ -214,7 +111,7 @@ namespace Mirror
                 throw new InvalidOperationException("ClientSceneMessage: cannot change network scene while client is disconnected");
             }
 
-            if (server && server.LocalClient)
+            if (client.IsLocalClient)
             {
                 throw new InvalidOperationException("ClientSceneMessage: cannot change client network scene while operating in host mode");
             }
@@ -256,13 +153,13 @@ namespace Mirror
         /// <para>Non-Additive Scene changes will cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkSceneManager is to add a player object for the connection if no player object exists.</para>
         /// </summary>
         /// <param name="conn">The network connection that the scene change message arrived on.</param>
-        internal void OnClientSceneChanged(INetworkConnection conn)
+        internal void OnClientSceneChanged(string sceneName, SceneOperation sceneOperation)
         {
             //set ready after scene change has completed
             if (!Ready)
                 SetClientReady();
 
-            ClientSceneChanged.Invoke(conn);
+            ClientSceneChanged.Invoke(sceneName, sceneOperation);
         }
 
         /// <summary>
@@ -332,8 +229,7 @@ namespace Mirror
             server.SetAllClientsNotReady();
 
             // Let server prepare for scene change
-            if(sceneOperation == SceneOperation.Normal)
-                OnServerChangeScene(newSceneName);
+            OnServerChangeScene(newSceneName, sceneOperation);
 
             StartCoroutine(ApplySceneOperation(newSceneName, sceneOperation));
 
@@ -346,18 +242,18 @@ namespace Mirror
         /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
         /// </summary>
         /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-        internal void OnServerChangeScene(string newSceneName)
+        internal void OnServerChangeScene(string newSceneName, SceneOperation operation)
         {
-            ServerChangeScene.Invoke(newSceneName);
+            ServerChangeScene.Invoke(newSceneName, operation);
         }
 
         /// <summary>
         /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ChangeServerScene().
         /// </summary>
         /// <param name="sceneName">The name of the new scene.</param>
-        internal void OnServerSceneChanged(string sceneName)
+        internal void OnServerSceneChanged(string sceneName, SceneOperation operation)
         {
-            ServerSceneChanged.Invoke(sceneName);
+            ServerSceneChanged.Invoke(sceneName, operation);
         }
 
         #endregion
@@ -390,7 +286,57 @@ namespace Mirror
                     break;
             }
 
-            FinishLoadScene();
+            FinishLoadScene(sceneName, sceneOperation);
+        }
+
+        internal void FinishLoadScene(string sceneName, SceneOperation sceneOperation)
+        {
+            // host mode?
+            if (client && client.IsLocalClient)
+            {
+                logger.Log("Finished loading scene in host mode.");
+
+                if (client.Connection != null && sceneOperation == SceneOperation.Normal)
+                {
+                    client.OnAuthenticated(client.Connection);
+                }
+
+                // server scene was loaded. now spawn all the objects
+                server.SpawnObjects();
+                server.ActivateHostScene();
+
+                // call OnServerSceneChanged
+                OnServerSceneChanged(sceneName, sceneOperation);
+
+                if (client.IsConnected)
+                {
+                    // let client know that we changed scene
+                    OnClientSceneChanged(sceneName, sceneOperation);
+                }
+            }
+            // server-only mode?
+            else if (server && server.Active)
+            {
+                logger.Log("Finished loading scene in server-only mode.");
+
+                server.SpawnObjects();
+                OnServerSceneChanged(sceneName, sceneOperation);
+            }
+            // client-only mode?
+            else if (client && client.Active)
+            {
+                logger.Log("Finished loading scene in client-only mode.");
+
+                if (client.Connection != null && sceneOperation == SceneOperation.Normal)
+                {
+                    client.OnAuthenticated(client.Connection);
+                }
+
+                if (client.IsConnected)
+                {
+                    OnClientSceneChanged(sceneName, sceneOperation);
+                }
+            }
         }
     }
 }

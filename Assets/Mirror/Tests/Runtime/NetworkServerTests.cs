@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.TestTools;
 
 using static Mirror.Tests.AsyncUtil;
@@ -211,32 +212,22 @@ namespace Mirror.Tests
                 Arg.Any<WovenTestMessage>());
         });
 
-        int ServerChangeCalled;
-        public void ServerChangeScene(string newSceneName)
-        {
-            ServerChangeCalled++;
-        }
-
         [Test]
         public void ServerChangeSceneTest()
         {
-            server.sceneManager.ServerChangeScene.AddListener(ServerChangeScene);
-            server.sceneManager.OnServerChangeScene("");
-            Assert.That(ServerChangeCalled, Is.EqualTo(1));
-        }
-
-        int ServerSceneChangedCalled;
-        public void ServerSceneChanged(string sceneName)
-        {
-            ServerSceneChangedCalled++;
+            UnityAction<string, SceneOperation> func1 = Substitute.For<UnityAction<string, SceneOperation>>();
+            server.sceneManager.ServerChangeScene.AddListener(func1);
+            server.sceneManager.OnServerChangeScene("test", SceneOperation.Normal);
+            func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         }
 
         [Test]
         public void ServerSceneChangedTest()
         {
-            server.sceneManager.ServerSceneChanged.AddListener(ServerSceneChanged);
-            server.sceneManager.OnServerSceneChanged("");
-            Assert.That(ServerSceneChangedCalled, Is.EqualTo(1));
+            UnityAction<string, SceneOperation> func1 = Substitute.For<UnityAction<string, SceneOperation>>();
+            server.sceneManager.ServerSceneChanged.AddListener(func1);
+            server.sceneManager.OnServerSceneChanged("test", SceneOperation.Normal);
+            func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         }
 
         [Test]
