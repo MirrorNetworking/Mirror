@@ -49,7 +49,7 @@ namespace Mirror.Cloud
             bool hasJson = !string.IsNullOrEmpty(json);
             Logger.LogRequest(page, method, hasJson, json);
 
-            UnityWebRequest request = new UnityWebRequest(CreateUri(page));
+            var request = new UnityWebRequest(CreateUri(page));
             request.method = method;
             if (hasJson)
             {
