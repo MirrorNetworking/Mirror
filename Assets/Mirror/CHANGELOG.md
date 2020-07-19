@@ -1,3 +1,10 @@
+# [42.2.0](https://github.com/MirrorNG/MirrorNG/compare/42.1.5-master...42.2.0-master) (2020-07-19)
+
+
+### Features
+
+* scene transition uses routine instead of asyncoperation ([#305](https://github.com/MirrorNG/MirrorNG/issues/305)) ([a16eb00](https://github.com/MirrorNG/MirrorNG/commit/a16eb005e31e576346b4b4cffbe266c25b8709ca))
+
 ## [42.1.5](https://github.com/MirrorNG/MirrorNG/compare/42.1.4-master...42.1.5-master) (2020-07-18)
 
 
