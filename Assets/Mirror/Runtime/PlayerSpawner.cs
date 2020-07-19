@@ -53,7 +53,7 @@ namespace Mirror
             // clientLoadedScene flag to prevent it.
             // Ready/AddPlayer is usually triggered by a scene load completing. if no scene was loaded, then Ready/AddPlayer it here instead.
             if (!client.sceneManager.Ready)
-                client.sceneManager.SetClientReady(connection);
+                client.sceneManager.SetClientReady();
 
             client.Send(new AddPlayerMessage());
         }

@@ -275,7 +275,7 @@ namespace Mirror
         {
             //set ready after scene change has completed
             if (!Ready)
-                SetClientReady(conn);
+                SetClientReady();
 
             ClientSceneChanged.Invoke(conn);
         }
@@ -294,18 +294,15 @@ namespace Mirror
         /// Signal that the client connection is ready to enter the game.
         /// <para>This could be for example when a client enters an ongoing game and has finished loading the current scene. The server should respond to the message with an appropriate handler which instantiates the players object for example.</para>
         /// </summary>
-        /// <param name="conn">The client connection which is ready.</param>
-        public void SetClientReady(INetworkConnection conn)
+        public void SetClientReady()
         {
+            if (!client || !client.Active)
+                throw new InvalidOperationException("Ready() called with with invalid of disconnected client");
+
             if (Ready)
-            {
                 throw new InvalidOperationException("A connection has already been set as ready. There can only be one.");
-            }
 
-            if (conn == null)
-                throw new InvalidOperationException("Ready() called with invalid connection object: conn=null");
-
-            if (logger.LogEnabled()) logger.Log("ClientScene.Ready() called with connection [" + conn + "]");
+            if (logger.LogEnabled()) logger.Log("ClientScene.Ready() called.");
 
             // Set these before sending the ReadyMessage, otherwise host client
             // will fail in InternalAddPlayer with null readyConnection.
@@ -313,7 +310,7 @@ namespace Mirror
             client.Connection.IsReady = true;
 
             // Tell server we're ready to have a player object spawned
-            conn.Send(new ReadyMessage());
+            client.Connection.Send(new ReadyMessage());
         }
 
         #endregion

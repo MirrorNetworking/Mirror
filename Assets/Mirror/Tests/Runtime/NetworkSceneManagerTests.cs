@@ -95,7 +95,7 @@ namespace Mirror.Tests
         [Test]
         public void ReadyTest()
         {
-            client.sceneManager.SetClientReady(client.Connection);
+            client.sceneManager.SetClientReady();
             Assert.That(sceneManager.Ready);
             Assert.That(client.Connection.IsReady);
         }
@@ -103,20 +103,11 @@ namespace Mirror.Tests
         [Test]
         public void ReadyTwiceTest()
         {
-            sceneManager.SetClientReady(client.Connection);
+            sceneManager.SetClientReady();
 
             Assert.Throws<InvalidOperationException>(() =>
             {
-                sceneManager.SetClientReady(client.Connection);
-            });
-        }
-
-        [Test]
-        public void ReadyNull()
-        {
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                sceneManager.SetClientReady(null);
+                sceneManager.SetClientReady();
             });
         }
 
@@ -234,7 +225,7 @@ namespace Mirror.Tests
         {
             UnityAction<INetworkConnection> func1 = Substitute.For<UnityAction<INetworkConnection>>();
             client.sceneManager.ClientNotReady.AddListener(func1);
-            client.sceneManager.SetClientReady(client.Connection);
+            client.sceneManager.SetClientReady();
             client.sceneManager.ClientNotReadyMessage(null, new NotReadyMessage());
 
             Assert.That(client.sceneManager.Ready, Is.False);
