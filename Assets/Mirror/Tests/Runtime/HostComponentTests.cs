@@ -63,9 +63,9 @@ namespace Mirror.Tests
         });
 
         [UnityTest]
-        public IEnumerator TargetRpc() => RunAsync(async () =>
+        public IEnumerator ClientConnRpc() => RunAsync(async () =>
         {
-            component.TargetRpcTest(manager.server.LocalConnection, 1, "hello");
+            component.ClientConnRpcTest(manager.server.LocalConnection, 1, "hello");
             // process spawn message from server
             await WaitFor(() => component.targetRpcArg1 != 0);
 

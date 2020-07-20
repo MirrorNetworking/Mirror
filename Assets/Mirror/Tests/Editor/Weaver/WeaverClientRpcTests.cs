@@ -45,5 +45,17 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(weaverErrors, Is.Empty);
         }
+
+        [Test]
+        public void ClientRpcConnCantSkipNetworkConn()
+        {
+            Assert.That(weaverErrors, Contains.Item("ClientRpc with Client.Connection needs a network connection parameter (at System.Void WeaverClientRpcTests.ClientRpcConnCantSkipNetworkConn.ClientRpcConnCantSkipNetworkConn::ClientRpcMethod())"));
+        }
+
+        [Test]
+        public void ClientRpcOwnerCantExcludeOwner()
+        {
+            Assert.That(weaverErrors, Contains.Item("ClientRpc with Client.Owner cannot have excludeOwner set as true (at System.Void WeaverClientRpcTests.ClientRpcOwnerCantExcludeOwner.ClientRpcOwnerCantExcludeOwner::ClientRpcMethod())"));
+        }
     }
 }

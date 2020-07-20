@@ -4,7 +4,7 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamNetworkConne
 {
     class NetworkBehaviourClientRpcParamNetworkConnection : NetworkBehaviour
     {
-        [ClientRpc]
+        [ClientRpc(target = Mirror.Client.Connection)]
         public void RpcCantHaveParamOptional(INetworkConnection monkeyCon) { }
     }
 }

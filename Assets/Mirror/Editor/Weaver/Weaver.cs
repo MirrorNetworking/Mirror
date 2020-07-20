@@ -93,7 +93,6 @@ namespace Mirror.Weaver
         public static TypeReference SyncVarType;
         public static TypeReference ServerRpcType;
         public static TypeReference ClientRpcType;
-        public static TypeReference TargetRpcType;
         public static TypeReference SyncEventType;
         public static TypeReference SyncObjectType;
         public static MethodReference InitSyncObjectReference;
@@ -217,7 +216,6 @@ namespace Mirror.Weaver
             SyncVarType = NetAssembly.MainModule.GetType("Mirror.SyncVarAttribute");
             ServerRpcType = NetAssembly.MainModule.GetType("Mirror.ServerRpcAttribute");
             ClientRpcType = NetAssembly.MainModule.GetType("Mirror.ClientRpcAttribute");
-            TargetRpcType = NetAssembly.MainModule.GetType("Mirror.TargetRpcAttribute");
             SyncEventType = NetAssembly.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = NetAssembly.MainModule.GetType("Mirror.ISyncObject");
         }

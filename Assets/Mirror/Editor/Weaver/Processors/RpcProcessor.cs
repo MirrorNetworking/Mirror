@@ -2,11 +2,20 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 namespace Mirror.Weaver
 {
+    public enum Client { Owner, Observers, Connection }
+
     /// <summary>
     /// Processes [Rpc] methods in NetworkBehaviour
     /// </summary>
     public static class RpcProcessor
     {
+        // helper functions to check if the method has a NetworkConnection parameter
+        public static bool HasNetworkConnectionParameter(MethodDefinition md)
+        {
+            return md.Parameters.Count > 0 &&
+                   md.Parameters[0].ParameterType.FullName == Weaver.INetworkConnectionType.FullName;
+        }
+
         /// <summary>
         /// Generates a skeleton for an RPC
         /// </summary>
@@ -27,7 +36,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public static MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc)
+        public static MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc, CustomAttribute clientRpcAttr)
         {
             var rpc = new MethodDefinition(
                 MethodProcessor.SkeletonPrefix + md.Name,
@@ -42,6 +51,15 @@ namespace Mirror.Weaver
             // setup for reader
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Castclass, md.DeclaringType));
+
+            // NetworkConnection parameter is only required for Client.Connection
+            Client target = clientRpcAttr.GetField("target", Client.Observers); 
+            if (target == Client.Connection && HasNetworkConnectionParameter(md))
+            {
+                //client.connection
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Call, Weaver.BehaviorConnectionToServerReference));
+            }
 
             if (!NetworkBehaviourProcessor.ReadArguments(md, worker, RemoteCallType.ClientRpc))
                 return null;
@@ -64,7 +82,7 @@ namespace Mirror.Weaver
         /// <param name="ServerRpcAttr">The attribute that made this an RPC</param>
         /// <returns>The method containing the original code</returns>
         /// <remarks>
-        /// Generates code like this:
+        /// Generates code like this: (Observers case)
         /// <code>
         /// public void Test (int param)
         /// {
@@ -73,6 +91,36 @@ namespace Mirror.Weaver
         ///     base.SendRPCInternal(typeof(class),"RpcTest", writer, 0);
         /// }
         /// public void UserCode_Test(int param)
+        /// {
+        ///     // whatever the user did before
+        /// }
+        /// </code>
+        ///
+        /// Generates code like this: (Owner/Connection case)
+        /// <code>
+        /// public void TargetTest(NetworkConnection conn, int param)
+        /// {
+        ///     NetworkWriter writer = new NetworkWriter();
+        ///     writer.WritePackedUInt32((uint)param);
+        ///     base.SendTargetRPCInternal(conn, typeof(class), "TargetTest", val);
+        /// }
+        /// 
+        /// public void UserCode_TargetTest(NetworkConnection conn, int param)
+        /// {
+        ///     // whatever the user did before
+        /// }
+        /// </code>
+        /// or if no connection is specified
+        ///
+        /// <code>
+        /// public void TargetTest (int param)
+        /// {
+        ///     NetworkWriter writer = new NetworkWriter();
+        ///     writer.WritePackedUInt32((uint) param);
+        ///     base.SendTargetRPCInternal(null, typeof(class), "TargetTest", val);
+        /// }
+        /// 
+        /// public void UserCode_TargetTest(int param)
         /// {
         ///     // whatever the user did before
         /// }
@@ -94,12 +142,19 @@ namespace Mirror.Weaver
 
             string rpcName = md.Name;
 
+            Client target = clientRpcAttr.GetField("target", Client.Observers); 
             int channel = clientRpcAttr.GetField("channel", 0);
             bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
 
             // invoke SendInternal and return
             // this
             worker.Append(worker.Create(OpCodes.Ldarg_0));
+
+            if (target == Client.Connection && HasNetworkConnectionParameter(md))
+                worker.Append(worker.Create(OpCodes.Ldarg_1));
+            else if (target == Client.Owner)
+                worker.Append(worker.Create(OpCodes.Ldnull));
+
             worker.Append(worker.Create(OpCodes.Ldtoken, md.DeclaringType));
             // invokerClass
             worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
@@ -107,8 +162,16 @@ namespace Mirror.Weaver
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4, channel));
-            worker.Append(worker.Create(excludeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
+
+            if (target == Client.Observers)
+            {
+                worker.Append(worker.Create(excludeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
+                worker.Append(worker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
+            }
+            else
+            {
+                worker.Append(worker.Create(OpCodes.Callvirt, Weaver.sendTargetRpcInternal));
+            }
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 
@@ -117,7 +180,7 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        public static bool Validate(MethodDefinition md)
+        public static bool Validate(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             if (md.IsAbstract)
             {
@@ -128,6 +191,20 @@ namespace Mirror.Weaver
             if (md.IsStatic)
             {
                 Weaver.Error($"{md.Name} must not be static", md);
+                return false;
+            }
+
+            Client target = clientRpcAttr.GetField("target", Client.Observers); 
+            if (target == Client.Connection && !HasNetworkConnectionParameter(md))
+            {
+                Weaver.Error("ClientRpc with Client.Connection needs a network connection parameter", md);
+                return false;
+            }
+
+            bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
+            if (target == Client.Owner && excludeOwner)
+            {
+                Weaver.Error("ClientRpc with Client.Owner cannot have excludeOwner set as true", md);
                 return false;
             }
 

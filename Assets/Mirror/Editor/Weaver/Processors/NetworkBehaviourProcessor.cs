@@ -8,7 +8,6 @@ namespace Mirror.Weaver
     {
         ServerRpc,
         ClientRpc,
-        TargetRpc,
         SyncEvent
     }
 
@@ -24,11 +23,9 @@ namespace Mirror.Weaver
         readonly Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
         readonly List<CmdResult> serverRpcs = new List<CmdResult>();
         readonly List<ClientRpcResult> clientRpcs = new List<ClientRpcResult>();
-        readonly List<MethodDefinition> targetRpcs = new List<MethodDefinition>();
         readonly List<EventDefinition> eventRpcs = new List<EventDefinition>();
         readonly List<MethodDefinition> serverRpcSkeletonFuncs = new List<MethodDefinition>();
         readonly List<MethodDefinition> clientRpcSkeletonFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> targetRpcSkeletonFuncs = new List<MethodDefinition>();
         readonly List<MethodDefinition> eventRpcInvocationFuncs = new List<MethodDefinition>();
 
         readonly TypeDefinition netBehaviourSubclass;
@@ -42,6 +39,7 @@ namespace Mirror.Weaver
         public struct ClientRpcResult
         {
             public MethodDefinition method;
+            public Client target;
             public bool excludeOwner;
         }
 
@@ -151,8 +149,8 @@ namespace Mirror.Weaver
             writer.WriteNetworkIdentity(someTarget);
              */
 
-            bool skipFirst = callType == RemoteCallType.TargetRpc
-                && TargetRpcProcessor.HasNetworkConnectionParameter(method);
+            bool skipFirst = callType == RemoteCallType.ClientRpc
+                && RpcProcessor.HasNetworkConnectionParameter(method);
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
@@ -214,7 +212,7 @@ namespace Mirror.Weaver
 
         void GenerateConstants()
         {
-            if (serverRpcs.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0 && eventRpcs.Count == 0 && syncObjects.Count == 0)
+            if (serverRpcs.Count == 0 && clientRpcs.Count == 0 && eventRpcs.Count == 0 && syncObjects.Count == 0)
                 return;
 
             Weaver.DLog(netBehaviourSubclass, "  GenerateConstants ");
@@ -284,11 +282,6 @@ namespace Mirror.Weaver
             {
                 ClientRpcResult clientRpcResult = clientRpcs[i];
                 GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcSkeletonFuncs[i], clientRpcResult.method.Name);
-            }
-
-            for (int i = 0; i < targetRpcs.Count; ++i)
-            {
-                GenerateRegisterRemoteDelegate(cctorWorker, Weaver.registerRpcDelegateReference, targetRpcSkeletonFuncs[i], targetRpcs[i].Name);
             }
 
             for (int i = 0; i < eventRpcs.Count; ++i)
@@ -794,8 +787,8 @@ namespace Mirror.Weaver
             CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
              */
 
-            bool skipFirst = callType == RemoteCallType.TargetRpc
-                && TargetRpcProcessor.HasNetworkConnectionParameter(method);
+            bool skipFirst = callType == RemoteCallType.ClientRpc
+                && RpcProcessor.HasNetworkConnectionParameter(method);
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
@@ -814,7 +807,6 @@ namespace Mirror.Weaver
                     argNum += 1;
                     continue;
                 }
-
 
                 MethodReference readFunc = Readers.GetReadFunc(param.ParameterType);
 
@@ -894,7 +886,7 @@ namespace Mirror.Weaver
 
             if (IsNetworkConnection(param.ParameterType))
             {
-                if (callType == RemoteCallType.TargetRpc && firstParam)
+                if (callType == RemoteCallType.ClientRpc && firstParam)
                 {
                     // perfectly fine,  target rpc can receive a network connection as first parameter
                     return true;
@@ -940,12 +932,6 @@ namespace Mirror.Weaver
                         break;
                     }
 
-                    if (ca.AttributeType.FullName == Weaver.TargetRpcType.FullName)
-                    {
-                        ProcessTargetRpc(names, md, ca);
-                        break;
-                    }
-
                     if (ca.AttributeType.FullName == Weaver.ClientRpcType.FullName)
                     {
                         ProcessClientRpc(names, md, ca);
@@ -957,10 +943,8 @@ namespace Mirror.Weaver
 
         void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            if (!RpcProcessor.Validate(md))
-            {
+            if (!RpcProcessor.Validate(md, clientRpcAttr))
                 return;
-            }
 
             if (names.Contains(md.Name))
             {
@@ -968,43 +952,23 @@ namespace Mirror.Weaver
                 return;
             }
 
+            Client clientTarget = clientRpcAttr.GetField("target", Client.Observers);
             bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
 
             names.Add(md.Name);
             clientRpcs.Add(new ClientRpcResult
             {
                 method = md,
+                target = clientTarget,
                 excludeOwner = excludeOwner
             });
 
             MethodDefinition userCodeFunc = RpcProcessor.GenerateStub(md, clientRpcAttr);
 
-            MethodDefinition skeletonFunc = RpcProcessor.GenerateSkeleton(md, userCodeFunc);
+            MethodDefinition skeletonFunc = RpcProcessor.GenerateSkeleton(md, userCodeFunc, clientRpcAttr);
             if (skeletonFunc != null)
             {
                 clientRpcSkeletonFuncs.Add(skeletonFunc);
-            }
-        }
-
-        void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute targetRpcAttr)
-        {
-            if (!TargetRpcProcessor.Validate(md))
-                return;
-
-            if (names.Contains(md.Name))
-            {
-                Weaver.Error($"Duplicate Target Rpc name {md.Name}", md);
-                return;
-            }
-            names.Add(md.Name);
-            targetRpcs.Add(md);
-
-            MethodDefinition userCodeFunc = TargetRpcProcessor.GenerateStub(md, targetRpcAttr);
-
-            MethodDefinition skeletonFunc = TargetRpcProcessor.GenerateSkeleton(md, userCodeFunc);
-            if (skeletonFunc != null)
-            {
-                targetRpcSkeletonFuncs.Add(skeletonFunc);
             }
         }
 

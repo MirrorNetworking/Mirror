@@ -79,9 +79,9 @@ namespace Mirror.Tests
         });
 
         [UnityTest]
-        public IEnumerator TargetRpc() => RunAsync(async () =>
+        public IEnumerator ClientConnRpc() => RunAsync(async () =>
         {
-            serverComponent.TargetRpcTest(connectionToClient, 1, "hello");
+            serverComponent.ClientConnRpcTest(connectionToClient, 1, "hello");
             // process spawn message from server
             await WaitFor(() => clientComponent.targetRpcArg1 != 0);
 

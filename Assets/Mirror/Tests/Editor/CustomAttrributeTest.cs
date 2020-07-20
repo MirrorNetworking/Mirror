@@ -41,18 +41,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void TargetRPCAttributeTest()
-        {
-            var attrib = new TargetRpcAttribute();
-
-            Assert.That(attrib.channel == Channels.DefaultReliable);
-
-            attrib.channel = Channels.DefaultUnreliable;
-
-            Assert.That(attrib.channel == 1);
-        }
-
-        [Test]
         public void SyncEventAttributeTest()
         {
             var attrib = new SyncEventAttribute();
