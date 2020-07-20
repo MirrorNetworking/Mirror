@@ -1,3 +1,10 @@
+## [43.0.1](https://github.com/MirrorNG/MirrorNG/compare/43.0.0-master...43.0.1-master) (2020-07-20)
+
+
+### Bug Fixes
+
+* benchmark examples ([b221b74](https://github.com/MirrorNG/MirrorNG/commit/b221b74beae2ee56f6fe536963b17d0aff10c5d8))
+
 # [43.0.0](https://github.com/MirrorNG/MirrorNG/compare/42.2.0-master...43.0.0-master) (2020-07-20)
 
 
