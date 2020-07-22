@@ -1,3 +1,11 @@
+## [43.1.1](https://github.com/MirrorNG/MirrorNG/compare/43.1.0-master...43.1.1-master) (2020-07-22)
+
+
+### Bug Fixes
+
+* remove unused code ([#308](https://github.com/MirrorNG/MirrorNG/issues/308)) ([554d2c5](https://github.com/MirrorNG/MirrorNG/commit/554d2c5030a9ff1ebcd9ca17ed7d673865709a1c))
+* update interfaces for recent changes that were missed ([#309](https://github.com/MirrorNG/MirrorNG/issues/309)) ([a17e760](https://github.com/MirrorNG/MirrorNG/commit/a17e760e36d581ba964120af11678b66a1248ecc))
+
 # [43.1.0](https://github.com/MirrorNG/MirrorNG/compare/43.0.1-master...43.1.0-master) (2020-07-22)
 
 
