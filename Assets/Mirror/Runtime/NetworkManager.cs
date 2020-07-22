@@ -33,12 +33,6 @@ namespace Mirror
         public NetworkServer server;
         public NetworkClient client;
 
-        // transport layer
-        [Header("Network Info")]
-        [Tooltip("Transport component attached to this object that server and client will use to connect")]
-        [SerializeField]
-        public Transport transport;
-
         /// <summary>
         /// True if the server or client is started and running
         /// <para>This is set True in StartServer / StartClient, and set False in StopServer / StopClient</para>
@@ -111,7 +105,7 @@ namespace Mirror
             var builder = new UriBuilder
             {
                 Host = serverIp,
-                Scheme = transport.Scheme.First(),
+                Scheme = client.Transport.Scheme.First(),
             };
 
             return client.ConnectAsync(builder.Uri);

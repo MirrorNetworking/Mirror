@@ -26,7 +26,6 @@ namespace Mirror
         bool initialized;
 
         [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
-        [Serializable] public class NetworkSceneEvent : UnityEvent<string> { }
 
         /// <summary>
         /// The maximum number of concurrent network connections to support.
@@ -339,7 +338,6 @@ namespace Mirror
 
             foreach (INetworkConnection connection in identity.observers)
             {
-
                 bool isOwner = connection == identity.ConnectionToClient;
                 if ((!isOwner || includeOwner) && connection.IsReady)
                 {
@@ -408,7 +406,6 @@ namespace Mirror
             Connected.Invoke(conn);
 
             // now process messages until the connection closes
-
             try
             {
                 await conn.ProcessMessagesAsync();

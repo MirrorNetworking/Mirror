@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Mirror.Tcp;
 using UnityEditor;
 
@@ -27,7 +27,6 @@ namespace Mirror
             NetworkManager networkManager = go.GetComponent<NetworkManager>();
             networkManager.client = networkClient;
             networkManager.server = networkServer;
-            networkManager.transport = transport;
 
             PlayerSpawner playerSpawner = go.GetComponent<PlayerSpawner>();
             playerSpawner.client = networkClient;
