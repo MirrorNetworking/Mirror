@@ -1,9 +1,12 @@
 namespace Mirror
 {
-    public interface INetworkSceneManager
+    public interface IClientSceneManager
+    {
+        void SetClientReady();
+    }
+
+    public interface INetworkSceneManager : IClientSceneManager
     {
         void ChangeServerScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal);
-
-        void SetClientReady();
     }
 }

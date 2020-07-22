@@ -29,17 +29,15 @@ namespace Mirror
         void DestroyAllClientObjects();
     }
 
-    public interface IClientSceneManager
-    {
-        void PrepareToSpawnSceneObjects();
-    }
-
-    public interface INetworkClient : IClientObjectManager, IClientSceneManager
+    public interface INetworkClient : IClientObjectManager
     {
         void Disconnect();
 
         void Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase;
 
         Task SendAsync<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase;
+
+        //Is this Scene or Object related?
+        void PrepareToSpawnSceneObjects();
     }
 }

@@ -26,7 +26,17 @@ namespace Mirror
         bool SpawnObjects();
     }
 
-    public interface INetworkServer : IServerObjectManager
+    //These need to be moved out of NS. Problem with setting ready in: AddPlayerForConnection
+    public interface IServerSceneManager
+    {
+        void SetClientReady(INetworkConnection conn);
+
+        void SetAllClientsNotReady();
+
+        void SetClientNotReady(INetworkConnection conn);
+    }
+
+    public interface INetworkServer : IServerObjectManager, IServerSceneManager
     {
         void Disconnect();
 
@@ -41,11 +51,5 @@ namespace Mirror
         void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable) where T : IMessageBase;
 
         void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase;
-
-        void SetClientReady(INetworkConnection conn);
-
-        void SetAllClientsNotReady();
-
-        void SetClientNotReady(INetworkConnection conn);
     }
 }
