@@ -29,6 +29,9 @@ namespace Mirror.Weaver
 
     internal static class Weaver
     {
+        public static string InvokeRpcPrefix => "InvokeUserCode_";
+        public static string SyncEventPrefix => "SendEventMessage_";
+
         public static WeaverLists WeaveLists { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }
         public static ModuleDefinition CorLibModule { get; private set; }

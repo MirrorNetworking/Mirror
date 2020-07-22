@@ -189,7 +189,7 @@ namespace Mirror
             // NOTE: there is no API to play a transition(?)
             if (stateHash != 0 && Animator.enabled)
             {
-                    Animator.Play(stateHash, layerId, normalizedTime);
+                Animator.Play(stateHash, layerId, normalizedTime);
             }
 
             ReadParameters(reader);

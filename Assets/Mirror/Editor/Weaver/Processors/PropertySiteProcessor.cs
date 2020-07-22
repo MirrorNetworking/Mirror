@@ -55,7 +55,7 @@ namespace Mirror.Weaver
 
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
-                md.Name.StartsWith("InvokeSyn"))
+                md.Name.StartsWith(Weaver.InvokeRpcPrefix))
                 return;
 
             if (md.Body != null && md.Body.Instructions != null)
