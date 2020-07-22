@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.574817, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -347,6 +347,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   client: {fileID: 492096641}
   server: {fileID: 492096640}
+  sceneManager: {fileID: 492096634}
   playerPrefab: {fileID: 1287874831399521600, guid: 4ab0a427bdc13244499c6e044ad7eb40,
     type: 3}
   startPositionIndex: 0
@@ -381,7 +382,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   authenticator: {fileID: 0}
-  sceneManager: {fileID: 492096634}
   Listening: 1
   transport: {fileID: 492096638}
 --- !u!114 &492096641
@@ -397,7 +397,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   authenticator: {fileID: 0}
-  sceneManager: {fileID: 492096634}
   Connected:
     m_PersistentCalls:
       m_Calls: []

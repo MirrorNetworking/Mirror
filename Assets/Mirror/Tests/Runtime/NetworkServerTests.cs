@@ -216,8 +216,8 @@ namespace Mirror.Tests
         public void ServerChangeSceneTest()
         {
             UnityAction<string, SceneOperation> func1 = Substitute.For<UnityAction<string, SceneOperation>>();
-            server.sceneManager.ServerChangeScene.AddListener(func1);
-            server.sceneManager.OnServerChangeScene("test", SceneOperation.Normal);
+            serverSceneManager.ServerChangeScene.AddListener(func1);
+            serverSceneManager.OnServerChangeScene("test", SceneOperation.Normal);
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         }
 
@@ -225,8 +225,8 @@ namespace Mirror.Tests
         public void ServerSceneChangedTest()
         {
             UnityAction<string, SceneOperation> func1 = Substitute.For<UnityAction<string, SceneOperation>>();
-            server.sceneManager.ServerSceneChanged.AddListener(func1);
-            server.sceneManager.OnServerSceneChanged("test", SceneOperation.Normal);
+            serverSceneManager.ServerSceneChanged.AddListener(func1);
+            serverSceneManager.OnServerSceneChanged("test", SceneOperation.Normal);
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         }
 

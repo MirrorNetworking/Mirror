@@ -1931,6 +1931,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   client: {fileID: 1661834282}
   server: {fileID: 1661834283}
+  sceneManager: {fileID: 1661834284}
   playerPrefab: {fileID: 8537344390966522168, guid: a5bdca0a2315d43499be7dcef473fbc7,
     type: 3}
   startPositionIndex: 0
@@ -1969,7 +1970,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   authenticator: {fileID: 0}
-  sceneManager: {fileID: 1661834284}
   Connected:
     m_PersistentCalls:
       m_Calls: []
@@ -2018,7 +2018,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   authenticator: {fileID: 0}
-  sceneManager: {fileID: 1661834284}
   Listening: 1
   transport: {fileID: 1661834285}
 --- !u!114 &1661834284
@@ -2050,7 +2049,6 @@ MonoBehaviour:
   ServerSceneChanged:
     m_PersistentCalls:
       m_Calls: []
-  networkSceneName: 
 --- !u!114 &1661834285
 MonoBehaviour:
   m_ObjectHideFlags: 0

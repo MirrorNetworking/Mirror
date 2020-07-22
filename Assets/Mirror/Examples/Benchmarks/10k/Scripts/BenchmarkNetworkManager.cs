@@ -13,11 +13,17 @@ namespace Mirror.Examples
         /// </summary>
         public Action AfterLateUpdate;
 
+        NetworkSceneManager sceneManager;
+
+        public override void Start()
+        {
+            sceneManager = GetComponent<NetworkSceneManager>();
+        }
 
         public void LateUpdate()
         {
             BeforeLateUpdate?.Invoke();
-            base.server.sceneManager.LateUpdate();
+            sceneManager.LateUpdate();
             AfterLateUpdate?.Invoke();
         }
     }

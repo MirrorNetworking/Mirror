@@ -73,12 +73,12 @@ namespace Mirror.Tests
             client.Connection.RegisterHandler<NotReadyMessage>(msg => invokeNotReadyMessage = true);
             sceneManager.ServerChangeScene.AddListener(func1);
 
-            server.sceneManager.ChangeServerScene("testScene");
+            sceneManager.ChangeServerScene("testScene");
 
             await WaitFor(() => invokeClientSceneMessage == true && invokeNotReadyMessage == true);
 
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
-            Assert.That(server.sceneManager.NetworkSceneName, Is.EqualTo("testScene"));
+            Assert.That(sceneManager.NetworkSceneName, Is.EqualTo("testScene"));
             Assert.That(invokeClientSceneMessage, Is.True);
             Assert.That(invokeNotReadyMessage, Is.True);
         });
@@ -88,14 +88,14 @@ namespace Mirror.Tests
         {
             Assert.Throws<ArgumentNullException>(() =>
             {
-                server.sceneManager.ChangeServerScene(string.Empty);
+                sceneManager.ChangeServerScene(string.Empty);
             });
         }
 
         [Test]
         public void ReadyTest()
         {
-            client.sceneManager.SetClientReady();
+            sceneManager.SetClientReady();
             Assert.That(sceneManager.Ready);
             Assert.That(client.Connection.IsReady);
         }
@@ -155,7 +155,7 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator ChangeSceneAdditiveLoadTest() => RunAsync(async () =>
         {
-            server.sceneManager.ChangeServerScene("testScene", SceneOperation.LoadAdditive);
+            sceneManager.ChangeServerScene("testScene", SceneOperation.LoadAdditive);
 
             await WaitFor(() => SceneManager.GetSceneByName("testScene") != null);
 
@@ -188,7 +188,7 @@ namespace Mirror.Tests
         {
             Assert.Throws<ArgumentNullException>(() =>
             {
-                client.sceneManager.ClientSceneMessage(null, new SceneMessage());
+                clientSceneManager.ClientSceneMessage(null, new SceneMessage());
             });
         }
 
@@ -199,9 +199,9 @@ namespace Mirror.Tests
             UnityAction<string, SceneOperation> func2 = Substitute.For<UnityAction<string, SceneOperation>>();
 
             client.Authenticated.AddListener(func1);
-            client.sceneManager.ClientSceneChanged.AddListener(func2);
+            clientSceneManager.ClientSceneChanged.AddListener(func2);
 
-            client.sceneManager.FinishLoadScene("test", SceneOperation.Normal);
+            clientSceneManager.FinishLoadScene("test", SceneOperation.Normal);
 
             func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
             func2.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
@@ -216,7 +216,7 @@ namespace Mirror.Tests
 
             Assert.Throws<InvalidOperationException>(() =>
             {
-                client.sceneManager.ClientSceneMessage(null, new SceneMessage());
+                clientSceneManager.ClientSceneMessage(null, new SceneMessage());
             });
         });
 
@@ -224,11 +224,11 @@ namespace Mirror.Tests
         public void ClientNotReady()
         {
             UnityAction<INetworkConnection> func1 = Substitute.For<UnityAction<INetworkConnection>>();
-            client.sceneManager.ClientNotReady.AddListener(func1);
-            client.sceneManager.SetClientReady();
-            client.sceneManager.ClientNotReadyMessage(null, new NotReadyMessage());
+            clientSceneManager.ClientNotReady.AddListener(func1);
+            clientSceneManager.SetClientReady();
+            clientSceneManager.ClientNotReadyMessage(null, new NotReadyMessage());
 
-            Assert.That(client.sceneManager.Ready, Is.False);
+            Assert.That(clientSceneManager.Ready, Is.False);
             func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
         }
 
@@ -236,10 +236,10 @@ namespace Mirror.Tests
         public IEnumerator ClientSceneMessageInvokeTest() => RunAsync(async () =>
         {
             UnityAction<string, SceneOperation> func1 = Substitute.For<UnityAction<string, SceneOperation>>();
-            client.sceneManager.ClientChangeScene.AddListener(func1);
-            client.sceneManager.ClientSceneMessage(null, new SceneMessage() { sceneName = "testScene" });
+            clientSceneManager.ClientChangeScene.AddListener(func1);
+            clientSceneManager.ClientSceneMessage(null, new SceneMessage() { sceneName = "testScene" });
 
-            await WaitFor(() => client.sceneManager.NetworkSceneName.Equals("testScene"));
+            await WaitFor(() => clientSceneManager.NetworkSceneName.Equals("testScene"));
 
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         });
@@ -247,7 +247,7 @@ namespace Mirror.Tests
         [Test]
         public void NetworkSceneNameStringEmptyTest()
         {
-            Assert.That(server.sceneManager.NetworkSceneName.Equals(string.Empty));
+            Assert.That(clientSceneManager.NetworkSceneName.Equals(string.Empty));
         }
     }
 }

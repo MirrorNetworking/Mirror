@@ -5,8 +5,13 @@ namespace Mirror.Examples.SceneChange
     public class SceneSwitcherHud : MonoBehaviour
     {
         public NetworkManager networkManager;
-
+        NetworkSceneManager sceneManager;
         bool additiveLoaded;
+
+        private void Start()
+        {
+            sceneManager = GetComponent<NetworkSceneManager>();
+        }
 
         void OnGUI()
         {
@@ -14,12 +19,12 @@ namespace Mirror.Examples.SceneChange
 
             if (GUILayout.Button("Switch to Room1"))
             {
-                networkManager.server.sceneManager.ChangeServerScene("Room1");
+                sceneManager.ChangeServerScene("Room1");
             }
 
             if (GUILayout.Button("Switch to Room2"))
             {
-                networkManager.server.sceneManager.ChangeServerScene("Room2");
+                sceneManager.ChangeServerScene("Room2");
             }
 
             if(additiveLoaded)
@@ -27,7 +32,7 @@ namespace Mirror.Examples.SceneChange
                 if (GUILayout.Button("Addive Unload"))
                 {
                     additiveLoaded = false;
-                    networkManager.server.sceneManager.ChangeServerScene("Additive", SceneOperation.UnloadAdditive);
+                    sceneManager.ChangeServerScene("Additive", SceneOperation.UnloadAdditive);
                 }
             }
             else
@@ -35,7 +40,7 @@ namespace Mirror.Examples.SceneChange
                 if (GUILayout.Button("Additive Load"))
                 {
                     additiveLoaded = true;
-                    networkManager.server.sceneManager.ChangeServerScene("Additive", SceneOperation.LoadAdditive);
+                    sceneManager.ChangeServerScene("Additive", SceneOperation.LoadAdditive);
                 }
             }
 
