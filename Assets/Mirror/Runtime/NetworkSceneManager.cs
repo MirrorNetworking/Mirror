@@ -179,7 +179,7 @@ namespace Mirror
         public void SetClientReady()
         {
             if (!client || !client.Active)
-                throw new InvalidOperationException("Ready() called with with invalid of disconnected client");
+                throw new InvalidOperationException("Ready() called with an null or disconnected client");
 
             if (Ready)
                 throw new InvalidOperationException("A connection has already been set as ready. There can only be one.");
