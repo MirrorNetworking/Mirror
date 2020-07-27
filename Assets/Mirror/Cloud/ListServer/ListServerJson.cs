@@ -22,6 +22,7 @@ namespace Mirror.Cloud.ListServerService
         /// optional
         /// </summary>
         public string displayName;
+
         /// <summary>
         /// Uri string of the ip and port of the server.
         /// <para>The ip is calculated by the request to the API</para>
@@ -52,7 +53,6 @@ namespace Mirror.Cloud.ListServerService
         /// </summary>
         /// <returns></returns>
         public Uri GetCustomUri() => new Uri(customAddress);
-
 
         public void SetCustomData(Dictionary<string, string> data)
         {
@@ -116,6 +116,7 @@ namespace Mirror.Cloud.ListServerService
         /// <para>optional</para>
         /// </summary>
         public KeyValue[] customData;
+
 
         public void SetCustomData(Dictionary<string, string> data)
         {
