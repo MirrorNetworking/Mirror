@@ -54,6 +54,10 @@ namespace Mirror.Cloud.ListServerService
         /// <returns></returns>
         public Uri GetCustomUri() => new Uri(customAddress);
 
+        /// <summary>
+        /// Updates the customData array
+        /// </summary>
+        /// <param name="data"></param>
         public void SetCustomData(Dictionary<string, string> data)
         {
             if (data == null)
