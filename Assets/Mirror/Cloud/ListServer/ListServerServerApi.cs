@@ -49,31 +49,10 @@ namespace Mirror.Cloud.ListServerService
         public void AddServer(ServerJson server)
         {
             if (added) { Logger.LogWarning("AddServer called when server was already adding or added"); return; }
-            bool valid = ValidateServerJson(server);
+            bool valid = server.Validate();
             if (!valid) { return; }
 
             runner.StartCoroutine(addServer(server));
-        }
-
-        bool ValidateServerJson(ServerJson server)
-        {
-            if (string.IsNullOrEmpty(server.protocol))
-            {
-                Logger.LogError("ServerJson should not have empty protocol");
-                return false;
-            }
-            if (server.port == 0)
-            {
-                Logger.LogError("ServerJson should not have port equal 0");
-                return false;
-            }
-            if (server.maxPlayerCount == 0)
-            {
-                Logger.LogError("ServerJson should not have maxPlayerCount equal 0");
-                return false;
-            }
-
-            return true;
         }
 
         public void UpdateServer(int newPlayerCount)
@@ -94,7 +73,9 @@ namespace Mirror.Cloud.ListServerService
                 displayName = server.displayName,
                 playerCount = server.playerCount,
                 maxPlayerCount = server.maxPlayerCount,
+                customData = server.customData,
             };
+            partialServer.Validate();
 
             runner.StartCoroutine(updateServer(partialServer));
         }
