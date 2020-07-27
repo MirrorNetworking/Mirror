@@ -11,30 +11,6 @@ namespace Mirror.Tests
 {
     public class ClientServerComponentTests : ClientServerSetup<MockComponent>
     {
-        /*
-        [Test]
-        public void ServerRpcWithoutAuthority()
-        {
-            var gameObject2 = new GameObject();
-            MockComponent rpcComponent2 = gameObject2.AddComponent<MockComponent>();
-
-            // spawn it without client authority
-            server.Spawn(gameObject2);
-
-            // process spawn message from server
-            client.Update();
-
-            // only authorized clients can call ServerRpc
-            Assert.Throws<UnauthorizedAccessException>(() =>
-           {
-               rpcComponent2.CmdTest(1, "hello");
-           });
-
-        }
-        */
-
-
-
         [Test]
         public void CheckNotHost()
         {
@@ -89,27 +65,6 @@ namespace Mirror.Tests
             Assert.That(clientComponent.targetRpcArg1, Is.EqualTo(1));
             Assert.That(clientComponent.targetRpcArg2, Is.EqualTo("hello"));
         });
-
-        /*
-        [UnityTest]
-        public IEnumerator DisconnectHostTest()
-        {
-            // set local connection
-            Assert.That(server.LocalClientActive, Is.True);
-            Assert.That(server.connections, Has.Count.EqualTo(1));
-
-            server.Disconnect();
-
-            // wait for messages to get dispatched
-            yield return null;
-
-            // state cleared?
-            Assert.That(server.connections, Is.Empty);
-            Assert.That(server.Active, Is.False);
-            Assert.That(server.LocalConnection, Is.Null);
-            Assert.That(server.LocalClientActive, Is.False);
-        }
-        */
 
         [UnityTest]
         public IEnumerator OnSpawnSpawnHandlerTest() => RunAsync(async () =>
