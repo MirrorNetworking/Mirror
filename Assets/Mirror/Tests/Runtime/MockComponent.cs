@@ -41,5 +41,15 @@ namespace Mirror.Tests
             this.targetRpcArg1 = arg1;
             this.targetRpcArg2 = arg2;
         }
+
+        public int rpcOwnerArg1;
+        public string rpcOwnerArg2;
+
+        [ClientRpc(target = Mirror.Client.Owner)]
+        public void RpcOwnerTest(int arg1, string arg2)
+        {
+            this.rpcOwnerArg1 = arg1;
+            this.rpcOwnerArg2 = arg2;
+        }
     }
 }

@@ -67,6 +67,17 @@ namespace Mirror.Tests
         });
 
         [UnityTest]
+        public IEnumerator ClientOwnerRpc() => RunAsync(async () =>
+        {
+            serverComponent.RpcOwnerTest(1, "hello");
+            // process spawn message from server
+            await WaitFor(() => clientComponent.rpcOwnerArg1 != 0);
+
+            Assert.That(clientComponent.rpcOwnerArg1, Is.EqualTo(1));
+            Assert.That(clientComponent.rpcOwnerArg2, Is.EqualTo("hello"));
+        });
+
+        [UnityTest]
         public IEnumerator OnSpawnSpawnHandlerTest() => RunAsync(async () =>
         {
             Guid guid = Guid.NewGuid();

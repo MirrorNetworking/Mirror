@@ -75,6 +75,17 @@ namespace Mirror.Tests
         });
 
         [UnityTest]
+        public IEnumerator ClientOwnerRpc() => RunAsync(async () =>
+        {
+            component.RpcOwnerTest(1, "hello");
+            // process spawn message from server
+            await WaitFor(() => component.rpcOwnerArg1 != 0);
+
+            Assert.That(component.rpcOwnerArg1, Is.EqualTo(1));
+            Assert.That(component.rpcOwnerArg2, Is.EqualTo("hello"));
+        });
+
+        [UnityTest]
         public IEnumerator DisconnectHostTest() => RunAsync(async () =>
         {
             // set local connection
