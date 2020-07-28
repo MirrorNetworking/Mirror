@@ -198,7 +198,7 @@ namespace Mirror
         /// <para>Server build add both -batchmode and -nographics automatically</para>
         /// <para>Server build is true when "Server build" is checked in build menu, or BuildOptions.EnableHeadlessMode flag is in BuildOptions</para>
         /// </summary>
-        public static bool isServerBuild =>
+        public static readonly bool isServerBuild =
 #if UNITY_SERVER
             true;
 #else
