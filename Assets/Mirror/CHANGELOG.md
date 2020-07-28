@@ -1,3 +1,10 @@
+## [43.1.2](https://github.com/MirrorNG/MirrorNG/compare/43.1.1-master...43.1.2-master) (2020-07-28)
+
+
+### Bug Fixes
+
+* ui bug where additive button is not reset ([#311](https://github.com/MirrorNG/MirrorNG/issues/311)) ([5effce9](https://github.com/MirrorNG/MirrorNG/commit/5effce9abcea0274412cb97100e1f06e4ae01028))
+
 ## [43.1.1](https://github.com/MirrorNG/MirrorNG/compare/43.1.0-master...43.1.1-master) (2020-07-22)
 
 
