@@ -725,7 +725,7 @@ namespace Mirror
             }
         }
 
-        static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
+        internal static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
         {
             if (msg.assetId != Guid.Empty)
                 identity.assetId = msg.assetId;
