@@ -230,9 +230,21 @@ namespace Mirror
         /// <returns>true if prefab was registered</returns>
         public static bool GetPrefab(Guid assetId, out GameObject prefab)
         {
-            prefab = null;
-            return assetId != Guid.Empty &&
-                   prefabs.TryGetValue(assetId, out prefab) && prefab != null;
+            if (assetId == Guid.Empty)
+            {
+                prefab = null;
+                return false;
+            }
+
+            bool found = prefabs.TryGetValue(assetId, out prefab);
+
+            if (found && prefab == null)
+            {
+                logger.LogError($"Prefab in dictionary was null for assetId '{assetId}'. If you delete or unload the prefab make sure to unregister it from ClientScene too.");
+                return false;
+            }
+
+            return found;
         }
 
         /// <summary>
