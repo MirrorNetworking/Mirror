@@ -31,12 +31,17 @@ namespace Mirror.Tests.ClientSceneTests
         public int value;
         public Vector3 direction;
 
+        public event Action OnDeserializeCalled;
+        public event Action OnSerializeCalled;
+
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             base.OnSerialize(writer, initialState);
 
             writer.WriteInt32(value);
             writer.WriteVector3(direction);
+
+            OnSerializeCalled?.Invoke();
 
             return true;
         }
@@ -46,6 +51,8 @@ namespace Mirror.Tests.ClientSceneTests
 
             value = reader.ReadInt32();
             direction = reader.ReadVector3();
+
+            OnDeserializeCalled?.Invoke();
         }
     }
 
@@ -565,10 +572,59 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ApplyPayload_SendsDataToNetworkBehaviourDeserialize()
         {
-            Assert.Ignore();
+            const int value = 12;
+            Vector3 direction = new Vector3(0, 1, 1);
+
+            const uint netId = 1000;
+
+            // server object
+            GameObject serverObject = new GameObject();
+            _createdObjects.Add(serverObject);
+            NetworkIdentity serverIdentity = serverObject.AddComponent<NetworkIdentity>();
+            PayloadTestBehaviour serverPayloadBehaviour = serverObject.AddComponent<PayloadTestBehaviour>();
+
+            // client object
+            GameObject clientObject = new GameObject();
+            _createdObjects.Add(clientObject);
+            NetworkIdentity clientIdentity = clientObject.AddComponent<NetworkIdentity>();
+            PayloadTestBehaviour clientPayloadBehaviour = clientObject.AddComponent<PayloadTestBehaviour>();
+
+            int onSerializeCalled = 0;
+            serverPayloadBehaviour.OnSerializeCalled += () => { onSerializeCalled++; };
+
+            int onDeserializeCalled = 0;
+            clientPayloadBehaviour.OnDeserializeCalled += () => { onDeserializeCalled++; };
+
+            serverPayloadBehaviour.value = value;
+            serverPayloadBehaviour.direction = direction;
 
 
-            // use PayloadTestBehaviour
+            ulong dirtyMask = 1UL;
+            NetworkWriter ownerWriter = new NetworkWriter();
+            NetworkWriter observersWriter = new NetworkWriter();
+            serverIdentity.OnSerializeAllSafely(true, dirtyMask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+
+            // check that Serialize was called
+            Assert.That(onSerializeCalled, Is.EqualTo(1));
+
+            // create spawn message
+            SpawnMessage msg = new SpawnMessage
+            {
+                netId = netId,
+                payload = ownerWriter.ToArraySegment(),
+            };
+
+            // check values start default
+            Assert.That(onDeserializeCalled, Is.EqualTo(0));
+            Assert.That(clientPayloadBehaviour.value, Is.EqualTo(0));
+            Assert.That(clientPayloadBehaviour.direction, Is.EqualTo(Vector3.zero));
+
+            ClientScene.ApplySpawnPayload(clientIdentity, msg);
+
+            // check values have been set by payload
+            Assert.That(onDeserializeCalled, Is.EqualTo(1));
+            Assert.That(clientPayloadBehaviour.value, Is.EqualTo(value));
+            Assert.That(clientPayloadBehaviour.direction, Is.EqualTo(direction));
         }
 
         [Test]
