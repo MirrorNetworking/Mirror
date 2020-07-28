@@ -200,7 +200,7 @@ namespace Mirror
         /// </summary>
         public static bool isServerBuild =>
 #if UNITY_SERVER
-            true
+            true;
 #else
             false;
 #endif
