@@ -49,6 +49,26 @@ namespace Mirror.Tests.ClientSceneTests
         }
     }
 
+    public class BehaviourWithEvents : NetworkBehaviour
+    {
+        public event Action OnStartAuthorityCalled;
+        public event Action OnStartClientCalled;
+        public event Action OnStartLocalPlayerCalled;
+
+        public override void OnStartAuthority()
+        {
+            OnStartAuthorityCalled?.Invoke();
+        }
+        public override void OnStartClient()
+        {
+            OnStartClientCalled?.Invoke();
+        }
+        public override void OnStartLocalPlayer()
+        {
+            OnStartLocalPlayerCalled?.Invoke();
+        }
+    }
+
     public class ClientSceneTests_OnSpawn : ClientSceneTestsBase
     {
         Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
@@ -619,30 +639,68 @@ namespace Mirror.Tests.ClientSceneTests
             Assert.That(ClientScene.localPlayer, Is.EqualTo(identity));
         }
 
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void ApplyPayload_isSpawnFinished(bool isSpawnFinished)
+        [Flags]
+        public enum SpawnFinishedState
         {
-            Assert.Ignore();
+            isSpawnFinished = 1,
+            hasAuthority = 2,
+            isLocalPlayer = 4
+        }
+        [Test]
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
+        [TestCase(5)]
+        [TestCase(6)]
+        [TestCase(7)]
+        public void ApplyPayload_isSpawnFinished(SpawnFinishedState flag)
+        {
+            bool isSpawnFinished = flag.HasFlag(SpawnFinishedState.isSpawnFinished);
+            bool hasAuthority = flag.HasFlag(SpawnFinishedState.hasAuthority);
+            bool isLocalPlayer = flag.HasFlag(SpawnFinishedState.isLocalPlayer);
 
-
+            if (isSpawnFinished)
+            {
+                ClientScene.OnObjectSpawnFinished(new ObjectSpawnFinishedMessage { });
+            }
 
             const uint netId = 1000;
             GameObject go = new GameObject();
             _createdObjects.Add(go);
 
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            BehaviourWithEvents events = go.AddComponent<BehaviourWithEvents>();
+
+            int onStartAuthorityCalled = 0;
+            int onStartClientCalled = 0;
+            int onStartLocalPlayerCalled = 0;
+            events.OnStartAuthorityCalled += () => { onStartAuthorityCalled++; };
+            events.OnStartClientCalled += () => { onStartClientCalled++; };
+            events.OnStartLocalPlayerCalled += () => { onStartLocalPlayerCalled++; };
+
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
+                isLocalPlayer = isLocalPlayer,
+                isOwner = hasAuthority,
             };
 
-
-            FieldInfo isSpawnFinishedField = typeof(ClientScene).GetField("isSpawnFinished", BindingFlags.Static | BindingFlags.NonPublic);
-            isSpawnFinishedField.SetValue(null, isSpawnFinished);
-
             ClientScene.ApplySpawnPayload(identity, msg);
+
+            if (isSpawnFinished)
+            {
+                Assert.That(onStartClientCalled, Is.EqualTo(1));
+                Assert.That(onStartAuthorityCalled, Is.EqualTo(hasAuthority ? 1 : 0));
+                Assert.That(onStartLocalPlayerCalled, Is.EqualTo(isLocalPlayer ? 1 : 0));
+            }
+            else
+            {
+                Assert.That(onStartAuthorityCalled, Is.Zero);
+                Assert.That(onStartClientCalled, Is.Zero);
+                Assert.That(onStartLocalPlayerCalled, Is.Zero);
+            }
         }
 
 
