@@ -20,11 +20,13 @@ namespace Mirror.Examples.SceneChange
             if (GUILayout.Button("Switch to Room1"))
             {
                 sceneManager.ChangeServerScene("Room1");
+                additiveLoaded = false;
             }
 
             if (GUILayout.Button("Switch to Room2"))
             {
                 sceneManager.ChangeServerScene("Room2");
+                additiveLoaded = false;
             }
 
             if(additiveLoaded)
