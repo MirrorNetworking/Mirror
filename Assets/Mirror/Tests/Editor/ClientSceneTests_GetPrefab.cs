@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests.ClientSceneTests
 {
@@ -30,6 +31,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = Guid.NewGuid();
             prefabs.Add(guid, null);
+            LogAssert.Expect(LogType.Error, $"Prefab in dictionary was null for assetId '{guid}'. If you delete or unload the prefab make sure to unregister it from ClientScene too.");
             bool result = ClientScene.GetPrefab(guid, out GameObject prefab);
 
             Assert.IsFalse(result);
