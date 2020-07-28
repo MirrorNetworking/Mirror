@@ -847,8 +847,8 @@ namespace Mirror
 
         static NetworkIdentity SpawnSceneObject(SpawnMessage msg)
         {
-            NetworkIdentity spawnedId = getAndRemoveSceneObject(msg.sceneId);
-            if (spawnedId == null)
+            NetworkIdentity identity = GetAndRemoveSceneObject(msg.sceneId);
+            if (identity == null)
             {
                 logger.LogError($"Spawn scene object not found for {msg.sceneId.ToString("X")} SpawnableObjects.Count={spawnableObjects.Count}");
 
@@ -860,11 +860,11 @@ namespace Mirror
                 }
             }
 
-            if (logger.LogEnabled()) logger.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId);
-            return spawnedId;
+            if (logger.LogEnabled()) logger.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + identity);
+            return identity;
         }
 
-        static NetworkIdentity getAndRemoveSceneObject(ulong sceneId)
+        static NetworkIdentity GetAndRemoveSceneObject(ulong sceneId)
         {
             if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
             {
