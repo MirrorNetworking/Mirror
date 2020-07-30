@@ -374,7 +374,7 @@ namespace Mirror
             return new Uri(reader.ReadString());
         }
 
-        public static void ReadMessage<T>(this NetworkReader reader, T msg) where T : IMessageBase
+        public static void ReadMessage<T>(this NetworkReader reader, T msg) where T : NetworkMessage
         {
             msg.Deserialize(reader);
         }

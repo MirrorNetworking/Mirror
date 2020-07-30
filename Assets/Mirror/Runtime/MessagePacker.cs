@@ -19,7 +19,7 @@ namespace Mirror
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(MessagePacker));
 
-        public static int GetId<T>() where T : IMessageBase
+        public static int GetId<T>() where T : NetworkMessage
         {
             // paul: 16 bits is enough to avoid collisions
             //  - keeps the message size small because it gets varinted
@@ -35,11 +35,11 @@ namespace Mirror
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
         //    and do an allocation free send before recycling it.
-        public static void Pack<T>(T message, NetworkWriter writer) where T : IMessageBase
+        public static void Pack<T>(T message, NetworkWriter writer) where T : NetworkMessage
         {
             // if it is a value type,  just use typeof(T) to avoid boxing
             // this works because value types cannot be derived
-            // if it is a reference type (for example IMessageBase),
+            // if it is a reference type (for example NetworkMessage),
             // ask the message for the real type
             int msgType = GetId(default(T) != null ? typeof(T) : message.GetType());
             writer.WriteUInt16((ushort)msgType);
@@ -52,7 +52,7 @@ namespace Mirror
         // => useful for tests
         // => useful for local client message enqueue
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static byte[] Pack<T>(T message) where T : IMessageBase
+        public static byte[] Pack<T>(T message) where T : NetworkMessage
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
@@ -64,7 +64,7 @@ namespace Mirror
         }
 
         // unpack a message we received
-        public static T Unpack<T>(byte[] data) where T : IMessageBase, new()
+        public static T Unpack<T>(byte[] data) where T : NetworkMessage, new()
         {
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(data))
             {
@@ -101,7 +101,7 @@ namespace Mirror
         }
 
         internal static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
-            where T : IMessageBase, new()
+            where T : NetworkMessage, new()
             where C : NetworkConnection
             => (conn, reader, channelId) =>
         {

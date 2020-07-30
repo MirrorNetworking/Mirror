@@ -3,15 +3,21 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public interface IMessageBase
+    // NetworkMessages should always be structs to avoid allocations, so we use
+    // an interface.
+    // Note: adding empty Serialize/Deserialize function is enough, Weaver will
+    //       do the rest.
+    public interface NetworkMessage
     {
         void Deserialize(NetworkReader reader);
-
         void Serialize(NetworkWriter writer);
     }
 
-    [Obsolete("Please convert your message class to a struct, implement IMessageBase and add empty Serialize/Deserialize methods. Mirror's Weaver will fill them out automatically. Messages should always be structs to avoid runtime allocations, and because we don't want two ways to do the same thing.")]
-    public abstract class MessageBase : IMessageBase
+    //[Obsolete("IMessageBase was renamed to NetworkMessage for ease of use.")]
+    public interface IMessageBase : NetworkMessage {}
+
+    [Obsolete("Please convert your message class to a struct, implement the NetworkMessage interface and add empty Serialize/Deserialize methods. Mirror's Weaver will fill them out automatically. Messages should always be structs to avoid runtime allocations, and because we don't want two ways to do the same thing.")]
+    public abstract class MessageBase : NetworkMessage
     {
         // De-serialize the contents of the reader into this message
         public virtual void Deserialize(NetworkReader reader) { }
@@ -21,7 +27,7 @@ namespace Mirror
     }
 
     #region Public System Messages
-    public struct ErrorMessage : IMessageBase
+    public struct ErrorMessage : NetworkMessage
     {
         public byte value;
 
@@ -41,21 +47,21 @@ namespace Mirror
         }
     }
 
-    public struct ReadyMessage : IMessageBase
+    public struct ReadyMessage : NetworkMessage
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct NotReadyMessage : IMessageBase
+    public struct NotReadyMessage : NetworkMessage
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct AddPlayerMessage : IMessageBase
+    public struct AddPlayerMessage : NetworkMessage
     {
         public void Deserialize(NetworkReader reader) { }
 
@@ -67,28 +73,28 @@ namespace Mirror
     /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, bool)">NetworkServer.RemovePlayerForConnection</see> instead.
     /// </summary>
     [Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, bool keepAuthority = false) instead")]
-    public struct RemovePlayerMessage : IMessageBase
+    public struct RemovePlayerMessage : NetworkMessage
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct DisconnectMessage : IMessageBase
+    public struct DisconnectMessage : NetworkMessage
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct ConnectMessage : IMessageBase
+    public struct ConnectMessage : NetworkMessage
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct SceneMessage : IMessageBase
+    public struct SceneMessage : NetworkMessage
     {
         public string sceneName;
         // Normal = 0, LoadAdditive = 1, UnloadAdditive = 2
@@ -120,7 +126,7 @@ namespace Mirror
     #endregion
 
     #region System Messages requried for code gen path
-    public struct CommandMessage : IMessageBase
+    public struct CommandMessage : NetworkMessage
     {
         public uint netId;
         public int componentIndex;
@@ -147,7 +153,7 @@ namespace Mirror
         }
     }
 
-    public struct RpcMessage : IMessageBase
+    public struct RpcMessage : NetworkMessage
     {
         public uint netId;
         public int componentIndex;
@@ -174,7 +180,7 @@ namespace Mirror
         }
     }
 
-    public struct SyncEventMessage : IMessageBase
+    public struct SyncEventMessage : NetworkMessage
     {
         public uint netId;
         public int componentIndex;
@@ -203,7 +209,7 @@ namespace Mirror
     #endregion
 
     #region Internal System Messages
-    public struct SpawnMessage : IMessageBase
+    public struct SpawnMessage : NetworkMessage
     {
         /// <summary>
         /// netId of new or existing object
@@ -277,21 +283,21 @@ namespace Mirror
         }
     }
 
-    public struct ObjectSpawnStartedMessage : IMessageBase
+    public struct ObjectSpawnStartedMessage : NetworkMessage
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct ObjectSpawnFinishedMessage : IMessageBase
+    public struct ObjectSpawnFinishedMessage : NetworkMessage
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct ObjectDestroyMessage : IMessageBase
+    public struct ObjectDestroyMessage : NetworkMessage
     {
         public uint netId;
 
@@ -306,7 +312,7 @@ namespace Mirror
         }
     }
 
-    public struct ObjectHideMessage : IMessageBase
+    public struct ObjectHideMessage : NetworkMessage
     {
         public uint netId;
 
@@ -321,7 +327,7 @@ namespace Mirror
         }
     }
 
-    public struct UpdateVarsMessage : IMessageBase
+    public struct UpdateVarsMessage : NetworkMessage
     {
         public uint netId;
         // the serialized component data
@@ -343,7 +349,7 @@ namespace Mirror
 
     // A client sends this message to the server
     // to calculate RTT and synchronize time
-    public struct NetworkPingMessage : IMessageBase
+    public struct NetworkPingMessage : NetworkMessage
     {
         public double clientTime;
 
@@ -365,7 +371,7 @@ namespace Mirror
 
     // The server responds with this message
     // The client can use this to calculate RTT and sync time
-    public struct NetworkPongMessage : IMessageBase
+    public struct NetworkPongMessage : NetworkMessage
     {
         public double clientTime;
         public double serverTime;

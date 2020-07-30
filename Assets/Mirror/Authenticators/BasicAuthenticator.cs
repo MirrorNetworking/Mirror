@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror.Authenticators
 {
-    public struct AuthRequestMessage : IMessageBase
+    public struct AuthRequestMessage : NetworkMessage
     {
         // use whatever credentials make sense for your game
         // for example, you might want to pass the accessToken if using oauth
@@ -15,7 +15,7 @@ namespace Mirror.Authenticators
         public void Deserialize(NetworkReader reader) {}
     }
 
-    public struct AuthResponseMessage : IMessageBase
+    public struct AuthResponseMessage : NetworkMessage
     {
         public byte code;
         public string message;

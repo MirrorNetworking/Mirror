@@ -4,7 +4,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class ArrayWriterTest
     {
-        struct ArrayByteMessage : IMessageBase
+        struct ArrayByteMessage : NetworkMessage
         {
             public byte[] array;
 
@@ -62,7 +62,7 @@ namespace Mirror.Tests
             Assert.That(unpacked.array, Is.EquivalentTo(new byte[] { 3, 4, 5 }));
         }
 
-        struct ArrayIntMessage : IMessageBase
+        struct ArrayIntMessage : NetworkMessage
         {
             public int[] array;
 

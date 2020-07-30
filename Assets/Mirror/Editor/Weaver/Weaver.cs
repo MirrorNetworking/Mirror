@@ -51,7 +51,7 @@ namespace Mirror.Weaver
         public static TypeReference NetworkConnectionType;
 
         public static TypeReference MessageBaseType;
-        public static TypeReference IMessageBaseType;
+        public static TypeReference NetworkMessageType;
         public static TypeReference SyncListType;
         public static TypeReference SyncSetType;
         public static TypeReference SyncDictionaryType;
@@ -299,7 +299,7 @@ namespace Mirror.Weaver
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
 
             MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
-            IMessageBaseType = NetAssembly.MainModule.GetType("Mirror.IMessageBase");
+            NetworkMessageType = NetAssembly.MainModule.GetType("Mirror.NetworkMessage");
             SyncListType = NetAssembly.MainModule.GetType("Mirror.SyncList`1");
             SyncSetType = NetAssembly.MainModule.GetType("Mirror.SyncSet`1");
             SyncDictionaryType = NetAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
@@ -404,7 +404,7 @@ namespace Mirror.Weaver
 
             bool modified = false;
 
-            if (td.ImplementsInterface(IMessageBaseType))
+            if (td.ImplementsInterface(NetworkMessageType))
             {
                 // process this and base classes from parent to child order
 

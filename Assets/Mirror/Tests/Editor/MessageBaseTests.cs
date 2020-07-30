@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    struct TestMessage : IMessageBase
+    struct TestMessage : NetworkMessage
     {
         public int IntValue;
         public string StringValue;
@@ -30,7 +30,7 @@ namespace Mirror.Tests
         }
     }
 
-    struct WovenTestMessage : IMessageBase
+    struct WovenTestMessage : NetworkMessage
     {
         public int IntValue;
         public string StringValue;
