@@ -14,8 +14,8 @@ A game can be running in one of three modes, host, client, or server-only. The c
 
 When the host is started:
 -   `Start()` function is called
--   `OnStartHost`
 -   `OnStartServer`
+-   `OnStartHost`
 -   `OnServerConnect`
 -   `OnStartClient`
 -   `OnClientConnect`
