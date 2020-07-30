@@ -21,9 +21,6 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [SyncEvent]
         public event SomeEventDelegate EventWithName;
 
-        [SyncEvent]
-        public event SomeEventDelegate EventSecond;
-
         public void CallEvent(int i)
         {
             EventWithName.Invoke(i);
