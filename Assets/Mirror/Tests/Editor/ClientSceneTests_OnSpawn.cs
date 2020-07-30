@@ -165,7 +165,6 @@ namespace Mirror.Tests.ClientSceneTests
             // could happen if the prefab is destroyed or unloaded
             prefabs.Add(validPrefabGuid, null);
 
-            LogAssert.Expect(LogType.Error, $"Prefab in dictionary was null for assetId '{msg.assetId}'. If you delete or unload the prefab make sure to unregister it from ClientScene too.");
             LogAssert.Expect(LogType.Error, $"Failed to spawn server object, did you forget to add it to the NetworkManager? assetId={msg.assetId} netId={msg.netId}");
             LogAssert.Expect(LogType.Error, $"Could not spawn assetId={msg.assetId} scene={msg.sceneId} netId={msg.netId}");
             bool success = ClientScene.FindOrSpawnObject(msg, out NetworkIdentity networkIdentity);
