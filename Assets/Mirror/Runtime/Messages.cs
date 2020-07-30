@@ -10,7 +10,7 @@ namespace Mirror
         void Serialize(NetworkWriter writer);
     }
 
-    [Obsolete("Please make your message a struct, implement IMessageBase and add empty OnSerialize/OnDeserialize methods. MessageBase was for classes, and we should never send classes to avoid runtime allocations and redundant code. We only use structs in the future. OnSerialize/OnDeserialize content is still auto generated.")]
+    [Obsolete("Please convert your message class to a struct, implement IMessageBase and add empty OnSerialize/OnDeserialize methods. Mirror's Weaver will fill them out automatically. Messages should always be structs to avoid runtime allocations, and because we don't want two ways to do the same thing.")]
     public abstract class MessageBase : IMessageBase
     {
         // De-serialize the contents of the reader into this message
