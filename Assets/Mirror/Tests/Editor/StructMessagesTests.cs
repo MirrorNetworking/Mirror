@@ -6,7 +6,7 @@ namespace Mirror.Tests.StructMessages
     {
         public int someValue;
 
-        // Mirror will automatically implement message that are empty
+        // Weaver will generate serialization
         public void Serialize(NetworkWriter writer) { }
         public void Deserialize(NetworkReader reader) { }
     }

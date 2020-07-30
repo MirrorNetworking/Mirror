@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Mirror.Discovery
 {
-    public class ServerResponse : MessageBase
+    public struct ServerResponse : IMessageBase
     {
         // The server that sent this
         // this is a property so that it is not serialized,  but the
@@ -14,5 +14,9 @@ namespace Mirror.Discovery
 
         // Prevent duplicate server appearance when a connection can be made via LAN on multiple NICs
         public long serverId;
+
+        // Weaver will generate serialization
+        public void Serialize(NetworkWriter writer) {}
+        public void Deserialize(NetworkReader reader) {}
     }
 }

@@ -4,9 +4,13 @@ namespace Mirror.Tests
     [TestFixture]
     public class ArrayWriterTest
     {
-        class ArrayByteMessage : MessageBase
+        struct ArrayByteMessage : IMessageBase
         {
             public byte[] array;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -58,9 +62,13 @@ namespace Mirror.Tests
             Assert.That(unpacked.array, Is.EquivalentTo(new byte[] { 3, 4, 5 }));
         }
 
-        class ArrayIntMessage : MessageBase
+        struct ArrayIntMessage : IMessageBase
         {
             public int[] array;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]

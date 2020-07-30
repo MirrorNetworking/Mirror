@@ -3,6 +3,28 @@ using UnityEngine;
 
 namespace Mirror.Authenticators
 {
+    public struct AuthRequestMessage : IMessageBase
+    {
+        // use whatever credentials make sense for your game
+        // for example, you might want to pass the accessToken if using oauth
+        public string authUsername;
+        public string authPassword;
+
+        // Weaver will generate serialization
+        public void Serialize(NetworkWriter writer) {}
+        public void Deserialize(NetworkReader reader) {}
+    }
+
+    public struct AuthResponseMessage : IMessageBase
+    {
+        public byte code;
+        public string message;
+
+        // Weaver will generate serialization
+        public void Serialize(NetworkWriter writer) {}
+        public void Deserialize(NetworkReader reader) {}
+    }
+
     [AddComponentMenu("Network/Authenticators/BasicAuthenticator")]
     public class BasicAuthenticator : NetworkAuthenticator
     {
@@ -13,20 +35,6 @@ namespace Mirror.Authenticators
         // set these in the inspector
         public string username;
         public string password;
-
-        public class AuthRequestMessage : MessageBase
-        {
-            // use whatever credentials make sense for your game
-            // for example, you might want to pass the accessToken if using oauth
-            public string authUsername;
-            public string authPassword;
-        }
-
-        public class AuthResponseMessage : MessageBase
-        {
-            public byte code;
-            public string message;
-        }
 
         public override void OnStartServer()
         {

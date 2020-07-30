@@ -1,4 +1,9 @@
 namespace Mirror.Discovery
 {
-    public class ServerRequest : MessageBase { }
+    public struct ServerRequest : IMessageBase
+    {
+        // Weaver will generate serialization
+        public void Serialize(NetworkWriter writer) {}
+        public void Deserialize(NetworkReader reader) {}
+    }
 }

@@ -23,7 +23,7 @@ namespace Mirror.Tests
         {
             writer.WritePackedInt32(quest.Id);
         }
-        public static MockQuest WriteQuest(this NetworkReader reader)
+        public static MockQuest ReadQuest(this NetworkReader reader)
         {
             return new MockQuest(reader.ReadPackedInt32());
         }
@@ -32,10 +32,13 @@ namespace Mirror.Tests
     [TestFixture]
     public class CustomRWTest
     {
-
-        class QuestMessage : MessageBase
+        struct QuestMessage : IMessageBase
         {
             public MockQuest quest;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]

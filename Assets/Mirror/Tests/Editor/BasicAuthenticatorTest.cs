@@ -1,22 +1,11 @@
 ﻿using NUnit.Framework;
+using Mirror.Authenticators;
 
 namespace Mirror.Tests
 {
     [TestFixture]
     public class BasicAuthenticatorTest
     {
-        public class AuthRequestMessage : MessageBase
-        {
-            public string authUsername;
-            public string authPassword;
-        }
-
-        public class AuthResponseMessage : MessageBase
-        {
-            public byte code;
-            public string message;
-        }
-
         [Test]
         public void AuthRequestMessageTest()
         {
