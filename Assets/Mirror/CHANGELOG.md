@@ -1,3 +1,10 @@
+## [43.1.3](https://github.com/MirrorNG/MirrorNG/compare/43.1.2-master...43.1.3-master) (2020-07-31)
+
+
+### Bug Fixes
+
+* ClientRPC should skip first arg only if set as Connection ([#315](https://github.com/MirrorNG/MirrorNG/issues/315)) ([168e622](https://github.com/MirrorNG/MirrorNG/commit/168e6222e759016b588e994b76d2f134c9224b0b))
+
 ## [43.1.2](https://github.com/MirrorNG/MirrorNG/compare/43.1.1-master...43.1.2-master) (2020-07-28)
 
 
