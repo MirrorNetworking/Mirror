@@ -111,7 +111,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Castclass, method.DeclaringType));
 
-            if (!NetworkBehaviourProcessor.ReadArguments(method, worker, RemoteCallType.ServerRpc))
+            if (!NetworkBehaviourProcessor.ReadArguments(method, worker, false))
                 return null;
 
             AddSenderConnection(method, worker);

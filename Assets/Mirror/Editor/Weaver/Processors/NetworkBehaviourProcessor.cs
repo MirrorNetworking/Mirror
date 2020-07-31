@@ -779,16 +779,13 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Methods.Add(serialize);
         }
 
-        public static bool ReadArguments(MethodDefinition method, ILProcessor worker, RemoteCallType callType)
+        public static bool ReadArguments(MethodDefinition method, ILProcessor worker, bool skipFirst)
         {
             // read each argument
             // example result
             /*
             CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
              */
-
-            bool skipFirst = callType == RemoteCallType.ClientRpc
-                && RpcProcessor.HasNetworkConnectionParameter(method);
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
