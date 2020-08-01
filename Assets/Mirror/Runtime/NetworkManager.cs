@@ -139,30 +139,7 @@ namespace Mirror
             // is called after the server is actually properly started.
             OnStartHost.Invoke();
 
-            FinishStartHost();
-        }
-
-        // FinishStartHost is guaranteed to be called after the host server was
-        // fully started and all the asynchronous StartHost magic is finished
-        // (= scene loading), or immediately if there was no asynchronous magic.
-        //
-        // note: we don't really need FinishStartClient/FinishStartServer. the
-        //       host version is enough.
-        void FinishStartHost()
-        {
-            // connect client and call OnStartClient AFTER server scene was
-            // loaded and all objects were spawned.
-            // DO NOT do this earlier. it would cause race conditions where a
-            // client will do things before the server is even fully started.
-            logger.Log("StartHostClient called");
-            StartHostClient();
-        }
-
-        void StartHostClient()
-        {
-            logger.Log("NetworkManager ConnectLocalClient");
-
-            server.ActivateHostScene();
+            logger.Log("NetworkManager StartHost");
         }
 
         /// <summary>

@@ -284,6 +284,8 @@ namespace Mirror
         /// </summary>
         internal void ActivateHostScene()
         {
+            SpawnObjects();
+
             foreach (NetworkIdentity identity in Spawned.Values)
             {
                 if (!identity.IsClient)

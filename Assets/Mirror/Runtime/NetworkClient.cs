@@ -179,6 +179,9 @@ namespace Mirror
             hostServer = server;
             Connection = new NetworkConnection(c1);
             RegisterHostHandlers();
+
+            server.ActivateHostScene();
+
             _ = OnConnected();
         }
 

@@ -302,7 +302,6 @@ namespace Mirror
                 }
 
                 // server scene was loaded. now spawn all the objects
-                server.SpawnObjects();
                 server.ActivateHostScene();
 
                 // call OnServerSceneChanged
