@@ -40,6 +40,16 @@ namespace Mirror.Tests
         public void Serialize(NetworkWriter writer) { }
     }
 
+    class ArrayIntIMessage : IMessageBase
+    {
+        public int[] array;
+
+        // Mirror will fill out these empty methods
+        public void Deserialize(NetworkReader reader) { }
+        public void Serialize(NetworkWriter writer) { }
+    }
+
+
     [TestFixture]
     public class MessageBaseTests
     {
@@ -62,5 +72,21 @@ namespace Mirror.Tests
             Assert.AreEqual("2", t.StringValue);
             Assert.AreEqual(3.3, t.DoubleValue);
         }
+
+        [Test]
+        public void TestIntArrayInIMessageBase()
+        {
+            ArrayIntIMessage intMessage = new ArrayIntIMessage
+            {
+                array = new[] { 3, 4, 5 }
+            };
+
+            byte[] data = MessagePacker.Pack(intMessage);
+
+            ArrayIntIMessage unpacked = MessagePacker.Unpack<ArrayIntIMessage>(data);
+
+            Assert.That(unpacked.array, Is.EquivalentTo(new int[] { 3, 4, 5 }));
+        }
+
     }
 }

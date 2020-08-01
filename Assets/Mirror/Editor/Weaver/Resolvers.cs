@@ -53,8 +53,15 @@ namespace Mirror.Weaver
                     return scriptDef.MainModule.ImportReference(methodRef);
                 }
             }
-            // Could not find the method in this class,  try the parent
-            return ResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
+
+            var parent = tr.Resolve().BaseType;
+
+            if (parent != null)
+            {
+                // Could not find the method in this class,  try the parent
+                return ResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
+            }
+            return null;
         }
 
         // System.Byte[] arguments need a version with a string
