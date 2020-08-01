@@ -1894,7 +1894,6 @@ MonoBehaviour:
   serverTickRate: 30
   server: {fileID: 1661834283}
   client: {fileID: 1661834282}
-  transport: {fileID: 1661834285}
   OnStartHost:
     m_PersistentCalls:
       m_Calls: []
@@ -1986,8 +1985,6 @@ MonoBehaviour:
   - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
   - {fileID: 855244094988030905, guid: f6d08eb9a8e35d84fa30a7e3ae64181a, type: 3}
   - {fileID: 160176457, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
-  - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
-  - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
   Transport: {fileID: 1661834285}
 --- !u!114 &1661834283
 MonoBehaviour:

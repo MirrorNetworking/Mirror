@@ -903,7 +903,6 @@ MonoBehaviour:
   serverTickRate: 30
   server: {fileID: 1886246555}
   client: {fileID: 1886246554}
-  transport: {fileID: 1886246557}
   OnStartHost:
     m_PersistentCalls:
       m_Calls: []
@@ -957,11 +956,6 @@ MonoBehaviour:
       m_Calls: []
   spawnPrefabs:
   - {fileID: 1080679924113744, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
-  - {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
-  - {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
-  - {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
-  - {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
-  - {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
   - {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
   Transport: {fileID: 1886246557}
 --- !u!114 &1886246555
