@@ -1,3 +1,10 @@
+## [43.1.4](https://github.com/MirrorNG/MirrorNG/compare/43.1.3-master...43.1.4-master) (2020-08-01)
+
+
+### Bug Fixes
+
+* moved SpawnObjects call for hostmode to after LocalClient Connected ([#317](https://github.com/MirrorNG/MirrorNG/issues/317)) ([1423a6d](https://github.com/MirrorNG/MirrorNG/commit/1423a6d0160c5d14a0ee6bad84973df73956fc05))
+
 ## [43.1.3](https://github.com/MirrorNG/MirrorNG/compare/43.1.2-master...43.1.3-master) (2020-07-31)
 
 
