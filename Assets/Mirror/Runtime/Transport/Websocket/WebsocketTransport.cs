@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Security.Authentication;
 using UnityEngine;
 
 namespace Mirror.Websocket
@@ -32,6 +33,9 @@ namespace Mirror.Websocket
 
         [Tooltip("Password for PFX Certificate file above.")]
         public string CertificatePassword;
+
+        [Tooltip("SSL and TLS Protocols")]
+        public SslProtocols EnabledSslProtocols = SslProtocols.Default;
 
         public WebsocketTransport()
         {
@@ -161,7 +165,7 @@ namespace Mirror.Websocket
                     Certificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(CertificatePath, CertificatePassword),
                     ClientCertificateRequired = false,
                     CheckCertificateRevocation = false,
-                    EnabledSslProtocols = System.Security.Authentication.SslProtocols.Default
+                    EnabledSslProtocols = EnabledSslProtocols
                 };
             }
             _ = server.Listen(port);
