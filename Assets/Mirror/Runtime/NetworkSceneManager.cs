@@ -331,10 +331,7 @@ namespace Mirror
                     client.OnAuthenticated(client.Connection);
                 }
 
-                if (client.IsConnected)
-                {
-                    OnClientSceneChanged(sceneName, sceneOperation);
-                }
+                OnClientSceneChanged(sceneName, sceneOperation);
             }
         }
     }

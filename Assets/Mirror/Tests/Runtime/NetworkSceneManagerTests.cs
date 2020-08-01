@@ -75,7 +75,7 @@ namespace Mirror.Tests
 
             sceneManager.ChangeServerScene("testScene");
 
-            await WaitFor(() => invokeClientSceneMessage == true && invokeNotReadyMessage == true);
+            await WaitFor(() => invokeClientSceneMessage && invokeNotReadyMessage);
 
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
             Assert.That(sceneManager.NetworkSceneName, Is.EqualTo("testScene"));
@@ -237,7 +237,7 @@ namespace Mirror.Tests
         {
             UnityAction<string, SceneOperation> func1 = Substitute.For<UnityAction<string, SceneOperation>>();
             clientSceneManager.ClientChangeScene.AddListener(func1);
-            clientSceneManager.ClientSceneMessage(null, new SceneMessage() { sceneName = "testScene" });
+            clientSceneManager.ClientSceneMessage(null, new SceneMessage { sceneName = "testScene" });
 
             await WaitFor(() => clientSceneManager.NetworkSceneName.Equals("testScene"));
 
