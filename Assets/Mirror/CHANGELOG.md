@@ -1,3 +1,10 @@
+# [43.2.0](https://github.com/MirrorNG/MirrorNG/compare/43.1.4-master...43.2.0-master) (2020-08-01)
+
+
+### Features
+
+* HeadlessAutoStart and HeadlessFrameLimiter ([#318](https://github.com/MirrorNG/MirrorNG/issues/318)) ([ce6ef50](https://github.com/MirrorNG/MirrorNG/commit/ce6ef50c37690623a5dcafc96cc949966ed6363b))
+
 ## [43.1.4](https://github.com/MirrorNG/MirrorNG/compare/43.1.3-master...43.1.4-master) (2020-08-01)
 
 
