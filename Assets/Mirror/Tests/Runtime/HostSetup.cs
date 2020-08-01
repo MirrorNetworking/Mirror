@@ -35,7 +35,6 @@ namespace Mirror.Tests
             manager.server = networkManagerGo.GetComponent<NetworkServer>();
             server = manager.server;
             client = manager.client;
-            manager.startOnHeadless = false;
             sceneManager.client = client;
             sceneManager.server = server;
 

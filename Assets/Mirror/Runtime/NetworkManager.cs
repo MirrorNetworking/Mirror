@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Rendering;
 
 namespace Mirror
 {
@@ -16,19 +15,6 @@ namespace Mirror
     public class NetworkManager : MonoBehaviour, INetworkManager
     {
         static readonly ILogger logger = LogFactory.GetLogger<NetworkManager>();
-
-        /// <summary>
-        /// Automatically invoke StartServer()
-        /// <para>If the application is a Server Build or run with the -batchMode ServerRpc line arguement, StartServer is automatically invoked.</para>
-        /// </summary>
-        [Tooltip("Should the server auto-start when the game is started in a headless build?")]
-        public bool startOnHeadless = true;
-
-        /// <summary>
-        /// Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.
-        /// </summary>
-        [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
-        public int serverTickRate = 30;
 
         public NetworkServer server;
         public NetworkClient client;
@@ -50,36 +36,10 @@ namespace Mirror
         /// </summary>
         public UnityEvent OnStopHost = new UnityEvent();
 
-        #region Unity Callbacks
-
-        /// <summary>
-        /// virtual so that inheriting classes' Start() can call base.Start() too
-        /// </summary>
-        public virtual void Start()
-        {
-            logger.Log("Thank you for using Mirror! https://mirror-networking.com");
-
-            // headless mode? then start the server
-            // can't do this in Awake because Awake is for initialization.
-            // some transports might not be ready until Start.
-            //
-            // (tick rate is applied in StartServer!)
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
-            {
-                _ = StartServer();
-            }
-        }
-
-        #endregion
-
-        #region Start & Stop
-
         // full server setup code, without spawning objects yet
         async Task SetupServer()
         {
             logger.Log("NetworkManager SetupServer");
-
-            ConfigureServerFrameRate();
 
             // start listening to network connections
             await server.ListenAsync();
@@ -167,34 +127,5 @@ namespace Mirror
         {
             client.Disconnect();
         }
-
-        /// <summary>
-        /// Set the frame rate for a headless server.
-        /// <para>Override if you wish to disable the behavior or set your own tick rate.</para>
-        /// </summary>
-        public virtual void ConfigureServerFrameRate()
-        {
-            // set a fixed tick rate instead of updating as often as possible
-            // * if not in Editor (it doesn't work in the Editor)
-            // * if not in Host mode
-#if !UNITY_EDITOR
-            if (!client.Active && SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
-            {
-                Application.targetFrameRate = serverTickRate;
-                if (logger.logEnabled) logger.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
-            }
-#endif
-        }
-
-        /// <summary>
-        /// virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
-        /// </summary>
-        public virtual void OnDestroy()
-        {
-            logger.Log("NetworkManager destroyed");
-        }
-
-        #endregion
-
     }
 }

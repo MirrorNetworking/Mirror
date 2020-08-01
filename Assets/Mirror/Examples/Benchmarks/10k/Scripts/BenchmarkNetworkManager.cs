@@ -15,7 +15,7 @@ namespace Mirror.Examples
 
         NetworkSceneManager sceneManager;
 
-        public override void Start()
+        public void Start()
         {
             sceneManager = GetComponent<NetworkSceneManager>();
         }

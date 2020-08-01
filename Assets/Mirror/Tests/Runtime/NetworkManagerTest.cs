@@ -11,8 +11,6 @@ namespace Mirror.Tests
         [Test]
         public void VariableTest()
         {
-            Assert.That(manager.startOnHeadless, Is.False);
-            Assert.That(manager.serverTickRate, Is.EqualTo(30));
             Assert.That(manager.server.MaxConnections, Is.EqualTo(4));
         }
 

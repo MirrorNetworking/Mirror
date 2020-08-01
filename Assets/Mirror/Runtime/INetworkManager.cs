@@ -11,7 +11,5 @@ namespace Mirror
         void StopServer();
 
         void StopClient();
-
-        void OnDestroy();
     }
 }
