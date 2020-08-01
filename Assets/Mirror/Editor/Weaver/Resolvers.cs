@@ -39,7 +39,7 @@ namespace Mirror.Weaver
             return null;
         }
 
-        public static MethodReference ResolveMethodInParents(TypeReference tr, AssemblyDefinition scriptDef, string name)
+        public static MethodReference TryResolveMethodInParents(TypeReference tr, AssemblyDefinition scriptDef, string name)
         {
             if (tr == null)
             {
@@ -54,7 +54,7 @@ namespace Mirror.Weaver
             }
 
             // Could not find the method in this class,  try the parent
-            return ResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
+            return TryResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
         }
 
         // System.Byte[] arguments need a version with a string

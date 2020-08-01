@@ -110,7 +110,7 @@ namespace Mirror.Weaver
 
         static void CallBase(TypeDefinition td, ILProcessor worker, string name)
         {
-            MethodReference method = Resolvers.ResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, name);
+            MethodReference method = Resolvers.TryResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, name);
             if (method != null)
             {
                 // base
