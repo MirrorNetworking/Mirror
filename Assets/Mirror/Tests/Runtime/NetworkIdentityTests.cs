@@ -12,85 +12,63 @@ using System.Threading.Tasks;
 
 namespace Mirror.Tests
 {
-    public class NetworkIdentityTests
+    public class NetworkIdentityTests : HostSetup<MockComponent>
     {
         #region SetUp
-        NetworkServer server;
-        GameObject serverGO;
-        NetworkClient client;
-
 
         GameObject gameObject;
-        NetworkIdentity identity;
+        NetworkIdentity testIdentity;
 
-        [UnitySetUp]
-        public IEnumerator SetUp() => RunAsync(async () =>
+        public override void ExtraSetup()
         {
-            serverGO = new GameObject();
-            serverGO.AddComponent<MockTransport>();
-            server = serverGO.AddComponent<NetworkServer>();
-            client = serverGO.AddComponent<NetworkClient>();
-            await server.ListenAsync();
-            client.ConnectHost(server);
-
-
             gameObject = new GameObject();
-            identity = gameObject.AddComponent<NetworkIdentity>();
-        });
+            testIdentity = gameObject.AddComponent<NetworkIdentity>();
+        }
 
-        [UnityTearDown]
-        public IEnumerator TearDown() => RunAsync(async () =>
+        public override void ExtraTearDown()
         {
             Object.Destroy(gameObject);
-            // reset all state
-            server.Disconnect();
-
-            await Task.Delay(1);
-            Object.Destroy(serverGO);
-        });
+        }
 
         #endregion
 
         [Test]
         public void AssignClientAuthorityNoServer()
         {
-            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
             {
-                identity.AssignClientAuthority(server.LocalConnection);
+                testIdentity.AssignClientAuthority(server.LocalConnection);
             });
-
-            Assert.That(ex.Message, Is.EqualTo("AssignClientAuthority can only be called on the server for spawned objects"));
-
         }
 
         [Test]
         public void IsServer()
         {
-            Assert.That(identity.IsServer, Is.False);
+            Assert.That(testIdentity.IsServer, Is.False);
             // create a networkidentity with our test component
             server.Spawn(gameObject);
 
-            Assert.That(identity.IsServer, Is.True);
+            Assert.That(testIdentity.IsServer, Is.True);
         }
 
         [Test]
         public void IsClient()
         {
-            Assert.That(identity.IsClient, Is.False);
+            Assert.That(testIdentity.IsClient, Is.False);
             // create a networkidentity with our test component
             server.Spawn(gameObject);
 
-            Assert.That(identity.IsClient, Is.True);
+            Assert.That(testIdentity.IsClient, Is.True);
         }
 
         [Test]
         public void IsLocalPlayer()
         {
-            Assert.That(identity.IsLocalPlayer, Is.False);
+            Assert.That(testIdentity.IsLocalPlayer, Is.False);
             // create a networkidentity with our test component
             server.Spawn(gameObject);
 
-            Assert.That(identity.IsLocalPlayer, Is.False);
+            Assert.That(testIdentity.IsLocalPlayer, Is.False);
         }
 
         [Test]
@@ -105,14 +83,14 @@ namespace Mirror.Tests
             void Callback(INetworkConnection conn, NetworkIdentity networkIdentity, bool state)
             {
                 ++callbackCalled;
-                Assert.That(networkIdentity, Is.EqualTo(identity));
+                Assert.That(networkIdentity, Is.EqualTo(testIdentity));
                 Assert.That(state, Is.True);
             }
 
             NetworkIdentity.clientAuthorityCallback += Callback;
 
             // assign authority
-            identity.AssignClientAuthority(server.LocalConnection);
+            testIdentity.AssignClientAuthority(server.LocalConnection);
 
             Assert.That(callbackCalled, Is.EqualTo(1));
 
@@ -124,7 +102,7 @@ namespace Mirror.Tests
         {
             // create a networkidentity with our test component
             server.Spawn(gameObject);
-            Assert.That(identity.ConnectionToClient, Is.Null);
+            Assert.That(testIdentity.ConnectionToClient, Is.Null);
         }
 
         [Test]
@@ -132,16 +110,16 @@ namespace Mirror.Tests
         {
             // create a networkidentity with our test component
             server.Spawn(gameObject);
-            identity.AssignClientAuthority(server.LocalConnection);
+            testIdentity.AssignClientAuthority(server.LocalConnection);
 
-            Assert.That(identity.ConnectionToClient, Is.SameAs(server.LocalConnection));
+            Assert.That(testIdentity.ConnectionToClient, Is.SameAs(server.LocalConnection));
         }
 
         [Test]
         public void SpawnWithAuthority()
         {
             server.Spawn(gameObject, server.LocalConnection);
-            Assert.That(identity.ConnectionToClient, Is.SameAs(server.LocalConnection));
+            Assert.That(testIdentity.ConnectionToClient, Is.SameAs(server.LocalConnection));
         }
 
         [Test]
@@ -149,7 +127,7 @@ namespace Mirror.Tests
         {
             Guid replacementGuid = Guid.NewGuid();
             server.Spawn(gameObject, replacementGuid, server.LocalConnection);
-            Assert.That(identity.AssetId, Is.EqualTo(replacementGuid));
+            Assert.That(testIdentity.AssetId, Is.EqualTo(replacementGuid));
         }
 
         [Test]
@@ -158,15 +136,14 @@ namespace Mirror.Tests
             // create a networkidentity with our test component
             server.Spawn(gameObject);
             // assign authority
-            identity.AssignClientAuthority(server.LocalConnection);
+            testIdentity.AssignClientAuthority(server.LocalConnection);
 
             // shouldn't be able to assign authority while already owned by
             // another connection
-            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
             {
-                identity.AssignClientAuthority(new NetworkConnection(null));
+                testIdentity.AssignClientAuthority(new NetworkConnection(null));
             });
-            Assert.That(ex.Message, Is.EqualTo("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first"));
         }
 
         [Test]
@@ -177,47 +154,41 @@ namespace Mirror.Tests
 
             // someone might try to remove authority by assigning null.
             // make sure this fails.
-            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
             {
-                identity.AssignClientAuthority(null);
+                testIdentity.AssignClientAuthority(null);
             });
-            Assert.That(ex.Message, Is.EqualTo("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead"));
         }
 
         [Test]
         public void RemoveclientAuthorityNotSpawned()
         {
-            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
             {
                 // shoud fail because the server is not active
-                identity.RemoveClientAuthority();
+                testIdentity.RemoveClientAuthority();
             });
-            Assert.That(ex.Message, Is.EqualTo("RemoveClientAuthority can only be called on the server for spawned objects"));
         }
-
 
         [Test]
         public void RemoveClientAuthorityOfOwner()
         {
             server.AddPlayerForConnection(server.LocalConnection, gameObject);
 
-            InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
             {
-                identity.RemoveClientAuthority();
-
+                testIdentity.RemoveClientAuthority();
             });
-            Assert.That(ex.Message, Is.EqualTo("RemoveClientAuthority cannot remove authority for a player object"));
         }
 
         [Test]
         public void RemoveClientAuthority()
         {
             server.Spawn(gameObject);
-            identity.AssignClientAuthority(server.LocalConnection);
-            identity.RemoveClientAuthority();
-            Assert.That(identity.ConnectionToClient, Is.Null);
+            testIdentity.AssignClientAuthority(server.LocalConnection);
+            testIdentity.RemoveClientAuthority();
+            Assert.That(testIdentity.ConnectionToClient, Is.Null);
         }
-
 
         [UnityTest]
         public IEnumerator OnStopServer() => RunAsync(async () =>
@@ -225,12 +196,24 @@ namespace Mirror.Tests
             server.Spawn(gameObject);
 
             UnityAction mockHandler = Substitute.For<UnityAction>();
-            identity.OnStopServer.AddListener(mockHandler);
+            testIdentity.OnStopServer.AddListener(mockHandler);
 
             server.UnSpawn(gameObject);
 
             await Task.Delay(1);
             mockHandler.Received().Invoke();
         });
+
+        [Test]
+        public void IdentityClientValueSet()
+        {
+            Assert.That(identity.Client, Is.Not.Null);
+        }
+
+        [Test]
+        public void IdentityServerValueSet()
+        {
+            Assert.That(identity.Server, Is.Not.Null);
+        }
     }
 }
