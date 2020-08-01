@@ -43,7 +43,6 @@ namespace Mirror.Weaver
         {
             if (tr == null)
             {
-                Weaver.Error($"Cannot resolve method {name} without a type");
                 return null;
             }
             foreach (MethodDefinition methodRef in tr.Resolve().Methods)
@@ -54,14 +53,8 @@ namespace Mirror.Weaver
                 }
             }
 
-            var parent = tr.Resolve().BaseType;
-
-            if (parent != null)
-            {
-                // Could not find the method in this class,  try the parent
-                return ResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
-            }
-            return null;
+            // Could not find the method in this class,  try the parent
+            return ResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
         }
 
         // System.Byte[] arguments need a version with a string
