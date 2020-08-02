@@ -399,6 +399,9 @@ namespace Mirror
 
                 if (ClientScene.readyConnection != null)
                     CmdOnAnimationTriggerServerMessage(hash);
+
+                // call on client right away
+                HandleAnimTriggerMsg(hash);
             }
             else
             {
@@ -445,6 +448,9 @@ namespace Mirror
 
                 if (ClientScene.readyConnection != null)
                     CmdOnAnimationResetTriggerServerMessage(hash);
+
+                // call on client right away
+                HandleAnimResetTriggerMsg(hash);
             }
             else
             {
@@ -538,8 +544,8 @@ namespace Mirror
         [ClientRpc]
         void RpcOnAnimationTriggerClientMessage(int hash)
         {
-            // host handles this before it is sent
-            if (isServer) return;
+            // host/owner handles this before it is sent
+            if (isServer || (clientAuthority && hasAuthority)) return;
 
             HandleAnimTriggerMsg(hash);
         }
@@ -547,8 +553,8 @@ namespace Mirror
         [ClientRpc]
         void RpcOnAnimationResetTriggerClientMessage(int hash)
         {
-            // host handles this before it is sent
-            if (isServer) return;
+            // host/owner handles this before it is sent
+            if (isServer || (clientAuthority && hasAuthority)) return;
 
             HandleAnimResetTriggerMsg(hash);
         }
