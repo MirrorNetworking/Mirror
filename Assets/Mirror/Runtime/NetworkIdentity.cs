@@ -83,7 +83,6 @@ namespace Mirror
 
         /// <summary>
         /// The set of network connections (players) that can see this object.
-        /// <para>null until OnStartServer was called. this is necessary for SendTo* to work properly in server-only mode.</para>
         /// </summary>
         public readonly HashSet<INetworkConnection> observers = new HashSet<INetworkConnection>();
 
