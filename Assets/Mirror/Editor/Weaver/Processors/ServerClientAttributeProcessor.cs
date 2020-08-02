@@ -46,7 +46,7 @@ namespace Mirror.Weaver
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {
-                worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Server] function '" + md.FullName + "' called on client"));
+                worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, $"[Server] function '{md.FullName}' called when server was not active"));
                 worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.logWarningReference));
             }
             InjectGuardParameters(md, worker, top);
@@ -68,7 +68,7 @@ namespace Mirror.Weaver
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {
-                worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Client] function '" + md.FullName + "' called on server"));
+                worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Client] function '{md.FullName}' called when client was not active"));
                 worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.logWarningReference));
             }
 
