@@ -1,52 +1,55 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Mirror.Examples.SceneChange
 {
     public class SceneSwitcherHud : MonoBehaviour
     {
-        public NetworkManager networkManager;
-        NetworkSceneManager sceneManager;
+        public NetworkSceneManager sceneManager;
+        public Text AdditiveButtonText;
         bool additiveLoaded;
 
-        private void Start()
+        private void Awake()
         {
-            sceneManager = GetComponent<NetworkSceneManager>();
+            DontDestroyOnLoad(this);
         }
 
-        void OnGUI()
+        public void Update()
         {
-            GUILayout.BeginArea(new Rect(10, 400, 215, 9999));
-
-            if (GUILayout.Button("Switch to Room1"))
-            {
-                sceneManager.ChangeServerScene("Room1");
-                additiveLoaded = false;
-            }
-
-            if (GUILayout.Button("Switch to Room2"))
-            {
-                sceneManager.ChangeServerScene("Room2");
-                additiveLoaded = false;
-            }
-
             if(additiveLoaded)
             {
-                if (GUILayout.Button("Addive Unload"))
-                {
-                    additiveLoaded = false;
-                    sceneManager.ChangeServerScene("Additive", SceneOperation.UnloadAdditive);
-                }
+                AdditiveButtonText.text = "Additive Unload";
             }
             else
             {
-                if (GUILayout.Button("Additive Load"))
-                {
-                    additiveLoaded = true;
-                    sceneManager.ChangeServerScene("Additive", SceneOperation.LoadAdditive);
-                }
+                AdditiveButtonText.text = "Additive Load";
             }
+        }
 
-            GUILayout.EndArea();
+        public void Room1ButtonHandler()
+        {
+            sceneManager.ChangeServerScene("Room1");
+            additiveLoaded = false;
+        }
+
+        public void Room2ButtonHandler()
+        {
+            sceneManager.ChangeServerScene("Room2");
+            additiveLoaded = false;
+        }
+
+        public void AdditiveButtonHandler()
+        {
+            if (additiveLoaded)
+            {
+                additiveLoaded = false;
+                sceneManager.ChangeServerScene("Additive", SceneOperation.UnloadAdditive);
+            }
+            else
+            {
+                additiveLoaded = true;
+                sceneManager.ChangeServerScene("Additive", SceneOperation.LoadAdditive);
+            }
         }
     }
 }
