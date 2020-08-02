@@ -1176,12 +1176,14 @@ namespace Mirror.Tests
         [Test]
         public void GetSyncVarGameObjectOnServer()
         {
+            // add test component
+            // make sure component is added before OnStartServer because of behaviour cache
+            NetworkBehaviourGetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarGameObjectComponent>();
+
             // call OnStartServer so isServer is true
             identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
 
-            // add test component
-            NetworkBehaviourGetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarGameObjectComponent>();
             // for isDirty check
             comp.syncInterval = 0;
 
@@ -1374,12 +1376,14 @@ namespace Mirror.Tests
         [Test]
         public void GetSyncVarNetworkIdentityOnServer()
         {
+            // add test component
+            // make sure component is added before OnStartServer because of behaviour cache
+            NetworkBehaviourGetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarNetworkIdentityComponent>();
+
             // call OnStartServer so isServer is true
             identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
 
-            // add test component
-            NetworkBehaviourGetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarNetworkIdentityComponent>();
             // for isDirty check
             comp.syncInterval = 0;
 
