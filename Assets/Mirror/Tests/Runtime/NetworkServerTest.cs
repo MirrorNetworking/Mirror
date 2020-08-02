@@ -120,7 +120,7 @@ namespace Mirror.Tests
         {
             // add connection
 
-            NetworkConnection connectionToClient = Substitute.For<NetworkConnection>((IConnection)null);
+            NetworkConnection connectionToClient = Substitute.For<NetworkConnection>(Substitute.For<IConnection>());
 
             NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
 

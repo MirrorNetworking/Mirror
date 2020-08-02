@@ -142,7 +142,7 @@ namespace Mirror.Tests
             // another connection
             Assert.Throws<InvalidOperationException>(() =>
             {
-                testIdentity.AssignClientAuthority(new NetworkConnection(null));
+                testIdentity.AssignClientAuthority(new NetworkConnection(Substitute.For<IConnection>()));
             });
         }
 

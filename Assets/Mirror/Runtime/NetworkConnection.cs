@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Mirror
 {
@@ -80,6 +81,7 @@ namespace Mirror
         /// <param name="networkConnectionId"></param>
         public NetworkConnection(IConnection connection)
         {
+            Assert.IsNotNull(connection);
             this.connection = connection;
         }
 
