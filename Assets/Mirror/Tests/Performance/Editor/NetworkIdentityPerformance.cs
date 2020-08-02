@@ -1,29 +1,10 @@
 #if !UNITY_2019_2_OR_NEWER || UNITY_PERFORMANCE_TESTS_1_OR_OLDER
-using System;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
 using UnityEngine;
 
 namespace Mirror.Tests.Performance
 {
-    public class FakeNetworkConnection : NetworkConnectionToClient
-    {
-        public FakeNetworkConnection(int networkConnectionId) : base(networkConnectionId)
-        {
-        }
-
-        public override string address => "Test";
-
-        public override void Disconnect()
-        {
-            // nothing
-        }
-
-        internal override bool Send(ArraySegment<byte> segment, int channelId = 0)
-        {
-            return true;
-        }
-    }
     public class Health : NetworkBehaviour
     {
         [SyncVar] public int health = 10;
