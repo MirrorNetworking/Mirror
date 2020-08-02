@@ -507,7 +507,9 @@ namespace Mirror
                 return;
 
             // handle and broadcast
-            HandleAnimTriggerMsg(hash);
+            // host should have already the trigger
+            if (!isClient)
+                HandleAnimTriggerMsg(hash);
             RpcOnAnimationTriggerClientMessage(hash);
         }
 
@@ -519,7 +521,9 @@ namespace Mirror
                 return;
 
             // handle and broadcast
-            HandleAnimResetTriggerMsg(hash);
+            // host should have already the trigger
+            if (!isClient)
+                HandleAnimResetTriggerMsg(hash);
             RpcOnAnimationResetTriggerClientMessage(hash);
         }
 
