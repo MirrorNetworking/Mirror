@@ -1,3 +1,10 @@
+## [43.2.1](https://github.com/MirrorNG/MirrorNG/compare/43.2.0-master...43.2.1-master) (2020-08-02)
+
+
+### Bug Fixes
+
+* Dont allow null connections ([#323](https://github.com/MirrorNG/MirrorNG/issues/323)) ([44fef7e](https://github.com/MirrorNG/MirrorNG/commit/44fef7ec7bd6ae0772414ff28bb78bf42a6b4c92))
+
 # [43.2.0](https://github.com/MirrorNG/MirrorNG/compare/43.1.4-master...43.2.0-master) (2020-08-01)
 
 
