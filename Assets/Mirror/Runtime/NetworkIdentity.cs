@@ -123,7 +123,7 @@ namespace Mirror
         ///     works fine if we keep the UNET way of setting isClient manually.
         /// </para>
         /// <para>
-        ///     => fixes <see cref="https://github.com/vis2k/Mirror/issues/1475"/>
+        ///     => fixes <see href="https://github.com/vis2k/Mirror/issues/1475"/>
         /// </para>
         /// </summary>
         /// <remarks>
@@ -145,7 +145,7 @@ namespace Mirror
         ///     works fine if we keep the UNET way of setting isServer manually.
         /// </para>
         /// <para>
-        ///     => fixes <see cref="https://github.com/vis2k/Mirror/issues/1484"/>
+        ///     => fixes <see href="https://github.com/vis2k/Mirror/issues/1484"/>
         /// </para>
         /// </remarks>
         public bool isServer { get; internal set; }
