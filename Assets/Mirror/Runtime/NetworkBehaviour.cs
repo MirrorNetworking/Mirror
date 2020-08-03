@@ -242,11 +242,11 @@ namespace Mirror
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId, bool excludeOwner)
         {
             // this was in Weaver before
-            if (!Server.Active)
+            if (!Server || !Server.Active)
             {
                 throw new InvalidOperationException("RPC Function " + rpcName + " called on Client.");
             }
-            // This cannot use NetworkServer.active, as that is not specific to this object.
+            // This cannot use Server.active, as that is not specific to this object.
             if (!IsServer)
             {
                 logger.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
@@ -274,9 +274,9 @@ namespace Mirror
         protected void SendTargetRPCInternal(INetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
-            if (!Server.Active)
+            if (!Server || !Server.Active)
             {
-                throw new InvalidOperationException("TargetRPC Function " + rpcName + " called on client.");
+                throw new InvalidOperationException("RPC Function " + rpcName + " called on client.");
             }
 
             // connection parameter is optional. assign if null.
@@ -285,10 +285,10 @@ namespace Mirror
                 conn = ConnectionToClient;
             }
 
-            // This cannot use NetworkServer.active, as that is not specific to this object.
+            // This cannot use Server.active, as that is not specific to this object.
             if (!IsServer)
             {
-                logger.LogWarning("TargetRpc " + rpcName + " called on un-spawned object: " + name);
+                logger.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
             }
 
