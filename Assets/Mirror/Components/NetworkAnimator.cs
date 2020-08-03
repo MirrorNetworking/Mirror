@@ -116,7 +116,7 @@ namespace Mirror
             normalizedTime = 0;
 
             float lw = animator.GetLayerWeight(layerId);
-            if (lw != layerWeight[layerId])
+            if (Mathf.Abs(lw - layerWeight[layerId]) > 0.001f)
             {
                 layerWeight[layerId] = lw;
                 change = true;
