@@ -25,7 +25,6 @@ namespace Mirror
         // Handles network messages on client and server
         private delegate void NetworkMessageDelegate(INetworkConnection conn, NetworkReader reader, int channelId);
 
-
         // internal so it can be tested
         private readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 

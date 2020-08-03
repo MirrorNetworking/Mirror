@@ -44,7 +44,6 @@ namespace Mirror.Tcp
             }
         }
 
-
         private static async Task<bool> ReadExactlyAsync(NetworkStream stream, MemoryStream buffer, int count)
         {
             int offset = 0;
@@ -134,6 +133,5 @@ namespace Mirror.Tcp
         {
             return client.Client.RemoteEndPoint;
         }
-
     }
 }

@@ -1153,7 +1153,6 @@ namespace Mirror
         {
             if (observers.Count > 0)
             {
-                
                 SendUpdateVarsMessage();
             }
             else
@@ -1209,7 +1208,6 @@ namespace Mirror
                 }
             }
         }
-
 
         // clear all component's dirty bits no matter what
         internal void ClearAllComponentsDirtyBits()
