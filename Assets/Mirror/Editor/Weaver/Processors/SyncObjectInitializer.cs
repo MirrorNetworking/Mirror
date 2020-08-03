@@ -61,7 +61,7 @@ namespace Mirror.Weaver
                     return false;
                 }
 
-                return typeRef.Resolve().ImplementsInterface(Weaver.SyncObjectType);
+                return typeRef.Resolve().ImplementsInterface(WeaverTypes.SyncObjectType);
             }
             catch
             {
@@ -81,7 +81,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldfld, fd));
 
-            worker.Append(worker.Create(OpCodes.Call, Weaver.InitSyncObjectReference));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.InitSyncObjectReference));
         }
     }
 }

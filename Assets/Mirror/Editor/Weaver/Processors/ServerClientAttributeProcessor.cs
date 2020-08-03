@@ -42,12 +42,12 @@ namespace Mirror.Weaver
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
 
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkServerGetActive));
+            worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.NetworkServerGetActive));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, $"[Server] function '{md.FullName}' called when server was not active"));
-                worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.logWarningReference));
+                worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.logWarningReference));
             }
             InjectGuardParameters(md, worker, top);
             InjectGuardReturnValue(md, worker, top);
@@ -64,12 +64,12 @@ namespace Mirror.Weaver
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
 
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkClientGetActive));
+            worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.NetworkClientGetActive));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Client] function '{md.FullName}' called when client was not active"));
-                worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.logWarningReference));
+                worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.logWarningReference));
             }
 
             InjectGuardParameters(md, worker, top);
@@ -111,7 +111,7 @@ namespace Mirror.Weaver
         // this is required to early-out from a function with a return value.
         static void InjectGuardReturnValue(MethodDefinition md, ILProcessor worker, Instruction top)
         {
-            if (md.ReturnType.FullName != Weaver.voidType.FullName)
+            if (md.ReturnType.FullName != WeaverTypes.voidType.FullName)
             {
                 if (md.ReturnType.IsPrimitive)
                 {

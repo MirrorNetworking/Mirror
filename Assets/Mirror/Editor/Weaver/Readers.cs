@@ -46,17 +46,17 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variable.Name} is not a supported type", variable);
                 return null;
             }
-            if (td.IsDerivedFrom(Weaver.ComponentType))
+            if (td.IsDerivedFrom(WeaverTypes.ComponentType))
             {
                 Weaver.Error($"Cannot generate reader for component type {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
             }
-            if (variable.FullName == Weaver.ObjectType.FullName)
+            if (variable.FullName == WeaverTypes.ObjectType.FullName)
             {
                 Weaver.Error($"Cannot generate reader for {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
             }
-            if (variable.FullName == Weaver.ScriptableObjectType.FullName)
+            if (variable.FullName == WeaverTypes.ScriptableObjectType.FullName)
             {
                 Weaver.Error($"Cannot generate reader for {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
@@ -141,18 +141,18 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     variable);
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
 
-            readerFunc.Body.Variables.Add(new VariableDefinition(Weaver.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
-            readerFunc.Body.Variables.Add(new VariableDefinition(Weaver.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
             readerFunc.Body.InitLocals = true;
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
             // int length = reader.ReadPackedInt32();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(Weaver.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.int32Type)));
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
             // if (length < 0) {
@@ -234,21 +234,21 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     variable);
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
 
             // int lengh
-            readerFunc.Body.Variables.Add(new VariableDefinition(Weaver.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
             // T[] array
             readerFunc.Body.Variables.Add(new VariableDefinition(elementType.MakeArrayType()));
             // int i;
-            readerFunc.Body.Variables.Add(new VariableDefinition(Weaver.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
             readerFunc.Body.InitLocals = true;
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
             // int length = reader.ReadPackedInt32();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(Weaver.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.int32Type)));
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
             // T[] array = new int[length]
@@ -291,7 +291,7 @@ namespace Mirror.Weaver
 
             // return new ArraySegment<T>(array);
             worker.Append(worker.Create(OpCodes.Ldloc_1));
-            worker.Append(worker.Create(OpCodes.Newobj, Weaver.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance)));
+            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance)));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
         }
@@ -325,7 +325,7 @@ namespace Mirror.Weaver
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
             readerFunc.Body.InitLocals = true;
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
@@ -348,9 +348,9 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldloca, 0));
                 worker.Append(worker.Create(OpCodes.Initobj, variable));
             }
-            else if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
+            else if (td.IsDerivedFrom(WeaverTypes.ScriptableObjectType))
             {
-                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(Weaver.ScriptableObjectCreateInstanceMethod);
+                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(WeaverTypes.ScriptableObjectCreateInstanceMethod);
                 genericInstanceMethod.GenericArguments.Add(variable);
                 worker.Append(worker.Create(OpCodes.Call, genericInstanceMethod));
                 worker.Append(worker.Create(OpCodes.Stloc_0));

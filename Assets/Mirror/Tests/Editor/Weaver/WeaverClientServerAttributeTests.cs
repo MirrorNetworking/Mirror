@@ -13,7 +13,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
-            string networkServerGetActive = Weaver.NetworkServerGetActive.ToString();
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
 
         }
@@ -23,7 +23,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
-            string networkClientGetActive = Weaver.NetworkClientGetActive.ToString();
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
         }
 

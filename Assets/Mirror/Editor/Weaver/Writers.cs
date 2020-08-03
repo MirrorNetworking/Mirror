@@ -53,17 +53,17 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variable.Name} is not a supported type. Use a supported type or provide a custom writer", variable);
                 return null;
             }
-            if (td.IsDerivedFrom(Weaver.ComponentType))
+            if (td.IsDerivedFrom(WeaverTypes.ComponentType))
             {
                 Weaver.Error($"Cannot generate writer for component type {variable.Name}. Use a supported type or provide a custom writer", variable);
                 return null;
             }
-            if (variable.FullName == Weaver.ObjectType.FullName)
+            if (variable.FullName == WeaverTypes.ObjectType.FullName)
             {
                 Weaver.Error($"Cannot generate writer for {variable.Name}. Use a supported type or provide a custom writer", variable);
                 return null;
             }
-            if (variable.FullName == Weaver.ScriptableObjectType.FullName)
+            if (variable.FullName == WeaverTypes.ScriptableObjectType.FullName)
             {
                 Weaver.Error($"Cannot generate writer for {variable.Name}. Use a supported type or provide a custom writer", variable);
                 return null;
@@ -132,9 +132,9 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    Weaver.voidType);
+                    WeaverTypes.voidType);
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -147,7 +147,7 @@ namespace Mirror.Weaver
         }
 
         /// <summary>
-        /// Fiends all fields in 
+        /// Fiends all fields in
         /// </summary>
         /// <param name="variable"></param>
         /// <param name="recursionCount"></param>
@@ -214,13 +214,13 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    Weaver.voidType);
+                    WeaverTypes.voidType);
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
 
-            writerFunc.Body.Variables.Add(new VariableDefinition(Weaver.int32Type));
-            writerFunc.Body.Variables.Add(new VariableDefinition(Weaver.int32Type));
+            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
             writerFunc.Body.InitLocals = true;
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -236,7 +236,7 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_M1));
-            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(Weaver.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.int32Type)));
             worker.Append(worker.Create(OpCodes.Ret));
 
             // int length = value.Length;
@@ -248,7 +248,7 @@ namespace Mirror.Weaver
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(Weaver.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.int32Type)));
 
             // for (int i=0; i< value.length; i++) {
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
@@ -311,18 +311,18 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    Weaver.voidType);
+                    WeaverTypes.voidType);
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, variable));
 
-            writerFunc.Body.Variables.Add(new VariableDefinition(Weaver.int32Type));
-            writerFunc.Body.Variables.Add(new VariableDefinition(Weaver.int32Type));
+            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
             writerFunc.Body.InitLocals = true;
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
-            MethodReference countref = Weaver.ArraySegmentCountReference.MakeHostInstanceGeneric(genericInstance);
+            MethodReference countref = WeaverTypes.ArraySegmentCountReference.MakeHostInstanceGeneric(genericInstance);
 
             // int length = value.Count;
             worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
@@ -333,7 +333,7 @@ namespace Mirror.Weaver
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(Weaver.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.int32Type)));
 
             // Loop through the ArraySegment<T> and call the writer for each element.
             // generates this:
@@ -353,10 +353,10 @@ namespace Mirror.Weaver
             // writer.Write(value.Array[i + value.Offset]);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.ArraySegmentArrayReference.MakeHostInstanceGeneric(genericInstance)));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.ArraySegmentArrayReference.MakeHostInstanceGeneric(genericInstance)));
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.ArraySegmentOffsetReference.MakeHostInstanceGeneric(genericInstance)));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.ArraySegmentOffsetReference.MakeHostInstanceGeneric(genericInstance)));
             worker.Append(worker.Create(OpCodes.Add));
             worker.Append(worker.Create(OpCodes.Ldelema, elementType));
             worker.Append(worker.Create(OpCodes.Ldobj, elementType));
