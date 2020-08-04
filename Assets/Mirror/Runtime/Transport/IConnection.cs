@@ -29,4 +29,9 @@ namespace Mirror
         /// <returns></returns>
         EndPoint GetEndPointAddress();
     }
+
+    public interface IChannelConnection : IConnection
+    {
+        Task SendAsync(ArraySegment<byte> data, int channel);
+    }
 }
