@@ -132,7 +132,7 @@ namespace Mirror
                     animationHash[layerId] = 0;
                     return true;
                 }
-                return false || change;
+                return change;
             }
 
             AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(layerId);
