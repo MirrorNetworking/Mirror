@@ -1,3 +1,10 @@
+# [43.3.0](https://github.com/MirrorNG/MirrorNG/compare/43.2.1-master...43.3.0-master) (2020-08-04)
+
+
+### Features
+
+* add IChannelConnection interface for transports with channels ([#332](https://github.com/MirrorNG/MirrorNG/issues/332)) ([887118e](https://github.com/MirrorNG/MirrorNG/commit/887118e2d20009c97d0732f6176c72484780b5bb))
+
 ## [43.2.1](https://github.com/MirrorNG/MirrorNG/compare/43.2.0-master...43.2.1-master) (2020-08-02)
 
 
