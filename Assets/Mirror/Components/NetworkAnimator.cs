@@ -149,7 +149,7 @@ namespace Mirror
                 animationHash[layerId] = st.fullPathHash;
                 return true;
             }
-            return false || change;
+            return change;
         }
 
         void CheckSendRate()
