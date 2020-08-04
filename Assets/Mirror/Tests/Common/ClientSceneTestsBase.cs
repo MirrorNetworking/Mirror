@@ -32,6 +32,8 @@ namespace Mirror.Tests
         protected Dictionary<Guid, GameObject> prefabs => ClientScene.prefabs;
         protected Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => ClientScene.spawnHandlers;
         protected Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
+        protected Dictionary<ulong, NetworkIdentity> spawnableObjects => ClientScene.spawnableObjects;
+
 
         static GameObject LoadPrefab(string guid)
         {
