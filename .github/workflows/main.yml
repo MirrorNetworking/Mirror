@@ -95,7 +95,7 @@ jobs:
           projectKey: vis2k_Mirror
           projectName: Mirror
           sonarOrganisation: vis2k
-          beginArguments: /d:sonar.verbose="true" /d:sonar.cs.nunit.reportsPaths=Tests/editmode-results.xml,Tests/playimode-results.xml /d:sonar.cs.opencover.reportsPaths=Tests/workspace-opencov/EditMode/TestCoverageResults_0000.xml,Tests/workspace-opencov/PlayMode/TestCoverageResults_0000.xml
+          beginArguments: /d:sonar.verbose="true" /d:sonar.cs.nunit.reportsPaths=Tests/editmode-results.xml,Tests/playimode-results.xml /d:sonar.cs.opencover.reportsPaths=Tests/workspace-opencov/EditMode/TestCoverageResults_0000.xml,Tests/workspace-opencov/PlayMode/TestCoverageResults_0000.xml /d:sonar.coverage.exclusions=Assets/Mirror/Runtime/Transport/Telepathy/**/*.cs,Assets/Mirror/Runtime/Transport/Websocket/**/*.cs,Assets/Mirror/Runtime/Transport/LLAPITransport.cs,Assets/Mirror/Cloud/**/*.cs,Assets/Mirror/Examples/**/*.cs
         env:
           FrameworkPathOverride: /opt/Unity/Editor/Data/MonoBleedingEdge/
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
