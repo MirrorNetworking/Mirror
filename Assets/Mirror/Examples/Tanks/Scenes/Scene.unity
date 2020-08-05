@@ -1481,7 +1481,6 @@ GameObject:
   - component: {fileID: 1282001519}
   - component: {fileID: 1282001520}
   - component: {fileID: 1282001522}
-  - component: {fileID: 1282001524}
   - component: {fileID: 1282001523}
   - component: {fileID: 1282001521}
   - component: {fileID: 1282001525}
@@ -1535,11 +1534,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startOnHeadless: 1
-  serverTickRate: 30
   server: {fileID: 1282001523}
   client: {fileID: 1282001525}
-  transport: {fileID: 1282001522}
   OnStartHost:
     m_PersistentCalls:
       m_Calls: []
@@ -1613,20 +1609,7 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  transport: {fileID: 1282001524}
---- !u!114 &1282001524
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282001517}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Port: 7777
+  transport: {fileID: 1282001522}
 --- !u!114 &1282001525
 MonoBehaviour:
   m_ObjectHideFlags: 0
