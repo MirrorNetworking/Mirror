@@ -204,10 +204,7 @@ namespace Mirror
                 animator.Play(stateHash, layerId, normalizedTime);
             }
 
-            if (animator.GetLayerWeight(layerId) != weight)
-            {
-                animator.SetLayerWeight(layerId, weight);
-            }
+            animator.SetLayerWeight(layerId, weight);
 
             ReadParameters(reader);
         }
