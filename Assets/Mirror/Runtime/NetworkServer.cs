@@ -506,9 +506,10 @@ namespace Mirror
             // update all server objects
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
-                if (kvp.Value != null && kvp.Value.gameObject != null)
+                NetworkIdentity identity = kvp.Value;
+                if (identity != null)
                 {
-                    kvp.Value.ServerUpdate();
+                    identity.ServerUpdate();
                 }
                 else
                 {
