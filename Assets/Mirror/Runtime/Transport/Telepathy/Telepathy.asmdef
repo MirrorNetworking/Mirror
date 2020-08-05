@@ -1,8 +1,6 @@
-﻿{
+{
     "name": "Telepathy",
-    "references": [
-        
-    ],
+    "references": [],
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
