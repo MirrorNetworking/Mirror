@@ -4,7 +4,8 @@
         "Mirror",
         "Mirror.Weaver",
         "Mirror.Components",
-        "Mirror.Tests.Common"
+        "Mirror.Tests.Common",
+        "Telepathy"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"

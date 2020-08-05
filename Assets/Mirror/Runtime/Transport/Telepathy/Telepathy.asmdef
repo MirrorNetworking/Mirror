@@ -1,9 +1,6 @@
 {
-    "name": "Mirror",
-    "references": [
-        "Mirror.CompilerSymbols",
-        "Telepathy"
-    ],
+    "name": "Telepathy",
+    "references": [],
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
