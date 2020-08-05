@@ -30,7 +30,7 @@ namespace Mirror.Weaver
             MethodDefinition cmd = new MethodDefinition(Weaver.InvokeRpcPrefix + ed.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    Weaver.voidType);
+                    WeaverTypes.voidType);
 
             ILProcessor worker = cmd.Body.GetILProcessor();
             Instruction label1 = worker.Create(OpCodes.Nop);
@@ -70,7 +70,7 @@ namespace Mirror.Weaver
             MethodReference invoke = Resolvers.ResolveMethod(ed.EventType, Weaver.CurrentAssembly, "Invoke");
             MethodDefinition evt = new MethodDefinition(Weaver.SyncEventPrefix + ed.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
-                    Weaver.voidType);
+                    WeaverTypes.voidType);
             // add paramters
             foreach (ParameterDefinition pd in invoke.Parameters)
             {
@@ -95,12 +95,12 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldtoken, td));
             // invokerClass
-            worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, ed.Name));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4, syncEventAttr.GetField("channel", 0)));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.sendEventInternal));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.sendEventInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 
@@ -114,7 +114,7 @@ namespace Mirror.Weaver
             // find events
             foreach (EventDefinition ed in td.Events)
             {
-                CustomAttribute syncEventAttr = ed.GetCustomAttribute(Weaver.SyncEventType.FullName);
+                CustomAttribute syncEventAttr = ed.GetCustomAttribute(WeaverTypes.SyncEventType.FullName);
 
                 if (syncEventAttr != null)
                 {
