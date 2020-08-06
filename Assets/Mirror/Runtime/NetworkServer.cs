@@ -1247,9 +1247,15 @@ namespace Mirror
             // when unspawning, dont destroy the server's object
             if (destroyServerObject)
             {
+                identity.destroyCalled = true;
                 UnityEngine.Object.Destroy(identity.gameObject);
             }
-            identity.Reset();
+            // if we are destroying the server object we don't need to reset the identity
+            // reseting it will cause isClient/isServer to be false in the OnDestroy call
+            else
+            {
+                identity.Reset();
+            }
         }
 
         /// <summary>
