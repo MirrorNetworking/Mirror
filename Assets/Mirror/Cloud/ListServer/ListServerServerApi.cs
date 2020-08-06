@@ -86,7 +86,7 @@ namespace Mirror.Cloud.ListServerService
 
             if (string.IsNullOrEmpty(serverId))
             {
-                Debug.LogWarning("Can not remove server because serverId was empty");
+                Logger.LogWarning("Can not remove server because serverId was empty");
                 return;
             }
 
@@ -203,7 +203,7 @@ namespace Mirror.Cloud.ListServerService
         {
             if (string.IsNullOrEmpty(serverId))
             {
-                Debug.LogWarning("Can not remove server becuase serverId was empty");
+                Logger.LogWarning("Can not remove server becuase serverId was empty");
                 return;
             }
 
