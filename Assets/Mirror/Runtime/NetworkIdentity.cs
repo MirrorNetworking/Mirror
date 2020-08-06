@@ -409,6 +409,7 @@ namespace Mirror
             }
 
             hasSpawned = true;
+            _instanceID = GetInstanceID();
         }
 
         void OnValidate()
@@ -703,6 +704,7 @@ namespace Mirror
         /// </summary>
         void OnDestroy()
         {
+            _isDestroyed = true;
             // Objects spawned from Instantiate are not allowed so are destroyed right away
             // we don't want to call NetworkServer.Destroy if this is the case
             if (SpawnedFromInstantiate)
@@ -1679,5 +1681,65 @@ namespace Mirror
                 comp.ResetSyncObjects();
             }
         }
+
+        #region Override Equals
+        [NonSerialized] int _instanceID;
+        [NonSerialized] bool _isDestroyed;
+        public override int GetHashCode()
+        {
+            // same as Object.GetHashCode()
+            return hasSpawned ? _instanceID : GetInstanceID();
+        }
+
+        public override bool Equals(object other)
+        {
+            if (other is null)
+            {
+                // this is equal to null if this is destroyed
+                return _isDestroyed;
+            }
+            else if (other is NetworkIdentity otherId)
+            {
+                return AreEquaul(this, otherId);
+            }
+            else
+            {
+                // other is not NetworkIdentity, false
+                return false;
+            }
+        }
+
+        public static bool AreEquaul(NetworkIdentity lhs, NetworkIdentity rhs)
+        {
+            bool leftNull = lhs is null || lhs._isDestroyed;
+            bool rightNull = rhs is null || rhs._isDestroyed;
+            bool bothNull = rightNull && leftNull;
+            bool oneNull = rightNull || leftNull;
+            if (bothNull)
+            {
+                return true;
+            }
+            else if (oneNull)
+            {
+                return false;
+            }
+            else // both not null
+            {
+                int leftId = lhs.hasSpawned ? lhs._instanceID : lhs.GetInstanceID();
+                int rightId = rhs.hasSpawned ? rhs._instanceID : rhs.GetInstanceID();
+
+                return leftId == rightId;
+            }
+        }
+        public static bool operator ==(NetworkIdentity x, NetworkIdentity y)
+        {
+            return AreEquaul(x, y);
+        }
+
+        public static bool operator !=(NetworkIdentity x, NetworkIdentity y)
+        {
+            return !AreEquaul(x, y);
+        }
+        #endregion
     }
 }

@@ -14,9 +14,10 @@ namespace Mirror.Tests.Performance
             health = (health + 1) % 10;
         }
     }
+
     [Category("Performance")]
     [Category("Benchmark")]
-    public class NetworkIdentityPerformance
+    public class NetworkIdentityServerUpdatePerformance
     {
         GameObject gameObject;
         NetworkIdentity identity;
@@ -84,6 +85,136 @@ namespace Mirror.Tests.Performance
             {
                 identity.ServerUpdate();
             }
+        }
+    }
+
+
+    [Category("Performance")]
+    [Category("Benchmark")]
+    public class NetworkIdentityEqualsPerformance
+    {
+        GameObject gameObject1;
+        NetworkIdentity identity1;
+        Object obj1;
+
+        GameObject gameObject2;
+        NetworkIdentity identity2;
+        Object obj2;
+
+
+        [SetUp]
+        public void SetUp()
+        {
+            gameObject1 = new GameObject();
+            identity1 = gameObject1.AddComponent<NetworkIdentity>();
+            obj1 = identity1;
+
+            gameObject2 = new GameObject();
+            identity2 = gameObject2.AddComponent<NetworkIdentity>();
+            obj2 = identity2;
+        }
+        [TearDown]
+        public void TearDown()
+        {
+            UnityEngine.Object.DestroyImmediate(gameObject1);
+            UnityEngine.Object.DestroyImmediate(gameObject2);
+        }
+
+        [Test]
+#if UNITY_2019_2_OR_NEWER
+        [Performance]
+#else
+        [PerformanceTest]
+#endif
+        public void NetworkIdentityServerUpdateIsDirty()
+        {
+            const int count = 1000;
+            const int warmup = count / 100;
+
+            Measure.Method(checkId)
+              .Definition(name: "Optimized  true", sampleUnit: SampleUnit.Millisecond)
+              .WarmupCount(warmup)
+              .MeasurementCount(count)
+              .Run();
+
+
+            Measure.Method(checkObj)
+              .Definition(name: "Optimized false", sampleUnit: SampleUnit.Millisecond)
+              .WarmupCount(warmup)
+              .MeasurementCount(count)
+              .Run();
+        }
+
+        private void checkId()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                if (identity1 != null)
+                {
+                    // do stuff here
+                }
+            }
+        }
+        private void checkObj()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                if (obj1 != null)
+                {
+                    // do stuff here
+                }
+            }
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void IsNotNull(bool optimized)
+        {
+            bool check;
+            if (optimized)
+            {
+                check = identity1 != null;
+            }
+            else
+            {
+                check = obj1 != null;
+            }
+            Assert.IsTrue(check);
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void NotEqualCheck(bool optimized)
+        {
+            bool check;
+            if (optimized)
+            {
+                check = identity1 != identity2;
+            }
+            else
+            {
+                check = obj1 != obj2;
+            }
+            Assert.IsTrue(check);
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void EqualCheck(bool optimized)
+        {
+            bool check;
+            if (optimized)
+            {
+                check = identity1 == identity2;
+            }
+            else
+            {
+                check = obj1 == obj2;
+            }
+            Assert.IsFalse(check);
         }
     }
 }
