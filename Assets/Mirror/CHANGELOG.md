@@ -1,3 +1,10 @@
+## [43.3.1](https://github.com/MirrorNG/MirrorNG/compare/43.3.0-master...43.3.1-master) (2020-08-07)
+
+
+### Bug Fixes
+
+* remove unused events ([#334](https://github.com/MirrorNG/MirrorNG/issues/334)) ([c20f6de](https://github.com/MirrorNG/MirrorNG/commit/c20f6de07ff97960a8cf9972fbb4d4d13b507b3b))
+
 # [43.3.0](https://github.com/MirrorNG/MirrorNG/compare/43.2.1-master...43.3.0-master) (2020-08-04)
 
 
