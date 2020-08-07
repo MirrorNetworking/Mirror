@@ -25,8 +25,6 @@ namespace Mirror
 
         bool initialized;
 
-        [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
-
         /// <summary>
         /// The maximum number of concurrent network connections to support.
         /// <para>This effects the memory usage of the network layer.</para>
