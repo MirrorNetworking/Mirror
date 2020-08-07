@@ -22,7 +22,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(weaverErrors, Is.Empty);
 
-            string networkServerGetActive = Weaver.NetworkServerGetActive.ToString();
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnVirutalMethod.ServerAttributeOnVirutalMethod", "ServerOnlyMethod");
         }
 
@@ -37,7 +37,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(weaverErrors, Is.Empty);
 
-            string networkServerGetActive = Weaver.NetworkServerGetActive.ToString();
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnOverrideMethod.ServerAttributeOnOverrideMethod", "ServerOnlyMethod");
         }
 
@@ -55,7 +55,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(weaverErrors, Is.Empty);
 
-            string networkClientGetActive = Weaver.NetworkClientGetActive.ToString();
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnVirutalMethod.ClientAttributeOnVirutalMethod", "ClientOnlyMethod");
         }
 
@@ -70,7 +70,7 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(weaverErrors, Is.Empty);
 
-            string networkClientGetActive = Weaver.NetworkClientGetActive.ToString();
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnOverrideMethod.ClientAttributeOnOverrideMethod", "ClientOnlyMethod");
         }
 
