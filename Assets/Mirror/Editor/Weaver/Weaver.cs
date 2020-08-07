@@ -281,7 +281,7 @@ namespace Mirror.Weaver
             catch (Exception ex)
             {
                 Error(ex.ToString());
-                throw;
+                throw new Exception(ex.Message, ex);
             }
         }
 
