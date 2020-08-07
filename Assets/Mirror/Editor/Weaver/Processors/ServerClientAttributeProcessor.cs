@@ -68,7 +68,7 @@ namespace Mirror.Weaver
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {
-                worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Client] function '{md.FullName}' called when client was not active"));
+                worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, $"[Client] function '{md.FullName}' called when client was not active"));
                 worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.logWarningReference));
             }
 
