@@ -126,23 +126,35 @@ namespace Mirror.Tests.Performance
 #else
         [PerformanceTest]
 #endif
-        public void NetworkIdentityServerUpdateIsDirty()
+        public void EqualsPerformance()
         {
             const int count = 1000;
             const int warmup = count / 100;
 
             Measure.Method(checkId)
-              .Definition(name: "Optimized  true", sampleUnit: SampleUnit.Millisecond)
+              .Definition(name: "Custom".PadRight(20), sampleUnit: SampleUnit.Millisecond)
               .WarmupCount(warmup)
               .MeasurementCount(count)
               .Run();
 
 
             Measure.Method(checkObj)
-              .Definition(name: "Optimized false", sampleUnit: SampleUnit.Millisecond)
+              .Definition(name: "Unity".PadRight(20), sampleUnit: SampleUnit.Millisecond)
               .WarmupCount(warmup)
               .MeasurementCount(count)
               .Run();
+
+            Measure.Method(checkIsDestroyed)
+              .Definition(name: "IsDestroyed".PadRight(20), sampleUnit: SampleUnit.Millisecond)
+              .WarmupCount(warmup)
+              .MeasurementCount(count)
+              .Run();
+
+            Measure.Method(checkIsNotDestroyed)
+             .Definition(name: "IsNotDestroyed".PadRight(20), sampleUnit: SampleUnit.Millisecond)
+             .WarmupCount(warmup)
+             .MeasurementCount(count)
+             .Run();
         }
 
         private void checkId()
@@ -160,6 +172,26 @@ namespace Mirror.Tests.Performance
             for (int i = 0; i < 10000; i++)
             {
                 if (obj1 != null)
+                {
+                    // do stuff here
+                }
+            }
+        }
+        private void checkIsDestroyed()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                if (!identity1.IsDestroyed)
+                {
+                    // do stuff here
+                }
+            }
+        }
+        private void checkIsNotDestroyed()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                if (identity1.IsNotDestroyed)
                 {
                     // do stuff here
                 }

@@ -1685,6 +1685,8 @@ namespace Mirror
         #region Override Equals
         [NonSerialized] int _instanceID;
         [NonSerialized] bool _isDestroyed;
+        public bool IsDestroyed => _isDestroyed;
+        public bool IsNotDestroyed => !_isDestroyed;
         public override int GetHashCode()
         {
             // same as Object.GetHashCode()
