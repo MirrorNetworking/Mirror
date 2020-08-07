@@ -62,7 +62,10 @@ namespace Mirror.Weaver
 
             if (md.IsAbstract)
             {
-                Weaver.Error("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.", md);
+                if (ServerClientAttributeProcessor.HasServerClientAttribute(md))
+                {
+                    Weaver.Error("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.", md);
+                }
                 return;
             }
 
