@@ -113,19 +113,19 @@ namespace Mirror.Weaver
         {
             if (md.ReturnType.FullName != WeaverTypes.voidType.FullName)
             {
-                if (md.ReturnType.IsPrimitive)
-                {
-                    worker.InsertBefore(top, worker.Create(OpCodes.Ldc_I4_0));
-                }
-                else
-                {
-                    md.Body.Variables.Add(new VariableDefinition(md.ReturnType));
-                    md.Body.InitLocals = true;
+                //if (md.ReturnType.IsPrimitive)
+                //{
+                //    worker.InsertBefore(top, worker.Create(OpCodes.Ldc_I4_0));
+                //}
+                //else
+                //{
+                md.Body.Variables.Add(new VariableDefinition(md.ReturnType));
+                md.Body.InitLocals = true;
 
-                    worker.InsertBefore(top, worker.Create(OpCodes.Ldloca_S, (byte)(md.Body.Variables.Count - 1)));
-                    worker.InsertBefore(top, worker.Create(OpCodes.Initobj, md.ReturnType));
-                    worker.InsertBefore(top, worker.Create(OpCodes.Ldloc, md.Body.Variables.Count - 1));
-                }
+                worker.InsertBefore(top, worker.Create(OpCodes.Ldloca_S, (byte)(md.Body.Variables.Count - 1)));
+                worker.InsertBefore(top, worker.Create(OpCodes.Initobj, md.ReturnType));
+                worker.InsertBefore(top, worker.Create(OpCodes.Ldloc, md.Body.Variables.Count - 1));
+                //}
             }
         }
     }
