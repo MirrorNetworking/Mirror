@@ -24,6 +24,8 @@ namespace Mirror.Weaver
 
         // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
+
+        public HashSet<string> ProcessedMessages = new HashSet<string>();
     }
 
     internal static class Weaver
@@ -170,12 +172,15 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
+            // already processed
+            if (WeaveLists.ProcessedMessages.Contains(td.FullName))
+                return false;
+
             bool modified = false;
 
             if (td.ImplementsInterface(WeaverTypes.IMessageBaseType))
             {
                 // process this and base classes from parent to child order
-
                 try
                 {
                     TypeDefinition parent = td.BaseType.Resolve();
@@ -190,10 +195,12 @@ namespace Mirror.Weaver
 
                 // process this
                 MessageClassProcessor.Process(td);
+                WeaveLists.ProcessedMessages.Add(td.FullName);
                 modified = true;
             }
 
             // check for embedded types
+            // inner classes should be processed after outter class to avoid StackOverflowException
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
                 modified |= WeaveMessage(embedded);
