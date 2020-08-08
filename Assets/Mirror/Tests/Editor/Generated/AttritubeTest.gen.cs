@@ -556,13 +556,14 @@ namespace Mirror.Tests.Generated
         AttributeBehaviour_NetworkBehaviour behaviour;
         GameObject go;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             go = new GameObject();
             behaviour = go.AddComponent<AttributeBehaviour_NetworkBehaviour>();
         }
-        [TearDown]
+
+        [OneTimeTearDown]
         public void TearDown()
         {
             UnityEngine.Object.DestroyImmediate(go);
