@@ -21,6 +21,9 @@ namespace Mirror.Tests
                     {
                         functions.Add(AttributeFunction(attribute, returnType));
                         tests.Add(TestFunction(attribute, baseClass, returnType));
+
+                        functions.Add(AttributeOutFunction(attribute, returnType));
+                        tests.Add(TestOutFunction(attribute, baseClass, returnType));
                     }
                 }
 
@@ -39,10 +42,13 @@ namespace Mirror.Tests
         static string[] returnTypeArray = new string[]
         {
            "float",
+           "double",
            "bool",
            "char",
            "byte",
            "int",
+           "long",
+           "ulong",
            nameof(Vector3),
            nameof(ClassWithNoConstructor),
            nameof(ClassWithConstructor),
@@ -54,6 +60,8 @@ namespace Mirror.Tests
             {
                 case "float":
                     return typeof(float).FullName;
+                case "double":
+                    return typeof(double).FullName;
                 case "bool":
                     return typeof(bool).FullName;
                 case "char":
@@ -62,6 +70,10 @@ namespace Mirror.Tests
                     return typeof(byte).FullName;
                 case "int":
                     return typeof(int).FullName;
+                case "long":
+                    return typeof(long).FullName;
+                case "ulong":
+                    return typeof(ulong).FullName;
                 case nameof(Vector3):
                     return typeof(Vector3).FullName;
                 case nameof(ClassWithNoConstructor):
@@ -114,13 +126,16 @@ namespace {NameSpace}
             string mergedTests = Merge(tests);
 
             return $@"
-    public class AttributeBehaviour_{baseClass} : {baseClass}
+    public class {AttributeBehaviourName(baseClass)} : {baseClass}
     {{
         public static readonly float Expected_float = 2020f;
+        public static readonly double Expected_double = 2.54;
         public static readonly bool Expected_bool = true;
         public static readonly char Expected_char = 'a';
         public static readonly byte Expected_byte = 224;
         public static readonly int Expected_int = 103;
+        public static readonly long Expected_long = -123456789L;
+        public static readonly ulong Expected_ulong = 123456789UL;
         public static readonly Vector3 Expected_Vector3 = new Vector3(29, 1, 10);
         public static readonly ClassWithNoConstructor Expected_ClassWithNoConstructor = new ClassWithNoConstructor {{ a = 10 }};
         public static readonly ClassWithConstructor Expected_ClassWithConstructor = new ClassWithConstructor(29);
@@ -138,7 +153,7 @@ namespace {NameSpace}
         public void SetUp()
         {{
             go = new GameObject();
-            behaviour = go.AddComponent<AttributeBehaviour_{baseClass}>();
+            behaviour = go.AddComponent<{AttributeBehaviourName(baseClass)}>();
         }}
         [TearDown]
         public void TearDown()
@@ -152,18 +167,28 @@ namespace {NameSpace}
     }}";
         }
 
+        static string AttributeBehaviourName(string baseClass)
+        {
+            return $"AttributeBehaviour_{baseClass}";
+        }
+        static string AttributeFunctionName(string attribute, string returnType)
+        {
+            return $"{attribute}_{returnType}_Function";
+        }
+        static string AttributeOutFunctionName(string attribute, string returnType)
+        {
+            return $"{attribute}_{returnType}_out_Function";
+        }
 
         static string AttributeFunction(string attribute, string returnType)
         {
-
             return $@"
         [{attribute}]
-        public {returnType} {attribute}_{returnType}_Function()
+        public {returnType} {AttributeFunctionName(attribute, returnType)}()
         {{
             return Expected_{returnType};
         }}";
         }
-
 
         static string TestFunction(string attribute, string baseClass, string returnType)
         {
@@ -181,13 +206,13 @@ namespace {NameSpace}
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void {attribute}_With{returnType}Return(bool active)
+        public void {attribute}_{returnType}_returnsValue(bool active)
         {{
             {activeLine}
 
-            {returnType} expected = active ? AttributeBehaviour_{baseClass}.Expected_{returnType} : default;
+            {returnType} expected = active ? {AttributeBehaviourName(baseClass)}.Expected_{returnType} : default;
             {logLine}
-            {returnType} actual = behaviour.{attribute}_{returnType}_Function();
+            {returnType} actual = behaviour.{AttributeFunctionName(attribute, returnType)}();
 
             Assert.AreEqual(expected, actual); 
         }}";
@@ -211,12 +236,62 @@ namespace {NameSpace}
 
         static string ExpectedLog(string attribute, string baseClass, string returnType)
         {
-            string functionFullName = $"{NameSpace}.AttributeBehaviour_{baseClass}::{attribute}_{returnType}_Function()";
+            string functionFullName = $"{NameSpace}.{AttributeBehaviourName(baseClass)}::{AttributeFunctionName(attribute, returnType)}()";
             string returnTypeFullName = ReturnTypeToFullName(returnType);
             return $@"
             if (!active)
             {{
                 LogAssert.Expect(LogType.Warning, ""[{attribute}] function '{returnTypeFullName} {functionFullName}' called when {attribute.ToLower()} was not active"");
+            }}";
+        }
+
+
+        static string AttributeOutFunction(string attribute, string returnType)
+        {
+            return $@"
+        [{attribute}]
+        public void {AttributeOutFunctionName(attribute, returnType)}(out {returnType} value)
+        {{
+            value = Expected_{returnType}; 
+        }}";
+        }
+
+        static string TestOutFunction(string attribute, string baseClass, string returnType)
+        {
+            string activeLine = ActivateServerClient(attribute);
+            string logLine = attribute.Contains("Callback")
+                ? ""
+                : ExpectedOutLog(attribute, baseClass, returnType);
+
+            return TestOutFunctionBody(attribute, baseClass, returnType, activeLine, logLine);
+        }
+
+        static string TestOutFunctionBody(string attribute, string baseClass, string returnType, string activeLine, string logLine)
+        {
+            return $@"
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void {attribute}_{returnType}_setsOutValue(bool active)
+        {{
+            {activeLine}
+
+            {returnType} expected = active ? {AttributeBehaviourName(baseClass)}.Expected_{returnType} : default;
+            {logLine}
+            behaviour.{AttributeOutFunctionName(attribute, returnType)}(out {returnType} actual);
+
+            Assert.AreEqual(expected, actual); 
+        }}";
+        }
+
+        static string ExpectedOutLog(string attribute, string baseClass, string returnType)
+        {
+            string returnTypeFullName = ReturnTypeToFullName(returnType);
+            string functionFullName = $"{NameSpace}.{AttributeBehaviourName(baseClass)}::{AttributeOutFunctionName(attribute, returnType)}({returnTypeFullName}&)";
+            return $@"
+            if (!active)
+            {{
+                LogAssert.Expect(LogType.Warning, ""[{attribute}] function 'System.Void {functionFullName}' called when {attribute.ToLower()} was not active"");
             }}";
         }
     }
