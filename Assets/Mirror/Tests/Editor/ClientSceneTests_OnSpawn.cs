@@ -629,7 +629,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ApplyPayload_LocalPlayerAddsIdentityToConnection()
         {
-            Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
+            Debug.Assert((UnityEngine.Object)ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
             const uint netId = 1000;
 
             GameObject go = new GameObject();
@@ -664,7 +664,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ApplyPayload_LocalPlayerWarningWhenNoReadyConnection()
         {
-            Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
+            Debug.Assert((UnityEngine.Object)ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
             const uint netId = 1000;
 
             GameObject go = new GameObject();
