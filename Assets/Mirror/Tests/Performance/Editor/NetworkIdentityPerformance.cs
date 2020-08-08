@@ -408,6 +408,30 @@ namespace Mirror.Tests.Performance
             }
             Assert.IsFalse(check);
         }
+
+
+        [Test]
+        public void GetComponentShouldReturnNull()
+        {
+            GameObject go = new GameObject();
+
+            // add comp
+            TestBehaviour test1 = go.AddComponent<TestBehaviour>();
+            // Destroy comp
+            GameObject.DestroyImmediate(test1);
+
+            // get destroyed comp
+            TestBehaviour getDestroyed = go.GetComponent<TestBehaviour>();
+            // destroyed comp should be null
+            Assert.IsTrue(getDestroyed is null);
+
+            GameObject.DestroyImmediate(go);
+        }
+    }
+
+    public class TestBehaviour : MonoBehaviour
+    {
+
     }
 }
 #endif
