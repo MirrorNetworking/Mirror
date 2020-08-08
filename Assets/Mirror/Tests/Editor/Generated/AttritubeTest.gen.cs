@@ -9,10 +9,13 @@ namespace Mirror.Tests.Generated
     public class AttributeBehaviour_NetworkBehaviour : NetworkBehaviour
     {
         public static readonly float Expected_float = 2020f;
+        public static readonly double Expected_double = 2.54;
         public static readonly bool Expected_bool = true;
         public static readonly char Expected_char = 'a';
         public static readonly byte Expected_byte = 224;
         public static readonly int Expected_int = 103;
+        public static readonly long Expected_long = -123456789L;
+        public static readonly ulong Expected_ulong = 123456789UL;
         public static readonly Vector3 Expected_Vector3 = new Vector3(29, 1, 10);
         public static readonly ClassWithNoConstructor Expected_ClassWithNoConstructor = new ClassWithNoConstructor { a = 10 };
         public static readonly ClassWithConstructor Expected_ClassWithConstructor = new ClassWithConstructor(29);
@@ -25,9 +28,33 @@ namespace Mirror.Tests.Generated
         }
 
         [Client]
+        public void Client_float_out_Function(out float value)
+        {
+            value = Expected_float; 
+        }
+
+        [Client]
+        public double Client_double_Function()
+        {
+            return Expected_double;
+        }
+
+        [Client]
+        public void Client_double_out_Function(out double value)
+        {
+            value = Expected_double; 
+        }
+
+        [Client]
         public bool Client_bool_Function()
         {
             return Expected_bool;
+        }
+
+        [Client]
+        public void Client_bool_out_Function(out bool value)
+        {
+            value = Expected_bool; 
         }
 
         [Client]
@@ -37,9 +64,21 @@ namespace Mirror.Tests.Generated
         }
 
         [Client]
+        public void Client_char_out_Function(out char value)
+        {
+            value = Expected_char; 
+        }
+
+        [Client]
         public byte Client_byte_Function()
         {
             return Expected_byte;
+        }
+
+        [Client]
+        public void Client_byte_out_Function(out byte value)
+        {
+            value = Expected_byte; 
         }
 
         [Client]
@@ -49,9 +88,45 @@ namespace Mirror.Tests.Generated
         }
 
         [Client]
+        public void Client_int_out_Function(out int value)
+        {
+            value = Expected_int; 
+        }
+
+        [Client]
+        public long Client_long_Function()
+        {
+            return Expected_long;
+        }
+
+        [Client]
+        public void Client_long_out_Function(out long value)
+        {
+            value = Expected_long; 
+        }
+
+        [Client]
+        public ulong Client_ulong_Function()
+        {
+            return Expected_ulong;
+        }
+
+        [Client]
+        public void Client_ulong_out_Function(out ulong value)
+        {
+            value = Expected_ulong; 
+        }
+
+        [Client]
         public Vector3 Client_Vector3_Function()
         {
             return Expected_Vector3;
+        }
+
+        [Client]
+        public void Client_Vector3_out_Function(out Vector3 value)
+        {
+            value = Expected_Vector3; 
         }
 
         [Client]
@@ -61,9 +136,21 @@ namespace Mirror.Tests.Generated
         }
 
         [Client]
+        public void Client_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor value)
+        {
+            value = Expected_ClassWithNoConstructor; 
+        }
+
+        [Client]
         public ClassWithConstructor Client_ClassWithConstructor_Function()
         {
             return Expected_ClassWithConstructor;
+        }
+
+        [Client]
+        public void Client_ClassWithConstructor_out_Function(out ClassWithConstructor value)
+        {
+            value = Expected_ClassWithConstructor; 
         }
 
         [Server]
@@ -73,9 +160,33 @@ namespace Mirror.Tests.Generated
         }
 
         [Server]
+        public void Server_float_out_Function(out float value)
+        {
+            value = Expected_float; 
+        }
+
+        [Server]
+        public double Server_double_Function()
+        {
+            return Expected_double;
+        }
+
+        [Server]
+        public void Server_double_out_Function(out double value)
+        {
+            value = Expected_double; 
+        }
+
+        [Server]
         public bool Server_bool_Function()
         {
             return Expected_bool;
+        }
+
+        [Server]
+        public void Server_bool_out_Function(out bool value)
+        {
+            value = Expected_bool; 
         }
 
         [Server]
@@ -85,9 +196,21 @@ namespace Mirror.Tests.Generated
         }
 
         [Server]
+        public void Server_char_out_Function(out char value)
+        {
+            value = Expected_char; 
+        }
+
+        [Server]
         public byte Server_byte_Function()
         {
             return Expected_byte;
+        }
+
+        [Server]
+        public void Server_byte_out_Function(out byte value)
+        {
+            value = Expected_byte; 
         }
 
         [Server]
@@ -97,9 +220,45 @@ namespace Mirror.Tests.Generated
         }
 
         [Server]
+        public void Server_int_out_Function(out int value)
+        {
+            value = Expected_int; 
+        }
+
+        [Server]
+        public long Server_long_Function()
+        {
+            return Expected_long;
+        }
+
+        [Server]
+        public void Server_long_out_Function(out long value)
+        {
+            value = Expected_long; 
+        }
+
+        [Server]
+        public ulong Server_ulong_Function()
+        {
+            return Expected_ulong;
+        }
+
+        [Server]
+        public void Server_ulong_out_Function(out ulong value)
+        {
+            value = Expected_ulong; 
+        }
+
+        [Server]
         public Vector3 Server_Vector3_Function()
         {
             return Expected_Vector3;
+        }
+
+        [Server]
+        public void Server_Vector3_out_Function(out Vector3 value)
+        {
+            value = Expected_Vector3; 
         }
 
         [Server]
@@ -109,9 +268,21 @@ namespace Mirror.Tests.Generated
         }
 
         [Server]
+        public void Server_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor value)
+        {
+            value = Expected_ClassWithNoConstructor; 
+        }
+
+        [Server]
         public ClassWithConstructor Server_ClassWithConstructor_Function()
         {
             return Expected_ClassWithConstructor;
+        }
+
+        [Server]
+        public void Server_ClassWithConstructor_out_Function(out ClassWithConstructor value)
+        {
+            value = Expected_ClassWithConstructor; 
         }
 
         [ClientCallback]
@@ -121,9 +292,33 @@ namespace Mirror.Tests.Generated
         }
 
         [ClientCallback]
+        public void ClientCallback_float_out_Function(out float value)
+        {
+            value = Expected_float; 
+        }
+
+        [ClientCallback]
+        public double ClientCallback_double_Function()
+        {
+            return Expected_double;
+        }
+
+        [ClientCallback]
+        public void ClientCallback_double_out_Function(out double value)
+        {
+            value = Expected_double; 
+        }
+
+        [ClientCallback]
         public bool ClientCallback_bool_Function()
         {
             return Expected_bool;
+        }
+
+        [ClientCallback]
+        public void ClientCallback_bool_out_Function(out bool value)
+        {
+            value = Expected_bool; 
         }
 
         [ClientCallback]
@@ -133,9 +328,21 @@ namespace Mirror.Tests.Generated
         }
 
         [ClientCallback]
+        public void ClientCallback_char_out_Function(out char value)
+        {
+            value = Expected_char; 
+        }
+
+        [ClientCallback]
         public byte ClientCallback_byte_Function()
         {
             return Expected_byte;
+        }
+
+        [ClientCallback]
+        public void ClientCallback_byte_out_Function(out byte value)
+        {
+            value = Expected_byte; 
         }
 
         [ClientCallback]
@@ -145,9 +352,45 @@ namespace Mirror.Tests.Generated
         }
 
         [ClientCallback]
+        public void ClientCallback_int_out_Function(out int value)
+        {
+            value = Expected_int; 
+        }
+
+        [ClientCallback]
+        public long ClientCallback_long_Function()
+        {
+            return Expected_long;
+        }
+
+        [ClientCallback]
+        public void ClientCallback_long_out_Function(out long value)
+        {
+            value = Expected_long; 
+        }
+
+        [ClientCallback]
+        public ulong ClientCallback_ulong_Function()
+        {
+            return Expected_ulong;
+        }
+
+        [ClientCallback]
+        public void ClientCallback_ulong_out_Function(out ulong value)
+        {
+            value = Expected_ulong; 
+        }
+
+        [ClientCallback]
         public Vector3 ClientCallback_Vector3_Function()
         {
             return Expected_Vector3;
+        }
+
+        [ClientCallback]
+        public void ClientCallback_Vector3_out_Function(out Vector3 value)
+        {
+            value = Expected_Vector3; 
         }
 
         [ClientCallback]
@@ -157,9 +400,21 @@ namespace Mirror.Tests.Generated
         }
 
         [ClientCallback]
+        public void ClientCallback_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor value)
+        {
+            value = Expected_ClassWithNoConstructor; 
+        }
+
+        [ClientCallback]
         public ClassWithConstructor ClientCallback_ClassWithConstructor_Function()
         {
             return Expected_ClassWithConstructor;
+        }
+
+        [ClientCallback]
+        public void ClientCallback_ClassWithConstructor_out_Function(out ClassWithConstructor value)
+        {
+            value = Expected_ClassWithConstructor; 
         }
 
         [ServerCallback]
@@ -169,9 +424,33 @@ namespace Mirror.Tests.Generated
         }
 
         [ServerCallback]
+        public void ServerCallback_float_out_Function(out float value)
+        {
+            value = Expected_float; 
+        }
+
+        [ServerCallback]
+        public double ServerCallback_double_Function()
+        {
+            return Expected_double;
+        }
+
+        [ServerCallback]
+        public void ServerCallback_double_out_Function(out double value)
+        {
+            value = Expected_double; 
+        }
+
+        [ServerCallback]
         public bool ServerCallback_bool_Function()
         {
             return Expected_bool;
+        }
+
+        [ServerCallback]
+        public void ServerCallback_bool_out_Function(out bool value)
+        {
+            value = Expected_bool; 
         }
 
         [ServerCallback]
@@ -181,9 +460,21 @@ namespace Mirror.Tests.Generated
         }
 
         [ServerCallback]
+        public void ServerCallback_char_out_Function(out char value)
+        {
+            value = Expected_char; 
+        }
+
+        [ServerCallback]
         public byte ServerCallback_byte_Function()
         {
             return Expected_byte;
+        }
+
+        [ServerCallback]
+        public void ServerCallback_byte_out_Function(out byte value)
+        {
+            value = Expected_byte; 
         }
 
         [ServerCallback]
@@ -193,9 +484,45 @@ namespace Mirror.Tests.Generated
         }
 
         [ServerCallback]
+        public void ServerCallback_int_out_Function(out int value)
+        {
+            value = Expected_int; 
+        }
+
+        [ServerCallback]
+        public long ServerCallback_long_Function()
+        {
+            return Expected_long;
+        }
+
+        [ServerCallback]
+        public void ServerCallback_long_out_Function(out long value)
+        {
+            value = Expected_long; 
+        }
+
+        [ServerCallback]
+        public ulong ServerCallback_ulong_Function()
+        {
+            return Expected_ulong;
+        }
+
+        [ServerCallback]
+        public void ServerCallback_ulong_out_Function(out ulong value)
+        {
+            value = Expected_ulong; 
+        }
+
+        [ServerCallback]
         public Vector3 ServerCallback_Vector3_Function()
         {
             return Expected_Vector3;
+        }
+
+        [ServerCallback]
+        public void ServerCallback_Vector3_out_Function(out Vector3 value)
+        {
+            value = Expected_Vector3; 
         }
 
         [ServerCallback]
@@ -205,9 +532,21 @@ namespace Mirror.Tests.Generated
         }
 
         [ServerCallback]
+        public void ServerCallback_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor value)
+        {
+            value = Expected_ClassWithNoConstructor; 
+        }
+
+        [ServerCallback]
         public ClassWithConstructor ServerCallback_ClassWithConstructor_Function()
         {
             return Expected_ClassWithConstructor;
+        }
+
+        [ServerCallback]
+        public void ServerCallback_ClassWithConstructor_out_Function(out ClassWithConstructor value)
+        {
+            value = Expected_ClassWithConstructor; 
         }
     }
 
@@ -235,7 +574,7 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Client_WithfloatReturn(bool active)
+        public void Client_float_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -253,7 +592,61 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Client_WithboolReturn(bool active)
+        public void Client_float_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_float_out_Function(System.Single&)' called when client was not active");
+            }
+            behaviour.Client_float_out_Function(out float actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_double_returnsValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            double expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_double : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Double Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_double_Function()' called when client was not active");
+            }
+            double actual = behaviour.Client_double_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_double_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            double expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_double : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_double_out_Function(System.Double&)' called when client was not active");
+            }
+            behaviour.Client_double_out_Function(out double actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_bool_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -271,7 +664,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Client_WithcharReturn(bool active)
+        public void Client_bool_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            bool expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_bool : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_bool_out_Function(System.Boolean&)' called when client was not active");
+            }
+            behaviour.Client_bool_out_Function(out bool actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_char_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -289,7 +700,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Client_WithbyteReturn(bool active)
+        public void Client_char_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            char expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_char : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_char_out_Function(System.Char&)' called when client was not active");
+            }
+            behaviour.Client_char_out_Function(out char actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_byte_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -307,7 +736,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Client_WithintReturn(bool active)
+        public void Client_byte_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            byte expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_byte : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_byte_out_Function(System.Byte&)' called when client was not active");
+            }
+            behaviour.Client_byte_out_Function(out byte actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_int_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -325,7 +772,97 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Client_WithVector3Return(bool active)
+        public void Client_int_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            int expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_int : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_int_out_Function(System.Int32&)' called when client was not active");
+            }
+            behaviour.Client_int_out_Function(out int actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_long_returnsValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            long expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_long : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Int64 Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_long_Function()' called when client was not active");
+            }
+            long actual = behaviour.Client_long_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_long_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            long expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_long : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_long_out_Function(System.Int64&)' called when client was not active");
+            }
+            behaviour.Client_long_out_Function(out long actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_ulong_returnsValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            ulong expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ulong : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.UInt64 Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_ulong_Function()' called when client was not active");
+            }
+            ulong actual = behaviour.Client_ulong_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_ulong_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            ulong expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ulong : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_ulong_out_Function(System.UInt64&)' called when client was not active");
+            }
+            behaviour.Client_ulong_out_Function(out ulong actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_Vector3_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -343,7 +880,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Client_WithClassWithNoConstructorReturn(bool active)
+        public void Client_Vector3_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            Vector3 expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_Vector3 : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_Vector3_out_Function(UnityEngine.Vector3&)' called when client was not active");
+            }
+            behaviour.Client_Vector3_out_Function(out Vector3 actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_ClassWithNoConstructor_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -361,7 +916,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Client_WithClassWithConstructorReturn(bool active)
+        public void Client_ClassWithNoConstructor_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            ClassWithNoConstructor expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ClassWithNoConstructor : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_ClassWithNoConstructor_out_Function(Mirror.Tests.ClassWithNoConstructor&)' called when client was not active");
+            }
+            behaviour.Client_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Client_ClassWithConstructor_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -379,7 +952,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Server_WithfloatReturn(bool active)
+        public void Client_ClassWithConstructor_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            ClassWithConstructor expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ClassWithConstructor : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Client_ClassWithConstructor_out_Function(Mirror.Tests.ClassWithConstructor&)' called when client was not active");
+            }
+            behaviour.Client_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_float_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -397,7 +988,61 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Server_WithboolReturn(bool active)
+        public void Server_float_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_float_out_Function(System.Single&)' called when server was not active");
+            }
+            behaviour.Server_float_out_Function(out float actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_double_returnsValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            double expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_double : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Double Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_double_Function()' called when server was not active");
+            }
+            double actual = behaviour.Server_double_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_double_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            double expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_double : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_double_out_Function(System.Double&)' called when server was not active");
+            }
+            behaviour.Server_double_out_Function(out double actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_bool_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -415,7 +1060,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Server_WithcharReturn(bool active)
+        public void Server_bool_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            bool expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_bool : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_bool_out_Function(System.Boolean&)' called when server was not active");
+            }
+            behaviour.Server_bool_out_Function(out bool actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_char_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -433,7 +1096,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Server_WithbyteReturn(bool active)
+        public void Server_char_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            char expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_char : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_char_out_Function(System.Char&)' called when server was not active");
+            }
+            behaviour.Server_char_out_Function(out char actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_byte_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -451,7 +1132,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Server_WithintReturn(bool active)
+        public void Server_byte_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            byte expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_byte : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_byte_out_Function(System.Byte&)' called when server was not active");
+            }
+            behaviour.Server_byte_out_Function(out byte actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_int_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -469,7 +1168,97 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Server_WithVector3Return(bool active)
+        public void Server_int_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            int expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_int : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_int_out_Function(System.Int32&)' called when server was not active");
+            }
+            behaviour.Server_int_out_Function(out int actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_long_returnsValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            long expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_long : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Int64 Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_long_Function()' called when server was not active");
+            }
+            long actual = behaviour.Server_long_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_long_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            long expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_long : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_long_out_Function(System.Int64&)' called when server was not active");
+            }
+            behaviour.Server_long_out_Function(out long actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_ulong_returnsValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            ulong expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ulong : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.UInt64 Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_ulong_Function()' called when server was not active");
+            }
+            ulong actual = behaviour.Server_ulong_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_ulong_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            ulong expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ulong : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_ulong_out_Function(System.UInt64&)' called when server was not active");
+            }
+            behaviour.Server_ulong_out_Function(out ulong actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_Vector3_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -487,7 +1276,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Server_WithClassWithNoConstructorReturn(bool active)
+        public void Server_Vector3_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            Vector3 expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_Vector3 : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_Vector3_out_Function(UnityEngine.Vector3&)' called when server was not active");
+            }
+            behaviour.Server_Vector3_out_Function(out Vector3 actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_ClassWithNoConstructor_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -505,7 +1312,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void Server_WithClassWithConstructorReturn(bool active)
+        public void Server_ClassWithNoConstructor_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            ClassWithNoConstructor expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ClassWithNoConstructor : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_ClassWithNoConstructor_out_Function(Mirror.Tests.ClassWithNoConstructor&)' called when server was not active");
+            }
+            behaviour.Server_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Server_ClassWithConstructor_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -523,7 +1348,25 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ClientCallback_WithfloatReturn(bool active)
+        public void Server_ClassWithConstructor_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            ClassWithConstructor expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ClassWithConstructor : default;
+            
+            if (!active)
+            {
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_NetworkBehaviour::Server_ClassWithConstructor_out_Function(Mirror.Tests.ClassWithConstructor&)' called when server was not active");
+            }
+            behaviour.Server_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_float_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -537,7 +1380,49 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ClientCallback_WithboolReturn(bool active)
+        public void ClientCallback_float_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
+            
+            behaviour.ClientCallback_float_out_Function(out float actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_double_returnsValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            double expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_double : default;
+            
+            double actual = behaviour.ClientCallback_double_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_double_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            double expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_double : default;
+            
+            behaviour.ClientCallback_double_out_Function(out double actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_bool_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -551,7 +1436,21 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ClientCallback_WithcharReturn(bool active)
+        public void ClientCallback_bool_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            bool expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_bool : default;
+            
+            behaviour.ClientCallback_bool_out_Function(out bool actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_char_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -565,7 +1464,21 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ClientCallback_WithbyteReturn(bool active)
+        public void ClientCallback_char_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            char expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_char : default;
+            
+            behaviour.ClientCallback_char_out_Function(out char actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_byte_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -579,7 +1492,21 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ClientCallback_WithintReturn(bool active)
+        public void ClientCallback_byte_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            byte expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_byte : default;
+            
+            behaviour.ClientCallback_byte_out_Function(out byte actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_int_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -593,7 +1520,77 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ClientCallback_WithVector3Return(bool active)
+        public void ClientCallback_int_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            int expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_int : default;
+            
+            behaviour.ClientCallback_int_out_Function(out int actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_long_returnsValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            long expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_long : default;
+            
+            long actual = behaviour.ClientCallback_long_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_long_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            long expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_long : default;
+            
+            behaviour.ClientCallback_long_out_Function(out long actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_ulong_returnsValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            ulong expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ulong : default;
+            
+            ulong actual = behaviour.ClientCallback_ulong_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_ulong_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            ulong expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ulong : default;
+            
+            behaviour.ClientCallback_ulong_out_Function(out ulong actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_Vector3_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -607,7 +1604,21 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ClientCallback_WithClassWithNoConstructorReturn(bool active)
+        public void ClientCallback_Vector3_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            Vector3 expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_Vector3 : default;
+            
+            behaviour.ClientCallback_Vector3_out_Function(out Vector3 actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_ClassWithNoConstructor_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -621,7 +1632,21 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ClientCallback_WithClassWithConstructorReturn(bool active)
+        public void ClientCallback_ClassWithNoConstructor_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            ClassWithNoConstructor expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ClassWithNoConstructor : default;
+            
+            behaviour.ClientCallback_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ClientCallback_ClassWithConstructor_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
 
@@ -635,7 +1660,21 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ServerCallback_WithfloatReturn(bool active)
+        public void ClientCallback_ClassWithConstructor_setsOutValue(bool active)
+        {
+            NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
+
+            ClassWithConstructor expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ClassWithConstructor : default;
+            
+            behaviour.ClientCallback_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_float_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -649,7 +1688,49 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ServerCallback_WithboolReturn(bool active)
+        public void ServerCallback_float_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
+            
+            behaviour.ServerCallback_float_out_Function(out float actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_double_returnsValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            double expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_double : default;
+            
+            double actual = behaviour.ServerCallback_double_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_double_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            double expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_double : default;
+            
+            behaviour.ServerCallback_double_out_Function(out double actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_bool_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -663,7 +1744,21 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ServerCallback_WithcharReturn(bool active)
+        public void ServerCallback_bool_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            bool expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_bool : default;
+            
+            behaviour.ServerCallback_bool_out_Function(out bool actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_char_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -677,7 +1772,21 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ServerCallback_WithbyteReturn(bool active)
+        public void ServerCallback_char_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            char expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_char : default;
+            
+            behaviour.ServerCallback_char_out_Function(out char actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_byte_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -691,7 +1800,21 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ServerCallback_WithintReturn(bool active)
+        public void ServerCallback_byte_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            byte expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_byte : default;
+            
+            behaviour.ServerCallback_byte_out_Function(out byte actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_int_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -705,7 +1828,77 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ServerCallback_WithVector3Return(bool active)
+        public void ServerCallback_int_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            int expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_int : default;
+            
+            behaviour.ServerCallback_int_out_Function(out int actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_long_returnsValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            long expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_long : default;
+            
+            long actual = behaviour.ServerCallback_long_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_long_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            long expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_long : default;
+            
+            behaviour.ServerCallback_long_out_Function(out long actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_ulong_returnsValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            ulong expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ulong : default;
+            
+            ulong actual = behaviour.ServerCallback_ulong_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_ulong_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            ulong expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ulong : default;
+            
+            behaviour.ServerCallback_ulong_out_Function(out ulong actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_Vector3_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -719,7 +1912,21 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ServerCallback_WithClassWithNoConstructorReturn(bool active)
+        public void ServerCallback_Vector3_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            Vector3 expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_Vector3 : default;
+            
+            behaviour.ServerCallback_Vector3_out_Function(out Vector3 actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_ClassWithNoConstructor_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
@@ -733,13 +1940,41 @@ namespace Mirror.Tests.Generated
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void ServerCallback_WithClassWithConstructorReturn(bool active)
+        public void ServerCallback_ClassWithNoConstructor_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            ClassWithNoConstructor expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ClassWithNoConstructor : default;
+            
+            behaviour.ServerCallback_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_ClassWithConstructor_returnsValue(bool active)
         {
             NetworkServer.active = active;
 
             ClassWithConstructor expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ClassWithConstructor : default;
             
             ClassWithConstructor actual = behaviour.ServerCallback_ClassWithConstructor_Function();
+
+            Assert.AreEqual(expected, actual); 
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServerCallback_ClassWithConstructor_setsOutValue(bool active)
+        {
+            NetworkServer.active = active;
+
+            ClassWithConstructor expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_ClassWithConstructor : default;
+            
+            behaviour.ServerCallback_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
 
             Assert.AreEqual(expected, actual); 
         }
