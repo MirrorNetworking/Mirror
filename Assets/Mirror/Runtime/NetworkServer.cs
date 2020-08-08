@@ -55,7 +55,7 @@ namespace Mirror
         /// <para>Checks if the server has been started.</para>
         /// <para>This will be true after NetworkServer.Listen() has been called.</para>
         /// </summary>
-        public static bool active { get; private set; }
+        public static bool active { get; internal set; }
 
         /// <summary>
         /// Should the server disconnect remote connections that have gone silent for more than Server Idle Timeout?
