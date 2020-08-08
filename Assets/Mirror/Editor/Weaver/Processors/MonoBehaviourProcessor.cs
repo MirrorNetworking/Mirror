@@ -49,24 +49,6 @@ namespace Mirror.Weaver
                     {
                         Weaver.Error($"TargetRpc {md.Name} must be declared inside a NetworkBehaviour", md);
                     }
-
-                    string attributeName = ca.Constructor.DeclaringType.ToString();
-
-                    switch (attributeName)
-                    {
-                        case "Mirror.ServerAttribute":
-                            Weaver.Error($"Server method {md.Name} must be declared inside a NetworkBehaviour", md);
-                            break;
-                        case "Mirror.ServerCallbackAttribute":
-                            Weaver.Error($"ServerCallback method {md.Name} must be declared inside a NetworkBehaviour", md);
-                            break;
-                        case "Mirror.ClientAttribute":
-                            Weaver.Error($"Client method {md.Name} must be declared inside a NetworkBehaviour", md);
-                            break;
-                        case "Mirror.ClientCallbackAttribute":
-                            Weaver.Error($"ClientCallback method {md.Name} must be declared inside a NetworkBehaviour", md);
-                            break;
-                    }
                 }
             }
         }
