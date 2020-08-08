@@ -130,28 +130,42 @@ namespace Mirror.Tests.Performance
         {
             const int count = 1000;
             const int warmup = count / 100;
+            const SampleUnit sampleUnit = SampleUnit.Microsecond;
+
 
             Measure.Method(checkId)
-              .Definition(name: "Custom".PadRight(20), sampleUnit: SampleUnit.Millisecond)
+              .Definition(name: "Custom".PadRight(20), sampleUnit: sampleUnit)
               .WarmupCount(warmup)
               .MeasurementCount(count)
               .Run();
 
 
             Measure.Method(checkObj)
-              .Definition(name: "Unity".PadRight(20), sampleUnit: SampleUnit.Millisecond)
+              .Definition(name: "Unity".PadRight(20), sampleUnit: sampleUnit)
               .WarmupCount(warmup)
               .MeasurementCount(count)
               .Run();
 
             Measure.Method(checkIsDestroyed)
-              .Definition(name: "IsDestroyed".PadRight(20), sampleUnit: SampleUnit.Millisecond)
+              .Definition(name: "IsDestroyed".PadRight(20), sampleUnit: sampleUnit)
               .WarmupCount(warmup)
               .MeasurementCount(count)
               .Run();
 
             Measure.Method(checkIsNotDestroyed)
-             .Definition(name: "IsNotDestroyed".PadRight(20), sampleUnit: SampleUnit.Millisecond)
+             .Definition(name: "IsNotDestroyed".PadRight(20), sampleUnit: sampleUnit)
+             .WarmupCount(warmup)
+             .MeasurementCount(count)
+             .Run();
+
+            Measure.Method(checkIsNull)
+             .Definition(name: "IsNull".PadRight(20), sampleUnit: sampleUnit)
+             .WarmupCount(warmup)
+             .MeasurementCount(count)
+             .Run();
+
+            Measure.Method(checkAreEqual)
+             .Definition(name: "AreEqual".PadRight(20), sampleUnit: sampleUnit)
              .WarmupCount(warmup)
              .MeasurementCount(count)
              .Run();
@@ -159,44 +173,190 @@ namespace Mirror.Tests.Performance
 
         private void checkId()
         {
+            int x = 0;
             for (int i = 0; i < 10000; i++)
             {
                 if (identity1 != null)
                 {
                     // do stuff here
+                    x++;
                 }
             }
         }
         private void checkObj()
         {
+            int x = 0;
             for (int i = 0; i < 10000; i++)
             {
                 if (obj1 != null)
                 {
                     // do stuff here
+                    x++;
                 }
             }
         }
         private void checkIsDestroyed()
         {
+            int x = 0;
             for (int i = 0; i < 10000; i++)
             {
                 if (!identity1.IsDestroyed)
                 {
                     // do stuff here
+                    x++;
                 }
             }
         }
         private void checkIsNotDestroyed()
         {
+            int x = 0;
             for (int i = 0; i < 10000; i++)
             {
                 if (identity1.IsNotDestroyed)
                 {
                     // do stuff here
+                    x++;
                 }
             }
         }
+        private void checkIsNull()
+        {
+            int x = 0;
+            for (int i = 0; i < 10000; i++)
+            {
+                if (identity1 is null)
+                {
+                    // do stuff here
+                    x++;
+                }
+            }
+        }
+        private void checkAreEqual()
+        {
+            int x = 0;
+            for (int i = 0; i < 10000; i++)
+            {
+                if (NetworkIdentity.AreEqual(identity1, null))
+                {
+                    // do stuff here
+                    x++;
+                }
+            }
+        }
+
+
+
+        [Test]
+#if UNITY_2019_2_OR_NEWER
+        [Performance]
+#else
+        [PerformanceTest]
+#endif
+        public void NullCheckPerformance()
+        {
+            const int count = 10000;
+            const int warmup = count / 100;
+            const SampleUnit sampleUnit = SampleUnit.Microsecond;
+
+            Measure.Method(CheckIsNull)
+              .Definition(name: "IsNull".PadRight(20), sampleUnit: sampleUnit)
+              .WarmupCount(warmup)
+              .MeasurementCount(count)
+              .Run();
+
+
+            Measure.Method(CheckEqualsNull)
+              .Definition(name: "EqualsNull".PadRight(20), sampleUnit: sampleUnit)
+              .WarmupCount(warmup)
+              .MeasurementCount(count)
+              .Run();
+
+            Measure.Method(CheckUnityEqualsNull)
+              .Definition(name: "UnityEqualsNull".PadRight(20), sampleUnit: sampleUnit)
+              .WarmupCount(warmup)
+              .MeasurementCount(count)
+              .Run();
+
+            Measure.Method(CheckCompIsNull)
+             .Definition(name: "CompIsNull".PadRight(20), sampleUnit: sampleUnit)
+             .WarmupCount(warmup)
+             .MeasurementCount(count)
+             .Run();
+
+            Measure.Method(CheckRefEquals)
+             .Definition(name: "RefEquals".PadRight(20), sampleUnit: sampleUnit)
+             .WarmupCount(warmup)
+             .MeasurementCount(count)
+             .Run();
+        }
+
+        private void CheckIsNull()
+        {
+            int x = 0;
+            NetworkIdentity id = gameObject1.GetComponent<NetworkIdentity>();
+            for (int i = 0; i < 100; i++)
+            {
+                if (id is null)
+                {
+                    // do stuff here
+                    x++;
+                }
+            }
+        }
+        private void CheckEqualsNull()
+        {
+            int x = 0;
+            NetworkIdentity id = gameObject1.GetComponent<NetworkIdentity>();
+            for (int i = 0; i < 100; i++)
+            {
+                if (id == null)
+                {
+                    // do stuff here
+                    x++;
+                }
+            }
+        }
+        private void CheckUnityEqualsNull()
+        {
+            int x = 0;
+            Component id = gameObject1.GetComponent(typeof(NetworkIdentity));
+            for (int i = 0; i < 100; i++)
+            {
+                if (id == null)
+                {
+                    // do stuff here
+                    x++;
+                }
+            }
+        }
+        private void CheckCompIsNull()
+        {
+            int x = 0;
+            Component id = gameObject1.GetComponent(typeof(NetworkIdentity));
+            for (int i = 0; i < 100; i++)
+            {
+                if (id is null)
+                {
+                    // do stuff here
+                    x++;
+                }
+            }
+        }
+        private void CheckRefEquals()
+        {
+            int x = 0;
+            NetworkIdentity id = gameObject1.GetComponent<NetworkIdentity>();
+            for (int i = 0; i < 100; i++)
+            {
+                if (object.ReferenceEquals(id, null))
+                {
+                    // do stuff here
+                    x++;
+                }
+            }
+        }
+
+
 
         [Test]
         [TestCase(true)]

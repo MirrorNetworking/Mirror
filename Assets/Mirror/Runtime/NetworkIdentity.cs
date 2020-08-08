@@ -1702,7 +1702,7 @@ namespace Mirror
             }
             else if (other is NetworkIdentity otherId)
             {
-                return AreEquaul(this, otherId);
+                return AreEqual(this, otherId);
             }
             else
             {
@@ -1711,21 +1711,22 @@ namespace Mirror
             }
         }
 
-        public static bool AreEquaul(NetworkIdentity lhs, NetworkIdentity rhs)
+        public static bool AreEqual(NetworkIdentity lhs, NetworkIdentity rhs)
         {
             bool leftNull = lhs is null || lhs._isDestroyed;
             bool rightNull = rhs is null || rhs._isDestroyed;
-            bool bothNull = rightNull && leftNull;
-            bool oneNull = rightNull || leftNull;
-            if (bothNull)
+            // both null
+            if (rightNull && leftNull)
             {
                 return true;
             }
-            else if (oneNull)
+            // one null
+            else if (rightNull || leftNull)
             {
                 return false;
             }
-            else // both not null
+            // both not null
+            else
             {
                 int leftId = lhs.hasSpawned ? lhs._instanceID : lhs.GetInstanceID();
                 int rightId = rhs.hasSpawned ? rhs._instanceID : rhs.GetInstanceID();
@@ -1733,14 +1734,15 @@ namespace Mirror
                 return leftId == rightId;
             }
         }
+
         public static bool operator ==(NetworkIdentity x, NetworkIdentity y)
         {
-            return AreEquaul(x, y);
+            return AreEqual(x, y);
         }
 
         public static bool operator !=(NetworkIdentity x, NetworkIdentity y)
         {
-            return !AreEquaul(x, y);
+            return !AreEqual(x, y);
         }
         #endregion
     }
