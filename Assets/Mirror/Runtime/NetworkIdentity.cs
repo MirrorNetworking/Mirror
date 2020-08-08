@@ -562,7 +562,7 @@ namespace Mirror
                 return;
 
             // no valid sceneId yet, or duplicate?
-            bool duplicate = sceneIds.TryGetValue(sceneId, out NetworkIdentity existing) && existing != null && existing != this;
+            bool duplicate = sceneIds.TryGetValue(sceneId, out NetworkIdentity existing) && (UnityEngine.Object)existing != null && existing != this;
             if (sceneId == 0 || duplicate)
             {
                 // clear in any case, because it might have been a duplicate
@@ -591,7 +591,7 @@ namespace Mirror
 
                 // only assign if not a duplicate of an existing scene id
                 // (small chance, but possible)
-                duplicate = sceneIds.TryGetValue(randomId, out existing) && existing != null && existing != this;
+                duplicate = sceneIds.TryGetValue(randomId, out existing) && (UnityEngine.Object)existing != null && existing != this;
                 if (!duplicate)
                 {
                     sceneId = randomId;
@@ -704,7 +704,6 @@ namespace Mirror
         /// </summary>
         void OnDestroy()
         {
-            _isDestroyed = true;
             // Objects spawned from Instantiate are not allowed so are destroyed right away
             // we don't want to call NetworkServer.Destroy if this is the case
             if (SpawnedFromInstantiate)
@@ -718,6 +717,8 @@ namespace Mirror
                 // Do not add logging to this (see above)
                 NetworkServer.Destroy(gameObject);
             }
+            // Set thos after calling Network Stuff otherwise they will think it is null and not work
+            _isDestroyed = true;
         }
 
         internal void OnStartServer()
@@ -1210,7 +1211,7 @@ namespace Mirror
         void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
             // check if unity object has been destroyed
-            if (this == null)
+            if (IsDestroyed)
             {
                 logger.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + netId + "]");
                 return;
@@ -1263,7 +1264,7 @@ namespace Mirror
         internal CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
         {
             // check if unity object has been destroyed
-            if (this == null)
+            if (IsDestroyed)
             {
                 // error can be logged later
                 return default;

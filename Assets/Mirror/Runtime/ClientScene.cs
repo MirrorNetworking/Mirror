@@ -299,7 +299,7 @@ namespace Mirror
             }
 
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.LogError($"Could not register '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -332,7 +332,7 @@ namespace Mirror
             }
 
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.LogError($"Could not register '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -382,7 +382,7 @@ namespace Mirror
             }
 
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.LogError("Could not register handler for '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
@@ -438,7 +438,7 @@ namespace Mirror
             }
 
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.LogError("Could not register handler for '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
@@ -512,7 +512,7 @@ namespace Mirror
             }
 
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.LogError("Could not register handler for '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
@@ -580,7 +580,7 @@ namespace Mirror
             }
 
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
@@ -699,7 +699,7 @@ namespace Mirror
             {
                 foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
                 {
-                    if (identity != null && identity.gameObject != null)
+                    if (identity.IsNotDestroyed)
                     {
                         bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
                         if (!wasUnspawned)
@@ -912,26 +912,26 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("ClientScene.OnObjDestroy netId:" + netId);
 
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity) && identity.IsNotDestroyed)
             {
-                localObject.OnStopClient();
+                identity.OnStopClient();
 
-                if (!InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
+                if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
                 {
                     // default handling
-                    if (localObject.sceneId == 0)
+                    if (identity.sceneId == 0)
                     {
-                        Object.Destroy(localObject.gameObject);
+                        Object.Destroy(identity.gameObject);
                     }
                     else
                     {
                         // scene object.. disable it in scene instead of destroying
-                        localObject.gameObject.SetActive(false);
-                        spawnableObjects[localObject.sceneId] = localObject;
+                        identity.gameObject.SetActive(false);
+                        spawnableObjects[identity.sceneId] = identity;
                     }
                 }
                 NetworkIdentity.spawned.Remove(netId);
-                localObject.Reset();
+                identity.Reset();
             }
             else
             {
@@ -950,24 +950,24 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity.IsNotDestroyed)
             {
-                localObject.OnSetHostVisibility(false);
+                identity.OnSetHostVisibility(false);
             }
         }
 
         internal static void OnHostClientSpawn(SpawnMessage msg)
         {
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity.IsNotDestroyed)
             {
                 if (msg.isLocalPlayer)
-                    InternalAddPlayer(localObject);
+                    InternalAddPlayer(identity);
 
-                localObject.hasAuthority = msg.isOwner;
-                localObject.NotifyAuthority();
-                localObject.OnStartClient();
-                localObject.OnSetHostVisibility(true);
-                CheckForLocalPlayer(localObject);
+                identity.hasAuthority = msg.isOwner;
+                identity.NotifyAuthority();
+                identity.OnStartClient();
+                identity.OnSetHostVisibility(true);
+                CheckForLocalPlayer(identity);
             }
         }
 
@@ -975,10 +975,10 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("ClientScene.OnUpdateVarsMessage " + msg.netId);
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity.IsNotDestroyed)
             {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                    localObject.OnDeserializeAllSafely(networkReader, false);
+                    identity.OnDeserializeAllSafely(networkReader, false);
             }
             else
             {

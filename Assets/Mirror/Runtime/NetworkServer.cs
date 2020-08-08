@@ -124,7 +124,7 @@ namespace Mirror
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                if (identity != null)
+                if (identity.IsNotDestroyed)
                 {
                     if (identity.sceneId != 0)
                     {
@@ -266,7 +266,7 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToObservers id:" + typeof(T));
 
-            if (identity != null && identity.observers != null)
+            if (identity.IsNotDestroyed && identity.observers != null)
             {
                 // get writer from pool
                 using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -392,7 +392,7 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToReady msgType:" + typeof(T));
 
-            if (identity != null && identity.observers != null)
+            if (identity.IsNotDestroyed && identity.observers != null)
             {
                 // get writer from pool
                 using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -507,7 +507,7 @@ namespace Mirror
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
                 NetworkIdentity identity = kvp.Value;
-                if (identity != null)
+                if (identity.IsNotDestroyed)
                 {
                     identity.ServerUpdate();
                 }
@@ -893,7 +893,7 @@ namespace Mirror
         internal static bool GetNetworkIdentity(GameObject go, out NetworkIdentity identity)
         {
             identity = go.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.LogError("GameObject " + go.name + " doesn't have NetworkIdentity.");
                 return false;
@@ -1042,7 +1042,7 @@ namespace Mirror
             }
 
             NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
                 return;
@@ -1163,7 +1163,7 @@ namespace Mirror
         public static void Spawn(GameObject obj, GameObject ownerPlayer)
         {
             NetworkIdentity identity = ownerPlayer.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.LogError("Player object has no NetworkIdentity");
                 return;
