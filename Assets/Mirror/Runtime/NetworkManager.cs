@@ -1133,7 +1133,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 // we have an authenticator - let it handle authentication
-                authenticator.OnServerAuthenticateInternal(conn);
+                authenticator.OnServerAuthenticate(conn);
             }
             else
             {
@@ -1221,7 +1221,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 // we have an authenticator - let it handle authentication
-                authenticator.OnClientAuthenticateInternal(conn);
+                authenticator.OnClientAuthenticate(conn);
             }
             else
             {

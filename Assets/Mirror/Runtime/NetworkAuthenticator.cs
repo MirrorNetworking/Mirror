@@ -37,12 +37,6 @@ namespace Mirror
         /// </summary>
         public virtual void OnStartServer() { }
 
-        // This will get more code in the near future
-        internal void OnServerAuthenticateInternal(NetworkConnection conn)
-        {
-            OnServerAuthenticate(conn);
-        }
-
         /// <summary>
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
@@ -58,12 +52,6 @@ namespace Mirror
         /// <para>Client message handlers should be registered in this method.</para>
         /// </summary>
         public virtual void OnStartClient() { }
-
-        // This will get more code in the near future
-        internal void OnClientAuthenticateInternal(NetworkConnection conn)
-        {
-            OnClientAuthenticate(conn);
-        }
 
         /// <summary>
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
