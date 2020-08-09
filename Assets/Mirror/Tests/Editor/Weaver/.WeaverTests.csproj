@@ -83,7 +83,6 @@
     <Compile Include="GeneratedReaderWriter~\GivesErrorWhenUsingUnityAsset.cs" />
     <Compile Include="WeaverClientRpcTests~\AbstractClientRpc.cs" />
     <Compile Include="WeaverClientRpcTests~\ClientRpcCantBeStatic.cs" />
-    <Compile Include="WeaverClientRpcTests~\ClientRpcStartsWithRpc.cs" />
     <Compile Include="WeaverClientRpcTests~\ClientRpcThatExcludesOwner.cs" />
     <Compile Include="WeaverClientRpcTests~\ClientRpcValid.cs" />
     <Compile Include="WeaverClientRpcTests~\OverrideAbstractClientRpc.cs" />
@@ -93,7 +92,6 @@
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourServer.cs" />
     <Compile Include="WeaverCommandTests~\AbstractCommand.cs" />
     <Compile Include="WeaverCommandTests~\CommandCantBeStatic.cs" />
-    <Compile Include="WeaverCommandTests~\CommandStartsWithCmd.cs" />
     <Compile Include="WeaverCommandTests~\CommandThatIgnoresAuthority.cs" />
     <Compile Include="WeaverCommandTests~\CommandThatIgnoresAuthorityWithSenderConnection.cs" />
     <Compile Include="WeaverCommandTests~\CommandValid.cs" />
@@ -111,6 +109,7 @@
     <Compile Include="WeaverGeneralTests~\TestingScriptableObjectArraySerialization.cs" />
     <Compile Include="WeaverMessageTests~\MessageMemberGeneric.cs" />
     <Compile Include="WeaverMessageTests~\MessageMemberInterface.cs" />
+    <Compile Include="WeaverMessageTests~\MessageNestedInheritance.cs" />
     <Compile Include="WeaverMessageTests~\MessageSelfReferencing.cs" />
     <Compile Include="WeaverMessageTests~\MessageValid.cs" />
     <Compile Include="WeaverMessageTests~\MessageWithBaseClass.cs" />
@@ -232,7 +231,6 @@
     <Compile Include="WeaverSyncVarTests~\SyncVarsSyncList.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsValid.cs" />
     <Compile Include="WeaverSyncEventTests~\ErrorWhenSyncEventUsesGenericParameter.cs" />
-    <Compile Include="WeaverSyncEventTests~\ErrorWhenSyncEventDoesntStartWithEvent.cs" />
     <Compile Include="WeaverSyncEventTests~\SyncEventValid.cs" />
     <Compile Include="WeaverTargetRpcTests~\AbstractTargetRpc.cs" />
     <Compile Include="WeaverTargetRpcTests~\ErrorWhenTargetRpcIsStatic.cs" />
@@ -241,7 +239,6 @@
     <Compile Include="WeaverTargetRpcTests~\TargetRpcCanHaveOtherParametersWhileSkipingNetworkConnection.cs" />
     <Compile Include="WeaverTargetRpcTests~\TargetRpcCanSkipNetworkConnection.cs" />
     <Compile Include="WeaverTargetRpcTests~\ErrorWhenNetworkConnectionIsNotTheFirstParameter.cs" />
-    <Compile Include="WeaverTargetRpcTests~\ErrorWhenMethodDoesNotStartWithTarget.cs" />
     <Compile Include="WeaverTargetRpcTests~\TargetRpcValid.cs" />
     <Compile Include="WeaverTargetRpcTests~\VirtualTargetRpc.cs" />
     <Reference Include="UnityEngine.CoreModule">

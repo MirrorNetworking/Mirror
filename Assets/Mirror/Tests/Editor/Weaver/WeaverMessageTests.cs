@@ -35,5 +35,12 @@ namespace Mirror.Weaver.Tests
             Assert.That(weaverErrors, Contains.Item("Cannot generate writer for interface SuperCoolInterface. Use a supported type or provide a custom writer (at WeaverMessageTests.MessageMemberInterface.SuperCoolInterface)"));
             Assert.That(weaverErrors, Contains.Item("invalidField has unsupported type (at WeaverMessageTests.MessageMemberInterface.SuperCoolInterface WeaverMessageTests.MessageMemberInterface.MessageMemberInterface::invalidField)"));
         }
+
+        [Test]
+        public void MessageNestedInheritance()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
     }
 }
+
