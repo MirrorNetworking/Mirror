@@ -49,7 +49,7 @@ namespace Mirror
         /// <summary>
         /// Makes all log levels LogType.Log, this is so that NetworkManger.showDebugMessages can still be used
         /// </summary>
-        internal static void EnableDebugMode()
+        public static void EnableDebugMode()
         {
             debugMode = true;
 
