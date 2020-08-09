@@ -23,7 +23,7 @@ MirrorNG is optimized for **ease of use** and **probability of success**. Projec
 
 With MirrorNG, the **Server & Client are ONE** project _(hence the name)_. Instead of having one code base for the server and one for the client, we simply use the same code for both of them.
 * `[Server]` / `[Client]` tags can be used for the server-only and client-only parts.
-* `[ServerRpc]`'s are used for Client->Server, and `[ClientRpc]` / `[TargetRpc]` for Server->Client communication.
+* `[ServerRpc]`'s are used for Client->Server, and `[ClientRpc]`'s (with options) for Server->Client communication.
 * `[SyncVar]`'s and `SyncList`'s are used to automatically synchronize state.
 
 What previously required **10.000** lines of code, now takes **1.000** lines of code. Therein lies the **magic of Mirror**.
@@ -90,8 +90,9 @@ We included several small example projects.
 MirrorNG currently supports the following low level networking transports:
 
 * (built in) Tcp
-* (built in) https://github.com/ninjasource/Ninja.WebSockets (Websockets)
-* more to come
+* (built in) https://github.com/MirrorNG/MirrorNG_Websocket (Websockets)
+* https://github.com/dragonslaya84/FizzySteamyMirror (Steam)
+* https://github.com/uweenukr/LiteNetLibTransportNG (LiteNetLib)
 
 ## The MirrorNG Mantra
 So many quotes to chose from.  This one in particular really encapsulates why this exists:
