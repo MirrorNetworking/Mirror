@@ -848,7 +848,7 @@ namespace Mirror
 
         void CheckForLocalPlayer(NetworkIdentity identity)
         {
-            if (identity == LocalPlayer)
+            if (identity && identity == LocalPlayer)
             {
                 // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
                 identity.ConnectionToServer = Connection;
