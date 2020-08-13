@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
@@ -6,17 +7,43 @@ using UnityEngine.TestTools;
 namespace Mirror.Tests.Runtime
 {
     // proof of concept for a return value from Command/Rpc
+    public class Demo
+    {
+        CommandReturnBehaviour behaviour;
+        public IEnumerator GetValueInCoroutine()
+        {
+            ReturnValue<int> result = behaviour.CmdGetServerInt();
+
+            yield return result;
+
+            int value = result.Value;
+            // do stuff with value
+        }
+
+        public void GetValueWithCallBack()
+        {
+            ReturnValue<int> result = behaviour.CmdGetServerInt();
+
+            result.OnComplete += (value) =>
+            {
+                // do stuff with value
+            };
+        }
+    }
     public class ReturnValue<T> : CustomYieldInstruction
     {
-        public T value { get; private set; }
+        public T Value { get; private set; }
         public bool Complete { get; private set; }
 
         public override bool keepWaiting => !Complete;
 
+        public event Action<T> OnComplete;
+
         internal void NetworkResponse(T value)
         {
-            this.value = value;
+            Value = value;
             Complete = true;
+            OnComplete?.Invoke(value);
         }
 
         public ReturnValue()
@@ -24,7 +51,7 @@ namespace Mirror.Tests.Runtime
         }
         public ReturnValue(T value)
         {
-            this.value = value;
+            Value = value;
         }
 
         public static implicit operator ReturnValue<T>(T value)
@@ -42,7 +69,7 @@ namespace Mirror.Tests.Runtime
         }
 
         // [Command] ... can't really be command yet because weaver needs to be changed
-        public ReturnValue<int> GetServerInt()
+        public ReturnValue<int> CmdGetServerInt()
         {
             waitValue = new ReturnValue<int>();
             CmdGetServerInt();
@@ -52,12 +79,12 @@ namespace Mirror.Tests.Runtime
 
         private ReturnValue<int> waitValue;
         [Command(ignoreAuthority = true)]
-        private void CmdGetServerInt(NetworkConnectionToClient sender = null)
+        private void Internal_CmdGetServerInt(NetworkConnectionToClient sender = null)
         {
-            TargetGetServerInt(sender, serverInt);
+            Internal_RpcGetServerInt(sender, serverInt);
         }
         [TargetRpc]
-        private void TargetGetServerInt(NetworkConnection conn, int value)
+        private void Internal_RpcGetServerInt(NetworkConnection conn, int value)
         {
             waitValue.NetworkResponse(value);
         }
@@ -84,7 +111,7 @@ namespace Mirror.Tests.Runtime
             // server int should have been set to random non-zero value
             Assert.That(serverInt, Is.Not.Zero);
 
-            ReturnValue<int> result = behaviour.GetServerInt();
+            ReturnValue<int> result = behaviour.CmdGetServerInt();
 
             Assert.That(result.Complete, Is.False);
             while (result.keepWaiting)
@@ -94,7 +121,7 @@ namespace Mirror.Tests.Runtime
             }
             Assert.That(result.Complete, Is.True);
 
-            Assert.That(result.value, Is.EqualTo(serverInt));
+            Assert.That(result.Value, Is.EqualTo(serverInt));
 
             // clean up
             NetworkServer.Shutdown();
