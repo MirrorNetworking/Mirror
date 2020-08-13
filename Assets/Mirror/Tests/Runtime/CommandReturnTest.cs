@@ -72,7 +72,7 @@ namespace Mirror.Tests.Runtime
         public ReturnValue<int> CmdGetServerInt()
         {
             waitValue = new ReturnValue<int>();
-            CmdGetServerInt();
+            Internal_CmdGetServerInt();
             return waitValue;
         }
 
