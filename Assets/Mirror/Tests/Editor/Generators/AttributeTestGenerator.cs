@@ -6,7 +6,7 @@ namespace Mirror.Tests.Generators
 {
     public class AttributeTestGenerator : GeneratorBase
     {
-        [MenuItem("Tools/Generate Attribute Test Files")]
+        [MenuItem("Tools/Generate Test files/Attributes")]
         public static void GenerateTestFiles()
         {
             List<string> classes = new List<string>();

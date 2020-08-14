@@ -13,7 +13,7 @@ namespace Mirror.Tests.Generators
 
     public class CollectionWriterGenerator : GeneratorBase
     {
-        [MenuItem("Tools/Generate Collection Writer Test Files")]
+        [MenuItem("Tools/Generate Test files/Collection Writer")]
         public static void GenerateTestFiles()
         {
             List<string> classes = new List<string>();
