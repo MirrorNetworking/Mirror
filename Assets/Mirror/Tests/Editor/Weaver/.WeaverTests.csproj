@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>_WeaverTests2.csproj</RootNamespace>
@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="GeneratedReaderWriter~\CanUseCustomReadWriteForInterfaces.cs" />
     <Compile Include="GeneratedReaderWriter~\CanUseCustomReadWriteForTypesFromDifferentAssemblies.cs" />
+    <Compile Include="GeneratedReaderWriter~\CreatesForArraySegment.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForClass.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForClassFromDifferentAssemblies.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForClassFromDifferentAssembliesWithValidConstructor.cs" />
@@ -73,8 +74,13 @@
     <Compile Include="GeneratedReaderWriter~\CreatesForInheritedFromScriptableObject.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForStructFromDifferentAssemblies.cs" />
     <Compile Include="GeneratedReaderWriter~\CreatesForStructs.cs" />
+    <Compile Include="GeneratedReaderWriter~\CreatesForStuctArraySegment.cs" />
     <Compile Include="GeneratedReaderWriter~\ExcludesNonSerializedFields.cs" />
     <Compile Include="GeneratedReaderWriter~\GivesErrorForClassWithNoValidConstructor.cs" />
+    <Compile Include="GeneratedReaderWriter~\GivesErrorForInvalidArraySegmentType.cs" />
+    <Compile Include="GeneratedReaderWriter~\GivesErrorForInvalidArrayType.cs" />
+    <Compile Include="GeneratedReaderWriter~\GivesErrorForJaggedArray.cs" />
+    <Compile Include="GeneratedReaderWriter~\GivesErrorForMultidimensionalArray.cs" />
     <Compile Include="GeneratedReaderWriter~\GivesErrorWhenUsingInterface.cs" />
     <Compile Include="GeneratedReaderWriter~\GivesErrorWhenUsingMonoBehaviour.cs" />
     <Compile Include="GeneratedReaderWriter~\GivesErrorWhenUsingObject.cs" />

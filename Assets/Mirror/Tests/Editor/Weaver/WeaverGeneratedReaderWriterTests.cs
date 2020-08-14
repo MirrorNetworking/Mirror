@@ -141,5 +141,43 @@ namespace Mirror.Weaver.Tests
         {
             Assert.That(weaverErrors, Is.Empty);
         }
+
+        [Test]
+        public void CreatesForArraySegment()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void CreatesForStructArraySegment()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
+        [Test]
+        public void GivesErrorForJaggedArray()
+        {
+            Assert.That(weaverErrors, Contains.Item($"Int32[][] is an unsupported type. Jagged and multidimensional arrays are not supported (at System.Int32[][])"));
+        }
+
+        [Test]
+        public void GivesErrorForMultidimensionalArray()
+        {
+            Assert.That(weaverErrors, Contains.Item($"Int32[0...,0...] is an unsupported type. Jagged and multidimensional arrays are not supported (at System.Int32[0...,0...])"));
+        }
+
+        [Test]
+        public void GivesErrorForInvalidArrayType()
+        {
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for Array because element MonoBehaviour does not have a writer. Use a supported type or provide a custom writer (at UnityEngine.MonoBehaviour[])"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for Array because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader (at UnityEngine.MonoBehaviour[])"));
+        }
+
+        [Test]
+        public void GivesErrorForInvalidArraySegmentType()
+        {
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for List because element MonoBehaviour does not have a writer. Use a supported type or provide a custom writer (at System.ArraySegment`1<UnityEngine.MonoBehaviour>)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for List because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader (at System.ArraySegment`1<UnityEngine.MonoBehaviour>)"));
+        }
     }
 }

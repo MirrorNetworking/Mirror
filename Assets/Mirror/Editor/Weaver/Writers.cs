@@ -37,7 +37,10 @@ namespace Mirror.Weaver
             if (variable.IsArray)
             {
                 newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
-                RegisterWriteFunc(variable.FullName, newWriterFunc);
+                if (newWriterFunc != null)
+                {
+                    RegisterWriteFunc(variable.FullName, newWriterFunc);
+                }
                 return newWriterFunc;
             }
 
@@ -196,6 +199,7 @@ namespace Mirror.Weaver
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
             if (elementWriteFunc == null)
             {
+                Weaver.Error($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
                 return null;
             }
 
@@ -293,6 +297,7 @@ namespace Mirror.Weaver
 
             if (elementWriteFunc == null)
             {
+                Weaver.Error($"Cannot generate writer for ArraySegment because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
                 return null;
             }
 
