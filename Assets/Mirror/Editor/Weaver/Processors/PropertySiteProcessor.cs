@@ -60,6 +60,15 @@ namespace Mirror.Weaver
                 md.Name.StartsWith(Weaver.InvokeRpcPrefix))
                 return;
 
+            if (md.IsAbstract)
+            {
+                if (ServerClientAttributeProcessor.HasServerClientAttribute(md))
+                {
+                    Weaver.Error("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.", md);
+                }
+                return;
+            }
+
             if (md.Body != null && md.Body.Instructions != null)
             {
                 // TODO move this to NetworkBehaviourProcessor

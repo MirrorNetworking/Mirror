@@ -88,8 +88,14 @@
     <Compile Include="WeaverClientRpcTests~\OverrideAbstractClientRpc.cs" />
     <Compile Include="WeaverClientRpcTests~\OverrideVirtualClientRpc.cs" />
     <Compile Include="WeaverClientRpcTests~\VirtualClientRpc.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ClientAttributeOnAbstractMethod.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ClientAttributeOnOverrideMethod.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ClientAttributeOnVirutalMethod.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourClient.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourServer.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ServerAttributeOnAbstractMethod.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ServerAttributeOnOverrideMethod.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\ServerAttributeOnVirutalMethod.cs" />
     <Compile Include="WeaverCommandTests~\AbstractCommand.cs" />
     <Compile Include="WeaverCommandTests~\CommandCantBeStatic.cs" />
     <Compile Include="WeaverCommandTests~\CommandThatIgnoresAuthority.cs" />

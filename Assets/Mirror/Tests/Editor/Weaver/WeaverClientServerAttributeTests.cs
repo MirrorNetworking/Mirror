@@ -11,20 +11,67 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourServer()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
+
             string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
+        }
 
+        [Test]
+        public void ServerAttributeOnVirutalMethod()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnVirutalMethod.ServerAttributeOnVirutalMethod", "ServerOnlyMethod");
+        }
+
+        [Test]
+        public void ServerAttributeOnAbstractMethod()
+        {
+            Assert.That(weaverErrors, Contains.Item("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead. (at System.Void WeaverClientServerAttributeTests.ServerAttributeOnAbstractMethod.ServerAttributeOnAbstractMethod::ServerOnlyMethod())"));
+        }
+
+        [Test]
+        public void ServerAttributeOnOverrideMethod()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnOverrideMethod.ServerAttributeOnOverrideMethod", "ServerOnlyMethod");
         }
 
         [Test]
         public void NetworkBehaviourClient()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
+
             string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
+        }
+
+        [Test]
+        public void ClientAttributeOnVirutalMethod()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnVirutalMethod.ClientAttributeOnVirutalMethod", "ClientOnlyMethod");
+        }
+
+        [Test]
+        public void ClientAttributeOnAbstractMethod()
+        {
+            Assert.That(weaverErrors, Contains.Item("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead. (at System.Void WeaverClientServerAttributeTests.ClientAttributeOnAbstractMethod.ClientAttributeOnAbstractMethod::ClientOnlyMethod())"));
+        }
+
+        [Test]
+        public void ClientAttributeOnOverrideMethod()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnOverrideMethod.ClientAttributeOnOverrideMethod", "ClientOnlyMethod");
         }
 
         /// <summary>

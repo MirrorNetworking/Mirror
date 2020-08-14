@@ -8,6 +8,24 @@ namespace Mirror.Weaver
     /// </summary>
     static class ServerClientAttributeProcessor
     {
+        public static bool HasServerClientAttribute(MethodDefinition md)
+        {
+            foreach (CustomAttribute attr in md.CustomAttributes)
+            {
+                switch (attr.Constructor.DeclaringType.ToString())
+                {
+                    case "Mirror.ServerAttribute":
+                    case "Mirror.ServerCallbackAttribute":
+                    case "Mirror.ClientAttribute":
+                    case "Mirror.ClientCallbackAttribute":
+                        return true;
+                    default:
+                        break;
+                }
+            }
+            return false;
+        }
+
         public static void ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
         {
             foreach (CustomAttribute attr in md.CustomAttributes)
