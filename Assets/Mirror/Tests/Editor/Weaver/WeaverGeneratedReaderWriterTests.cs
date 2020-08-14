@@ -176,8 +176,8 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorForInvalidArraySegmentType()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for List because element MonoBehaviour does not have a writer. Use a supported type or provide a custom writer (at System.ArraySegment`1<UnityEngine.MonoBehaviour>)"));
-            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for List because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader (at System.ArraySegment`1<UnityEngine.MonoBehaviour>)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for ArraySegment because element MonoBehaviour does not have a writer. Use a supported type or provide a custom writer (at System.ArraySegment`1<UnityEngine.MonoBehaviour>)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for ArraySegment because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader (at System.ArraySegment`1<UnityEngine.MonoBehaviour>)"));
         }
     }
 }
