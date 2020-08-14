@@ -73,11 +73,6 @@ namespace Mirror
         public static float disconnectInactiveTimeout = 60f;
 
         /// <summary>
-        /// Skips Update if there are no connections or only host
-        /// </summary>
-        public static bool skipUpdateIfNoConnections = true;
-
-        /// <summary>
         /// cache the Send(connectionIds) list to avoid allocating each time 
         /// </summary>
         static readonly List<int> connectionIdsCache = new List<int>();
@@ -501,14 +496,9 @@ namespace Mirror
         /// </summary>
         public static void Update()
         {
-            if (!active)
+            // dont need to update server if not active or no client connections
+            if (!active || NoConnections())
                 return;
-
-            // dont need to update server if there are no client connections
-            if (skipUpdateIfNoConnections && NoConnections())
-            {
-                return;
-            }
 
             // Check for dead clients but exclude the host client because it
             // doesn't ping itself and therefore may appear inactive.
