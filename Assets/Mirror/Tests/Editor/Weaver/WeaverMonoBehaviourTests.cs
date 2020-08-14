@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
@@ -43,25 +43,25 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MonoBehaviourServer()
         {
-            Assert.That(weaverErrors, Contains.Item("Server method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourServer.MonoBehaviourServer::ThisCantBeOutsideNetworkBehaviour())"));
+            Assert.That(weaverErrors, Is.Empty);
         }
 
         [Test]
         public void MonoBehaviourServerCallback()
         {
-            Assert.That(weaverErrors, Contains.Item("ServerCallback method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourServerCallback.MonoBehaviourServerCallback::ThisCantBeOutsideNetworkBehaviour())"));
+            Assert.That(weaverErrors, Is.Empty);
         }
 
         [Test]
         public void MonoBehaviourClient()
         {
-            Assert.That(weaverErrors, Contains.Item("Client method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourClient.MonoBehaviourClient::ThisCantBeOutsideNetworkBehaviour())"));
+            Assert.That(weaverErrors, Is.Empty);
         }
 
         [Test]
         public void MonoBehaviourClientCallback()
         {
-            Assert.That(weaverErrors, Contains.Item("ClientCallback method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourClientCallback.MonoBehaviourClientCallback::ThisCantBeOutsideNetworkBehaviour())"));
+            Assert.That(weaverErrors, Is.Empty);
         }
     }
 }
