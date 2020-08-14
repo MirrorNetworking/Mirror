@@ -480,7 +480,6 @@ namespace Mirror
             connections.Clear();
         }
 
-
         /// <summary>
         /// If connections is empty or if only has host
         /// </summary>
