@@ -1,13 +1,11 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
-namespace MirrorTest
+namespace WeaverClientServerAttributeTests.MonoBehaviourClient
 {
-    class MirrorTestPlayer : MonoBehaviour
+    class MonoBehaviourClient : MonoBehaviour
     {
         [Client]
-        void ClientOnlyMethod() {}
+        void ClientOnlyMethod() { }
     }
 }

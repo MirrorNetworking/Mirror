@@ -74,6 +74,59 @@ namespace Mirror.Weaver.Tests
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnOverrideMethod.ClientAttributeOnOverrideMethod", "ClientOnlyMethod");
         }
 
+        [Test]
+        public void StaticClassClient()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.StaticClassClient.StaticClassClient", "ClientOnlyMethod");
+        }
+        [Test]
+        public void RegularClassClient()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.RegularClassClient.RegularClassClient", "ClientOnlyMethod");
+        }
+        [Test]
+        public void MonoBehaviourClient()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.MonoBehaviourClient.MonoBehaviourClient", "ClientOnlyMethod");
+        }
+
+        [Test]
+        public void StaticClassServer()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.StaticClassServer.StaticClassServer", "ServerOnlyMethod");
+        }
+        [Test]
+        public void RegularClassServer()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.RegularClassServer.RegularClassServer", "ServerOnlyMethod");
+        }
+        [Test]
+        public void MonoBehaviourServer()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.MonoBehaviourServer.MonoBehaviourServer", "ServerOnlyMethod");
+        }
+
+
+
+
         /// <summary>
         /// Checks that first Instructions in MethodBody is addedString
         /// </summary>

@@ -100,11 +100,17 @@
     <Compile Include="WeaverClientServerAttributeTests~\ClientAttributeOnAbstractMethod.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\ClientAttributeOnOverrideMethod.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\ClientAttributeOnVirutalMethod.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\MonoBehaviourClient.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\MonoBehaviourServer.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourClient.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\NetworkBehaviourServer.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\RegularClassClient.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\RegularClassServer.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\ServerAttributeOnAbstractMethod.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\ServerAttributeOnOverrideMethod.cs" />
     <Compile Include="WeaverClientServerAttributeTests~\ServerAttributeOnVirutalMethod.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\StaticClassClient.cs" />
+    <Compile Include="WeaverClientServerAttributeTests~\StaticClassServer.cs" />
     <Compile Include="WeaverCommandTests~\AbstractCommand.cs" />
     <Compile Include="WeaverCommandTests~\CommandCantBeStatic.cs" />
     <Compile Include="WeaverCommandTests~\CommandThatIgnoresAuthority.cs" />

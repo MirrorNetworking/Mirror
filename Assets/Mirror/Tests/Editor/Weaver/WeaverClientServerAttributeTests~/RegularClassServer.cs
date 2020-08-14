@@ -1,13 +1,10 @@
-using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
 
-namespace MirrorTest
+namespace WeaverClientServerAttributeTests.RegularClassServer
 {
-    class MirrorTestPlayer 
+    class RegularClassServer
     {
         [Server]
-        void ServerOnlyMethod() {}
+        void ServerOnlyMethod() { }
     }
 }
