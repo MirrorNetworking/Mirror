@@ -41,7 +41,7 @@ namespace Mirror.Weaver
             //Console.WriteLine("    ProcessSiteClass " + td);
             foreach (MethodDefinition md in td.Methods)
             {
-                ProcessSiteMethod(td, md);
+                ProcessSiteMethod(md);
             }
 
             foreach (TypeDefinition nested in td.NestedTypes)
@@ -50,7 +50,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static void ProcessSiteMethod(TypeDefinition td, MethodDefinition md)
+        static void ProcessSiteMethod(MethodDefinition md)
         {
             // process all references to replaced members with properties
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);

@@ -11,7 +11,6 @@ namespace Mirror.Weaver
         public static bool ProcessSiteClass(TypeDefinition td)
         {
             bool modified = false;
-            //Console.WriteLine("    ProcessSiteClass " + td);
             foreach (MethodDefinition md in td.Methods)
             {
                 modified |= ProcessSiteMethod(td, md);
@@ -73,19 +72,19 @@ namespace Mirror.Weaver
                 switch (attr.Constructor.DeclaringType.ToString())
                 {
                     case "Mirror.ServerAttribute":
-                        InjectServerGuard(td, md, true);
+                        InjectServerGuard(md, true);
                         modified = true;
                         break;
                     case "Mirror.ServerCallbackAttribute":
-                        InjectServerGuard(td, md, false);
+                        InjectServerGuard(md, false);
                         modified = true;
                         break;
                     case "Mirror.ClientAttribute":
-                        InjectClientGuard(td, md, true);
+                        InjectClientGuard(md, true);
                         modified = true;
                         break;
                     case "Mirror.ClientCallbackAttribute":
-                        InjectClientGuard(td, md, false);
+                        InjectClientGuard(md, false);
                         modified = true;
                         break;
                     default:
@@ -96,9 +95,8 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static void InjectServerGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
+        static void InjectServerGuard(MethodDefinition md, bool logWarning)
         {
-
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
 
@@ -114,7 +112,7 @@ namespace Mirror.Weaver
             worker.InsertBefore(top, worker.Create(OpCodes.Ret));
         }
 
-        static void InjectClientGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
+        static void InjectClientGuard(MethodDefinition md, bool logWarning)
         {
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
