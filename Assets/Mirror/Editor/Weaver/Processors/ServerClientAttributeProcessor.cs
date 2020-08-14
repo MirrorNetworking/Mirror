@@ -8,6 +8,45 @@ namespace Mirror.Weaver
     /// </summary>
     static class ServerClientAttributeProcessor
     {
+        public static bool ProcessSiteClass(TypeDefinition td)
+        {
+            bool modified = false;
+            //Console.WriteLine("    ProcessSiteClass " + td);
+            foreach (MethodDefinition md in td.Methods)
+            {
+                modified |= ProcessSiteMethod(td, md);
+            }
+
+            foreach (TypeDefinition nested in td.NestedTypes)
+            {
+                modified |= ProcessSiteClass(nested);
+            }
+            return modified;
+        }
+
+        static bool ProcessSiteMethod(TypeDefinition td, MethodDefinition md)
+        {
+            if (md.Name == ".cctor" ||
+                md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
+                md.Name.StartsWith(Weaver.InvokeRpcPrefix))
+                return false;
+
+            if (md.IsAbstract)
+            {
+                if (HasServerClientAttribute(md))
+                {
+                    Weaver.Error("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.", md);
+                }
+                return false;
+            }
+
+            if (md.Body != null && md.Body.Instructions != null)
+            {
+                return ProcessMethodAttributes(td, md);
+            }
+            return false;
+        }
+
         public static bool HasServerClientAttribute(MethodDefinition md)
         {
             foreach (CustomAttribute attr in md.CustomAttributes)
@@ -26,28 +65,35 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static void ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
+        public static bool ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
         {
+            bool modified = false;
             foreach (CustomAttribute attr in md.CustomAttributes)
             {
                 switch (attr.Constructor.DeclaringType.ToString())
                 {
                     case "Mirror.ServerAttribute":
                         InjectServerGuard(td, md, true);
+                        modified = true;
                         break;
                     case "Mirror.ServerCallbackAttribute":
                         InjectServerGuard(td, md, false);
+                        modified = true;
                         break;
                     case "Mirror.ClientAttribute":
                         InjectClientGuard(td, md, true);
+                        modified = true;
                         break;
                     case "Mirror.ClientCallbackAttribute":
                         InjectClientGuard(td, md, false);
+                        modified = true;
                         break;
                     default:
                         break;
                 }
             }
+
+            return modified;
         }
 
         static void InjectServerGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
