@@ -36,7 +36,10 @@ namespace Mirror.Weaver
             if (variable.IsArray)
             {
                 newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
-                RegisterReadFunc(variable.FullName, newReaderFunc);
+                if (newReaderFunc != null)
+                {
+                    RegisterReadFunc(variable.FullName, newReaderFunc);
+                }
                 return newReaderFunc;
             }
 
@@ -121,6 +124,7 @@ namespace Mirror.Weaver
             MethodReference elementReadFunc = GetReadFunc(elementType, recursionCount + 1);
             if (elementReadFunc == null)
             {
+                Weaver.Error($"Cannot generate reader for Array because element {elementType.Name} does not have a reader. Use a supported type or provide a custom reader", variable);
                 return null;
             }
 
@@ -214,6 +218,7 @@ namespace Mirror.Weaver
             MethodReference elementReadFunc = GetReadFunc(elementType, recursionCount + 1);
             if (elementReadFunc == null)
             {
+                Weaver.Error($"Cannot generate reader for ArraySegment because element {elementType.Name} does not have a reader. Use a supported type or provide a custom reader", variable);
                 return null;
             }
 
