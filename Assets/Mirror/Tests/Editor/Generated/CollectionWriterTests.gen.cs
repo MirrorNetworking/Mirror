@@ -263,6 +263,70 @@ namespace Mirror.Tests.Generated.CollectionWriters
         }
     }
 
+    public class ClassWithNoConstructor_Array_Test
+    {
+        class Message : MessageBase
+        {
+            public ClassWithNoConstructor[] collection;
+        }
+
+        [Test]
+        public void SendsNull()
+        {
+            Message message = new Message
+            {
+                collection = default
+            };
+
+            byte[] data = MessagePacker.Pack(message);
+
+            Message unpacked = MessagePacker.Unpack<Message>(data);
+            ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
+
+            Assert.That(unpackedCollection, Is.Null.Or.Empty);
+        }
+
+        [Test]
+        public void SendsEmpty()
+        {
+            Message message = new Message
+            {
+                collection = new ClassWithNoConstructor[] { }
+            };
+
+            byte[] data = MessagePacker.Pack(message);
+
+            Message unpacked = MessagePacker.Unpack<Message>(data);
+            ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
+
+            Assert.IsNotNull(unpackedCollection);
+            Assert.IsEmpty(unpackedCollection);
+        }
+
+        [Test]
+        public void SendsData()
+        {
+            Message message = new Message
+            {
+                collection = new ClassWithNoConstructor[]
+                {
+                    new ClassWithNoConstructor { a = 3 }, new ClassWithNoConstructor { a = 4 }, new ClassWithNoConstructor { a = 5 }
+                }
+            };
+
+            byte[] data = MessagePacker.Pack(message);
+
+            Message unpacked = MessagePacker.Unpack<Message>(data);
+            ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
+
+            Assert.IsNotNull(unpackedCollection);
+            Assert.IsNotEmpty(unpackedCollection);
+            Assert.That(unpackedCollection[0].a, Is.EqualTo(new ClassWithNoConstructor { a = 3 }.a));
+            Assert.That(unpackedCollection[1].a, Is.EqualTo(new ClassWithNoConstructor { a = 4 }.a));
+            Assert.That(unpackedCollection[2].a, Is.EqualTo(new ClassWithNoConstructor { a = 5 }.a));
+        }
+    }
+
     public class int_ArraySegment_Test
     {
         class Message : MessageBase
@@ -572,6 +636,84 @@ namespace Mirror.Tests.Generated.CollectionWriters
             Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 0], Is.EqualTo(new FloatStringStruct { value = 3, anotherValue = "Some" }));
             Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 1], Is.EqualTo(new FloatStringStruct { value = 4, anotherValue = "String" }));
             Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 2], Is.EqualTo(new FloatStringStruct { value = 5, anotherValue = "Values" }));
+        }
+    }
+
+    public class ClassWithNoConstructor_ArraySegment_Test
+    {
+        class Message : MessageBase
+        {
+            public ArraySegment<ClassWithNoConstructor> collection;
+        }
+
+        [Test]
+        public void SendsNull()
+        {
+            Message message = new Message
+            {
+                collection = default
+            };
+
+            byte[] data = MessagePacker.Pack(message);
+
+            Message unpacked = MessagePacker.Unpack<Message>(data);
+            ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
+
+            Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
+        }
+
+        [Test]
+        public void SendsEmpty()
+        {
+            ClassWithNoConstructor[] array = new ClassWithNoConstructor[]
+            {
+                default,
+                default,
+                default,
+            };
+
+            Message message = new Message
+            {
+                collection = new ArraySegment<ClassWithNoConstructor>(array, 0, 0)
+            };
+
+            byte[] data = MessagePacker.Pack(message);
+
+            Message unpacked = MessagePacker.Unpack<Message>(data);
+            ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
+
+            Assert.IsNotNull(unpackedCollection.Array);
+            Assert.IsEmpty(unpackedCollection.Array);
+        }
+
+        [Test]
+        public void SendsData()
+        {
+            ClassWithNoConstructor[] array = new ClassWithNoConstructor[]
+            {
+                default,
+                new ClassWithNoConstructor { a = 3 }, new ClassWithNoConstructor { a = 4 }, new ClassWithNoConstructor { a = 5 },
+                default,
+                default,
+                default,
+            };
+
+
+            Message message = new Message
+            {
+                collection = new ArraySegment<ClassWithNoConstructor>(array, 1, 3)
+            };
+
+            byte[] data = MessagePacker.Pack(message);
+
+            Message unpacked = MessagePacker.Unpack<Message>(data);
+            ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
+
+            Assert.IsNotNull(unpackedCollection.Array);
+            Assert.IsNotEmpty(unpackedCollection.Array);
+            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 0].a, Is.EqualTo(new ClassWithNoConstructor { a = 3 }.a));
+            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 1].a, Is.EqualTo(new ClassWithNoConstructor { a = 4 }.a));
+            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 2].a, Is.EqualTo(new ClassWithNoConstructor { a = 5 }.a));
         }
     }
 }

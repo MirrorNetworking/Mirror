@@ -36,6 +36,7 @@ namespace Mirror.Tests.Generators
            "string",
            nameof(Vector3),
            nameof(FloatStringStruct),
+           nameof(ClassWithNoConstructor)
         };
         static IEnumerable<string> valuesForType(string elementType)
         {
@@ -56,6 +57,12 @@ namespace Mirror.Tests.Generators
                         "new FloatStringStruct { value = 3, anotherValue = \"Some\" }",
                         "new FloatStringStruct { value = 4, anotherValue = \"String\" }",
                         "new FloatStringStruct { value = 5, anotherValue = \"Values\" }",
+                    };
+                case nameof(ClassWithNoConstructor):
+                    return new string[] {
+                        "new ClassWithNoConstructor { a = 3 }",
+                        "new ClassWithNoConstructor { a = 4 }",
+                        "new ClassWithNoConstructor { a = 5 }",
                     };
                 default:
                     throw new System.ArgumentException($"No Values for {elementType}");
@@ -160,11 +167,22 @@ namespace {NameSpace}
 
             Assert.IsNotNull({CheckCollection(collectionType)});
             Assert.IsNotEmpty({CheckCollection(collectionType)});
-            Assert.That({ReadValue(collectionType, 0)}, Is.EqualTo({values[0]}));
-            Assert.That({ReadValue(collectionType, 1)}, Is.EqualTo({values[1]}));
-            Assert.That({ReadValue(collectionType, 2)}, Is.EqualTo({values[2]}));
+            Assert.That({ElementEqualCheck(elementType, ReadValue(collectionType, 0), values[0])});
+            Assert.That({ElementEqualCheck(elementType, ReadValue(collectionType, 1), values[1])});
+            Assert.That({ElementEqualCheck(elementType, ReadValue(collectionType, 2), values[2])});
         }}
     }}";
+        }
+
+        private static string ElementEqualCheck(string elementType, string collectionValue, string expected)
+        {
+            switch (elementType)
+            {
+                case nameof(ClassWithNoConstructor):
+                    return $"{collectionValue}.a, Is.EqualTo({expected}.a)";
+                default:
+                    return $"{collectionValue}, Is.EqualTo({expected})";
+            }
         }
 
         private static string CheckCollection(string collectionType)
