@@ -94,6 +94,24 @@ namespace Mirror.Weaver
             return true;
         }
 
+        public static bool IsArraySegment(this TypeDefinition td)
+        {
+            return td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal);
+        }
+        public static bool IsArraySegment(this TypeReference td)
+        {
+            return td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal);
+        }
+
+        public static bool IsList(this TypeDefinition td)
+        {
+            return td.FullName.StartsWith("System.Collections.Generic.List`1", System.StringComparison.Ordinal);
+        }
+        public static bool IsList(this TypeReference td)
+        {
+            return td.FullName.StartsWith("System.Collections.Generic.List`1", System.StringComparison.Ordinal);
+        }
+
         public static bool CanBeResolved(this TypeReference parent)
         {
             while (parent != null)
