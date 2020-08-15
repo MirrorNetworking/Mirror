@@ -43,13 +43,13 @@ namespace Mirror.Weaver
                 return newReaderFunc;
             }
 
-            TypeDefinition td = variable.Resolve();
-            if (td == null)
+            TypeDefinition variableType = variable.Resolve();
+            if (variableType == null)
             {
                 Weaver.Error($"{variable.Name} is not a supported type", variable);
                 return null;
             }
-            if (td.IsDerivedFrom(WeaverTypes.ComponentType))
+            if (variableType.IsDerivedFrom(WeaverTypes.ComponentType))
             {
                 Weaver.Error($"Cannot generate reader for component type {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
@@ -70,24 +70,28 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot pass type {variable.Name} by reference", variable);
                 return null;
             }
-            if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
+            if (variableType.HasGenericParameters && !variableType.IsArraySegment() && !variableType.IsList())
             {
                 Weaver.Error($"Cannot generate reader for generic variable {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
             }
-            if (td.IsInterface)
+            if (variableType.IsInterface)
             {
                 Weaver.Error($"Cannot generate reader for interface {variable.Name}. Use a supported type or provide a custom reader", variable);
                 return null;
             }
 
-            if (td.IsEnum)
+            if (variableType.IsEnum)
             {
-                return GetReadFunc(td.GetEnumUnderlyingType(), recursionCount);
+                return GetReadFunc(variableType.GetEnumUnderlyingType(), recursionCount);
             }
-            else if (variable.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
+            else if (variableType.IsArraySegment())
             {
                 newReaderFunc = GenerateArraySegmentReadFunc(variable, recursionCount);
+            }
+            else if (variableType.IsList())
+            {
+                newReaderFunc = GenerateListReadFunc(variable, recursionCount);
             }
             else
             {
@@ -222,7 +226,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_ReadArraySegment_" + variable.GetElementType().Name + "_";
+            string functionName = "_ReadArraySegment_" + elementType.Name + "_";
             if (variable.DeclaringType != null)
             {
                 functionName += variable.DeclaringType.Name;
@@ -300,6 +304,111 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
         }
+
+        static MethodDefinition GenerateListReadFunc(TypeReference variable, int recursionCount)
+        {
+            GenericInstanceType genericInstance = (GenericInstanceType)variable;
+            TypeReference elementType = genericInstance.GenericArguments[0];
+
+            MethodReference elementReadFunc = GetReadFunc(elementType, recursionCount + 1);
+            if (elementReadFunc == null)
+            {
+                Weaver.Error($"Cannot generate reader for List because element {elementType.Name} does not have a reader. Use a supported type or provide a custom reader", variable);
+                return null;
+            }
+
+            string functionName = "_ReadList_" + elementType.Name + "_";
+            if (variable.DeclaringType != null)
+            {
+                functionName += variable.DeclaringType.Name;
+            }
+            else
+            {
+                functionName += "None";
+            }
+
+            // create new reader for this type
+            MethodDefinition readerFunc = new MethodDefinition(functionName,
+                    MethodAttributes.Public |
+                    MethodAttributes.Static |
+                    MethodAttributes.HideBySig,
+                    variable);
+
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
+
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(variable));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            readerFunc.Body.InitLocals = true;
+
+            ILProcessor worker = readerFunc.Body.GetILProcessor();
+
+            // int count = reader.ReadPackedInt32();
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.int32Type)));
+            worker.Append(worker.Create(OpCodes.Stloc_0));
+
+            // -1 is null list, so if count is less than 0 return null
+            // if (count < 0) {
+            //    return null
+            // }
+            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
+            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
+            worker.Append(worker.Create(OpCodes.Bge, labelEmptyArray));
+            // return null
+            worker.Append(worker.Create(OpCodes.Ldnull));
+            worker.Append(worker.Create(OpCodes.Ret));
+            worker.Append(labelEmptyArray);
+
+            // List<T> list = new List<T>();
+            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ListConstructorReference.MakeHostInstanceGeneric(genericInstance)));
+            worker.Append(worker.Create(OpCodes.Stloc_1));
+
+            // loop through array and deserialize each element
+            // generates code like this
+            // for (int i=0; i< length ; i++)
+            // {
+            //     list[i] = reader.ReadXXX();
+            // }
+            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
+            worker.Append(worker.Create(OpCodes.Stloc_2));
+            Instruction labelHead = worker.Create(OpCodes.Nop);
+            worker.Append(worker.Create(OpCodes.Br, labelHead));
+
+            // loop body
+            Instruction labelBody = worker.Create(OpCodes.Nop);
+            worker.Append(labelBody);
+
+            MethodReference addItem = WeaverTypes.ListAddReference.MakeHostInstanceGeneric(genericInstance);
+
+            // list.Add(reader.ReadT());
+            worker.Append(worker.Create(OpCodes.Ldloc_1)); // list
+            worker.Append(worker.Create(OpCodes.Ldarg_0)); // reader
+            worker.Append(worker.Create(OpCodes.Call, elementReadFunc)); // Read
+            worker.Append(worker.Create(OpCodes.Call, addItem)); // set_Item
+
+            // end for loop
+
+            // for loop i++
+            worker.Append(worker.Create(OpCodes.Ldloc_2));
+            worker.Append(worker.Create(OpCodes.Ldc_I4_1));
+            worker.Append(worker.Create(OpCodes.Add));
+            worker.Append(worker.Create(OpCodes.Stloc_2));
+
+            // loop while check
+            worker.Append(labelHead);
+            // for loop i < count
+            worker.Append(worker.Create(OpCodes.Ldloc_2));
+            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Blt, labelBody));
+
+            // return value;
+            worker.Append(worker.Create(OpCodes.Ldloc_1));
+            worker.Append(worker.Create(OpCodes.Ret));
+            return readerFunc;
+        }
+
 
         static MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable, int recursionCount)
         {

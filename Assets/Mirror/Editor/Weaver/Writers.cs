@@ -50,13 +50,14 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot pass {variable.Name} by reference", variable);
                 return null;
             }
-            TypeDefinition td = variable.Resolve();
-            if (td == null)
+
+            TypeDefinition variableType = variable.Resolve();
+            if (variableType == null)
             {
                 Weaver.Error($"{variable.Name} is not a supported type. Use a supported type or provide a custom writer", variable);
                 return null;
             }
-            if (td.IsDerivedFrom(WeaverTypes.ComponentType))
+            if (variableType.IsDerivedFrom(WeaverTypes.ComponentType))
             {
                 Weaver.Error($"Cannot generate writer for component type {variable.Name}. Use a supported type or provide a custom writer", variable);
                 return null;
@@ -71,12 +72,12 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate writer for {variable.Name}. Use a supported type or provide a custom writer", variable);
                 return null;
             }
-            if (td.HasGenericParameters && !td.IsArraySegment() && !td.IsList())
+            if (variableType.HasGenericParameters && !variableType.IsArraySegment() && !variableType.IsList())
             {
                 Weaver.Error($"Cannot generate writer for generic type {variable.Name}. Use a supported type or provide a custom writer", variable);
                 return null;
             }
-            if (td.IsInterface)
+            if (variableType.IsInterface)
             {
                 Weaver.Error($"Cannot generate writer for interface {variable.Name}. Use a supported type or provide a custom writer", variable);
                 return null;
@@ -247,8 +248,10 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.int32Type)));
             worker.Append(worker.Create(OpCodes.Ret));
 
-            // int length = value.Length;
+            // else not null
             worker.Append(labelNull);
+
+            // int length = value.Length;
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             worker.Append(worker.Create(OpCodes.Ldlen));
             worker.Append(worker.Create(OpCodes.Stloc_0));
@@ -426,7 +429,6 @@ namespace Mirror.Weaver
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
-
             // if (value == null)
             // {
             //     writer.WritePackedInt32(-1);
@@ -441,9 +443,10 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.int32Type)));
             worker.Append(worker.Create(OpCodes.Ret));
 
+            // else not null
+            worker.Append(labelNull);
 
             MethodReference countref = WeaverTypes.ListCountReference.MakeHostInstanceGeneric(genericInstance);
-            MethodReference getref = WeaverTypes.ListGetItemReference.MakeHostInstanceGeneric(genericInstance);
 
             // int count = value.Count;
             worker.Append(worker.Create(OpCodes.Ldarg_1));
@@ -470,13 +473,14 @@ namespace Mirror.Weaver
             Instruction labelBody = worker.Create(OpCodes.Nop);
             worker.Append(labelBody);
 
+            MethodReference getItem = WeaverTypes.ListGetItemReference.MakeHostInstanceGeneric(genericInstance);
+
             // writer.Write(value[i]);
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
-            worker.Append(worker.Create(OpCodes.Ldloc_1));
-            worker.Append(worker.Create(OpCodes.Call, getref));
-            worker.Append(worker.Create(OpCodes.Ldobj, elementType));
-            worker.Append(worker.Create(OpCodes.Call, elementWriteFunc));
+            worker.Append(worker.Create(OpCodes.Ldarg_0)); // writer
+            worker.Append(worker.Create(OpCodes.Ldarg_1)); // value
+            worker.Append(worker.Create(OpCodes.Ldloc_1)); // i
+            worker.Append(worker.Create(OpCodes.Call, getItem)); //get_Item
+            worker.Append(worker.Create(OpCodes.Call, elementWriteFunc)); // Write
 
 
             // end for loop
@@ -497,6 +501,5 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
             return writerFunc;
         }
-
     }
 }

@@ -68,6 +68,7 @@ namespace Mirror.Weaver
         public static MethodReference ListConstructorReference;
         public static MethodReference ListCountReference;
         public static MethodReference ListGetItemReference;
+        public static MethodReference ListAddReference;
 
         // system types
         public static TypeReference voidType;
@@ -167,7 +168,8 @@ namespace Mirror.Weaver
 
             ListType = ImportSystemModuleType(currentAssembly, systemModule, "System.Collections.Generic.List`1");
             ListCountReference = Resolvers.ResolveProperty(ListType, currentAssembly, "Count");
-            ListGetItemReference = Resolvers.ResolveProperty(ListType, currentAssembly, "get_Item");
+            ListGetItemReference = Resolvers.ResolveMethod(ListType, currentAssembly, "get_Item");
+            ListAddReference = Resolvers.ResolveMethod(ListType, currentAssembly, "Add");
             ListConstructorReference = Resolvers.ResolveMethod(ListType, currentAssembly, ".ctor");
 
             NetworkReaderType = mirrorAssembly.MainModule.GetType("Mirror.NetworkReader");
