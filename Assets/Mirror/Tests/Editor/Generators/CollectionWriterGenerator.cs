@@ -118,7 +118,7 @@ namespace {NameSpace}
             string[] values = dataValues.ToArray();
 
             return $@"
-    public class {elementType}_{collectionType}_Test
+    public class {collectionType}_{elementType}_Test
     {{
         class Message : MessageBase
         {{

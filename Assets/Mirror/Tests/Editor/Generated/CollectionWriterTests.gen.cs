@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Mirror.Tests.Generated.CollectionWriters
 {
     
-    public class int_Array_Test
+    public class Array_int_Test
     {
         class Message : MessageBase
         {
@@ -71,7 +71,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         }
     }
 
-    public class string_Array_Test
+    public class Array_string_Test
     {
         class Message : MessageBase
         {
@@ -135,7 +135,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         }
     }
 
-    public class Vector3_Array_Test
+    public class Array_Vector3_Test
     {
         class Message : MessageBase
         {
@@ -199,7 +199,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         }
     }
 
-    public class FloatStringStruct_Array_Test
+    public class Array_FloatStringStruct_Test
     {
         class Message : MessageBase
         {
@@ -263,7 +263,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         }
     }
 
-    public class ClassWithNoConstructor_Array_Test
+    public class Array_ClassWithNoConstructor_Test
     {
         class Message : MessageBase
         {
@@ -327,7 +327,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         }
     }
 
-    public class int_ArraySegment_Test
+    public class ArraySegment_int_Test
     {
         class Message : MessageBase
         {
@@ -405,7 +405,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         }
     }
 
-    public class string_ArraySegment_Test
+    public class ArraySegment_string_Test
     {
         class Message : MessageBase
         {
@@ -483,7 +483,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         }
     }
 
-    public class Vector3_ArraySegment_Test
+    public class ArraySegment_Vector3_Test
     {
         class Message : MessageBase
         {
@@ -561,7 +561,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         }
     }
 
-    public class FloatStringStruct_ArraySegment_Test
+    public class ArraySegment_FloatStringStruct_Test
     {
         class Message : MessageBase
         {
@@ -639,7 +639,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         }
     }
 
-    public class ClassWithNoConstructor_ArraySegment_Test
+    public class ArraySegment_ClassWithNoConstructor_Test
     {
         class Message : MessageBase
         {
