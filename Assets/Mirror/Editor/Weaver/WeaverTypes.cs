@@ -6,98 +6,98 @@ namespace Mirror.Weaver
     public static class WeaverTypes
     {
         // Network types
-        public static TypeReference NetworkBehaviourType;
-        public static TypeReference RemoteCallHelperType;
-        public static TypeReference MonoBehaviourType;
-        public static TypeReference ScriptableObjectType;
-        public static TypeReference NetworkConnectionType;
+        public static TypeReference NetworkBehaviourType { get; private set; }
+        public static TypeReference RemoteCallHelperType { get; private set; }
+        public static TypeReference MonoBehaviourType { get; private set; }
+        public static TypeReference ScriptableObjectType { get; private set; }
+        public static TypeReference NetworkConnectionType { get; private set; }
 
-        public static TypeReference MessageBaseType;
-        public static TypeReference IMessageBaseType;
-        public static TypeReference SyncListType;
-        public static TypeReference SyncSetType;
-        public static TypeReference SyncDictionaryType;
+        public static TypeReference MessageBaseType { get; private set; }
+        public static TypeReference IMessageBaseType { get; private set; }
+        public static TypeReference SyncListType { get; private set; }
+        public static TypeReference SyncSetType { get; private set; }
+        public static TypeReference SyncDictionaryType { get; private set; }
 
-        public static MethodReference ScriptableObjectCreateInstanceMethod;
+        public static MethodReference ScriptableObjectCreateInstanceMethod { get; private set; }
 
-        public static MethodReference NetworkBehaviourDirtyBitsReference;
-        public static MethodReference GetPooledWriterReference;
-        public static MethodReference RecycleWriterReference;
-        public static TypeReference NetworkClientType;
-        public static TypeReference NetworkServerType;
+        public static MethodReference NetworkBehaviourDirtyBitsReference { get; private set; }
+        public static MethodReference GetPooledWriterReference { get; private set; }
+        public static MethodReference RecycleWriterReference { get; private set; }
+        public static TypeReference NetworkClientType { get; private set; }
+        public static TypeReference NetworkServerType { get; private set; }
 
-        public static TypeReference NetworkReaderType;
+        public static TypeReference NetworkReaderType { get; private set; }
 
-        public static TypeReference NetworkWriterType;
-        public static TypeReference PooledNetworkWriterType;
+        public static TypeReference NetworkWriterType { get; private set; }
+        public static TypeReference PooledNetworkWriterType { get; private set; }
 
-        public static TypeReference NetworkIdentityType;
-        public static TypeReference IEnumeratorType;
+        public static TypeReference NetworkIdentityType { get; private set; }
+        public static TypeReference IEnumeratorType { get; private set; }
 
-        public static TypeReference ClientSceneType;
-        public static MethodReference ReadyConnectionReference;
+        public static TypeReference ClientSceneType { get; private set; }
+        public static MethodReference ReadyConnectionReference { get; private set; }
 
-        public static TypeReference ComponentType;
-        public static TypeReference ObjectType;
+        public static TypeReference ComponentType { get; private set; }
+        public static TypeReference ObjectType { get; private set; }
 
-        public static TypeReference CmdDelegateReference;
-        public static MethodReference CmdDelegateConstructor;
+        public static TypeReference CmdDelegateReference { get; private set; }
+        public static MethodReference CmdDelegateConstructor { get; private set; }
 
-        public static MethodReference NetworkServerGetActive;
-        public static MethodReference NetworkServerGetLocalClientActive;
-        public static MethodReference NetworkClientGetActive;
+        public static MethodReference NetworkServerGetActive { get; private set; }
+        public static MethodReference NetworkServerGetLocalClientActive { get; private set; }
+        public static MethodReference NetworkClientGetActive { get; private set; }
 
         // custom attribute types
-        public static TypeReference SyncVarType;
-        public static TypeReference CommandType;
-        public static TypeReference ClientRpcType;
-        public static TypeReference TargetRpcType;
-        public static TypeReference SyncEventType;
-        public static TypeReference SyncObjectType;
-        public static MethodReference InitSyncObjectReference;
+        public static TypeReference SyncVarType { get; private set; }
+        public static TypeReference CommandType { get; private set; }
+        public static TypeReference ClientRpcType { get; private set; }
+        public static TypeReference TargetRpcType { get; private set; }
+        public static TypeReference SyncEventType { get; private set; }
+        public static TypeReference SyncObjectType { get; private set; }
+        public static MethodReference InitSyncObjectReference { get; private set; }
 
         // array segment
-        public static TypeReference ArraySegmentType;
-        public static MethodReference ArraySegmentConstructorReference;
-        public static MethodReference ArraySegmentArrayReference;
-        public static MethodReference ArraySegmentOffsetReference;
-        public static MethodReference ArraySegmentCountReference;
+        public static TypeReference ArraySegmentType { get; private set; }
+        public static MethodReference ArraySegmentConstructorReference { get; private set; }
+        public static MethodReference ArraySegmentArrayReference { get; private set; }
+        public static MethodReference ArraySegmentOffsetReference { get; private set; }
+        public static MethodReference ArraySegmentCountReference { get; private set; }
 
         // system types
-        public static TypeReference voidType;
-        public static TypeReference singleType;
-        public static TypeReference doubleType;
-        public static TypeReference boolType;
-        public static TypeReference int64Type;
-        public static TypeReference uint64Type;
-        public static TypeReference int32Type;
-        public static TypeReference uint32Type;
-        public static TypeReference objectType;
-        public static TypeReference typeType;
-        public static TypeReference gameObjectType;
-        public static TypeReference transformType;
+        public static TypeReference voidType { get; private set; }
+        public static TypeReference singleType { get; private set; }
+        public static TypeReference doubleType { get; private set; }
+        public static TypeReference boolType { get; private set; }
+        public static TypeReference int64Type { get; private set; }
+        public static TypeReference uint64Type { get; private set; }
+        public static TypeReference int32Type { get; private set; }
+        public static TypeReference uint32Type { get; private set; }
+        public static TypeReference objectType { get; private set; }
+        public static TypeReference typeType { get; private set; }
+        public static TypeReference gameObjectType { get; private set; }
+        public static TypeReference transformType { get; private set; }
 
-        public static MethodReference syncVarEqualReference;
-        public static MethodReference syncVarNetworkIdentityEqualReference;
-        public static MethodReference syncVarGameObjectEqualReference;
-        public static MethodReference setSyncVarReference;
-        public static MethodReference setSyncVarHookGuard;
-        public static MethodReference getSyncVarHookGuard;
-        public static MethodReference setSyncVarGameObjectReference;
-        public static MethodReference getSyncVarGameObjectReference;
-        public static MethodReference setSyncVarNetworkIdentityReference;
-        public static MethodReference getSyncVarNetworkIdentityReference;
-        public static MethodReference registerCommandDelegateReference;
-        public static MethodReference registerRpcDelegateReference;
-        public static MethodReference registerEventDelegateReference;
-        public static MethodReference getTypeReference;
-        public static MethodReference getTypeFromHandleReference;
-        public static MethodReference logErrorReference;
-        public static MethodReference logWarningReference;
-        public static MethodReference sendCommandInternal;
-        public static MethodReference sendRpcInternal;
-        public static MethodReference sendTargetRpcInternal;
-        public static MethodReference sendEventInternal;
+        public static MethodReference syncVarEqualReference { get; private set; }
+        public static MethodReference syncVarNetworkIdentityEqualReference { get; private set; }
+        public static MethodReference syncVarGameObjectEqualReference { get; private set; }
+        public static MethodReference setSyncVarReference { get; private set; }
+        public static MethodReference setSyncVarHookGuard { get; private set; }
+        public static MethodReference getSyncVarHookGuard { get; private set; }
+        public static MethodReference setSyncVarGameObjectReference { get; private set; }
+        public static MethodReference getSyncVarGameObjectReference { get; private set; }
+        public static MethodReference setSyncVarNetworkIdentityReference { get; private set; }
+        public static MethodReference getSyncVarNetworkIdentityReference { get; private set; }
+        public static MethodReference registerCommandDelegateReference { get; private set; }
+        public static MethodReference registerRpcDelegateReference { get; private set; }
+        public static MethodReference registerEventDelegateReference { get; private set; }
+        public static MethodReference getTypeReference { get; private set; }
+        public static MethodReference getTypeFromHandleReference { get; private set; }
+        public static MethodReference logErrorReference { get; private set; }
+        public static MethodReference logWarningReference { get; private set; }
+        public static MethodReference sendCommandInternal { get; private set; }
+        public static MethodReference sendRpcInternal { get; private set; }
+        public static MethodReference sendTargetRpcInternal { get; private set; }
+        public static MethodReference sendEventInternal { get; private set; }
 
 
         public static void SetupUnityTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly)
