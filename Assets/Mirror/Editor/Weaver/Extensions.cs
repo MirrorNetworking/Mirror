@@ -6,6 +6,7 @@ namespace Mirror.Weaver
 {
     public static class Extensions
     {
+
         public static bool IsDerivedFrom(this TypeDefinition td, TypeReference baseClass)
         {
             return IsDerivedFrom(td, baseClass.FullName);
@@ -92,6 +93,11 @@ namespace Mirror.Weaver
                 (tr.IsArray && ((ArrayType)tr).Rank > 1))
                 return false;
             return true;
+        }
+
+        public static bool IsNetworkBehaviour(this TypeDefinition td)
+        {
+            return td.IsDerivedFrom(WeaverTypes.NetworkBehaviourType);
         }
 
         public static bool CanBeResolved(this TypeReference parent)

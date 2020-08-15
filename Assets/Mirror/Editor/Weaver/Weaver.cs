@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Mono.CecilX;
-using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -26,13 +25,23 @@ namespace Mirror.Weaver
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
 
         public HashSet<string> ProcessedMessages = new HashSet<string>();
+
+        public int GetSyncVarStart(string className)
+        {
+            return numSyncVars.ContainsKey(className)
+                ? numSyncVars[className]
+                : 0;
+        }
+    }
+
+    public static class WeaverConstants
+    {
+        public static string InvokeRpcPrefix => "InvokeUserCode_";
+        public static string SyncEventPrefix => "SendEventMessage_";
     }
 
     internal static class Weaver
     {
-        public static string InvokeRpcPrefix => "InvokeUserCode_";
-        public static string SyncEventPrefix => "SendEventMessage_";
-
         public static WeaverLists WeaveLists { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }
         public static bool WeavingFailed { get; private set; }
@@ -68,36 +77,6 @@ namespace Mirror.Weaver
             Log.Warning($"{message} (at {mr})");
         }
 
-        public static int GetSyncVarStart(string className)
-        {
-            return WeaveLists.numSyncVars.ContainsKey(className)
-                   ? WeaveLists.numSyncVars[className]
-                   : 0;
-        }
-
-        public static void SetNumSyncVars(string className, int num)
-        {
-            WeaveLists.numSyncVars[className] = num;
-        }
-
-        internal static void ConfirmGeneratedCodeClass()
-        {
-            if (WeaveLists.generateContainerClass == null)
-            {
-                WeaveLists.generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
-                        TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass,
-                        WeaverTypes.objectType);
-
-                const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-                MethodDefinition method = new MethodDefinition(".ctor", methodAttributes, WeaverTypes.voidType);
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(WeaverTypes.objectType, CurrentAssembly, ".ctor")));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
-
-                WeaveLists.generateContainerClass.Methods.Add(method);
-            }
-        }
-
         static bool ProcessNetworkBehaviourType(TypeDefinition td)
         {
             if (!NetworkBehaviourProcessor.WasProcessed(td))
@@ -109,11 +88,6 @@ namespace Mirror.Weaver
                 return true;
             }
             return false;
-        }
-
-        public static bool IsNetworkBehaviour(TypeDefinition td)
-        {
-            return td.IsDerivedFrom(WeaverTypes.NetworkBehaviourType);
         }
 
         static void CheckMonoBehaviour(TypeDefinition td)
@@ -129,7 +103,7 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
-            if (!IsNetworkBehaviour(td))
+            if (!td.IsNetworkBehaviour())
             {
                 CheckMonoBehaviour(td);
                 return false;

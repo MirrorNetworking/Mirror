@@ -52,7 +52,7 @@ namespace Mirror.Weaver
 
         static void InjectServerGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
         {
-            if (!Weaver.IsNetworkBehaviour(td))
+            if (!td.IsNetworkBehaviour())
             {
                 Weaver.Error($"Server method {md.Name} must be declared in a NetworkBehaviour", md);
                 return;
@@ -74,7 +74,7 @@ namespace Mirror.Weaver
 
         static void InjectClientGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
         {
-            if (!Weaver.IsNetworkBehaviour(td))
+            if (!td.IsNetworkBehaviour())
             {
                 Weaver.Error($"Client method {md.Name} must be declared in a NetworkBehaviour", md);
                 return;

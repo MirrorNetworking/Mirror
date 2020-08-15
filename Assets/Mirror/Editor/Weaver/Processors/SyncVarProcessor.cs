@@ -310,7 +310,7 @@ namespace Mirror.Weaver
 
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
             // start assigning syncvars at the place the base class stopped, if any
-            int dirtyBitCounter = Weaver.GetSyncVarStart(td.BaseType.FullName);
+            int dirtyBitCounter = Weaver.WeaveLists.GetSyncVarStart(td.BaseType.FullName);
 
             syncVarNetIds.Clear();
 
@@ -375,8 +375,14 @@ namespace Mirror.Weaver
                 td.Fields.Add(fd);
             }
 
-            Weaver.SetNumSyncVars(td.FullName, numSyncVars);
+            SetNumSyncVars(td.FullName, numSyncVars);
         }
+
+        static void SetNumSyncVars(string className, int num)
+        {
+            Weaver.WeaveLists.numSyncVars[className] = num;
+        }
+
 
         public static void WriteCallHookMethodUsingArgument(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue)
         {

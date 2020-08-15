@@ -109,7 +109,7 @@ namespace Mirror.Weaver
             writeFuncs[name] = newWriterFunc;
             Weaver.WeaveLists.generatedWriteFunctions.Add(newWriterFunc);
 
-            Weaver.ConfirmGeneratedCodeClass();
+            ReadWriteHelper.ConfirmGeneratedCodeClass();
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
         }
 
