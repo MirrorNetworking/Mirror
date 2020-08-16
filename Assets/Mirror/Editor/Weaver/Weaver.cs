@@ -345,7 +345,7 @@ namespace Mirror.Weaver
 
                     // write to outputDir if specified, otherwise perform in-place write
                     WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
-                    if (outputDir != null)
+                    if (!string.IsNullOrEmpty(outputDir))
                     {
                         CurrentAssembly.Write(Helpers.DestinationFileFor(outputDir, assName), writeParams);
                     }
@@ -359,7 +359,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
+        static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
@@ -386,6 +386,45 @@ namespace Mirror.Weaver
                 }
             }
             return true;
+        }
+
+
+        public static bool Process(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
+        {
+            Validate(unityEngine, netDLL, outputDirectory, assemblies, extraAssemblyPaths);
+            Log.WarningMethod = printWarning;
+            Log.ErrorMethod = printError;
+            return WeaveAssemblies(assemblies, extraAssemblyPaths, outputDirectory, unityEngine, netDLL);
+        }
+
+        static void Validate(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths)
+        {
+            CheckDllPath(unityEngine);
+            CheckDllPath(netDLL);
+            CheckOutputDirectory(outputDirectory);
+            CheckAssemblies(assemblies);
+        }
+        static void CheckDllPath(string path)
+        {
+            if (!File.Exists(path))
+                throw new Exception("dll could not be located at " + path + "!");
+        }
+        static void CheckAssemblies(IEnumerable<string> assemblyPaths)
+        {
+            foreach (string assemblyPath in assemblyPaths)
+                CheckAssemblyPath(assemblyPath);
+        }
+        static void CheckAssemblyPath(string assemblyPath)
+        {
+            if (!File.Exists(assemblyPath))
+                throw new Exception("Assembly " + assemblyPath + " does not exist!");
+        }
+        static void CheckOutputDirectory(string outputDir)
+        {
+            if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
+            {
+                Directory.CreateDirectory(outputDir);
+            }
         }
     }
 }
