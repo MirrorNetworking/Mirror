@@ -36,20 +36,30 @@ namespace Mirror.Weaver
             {
                 return foundFunc;
             }
-
-            MethodDefinition newWriterFunc;
-
-            // Arrays are special, if we resolve them, we get the element type,
-            // eg int[] resolves to int
-            // therefore process this before checks below
-            if (variable.IsArray)
+            else if (variable.Resolve().IsEnum)
             {
-                newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
+                // serialize enum as their base type
+                return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType());
+            }
+            else
+            {
+                MethodDefinition newWriterFunc = GenerateWriter(variable, recursionCount);
                 if (newWriterFunc != null)
                 {
                     RegisterWriteFunc(variable.FullName, newWriterFunc);
                 }
                 return newWriterFunc;
+            }
+        }
+
+        static MethodDefinition GenerateWriter(TypeReference variable, int recursionCount = 0)
+        {
+            // Arrays are special, if we resolve them, we get the element type,
+            // eg int[] resolves to int
+            // therefore process this before checks below
+            if (variable.IsArray)
+            {
+                return GenerateArrayWriteFunc(variable, recursionCount);
             }
 
             if (variable.IsByReference)
@@ -91,30 +101,17 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (variable.Resolve().IsEnum)
+            if (variable.IsArraySegment())
             {
-                return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType(), recursionCount);
+                return GenerateArraySegmentWriteFunc(variable, recursionCount);
             }
-            else if (variable.IsArraySegment())
+            if (variable.IsList())
             {
-                newWriterFunc = GenerateArraySegmentWriteFunc(variable, recursionCount);
-            }
-            else if (variable.IsList())
-            {
-                newWriterFunc = GenerateListWriteFunc(variable, recursionCount);
-            }
-            else
-            {
-                newWriterFunc = GenerateClassWriterFunction(variable, recursionCount);
+                return GenerateListWriteFunc(variable, recursionCount);
             }
 
-            if (newWriterFunc == null)
-            {
-                return null;
-            }
 
-            RegisterWriteFunc(variable.FullName, newWriterFunc);
-            return newWriterFunc;
+            return GenerateClassWriterFunction(variable, recursionCount);
         }
 
         static MethodDefinition GenerateClassWriterFunction(TypeReference variable, int recursionCount)
