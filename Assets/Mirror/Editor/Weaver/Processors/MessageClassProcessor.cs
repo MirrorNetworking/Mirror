@@ -33,7 +33,8 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(td, "  GenerateSerialization");
             MethodDefinition existingMethod = td.GetMethod("Serialize");
-            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
+            // do nothing if method exists and is abstract or not empty
+            if (existingMethod != null && (existingMethod.IsAbstract || !existingMethod.Body.IsEmptyDefault()))
             {
                 return;
             }
@@ -125,7 +126,9 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(td, "  GenerateDeserialization");
             MethodDefinition existingMethod = td.GetMethod("Deserialize");
-            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
+
+            // do nothing if method exists and is abstract or not empty
+            if (existingMethod != null && (existingMethod.IsAbstract || !existingMethod.Body.IsEmptyDefault()))
             {
                 return;
             }
