@@ -63,6 +63,7 @@ namespace Mirror
         public static void Connect(string address)
         {
             if (logger.LogEnabled()) logger.Log("Client Connect: " + address);
+            logger.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.activeTransport' first");
 
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
@@ -83,6 +84,7 @@ namespace Mirror
         public static void Connect(Uri uri)
         {
             if (logger.LogEnabled()) logger.Log("Client Connect: " + uri);
+            logger.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.activeTransport' first");
 
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
