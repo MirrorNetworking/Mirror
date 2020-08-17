@@ -106,7 +106,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                newWriterFunc = GenerateClassOrStructWriterFunction(variable, recursionCount);
+                newWriterFunc = GenerateClassWriterFunction(variable, recursionCount);
             }
 
             if (newWriterFunc == null)
@@ -118,7 +118,7 @@ namespace Mirror.Weaver
             return newWriterFunc;
         }
 
-        static MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable, int recursionCount)
+        static MethodDefinition GenerateClassWriterFunction(TypeReference variable, int recursionCount)
         {
             if (recursionCount > MaxRecursionCount)
             {
