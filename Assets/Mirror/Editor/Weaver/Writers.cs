@@ -39,10 +39,9 @@ namespace Mirror.Weaver
 
             MethodDefinition newWriterFunc;
 
-            // Arrays are special,  if we resolve them, we get the element type,
-            // so the following ifs might choke on it for scriptable objects
-            // or other objects that require a custom serializer
-            // thus check if it is an array and skip all the checks.
+            // Arrays are special, if we resolve them, we get the element type,
+            // eg int[] resolves to int
+            // therefore process this before checks below
             if (variable.IsArray)
             {
                 newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
