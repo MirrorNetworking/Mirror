@@ -122,6 +122,7 @@
     <Compile Include="WeaverCommandTests~\ErrorForOptionalNetworkConnectionThatIsNotSenderConnection.cs" />
     <Compile Include="WeaverGeneralTests~\RecursionCount.cs" />
     <Compile Include="WeaverGeneralTests~\TestingScriptableObjectArraySerialization.cs" />
+    <Compile Include="WeaverMessageTests~\AbstractMessageMethods.cs" />
     <Compile Include="WeaverMessageTests~\MessageMemberGeneric.cs" />
     <Compile Include="WeaverMessageTests~\MessageMemberInterface.cs" />
     <Compile Include="WeaverMessageTests~\MessageNestedInheritance.cs" />
