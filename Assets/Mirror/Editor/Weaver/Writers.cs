@@ -54,6 +54,14 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateWriter(TypeReference variableReference, int recursionCount = 0)
         {
+            // TODO: do we need this check? do we ever receieve types that are "ByReference"s
+            if (variableReference.IsByReference)
+            {
+                // error??
+                Weaver.Error($"Cannot pass {variableReference.Name} by reference", variableReference);
+                return null;
+            }
+
             // Arrays are special, if we resolve them, we get the element type,
             // eg int[] resolves to int
             // therefore process this before checks below
@@ -62,13 +70,18 @@ namespace Mirror.Weaver
                 return GenerateArrayWriteFunc(variableReference, recursionCount);
             }
 
-            // TODO: do we need this check? do we ever receieve types that are "ByReference"s
-            if (variableReference.IsByReference)
+            // check for collections
+
+            if (variableReference.IsArraySegment())
             {
-                // error??
-                Weaver.Error($"Cannot pass {variableReference.Name} by reference", variableReference);
-                return null;
+                return GenerateArraySegmentWriteFunc(variableReference, recursionCount);
             }
+            if (variableReference.IsList())
+            {
+                return GenerateListWriteFunc(variableReference, recursionCount);
+            }
+
+            // check for invalid types
 
             TypeDefinition VariableDefinition = variableReference.Resolve();
             if (VariableDefinition == null)
@@ -91,7 +104,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (VariableDefinition.HasGenericParameters && !VariableDefinition.IsArraySegment() && !VariableDefinition.IsList())
+            if (VariableDefinition.HasGenericParameters)
             {
                 Weaver.Error($"Cannot generate writer for generic type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
@@ -102,15 +115,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (variableReference.IsArraySegment())
-            {
-                return GenerateArraySegmentWriteFunc(variableReference, recursionCount);
-            }
-            if (variableReference.IsList())
-            {
-                return GenerateListWriteFunc(variableReference, recursionCount);
-            }
-
+            // generate writer for class/struct
 
             return GenerateClassWriterFunction(variableReference, recursionCount);
         }
