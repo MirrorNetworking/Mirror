@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.MessageTests
 {
     [TestFixture]
-    public class MessageTests
+    public class BuiltInMessages
     {
         [Test]
         public void CommandMessageTest()
