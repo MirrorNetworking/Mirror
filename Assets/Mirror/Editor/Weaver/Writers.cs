@@ -155,7 +155,7 @@ namespace Mirror.Weaver
         }
 
         /// <summary>
-        /// Fiends all fields in
+        /// Find all fields in type and write them
         /// </summary>
         /// <param name="variable"></param>
         /// <param name="recursionCount"></param>
