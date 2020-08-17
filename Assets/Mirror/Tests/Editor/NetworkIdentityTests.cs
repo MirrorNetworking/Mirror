@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Mirror.RemoteCalls;
-using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -333,6 +332,8 @@ namespace Mirror.Tests
         {
             gameObject = new GameObject();
             identity = gameObject.AddComponent<NetworkIdentity>();
+
+            Transport.activeTransport = new GameObject().AddComponent<MemoryTransport>();
         }
 
         [TearDown]
@@ -344,6 +345,9 @@ namespace Mirror.Tests
             GameObject.DestroyImmediate(gameObject);
             // clean so that null entries are not in dictionary
             NetworkIdentity.spawned.Clear();
+
+            GameObject.DestroyImmediate(Transport.activeTransport.gameObject);
+            Transport.activeTransport = null;
         }
 
         // A Test behaves as an ordinary method
@@ -365,7 +369,6 @@ namespace Mirror.Tests
         public void ServerMode_IsFlags_Test()
         {
             // start the server
-            Transport.activeTransport = Substitute.For<Transport>();
             NetworkServer.Listen(1000);
 
             // add component
@@ -381,7 +384,6 @@ namespace Mirror.Tests
 
             // stop the server
             NetworkServer.Shutdown();
-            Transport.activeTransport = null;
 
             // clean up
             NetworkIdentity.spawned.Clear();
@@ -392,7 +394,6 @@ namespace Mirror.Tests
         public void HostMode_IsFlags_Test()
         {
             // start the server
-            Transport.activeTransport = Substitute.For<Transport>();
             NetworkServer.Listen(1000);
 
             // start the client
@@ -419,7 +420,6 @@ namespace Mirror.Tests
 
             // stop the server
             NetworkServer.Shutdown();
-            Transport.activeTransport = null;
 
             // clean up
             NetworkIdentity.spawned.Clear();
@@ -686,7 +686,6 @@ namespace Mirror.Tests
             Assert.That(result, Is.False);
 
             // server is needed
-            Transport.activeTransport = Substitute.For<Transport>();
             NetworkServer.Listen(1);
 
             // call OnStartServer so that isServer is true
@@ -762,7 +761,6 @@ namespace Mirror.Tests
 
             // clean up
             NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         [Test]
@@ -844,12 +842,6 @@ namespace Mirror.Tests
         [Test]
         public void OnStartServerInHostModeSetsIsClientTrue()
         {
-            // setup a transport so that Connect doesn't get NullRefException
-            // -> needs to be on a GameObject because Connect calls .enabled=true,
-            //    which only works if it's on a gameobject
-            GameObject transportGO = new GameObject();
-            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
-
             // call client connect so that internals are set up
             // (it won't actually successfully connect)
             // -> also set up connectmessage handler to avoid unhandled msg error
@@ -874,8 +866,6 @@ namespace Mirror.Tests
             // clean up
             NetworkClient.Disconnect();
             NetworkServer.Shutdown();
-            Transport.activeTransport = null;
-            GameObject.DestroyImmediate(transportGO);
         }
 
         [Test]
@@ -1535,10 +1525,6 @@ namespace Mirror.Tests
         [Test]
         public void AddAllReadyServerConnectionsToObservers()
         {
-            // AddObserver will call transport.send and validpacketsize, so we
-            // actually need a transport
-            Transport.activeTransport = new MemoryTransport();
-
             // add some server connections
             NetworkServer.connections[12] = new NetworkConnectionToClient(12) { isReady = true };
             NetworkServer.connections[13] = new NetworkConnectionToClient(13) { isReady = false };
@@ -1561,7 +1547,6 @@ namespace Mirror.Tests
             // clean up
             NetworkServer.RemoveLocalConnection();
             NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         // RebuildObservers should always add the own ready connection
@@ -1612,10 +1597,6 @@ namespace Mirror.Tests
         [Test]
         public void RebuildObserversAddsReadyConnectionsIfImplemented()
         {
-            // AddObserver will call transport.send and validpacketsize, so we
-            // actually need a transport
-            Transport.activeTransport = new MemoryTransport();
-
             // add a proximity checker
             // one with a ready connection, one with no ready connection, one with null connection
             RebuildObserversNetworkBehaviour comp = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
@@ -1631,17 +1612,12 @@ namespace Mirror.Tests
 
             // clean up
             NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
 
         [Test]
         public void RebuildObserversDoesntAddNotReadyConnectionsIfImplemented()
         {
-            // AddObserver will call transport.send and validpacketsize, so we
-            // actually need a transport
-            Transport.activeTransport = new MemoryTransport();
-
             // add a proximity checker
             // one with a ready connection, one with no ready connection, one with null connection
             RebuildObserversNetworkBehaviour comp = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
@@ -1656,16 +1632,11 @@ namespace Mirror.Tests
 
             // clean up
             NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         [Test]
         public void RebuildObserversAddsReadyServerConnectionsIfNotImplemented()
         {
-            // AddObserver will call transport.send and validpacketsize, so we
-            // actually need a transport
-            Transport.activeTransport = new MemoryTransport();
-
             // add some server connections
             NetworkServer.connections[12] = new NetworkConnectionToClient(12) { isReady = true };
             NetworkServer.connections[13] = new NetworkConnectionToClient(13) { isReady = false };
@@ -1681,16 +1652,11 @@ namespace Mirror.Tests
 
             // clean up
             NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         [Test]
         public void RebuildObserversDoesNotAddServerConnectionsIfImplemented()
         {
-            // AddObserver will call transport.send and validpacketsize, so we
-            // actually need a transport
-            Transport.activeTransport = new MemoryTransport();
-
             // add a server connection
             NetworkServer.connections[12] = new NetworkConnectionToClient(12) { isReady = true };
 
@@ -1707,7 +1673,6 @@ namespace Mirror.Tests
 
             // clean up
             NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         // RebuildObservers is complex. let's do one full test where we check
@@ -1715,10 +1680,6 @@ namespace Mirror.Tests
         [Test]
         public void RebuildObserversAddRemoveAndVisListTest()
         {
-            // AddObserver will call transport.send and validpacketsize, so we
-            // actually need a transport
-            Transport.activeTransport = new MemoryTransport();
-
             // add observer component with ready observer
             RebuildObserversNetworkBehaviour comp = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
             NetworkConnectionToClient observerA = new NetworkConnectionToClient(42) { isReady = true };
@@ -1753,7 +1714,6 @@ namespace Mirror.Tests
 
             // clean up
             NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         [Test]
