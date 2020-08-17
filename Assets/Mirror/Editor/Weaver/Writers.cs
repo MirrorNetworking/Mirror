@@ -21,6 +21,15 @@ namespace Mirror.Weaver
             writeFuncs[dataType.FullName] = methodReference;
         }
 
+        static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
+        {
+            writeFuncs[name] = newWriterFunc;
+            Weaver.WeaveLists.generatedWriteFunctions.Add(newWriterFunc);
+
+            Weaver.ConfirmGeneratedCodeClass();
+            Weaver.WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
+        }
+
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
         {
             if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
@@ -107,15 +116,6 @@ namespace Mirror.Weaver
 
             RegisterWriteFunc(variable.FullName, newWriterFunc);
             return newWriterFunc;
-        }
-
-        static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
-        {
-            writeFuncs[name] = newWriterFunc;
-            Weaver.WeaveLists.generatedWriteFunctions.Add(newWriterFunc);
-
-            Weaver.ConfirmGeneratedCodeClass();
-            Weaver.WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
         }
 
         static MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable, int recursionCount)
