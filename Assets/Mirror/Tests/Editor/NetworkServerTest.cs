@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Mirror.RemoteCalls;
-using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -66,7 +65,7 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUp()
         {
-            Transport.activeTransport = Substitute.For<Transport>();
+            Transport.activeTransport = new GameObject().AddComponent<MemoryTransport>();
         }
 
         [TearDown]
@@ -76,6 +75,7 @@ namespace Mirror.Tests
             // shutdown should be called before setting activeTransport to null
             NetworkServer.Shutdown();
 
+            GameObject.DestroyImmediate(Transport.activeTransport.gameObject);
             Transport.activeTransport = null;
         }
 
