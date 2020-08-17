@@ -744,7 +744,7 @@ namespace Mirror.Tests
 
             // RegisterHandler(msg) variant
             int variant2Called = 0;
-            NetworkServer.RegisterHandler<WovenTestMessage>(msg => { ++variant2Called; }, false);
+            NetworkServer.RegisterHandler<StructWithEmptyMethodMessage>(msg => { ++variant2Called; }, false);
 
             // listen
             NetworkServer.Listen(1);
@@ -763,7 +763,7 @@ namespace Mirror.Tests
 
             // serialize second message, send it to server, check if it was handled
             writer = new NetworkWriter();
-            MessagePacker.Pack(new WovenTestMessage(), writer);
+            MessagePacker.Pack(new StructWithEmptyMethodMessage(), writer);
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             Assert.That(variant2Called, Is.EqualTo(1));
 
