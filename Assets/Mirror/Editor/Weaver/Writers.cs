@@ -62,6 +62,7 @@ namespace Mirror.Weaver
                 return GenerateArrayWriteFunc(variableReference, recursionCount);
             }
 
+            // TODO: do we need this check? do we ever receieve types that are "ByReference"s
             if (variableReference.IsByReference)
             {
                 // error??
