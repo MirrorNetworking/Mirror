@@ -53,8 +53,8 @@ public void ServerListen()
     NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnect);
     NetworkServer.RegisterHandler<ReadyMessage>(OnClientReady);
 
-    if (NetworkServer.Listen(7777))
-        Debug.Log("Server started listening on port 7777");
+    // start listening, and allow up to 4 connections
+    NetworkServer.Listen(4);
 }
 
 // When client is ready spawn a few trees  
