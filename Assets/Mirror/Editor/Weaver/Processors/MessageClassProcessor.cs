@@ -15,6 +15,11 @@ namespace Mirror.Weaver
             return body.Instructions.All(instruction => instruction.OpCode == OpCodes.Nop || instruction.OpCode == OpCodes.Ret);
         }
 
+        /// <summary>
+        /// Create Serialize/Deserialize for IMessageBase
+        /// </summary>
+        /// <param name="td"></param>
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public static void Process(TypeDefinition td)
         {
             Weaver.DLog(td, "MessageClassProcessor Start");
@@ -29,6 +34,7 @@ namespace Mirror.Weaver
             Weaver.DLog(td, "MessageClassProcessor Done");
         }
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         static void GenerateSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateSerialization");
@@ -93,20 +99,15 @@ namespace Mirror.Weaver
             }
         }
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         static void CallWriter(ILProcessor worker, FieldDefinition field)
         {
             MethodReference writeFunc = Writers.GetWriteFunc(field.FieldType);
-            if (writeFunc != null)
-            {
-                worker.Append(worker.Create(OpCodes.Ldarg_1));
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldfld, field));
-                worker.Append(worker.Create(OpCodes.Call, writeFunc));
-            }
-            else
-            {
-                Weaver.Error($"{field.Name} has unsupported type", field);
-            }
+
+            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldfld, field));
+            worker.Append(worker.Create(OpCodes.Call, writeFunc));
         }
 
         static void CallBase(TypeDefinition td, ILProcessor worker, string name)
