@@ -85,6 +85,7 @@ namespace Mirror.Weaver
             correctly in dependent assemblies
 
         */
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public static MethodDefinition ProcessTargetRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md);
@@ -97,8 +98,7 @@ namespace Mirror.Weaver
 
             // write all the arguments that the user passed to the TargetRpc call
             // (skip first one if first one is NetworkConnection)
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.TargetRpc))
-                return null;
+            NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.TargetRpc);
 
             string rpcName = md.Name;
 

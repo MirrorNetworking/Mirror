@@ -31,6 +31,7 @@ namespace Mirror.Weaver
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
         */
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute commandAttr)
         {
             MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md);
@@ -43,8 +44,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Cmd call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.Command))
-                return null;
+            NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.Command);
 
             string cmdName = md.Name;
             int channel = commandAttr.GetField("channel", 0);
