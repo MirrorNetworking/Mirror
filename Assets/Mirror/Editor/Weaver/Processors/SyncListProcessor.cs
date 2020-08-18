@@ -12,6 +12,8 @@ namespace Mirror.Weaver
         /// </summary>
         /// <param name="td">The synclist class</param>
         /// <param name="mirrorBaseType">the base SyncObject td inherits from</param>
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for itemType</exception>
+        /// <exception cref="SyncObjectException">Throws when Serialization functions could not be created</exception>
         public static void Process(TypeDefinition td, TypeReference mirrorBaseType)
         {
             GenericArgumentResolver resolver = new GenericArgumentResolver(1);

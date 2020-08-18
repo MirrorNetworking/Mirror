@@ -11,6 +11,8 @@ namespace Mirror.Weaver
         /// Generates serialization methods for synclists
         /// </summary>
         /// <param name="td">The synclist class</param>
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for itemType</exception>
+        /// <exception cref="SyncObjectException">Throws when Serialization functions could not be created</exception>
         public static void Process(TypeDefinition td)
         {
             GenericArgumentResolver resolver = new GenericArgumentResolver(2);
