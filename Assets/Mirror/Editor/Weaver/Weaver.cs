@@ -181,8 +181,16 @@ namespace Mirror.Weaver
                     //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                 }
 
-                // process this
-                MessageClassProcessor.Process(td);
+                try
+                {
+                    // process this
+                    MessageClassProcessor.Process(td);
+                }
+                catch (WeaverException e)
+                {
+                    Weaver.Error(e.Message, e.MemberReference);
+                }
+
                 WeaveLists.ProcessedMessages.Add(td.FullName);
                 modified = true;
             }
@@ -215,20 +223,27 @@ namespace Mirror.Weaver
             // because we still need to check for embeded types
             if (td.IsClass || !td.IsAbstract)
             {
-                if (td.IsDerivedFrom(WeaverTypes.SyncListType))
+                try
                 {
-                    SyncListProcessor.Process(td, WeaverTypes.SyncListType);
-                    modified = true;
+                    if (td.IsDerivedFrom(WeaverTypes.SyncListType))
+                    {
+                        SyncListProcessor.Process(td, WeaverTypes.SyncListType);
+                        modified = true;
+                    }
+                    else if (td.IsDerivedFrom(WeaverTypes.SyncSetType))
+                    {
+                        SyncListProcessor.Process(td, WeaverTypes.SyncSetType);
+                        modified = true;
+                    }
+                    else if (td.IsDerivedFrom(WeaverTypes.SyncDictionaryType))
+                    {
+                        SyncDictionaryProcessor.Process(td);
+                        modified = true;
+                    }
                 }
-                else if (td.IsDerivedFrom(WeaverTypes.SyncSetType))
+                catch (WeaverException e)
                 {
-                    SyncListProcessor.Process(td, WeaverTypes.SyncSetType);
-                    modified = true;
-                }
-                else if (td.IsDerivedFrom(WeaverTypes.SyncDictionaryType))
-                {
-                    SyncDictionaryProcessor.Process(td);
-                    modified = true;
+                    Weaver.Error(e.Message, e.MemberReference);
                 }
             }
 
