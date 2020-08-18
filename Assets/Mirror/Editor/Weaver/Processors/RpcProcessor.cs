@@ -58,6 +58,7 @@ namespace Mirror.Weaver
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
         */
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md);
@@ -75,8 +76,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.ClientRpc))
-                return null;
+            NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.ClientRpc);
 
             string rpcName = md.Name;
             int channel = clientRpcAttr.GetField("channel", 0);

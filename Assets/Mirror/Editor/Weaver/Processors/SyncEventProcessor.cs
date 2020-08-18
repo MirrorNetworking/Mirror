@@ -65,6 +65,7 @@ namespace Mirror.Weaver
             return cmd;
         }
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public static MethodDefinition ProcessEventCall(TypeDefinition td, EventDefinition ed, CustomAttribute syncEventAttr)
         {
             MethodReference invoke = Resolvers.ResolveMethod(ed.EventType, Weaver.CurrentAssembly, "Invoke");
@@ -87,8 +88,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the syncevent
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, invoke.Resolve(), RemoteCallType.SyncEvent))
-                return null;
+            NetworkBehaviourProcessor.WriteArguments(worker, invoke.Resolve(), RemoteCallType.SyncEvent);
 
             // invoke interal send and return
             // this
@@ -118,11 +118,19 @@ namespace Mirror.Weaver
 
                 if (syncEventAttr != null)
                 {
-                    ProcessEvent(td, events, eventInvocationFuncs, ed, syncEventAttr);
+                    try
+                    {
+                        ProcessEvent(td, events, eventInvocationFuncs, ed, syncEventAttr);
+                    }
+                    catch (WeaverException e)
+                    {
+                        Weaver.Error(e.Message, e.MemberReference);
+                    }
                 }
             }
         }
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         static void ProcessEvent(TypeDefinition td, List<EventDefinition> events, List<MethodDefinition> eventInvocationFuncs, EventDefinition ed, CustomAttribute syncEventAttr)
         {
             if (ed.EventType.Resolve().HasGenericParameters)
