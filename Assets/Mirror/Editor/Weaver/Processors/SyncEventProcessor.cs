@@ -118,33 +118,38 @@ namespace Mirror.Weaver
 
                 if (syncEventAttr != null)
                 {
-                    if (ed.EventType.Resolve().HasGenericParameters)
-                    {
-                        Weaver.Error($"{ed.Name} must not have generic parameters.  Consider creating a new class that inherits from {ed.EventType} instead", ed);
-                        return;
-                    }
-
-                    events.Add(ed);
-                    MethodDefinition eventFunc = ProcessEventInvoke(td, ed);
-                    if (eventFunc == null)
-                    {
-                        return;
-                    }
-
-                    td.Methods.Add(eventFunc);
-                    eventInvocationFuncs.Add(eventFunc);
-
-                    Weaver.DLog(td, "ProcessEvent " + ed);
-
-                    MethodDefinition eventCallFunc = ProcessEventCall(td, ed, syncEventAttr);
-                    td.Methods.Add(eventCallFunc);
-
-                    // original weaver compares .Name, not EventDefinition.
-                    Weaver.WeaveLists.replaceEvents[ed.FullName] = eventCallFunc;
-
-                    Weaver.DLog(td, "  Event: " + ed.Name);
+                    ProcessEvent(td, events, eventInvocationFuncs, ed, syncEventAttr);
                 }
             }
+        }
+
+        static void ProcessEvent(TypeDefinition td, List<EventDefinition> events, List<MethodDefinition> eventInvocationFuncs, EventDefinition ed, CustomAttribute syncEventAttr)
+        {
+            if (ed.EventType.Resolve().HasGenericParameters)
+            {
+                Weaver.Error($"{ed.Name} must not have generic parameters.  Consider creating a new class that inherits from {ed.EventType} instead", ed);
+                return;
+            }
+
+            events.Add(ed);
+            MethodDefinition eventFunc = ProcessEventInvoke(td, ed);
+            if (eventFunc == null)
+            {
+                return;
+            }
+
+            td.Methods.Add(eventFunc);
+            eventInvocationFuncs.Add(eventFunc);
+
+            Weaver.DLog(td, "ProcessEvent " + ed);
+
+            MethodDefinition eventCallFunc = ProcessEventCall(td, ed, syncEventAttr);
+            td.Methods.Add(eventCallFunc);
+
+            // original weaver compares .Name, not EventDefinition.
+            Weaver.WeaveLists.replaceEvents[ed.FullName] = eventCallFunc;
+
+            Weaver.DLog(td, "  Event: " + ed.Name);
         }
     }
 }
