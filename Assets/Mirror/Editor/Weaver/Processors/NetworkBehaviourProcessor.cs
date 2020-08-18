@@ -90,16 +90,18 @@ namespace Mirror.Weaver
             }
             GenerateConstants();
 
-            GenerateSerialization();
-            if (Weaver.WeavingFailed)
+            try
             {
-                // originally Process returned true in every case, except if already processed.
-                // maybe return false here in the future.
-                return true;
+                GenerateSerialization();
+
+                GenerateDeSerialization();
+                Weaver.DLog(netBehaviourSubclass, "Process Done");
+            }
+            catch (WeaverException e)
+            {
+                Weaver.Error(e.Message, e.MemberReference);
             }
 
-            GenerateDeSerialization();
-            Weaver.DLog(netBehaviourSubclass, "Process Done");
             return true;
         }
 
