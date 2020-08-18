@@ -8,11 +8,11 @@ namespace Mirror.Weaver
     [Serializable]
     public class GenerateWriterException : Exception
     {
-        public MemberReference member { get; }
+        public MemberReference MemberReference { get; }
 
-        public GenerateWriterException(string message, MemberReference mr) : base(message)
+        public GenerateWriterException(string message, MemberReference member) : base(message)
         {
-            member = mr;
+            MemberReference = member;
         }
 
         public GenerateWriterException(string message, Exception innerException) : base(message, innerException)
@@ -55,8 +55,8 @@ namespace Mirror.Weaver
         /// </summary>
         /// <param name="variable"></param>
         /// <param name="recursionCount"></param>
-        /// <returns></returns>
-        /// <exception cref="GenerateWriterException">Throws when constructor could not be created for type</exception>
+        /// <returns>Returns <see cref="MethodReference"/> or throws</returns>
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
         {
             if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
@@ -187,20 +187,14 @@ namespace Mirror.Weaver
             foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
                 MethodReference writeFunc = GetWriteFunc(field.FieldType, recursionCount + 1);
-                if (writeFunc != null)
-                {
-                    FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
 
-                    fields++;
-                    worker.Append(worker.Create(OpCodes.Ldarg_0));
-                    worker.Append(worker.Create(OpCodes.Ldarg_1));
-                    worker.Append(worker.Create(OpCodes.Ldfld, fieldRef));
-                    worker.Append(worker.Create(OpCodes.Call, writeFunc));
-                }
-                else
-                {
-                    throw new GenerateWriterException($"{field.Name} has unsupported type. Use a type supported by Mirror instead", field);
-                }
+                FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
+
+                fields++;
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldarg_1));
+                worker.Append(worker.Create(OpCodes.Ldfld, fieldRef));
+                worker.Append(worker.Create(OpCodes.Call, writeFunc));
             }
 
             if (fields == 0)
@@ -221,10 +215,6 @@ namespace Mirror.Weaver
             TypeReference elementType = variable.GetElementType();
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
             MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
-            if (elementWriteFunc == null)
-            {
-                throw new GenerateWriterException($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-            }
 
             string functionName = "_WriteArray" + variable.GetElementType().Name + "_";
             if (variable.DeclaringType != null)
@@ -321,11 +311,6 @@ namespace Mirror.Weaver
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
             MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
 
-            if (elementWriteFunc == null)
-            {
-                throw new GenerateWriterException($"Cannot generate writer for ArraySegment because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-            }
-
             string functionName = "_WriteArraySegment_" + elementType.Name + "_";
             if (variable.DeclaringType != null)
             {
@@ -416,10 +401,6 @@ namespace Mirror.Weaver
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
             MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
 
-            if (elementWriteFunc == null)
-            {
-                throw new GenerateWriterException($"Cannot generate writer for List because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-            }
 
             string functionName = "_WriteList_" + elementType.Name + "_";
             if (variable.DeclaringType != null)
