@@ -14,37 +14,33 @@ namespace Mirror.Weaver
         /// <param name="serializeMethod">The name of the serialize method</param>
         /// <param name="deserializeMethod">The name of the deserialize method</param>
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for itemType</exception>
+        /// <exception cref="SyncObjectException">Throws when Serialization functions could not be created</exception>
         public static void GenerateSerialization(TypeDefinition td, TypeReference itemType, TypeReference mirrorBaseType, string serializeMethod, string deserializeMethod)
         {
             Weaver.DLog(td, "SyncObjectProcessor Start item:" + itemType.FullName);
 
-            bool success = GenerateSerialization(serializeMethod, td, itemType, mirrorBaseType);
-            if (Weaver.WeavingFailed)
-            {
-                return;
-            }
-
-            success |= GenerateDeserialization(deserializeMethod, td, itemType, mirrorBaseType);
+            GenerateSerialization(serializeMethod, td, itemType, mirrorBaseType);
+            bool success = GenerateDeserialization(deserializeMethod, td, itemType, mirrorBaseType);
 
             if (success)
                 Weaver.DLog(td, "SyncObjectProcessor Done");
         }
 
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for itemType</exception>
-        static bool GenerateSerialization(string methodName, TypeDefinition td, TypeReference itemType, TypeReference mirrorBaseType)
+        /// <exception cref="SyncObjectException">Throws when Serialization functions could not be created</exception>
+        static void GenerateSerialization(string methodName, TypeDefinition td, TypeReference itemType, TypeReference mirrorBaseType)
         {
             Weaver.DLog(td, "  GenerateSerialization");
             bool existing = td.HasMethodInBaseType(methodName, mirrorBaseType);
             if (existing)
-                return true;
+                return;
 
 
             // this check needs to happen inside GenerateSerialization because
             // we need to check if user has made custom function above
             if (itemType.IsGenericInstance)
             {
-                Weaver.Error($"Can not create Serialize or Deserialize for generic element in {td.Name}. Override virtual methods with custom Serialize and Deserialize to use {itemType} in SyncList", td);
-                return false;
+                throw new SyncObjectException($"Can not create Serialize or Deserialize for generic element in {td.Name}. Override virtual methods with custom Serialize and Deserialize to use {itemType} in SyncList", td);
             }
 
             MethodDefinition serializeFunc = new MethodDefinition(methodName, MethodAttributes.Public |
@@ -66,9 +62,9 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
 
             td.Methods.Add(serializeFunc);
-            return true;
         }
 
+        /// <exception cref="SyncObjectException">Throws when Serialization functions could not be created</exception>
         static bool GenerateDeserialization(string methodName, TypeDefinition td, TypeReference itemType, TypeReference mirrorBaseType)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
@@ -80,8 +76,7 @@ namespace Mirror.Weaver
             // we need to check if user has made custom function above
             if (itemType.IsGenericInstance)
             {
-                Weaver.Error($"Can not create Serialize or Deserialize for generic element in {td.Name}. Override virtual methods with custom Serialize and Deserialize to use {itemType.Name} in SyncList", td);
-                return false;
+                throw new SyncObjectException($"Can not create Serialize or Deserialize for generic element in {td.Name}. Override virtual methods with custom Serialize and Deserialize to use {itemType.Name} in SyncList", td);
             }
 
             MethodDefinition deserializeFunction = new MethodDefinition(methodName, MethodAttributes.Public |
