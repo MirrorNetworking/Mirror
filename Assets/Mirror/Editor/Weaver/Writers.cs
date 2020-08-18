@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -35,7 +36,8 @@ namespace Mirror.Weaver
         /// </summary>
         /// <param name="variable"></param>
         /// <param name="recursionCount"></param>
-        /// <returns>Returns <see cref="MethodReference"/> or null</returns>
+        /// <returns>Returns <see cref="MethodReference"/> or throws</returns>
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
         {
             if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
@@ -210,8 +212,7 @@ namespace Mirror.Weaver
             // need this null check till later PR when GetWriteFunc throws expetion instead
             if (elementWriteFunc == null)
             {
-                Weaver.Error($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
             }
             MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
 
@@ -311,8 +312,7 @@ namespace Mirror.Weaver
             // need this null check till later PR when GetWriteFunc throws expetion instead
             if (elementWriteFunc == null)
             {
-                Weaver.Error($"Cannot generate writer for ArraySegment because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for ArraySegment because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
             }
             MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
 
@@ -407,8 +407,7 @@ namespace Mirror.Weaver
             // need this null check till later PR when GetWriteFunc throws expetion instead
             if (elementWriteFunc == null)
             {
-                Weaver.Error($"Cannot generate writer for List because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for List because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
             }
             MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
 
