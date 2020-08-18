@@ -51,6 +51,7 @@ namespace Mirror.Weaver
             netBehaviourSubclass = td;
         }
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public void Process()
         {
             if (netBehaviourSubclass.HasGenericParameters)
@@ -136,7 +137,14 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.RecycleWriterReference));
         }
 
-        public static bool WriteArguments(ILProcessor worker, MethodDefinition method, RemoteCallType callType)
+        /// <summary>
+        /// Writes arguments for Command/RPC/etc
+        /// </summary>
+        /// <param name="worker"></param>
+        /// <param name="method"></param>
+        /// <param name="callType"></param>
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
+        public static void WriteArguments(ILProcessor worker, MethodDefinition method, RemoteCallType callType)
         {
             // write each argument
             // example result
@@ -167,11 +175,6 @@ namespace Mirror.Weaver
                 }
 
                 MethodReference writeFunc = Writers.GetWriteFunc(param.ParameterType);
-                if (writeFunc == null)
-                {
-                    Weaver.Error($"{method.Name} has invalid parameter {param}", method);
-                    return false;
-                }
 
                 // use built-in writer func on writer object
                 // NetworkWriter object
@@ -182,7 +185,6 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Call, writeFunc));
                 argNum += 1;
             }
-            return true;
         }
 
         #region mark / check type as processed
@@ -343,6 +345,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         void GenerateSerialization()
         {
             Weaver.DLog(netBehaviourSubclass, "  GenerateSerialization");
@@ -399,16 +402,9 @@ namespace Mirror.Weaver
                 // this
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
+
                 MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
-                if (writeFunc != null)
-                {
-                    worker.Append(worker.Create(OpCodes.Call, writeFunc));
-                }
-                else
-                {
-                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
-                    return;
-                }
+                worker.Append(worker.Create(OpCodes.Call, writeFunc));
             }
 
             // always return true if forceAll
@@ -455,15 +451,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
 
                 MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
-                if (writeFunc != null)
-                {
-                    worker.Append(worker.Create(OpCodes.Call, writeFunc));
-                }
-                else
-                {
-                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
-                    return;
-                }
+                worker.Append(worker.Create(OpCodes.Call, writeFunc));
 
                 // something was dirty
                 worker.Append(worker.Create(OpCodes.Ldc_I4_1));
@@ -953,27 +941,35 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.FullName == WeaverTypes.CommandType.FullName)
+                    try
                     {
-                        ProcessCommand(names, md, ca);
-                        break;
-                    }
+                        if (ca.AttributeType.FullName == WeaverTypes.CommandType.FullName)
+                        {
+                            ProcessCommand(names, md, ca);
+                            break;
+                        }
 
-                    if (ca.AttributeType.FullName == WeaverTypes.TargetRpcType.FullName)
-                    {
-                        ProcessTargetRpc(names, md, ca);
-                        break;
-                    }
+                        if (ca.AttributeType.FullName == WeaverTypes.TargetRpcType.FullName)
+                        {
+                            ProcessTargetRpc(names, md, ca);
+                            break;
+                        }
 
-                    if (ca.AttributeType.FullName == WeaverTypes.ClientRpcType.FullName)
+                        if (ca.AttributeType.FullName == WeaverTypes.ClientRpcType.FullName)
+                        {
+                            ProcessClientRpc(names, md, ca);
+                            break;
+                        }
+                    }
+                    catch (WeaverException e)
                     {
-                        ProcessClientRpc(names, md, ca);
-                        break;
+                        Weaver.Error(e.Message, e.MemberReference);
                     }
                 }
             }
         }
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             if (md.IsAbstract)
@@ -1011,6 +1007,7 @@ namespace Mirror.Weaver
             }
         }
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
             if (md.IsAbstract)
@@ -1039,6 +1036,7 @@ namespace Mirror.Weaver
             }
         }
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute commandAttr)
         {
             if (md.IsAbstract)
