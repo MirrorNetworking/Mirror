@@ -33,7 +33,8 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(td, "  GenerateSerialization");
             MethodDefinition existingMethod = td.GetMethod("Serialize");
-            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
+            // do nothing if method exists and is abstract or not empty
+            if (existingMethod != null && (existingMethod.IsAbstract || !existingMethod.Body.IsEmptyDefault()))
             {
                 return;
             }
@@ -111,21 +112,27 @@ namespace Mirror.Weaver
         static void CallBase(TypeDefinition td, ILProcessor worker, string name)
         {
             MethodReference method = Resolvers.TryResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, name);
-            if (method != null)
+
+            // dont call method if it is null or abstract
+            if (method == null || method.Resolve().IsAbstract)
             {
-                // base
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                // writer
-                worker.Append(worker.Create(OpCodes.Ldarg_1));
-                worker.Append(worker.Create(OpCodes.Call, method));
+                return;
             }
+
+            // base
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            // writer
+            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Call, method));
         }
 
         static void GenerateDeSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
             MethodDefinition existingMethod = td.GetMethod("Deserialize");
-            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
+
+            // do nothing if method exists and is abstract or not empty
+            if (existingMethod != null && (existingMethod.IsAbstract || !existingMethod.Body.IsEmptyDefault()))
             {
                 return;
             }
