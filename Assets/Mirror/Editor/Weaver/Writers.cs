@@ -180,8 +180,6 @@ namespace Mirror.Weaver
             foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
                 MethodReference writeFunc = GetWriteFunc(field.FieldType, recursionCount + 1);
-                // need this null check till later PR when GetWriteFunc throws expetion instead
-                if (writeFunc == null) { return false; }
 
                 FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
 
@@ -209,11 +207,6 @@ namespace Mirror.Weaver
 
             TypeReference elementType = variable.GetElementType();
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
-            // need this null check till later PR when GetWriteFunc throws expetion instead
-            if (elementWriteFunc == null)
-            {
-                throw new GenerateWriterException($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-            }
             MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
 
             string functionName = "_WriteArray" + variable.GetElementType().Name + "_";
@@ -309,11 +302,6 @@ namespace Mirror.Weaver
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
-            // need this null check till later PR when GetWriteFunc throws expetion instead
-            if (elementWriteFunc == null)
-            {
-                throw new GenerateWriterException($"Cannot generate writer for ArraySegment because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-            }
             MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
 
             string functionName = "_WriteArraySegment_" + elementType.Name + "_";
@@ -404,11 +392,6 @@ namespace Mirror.Weaver
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
-            // need this null check till later PR when GetWriteFunc throws expetion instead
-            if (elementWriteFunc == null)
-            {
-                throw new GenerateWriterException($"Cannot generate writer for List because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-            }
             MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
 
 
