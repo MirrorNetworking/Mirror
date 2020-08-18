@@ -13,6 +13,7 @@ namespace Mirror.Weaver
         /// <param name="mirrorBaseType">the base SyncObject td inherits from</param>
         /// <param name="serializeMethod">The name of the serialize method</param>
         /// <param name="deserializeMethod">The name of the deserialize method</param>
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for itemType</exception>
         public static void GenerateSerialization(TypeDefinition td, TypeReference itemType, TypeReference mirrorBaseType, string serializeMethod, string deserializeMethod)
         {
             Weaver.DLog(td, "SyncObjectProcessor Start item:" + itemType.FullName);
@@ -29,7 +30,7 @@ namespace Mirror.Weaver
                 Weaver.DLog(td, "SyncObjectProcessor Done");
         }
 
-        // serialization of individual element
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for itemType</exception>
         static bool GenerateSerialization(string methodName, TypeDefinition td, TypeReference itemType, TypeReference mirrorBaseType)
         {
             Weaver.DLog(td, "  GenerateSerialization");
@@ -57,17 +58,11 @@ namespace Mirror.Weaver
             ILProcessor worker = serializeFunc.Body.GetILProcessor();
 
             MethodReference writeFunc = Writers.GetWriteFunc(itemType);
-            if (writeFunc != null)
-            {
-                worker.Append(worker.Create(OpCodes.Ldarg_1));
-                worker.Append(worker.Create(OpCodes.Ldarg_2));
-                worker.Append(worker.Create(OpCodes.Call, writeFunc));
-            }
-            else
-            {
-                Weaver.Error($"{td.Name} has sync object generic type {itemType.Name}.  Use a type supported by mirror instead", td);
-                return false;
-            }
+
+            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Ldarg_2));
+            worker.Append(worker.Create(OpCodes.Call, writeFunc));
+
             worker.Append(worker.Create(OpCodes.Ret));
 
             td.Methods.Add(serializeFunc);
