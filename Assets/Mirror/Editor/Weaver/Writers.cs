@@ -1,29 +1,9 @@
-using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
-    [Serializable]
-    public class GenerateWriterException : Exception
-    {
-        public MemberReference MemberReference { get; }
-
-        public GenerateWriterException(string message, MemberReference member) : base(message)
-        {
-            MemberReference = member;
-        }
-
-        public GenerateWriterException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected GenerateWriterException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext)
-        {
-        }
-    }
-
     public static class Writers
     {
         const int MaxRecursionCount = 128;
