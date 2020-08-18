@@ -1,9 +1,28 @@
+using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
+    [Serializable]
+    public class GenerateWriterException : Exception
+    {
+        public MemberReference member { get; }
+
+        public GenerateWriterException(string message, MemberReference mr) : base(message)
+        {
+            member = mr;
+        }
+
+        public GenerateWriterException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected GenerateWriterException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext)
+        {
+        }
+    }
 
     public static class Writers
     {
@@ -30,6 +49,14 @@ namespace Mirror.Weaver
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
         }
 
+        /// <summary>
+        /// Finds existing writer for type, if non exists trys to create one
+        /// <para>This method is recursive</para>
+        /// </summary>
+        /// <param name="variable"></param>
+        /// <param name="recursionCount"></param>
+        /// <returns></returns>
+        /// <exception cref="GenerateWriterException">Throws when constructor could not be created for type</exception>
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
         {
             if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
@@ -57,9 +84,7 @@ namespace Mirror.Weaver
             // TODO: do we need this check? do we ever receieve types that are "ByReference"s
             if (variableReference.IsByReference)
             {
-                // error??
-                Weaver.Error($"Cannot pass {variableReference.Name} by reference", variableReference);
-                return null;
+                throw new GenerateWriterException($"Cannot pass {variableReference.Name} by reference", variableReference);
             }
 
             // Arrays are special, if we resolve them, we get the element type,
@@ -86,33 +111,27 @@ namespace Mirror.Weaver
             TypeDefinition VariableDefinition = variableReference.Resolve();
             if (VariableDefinition == null)
             {
-                Weaver.Error($"{variableReference.Name} is not a supported type. Use a supported type or provide a custom writer", variableReference);
-                return null;
+                throw new GenerateWriterException($"{variableReference.Name} is not a supported type. Use a supported type or provide a custom writer", variableReference);
             }
             if (VariableDefinition.IsDerivedFrom(WeaverTypes.ComponentType))
             {
-                Weaver.Error($"Cannot generate writer for component type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for component type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
             }
             if (variableReference.FullName == WeaverTypes.ObjectType.FullName)
             {
-                Weaver.Error($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
             }
             if (variableReference.FullName == WeaverTypes.ScriptableObjectType.FullName)
             {
-                Weaver.Error($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
             }
             if (VariableDefinition.HasGenericParameters)
             {
-                Weaver.Error($"Cannot generate writer for generic type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for generic type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
             }
             if (VariableDefinition.IsInterface)
             {
-                Weaver.Error($"Cannot generate writer for interface {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for interface {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
             }
 
             // generate writer for class/struct
@@ -124,8 +143,7 @@ namespace Mirror.Weaver
         {
             if (recursionCount > MaxRecursionCount)
             {
-                Weaver.Error($"{variable.Name} can't be serialized because it references itself", variable);
-                return null;
+                throw new GenerateWriterException($"{variable.Name} can't be serialized because it references itself", variable);
             }
 
             string functionName = "_Write" + variable.Name + "_";
@@ -181,8 +199,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error($"{field.Name} has unsupported type. Use a type supported by Mirror instead", field);
-                    return false;
+                    throw new GenerateWriterException($"{field.Name} has unsupported type. Use a type supported by Mirror instead", field);
                 }
             }
 
@@ -198,8 +215,7 @@ namespace Mirror.Weaver
         {
             if (!variable.IsArrayType())
             {
-                Weaver.Error($"{variable.Name} is an unsupported type. Jagged and multidimensional arrays are not supported", variable);
-                return null;
+                throw new GenerateWriterException($"{variable.Name} is an unsupported type. Jagged and multidimensional arrays are not supported", variable);
             }
 
             TypeReference elementType = variable.GetElementType();
@@ -207,8 +223,7 @@ namespace Mirror.Weaver
             MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
             if (elementWriteFunc == null)
             {
-                Weaver.Error($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
             }
 
             string functionName = "_WriteArray" + variable.GetElementType().Name + "_";
@@ -308,8 +323,7 @@ namespace Mirror.Weaver
 
             if (elementWriteFunc == null)
             {
-                Weaver.Error($"Cannot generate writer for ArraySegment because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for ArraySegment because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
             }
 
             string functionName = "_WriteArraySegment_" + elementType.Name + "_";
@@ -404,8 +418,7 @@ namespace Mirror.Weaver
 
             if (elementWriteFunc == null)
             {
-                Weaver.Error($"Cannot generate writer for List because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-                return null;
+                throw new GenerateWriterException($"Cannot generate writer for List because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
             }
 
             string functionName = "_WriteList_" + elementType.Name + "_";
