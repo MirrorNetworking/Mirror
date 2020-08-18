@@ -204,6 +204,7 @@ namespace Mirror.Weaver
 
             TypeReference elementType = variable.GetElementType();
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
+            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
             if (elementWriteFunc == null)
             {
                 Weaver.Error($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
@@ -247,7 +248,7 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_M1));
-            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, intWriterFunc));
             worker.Append(worker.Create(OpCodes.Ret));
 
             // else not null
@@ -261,7 +262,7 @@ namespace Mirror.Weaver
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, intWriterFunc));
 
             // for (int i=0; i< value.length; i++) {
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
@@ -303,6 +304,7 @@ namespace Mirror.Weaver
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
+            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
 
             if (elementWriteFunc == null)
             {
@@ -347,7 +349,7 @@ namespace Mirror.Weaver
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, intWriterFunc));
 
             // Loop through the ArraySegment<T> and call the writer for each element.
             // generates this:
@@ -398,6 +400,7 @@ namespace Mirror.Weaver
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
+            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
 
             if (elementWriteFunc == null)
             {
@@ -442,7 +445,7 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_M1));
-            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, intWriterFunc));
             worker.Append(worker.Create(OpCodes.Ret));
 
             // else not null
@@ -458,7 +461,7 @@ namespace Mirror.Weaver
             // writer.WritePackedInt32(count);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, intWriterFunc));
 
             // Loop through the List<T> and call the writer for each element.
             // generates this:

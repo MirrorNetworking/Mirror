@@ -427,7 +427,8 @@ namespace Mirror.Weaver
             // base
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkBehaviourDirtyBitsReference));
-            worker.Append(worker.Create(OpCodes.Call, Writers.GetWriteFunc(WeaverTypes.uint64Type)));
+            MethodReference writeUint64Func = Writers.GetWriteFunc(WeaverTypes.uint64Type);
+            worker.Append(worker.Create(OpCodes.Call, writeUint64Func));
 
             // generate a writer call for any dirty variable in this class
 
