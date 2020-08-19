@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Mirror.Tests.MessageInheritance
+namespace Mirror.Tests.MessageTests
 {
     class ParentMessage : MessageBase
     {

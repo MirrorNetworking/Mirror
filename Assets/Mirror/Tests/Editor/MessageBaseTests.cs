@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.MessageTests
 {
     struct TestMessage : IMessageBase
     {
@@ -30,17 +30,18 @@ namespace Mirror.Tests
         }
     }
 
-    struct WovenTestMessage : IMessageBase
+    struct StructWithEmptyMethodMessage : IMessageBase
     {
         public int IntValue;
         public string StringValue;
         public double DoubleValue;
 
+        // Mirror will fill out these empty methods
         public void Deserialize(NetworkReader reader) { }
         public void Serialize(NetworkWriter writer) { }
     }
 
-    class ArrayIntIMessage : IMessageBase
+    class ClassWithoutBaseMessage : IMessageBase
     {
         public int[] array;
 
@@ -86,7 +87,7 @@ namespace Mirror.Tests
     public class MessageBaseTests
     {
         [Test]
-        public void Roundtrip()
+        public void StructWithMethods()
         {
             byte[] arr = MessagePacker.Pack(new TestMessage(1, "2", 3.3));
             TestMessage t = MessagePacker.Unpack<TestMessage>(arr);
@@ -95,10 +96,10 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void WovenSerializationBodyRoundtrip()
+        public void StructWithEmptyMethods()
         {
-            byte[] arr = MessagePacker.Pack(new WovenTestMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
-            WovenTestMessage t = MessagePacker.Unpack<WovenTestMessage>(arr);
+            byte[] arr = MessagePacker.Pack(new StructWithEmptyMethodMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
+            StructWithEmptyMethodMessage t = MessagePacker.Unpack<StructWithEmptyMethodMessage>(arr);
 
             Assert.AreEqual(1, t.IntValue);
             Assert.AreEqual("2", t.StringValue);
@@ -106,16 +107,16 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void TestIntArrayInIMessageBase()
+        public void ClassWithEmptyMethods()
         {
-            ArrayIntIMessage intMessage = new ArrayIntIMessage
+            ClassWithoutBaseMessage intMessage = new ClassWithoutBaseMessage
             {
                 array = new[] { 3, 4, 5 }
             };
 
             byte[] data = MessagePacker.Pack(intMessage);
 
-            ArrayIntIMessage unpacked = MessagePacker.Unpack<ArrayIntIMessage>(data);
+            ClassWithoutBaseMessage unpacked = MessagePacker.Unpack<ClassWithoutBaseMessage>(data);
 
             Assert.That(unpacked.array, Is.EquivalentTo(new int[] { 3, 4, 5 }));
         }

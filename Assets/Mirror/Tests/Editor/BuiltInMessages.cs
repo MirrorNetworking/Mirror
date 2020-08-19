@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.MessageTests
 {
     [TestFixture]
-    public class MessageTests
+    public class BuiltInMessages
     {
         [Test]
-        public void CommandMessageTest()
+        public void CommandMessage()
         {
             // try setting value with constructor
             CommandMessage message = new CommandMessage
@@ -31,7 +31,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ConnectMessageTest()
+        public void ConnectMessage()
         {
             // try setting value with constructor
             ConnectMessage message = new ConnectMessage();
@@ -43,7 +43,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void DisconnectMessageTest()
+        public void DisconnectMessage()
         {
             // try setting value with constructor
             DisconnectMessage message = new DisconnectMessage();
@@ -55,7 +55,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ErrorMessageTest()
+        public void ErrorMessage()
         {
             // try setting value with constructor
             ErrorMessage message = new ErrorMessage(42);
@@ -65,7 +65,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void NetworkPingMessageTest()
+        public void NetworkPingMessage()
         {
             // try setting value with constructor
             NetworkPingMessage message = new NetworkPingMessage(DateTime.Now.ToOADate());
@@ -75,7 +75,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void NetworkPongMessageTest()
+        public void NetworkPongMessage()
         {
             // try setting value with constructor
             NetworkPongMessage message = new NetworkPongMessage
@@ -90,7 +90,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void NotReadyMessageTest()
+        public void NotReadyMessage()
         {
             // try setting value with constructor
             NotReadyMessage message = new NotReadyMessage();
@@ -102,7 +102,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ObjectDestroyMessageTest()
+        public void ObjectDestroyMessage()
         {
             // try setting value with constructor
             ObjectDestroyMessage message = new ObjectDestroyMessage
@@ -115,7 +115,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ObjectHideMessageTest()
+        public void ObjectHideMessage()
         {
             // try setting value with constructor
             ObjectHideMessage message = new ObjectHideMessage
@@ -128,7 +128,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ObjectSpawnFinishedMessageTest()
+        public void ObjectSpawnFinishedMessage()
         {
             // try setting value with constructor
             ObjectSpawnFinishedMessage message = new ObjectSpawnFinishedMessage();
@@ -140,7 +140,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ObjectSpawnStartedMessageTest()
+        public void ObjectSpawnStartedMessage()
         {
             // try setting value with constructor
             ObjectSpawnStartedMessage message = new ObjectSpawnStartedMessage();
@@ -152,7 +152,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ReadyMessageTest()
+        public void ReadyMessage()
         {
             // try setting value with constructor
             ReadyMessage message = new ReadyMessage();
@@ -165,7 +165,7 @@ namespace Mirror.Tests
 
         [Test]
         [Obsolete("RemovePlayerMessage is Obsolete")]
-        public void RemovePlayerMessageTest()
+        public void RemovePlayerMessage()
         {
             // try setting value with constructor
             RemovePlayerMessage message = new RemovePlayerMessage();
@@ -177,7 +177,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RpcMessageTest()
+        public void RpcMessage()
         {
             // try setting value with constructor
             RpcMessage message = new RpcMessage
@@ -199,7 +199,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SpawnMessageTest()
+        public void SpawnMessage()
         {
             DoTest(0);
             DoTest(42);
@@ -238,7 +238,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SyncEventMessageTest()
+        public void SyncEventMessage()
         {
             // try setting value with constructor
             SyncEventMessage message = new SyncEventMessage
@@ -261,7 +261,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void UpdateVarsMessageTest()
+        public void UpdateVarsMessage()
         {
             // try setting value with constructor
             UpdateVarsMessage message = new UpdateVarsMessage
