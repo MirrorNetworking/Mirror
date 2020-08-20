@@ -55,10 +55,11 @@ namespace Mirror.Examples.NetworkRoom
         public override void OnRoomServerPlayersReady()
         {
             // calling the base method calls ServerChangeScene as soon as all players are in Ready state.
-            if (isHeadless)
-                base.OnRoomServerPlayersReady();
-            else
-                showStartButton = true;
+#if UNITY_SERVER
+            base.OnRoomServerPlayersReady();
+#else
+            showStartButton = true;
+#endif
         }
 
         public override void OnGUI()

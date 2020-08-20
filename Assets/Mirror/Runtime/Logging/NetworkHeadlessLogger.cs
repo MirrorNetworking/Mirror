@@ -14,10 +14,9 @@ namespace Mirror.Logging
 
         void Awake()
         {
-            if (NetworkManager.isHeadless)
-            {
-                LogFactory.ReplaceLogHandler(new ConsoleColorLogHandler(showExceptionStackTrace));
-            }
+#if UNITY_SERVER
+            LogFactory.ReplaceLogHandler(new ConsoleColorLogHandler(showExceptionStackTrace));
+#endif
         }
     }
 }

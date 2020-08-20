@@ -62,11 +62,10 @@ namespace Mirror.Discovery
         /// </summary>
         public virtual void Start()
         {
-            // headless mode? then start advertising
-            if (NetworkManager.isHeadless)
-            {
-                AdvertiseServer();
-            }
+            // Server mode? then start advertising
+#if UNITY_SERVER
+            AdvertiseServer();
+#endif
         }
 
         // Ensure the ports are cleared no matter when Game/Unity UI exits
