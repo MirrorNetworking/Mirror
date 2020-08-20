@@ -114,51 +114,16 @@ namespace Mirror
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
 
         /// <summary>
-        /// NetworkIdentity component caching for easier access
-        /// </summary>
-        NetworkIdentity netIdentityCache;
-
-        /// <summary>
         /// Returns the NetworkIdentity of this object
         /// </summary>
-        public NetworkIdentity netIdentity
-        {
-            get
-            {
-                if (netIdentityCache == null)
-                {
-                    netIdentityCache = GetComponent<NetworkIdentity>();
-                    // do this 2nd check inside first if so that we are not checking == twice on unity Object
-                    if (netIdentityCache == null)
-                    {
-                        logger.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
-                    }
-                }
-                return netIdentityCache;
-            }
-        }
+        public NetworkIdentity netIdentity { get; internal set; }
 
         /// <summary>
         /// Returns the index of the component on this object
+        /// <para>Defaults to -1 before it is set by NetworkIdentity</para>
         /// </summary>
-        public int ComponentIndex
-        {
-            get
-            {
-                // note: FindIndex causes allocations, we search manually instead
-                for (int i = 0; i < netIdentity.NetworkBehaviours.Length; i++)
-                {
-                    NetworkBehaviour component = netIdentity.NetworkBehaviours[i];
-                    if (component == this)
-                        return i;
-                }
+        public int ComponentIndex { get; internal set; } = -1;
 
-                // this should never happen
-                logger.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
-
-                return -1;
-            }
-        }
 
         // this gets called in the constructor by the weaver
         // for every SyncObject in the component (e.g. SyncLists).

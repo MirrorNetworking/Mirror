@@ -108,8 +108,6 @@ namespace Mirror
     {
         static readonly ILogger logger = LogFactory.GetLogger<NetworkIdentity>();
 
-        NetworkBehaviour[] networkBehavioursCache;
-
         private bool _isClient;
 
         /// <summary>
@@ -144,6 +142,7 @@ namespace Mirror
         }
 
         private bool _isServer;
+
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
         /// </summary>
@@ -249,29 +248,10 @@ namespace Mirror
         /// </summary>
         public static readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
-        public NetworkBehaviour[] NetworkBehaviours
-        {
-            get
-            {
-                if (networkBehavioursCache == null)
-                {
-                    CreateNetworkBehavioursCache();
-                }
-                return networkBehavioursCache;
-            }
-        }
-
-        void CreateNetworkBehavioursCache()
-        {
-            networkBehavioursCache = GetComponents<NetworkBehaviour>();
-            if (NetworkBehaviours.Length > 64)
-            {
-                logger.LogError($"Only 64 NetworkBehaviour components are allowed for NetworkIdentity: {name} because of the dirtyComponentMask", this);
-                // Log error once then resize array so that NetworkIdentity does not throw exceptions later
-                Array.Resize(ref networkBehavioursCache, 64);
-            }
-        }
-
+        /// <summary>
+        /// Behaviours that are on the same Gameobject as this NetworkIdentity
+        /// </summary>
+        public NetworkBehaviour[] NetworkBehaviours { get; private set; }
 
         NetworkVisibility visibilityCache;
         public NetworkVisibility visibility
@@ -434,6 +414,28 @@ namespace Mirror
             }
 
             hasSpawned = true;
+
+            InitializeBehaviourValues();
+        }
+
+        void InitializeBehaviourValues()
+        {
+            NetworkBehaviours = GetComponents<NetworkBehaviour>();
+            if (NetworkBehaviours.Length > 64)
+            {
+                logger.LogError($"Only 64 NetworkBehaviour components are allowed for NetworkIdentity: {name} because of the dirtyComponentMask", this);
+                // Log error once then resize array so that NetworkIdentity does not throw exceptions later
+                NetworkBehaviour[] temp = NetworkBehaviours;
+                Array.Resize(ref temp, 64);
+                NetworkBehaviours = temp;
+            }
+
+
+            for (int i = 0; i < NetworkBehaviours.Length; i++)
+            {
+                NetworkBehaviours[i].netIdentity = this;
+                NetworkBehaviours[i].ComponentIndex = i;
+            }
         }
 
         void OnValidate()
@@ -1596,7 +1598,7 @@ namespace Mirror
             netId = 0;
             connectionToServer = null;
             connectionToClient = null;
-            networkBehavioursCache = null;
+            NetworkBehaviours = null;
 
             ClearObservers();
         }
