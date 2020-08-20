@@ -21,6 +21,15 @@ namespace Mirror.Weaver
             writeFuncs[dataType.FullName] = methodReference;
         }
 
+        static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
+        {
+            writeFuncs[name] = newWriterFunc;
+            Weaver.WeaveLists.generatedWriteFunctions.Add(newWriterFunc);
+
+            Weaver.ConfirmGeneratedCodeClass();
+            Weaver.WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
+        }
+
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
         {
             if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
@@ -30,10 +39,9 @@ namespace Mirror.Weaver
 
             MethodDefinition newWriterFunc;
 
-            // Arrays are special,  if we resolve them, we get the element type,
-            // so the following ifs might choke on it for scriptable objects
-            // or other objects that require a custom serializer
-            // thus check if it is an array and skip all the checks.
+            // Arrays are special, if we resolve them, we get the element type,
+            // eg int[] resolves to int
+            // therefore process this before checks below
             if (variable.IsArray)
             {
                 newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
@@ -109,15 +117,6 @@ namespace Mirror.Weaver
             return newWriterFunc;
         }
 
-        static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
-        {
-            writeFuncs[name] = newWriterFunc;
-            Weaver.WeaveLists.generatedWriteFunctions.Add(newWriterFunc);
-
-            Weaver.ConfirmGeneratedCodeClass();
-            Weaver.WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
-        }
-
         static MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable, int recursionCount)
         {
             if (recursionCount > MaxRecursionCount)
@@ -155,7 +154,7 @@ namespace Mirror.Weaver
         }
 
         /// <summary>
-        /// Fiends all fields in
+        /// Find all fields in type and write them
         /// </summary>
         /// <param name="variable"></param>
         /// <param name="recursionCount"></param>
