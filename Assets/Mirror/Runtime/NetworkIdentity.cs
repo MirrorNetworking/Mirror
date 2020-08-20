@@ -1587,13 +1587,13 @@ namespace Mirror
         /// </summary>
         internal void Reset()
         {
-            // make sure to call this before networkBehavioursCache is cleared below
-            ResetSyncObjects();
+            ResetNetworkBehaviourValues();
 
             hasSpawned = false;
             clientStarted = false;
-            isClient = false;
-            isServer = false;
+            // reset fields not properties because Behaviours values are reset in ResetNetworkBehaviourValues
+            _isClient = false;
+            _isServer = false;
 
             netId = 0;
             connectionToServer = null;
@@ -1699,13 +1699,15 @@ namespace Mirror
             }
         }
 
-        void ResetSyncObjects()
+        void ResetNetworkBehaviourValues()
         {
             // need null check here incase this is called at edit time before NetworkBehaviours is set
             NetworkBehaviour[] behaviours = NetworkBehaviours ?? GetComponents<NetworkBehaviour>();
             foreach (NetworkBehaviour comp in behaviours)
             {
                 comp.ResetSyncObjects();
+                comp.isServer = false;
+                comp.isClient = false;
             }
         }
     }
