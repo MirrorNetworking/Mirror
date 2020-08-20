@@ -34,7 +34,7 @@ Mirror provides some built-in Read/Write Functions. They can be found in `Networ
 
 This is a Non-compete list of types that have built-in functions, check the classes above to see the full list.
 
-- Most primitive c# types
+- Most [c# primitive types](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/built-in-types)
 - Common Unity structs
     - Vector3
     - Quaternion
