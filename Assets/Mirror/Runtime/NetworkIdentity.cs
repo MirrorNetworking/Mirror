@@ -251,7 +251,7 @@ namespace Mirror
         /// <summary>
         /// Behaviours that are on the same Gameobject as this NetworkIdentity
         /// </summary>
-        public NetworkBehaviour[] NetworkBehaviours { get; private set; }
+        public NetworkBehaviour[] NetworkBehaviours;
 
         NetworkVisibility visibilityCache;
         public NetworkVisibility visibility
