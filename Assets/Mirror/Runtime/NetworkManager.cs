@@ -190,20 +190,9 @@ namespace Mirror
         /// <summary>
         /// headless mode detection
         /// </summary>
-        [System.Obsolete("Use isServerBuild instead.")]
+        [System.Obsolete("Use #if UNITY_SERVER instead.")]
         public static bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
-        /// <summary>
-        /// Is this build a server build.
-        /// <para>Server build add both -batchmode and -nographics automatically</para>
-        /// <para>Server build is true when "Server build" is checked in build menu, or BuildOptions.EnableHeadlessMode flag is in BuildOptions</para>
-        /// </summary>
-        public static readonly bool isServerBuild =
-#if UNITY_SERVER
-            true;
-#else
-            false;
-#endif
 
         // helper enum to know if we started the networkmanager as server/client/host.
         // -> this is necessary because when StartHost changes server scene to
@@ -274,10 +263,12 @@ namespace Mirror
             // some transports might not be ready until Start.
             //
             // (tick rate is applied in StartServer!)
-            if (isServerBuild && startOnServerBuild)
+#if UNITY_SERVER
+            if (startOnServerBuild)
             {
                 StartServer();
             }
+#endif
         }
 
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
@@ -695,11 +686,10 @@ namespace Mirror
         public virtual void ConfigureServerFrameRate()
         {
             // only set framerate for server build
-            if (isServerBuild)
-            {
-                Application.targetFrameRate = serverTickRate;
-                if (logger.logEnabled) logger.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
-            }
+#if UNITY_SERVER
+            Application.targetFrameRate = serverTickRate;
+            if (logger.logEnabled) logger.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
+#endif
         }
 
         bool InitializeSingleton()
