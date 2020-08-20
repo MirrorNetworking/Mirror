@@ -27,7 +27,7 @@ namespace Mirror.Tests.Runtime
             identity.assetId = System.Guid.NewGuid();
 
             manager.playerPrefab = playerGO;
-            manager.startOnServerBuild = false;
+            manager.autoStartServerBuild = false;
 
             yield return null;
 

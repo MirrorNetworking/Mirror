@@ -50,10 +50,10 @@ namespace Mirror
         /// </summary>
         [Tooltip("Should the server auto-start when 'Server Build' is checked in build settings")]
         [FormerlySerializedAs("startOnHeadless")]
-        public bool startOnServerBuild = true;
+        public bool autoStartServerBuild = true;
 
-        [Obsolete("Use startOnServerBuild instead.")]
-        public bool startOnHeadless { get => startOnServerBuild; set => startOnServerBuild = value; }
+        [Obsolete("Use autoStartServerBuild instead.")]
+        public bool startOnHeadless { get => autoStartServerBuild; set => autoStartServerBuild = value; }
 
         /// <summary>
         /// Enables verbose debug messages in the console
@@ -262,7 +262,7 @@ namespace Mirror
             //
             // (tick rate is applied in StartServer!)
 #if UNITY_SERVER
-            if (startOnServerBuild)
+            if (autoStartServerBuild)
             {
                 StartServer();
             }
