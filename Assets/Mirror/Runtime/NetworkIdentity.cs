@@ -1701,7 +1701,9 @@ namespace Mirror
 
         void ResetSyncObjects()
         {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            // need null check here incase this is called at edit time before NetworkBehaviours is set
+            NetworkBehaviour[] behaviours = NetworkBehaviours ?? GetComponents<NetworkBehaviour>();
+            foreach (NetworkBehaviour comp in behaviours)
             {
                 comp.ResetSyncObjects();
             }
