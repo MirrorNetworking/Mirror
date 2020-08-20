@@ -418,7 +418,7 @@ namespace Mirror
             InitializeBehaviourValues();
         }
 
-        void InitializeBehaviourValues()
+        internal void InitializeBehaviourValues()
         {
             NetworkBehaviours = GetComponents<NetworkBehaviour>();
             if (NetworkBehaviours.Length > 64)
