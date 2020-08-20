@@ -30,9 +30,9 @@ Some of these types are unsupported due to the complexity they would add, as men
 
 ### Built-in Read Write Functions
 
-Mirror provides some built-in Read/Write Functions, they can be found in  `NetworkReaderExtensions` and  `NetworkWriterExtensions`.
+Mirror provides some built-in Read/Write Functions. They can be found in `NetworkReaderExtensions` and `NetworkWriterExtensions`.
 
-This is a Non-compete list of types that have built-in functions, check the classes above to see the full list of built-in functions
+This is a Non-compete list of types that have built-in functions, check the classes above to see the full list.
 
 - Most primitive c# types
 - Common Unity structs
@@ -71,7 +71,7 @@ Weaver will Read/Write every public field in the type, unless the field is marke
 
 Weaver will use the underlying Type of an enum to Read and Write them. By default this is `int`.
 
-For example `Switch` will use the byte Read/Write functions to be Serialized
+For example `Switch` will use the `byte` Read/Write functions to be Serialized
 ```cs
 public enum Switch : byte
 {
@@ -112,9 +112,9 @@ public static MyType ReadMyType(this NetworkReader reader)
 }
 ```
 
-It is best practice to make these extension methods so they can be called like `writer.WriteMyType(value)`.
+It is best practice to make Read/Write functions [extension methods](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods) so they can be called like `writer.WriteMyType(value)`.
 
-The name of the function doesn't matter, but it is a good idea to call them `WriteMyType` and `ReadMyType` so it is obvious what type they are for.
+It is a good idea to call them `ReadMyType` and `WriteMyType` so it is obvious what type they are for. However the name of the function doesn't matter, weaver should be able to find it no matter what it is called.
 
 #### Properties Example 
 
@@ -190,7 +190,7 @@ public static class CustomReadWriteFunctions
 }
 ```
 
-After are functions for MyCollision, however you could instead just make a writer for Rigidbody and then weaver could automatically generate a writer for MyCollision
+Above are functions for `MyCollision`, but instead you could add functions for `Rigidbody` and let weaver would generate a writer for `MyCollision`.
 ```cs 
 public static class CustomReadWriteFunctions
 {
@@ -214,4 +214,4 @@ public static class CustomReadWriteFunctions
 
 ## Debugging
 
-Tools such as [dnSpy](https://github.com/0xd4d/dnSpy) can be used to view the complied code after Weaver has altered it. This can help to understand and debug what Mirror and Weaver does.
+You can use tools like [dnSpy](https://github.com/0xd4d/dnSpy) to view the complied code after Weaver has altered it. This can help to understand and debug what Mirror and Weaver does.
