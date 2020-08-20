@@ -581,12 +581,14 @@ namespace Mirror.Tests.ClientSceneTests
             _createdObjects.Add(serverObject);
             NetworkIdentity serverIdentity = serverObject.AddComponent<NetworkIdentity>();
             PayloadTestBehaviour serverPayloadBehaviour = serverObject.AddComponent<PayloadTestBehaviour>();
+            serverIdentity.InitializeBehaviourValues();
 
             // client object
             GameObject clientObject = new GameObject();
             _createdObjects.Add(clientObject);
             NetworkIdentity clientIdentity = clientObject.AddComponent<NetworkIdentity>();
             PayloadTestBehaviour clientPayloadBehaviour = clientObject.AddComponent<PayloadTestBehaviour>();
+            clientIdentity.InitializeBehaviourValues();
 
             int onSerializeCalled = 0;
             serverPayloadBehaviour.OnSerializeCalled += () => { onSerializeCalled++; };
@@ -727,6 +729,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
             BehaviourWithEvents events = go.AddComponent<BehaviourWithEvents>();
+            identity.InitializeBehaviourValues();
 
             int onStartAuthorityCalled = 0;
             int onStartClientCalled = 0;

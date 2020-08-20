@@ -58,9 +58,10 @@ namespace Mirror.Tests.RemoteAttrributeTest
             GameObject gameObject = new GameObject();
             spawned.Add(gameObject);
 
-            gameObject.AddComponent<NetworkIdentity>();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
 
             T behaviour = gameObject.AddComponent<T>();
+            identity.InitializeBehaviourValues();
 
             // spawn outwith authority
             if (spawnWithAuthority)
