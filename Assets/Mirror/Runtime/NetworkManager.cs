@@ -46,7 +46,7 @@ namespace Mirror
         /// <summary>
         /// Automatically invoke StartServer()
         /// <para>If the application is a Server Build, StartServer is automatically invoked.</para>
-        /// See <see cref="isServerBuild"/> for more on Server Build
+        /// <para>Server build is true when "Server build" is checked in build menu, or BuildOptions.EnableHeadlessMode flag is in BuildOptions</para>	
         /// </summary>
         [Tooltip("Should the server auto-start when 'Server Build' is checked in build settings")]
         [FormerlySerializedAs("startOnHeadless")]
@@ -193,7 +193,6 @@ namespace Mirror
         [System.Obsolete("Use #if UNITY_SERVER instead.")]
         public static bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
-
         // helper enum to know if we started the networkmanager as server/client/host.
         // -> this is necessary because when StartHost changes server scene to
         //    online scene, FinishLoadScene is called and the host client isn't
@@ -209,7 +208,6 @@ namespace Mirror
         /// </summary>
         public virtual void OnValidate()
         {
-
             // add transport if there is none yet. makes upgrading easier.
             if (transport == null)
             {
