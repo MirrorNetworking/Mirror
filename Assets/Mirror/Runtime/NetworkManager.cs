@@ -52,7 +52,7 @@ namespace Mirror
         [FormerlySerializedAs("startOnHeadless")]
         public bool startOnServerBuild = true;
 
-        [System.Obsolete("Use startOnServerBuild instead.")]
+        [Obsolete("Use startOnServerBuild instead.")]
         public bool startOnHeadless { get => startOnServerBuild; set => startOnServerBuild = value; }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace Mirror
         /// <summary>
         /// headless mode detection
         /// </summary>
-        [System.Obsolete("Use #if UNITY_SERVER instead.")]
+        [Obsolete("Use #if UNITY_SERVER instead.")]
         public static bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
         // helper enum to know if we started the networkmanager as server/client/host.
