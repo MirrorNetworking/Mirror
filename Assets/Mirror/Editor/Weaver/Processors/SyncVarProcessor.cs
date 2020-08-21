@@ -306,8 +306,6 @@ namespace Mirror.Weaver
 
         public static void ProcessSyncVars(TypeDefinition td, List<FieldDefinition> syncVars, List<FieldDefinition> syncObjects, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds)
         {
-            int numSyncVars = 0;
-
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
             // start assigning syncvars at the place the base class stopped, if any
             int dirtyBitCounter = Weaver.GetSyncVarStart(td.BaseType.FullName);
@@ -341,7 +339,6 @@ namespace Mirror.Weaver
 
                         ProcessSyncVar(td, fd, syncVarNetIds, 1L << dirtyBitCounter);
                         dirtyBitCounter += 1;
-                        numSyncVars += 1;
 
                         if (dirtyBitCounter == SyncVarLimit)
                         {
@@ -374,8 +371,7 @@ namespace Mirror.Weaver
             {
                 td.Fields.Add(fd);
             }
-
-            Weaver.SetNumSyncVars(td.FullName, numSyncVars);
+            Weaver.SetNumSyncVars(td.FullName, syncVars.Count);
         }
 
         public static void WriteCallHookMethodUsingArgument(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue)
