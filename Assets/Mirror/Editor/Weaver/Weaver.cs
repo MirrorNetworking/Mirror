@@ -372,9 +372,9 @@ namespace Mirror.Weaver
 
                 try
                 {
-                    foreach (string ass in assemblies)
+                    foreach (string asm in assemblies)
                     {
-                        if (!Weave(ass, unityAssembly, mirrorAssembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
+                        if (!Weave(asm, unityAssembly, mirrorAssembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
                         {
                             return false;
                         }
