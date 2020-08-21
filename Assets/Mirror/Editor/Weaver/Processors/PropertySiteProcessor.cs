@@ -178,9 +178,7 @@ namespace Mirror.Weaver
                     worker.Remove(instr);
                     worker.Remove(nextInstr);
                     return 4;
-
                 }
-
             }
 
             return 1;
