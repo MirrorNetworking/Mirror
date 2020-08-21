@@ -41,6 +41,7 @@ namespace Mirror.Weaver
                 {
                     return true;
                 }
+
                 try
                 {
                     parent = parent.Resolve().BaseType;
