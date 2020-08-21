@@ -179,12 +179,8 @@ namespace Mirror.Weaver
 
         public static bool HasCustomAttribute(this ICustomAttributeProvider attributeProvider, TypeReference attribute)
         {
-            foreach (CustomAttribute ca in attributeProvider.CustomAttributes)
-            {
-                if (ca.AttributeType.FullName == attribute.FullName)
-                    return true;
-            }
-            return false;
+            // Linq allocations don't matter in weaver
+            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.FullName == attribute.FullName);
         }
 
         public static T GetField<T>(this CustomAttribute ca, string field, T defaultValue)
