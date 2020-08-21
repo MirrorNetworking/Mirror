@@ -146,6 +146,7 @@ namespace Mirror.Weaver
                 {
                     break;
                 }
+
                 try
                 {
                     behaviourClasses.Insert(0, parent);
