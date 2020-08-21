@@ -98,19 +98,6 @@ namespace Mirror.Weaver
             }
         }
 
-        static bool ProcessNetworkBehaviourType(TypeDefinition td)
-        {
-            if (!NetworkBehaviourProcessor.WasProcessed(td))
-            {
-                DLog(td, "Found NetworkBehaviour " + td.FullName);
-
-                NetworkBehaviourProcessor proc = new NetworkBehaviourProcessor(td);
-                proc.Process();
-                return true;
-            }
-            return false;
-        }
-
         public static bool IsNetworkBehaviour(TypeDefinition td)
         {
             return td.IsDerivedFrom(WeaverTypes.NetworkBehaviourType);
@@ -163,7 +150,7 @@ namespace Mirror.Weaver
             bool modified = false;
             foreach (TypeDefinition behaviour in behaviourClasses)
             {
-                modified |= ProcessNetworkBehaviourType(behaviour);
+                modified |= new NetworkBehaviourProcessor(behaviour).Process();
             }
             return modified;
         }
