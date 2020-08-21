@@ -12,7 +12,7 @@ namespace Mirror.Weaver
         }
 
         // removes <T> from class names (if any generic parameters)
-        public static string StripGenericParametersFromClassName(string className)
+        internal static string StripGenericParametersFromClassName(string className)
         {
             int index = className.IndexOf('<');
             if (index != -1)
