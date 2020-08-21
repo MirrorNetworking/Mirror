@@ -304,7 +304,7 @@ namespace Mirror.Weaver
             }
         }
 
-        public static void ProcessSyncVars(TypeDefinition td, List<FieldDefinition> syncVars, List<FieldDefinition> syncObjects, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds)
+        public static void ProcessSyncVars(TypeDefinition td, List<FieldDefinition> syncVars, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds)
         {
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
             // start assigning syncvars at the place the base class stopped, if any
@@ -346,23 +346,6 @@ namespace Mirror.Weaver
                             return;
                         }
                     }
-                }
-
-                if (fd.FieldType.Resolve().ImplementsInterface(WeaverTypes.SyncObjectType))
-                {
-                    if (fd.IsStatic)
-                    {
-                        Weaver.Error($"{fd.Name} cannot be static", fd);
-                        return;
-                    }
-
-                    if (fd.FieldType.Resolve().HasGenericParameters)
-                    {
-                        Weaver.Error($"Cannot use generic SyncObject {fd.Name} directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead", fd);
-                        return;
-                    }
-
-                    syncObjects.Add(fd);
                 }
             }
 
