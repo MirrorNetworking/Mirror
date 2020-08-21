@@ -2559,7 +2559,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Single Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_float_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Single Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_float_Function()' called when client was not active");
             }
             float actual = behaviour.Client_float_Function();
 
@@ -2577,7 +2577,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_float_out_Function(System.Single&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_float_out_Function(System.Single&)' called when client was not active");
             }
             behaviour.Client_float_out_Function(out float actual);
 
@@ -2595,7 +2595,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Double Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_double_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Double Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_double_Function()' called when client was not active");
             }
             double actual = behaviour.Client_double_Function();
 
@@ -2613,7 +2613,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_double_out_Function(System.Double&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_double_out_Function(System.Double&)' called when client was not active");
             }
             behaviour.Client_double_out_Function(out double actual);
 
@@ -2631,7 +2631,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Boolean Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_bool_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Boolean Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_bool_Function()' called when client was not active");
             }
             bool actual = behaviour.Client_bool_Function();
 
@@ -2649,7 +2649,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_bool_out_Function(System.Boolean&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_bool_out_Function(System.Boolean&)' called when client was not active");
             }
             behaviour.Client_bool_out_Function(out bool actual);
 
@@ -2667,7 +2667,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Char Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_char_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Char Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_char_Function()' called when client was not active");
             }
             char actual = behaviour.Client_char_Function();
 
@@ -2685,7 +2685,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_char_out_Function(System.Char&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_char_out_Function(System.Char&)' called when client was not active");
             }
             behaviour.Client_char_out_Function(out char actual);
 
@@ -2703,7 +2703,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Byte Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_byte_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Byte Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_byte_Function()' called when client was not active");
             }
             byte actual = behaviour.Client_byte_Function();
 
@@ -2721,7 +2721,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_byte_out_Function(System.Byte&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_byte_out_Function(System.Byte&)' called when client was not active");
             }
             behaviour.Client_byte_out_Function(out byte actual);
 
@@ -2739,7 +2739,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Int32 Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_int_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Int32 Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_int_Function()' called when client was not active");
             }
             int actual = behaviour.Client_int_Function();
 
@@ -2757,7 +2757,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_int_out_Function(System.Int32&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_int_out_Function(System.Int32&)' called when client was not active");
             }
             behaviour.Client_int_out_Function(out int actual);
 
@@ -2775,7 +2775,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Int64 Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_long_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Int64 Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_long_Function()' called when client was not active");
             }
             long actual = behaviour.Client_long_Function();
 
@@ -2793,7 +2793,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_long_out_Function(System.Int64&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_long_out_Function(System.Int64&)' called when client was not active");
             }
             behaviour.Client_long_out_Function(out long actual);
 
@@ -2811,7 +2811,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.UInt64 Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_ulong_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.UInt64 Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_ulong_Function()' called when client was not active");
             }
             ulong actual = behaviour.Client_ulong_Function();
 
@@ -2829,7 +2829,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_ulong_out_Function(System.UInt64&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_ulong_out_Function(System.UInt64&)' called when client was not active");
             }
             behaviour.Client_ulong_out_Function(out ulong actual);
 
@@ -2847,7 +2847,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'UnityEngine.Vector3 Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_Vector3_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'UnityEngine.Vector3 Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_Vector3_Function()' called when client was not active");
             }
             Vector3 actual = behaviour.Client_Vector3_Function();
 
@@ -2865,7 +2865,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_Vector3_out_Function(UnityEngine.Vector3&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_Vector3_out_Function(UnityEngine.Vector3&)' called when client was not active");
             }
             behaviour.Client_Vector3_out_Function(out Vector3 actual);
 
@@ -2883,7 +2883,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'Mirror.Tests.ClassWithNoConstructor Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_ClassWithNoConstructor_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'Mirror.Tests.Generators.ClassWithNoConstructor Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_ClassWithNoConstructor_Function()' called when client was not active");
             }
             ClassWithNoConstructor actual = behaviour.Client_ClassWithNoConstructor_Function();
 
@@ -2901,7 +2901,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_ClassWithNoConstructor_out_Function(Mirror.Tests.ClassWithNoConstructor&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_ClassWithNoConstructor_out_Function(Mirror.Tests.Generators.ClassWithNoConstructor&)' called when client was not active");
             }
             behaviour.Client_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
 
@@ -2919,7 +2919,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'Mirror.Tests.ClassWithConstructor Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_ClassWithConstructor_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'Mirror.Tests.Generators.ClassWithConstructor Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_ClassWithConstructor_Function()' called when client was not active");
             }
             ClassWithConstructor actual = behaviour.Client_ClassWithConstructor_Function();
 
@@ -2937,7 +2937,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Client_ClassWithConstructor_out_Function(Mirror.Tests.ClassWithConstructor&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Client_ClassWithConstructor_out_Function(Mirror.Tests.Generators.ClassWithConstructor&)' called when client was not active");
             }
             behaviour.Client_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
 
@@ -2955,7 +2955,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Single Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_float_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Single Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_float_Function()' called when server was not active");
             }
             float actual = behaviour.Server_float_Function();
 
@@ -2973,7 +2973,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_float_out_Function(System.Single&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_float_out_Function(System.Single&)' called when server was not active");
             }
             behaviour.Server_float_out_Function(out float actual);
 
@@ -2991,7 +2991,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Double Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_double_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Double Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_double_Function()' called when server was not active");
             }
             double actual = behaviour.Server_double_Function();
 
@@ -3009,7 +3009,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_double_out_Function(System.Double&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_double_out_Function(System.Double&)' called when server was not active");
             }
             behaviour.Server_double_out_Function(out double actual);
 
@@ -3027,7 +3027,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Boolean Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_bool_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Boolean Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_bool_Function()' called when server was not active");
             }
             bool actual = behaviour.Server_bool_Function();
 
@@ -3045,7 +3045,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_bool_out_Function(System.Boolean&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_bool_out_Function(System.Boolean&)' called when server was not active");
             }
             behaviour.Server_bool_out_Function(out bool actual);
 
@@ -3063,7 +3063,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Char Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_char_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Char Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_char_Function()' called when server was not active");
             }
             char actual = behaviour.Server_char_Function();
 
@@ -3081,7 +3081,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_char_out_Function(System.Char&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_char_out_Function(System.Char&)' called when server was not active");
             }
             behaviour.Server_char_out_Function(out char actual);
 
@@ -3099,7 +3099,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Byte Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_byte_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Byte Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_byte_Function()' called when server was not active");
             }
             byte actual = behaviour.Server_byte_Function();
 
@@ -3117,7 +3117,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_byte_out_Function(System.Byte&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_byte_out_Function(System.Byte&)' called when server was not active");
             }
             behaviour.Server_byte_out_Function(out byte actual);
 
@@ -3135,7 +3135,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Int32 Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_int_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Int32 Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_int_Function()' called when server was not active");
             }
             int actual = behaviour.Server_int_Function();
 
@@ -3153,7 +3153,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_int_out_Function(System.Int32&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_int_out_Function(System.Int32&)' called when server was not active");
             }
             behaviour.Server_int_out_Function(out int actual);
 
@@ -3171,7 +3171,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Int64 Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_long_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Int64 Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_long_Function()' called when server was not active");
             }
             long actual = behaviour.Server_long_Function();
 
@@ -3189,7 +3189,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_long_out_Function(System.Int64&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_long_out_Function(System.Int64&)' called when server was not active");
             }
             behaviour.Server_long_out_Function(out long actual);
 
@@ -3207,7 +3207,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.UInt64 Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_ulong_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.UInt64 Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_ulong_Function()' called when server was not active");
             }
             ulong actual = behaviour.Server_ulong_Function();
 
@@ -3225,7 +3225,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_ulong_out_Function(System.UInt64&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_ulong_out_Function(System.UInt64&)' called when server was not active");
             }
             behaviour.Server_ulong_out_Function(out ulong actual);
 
@@ -3243,7 +3243,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'UnityEngine.Vector3 Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_Vector3_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'UnityEngine.Vector3 Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_Vector3_Function()' called when server was not active");
             }
             Vector3 actual = behaviour.Server_Vector3_Function();
 
@@ -3261,7 +3261,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_Vector3_out_Function(UnityEngine.Vector3&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_Vector3_out_Function(UnityEngine.Vector3&)' called when server was not active");
             }
             behaviour.Server_Vector3_out_Function(out Vector3 actual);
 
@@ -3279,7 +3279,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'Mirror.Tests.ClassWithNoConstructor Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_ClassWithNoConstructor_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'Mirror.Tests.Generators.ClassWithNoConstructor Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_ClassWithNoConstructor_Function()' called when server was not active");
             }
             ClassWithNoConstructor actual = behaviour.Server_ClassWithNoConstructor_Function();
 
@@ -3297,7 +3297,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_ClassWithNoConstructor_out_Function(Mirror.Tests.ClassWithNoConstructor&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_ClassWithNoConstructor_out_Function(Mirror.Tests.Generators.ClassWithNoConstructor&)' called when server was not active");
             }
             behaviour.Server_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
 
@@ -3315,7 +3315,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'Mirror.Tests.ClassWithConstructor Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_ClassWithConstructor_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'Mirror.Tests.Generators.ClassWithConstructor Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_ClassWithConstructor_Function()' called when server was not active");
             }
             ClassWithConstructor actual = behaviour.Server_ClassWithConstructor_Function();
 
@@ -3333,7 +3333,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_MonoBehaviour::Server_ClassWithConstructor_out_Function(Mirror.Tests.ClassWithConstructor&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_MonoBehaviour::Server_ClassWithConstructor_out_Function(Mirror.Tests.Generators.ClassWithConstructor&)' called when server was not active");
             }
             behaviour.Server_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
 
@@ -4533,7 +4533,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Single Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_float_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Single Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_float_Function()' called when client was not active");
             }
             float actual = behaviour.Client_float_Function();
 
@@ -4551,7 +4551,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_float_out_Function(System.Single&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_float_out_Function(System.Single&)' called when client was not active");
             }
             behaviour.Client_float_out_Function(out float actual);
 
@@ -4569,7 +4569,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Double Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_double_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Double Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_double_Function()' called when client was not active");
             }
             double actual = behaviour.Client_double_Function();
 
@@ -4587,7 +4587,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_double_out_Function(System.Double&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_double_out_Function(System.Double&)' called when client was not active");
             }
             behaviour.Client_double_out_Function(out double actual);
 
@@ -4605,7 +4605,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Boolean Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_bool_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Boolean Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_bool_Function()' called when client was not active");
             }
             bool actual = behaviour.Client_bool_Function();
 
@@ -4623,7 +4623,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_bool_out_Function(System.Boolean&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_bool_out_Function(System.Boolean&)' called when client was not active");
             }
             behaviour.Client_bool_out_Function(out bool actual);
 
@@ -4641,7 +4641,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Char Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_char_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Char Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_char_Function()' called when client was not active");
             }
             char actual = behaviour.Client_char_Function();
 
@@ -4659,7 +4659,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_char_out_Function(System.Char&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_char_out_Function(System.Char&)' called when client was not active");
             }
             behaviour.Client_char_out_Function(out char actual);
 
@@ -4677,7 +4677,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Byte Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_byte_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Byte Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_byte_Function()' called when client was not active");
             }
             byte actual = behaviour.Client_byte_Function();
 
@@ -4695,7 +4695,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_byte_out_Function(System.Byte&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_byte_out_Function(System.Byte&)' called when client was not active");
             }
             behaviour.Client_byte_out_Function(out byte actual);
 
@@ -4713,7 +4713,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Int32 Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_int_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Int32 Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_int_Function()' called when client was not active");
             }
             int actual = behaviour.Client_int_Function();
 
@@ -4731,7 +4731,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_int_out_Function(System.Int32&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_int_out_Function(System.Int32&)' called when client was not active");
             }
             behaviour.Client_int_out_Function(out int actual);
 
@@ -4749,7 +4749,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Int64 Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_long_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Int64 Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_long_Function()' called when client was not active");
             }
             long actual = behaviour.Client_long_Function();
 
@@ -4767,7 +4767,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_long_out_Function(System.Int64&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_long_out_Function(System.Int64&)' called when client was not active");
             }
             behaviour.Client_long_out_Function(out long actual);
 
@@ -4785,7 +4785,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.UInt64 Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_ulong_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.UInt64 Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_ulong_Function()' called when client was not active");
             }
             ulong actual = behaviour.Client_ulong_Function();
 
@@ -4803,7 +4803,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_ulong_out_Function(System.UInt64&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_ulong_out_Function(System.UInt64&)' called when client was not active");
             }
             behaviour.Client_ulong_out_Function(out ulong actual);
 
@@ -4821,7 +4821,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'UnityEngine.Vector3 Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_Vector3_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'UnityEngine.Vector3 Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_Vector3_Function()' called when client was not active");
             }
             Vector3 actual = behaviour.Client_Vector3_Function();
 
@@ -4839,7 +4839,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_Vector3_out_Function(UnityEngine.Vector3&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_Vector3_out_Function(UnityEngine.Vector3&)' called when client was not active");
             }
             behaviour.Client_Vector3_out_Function(out Vector3 actual);
 
@@ -4857,7 +4857,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'Mirror.Tests.ClassWithNoConstructor Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_ClassWithNoConstructor_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'Mirror.Tests.Generators.ClassWithNoConstructor Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_ClassWithNoConstructor_Function()' called when client was not active");
             }
             ClassWithNoConstructor actual = behaviour.Client_ClassWithNoConstructor_Function();
 
@@ -4875,7 +4875,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_ClassWithNoConstructor_out_Function(Mirror.Tests.ClassWithNoConstructor&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_ClassWithNoConstructor_out_Function(Mirror.Tests.Generators.ClassWithNoConstructor&)' called when client was not active");
             }
             behaviour.Client_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
 
@@ -4893,7 +4893,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'Mirror.Tests.ClassWithConstructor Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_ClassWithConstructor_Function()' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'Mirror.Tests.Generators.ClassWithConstructor Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_ClassWithConstructor_Function()' called when client was not active");
             }
             ClassWithConstructor actual = behaviour.Client_ClassWithConstructor_Function();
 
@@ -4911,7 +4911,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Client_ClassWithConstructor_out_Function(Mirror.Tests.ClassWithConstructor&)' called when client was not active");
+                LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Client_ClassWithConstructor_out_Function(Mirror.Tests.Generators.ClassWithConstructor&)' called when client was not active");
             }
             behaviour.Client_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
 
@@ -4929,7 +4929,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Single Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_float_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Single Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_float_Function()' called when server was not active");
             }
             float actual = behaviour.Server_float_Function();
 
@@ -4947,7 +4947,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_float_out_Function(System.Single&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_float_out_Function(System.Single&)' called when server was not active");
             }
             behaviour.Server_float_out_Function(out float actual);
 
@@ -4965,7 +4965,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Double Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_double_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Double Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_double_Function()' called when server was not active");
             }
             double actual = behaviour.Server_double_Function();
 
@@ -4983,7 +4983,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_double_out_Function(System.Double&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_double_out_Function(System.Double&)' called when server was not active");
             }
             behaviour.Server_double_out_Function(out double actual);
 
@@ -5001,7 +5001,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Boolean Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_bool_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Boolean Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_bool_Function()' called when server was not active");
             }
             bool actual = behaviour.Server_bool_Function();
 
@@ -5019,7 +5019,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_bool_out_Function(System.Boolean&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_bool_out_Function(System.Boolean&)' called when server was not active");
             }
             behaviour.Server_bool_out_Function(out bool actual);
 
@@ -5037,7 +5037,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Char Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_char_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Char Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_char_Function()' called when server was not active");
             }
             char actual = behaviour.Server_char_Function();
 
@@ -5055,7 +5055,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_char_out_Function(System.Char&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_char_out_Function(System.Char&)' called when server was not active");
             }
             behaviour.Server_char_out_Function(out char actual);
 
@@ -5073,7 +5073,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Byte Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_byte_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Byte Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_byte_Function()' called when server was not active");
             }
             byte actual = behaviour.Server_byte_Function();
 
@@ -5091,7 +5091,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_byte_out_Function(System.Byte&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_byte_out_Function(System.Byte&)' called when server was not active");
             }
             behaviour.Server_byte_out_Function(out byte actual);
 
@@ -5109,7 +5109,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Int32 Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_int_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Int32 Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_int_Function()' called when server was not active");
             }
             int actual = behaviour.Server_int_Function();
 
@@ -5127,7 +5127,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_int_out_Function(System.Int32&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_int_out_Function(System.Int32&)' called when server was not active");
             }
             behaviour.Server_int_out_Function(out int actual);
 
@@ -5145,7 +5145,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Int64 Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_long_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Int64 Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_long_Function()' called when server was not active");
             }
             long actual = behaviour.Server_long_Function();
 
@@ -5163,7 +5163,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_long_out_Function(System.Int64&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_long_out_Function(System.Int64&)' called when server was not active");
             }
             behaviour.Server_long_out_Function(out long actual);
 
@@ -5181,7 +5181,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.UInt64 Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_ulong_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.UInt64 Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_ulong_Function()' called when server was not active");
             }
             ulong actual = behaviour.Server_ulong_Function();
 
@@ -5199,7 +5199,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_ulong_out_Function(System.UInt64&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_ulong_out_Function(System.UInt64&)' called when server was not active");
             }
             behaviour.Server_ulong_out_Function(out ulong actual);
 
@@ -5217,7 +5217,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'UnityEngine.Vector3 Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_Vector3_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'UnityEngine.Vector3 Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_Vector3_Function()' called when server was not active");
             }
             Vector3 actual = behaviour.Server_Vector3_Function();
 
@@ -5235,7 +5235,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_Vector3_out_Function(UnityEngine.Vector3&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_Vector3_out_Function(UnityEngine.Vector3&)' called when server was not active");
             }
             behaviour.Server_Vector3_out_Function(out Vector3 actual);
 
@@ -5253,7 +5253,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'Mirror.Tests.ClassWithNoConstructor Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_ClassWithNoConstructor_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'Mirror.Tests.Generators.ClassWithNoConstructor Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_ClassWithNoConstructor_Function()' called when server was not active");
             }
             ClassWithNoConstructor actual = behaviour.Server_ClassWithNoConstructor_Function();
 
@@ -5271,7 +5271,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_ClassWithNoConstructor_out_Function(Mirror.Tests.ClassWithNoConstructor&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_ClassWithNoConstructor_out_Function(Mirror.Tests.Generators.ClassWithNoConstructor&)' called when server was not active");
             }
             behaviour.Server_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
 
@@ -5289,7 +5289,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'Mirror.Tests.ClassWithConstructor Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_ClassWithConstructor_Function()' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'Mirror.Tests.Generators.ClassWithConstructor Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_ClassWithConstructor_Function()' called when server was not active");
             }
             ClassWithConstructor actual = behaviour.Server_ClassWithConstructor_Function();
 
@@ -5307,7 +5307,7 @@ namespace Mirror.Tests.Generated.Attributes
             
             if (!active)
             {
-                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.AttributeBehaviour_ClassWithNoConstructor::Server_ClassWithConstructor_out_Function(Mirror.Tests.ClassWithConstructor&)' called when server was not active");
+                LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Generated.Attributes.AttributeBehaviour_ClassWithNoConstructor::Server_ClassWithConstructor_out_Function(Mirror.Tests.Generators.ClassWithConstructor&)' called when server was not active");
             }
             behaviour.Server_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
 
