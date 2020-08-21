@@ -483,12 +483,22 @@ namespace Mirror
         }
 
         /// <summary>
+        /// If connections is empty or if only has host
+        /// </summary>
+        /// <returns></returns>
+        public static bool NoConnections()
+        {
+            return connections.Count == 0 || (connections.Count == 1 && localConnection != null);
+        }
+
+        /// <summary>
         /// Called from NetworkManager in LateUpdate
         /// <para>The user should never need to pump the update loop manually</para>
         /// </summary>
         public static void Update()
         {
-            if (!active)
+            // dont need to update server if not active or no client connections
+            if (!active || NoConnections())
                 return;
 
             // Check for dead clients but exclude the host client because it

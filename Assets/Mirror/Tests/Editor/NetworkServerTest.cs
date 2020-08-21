@@ -1157,5 +1157,61 @@ namespace Mirror.Tests
                     break;
             }
         }
+
+
+        [Test]
+        public void NoConnectionsTest_WithNoConnection()
+        {
+            Assert.That(NetworkServer.NoConnections(), Is.True);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void NoConnectionsTest_WithConnections()
+        {
+            NetworkServer.connections.Add(1, null);
+            NetworkServer.connections.Add(2, null);
+            Assert.That(NetworkServer.NoConnections(), Is.False);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
+
+            NetworkServer.connections.Clear();
+        }
+
+        [Test]
+        public void NoConnectionsTest_WithHostOnly()
+        {
+            ULocalConnectionToServer connectionToServer = new ULocalConnectionToServer();
+            ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
+            connectionToServer.connectionToClient = connectionToClient;
+            connectionToClient.connectionToServer = connectionToServer;
+
+            NetworkServer.SetLocalConnection(connectionToClient);
+            NetworkServer.connections.Add(0, connectionToClient);
+
+            Assert.That(NetworkServer.NoConnections(), Is.True);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+
+            NetworkServer.connections.Clear();
+            NetworkServer.RemoveLocalConnection();
+        }
+
+        [Test]
+        public void NoConnectionsTest_WithHostAndConnection()
+        {
+            ULocalConnectionToServer connectionToServer = new ULocalConnectionToServer();
+            ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
+            connectionToServer.connectionToClient = connectionToClient;
+            connectionToClient.connectionToServer = connectionToServer;
+
+            NetworkServer.SetLocalConnection(connectionToClient);
+            NetworkServer.connections.Add(0, connectionToClient);
+            NetworkServer.connections.Add(1, null);
+
+            Assert.That(NetworkServer.NoConnections(), Is.False);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
+
+            NetworkServer.connections.Clear();
+            NetworkServer.RemoveLocalConnection();
+        }
     }
 }
