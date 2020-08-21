@@ -8,6 +8,44 @@ namespace Mirror.Weaver
     /// </summary>
     static class ServerClientAttributeProcessor
     {
+        public static bool ProcessSiteClass(TypeDefinition td)
+        {
+            bool modified = false;
+            foreach (MethodDefinition md in td.Methods)
+            {
+                modified |= ProcessSiteMethod(td, md);
+            }
+
+            foreach (TypeDefinition nested in td.NestedTypes)
+            {
+                modified |= ProcessSiteClass(nested);
+            }
+            return modified;
+        }
+
+        static bool ProcessSiteMethod(TypeDefinition td, MethodDefinition md)
+        {
+            if (md.Name == ".cctor" ||
+                md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
+                md.Name.StartsWith(Weaver.InvokeRpcPrefix))
+                return false;
+
+            if (md.IsAbstract)
+            {
+                if (HasServerClientAttribute(md))
+                {
+                    Weaver.Error("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.", md);
+                }
+                return false;
+            }
+
+            if (md.Body != null && md.Body.Instructions != null)
+            {
+                return ProcessMethodAttributes(td, md);
+            }
+            return false;
+        }
+
         public static bool HasServerClientAttribute(MethodDefinition md)
         {
             foreach (CustomAttribute attr in md.CustomAttributes)
@@ -26,37 +64,39 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static void ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
+        public static bool ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
         {
+            bool modified = false;
             foreach (CustomAttribute attr in md.CustomAttributes)
             {
                 switch (attr.Constructor.DeclaringType.ToString())
                 {
                     case "Mirror.ServerAttribute":
-                        InjectServerGuard(td, md, true);
+                        InjectServerGuard(md, true);
+                        modified = true;
                         break;
                     case "Mirror.ServerCallbackAttribute":
-                        InjectServerGuard(td, md, false);
+                        InjectServerGuard(md, false);
+                        modified = true;
                         break;
                     case "Mirror.ClientAttribute":
-                        InjectClientGuard(td, md, true);
+                        InjectClientGuard(md, true);
+                        modified = true;
                         break;
                     case "Mirror.ClientCallbackAttribute":
-                        InjectClientGuard(td, md, false);
+                        InjectClientGuard(md, false);
+                        modified = true;
                         break;
                     default:
                         break;
                 }
             }
+
+            return modified;
         }
 
-        static void InjectServerGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
+        static void InjectServerGuard(MethodDefinition md, bool logWarning)
         {
-            if (!Weaver.IsNetworkBehaviour(td))
-            {
-                Weaver.Error($"Server method {md.Name} must be declared in a NetworkBehaviour", md);
-                return;
-            }
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
 
@@ -72,13 +112,8 @@ namespace Mirror.Weaver
             worker.InsertBefore(top, worker.Create(OpCodes.Ret));
         }
 
-        static void InjectClientGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
+        static void InjectClientGuard(MethodDefinition md, bool logWarning)
         {
-            if (!Weaver.IsNetworkBehaviour(td))
-            {
-                Weaver.Error($"Client method {md.Name} must be declared in a NetworkBehaviour", md);
-                return;
-            }
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
 

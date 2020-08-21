@@ -278,6 +278,7 @@ namespace Mirror.Weaver
                     {
                         modified |= WeaveNetworkBehavior(td);
                         modified |= WeaveMessage(td);
+                        modified |= ServerClientAttributeProcessor.ProcessSiteClass(td);
                     }
                 }
                 watch.Stop();
@@ -330,7 +331,7 @@ namespace Mirror.Weaver
                     // this must be done for ALL code, not just NetworkBehaviours
                     try
                     {
-                        PropertySiteProcessor.ProcessSitesModule(CurrentAssembly.MainModule);
+                        PropertySiteProcessor.ProcessSitesModule(moduleDefinition);
                     }
                     catch (Exception e)
                     {

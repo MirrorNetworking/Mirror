@@ -41,7 +41,7 @@ namespace Mirror.Weaver
             //Console.WriteLine("    ProcessSiteClass " + td);
             foreach (MethodDefinition md in td.Methods)
             {
-                ProcessSiteMethod(td, md);
+                ProcessSiteMethod(md);
             }
 
             foreach (TypeDefinition nested in td.NestedTypes)
@@ -50,7 +50,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static void ProcessSiteMethod(TypeDefinition td, MethodDefinition md)
+        static void ProcessSiteMethod(MethodDefinition md)
         {
             // process all references to replaced members with properties
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);
@@ -62,18 +62,11 @@ namespace Mirror.Weaver
 
             if (md.IsAbstract)
             {
-                if (ServerClientAttributeProcessor.HasServerClientAttribute(md))
-                {
-                    Weaver.Error("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.", md);
-                }
                 return;
             }
 
             if (md.Body != null && md.Body.Instructions != null)
             {
-                // TODO move this to NetworkBehaviourProcessor
-                ServerClientAttributeProcessor.ProcessMethodAttributes(td, md);
-
                 for (int iCount = 0; iCount < md.Body.Instructions.Count;)
                 {
                     Instruction instr = md.Body.Instructions[iCount];
