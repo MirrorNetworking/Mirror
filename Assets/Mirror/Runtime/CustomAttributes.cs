@@ -49,6 +49,7 @@ namespace Mirror
     /// <summary>
     /// SyncEvents are networked events like ClientRpc's, but instead of calling a function on the game object, they trigger Events instead.
     /// </summary>
+    [Obsolete("[SyncEvent] will be removed soon. Use ClientRpc/TargetRpc instead. SyncEvent was a leftover from the UNET days, nobody ever uses or understands it. We will remove it because it requires significant Weaver overhead to maintain.")]
     [AttributeUsage(AttributeTargets.Event)]
     public class SyncEventAttribute : Attribute
     {
