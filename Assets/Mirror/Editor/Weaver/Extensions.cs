@@ -274,7 +274,7 @@ namespace Mirror.Weaver
                 }
                 catch (AssemblyResolutionException)
                 {
-                    // this can happen for pluins.
+                    // this can happen for plugins.
                     break;
                 }
             }
