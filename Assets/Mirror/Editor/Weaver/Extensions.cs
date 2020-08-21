@@ -11,6 +11,17 @@ namespace Mirror.Weaver
             return IsDerivedFrom(td, baseClass.FullName);
         }
 
+        // removes <T> from class names (if any generic parameters)
+        public static string StripGenericParametersFromClassName(string className)
+        {
+            int index = className.IndexOf('<');
+            if (index != -1)
+            {
+                return className.Substring(0, index);
+            }
+            return className;
+        }
+
         public static bool IsDerivedFrom(this TypeDefinition td, string baseClassFullName)
         {
             if (!td.IsClass)
@@ -22,12 +33,8 @@ namespace Mirror.Weaver
             {
                 string parentName = parent.FullName;
 
-                // strip generic parameters
-                int index = parentName.IndexOf('<');
-                if (index != -1)
-                {
-                    parentName = parentName.Substring(0, index);
-                }
+                // strip generic <T> parameters from class name (if any)
+                parentName = StripGenericParametersFromClassName(parentName);
 
                 if (parentName == baseClassFullName)
                 {
@@ -135,7 +142,7 @@ namespace Mirror.Weaver
         /// <summary>
         /// Given a method of a generic class such as ArraySegment`T.get_Count,
         /// and a generic instance such as ArraySegment`int
-        /// Creates a reference to the specialized method  ArraySegment`int`.get_Count 
+        /// Creates a reference to the specialized method  ArraySegment`int`.get_Count
         /// <para> Note that calling ArraySegment`T.get_Count directly gives an invalid IL error </para>
         /// </summary>
         /// <param name="self"></param>
@@ -260,7 +267,7 @@ namespace Mirror.Weaver
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="td"></param>
         /// <param name="methodName"></param>
