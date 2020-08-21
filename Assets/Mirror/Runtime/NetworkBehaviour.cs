@@ -308,43 +308,6 @@ namespace Mirror
         }
         #endregion
 
-        #region Sync Events
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
-        {
-            if (!NetworkServer.active)
-            {
-                logger.LogWarning("SendEvent no server?");
-                return;
-            }
-
-            // construct the message
-            SyncEventMessage message = new SyncEventMessage
-            {
-                netId = netId,
-                componentIndex = ComponentIndex,
-                // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = RemoteCallHelper.GetMethodHash(invokeClass, eventName),
-                // segment to avoid reader allocations
-                payload = writer.ToArraySegment()
-            };
-
-            NetworkServer.SendToReady(netIdentity, message, channelId);
-        }
-
-        /// <summary>
-        /// Manually invoke a SyncEvent.
-        /// </summary>
-        /// <param name="eventHash">Hash of the SyncEvent name.</param>
-        /// <param name="reader">Parameters to pass to the SyncEvent.</param>
-        /// <returns>Returns true if successful.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeSyncEvent(int eventHash, NetworkReader reader)
-        {
-            return RemoteCallHelper.InvokeHandlerDelegate(eventHash, MirrorInvokeType.SyncEvent, reader, this);
-        }
-        #endregion
-
         #region Helpers
 
         // helper function for [SyncVar] GameObjects.
