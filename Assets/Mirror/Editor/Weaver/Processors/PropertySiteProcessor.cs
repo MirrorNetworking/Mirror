@@ -6,7 +6,7 @@ namespace Mirror.Weaver
 {
     public static class PropertySiteProcessor
     {
-        public static void ProcessSitesModule(AssemblyDefinition assembly, ModuleDefinition moduleDef)
+        public static void ProcessSitesModule(ModuleDefinition moduleDef)
         {
             DateTime startTime = DateTime.Now;
 
@@ -21,16 +21,16 @@ namespace Mirror.Weaver
             if (Weaver.WeaveLists.generateContainerClass != null)
             {
                 moduleDef.Types.Add(Weaver.WeaveLists.generateContainerClass);
-                assembly.MainModule.ImportReference(Weaver.WeaveLists.generateContainerClass);
+                moduleDef.ImportReference(Weaver.WeaveLists.generateContainerClass);
 
                 foreach (MethodDefinition f in Weaver.WeaveLists.generatedReadFunctions)
                 {
-                    assembly.MainModule.ImportReference(f);
+                    moduleDef.ImportReference(f);
                 }
 
                 foreach (MethodDefinition f in Weaver.WeaveLists.generatedWriteFunctions)
                 {
-                    assembly.MainModule.ImportReference(f);
+                    moduleDef.ImportReference(f);
                 }
             }
             Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
