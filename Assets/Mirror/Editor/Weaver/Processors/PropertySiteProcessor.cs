@@ -6,7 +6,7 @@ namespace Mirror.Weaver
 {
     public static class PropertySiteProcessor
     {
-        public static void ProcessSitesModule(ModuleDefinition moduleDef)
+        public static void Process(ModuleDefinition moduleDef)
         {
             DateTime startTime = DateTime.Now;
 

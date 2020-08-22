@@ -319,7 +319,7 @@ namespace Mirror.Weaver
                     // this must be done for ALL code, not just NetworkBehaviours
                     try
                     {
-                        PropertySiteProcessor.ProcessSitesModule(moduleDefinition);
+                        PropertySiteProcessor.Process(moduleDefinition);
                     }
                     catch (Exception e)
                     {
