@@ -300,7 +300,7 @@ namespace Mirror.Weaver
 
                 WeaverTypes.SetupTargetTypes(unityAssembly, mirrorAssembly, CurrentAssembly);
                 System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
-                ReaderWriterProcessor.ProcessReadersAndWriters(CurrentAssembly);
+                ReaderWriterProcessor.Process(CurrentAssembly);
                 rwstopwatch.Stop();
                 Console.WriteLine("Find all reader and writers took " + rwstopwatch.ElapsedMilliseconds + " milliseconds");
 
