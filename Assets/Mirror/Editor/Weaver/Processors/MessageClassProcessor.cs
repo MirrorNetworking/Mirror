@@ -32,7 +32,7 @@ namespace Mirror.Weaver
         static void GenerateSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateSerialization");
-            MethodDefinition existingMethod = td.GetMethod("Serialize");
+            MethodDefinition existingMethod = td.GetMethodWith1Arg("Serialize", WeaverTypes.NetworkWriterType);
             // do nothing if method exists and is abstract or not empty
             if (existingMethod != null && (existingMethod.IsAbstract || !existingMethod.Body.IsEmptyDefault()))
             {
@@ -129,7 +129,7 @@ namespace Mirror.Weaver
         static void GenerateDeSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
-            MethodDefinition existingMethod = td.GetMethod("Deserialize");
+            MethodDefinition existingMethod = td.GetMethodWith1Arg("Deserialize", WeaverTypes.NetworkReaderType);
 
             // do nothing if method exists and is abstract or not empty
             if (existingMethod != null && (existingMethod.IsAbstract || !existingMethod.Body.IsEmptyDefault()))
