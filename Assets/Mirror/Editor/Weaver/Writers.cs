@@ -51,6 +51,7 @@ namespace Mirror.Weaver
             {
                 MethodDefinition newWriterFunc = null;
 
+                // this try/catch will be removed in future PR and make `GetWriteFunc` throw instead
                 try
                 {
                     newWriterFunc = GenerateWriter(variable, recursionCount);
