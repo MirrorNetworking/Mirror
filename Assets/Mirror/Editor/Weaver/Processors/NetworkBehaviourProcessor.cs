@@ -19,7 +19,7 @@ namespace Mirror.Weaver
     class NetworkBehaviourProcessor
     {
         readonly List<FieldDefinition> syncVars = new List<FieldDefinition>();
-        readonly List<FieldDefinition> syncObjects = new List<FieldDefinition>();
+        List<FieldDefinition> syncObjects = new List<FieldDefinition>();
         // <SyncVarField,NetIdField>
         readonly Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
         readonly List<CmdResult> commands = new List<CmdResult>();
@@ -60,7 +60,8 @@ namespace Mirror.Weaver
             }
             Weaver.DLog(netBehaviourSubclass, "Process Start");
             MarkAsProcessed(netBehaviourSubclass);
-            SyncVarProcessor.ProcessSyncVars(netBehaviourSubclass, syncVars, syncObjects, syncVarNetIds);
+            SyncVarProcessor.ProcessSyncVars(netBehaviourSubclass, syncVars, syncVarNetIds);
+            syncObjects = SyncObjectProcessor.FindSyncObjectsFields(netBehaviourSubclass);
 
             ProcessMethods();
 
