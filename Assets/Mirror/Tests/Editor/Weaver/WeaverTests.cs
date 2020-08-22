@@ -16,6 +16,11 @@ namespace Mirror.Weaver.Tests
 
             BuildAndWeaveTestAssembly(className, TestContext.CurrentContext.Test.Name);
         }
+
+        protected void HasError(string messsage, string atType)
+        {
+            Assert.That(weaverErrors, Contains.Item($"{messsage} (at {atType})"));
+        }
     }
     [TestFixture]
     [Category("Weaver")]
