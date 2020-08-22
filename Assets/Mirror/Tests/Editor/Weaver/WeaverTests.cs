@@ -23,6 +23,11 @@ namespace Mirror.Weaver.Tests
             Assert.That(weaverWarnings, Is.Empty);
         }
 
+        protected void HasNoErrors()
+        {
+            Assert.That(weaverErrors, Is.Empty);
+        }
+
         protected void HasError(string messsage, string atType)
         {
             Assert.That(weaverErrors, Contains.Item($"{messsage} (at {atType})"));

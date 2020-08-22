@@ -63,7 +63,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsSyncList()
         {
-            IsSuccess();
+            HasNoErrors();
             HasWarning("syncobj has [SyncVar] attribute. SyncLists should not be marked with SyncVar",
                 "WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList/SyncObjImplementer WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncobj");
             HasWarning("syncints has [SyncVar] attribute. SyncLists should not be marked with SyncVar",
