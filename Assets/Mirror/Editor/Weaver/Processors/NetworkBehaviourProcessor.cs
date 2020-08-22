@@ -426,8 +426,15 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
 
-                MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
-                worker.Append(worker.Create(OpCodes.Call, writeFunc));
+                try
+                {
+                    MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
+                    worker.Append(worker.Create(OpCodes.Call, writeFunc));
+                }
+                catch (WeaverException e)
+                {
+                    throw new SyncVarException(syncVar, e);
+                }
             }
 
             // always return true if forceAll

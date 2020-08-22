@@ -13,9 +13,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsDerivedNetworkBehaviour()
         {
-            HasError("Cannot generate writer for component type MyBehaviour. Use a supported type or provide a custom writer",
-                "WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.MyBehaviour");
-            HasError("invalidVar has unsupported type. Use a supported Mirror type instead",
+            HasError("Invalid SyncVar: Cannot generate writer for component type MyBehaviour",
                 "WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.MyBehaviour WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.SyncVarsDerivedNetworkBehaviour::invalidVar");
         }
 
@@ -29,27 +27,21 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsGenericParam()
         {
-            HasError("Cannot generate writer for generic type MySyncVar`1. Use a supported type or provide a custom writer",
-                "WeaverSyncVarTests.SyncVarsGenericParam.SyncVarsGenericParam/MySyncVar`1<System.Int32>");
-            HasError("invalidVar has unsupported type. Use a supported Mirror type instead",
+            HasError("Invalid SyncVar: Cannot generate writer for generic type MySyncVar`1",
                 "WeaverSyncVarTests.SyncVarsGenericParam.SyncVarsGenericParam/MySyncVar`1<System.Int32> WeaverSyncVarTests.SyncVarsGenericParam.SyncVarsGenericParam::invalidVar");
         }
 
         [Test]
         public void SyncVarsInterface()
         {
-            HasError("Cannot generate writer for interface IMySyncVar. Use a supported type or provide a custom writer",
-                "WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/IMySyncVar");
-            HasError("invalidVar has unsupported type. Use a supported Mirror type instead",
-                "WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/IMySyncVar WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface::invalidVar");
+            HasError("Invalid SyncVar: Cannot generate writer for interface IMySyncVar",
+               "WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/IMySyncVar WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface::invalidVar");
         }
 
         [Test]
         public void SyncVarsUnityComponent()
         {
-            HasError("Cannot generate writer for component type TextMesh. Use a supported type or provide a custom writer",
-                "UnityEngine.TextMesh");
-            HasError("invalidVar has unsupported type. Use a supported Mirror type instead",
+            HasError("Invalid SyncVar: Cannot generate writer for component type TextMesh",
                 "UnityEngine.TextMesh WeaverSyncVarTests.SyncVarsUnityComponent.SyncVarsUnityComponent::invalidVar");
         }
 

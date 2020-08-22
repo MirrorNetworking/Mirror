@@ -103,27 +103,27 @@ namespace Mirror.Weaver
             TypeDefinition VariableDefinition = variableReference.Resolve();
             if (VariableDefinition == null)
             {
-                throw new GenerateWriterException($"{variableReference.Name} is not a supported type. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"{variableReference.Name} is not a supported type", variableReference);
             }
             if (VariableDefinition.IsDerivedFrom(WeaverTypes.ComponentType))
             {
-                throw new GenerateWriterException($"Cannot generate writer for component type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for component type {variableReference.Name}", variableReference);
             }
             if (variableReference.FullName == WeaverTypes.ObjectType.FullName)
             {
-                throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}", variableReference);
             }
             if (variableReference.FullName == WeaverTypes.ScriptableObjectType.FullName)
             {
-                throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}", variableReference);
             }
             if (VariableDefinition.HasGenericParameters)
             {
-                throw new GenerateWriterException($"Cannot generate writer for generic type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for generic type {variableReference.Name}", variableReference);
             }
             if (VariableDefinition.IsInterface)
             {
-                throw new GenerateWriterException($"Cannot generate writer for interface {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for interface {variableReference.Name}", variableReference);
             }
 
             // generate writer for class/struct

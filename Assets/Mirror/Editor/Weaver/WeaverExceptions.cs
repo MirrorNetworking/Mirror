@@ -3,6 +3,9 @@ using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
+    // we dont care about serialization for Exceptions
+#pragma warning disable CA2229 // Implement serialization constructors
+
     [Serializable]
     public abstract class WeaverException : Exception
     {
@@ -13,13 +16,23 @@ namespace Mirror.Weaver
             MemberReference = member;
         }
 
-        protected WeaverException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext) : base(serializationInfo, streamingContext) { }
+        protected WeaverException(string message, MemberReference member, Exception innerException) : base(message, innerException)
+        {
+            MemberReference = member;
+        }
     }
 
     [Serializable]
     public class GenerateWriterException : WeaverException
     {
         public GenerateWriterException(string message, MemberReference member) : base(message, member) { }
-        protected GenerateWriterException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext) : base(serializationInfo, streamingContext) { }
     }
+
+    [Serializable]
+    public class SyncVarException : WeaverException
+    {
+        public SyncVarException(MemberReference member, Exception innerException) : base($"Invalid SyncVar: {innerException.Message}", member, innerException) { }
+    }
+
+#pragma warning restore CA2229 // Implement serialization constructors
 }
