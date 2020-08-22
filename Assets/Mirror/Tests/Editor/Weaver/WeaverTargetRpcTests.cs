@@ -13,8 +13,8 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ErrorWhenTargetRpcIsStatic()
         {
-            Assert.That(weaverErrors, Contains.Item("TargetCantBeStatic must not be static " +
-                "(at System.Void WeaverTargetRpcTests.ErrorWhenTargetRpcIsStatic.ErrorWhenTargetRpcIsStatic::TargetCantBeStatic(Mirror.NetworkConnection))"));
+            HasError("TargetCantBeStatic must not be static",
+                "System.Void WeaverTargetRpcTests.ErrorWhenTargetRpcIsStatic.ErrorWhenTargetRpcIsStatic::TargetCantBeStatic(Mirror.NetworkConnection)");
         }
 
         [Test]
@@ -32,8 +32,8 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ErrorWhenNetworkConnectionIsNotTheFirstParameter()
         {
-            Assert.That(weaverErrors, Contains.Item($"TargetRpcMethod has invalid parameter nc. Cannot pass NetworkConnections " +
-                "(at System.Void WeaverTargetRpcTests.ErrorWhenNetworkConnectionIsNotTheFirstParameter.ErrorWhenNetworkConnectionIsNotTheFirstParameter::TargetRpcMethod(System.Int32,Mirror.NetworkConnection))"));
+            HasError("TargetRpcMethod has invalid parameter nc. Cannot pass NetworkConnections",
+                "System.Void WeaverTargetRpcTests.ErrorWhenNetworkConnectionIsNotTheFirstParameter.ErrorWhenNetworkConnectionIsNotTheFirstParameter::TargetRpcMethod(System.Int32,Mirror.NetworkConnection)");
         }
 
         [Test]

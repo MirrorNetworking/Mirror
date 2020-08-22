@@ -54,33 +54,29 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ErrorWhenNoHookFound()
         {
-            Assert.That(weaverErrors, Contains.Item($"Could not find hook for 'health', hook name 'onChangeHealth'. " +
-                $"Method signature should be {OldNewMethodFormat("onChangeHealth", "System.Int32")} " +
-                $"(at System.Int32 WeaverSyncVarHookTests.ErrorWhenNoHookFound.ErrorWhenNoHookFound::health)"));
+            HasError($"Could not find hook for 'health', hook name 'onChangeHealth'. Method signature should be {OldNewMethodFormat("onChangeHealth", "System.Int32")}",
+                "System.Int32 WeaverSyncVarHookTests.ErrorWhenNoHookFound.ErrorWhenNoHookFound::health");
         }
 
         [Test]
         public void ErrorWhenNoHookWithCorrectParametersFound()
         {
-            Assert.That(weaverErrors, Contains.Item($"Could not find hook for 'health', hook name 'onChangeHealth'. " +
-                $"Method signature should be {OldNewMethodFormat("onChangeHealth", "System.Int32")} " +
-                $"(at System.Int32 WeaverSyncVarHookTests.ErrorWhenNoHookWithCorrectParametersFound.ErrorWhenNoHookWithCorrectParametersFound::health)"));
+            HasError($"Could not find hook for 'health', hook name 'onChangeHealth'. Method signature should be {OldNewMethodFormat("onChangeHealth", "System.Int32")}",
+                "System.Int32 WeaverSyncVarHookTests.ErrorWhenNoHookWithCorrectParametersFound.ErrorWhenNoHookWithCorrectParametersFound::health");
         }
 
         [Test]
         public void ErrorForWrongTypeOldParameter()
         {
-            Assert.That(weaverErrors, Contains.Item($"Wrong type for Parameter in hook for 'health', hook name 'onChangeHealth'. " +
-                $"Method signature should be {OldNewMethodFormat("onChangeHealth", "System.Int32")} " +
-                $"(at System.Int32 WeaverSyncVarHookTests.ErrorForWrongTypeOldParameter.ErrorForWrongTypeOldParameter::health)"));
+            HasError($"Wrong type for Parameter in hook for 'health', hook name 'onChangeHealth'. Method signature should be {OldNewMethodFormat("onChangeHealth", "System.Int32")}",
+                "System.Int32 WeaverSyncVarHookTests.ErrorForWrongTypeOldParameter.ErrorForWrongTypeOldParameter::health");
         }
 
         [Test]
         public void ErrorForWrongTypeNewParameter()
         {
-            Assert.That(weaverErrors, Contains.Item($"Wrong type for Parameter in hook for 'health', hook name 'onChangeHealth'. " +
-                $"Method signature should be {OldNewMethodFormat("onChangeHealth", "System.Int32")} " +
-                $"(at System.Int32 WeaverSyncVarHookTests.ErrorForWrongTypeNewParameter.ErrorForWrongTypeNewParameter::health)"));
+            HasError($"Wrong type for Parameter in hook for 'health', hook name 'onChangeHealth'. Method signature should be {OldNewMethodFormat("onChangeHealth", "System.Int32")}",
+                "System.Int32 WeaverSyncVarHookTests.ErrorForWrongTypeNewParameter.ErrorForWrongTypeNewParameter::health");
         }
     }
 }
