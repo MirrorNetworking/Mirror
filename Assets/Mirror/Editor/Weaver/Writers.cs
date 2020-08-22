@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -50,22 +51,15 @@ namespace Mirror.Weaver
             }
             else
             {
-                MethodDefinition newWriterFunc = null;
-
-                // this try/catch will be removed in future PR and make `GetWriteFunc` throw instead
-                try
+                MethodDefinition newWriterFunc = GenerateWriter(variable, recursionCount);
+                if (newWriterFunc == null)
                 {
-                    newWriterFunc = GenerateWriter(variable, recursionCount);
-                }
-                catch (GenerateWriterException e)
-                {
-                    Weaver.Error(e.Message, e.MemberReference);
+                    // GenerateWriter should never return null
+                    // this check is to make sure the code is working correct
+                    throw new ArgumentNullException(nameof(newWriterFunc));
                 }
 
-                if (newWriterFunc != null)
-                {
-                    RegisterWriteFunc(variable.FullName, newWriterFunc);
-                }
+                RegisterWriteFunc(variable.FullName, newWriterFunc);
                 return newWriterFunc;
             }
         }
