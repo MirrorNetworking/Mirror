@@ -51,13 +51,15 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void AbstractTargetRpc()
         {
-            Assert.That(weaverErrors, Contains.Item("Abstract TargetRpc are currently not supported, use virtual method instead (at System.Void WeaverTargetRpcTests.AbstractTargetRpc.AbstractTargetRpc::TargetDoSomething())"));
+            HasError("Abstract TargetRpc are currently not supported, use virtual method instead",
+                "System.Void WeaverTargetRpcTests.AbstractTargetRpc.AbstractTargetRpc::TargetDoSomething()");
         }
 
         [Test]
         public void OverrideAbstractTargetRpc()
         {
-            Assert.That(weaverErrors, Contains.Item("Abstract TargetRpc are currently not supported, use virtual method instead (at System.Void WeaverTargetRpcTests.OverrideAbstractTargetRpc.BaseBehaviour::TargetDoSomething())"));
+            HasError("Abstract TargetRpc are currently not supported, use virtual method instead",
+                "System.Void WeaverTargetRpcTests.OverrideAbstractTargetRpc.BaseBehaviour::TargetDoSomething()");
         }
     }
 }

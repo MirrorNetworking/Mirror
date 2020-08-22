@@ -29,7 +29,8 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ServerAttributeOnAbstractMethod()
         {
-            Assert.That(weaverErrors, Contains.Item("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead. (at System.Void WeaverClientServerAttributeTests.ServerAttributeOnAbstractMethod.ServerAttributeOnAbstractMethod::ServerOnlyMethod())"));
+            HasError("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.",
+                "System.Void WeaverClientServerAttributeTests.ServerAttributeOnAbstractMethod.ServerAttributeOnAbstractMethod::ServerOnlyMethod()");
         }
 
         [Test]
@@ -62,7 +63,8 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ClientAttributeOnAbstractMethod()
         {
-            Assert.That(weaverErrors, Contains.Item("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead. (at System.Void WeaverClientServerAttributeTests.ClientAttributeOnAbstractMethod.ClientAttributeOnAbstractMethod::ClientOnlyMethod())"));
+            HasError("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.",
+                "System.Void WeaverClientServerAttributeTests.ClientAttributeOnAbstractMethod.ClientAttributeOnAbstractMethod::ClientOnlyMethod()");
         }
 
         [Test]

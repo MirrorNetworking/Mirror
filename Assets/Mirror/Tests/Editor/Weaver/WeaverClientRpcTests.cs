@@ -13,7 +13,8 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ClientRpcCantBeStatic()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantBeStatic must not be static (at System.Void WeaverClientRpcTests.ClientRpcCantBeStatic.ClientRpcCantBeStatic::RpcCantBeStatic())"));
+            HasError("RpcCantBeStatic must not be static",
+                "System.Void WeaverClientRpcTests.ClientRpcCantBeStatic.ClientRpcCantBeStatic::RpcCantBeStatic()");
         }
 
         [Test]
@@ -31,13 +32,15 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void AbstractClientRpc()
         {
-            Assert.That(weaverErrors, Contains.Item("Abstract ClientRpc are currently not supported, use virtual method instead (at System.Void WeaverClientRpcTests.AbstractClientRpc.AbstractClientRpc::RpcDoSomething())"));
+            HasError("Abstract ClientRpc are currently not supported, use virtual method instead",
+                "System.Void WeaverClientRpcTests.AbstractClientRpc.AbstractClientRpc::RpcDoSomething()");
         }
 
         [Test]
         public void OverrideAbstractClientRpc()
         {
-            Assert.That(weaverErrors, Contains.Item("Abstract ClientRpc are currently not supported, use virtual method instead (at System.Void WeaverClientRpcTests.OverrideAbstractClientRpc.BaseBehaviour::RpcDoSomething())"));
+            HasError("Abstract ClientRpc are currently not supported, use virtual method instead",
+                "System.Void WeaverClientRpcTests.OverrideAbstractClientRpc.BaseBehaviour::RpcDoSomething()");
         }
 
         [Test]
