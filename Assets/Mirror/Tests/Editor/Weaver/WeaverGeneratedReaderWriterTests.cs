@@ -2,20 +2,14 @@ using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverGeneratedReaderWriterTests : WeaverTests
+    public class WeaverGeneratedReaderWriterTests : WeaverTestsBuildFromTestName
     {
-        protected void BuildAndWeaveTestAssembly(string testScript)
-        {
-            const string folderName = "GeneratedReaderWriter";
-            BuildAndWeaveTestAssembly(folderName, testScript);
-        }
-
         [SetUp]
-        public void TestSetup()
+        public override void TestSetup()
         {
             WeaverAssembler.AddReferencesByAssemblyName(new string[] { "WeaverTestExtraAssembly.dll" });
 
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
+            base.TestSetup();
         }
 
         [Test]

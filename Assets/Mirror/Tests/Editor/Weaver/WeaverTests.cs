@@ -10,7 +10,7 @@ namespace Mirror.Weaver.Tests
     public abstract class WeaverTestsBuildFromTestName : WeaverTests
     {
         [SetUp]
-        public void TestSetup()
+        public virtual void TestSetup()
         {
             string className = TestContext.CurrentContext.Test.ClassName.Split('.').Last();
 
