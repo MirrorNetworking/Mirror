@@ -18,6 +18,7 @@ namespace Mirror.Weaver
                     ProcessSiteClass(td);
                 }
             }
+
             if (Weaver.WeaveLists.generateContainerClass != null)
             {
                 moduleDef.Types.Add(Weaver.WeaveLists.generateContainerClass);
@@ -33,6 +34,7 @@ namespace Mirror.Weaver
                     moduleDef.ImportReference(f);
                 }
             }
+
             Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
         }
 
