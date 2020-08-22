@@ -13,8 +13,8 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsDerivedNetworkBehaviour()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MySyncVar. Use a supported type or provide a custom writer (at WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.SyncVarsDerivedNetworkBehaviour/MySyncVar)"));
-            Assert.That(weaverErrors, Contains.Item("invalidVar has unsupported type. Use a supported Mirror type instead (at WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.SyncVarsDerivedNetworkBehaviour/MySyncVar WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.SyncVarsDerivedNetworkBehaviour::invalidVar)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MyBehaviour. Use a supported type or provide a custom writer (at WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.MyBehaviour)"));
+            Assert.That(weaverErrors, Contains.Item("invalidVar has unsupported type. Use a supported Mirror type instead (at WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.MyBehaviour WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.SyncVarsDerivedNetworkBehaviour::invalidVar)"));
         }
 
         [Test]
@@ -33,15 +33,15 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsInterface()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for interface MySyncVar. Use a supported type or provide a custom writer (at WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/MySyncVar)"));
-            Assert.That(weaverErrors, Contains.Item("invalidVar has unsupported type. Use a supported Mirror type instead (at WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/MySyncVar WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface::invalidVar)"));
+            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for interface IMySyncVar. Use a supported type or provide a custom writer (at WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/IMySyncVar)"));
+            Assert.That(weaverErrors, Contains.Item("invalidVar has unsupported type. Use a supported Mirror type instead (at WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/IMySyncVar WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface::invalidVar)"));
         }
 
         [Test]
-        public void SyncVarsDifferentModule()
+        public void SyncVarsUnityComponent()
         {
             Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type TextMesh. Use a supported type or provide a custom writer (at UnityEngine.TextMesh)"));
-            Assert.That(weaverErrors, Contains.Item("invalidVar has unsupported type. Use a supported Mirror type instead (at UnityEngine.TextMesh WeaverSyncVarTests.SyncVarsDifferentModule.SyncVarsDifferentModule::invalidVar)"));
+            Assert.That(weaverErrors, Contains.Item("invalidVar has unsupported type. Use a supported Mirror type instead (at UnityEngine.TextMesh WeaverSyncVarTests.SyncVarsUnityComponent.SyncVarsUnityComponent::invalidVar)"));
         }
 
         [Test]
