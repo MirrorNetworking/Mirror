@@ -245,7 +245,7 @@
     <Compile Include="WeaverSyncVarHookTests~\FindsStaticHook.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsCantBeArray.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsDerivedNetworkBehaviour.cs" />
-    <Compile Include="WeaverSyncVarTests~\SyncVarsDifferentModule.cs" />
+    <Compile Include="WeaverSyncVarTests~\SyncVarsUnityComponent.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsGenericParam.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsInterface.cs" />
     <Compile Include="WeaverSyncVarTests~\SyncVarsMoreThan63.cs" />
