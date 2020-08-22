@@ -8,9 +8,9 @@ namespace WeaverSyncListTests.SyncListNestedStruct
 
         struct MyNestedStruct
         {
-            int potato;
-            float floatingpotato;
-            double givemetwopotatoes;
+            public int potato;
+            public float floatingpotato;
+            public double givemetwopotatoes;
         }
         class MyNestedStructList : SyncList<MyNestedStruct> { }
     }
