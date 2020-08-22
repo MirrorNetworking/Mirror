@@ -20,13 +20,14 @@ namespace Mirror.Weaver.Tests
         protected void IsSuccess()
         {
             Assert.That(weaverErrors, Is.Empty);
+            Assert.That(weaverWarnings, Is.Empty);
         }
 
         protected void HasError(string messsage, string atType)
         {
             Assert.That(weaverErrors, Contains.Item($"{messsage} (at {atType})"));
         }
-        
+
         protected void HasWarning(string messsage, string atType)
         {
             Assert.That(weaverWarnings, Contains.Item($"{messsage} (at {atType})"));
