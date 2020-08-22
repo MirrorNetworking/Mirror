@@ -8,74 +8,74 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncDictionary()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryGenericAbstractInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryGenericInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryStructKey()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryStructItem()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryStructKeyWithCustomDeserializeOnly()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryStructItemWithCustomDeserializeOnly()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryStructKeyWithCustomMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryStructItemWithCustomMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryStructKeyWithCustomSerializeOnly()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
 
         [Test]
         public void SyncDictionaryStructItemWithCustomSerializeOnly()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -123,13 +123,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncDictionaryGenericStructKeyWithCustomMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncDictionaryGenericStructItemWithCustomMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]

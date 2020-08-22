@@ -11,7 +11,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourServer()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
@@ -20,7 +20,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ServerAttributeOnVirutalMethod()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnVirutalMethod.ServerAttributeOnVirutalMethod", "ServerOnlyMethod");
@@ -36,7 +36,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ServerAttributeOnOverrideMethod()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnOverrideMethod.ServerAttributeOnOverrideMethod", "ServerOnlyMethod");
@@ -45,7 +45,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourClient()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
@@ -54,7 +54,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ClientAttributeOnVirutalMethod()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnVirutalMethod.ClientAttributeOnVirutalMethod", "ClientOnlyMethod");
@@ -70,7 +70,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ClientAttributeOnOverrideMethod()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnOverrideMethod.ClientAttributeOnOverrideMethod", "ClientOnlyMethod");
@@ -79,7 +79,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void StaticClassClient()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.StaticClassClient.StaticClassClient", "ClientOnlyMethod");
@@ -87,7 +87,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void RegularClassClient()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.RegularClassClient.RegularClassClient", "ClientOnlyMethod");
@@ -95,7 +95,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MonoBehaviourClient()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.MonoBehaviourClient.MonoBehaviourClient", "ClientOnlyMethod");
@@ -104,7 +104,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void StaticClassServer()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.StaticClassServer.StaticClassServer", "ServerOnlyMethod");
@@ -112,7 +112,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void RegularClassServer()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.RegularClassServer.RegularClassServer", "ServerOnlyMethod");
@@ -120,7 +120,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MonoBehaviourServer()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
 
             string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.MonoBehaviourServer.MonoBehaviourServer", "ServerOnlyMethod");

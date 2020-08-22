@@ -7,13 +7,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void NetworkBehaviourAbstractBaseValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourTargetRpcParamNetworkConnection()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]

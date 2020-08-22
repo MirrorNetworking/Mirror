@@ -7,13 +7,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncEventValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void MultipleSyncEvent()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]

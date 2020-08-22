@@ -7,25 +7,25 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncList()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncListByteValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncListGenericAbstractInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncListGenericInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -51,19 +51,19 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListMissingParamlessCtorManuallyInitialized()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncListNestedStruct()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncListNestedInAbstractClass()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListNestedInStruct()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -99,25 +99,25 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListStruct()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncListStructWithCustomDeserializeOnly()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncListStructWithCustomMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncListStructWithCustomSerializeOnly()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListGenericStructWithCustomMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -159,13 +159,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListInterfaceWithCustomMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncListInheritanceWithOverrides()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]

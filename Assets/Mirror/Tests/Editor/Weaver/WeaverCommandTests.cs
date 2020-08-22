@@ -7,7 +7,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void CommandValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -20,25 +20,25 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void CommandThatIgnoresAuthority()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CommandWithArguments()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CommandThatIgnoresAuthorityWithSenderConnection()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CommandWithSenderConnectionAndOtherArgs()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -58,31 +58,31 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void VirtualCommand()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void OverrideVirtualCommand()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void OverrideVirtualCallBaseCommand()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void OverrideVirtualCallsBaseCommandWithMultipleBaseClasses()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void OverrideVirtualCallsBaseCommandWithOverride()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]

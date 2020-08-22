@@ -7,7 +7,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsSyncList()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
             Assert.That(weaverWarnings, Contains.Item("syncobj has [SyncVar] attribute. SyncLists should not be marked with SyncVar (at WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList/SyncObjImplementer WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncobj)"));
             Assert.That(weaverWarnings, Contains.Item("syncints has [SyncVar] attribute. SyncLists should not be marked with SyncVar (at Mirror.SyncListInt WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncints)"));
         }

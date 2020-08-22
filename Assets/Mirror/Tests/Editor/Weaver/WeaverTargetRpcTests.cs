@@ -7,7 +7,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void TargetRpcValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -20,13 +20,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void TargetRpcCanSkipNetworkConnection()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void TargetRpcCanHaveOtherParametersWhileSkipingNetworkConnection()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -39,13 +39,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void VirtualTargetRpc()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void OverrideVirtualTargetRpc()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]

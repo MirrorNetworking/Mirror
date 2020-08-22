@@ -7,43 +7,43 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void FindsPrivateHook()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void FindsPublicHook()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void FindsStaticHook()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void FindsHookWithGameObjects()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void FindsHookWithNetworkIdentity()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void FindsHookWithOtherOverloadsInOrder()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void FindsHookWithOtherOverloadsInReverseOrder()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         static string OldNewMethodFormat(string hookName, string ValueType)

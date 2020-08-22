@@ -14,7 +14,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void TestingScriptableObjectArraySerialization()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
     }
 }

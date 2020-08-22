@@ -7,7 +7,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MonoBehaviourValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -48,25 +48,25 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MonoBehaviourServer()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void MonoBehaviourServerCallback()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void MonoBehaviourClient()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void MonoBehaviourClientCallback()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
     }
 }

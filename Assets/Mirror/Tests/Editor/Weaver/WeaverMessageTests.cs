@@ -7,13 +7,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MessageValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void MessageWithBaseClass()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -44,13 +44,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MessageNestedInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void AbstractMessageMethods()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
     }
 }

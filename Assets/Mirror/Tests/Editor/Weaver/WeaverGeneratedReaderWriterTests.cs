@@ -15,25 +15,25 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void CreatesForStructs()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForClass()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForClassInherited()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForClassWithValidConstructor()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -46,31 +46,31 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void CreatesForInheritedFromScriptableObject()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForStructFromDifferentAssemblies()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForClassFromDifferentAssemblies()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForClassFromDifferentAssembliesWithValidConstructor()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CanUseCustomReadWriteForTypesFromDifferentAssemblies()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace Mirror.Weaver.Tests
         public void ExcludesNonSerializedFields()
         {
             // we test this by having a not allowed type in the class, but mark it with NonSerialized
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -139,25 +139,25 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void CanUseCustomReadWriteForInterfaces()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForEnums()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForArraySegment()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForStructArraySegment()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -193,13 +193,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void CreatesForList()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForStructList()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]

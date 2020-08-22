@@ -7,7 +7,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ClientRpcValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -20,13 +20,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void VirtualClientRpc()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void OverrideVirtualClientRpc()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ClientRpcThatExcludesOwner()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
     }
 }
