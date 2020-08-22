@@ -266,7 +266,7 @@ namespace Mirror.Weaver
                     {
                         modified |= WeaveNetworkBehavior(td);
                         modified |= WeaveMessage(td);
-                        modified |= ServerClientAttributeProcessor.ProcessSiteClass(td);
+                        modified |= ServerClientAttributeProcessor.Process(td);
                     }
                 }
                 watch.Stop();
