@@ -8,9 +8,9 @@ namespace WeaverSyncListTests.SyncListStructWithCustomMethods
 
         struct MyStruct
         {
-            int potato;
-            float floatingpotato;
-            double givemetwopotatoes;
+            public int potato;
+            public float floatingpotato;
+            public double givemetwopotatoes;
         }
         class MyStructList : SyncList<MyStruct>
         {

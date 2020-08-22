@@ -7,91 +7,96 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void CommandValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CommandCantBeStatic()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantBeStatic cannot be static (at System.Void WeaverCommandTests.CommandCantBeStatic.CommandCantBeStatic::CmdCantBeStatic())"));
+            HasError("CmdCantBeStatic cannot be static",
+                "System.Void WeaverCommandTests.CommandCantBeStatic.CommandCantBeStatic::CmdCantBeStatic()");
         }
 
         [Test]
         public void CommandThatIgnoresAuthority()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CommandWithArguments()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CommandThatIgnoresAuthorityWithSenderConnection()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CommandWithSenderConnectionAndOtherArgs()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void ErrorForOptionalNetworkConnectionThatIsNotSenderConnection()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdFunction has invalid parameter connection, Cannot pass NetworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server (at System.Void WeaverCommandTests.ErrorForOptionalNetworkConnectionThatIsNotSenderConnection.ErrorForOptionalNetworkConnectionThatIsNotSenderConnection::CmdFunction(Mirror.NetworkConnection))"));
+            HasError("CmdFunction has invalid parameter connection, Cannot pass NetworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server",
+                "System.Void WeaverCommandTests.ErrorForOptionalNetworkConnectionThatIsNotSenderConnection.ErrorForOptionalNetworkConnectionThatIsNotSenderConnection::CmdFunction(Mirror.NetworkConnection)");
         }
 
         [Test]
         public void ErrorForNetworkConnectionThatIsNotSenderConnection()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdFunction has invalid parameter connection, Cannot pass NetworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server (at System.Void WeaverCommandTests.ErrorForNetworkConnectionThatIsNotSenderConnection.ErrorForNetworkConnectionThatIsNotSenderConnection::CmdFunction(Mirror.NetworkConnection))"));
+            HasError("CmdFunction has invalid parameter connection, Cannot pass NetworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server",
+                "System.Void WeaverCommandTests.ErrorForNetworkConnectionThatIsNotSenderConnection.ErrorForNetworkConnectionThatIsNotSenderConnection::CmdFunction(Mirror.NetworkConnection)");
         }
 
         [Test]
         public void VirtualCommand()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void OverrideVirtualCommand()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void OverrideVirtualCallBaseCommand()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void OverrideVirtualCallsBaseCommandWithMultipleBaseClasses()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void OverrideVirtualCallsBaseCommandWithOverride()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void AbstractCommand()
         {
-            Assert.That(weaverErrors, Contains.Item("Abstract Commands are currently not supported, use virtual method instead (at System.Void WeaverCommandTests.AbstractCommand.AbstractCommand::CmdDoSomething())"));
+            HasError("Abstract Commands are currently not supported, use virtual method instead",
+                "System.Void WeaverCommandTests.AbstractCommand.AbstractCommand::CmdDoSomething()");
         }
 
         [Test]
         public void OverrideAbstractCommand()
         {
-            Assert.That(weaverErrors, Contains.Item("Abstract Commands are currently not supported, use virtual method instead (at System.Void WeaverCommandTests.OverrideAbstractCommand.BaseBehaviour::CmdDoSomething())"));
+            HasError("Abstract Commands are currently not supported, use virtual method instead",
+                "System.Void WeaverCommandTests.OverrideAbstractCommand.BaseBehaviour::CmdDoSomething()");
         }
     }
 }

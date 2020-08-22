@@ -8,9 +8,9 @@ namespace WeaverSyncDictionaryTests.SyncDictionaryStructKeyWithCustomDeserialize
 
         struct MyStruct
         {
-            int potato;
-            float floatingpotato;
-            double givemetwopotatoes;
+            public int potato;
+            public float floatingpotato;
+            public double givemetwopotatoes;
         }
         class MyStructDictionary : SyncDictionary<MyStruct, int>
         {

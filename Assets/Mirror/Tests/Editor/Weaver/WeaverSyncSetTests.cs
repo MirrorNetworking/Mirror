@@ -8,37 +8,37 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncSet()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncSetByteValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncSetGenericAbstractInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncSetGenericInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncSetInheritance()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void SyncSetStruct()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
     }
 }
