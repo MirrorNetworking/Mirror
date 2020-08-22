@@ -64,8 +64,10 @@ namespace Mirror.Weaver.Tests
         public void SyncVarsSyncList()
         {
             IsSuccess();
-            Assert.That(weaverWarnings, Contains.Item("syncobj has [SyncVar] attribute. SyncLists should not be marked with SyncVar (at WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList/SyncObjImplementer WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncobj)"));
-            Assert.That(weaverWarnings, Contains.Item("syncints has [SyncVar] attribute. SyncLists should not be marked with SyncVar (at Mirror.SyncListInt WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncints)"));
+            HasWarning("syncobj has [SyncVar] attribute. SyncLists should not be marked with SyncVar",
+                "WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList/SyncObjImplementer WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncobj");
+            HasWarning("syncints has [SyncVar] attribute. SyncLists should not be marked with SyncVar",
+                "Mirror.SyncListInt WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncints");
         }
 
         [Test]
