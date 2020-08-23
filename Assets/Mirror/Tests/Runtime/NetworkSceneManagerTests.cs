@@ -96,7 +96,6 @@ namespace Mirror.Tests
         public void ReadyTest()
         {
             sceneManager.SetClientReady();
-            Assert.That(sceneManager.Ready);
             Assert.That(client.Connection.IsReady);
         }
 
@@ -228,7 +227,7 @@ namespace Mirror.Tests
             clientSceneManager.SetClientReady();
             clientSceneManager.ClientNotReadyMessage(null, new NotReadyMessage());
 
-            Assert.That(clientSceneManager.Ready, Is.False);
+            Assert.That(client.Connection.IsReady, Is.False);
             func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
         }
 

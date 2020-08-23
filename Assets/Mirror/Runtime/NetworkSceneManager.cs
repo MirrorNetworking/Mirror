@@ -54,14 +54,6 @@ namespace Mirror
         /// </remarks>
         public string NetworkSceneName { get; protected set; } = "";
 
-        /// <summary>
-        /// Returns true when a client's connection has been set to ready.
-        /// <para>A client that is ready recieves state updates from the server, while a client that is not ready does not. This useful when the state of the game is not normal, such as a scene change or end-of-game.</para>
-        /// <para>This is read-only. To change the ready state of a client, use ClientScene.Ready(). The server is able to set the ready state of clients using NetworkServer.SetClientReady(), NetworkServer.SetClientNotReady() and NetworkServer.SetAllClientsNotReady().</para>
-        /// <para>This is done when changing scenes so that clients don't receive state update messages during scene loading.</para>
-        /// </summary>
-        public bool Ready { get; internal set; }
-
         public void Start()
         {
             DontDestroyOnLoad(gameObject);
@@ -99,7 +91,6 @@ namespace Mirror
 
         void OnClientDisconnected()
         {
-            Ready = false;
             client.Authenticated.RemoveListener(OnClientAuthenticated);
             client.Disconnected.RemoveListener(OnClientDisconnected);
         }
@@ -133,7 +124,6 @@ namespace Mirror
         {
             logger.Log("NetworkSceneManager.OnClientNotReadyMessageInternal");
 
-            Ready = false;
             OnClientNotReady(conn);
         }
 
@@ -156,7 +146,7 @@ namespace Mirror
         internal void OnClientSceneChanged(string sceneName, SceneOperation sceneOperation)
         {
             //set ready after scene change has completed
-            if (!Ready)
+            if (!client.Connection.IsReady)
                 SetClientReady();
 
             ClientSceneChanged.Invoke(sceneName, sceneOperation);
@@ -169,6 +159,8 @@ namespace Mirror
         /// <param name="conn">Connection to the server.</param>
         internal void OnClientNotReady(INetworkConnection conn)
         {
+            client.Connection.IsReady = false;
+
             ClientNotReady.Invoke(conn);
         }
 
@@ -181,14 +173,13 @@ namespace Mirror
             if (!client || !client.Active)
                 throw new InvalidOperationException("Ready() called with an null or disconnected client");
 
-            if (Ready)
+            if (client.Connection.IsReady)
                 throw new InvalidOperationException("A connection has already been set as ready. There can only be one.");
 
             if (logger.LogEnabled()) logger.Log("ClientScene.Ready() called.");
 
             // Set these before sending the ReadyMessage, otherwise host client
             // will fail in InternalAddPlayer with null readyConnection.
-            Ready = true;
             client.Connection.IsReady = true;
 
             // Tell server we're ready to have a player object spawned
