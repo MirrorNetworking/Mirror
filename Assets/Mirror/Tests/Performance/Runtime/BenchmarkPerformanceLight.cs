@@ -12,7 +12,7 @@ namespace Mirror.Tests.Performance.Runtime
     [Category("Benchmark")]
     public class BenchmarkPerformanceLight
     {
-        const string ScenePath = "Assets/Mirror/Examples/Benchmarks/10klight/Scenes/Scene.unity";
+        const string ScenePath = "Assets/Examples/Benchmarks/10klight/Scenes/Scene.unity";
 
         private NetworkManager benchmarker;
 

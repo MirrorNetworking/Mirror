@@ -1,5 +1,4 @@
 {
-    tagFormat: "${version}-master",
     "plugins": [
         "@semantic-release/github",
         "@semantic-release/release-notes-generator", 
@@ -14,9 +13,6 @@
         ["@semantic-release/git", {
             "assets": ["Assets/Mirror/package.json", "Assets/Mirror/CHANGELOG.md"],
             "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-        }],
-        ["@semantic-release/exec", {
-            "publishCmd": "./publish_upm.sh upm ${nextRelease.version}"
         }]
     ]
 }

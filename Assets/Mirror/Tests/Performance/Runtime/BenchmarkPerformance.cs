@@ -14,7 +14,7 @@ namespace Mirror.Tests.Performance.Runtime
     [Category("Benchmark")]
     public class BenchmarkPerformance
     {
-        const string ScenePath = "Assets/Mirror/Examples/Benchmarks/10k/Scenes/Scene.unity";
+        const string ScenePath = "Assets/Examples/Benchmarks/10k/Scenes/Scene.unity";
         const float Warmup = 1f;
         const int MeasureCount = 120;
 

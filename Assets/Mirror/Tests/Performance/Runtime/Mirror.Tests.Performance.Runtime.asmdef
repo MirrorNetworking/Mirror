@@ -6,7 +6,9 @@
         "Mirror.Tests.Common",
         "Mirror.Examples",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "Mirror.10kBenchmark",
+        "Mirror.10BenchmarkLight"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -25,5 +27,6 @@
             "expression": "(,2.0)",
             "define": "UNITY_PERFORMANCE_TESTS_1_OR_OLDER"
         }
-    ]
+    ],
+    "noEngineReferences": false
 }
