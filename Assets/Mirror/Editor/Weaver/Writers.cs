@@ -83,13 +83,13 @@ namespace Mirror.Weaver
 
             // check for invalid types
 
-            TypeDefinition VariableDefinition = variableReference.Resolve();
-            if (VariableDefinition == null)
+            TypeDefinition variableDefinition = variableReference.Resolve();
+            if (variableDefinition == null)
             {
                 Weaver.Error($"{variableReference.Name} is not a supported type. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (VariableDefinition.IsDerivedFrom(WeaverTypes.ComponentType))
+            if (variableDefinition.IsDerivedFrom(WeaverTypes.ComponentType))
             {
                 Weaver.Error($"Cannot generate writer for component type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
@@ -104,12 +104,12 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (VariableDefinition.HasGenericParameters)
+            if (variableDefinition.HasGenericParameters)
             {
                 Weaver.Error($"Cannot generate writer for generic type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (VariableDefinition.IsInterface)
+            if (variableDefinition.IsInterface)
             {
                 Weaver.Error($"Cannot generate writer for interface {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
