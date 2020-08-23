@@ -80,6 +80,11 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate reader for interface {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
+            if (variableType.IsAbstract)
+            {
+                Weaver.Error($"Cannot generate reader for abstract class {variable.Name}. Use a supported type or provide a custom reader", variable);
+                return null;
+            }
 
             if (variableDefinition.IsEnum)
             {

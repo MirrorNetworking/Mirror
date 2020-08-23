@@ -114,6 +114,11 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate writer for interface {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
+            if (VariableDefinition.IsAbstract)
+            {
+                Weaver.Error($"Cannot generate writer for abstract class {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                return null;
+            }
 
             // generate writer for class/struct
 
