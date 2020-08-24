@@ -54,6 +54,8 @@ namespace Mirror
         /// </remarks>
         public string NetworkSceneName { get; protected set; } = "";
 
+        internal AsyncOperation asyncOperation;
+
         public void Start()
         {
             DontDestroyOnLoad(gameObject);
@@ -77,6 +79,7 @@ namespace Mirror
         {
             connection.RegisterHandler<NotReadyMessage>(ClientNotReadyMessage);
             connection.RegisterHandler<SceneMessage>(ClientSceneMessage);
+            connection.RegisterHandler<SceneReadyMessage>(ClientSceneReadyMessage);
         }
 
         // called after successful authentication
@@ -118,6 +121,13 @@ namespace Mirror
             OnClientChangeScene(msg.sceneName, msg.sceneOperation);
 
             StartCoroutine(ApplySceneOperation(msg.sceneName, msg.sceneOperation));
+        }
+
+        internal void ClientSceneReadyMessage(INetworkConnection conn, SceneReadyMessage msg)
+        {
+            logger.Log("ClientSceneReadyMessage");
+
+            asyncOperation.allowSceneActivation = true;
         }
 
         internal void ClientNotReadyMessage(INetworkConnection conn, NotReadyMessage msg)
@@ -244,6 +254,8 @@ namespace Mirror
         /// <param name="sceneName">The name of the new scene.</param>
         internal void OnServerSceneChanged(string sceneName, SceneOperation operation)
         {
+            server.SendToAll(new SceneReadyMessage());
+
             ServerSceneChanged.Invoke(sceneName, operation);
         }
 
@@ -255,7 +267,15 @@ namespace Mirror
             {
                 case SceneOperation.Normal:
                     NetworkSceneName = sceneName;
-                    yield return SceneManager.LoadSceneAsync(sceneName);
+                    asyncOperation = SceneManager.LoadSceneAsync(sceneName);
+
+                    //If non host client. Wait for server to finish scene change
+                    if(client && client.Active && !client.IsLocalClient)
+                    {
+                        asyncOperation.allowSceneActivation = false;
+                    }
+
+                    yield return asyncOperation;
                     break;
                 case SceneOperation.LoadAdditive:
                     // Ensure additive scene is not already loaded since we don't know which was passed in the Scene message

@@ -248,5 +248,29 @@ namespace Mirror.Tests
         {
             Assert.That(clientSceneManager.NetworkSceneName.Equals(string.Empty));
         }
+
+        [Test]
+        public void AsyncOperationInitStateTest()
+        {
+            Assert.That(clientSceneManager.asyncOperation, Is.Null);
+        }
+
+        [Test]
+        public void AsyncOperationStateTest()
+        {
+            clientSceneManager.ClientSceneMessage(null, new SceneMessage { sceneName = "testScene" });
+
+            Assert.That(clientSceneManager.asyncOperation, Is.Not.Null);
+            Assert.That(clientSceneManager.asyncOperation.allowSceneActivation, Is.False);
+        }
+
+        [Test]
+        public void ClientSceneReadyMessageTest()
+        {
+            clientSceneManager.ClientSceneMessage(null, new SceneMessage { sceneName = "testScene" });
+            clientSceneManager.ClientSceneReadyMessage(null, new SceneReadyMessage());
+
+            Assert.That(clientSceneManager.asyncOperation.allowSceneActivation, Is.True);
+        }
     }
 }

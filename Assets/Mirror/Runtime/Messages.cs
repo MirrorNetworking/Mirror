@@ -61,6 +61,13 @@ namespace Mirror
         }
     }
 
+    public struct SceneReadyMessage : IMessageBase
+    {
+        public void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
+
+        public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
+    }
+
     public enum SceneOperation : byte
     {
         Normal,
