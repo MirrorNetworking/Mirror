@@ -236,5 +236,11 @@ namespace Mirror.Weaver.Tests
             //HasError("Cannot generate reader for List because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
             //    "System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>");
         }
+
+        [Test]
+        public void MessageWriterShouldUseMessageBaseFunctions()
+        {
+            IsSuccess();
+        }
     }
 }
