@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
@@ -120,9 +121,52 @@ namespace Mirror.Weaver
                 return null;
             }
 
+            // does type implement IMessageBase?
+
+            if (variableDefinition.ImplementsInterface(WeaverTypes.IMessageBaseType))
+            {
+                return GenerateMessageWriteFunction(variableReference);
+            }
+
             // generate writer for class/struct
 
             return GenerateClassOrStructWriterFunction(variableReference, recursionCount);
+        }
+
+        static MethodDefinition GenerateMessageWriteFunction(TypeReference variable)
+        {
+            string functionName = "_WriteMessage_" + variable.Name + "_";
+
+            // create new writer for this type
+            MethodDefinition writerFunc = new MethodDefinition(functionName,
+                    MethodAttributes.Public |
+                    MethodAttributes.Static |
+                    MethodAttributes.HideBySig,
+                    WeaverTypes.voidType);
+
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
+
+            // get WriteMessage<T> method
+            MethodReference generic = writeFuncs.Values.Where(x => x.HasGenericParameters && x.Name == "WriteMessage" && x.DeclaringType.Name == "NetworkWriterExtensions").FirstOrDefault();
+            // convert method to variable type
+            GenericInstanceMethod writeFunction = new GenericInstanceMethod(generic);
+            writeFunction.GenericArguments.Add(variable);
+
+            /*
+            public void _WriteMessageMyMessage_(NetworkWriter writer, MyMessage value)
+            {
+                writer.WriteMessage<MyMessage>(value);
+            }
+            */
+            ILProcessor worker = writerFunc.Body.GetILProcessor();
+
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Call, writeFunction));
+
+            worker.Append(worker.Create(OpCodes.Ret));
+            return writerFunc;
         }
 
         static MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable, int recursionCount)

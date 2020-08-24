@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 using Mono.CecilX.Rocks;
@@ -98,6 +99,10 @@ namespace Mirror.Weaver
             {
                 newReaderFunc = GenerateListReadFunc(variableReference, recursionCount);
             }
+            else if (variableDefinition.ImplementsInterface(WeaverTypes.IMessageBaseType))
+            {
+                newReaderFunc = GenerateMessageReadFunction(variableReference);
+            }
             else
             {
                 newReaderFunc = GenerateClassOrStructReadFunction(variableReference, recursionCount);
@@ -111,6 +116,40 @@ namespace Mirror.Weaver
             RegisterReadFunc(variableReference.FullName, newReaderFunc);
             return newReaderFunc;
         }
+
+        static MethodDefinition GenerateMessageReadFunction(TypeReference variable)
+        {
+            string functionName = "_ReadMessage_" + variable.Name + "_";
+
+            // create new writer for this type
+            MethodDefinition readFunc = new MethodDefinition(functionName,
+                    MethodAttributes.Public |
+                    MethodAttributes.Static |
+                    MethodAttributes.HideBySig,
+                    variable);
+
+            readFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
+
+            // get ReadMessage<T> method
+            MethodReference genericReadMessage = readFuncs.Values.Where(x => x.HasGenericParameters && x.Name == "ReadMessage" && x.DeclaringType.Name == "NetworkReaderExtensions").FirstOrDefault();
+            // convert method to variable type
+            GenericInstanceMethod readFunction = new GenericInstanceMethod(genericReadMessage);
+            readFunction.GenericArguments.Add(variable);
+
+            /*
+            public MyMessage _ReadMessageMyMessage_(NetworkReader reader)
+            {
+                return reader.ReadMessage<MyMessage>();
+            }
+            */
+            ILProcessor worker = readFunc.Body.GetILProcessor();
+
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Call, readFunction));
+            worker.Append(worker.Create(OpCodes.Ret));
+            return readFunc;
+        }
+
 
         static void RegisterReadFunc(string name, MethodDefinition newReaderFunc)
         {
