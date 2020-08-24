@@ -1022,6 +1022,8 @@ namespace Mirror.Weaver
             });
 
             MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, clientRpcAttr);
+            // need null check here because ProcessRpcCall returns null if it can't write all the args
+            if (rpcCallFunc == null) { return; }
 
             MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(netBehaviourSubclass, md, rpcCallFunc);
             if (rpcFunc != null)
