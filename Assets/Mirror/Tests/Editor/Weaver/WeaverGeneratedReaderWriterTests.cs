@@ -148,6 +148,21 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void GivesErrorWhenUsingAbstractClass()
+        {
+            HasError("Cannot generate writer for abstract class DataBase. Use a supported type or provide a custom writer",
+                "GeneratedReaderWriter.GivesErrorWhenUsingAbstractClass.DataBase");
+            HasError("Cannot generate reader for abstract class DataBase. Use a supported type or provide a custom reader",
+                "GeneratedReaderWriter.GivesErrorWhenUsingAbstractClass.DataBase");
+        }
+
+        [Test]
+        public void CanUseCustomReadWriteForAbstractClass()
+        {
+            IsSuccess();
+        }
+
+        [Test]
         public void CreatesForEnums()
         {
             IsSuccess();
