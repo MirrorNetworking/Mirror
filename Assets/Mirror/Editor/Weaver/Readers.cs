@@ -20,9 +20,9 @@ namespace Mirror.Weaver
             readFuncs[dataType.FullName] = methodReference;
         }
 
-        public static MethodReference GetReadFunc(TypeReference variable, int recursionCount = 0)
+        public static MethodReference GetReadFunc(TypeReference variableReference, int recursionCount = 0)
         {
-            if (readFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
+            if (readFuncs.TryGetValue(variableReference.FullName, out MethodReference foundFunc))
             {
                 return foundFunc;
             }
@@ -33,77 +33,77 @@ namespace Mirror.Weaver
             // so the following ifs might choke on it for scriptable objects
             // or other objects that require a custom serializer
             // thus check if it is an array and skip all the checks.
-            if (variable.IsArray)
+            if (variableReference.IsArray)
             {
-                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
+                newReaderFunc = GenerateArrayReadFunc(variableReference, recursionCount);
                 if (newReaderFunc != null)
                 {
-                    RegisterReadFunc(variable.FullName, newReaderFunc);
+                    RegisterReadFunc(variableReference.FullName, newReaderFunc);
                 }
                 return newReaderFunc;
             }
 
-            TypeDefinition variableType = variable.Resolve();
-            if (variableType == null)
+            TypeDefinition variableDefinition = variableReference.Resolve();
+            if (variableDefinition == null)
             {
-                Weaver.Error($"{variable.Name} is not a supported type", variable);
+                Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
                 return null;
             }
-            if (variableType.IsDerivedFrom(WeaverTypes.ComponentType))
+            if (variableDefinition.IsDerivedFrom(WeaverTypes.ComponentType))
             {
-                Weaver.Error($"Cannot generate reader for component type {variable.Name}. Use a supported type or provide a custom reader", variable);
+                Weaver.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
-            if (variable.FullName == WeaverTypes.ObjectType.FullName)
+            if (variableReference.FullName == WeaverTypes.ObjectType.FullName)
             {
-                Weaver.Error($"Cannot generate reader for {variable.Name}. Use a supported type or provide a custom reader", variable);
+                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
-            if (variable.FullName == WeaverTypes.ScriptableObjectType.FullName)
+            if (variableReference.FullName == WeaverTypes.ScriptableObjectType.FullName)
             {
-                Weaver.Error($"Cannot generate reader for {variable.Name}. Use a supported type or provide a custom reader", variable);
+                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
-            if (variable.IsByReference)
+            if (variableReference.IsByReference)
             {
                 // error??
-                Weaver.Error($"Cannot pass type {variable.Name} by reference", variable);
+                Weaver.Error($"Cannot pass type {variableReference.Name} by reference", variableReference);
                 return null;
             }
-            if (variableType.HasGenericParameters && !variableType.IsArraySegment() && !variableType.IsList())
+            if (variableDefinition.HasGenericParameters && !variableDefinition.IsArraySegment() && !variableDefinition.IsList())
             {
-                Weaver.Error($"Cannot generate reader for generic variable {variable.Name}. Use a supported type or provide a custom reader", variable);
+                Weaver.Error($"Cannot generate reader for generic variable {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
-            if (variableType.IsInterface)
+            if (variableDefinition.IsInterface)
             {
-                Weaver.Error($"Cannot generate reader for interface {variable.Name}. Use a supported type or provide a custom reader", variable);
+                Weaver.Error($"Cannot generate reader for interface {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
 
-            if (variableType.IsEnum)
+            if (variableDefinition.IsEnum)
             {
-                return GetReadFunc(variableType.GetEnumUnderlyingType(), recursionCount);
+                return GetReadFunc(variableDefinition.GetEnumUnderlyingType(), recursionCount);
             }
-            else if (variableType.IsArraySegment())
+            else if (variableDefinition.IsArraySegment())
             {
-                newReaderFunc = GenerateArraySegmentReadFunc(variable, recursionCount);
+                newReaderFunc = GenerateArraySegmentReadFunc(variableReference, recursionCount);
             }
-            else if (variableType.IsList())
+            else if (variableDefinition.IsList())
             {
-                newReaderFunc = GenerateListReadFunc(variable, recursionCount);
+                newReaderFunc = GenerateListReadFunc(variableReference, recursionCount);
             }
             else
             {
-                newReaderFunc = GenerateClassOrStructReadFunction(variable, recursionCount);
+                newReaderFunc = GenerateClassOrStructReadFunction(variableReference, recursionCount);
             }
 
             if (newReaderFunc == null)
             {
-                Weaver.Error($"{variable.Name} is not a supported type", variable);
+                Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
                 return null;
             }
-            RegisterReadFunc(variable.FullName, newReaderFunc);
+            RegisterReadFunc(variableReference.FullName, newReaderFunc);
             return newReaderFunc;
         }
 
