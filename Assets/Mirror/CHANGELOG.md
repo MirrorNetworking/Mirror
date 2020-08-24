@@ -1,3 +1,10 @@
+## [43.4.2](https://github.com/MirrorNG/MirrorNG/compare/v43.4.1...v43.4.2) (2020-08-24)
+
+
+### Bug Fixes
+
+* scene change race condition. wait for server to be ready ([#339](https://github.com/MirrorNG/MirrorNG/issues/339)) ([2ca0340](https://github.com/MirrorNG/MirrorNG/commit/2ca0340ce1e263815b650582e2a630e6ad9f47d2))
+
 # 1.0.0 (2020-08-23)
 
 
