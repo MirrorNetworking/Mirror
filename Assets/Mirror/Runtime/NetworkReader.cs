@@ -378,5 +378,14 @@ namespace Mirror
         {
             msg.Deserialize(reader);
         }
+        public static T ReadMessage<T>(this NetworkReader reader) where T : IMessageBase, new()
+        {
+            // if it is a value type, just use defult(T)
+            // otherwise allocate a new instance
+            T msg = default(T) != null ? default : new T();
+
+            msg.Deserialize(reader);
+            return msg;
+        }
     }
 }
