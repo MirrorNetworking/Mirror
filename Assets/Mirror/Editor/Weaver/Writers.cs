@@ -131,8 +131,6 @@ namespace Mirror.Weaver
                 return null;
             }
 
-
-
             // generate writer for class/struct
 
             return GenerateClassOrStructWriterFunction(variableReference, recursionCount);
