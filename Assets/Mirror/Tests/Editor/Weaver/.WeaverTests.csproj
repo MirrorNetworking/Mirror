@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>_WeaverTests2.csproj</RootNamespace>
@@ -62,6 +62,7 @@
     <None Remove="WeaverTests.cs.meta" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WeaverGeneratedReaderWriterTests~\CanUseCustomReadWriteForAbstractClass.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CanUseCustomReadWriteForInterfaces.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CanUseCustomReadWriteForTypesFromDifferentAssemblies.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForArraySegment.cs" />
@@ -73,10 +74,10 @@
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForEnums.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForInheritedFromScriptableObject.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForList.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForStructArraySegment.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForStructFromDifferentAssemblies.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForStructList.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForStructs.cs" />
-    <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForStuctArraySegment.cs" />
-    <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForStuctList.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\ExcludesNonSerializedFields.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorForClassWithNoValidConstructor.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorForInvalidArraySegmentType.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorForInvalidListType.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorForJaggedArray.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorForMultidimensionalArray.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorWhenUsingAbstractClass.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorWhenUsingInterface.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorWhenUsingMonoBehaviour.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\GivesErrorWhenUsingObject.cs" />
