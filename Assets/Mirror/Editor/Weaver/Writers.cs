@@ -148,9 +148,10 @@ namespace Mirror.Weaver
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
 
             // get WriteMessage<T> method
-            MethodReference generic = writeFuncs.Values.Where(x => x.HasGenericParameters && x.Name == "WriteMessage" && x.DeclaringType.Name == "NetworkWriterExtensions").FirstOrDefault();
+            MethodReference genericWriteMessage = writeFuncs.Values
+                .First(x => x.HasGenericParameters && x.Name == "WriteMessage" && x.DeclaringType.Name == "NetworkWriterExtensions");
             // convert method to variable type
-            GenericInstanceMethod writeFunction = new GenericInstanceMethod(generic);
+            GenericInstanceMethod writeFunction = new GenericInstanceMethod(genericWriteMessage);
             writeFunction.GenericArguments.Add(variable);
 
             /*

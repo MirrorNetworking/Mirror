@@ -131,7 +131,8 @@ namespace Mirror.Weaver
             readFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
 
             // get ReadMessage<T> method
-            MethodReference genericReadMessage = readFuncs.Values.Where(x => x.HasGenericParameters && x.Name == "ReadMessage" && x.DeclaringType.Name == "NetworkReaderExtensions").FirstOrDefault();
+            MethodReference genericReadMessage = readFuncs.Values
+                .First(x => x.HasGenericParameters && x.Name == "ReadMessage" && x.DeclaringType.Name == "NetworkReaderExtensions");
             // convert method to variable type
             GenericInstanceMethod readFunction = new GenericInstanceMethod(genericReadMessage);
             readFunction.GenericArguments.Add(variable);
