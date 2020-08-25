@@ -95,8 +95,11 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourTargetRpcParamAbstract()
         {
-            HasError("AbstractClass can't be deserialized because it has no default constructor",
+            HasError("Cannot generate writer for abstract class AbstractClass. Use a supported type or provide a custom writer",
                 "WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamAbstract.NetworkBehaviourTargetRpcParamAbstract/AbstractClass");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("AbstractClass can't be deserialized because it has no default constructor",
+            //    "WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcParamAbstract.NetworkBehaviourTargetRpcParamAbstract/AbstractClass");
         }
 
         [Test]
@@ -177,8 +180,11 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourClientRpcParamAbstract()
         {
-            HasError("AbstractClass can't be deserialized because it has no default constructor",
+            HasError("Cannot generate writer for abstract class AbstractClass. Use a supported type or provide a custom writer",
                 "WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("AbstractClass can't be deserialized because it has no default constructor",
+            //    "WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass");
         }
 
         [Test]
@@ -239,8 +245,11 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourCmdParamAbstract()
         {
-            HasError("AbstractClass can't be deserialized because it has no default constructor",
+            HasError("Cannot generate writer for abstract class AbstractClass. Use a supported type or provide a custom writer",
                 "WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("AbstractClass can't be deserialized because it has no default constructor",
+            //    "WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass");
         }
 
         [Test]
