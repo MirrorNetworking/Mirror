@@ -82,7 +82,7 @@ namespace Mirror.Weaver
                 return GenerateListWriteFunc(variableReference, recursionCount);
             }
 
-            // check for invalid types
+            // check if type can be resolved
 
             TypeDefinition variableDefinition = variableReference.Resolve();
             if (variableDefinition == null)
@@ -90,6 +90,16 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variableReference.Name} is not a supported type. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
+
+            // does type implement IMessageBase?
+
+            if (variableDefinition.ImplementsInterface(WeaverTypes.IMessageBaseType))
+            {
+                return GenerateMessageWriteFunction(variableReference);
+            }
+
+            // check for invalid types
+
             if (variableDefinition.IsDerivedFrom(WeaverTypes.ComponentType))
             {
                 Weaver.Error($"Cannot generate writer for component type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
@@ -121,12 +131,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            // does type implement IMessageBase?
 
-            if (variableDefinition.ImplementsInterface(WeaverTypes.IMessageBaseType))
-            {
-                return GenerateMessageWriteFunction(variableReference);
-            }
 
             // generate writer for class/struct
 
