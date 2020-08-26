@@ -111,8 +111,7 @@ namespace Mirror.Weaver
             }
 
             // validate
-            return NetworkBehaviourProcessor.ValidateFunction(md) &&
-                   NetworkBehaviourProcessor.ValidateParameters(md, RemoteCallType.ClientRpc);
+            return NetworkBehaviourProcessor.ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc);
         }
     }
 }

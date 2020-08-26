@@ -874,8 +874,15 @@ namespace Mirror.Weaver
             collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkConnectionType)));
         }
 
+        // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
+        public static bool ValidateRemoteCallAndParameters(MethodReference method, RemoteCallType callType)
+        {
+            return ValidateFunction(method) &&
+                   ValidateParameters(method, callType);
+        }
+
         // check if a Command/TargetRpc/Rpc function is valid for weaving
-        public static bool ValidateFunction(MethodReference md)
+        static bool ValidateFunction(MethodReference md)
         {
             if (md.ReturnType.FullName == WeaverTypes.IEnumeratorType.FullName)
             {
@@ -896,7 +903,7 @@ namespace Mirror.Weaver
         }
 
         // check if all Command/TargetRpc/Rpc function's parameters are valid for weaving
-        public static bool ValidateParameters(MethodReference method, RemoteCallType callType)
+        static bool ValidateParameters(MethodReference method, RemoteCallType callType)
         {
             for (int i = 0; i < method.Parameters.Count; ++i)
             {
