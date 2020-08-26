@@ -104,12 +104,6 @@ namespace Mirror.Weaver
 
         public static bool ValidateRpc(MethodDefinition md)
         {
-            if (md.IsStatic)
-            {
-                Weaver.Error($"{md.Name} must not be static", md);
-                return false;
-            }
-
             // validate
             return NetworkBehaviourProcessor.ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc);
         }

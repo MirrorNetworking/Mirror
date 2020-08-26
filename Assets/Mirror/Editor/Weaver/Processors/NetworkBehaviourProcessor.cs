@@ -875,8 +875,14 @@ namespace Mirror.Weaver
         }
 
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
-        public static bool ValidateRemoteCallAndParameters(MethodReference method, RemoteCallType callType)
+        public static bool ValidateRemoteCallAndParameters(MethodDefinition method, RemoteCallType callType)
         {
+            if (method.IsStatic)
+            {
+                Weaver.Error($"{method.Name} must not be static", method);
+                return false;
+            }
+
             return ValidateFunction(method) &&
                    ValidateParameters(method, callType);
         }

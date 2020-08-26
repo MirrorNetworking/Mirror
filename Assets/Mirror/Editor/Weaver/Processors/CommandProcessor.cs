@@ -126,12 +126,6 @@ namespace Mirror.Weaver
 
         public static bool ValidateCommand(MethodDefinition md)
         {
-            if (md.IsStatic)
-            {
-                Weaver.Error($"{md.Name} cannot be static", md);
-                return false;
-            }
-
             // validate
             return NetworkBehaviourProcessor.ValidateRemoteCallAndParameters(md, RemoteCallType.Command);
         }
