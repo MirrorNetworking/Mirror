@@ -139,13 +139,9 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!NetworkBehaviourProcessor.ValidateFunction(md))
-            {
-                return false;
-            }
-
             // validate
-            return NetworkBehaviourProcessor.ValidateParameters(md, RemoteCallType.TargetRpc);
+            return NetworkBehaviourProcessor.ValidateFunction(md) &&
+                   NetworkBehaviourProcessor.ValidateParameters(md, RemoteCallType.TargetRpc);
         }
     }
 }
