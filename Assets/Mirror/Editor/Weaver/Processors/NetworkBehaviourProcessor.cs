@@ -895,7 +895,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool ProcessMethodsValidateParameters(MethodReference method, RemoteCallType callType)
+        public static bool ValidateParameters(MethodReference method, RemoteCallType callType)
         {
             for (int i = 0; i < method.Parameters.Count; ++i)
             {
@@ -911,6 +911,7 @@ namespace Mirror.Weaver
             return true;
         }
 
+        // validate parameters for a remote function call like Rpc/Cmd
         static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
         {
             bool isNetworkConnection = param.ParameterType.FullName == WeaverTypes.NetworkConnectionType.FullName;
