@@ -1041,7 +1041,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md))
+            if (!TargetRpcProcessor.ValidateTargetRpc(md))
                 return;
 
             if (names.Contains(md.Name))
