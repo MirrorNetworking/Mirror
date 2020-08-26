@@ -1002,7 +1002,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (!RpcProcessor.ProcessMethodsValidateRpc(md))
+            if (!RpcProcessor.ValidateRpc(md))
             {
                 return;
             }
