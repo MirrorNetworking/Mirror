@@ -1053,7 +1053,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (!TargetRpcProcessor.ValidateTargetRpc(md))
+            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.TargetRpc))
                 return;
 
             if (names.Contains(md.Name))
