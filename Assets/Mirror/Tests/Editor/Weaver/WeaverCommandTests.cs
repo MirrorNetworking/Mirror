@@ -13,7 +13,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void CommandCantBeStatic()
         {
-            HasError("CmdCantBeStatic cannot be static",
+            HasError("CmdCantBeStatic must not be static",
                 "System.Void WeaverCommandTests.CommandCantBeStatic.CommandCantBeStatic::CmdCantBeStatic()");
         }
 
