@@ -895,6 +895,7 @@ namespace Mirror.Weaver
             return true;
         }
 
+        // check if all Command/TargetRpc/Rpc function's parameters are valid for weaving
         public static bool ValidateParameters(MethodReference method, RemoteCallType callType)
         {
             for (int i = 0; i < method.Parameters.Count; ++i)
