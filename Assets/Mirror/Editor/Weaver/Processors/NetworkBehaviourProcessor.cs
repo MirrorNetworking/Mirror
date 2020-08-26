@@ -1014,7 +1014,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (!RpcProcessor.ValidateRpc(md))
+            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc))
             {
                 return;
             }
