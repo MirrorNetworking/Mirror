@@ -133,7 +133,7 @@ namespace Mirror.Weaver
             }
 
             // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
+            return NetworkBehaviourProcessor.ValidateFunction(md) &&
                    NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, RemoteCallType.Command);
         }
     }

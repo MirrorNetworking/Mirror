@@ -139,7 +139,7 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md))
+            if (!NetworkBehaviourProcessor.ValidateFunction(md))
             {
                 return false;
             }

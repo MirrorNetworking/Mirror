@@ -874,7 +874,8 @@ namespace Mirror.Weaver
             collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkConnectionType)));
         }
 
-        public static bool ProcessMethodsValidateFunction(MethodReference md)
+        // check if a Command/TargetRpc/Rpc function is valid for weaving
+        public static bool ValidateFunction(MethodReference md)
         {
             if (md.ReturnType.FullName == WeaverTypes.IEnumeratorType.FullName)
             {
