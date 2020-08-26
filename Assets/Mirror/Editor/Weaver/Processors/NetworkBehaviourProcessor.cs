@@ -900,10 +900,7 @@ namespace Mirror.Weaver
             for (int i = 0; i < method.Parameters.Count; ++i)
             {
                 ParameterDefinition param = method.Parameters[i];
-
-                bool valid = ValidateParameter(method, param, callType, i == 0);
-
-                if (!valid)
+                if (!ValidateParameter(method, param, callType, i == 0))
                 {
                     return false;
                 }
