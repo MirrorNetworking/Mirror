@@ -123,11 +123,5 @@ namespace Mirror.Weaver
                 }
             }
         }
-
-        public static bool ValidateCommand(MethodDefinition md)
-        {
-            // validate
-            return NetworkBehaviourProcessor.ValidateRemoteCallAndParameters(md, RemoteCallType.Command);
-        }
     }
 }

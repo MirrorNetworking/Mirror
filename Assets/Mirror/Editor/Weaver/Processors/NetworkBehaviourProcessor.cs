@@ -1081,7 +1081,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (!CommandProcessor.ValidateCommand(md))
+            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.Command))
                 return;
 
             if (names.Contains(md.Name))
