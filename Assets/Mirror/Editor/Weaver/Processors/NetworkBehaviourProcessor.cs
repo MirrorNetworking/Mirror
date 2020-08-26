@@ -1068,7 +1068,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (!CommandProcessor.ProcessMethodsValidateCommand(md))
+            if (!CommandProcessor.ValidateCommand(md))
                 return;
 
             if (names.Contains(md.Name))
