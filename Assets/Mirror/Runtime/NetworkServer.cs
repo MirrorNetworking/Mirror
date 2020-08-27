@@ -73,7 +73,7 @@ namespace Mirror
         public static float disconnectInactiveTimeout = 60f;
 
         /// <summary>
-        /// cache the Send(connectionIds) list to avoid allocating each time 
+        /// cache the Send(connectionIds) list to avoid allocating each time
         /// </summary>
         static readonly List<int> connectionIdsCache = new List<int>();
 
@@ -217,7 +217,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// called by LocalClient to add itself. dont call directly. 
+        /// called by LocalClient to add itself. dont call directly.
         /// </summary>
         /// <param name="conn"></param>
         internal static void SetLocalConnection(ULocalConnectionToClient conn)
@@ -975,7 +975,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// default ready handler. 
+        /// default ready handler.
         /// </summary>
         /// <param name="conn"></param>
         /// <param name="msg"></param>
@@ -1057,6 +1057,14 @@ namespace Mirror
             if (identity == null)
             {
                 logger.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
+                return;
+            }
+
+            // spawning a server-only NetworkIdentity won't do anything, but
+            // might confuse someone. let's show a warning.
+            if (identity.serverOnly)
+            {
+                logger.LogWarning("SpawnObject for " + obj + " is server-only. Calling NetworkServer.Spawn wouldn't do anything.");
                 return;
             }
 
