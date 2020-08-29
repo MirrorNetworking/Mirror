@@ -107,6 +107,9 @@ namespace Mirror
     public sealed class NetworkIdentity : MonoBehaviour
     {
         static readonly ILogger logger = LogFactory.GetLogger<NetworkIdentity>();
+        [SerializeField]
+        private bool _allowChildrenBehaviours = false;
+        public bool allowChildrenBehaviours { get { return _allowChildrenBehaviours; } }
 
         NetworkBehaviour[] networkBehavioursCache;
 
@@ -238,7 +241,11 @@ namespace Mirror
 
         void CreateNetworkBehavioursCache()
         {
-            networkBehavioursCache = GetComponents<NetworkBehaviour>();
+            if (allowChildrenBehaviours)
+                networkBehavioursCache = GetComponentsInChildren<NetworkBehaviour>(true);
+            else
+                networkBehavioursCache = GetComponents<NetworkBehaviour>();
+
             if (NetworkBehaviours.Length > 64)
             {
                 logger.LogError($"Only 64 NetworkBehaviour components are allowed for NetworkIdentity: {name} because of the dirtyComponentMask", this);
