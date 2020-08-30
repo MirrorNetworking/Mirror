@@ -34,8 +34,9 @@ When a client disconnects:
 
 When the host is stopped:
 -   `OnStopHost`
--   `OnStopServer`
+-   `OnServerDisconnect`
 -   `OnStopClient`
+-   `OnStopServer`
 
 ## Client Mode
 
