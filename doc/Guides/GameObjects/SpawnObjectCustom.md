@@ -65,11 +65,7 @@ public class SpawnManager : MonoBehaviour
     public GameObject m_Prefab;
     public GameObject[] m_Pool;
 
-    public System.Guid assetId { get; set;
-}
-    
-    public delegate GameObject SpawnDelegate(Vector3 position, System.Guid assetId);
-    public delegate void UnSpawnDelegate(GameObject spawned);
+    public System.Guid assetId { get; set; }
 
     void Start()
     {
