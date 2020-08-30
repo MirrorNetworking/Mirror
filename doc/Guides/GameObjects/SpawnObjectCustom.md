@@ -186,16 +186,16 @@ namespace Mirror.Examples
 }
 ```
 
-To use this manager, create a new empty game object and name it “SpawnManager”. Create a new script called *SpawnManager,* copy in the code sample above, and attach it to the new SpawnManager game object. Next, drag a prefab you want to spawn multiple times to the Prefab field, and set the Object Pool Size (default is 5).
+To use this manager, create a new empty game object and add the `PrefabPoolManager` component (code above). Next, drag a prefab you want to spawn multiple times to the Prefab field, and set `startSize` and `maxSize` fields. `startSize` is how many will be spawned when your game starts. `maxSize` is the max number that can be spawned, if this number is reached then an error will be given when trying to more new objects.
 
-Finally, set up a reference to the SpawnManager in the script you are using for player movement:
+Finally, set up a reference to the PrefabPoolManager in the script you are using for player movement:
 
 ``` cs
-SpawnManager spawnManager;
+PrefabPoolManager prefabPoolManager;
 
 void Start()
 {
-    spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager> ();
+    prefabPoolManager = FindObjectOfType<PrefabPoolManager>();
 }
 ```
 
@@ -207,11 +207,12 @@ void Update()
     if (!isLocalPlayer)
         return;
     
-    var x = Input.GetAxis("Horizontal")*0.1f;
-    var z = Input.GetAxis("Vertical")*0.1f;
-    
+    // move
+    var x = Input.GetAxis("Horizontal") * 0.1f;
+    var z = Input.GetAxis("Vertical") * 0.1f;
     transform.Translate(x, 0, z);
 
+    // shoot
     if (Input.GetKeyDown(KeyCode.Space))
     {
         // Command function is called on the client, but invoked on the server
@@ -226,23 +227,27 @@ In the fire logic on the player, make it use the game object pool:
 [Command]
 void CmdFire()
 {
-    // Set up coin on server
-    var coin = spawnManager.GetFromPool(transform.position + transform.forward);  
-    coin.GetComponent<Rigidbody>().velocity = transform.forward*4;
-    
-    // spawn coin on client, custom spawn handler is called
-    NetworkServer.Spawn(coin, spawnManager.assetId);
-    
-    // when the coin is destroyed on the server, it is automatically destroyed on clients
-    StartCoroutine (Destroy (coin, 2.0f));
+    // Set up bullet on server
+    GameObject bullet = prefabPoolManager.GetFromPool(transform.position + transform.forward, Quaternion.identity);
+    bullet.GetComponent<Rigidbody>().velocity = transform.forward * 4;
+
+    // tell server to send SpawnMessage, which will call SpawnHandler on client
+    NetworkServer.Spawn(bullet);
+
+    // destroy bullet after 2 seconds
+    StartCoroutine(Destroy(bullet, 2.0f));
 }
 
-public IEnumerator Destroy(GameObject go, float timer)
+public IEnumerator Destroy(GameObject go, float delay)
 {
-    yield return new WaitForSeconds(timer);
-    spawnManager.UnSpawnObject(go);
+    yield return new WaitForSeconds(delay);
+
+    // return object to pool on server
+    prefabPoolManager.PutBackInPool(go);
+
+    // tell server to send ObjectDestroyMessage, which will call UnspawnHandler on client
     NetworkServer.UnSpawn(go);
 }
 ```
 
-The automatic destruction shows how the game objects are returned to the pool and re-used when you fire again.
+The Destroy method above shows how to return game objects to the pool so that they can be re-used when you fire again
