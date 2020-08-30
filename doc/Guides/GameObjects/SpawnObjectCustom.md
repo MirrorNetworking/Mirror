@@ -16,19 +16,22 @@ public delegate void UnSpawnDelegate(GameObject spawned);
 
 The asset ID passed to the spawn function can be found on `NetworkIdentity.assetId` for prefabs, where it is populated automatically. The registration for a dynamic asset ID is handled like this:
 
+**Generate prefab at runtime**
 ``` cs
 // generate a new unique assetId 
 System.Guid creatureAssetId = System.Guid.NewGuid();
 
 // register handlers for the new assetId
 ClientScene.RegisterSpawnHandler(creatureAssetId, SpawnCreature, UnSpawnCreature);
+```
+**Use existing prefab**
+```cs
+// register prefab you'd like to custom spawn and pass in handlers
+ClientScene.RegisterPrefab(coinAssetId, SpawnCoin, UnSpawnCoin);
+```
 
-// get assetId on an existing prefab
-System.Guid coinAssetId = coinPrefab.GetComponent<NetworkIdentity>().assetId;
-
-// register handlers for an existing prefab you'd like to custom spawn
-ClientScene.RegisterSpawnHandler(coinAssetId, SpawnCoin, UnSpawnCoin);
-
+**Spawn on Server**
+```cs
 // spawn a coin - SpawnCoin is called on client
 NetworkServer.Spawn(gameObject, coinAssetId);
 ```
