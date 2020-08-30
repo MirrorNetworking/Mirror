@@ -55,57 +55,113 @@ Note that on the host, game objects are not spawned for the local client, becaus
 Here is an example of how you might set up a very simple game object pooling system with custom spawn handlers. Spawning and unspawning then puts game objects in or out of the pool.
 
 ``` cs
-using UnityEngine;
+using System.Collections.Generic;
 using Mirror;
-using System.Collections;
+using UnityEngine;
 
-public class SpawnManager : MonoBehaviour
+namespace Mirror.Examples
 {
-    public int m_ObjectPoolSize = 5;
-    public GameObject m_Prefab;
-    public GameObject[] m_Pool;
-
-    public System.Guid assetId { get; set; }
-
-    void Start()
+    public class PrefabPoolManager : MonoBehaviour
     {
-        assetId = m_Prefab.GetComponent<NetworkIdentity> ().assetId;
-        m_Pool = new GameObject[m_ObjectPoolSize];
-        for (int i = 0; i < m_ObjectPoolSize; ++i)
+        [Header("Settings")]
+        public int startSize = 5;
+        public int maxSize = 20;
+        public GameObject prefab;
+
+        [Header("Debug")]
+        [SerializeField] Queue<GameObject> pool;
+        [SerializeField] int currentCount;
+
+
+        void Start()
         {
-            m_Pool[i] = Instantiate(m_Prefab, Vector3.zero, Quaternion.identity);
-            m_Pool[i].name = "PoolObject" + i;
-            m_Pool[i].SetActive(false);
+            InitializePool();
+
+            ClientScene.RegisterPrefab(prefab, SpawnHandler, UnspawnHandler);
         }
-        
-        ClientScene.RegisterSpawnHandler(assetId, SpawnObject, UnSpawnObject);
-    }
 
-    public GameObject GetFromPool(Vector3 position)
-    {
-        foreach (var obj in m_Pool)
+        void OnDestroy()
         {
-            if (!obj.activeInHierarchy)
+            ClientScene.UnregisterPrefab(prefab);
+        }
+
+        private void InitializePool()
+        {
+            pool = new Queue<GameObject>();
+            for (int i = 0; i < startSize; i++)
             {
-                Debug.Log("Activating GameObject " + obj.name + " at " + position);
-                obj.transform.position = position;
-                obj.SetActive (true);
-                return obj;
+                GameObject next = CreateNew();
+
+                pool.Enqueue(next);
             }
         }
-        Debug.LogError ("Could not grab game object from pool, nothing available");
-        return null;
-    }
-    
-    public GameObject SpawnObject(Vector3 position, System.Guid assetId)
-    {
-        return GetFromPool(position);
-    }
-    
-    public void UnSpawnObject(GameObject spawned)
-    {
-        Debug.Log ("Re-pooling game object " + spawned.name);
-        spawned.SetActive (false);
+
+        GameObject CreateNew()
+        {
+            if (currentCount > maxSize)
+            {
+                Debug.LogError($"Pool has reached max size of {maxSize}");
+                return null;
+            }
+
+            // use this object as parent so that objects dont crowd hierarchy
+            GameObject next = Instantiate(prefab, transform);
+            next.name = $"{prefab.name}_pooled_{currentCount}";
+            next.SetActive(false);
+            currentCount++;
+            return next;
+        }
+
+        // used by ClientScene.RegisterPrefab
+        GameObject SpawnHandler(SpawnMessage msg)
+        {
+            return GetFromPool(msg.position, msg.rotation);
+        }
+
+        // used by ClientScene.RegisterPrefab
+        void UnspawnHandler(GameObject spawned)
+        {
+            PutBackInPool(spawned);
+        }
+
+        /// <summary>
+        /// Used to take Object from Pool.
+        /// <para>Should be used on server to get the next Object</para>
+        /// <para>Used on client by ClientScene to spawn objects</para>
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        public GameObject GetFromPool(Vector3 position, Quaternion rotation)
+        {
+            GameObject next = pool.Count > 0
+                ? pool.Dequeue() // take from pool
+                : CreateNew(); // create new because pool is empty
+
+            // CreateNew might return null if max size is reached
+            if (next == null) { return null; }
+
+            // set position/rotation and set active
+            next.transform.position = position;
+            next.transform.rotation = rotation;
+            next.SetActive(true);
+            return next;
+        }
+
+        /// <summary>
+        /// Used to put object back into pool so they can b
+        /// <para>Should be used on server after unspawning an object</para>
+        /// <para>Used on client by ClientScene to unspawn objects</para>
+        /// </summary>
+        /// <param name="spawned"></param>
+        public void PutBackInPool(GameObject spawned)
+        {
+            // disable object
+            spawned.SetActive(false);
+
+            // add back to pool
+            pool.Enqueue(spawned);
+        }
     }
 }
 ```
