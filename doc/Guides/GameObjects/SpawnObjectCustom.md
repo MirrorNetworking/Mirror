@@ -8,7 +8,6 @@ The spawn / unspawn delegates will look something like this:
 
 **Spawn Handler**
 ``` cs
-
 GameObject SpawnDelegate(Vector3 position, System.Guid assetId) 
 {
     // do stuff here
