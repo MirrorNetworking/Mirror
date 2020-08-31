@@ -98,6 +98,12 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SceneReadyMessageTest()
+        {
+            TestSerializeDeserialize(new SceneReadyMessage());
+        }
+
+        [Test]
         public void AddPlayerMessageTest()
         {
             TestSerializeDeserialize(new AddPlayerMessage());
