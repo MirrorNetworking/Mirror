@@ -115,6 +115,7 @@ namespace Mirror
         /// <summary>
         /// NetworkIdentity component caching for easier access
         /// </summary>
+        [SerializeField, HideInInspector]
         NetworkIdentity netIdentityCache;
 
         /// <summary>
@@ -124,15 +125,17 @@ namespace Mirror
         {
             get
             {
+                /* NetIdentityCache won't be null for newly added scripts
+                 * because it's serialized when the script is added. But for scripts
+                 * already added it could potentially be null. Because of this we
+                 * allow the standard null check and assign. */
                 if (netIdentityCache == null)
                 {
-                    netIdentityCache = transform.root.GetComponent<NetworkIdentity>();
-                    // do this 2nd check inside first if so that we are not checking == twice on unity Object
+                    netIdentityCache = GetComponent<NetworkIdentity>();
                     if (netIdentityCache == null)
-                    {
                         logger.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
-                    }
                 }
+
                 return netIdentityCache;
             }
         }
@@ -689,8 +692,18 @@ namespace Mirror
 
         protected virtual void Reset()
         {
-            if (transform.root.GetComponent<NetworkIdentity>() == null)
-                transform.root.gameObject.AddComponent<NetworkIdentity>();
+            /* Don't perform this code at runtime.
+             * Reset is typically only called in the editor
+             * and when a component is added or reset in the inspector. */
+            if (Application.isPlaying)
+                return;
+
+            //Add to root if network identity doesn't exist up the hierarchy.
+            NetworkIdentity ni = GetComponentInParent<NetworkIdentity>();
+            if (ni == null)
+                ni = transform.root.gameObject.AddComponent<NetworkIdentity>();
+
+            netIdentityCache = ni;
         }
 
 
