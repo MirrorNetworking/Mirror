@@ -426,6 +426,20 @@ namespace Mirror
 
 #if UNITY_EDITOR
             SetupIDs();
+            //Make sure there are no other NetworkIdentities in children if allowing children behaviours.
+            if (allowChildrenBehaviours)
+            {
+                NetworkIdentity[] nis = GetComponentsInChildren<NetworkIdentity>(true);
+                foreach (NetworkIdentity ni in nis)
+                {
+                    //If found object is not on root.
+                    if (ni.gameObject.GetInstanceID() != GetInstanceID())
+                    {
+                        Debug.LogError("Found NetworkIdentity components in children with allowChildrenBehaviour as true. When using allowChildrenBehaviour do not include NetworkIdentity components in children.");
+                        break;
+                    }
+                }
+            }
 #endif
         }
 
@@ -1686,5 +1700,6 @@ namespace Mirror
                 comp.ResetSyncObjects();
             }
         }
+
     }
 }
