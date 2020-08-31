@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Mirror
 {
@@ -10,36 +11,12 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkPingDisplay.html")]
     public class NetworkPingDisplay : MonoBehaviour
     {
-        [SerializeField] bool showPing = true;
-        [SerializeField] Vector2 position = new Vector2(200, 0);
-        [SerializeField] int fontSize = 24;
-        [SerializeField] Color textColor = new Color32(255, 255, 255, 80);
-
         public NetworkClient Client;
+        public Text NetworkPingLabelText;
 
-        GUIStyle style;
-
-        void Awake()
+        void Update()
         {
-            style = new GUIStyle
-            {
-                alignment = TextAnchor.UpperLeft,
-                fontSize = fontSize
-            };
-            style.normal.textColor = textColor;
-        }
-
-        void OnGUI()
-        {
-            if (!showPing) { return; }
-
-            string text = string.Format("{0}ms", (int)(Client.Time.Rtt * 1000));
-
-            int width = Screen.width;
-            int height = Screen.height;
-            Rect rect = new Rect(position.x, position.y, width - 200, height * 2 / 100);
-
-            GUI.Label(rect, text, style);
+            NetworkPingLabelText.text = string.Format("{0}ms", (int)(Client.Time.Rtt * 1000));
         }
     }
 }
