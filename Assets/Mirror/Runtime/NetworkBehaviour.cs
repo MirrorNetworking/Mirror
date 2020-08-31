@@ -537,7 +537,7 @@ namespace Mirror
             return false;
         }
 
-        internal bool IsDirty()
+        public bool IsDirty()
         {
             if (Time.time - lastSyncTime >= syncInterval)
             {
