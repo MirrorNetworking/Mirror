@@ -1,3 +1,10 @@
+# [43.5.0](https://github.com/MirrorNG/MirrorNG/compare/v43.4.2...v43.5.0) (2020-08-31)
+
+
+### Features
+
+* New NetworkManagerHud ([#340](https://github.com/MirrorNG/MirrorNG/issues/340)) ([267f513](https://github.com/MirrorNG/MirrorNG/commit/267f51349d68d9607cb57dd6cbe11d5cfafb5118))
+
 ## [43.4.2](https://github.com/MirrorNG/MirrorNG/compare/v43.4.1...v43.4.2) (2020-08-24)
 
 
