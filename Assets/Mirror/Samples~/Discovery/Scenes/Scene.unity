@@ -293,6 +293,130 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1013390989
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3485129733779382408, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6722741378053637293, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: m_Name
+      value: NetworkManagerHudInCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 7627036909826763176, guid: 8fe65c0d72451f04584fcdd021b46308,
+        type: 3}
+      propertyPath: NetworkManager
+      value: 
+      objectReference: {fileID: 1556883245}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8fe65c0d72451f04584fcdd021b46308, type: 3}
 --- !u!1 &1392889995
 GameObject:
   m_ObjectHideFlags: 0
@@ -386,7 +510,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1392889995}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc6b510c425006f458e9b99cb817c55b, type: 3}
+  m_Script: {fileID: 11500000, guid: 0ca4e0a7ae009604c80ea999df8324ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1556883243
@@ -427,6 +551,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   client: {fileID: 1556883249}
   server: {fileID: 1556883250}
+  sceneManager: {fileID: 0}
   playerPrefab: {fileID: 1410032569926419539, guid: ecd52c53a6ef7496693343d3e32dace1,
     type: 3}
   startPositionIndex: 0
@@ -444,11 +569,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startOnHeadless: 1
-  serverTickRate: 30
   server: {fileID: 1556883250}
   client: {fileID: 1556883249}
-  transport: {fileID: 1556883252}
   OnStartHost:
     m_PersistentCalls:
       m_Calls: []
@@ -526,7 +648,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   authenticator: {fileID: 0}
-  sceneManager: {fileID: 1556883251}
   Connected:
     m_PersistentCalls:
       m_Calls: []
@@ -570,7 +691,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   authenticator: {fileID: 0}
-  sceneManager: {fileID: 1556883251}
   Listening: 1
   transport: {fileID: 1556883252}
 --- !u!114 &1556883251
@@ -602,7 +722,6 @@ MonoBehaviour:
   ServerSceneChanged:
     m_PersistentCalls:
       m_Calls: []
-  networkSceneName: 
 --- !u!114 &1556883252
 MonoBehaviour:
   m_ObjectHideFlags: 0

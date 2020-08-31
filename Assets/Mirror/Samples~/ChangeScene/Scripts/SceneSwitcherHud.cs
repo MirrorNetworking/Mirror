@@ -9,11 +9,6 @@ namespace Mirror.Examples.SceneChange
         public Text AdditiveButtonText;
         bool additiveLoaded;
 
-        private void Awake()
-        {
-            DontDestroyOnLoad(this);
-        }
-
         public void Update()
         {
             if(additiveLoaded)
