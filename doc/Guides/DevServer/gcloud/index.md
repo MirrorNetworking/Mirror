@@ -27,7 +27,7 @@ Start by creating and configuring a new Compute Engine instance.
 
 If this is your first instance you will see a dialog prompting you to create a new virtual machine
 
-![create new](./1-vm-instances.jpg)
+![create new](./01-vm-instances.jpg)
 
 2) Click Create to get started.
 
@@ -41,25 +41,25 @@ If this is your first instance you will see a dialog prompting you to create a n
     - In the Boot disk section, click Change. The Boot disk dialog will pop up.
     - Change the disk type to SSD Persistent Disk.
 
-![create instance with name and region](./2-create-instance-name-region.jpg)
+![create instance with name and region](./02-create-instance-name-region.jpg)
 
 4) Boot disk can be left as default `10gb standard persistent disk` with `Debian GNU/Linux 9 (stretch)` for this tutorial.
 
 You may want to change it to best fit your needs. You can instead use an ssd or increase its size, however this will increase the monthly cost. 
 
-![Boot disk](./3-boot-disk.jpg)
+![Boot disk](./03-boot-disk.jpg)
 
 >  Note: The monthly estimate should be shown at the top right next to `Name`
 
 5) To configure Network settings first example the `Management, security, disks, networking, solo tenancy` section, then click on the `Networking` tab.
 
-![expand network settings](./4-expand-network-settings.jpg)
+![expand network settings](./04-expand-network-settings.jpg)
 
 6) Set a Network tag, this will allow you to set up firewall rules later on.
 
 This tutorial use `mirror-demo` as the tag
 
-![set network tag](./5-network-tag.jpg)
+![set network tag](./05-network-tag.jpg)
 
 7) Set up a static IP address for your instance
 
@@ -67,7 +67,7 @@ This tutorial use `mirror-demo` as the tag
     b) Select the **External IP** dropdown and select `Create IP address
     c) Enter a name for this ip and press **Reserve**. For this tutorial we will use `mirror-demo-ip`
 
-![reserve ip address](./6-ip-address.jpg)
+![reserve ip address](./06-ip-address.jpg)
 
 8) Create your instance. 
 
@@ -94,7 +94,7 @@ Protocols or ports: Select tcp, and then enter port 7777 into the field provided
 
 > note tcp and port 7777 is default settings for telepathy, if you are using a different transport you will need to find out what settings that uses.
 
-![Create network rule](./7-create-network-rule.jpg)
+![Create network rule](./07-create-network-rule.jpg)
 
 4) Press **Create** to confirm setting and create the rule.
 
@@ -102,7 +102,7 @@ Protocols or ports: Select tcp, and then enter port 7777 into the field provided
 
 Once your instance has finished being created you can press the **SSH** button to connect to your instance in your web browser
 
-![connect to instance](./8-connect-to-instance.jpg)
+![connect to instance](./08-connect-to-instance.jpg)
 
 ## Setting up the linux instance
 
@@ -121,7 +121,7 @@ sudo apt-get install -y screen unzip
 `screen` allows you to have multiple terminals, allows you do do other stuff while your game is running
 `unzip` unzips can be used to extract files from a ZIP file after you upload it to the instance 
 
-![update and install packages](./9-update-and-install.jpg)
+![update and install packages](./09-update-and-install.jpg)
 
 ## Build your game
 
