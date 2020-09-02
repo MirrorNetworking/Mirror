@@ -64,7 +64,7 @@ This tutorial use `mirror-demo` as the tag
     a) Under **Network interfaces** click on `default` and it will bring up a config menu
 
     b) Select the **External IP** dropdown and select `Create IP address
-    
+
     c) Enter a name for this ip and press **Reserve**. For this tutorial we will use `mirror-demo-ip`
 
 ![reserve ip address](./06-ip-address.jpg)
@@ -160,6 +160,7 @@ unzip ./mirror-demo.zip
 ```sh
 cd mirror-demo
 ```
+
 2) Mark game as executable
 ```sh
 chmod +x ./mirror-demo.x86_64 
@@ -185,14 +186,14 @@ The parts of the command above:
 4) Create start file so you can start your server the same way each time
 
     a) create `start.sh`
-```
-echo "screen -d -m -S mirrorServer ./mirror-demo.x86_64 -logfile ~/server.log" > ./start.sh
-```
-    b) mark as executable
+    ```
+    echo "screen -d -m -S mirrorServer ./mirror-demo.x86_64 -logfile ~/server.log" > ./start.sh
+    ```
 
-```sh
-chmod +x ./start.sh 
-```
+    b) mark as executable
+    ```sh
+    chmod +x ./start.sh 
+    ```
 
 5) Run your server
 ```sh
