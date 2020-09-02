@@ -30,3 +30,5 @@
 - name: GameObjects
   href: GameObjects/toc.yml
   topicHref: GameObjects/
+- name: Miscellaneous
+  href: Miscellaneous/toc.yml
