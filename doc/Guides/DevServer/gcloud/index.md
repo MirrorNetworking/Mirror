@@ -225,7 +225,7 @@ Once attached to a screen you can press `CTRL + C` to stop the process, this wil
 
 ### View log files
 
-If you use the `-logfile ~/path/to/log.log` argument when starting your game server then logs will be written there instead of to the terminal so using `screen -r` wont be helpful unless you want to stop your game.
+You can use the `-logfile ~/path/to/log.log` argument for Unity when starting your game server. This will cause the logs to be written to a file instead of to the terminal. This will means recent logs wont show up in `screen -r`.
 
 - you can use the `tail` command to view the the end of the log file
 
