@@ -63,7 +63,7 @@ This tutorial use `mirror-demo` as the tag
 
     a) Under **Network interfaces** click on `default` and it will bring up a config menu
 
-    b) Select the **External IP** dropdown and select `Create IP address
+    b) Select the **External IP** dropdown and select `Create IP address`
 
     c) Enter a name for this ip and press **Reserve**. For this tutorial we will use `mirror-demo-ip`
 
