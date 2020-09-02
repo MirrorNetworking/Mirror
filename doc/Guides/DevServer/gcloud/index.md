@@ -85,11 +85,11 @@ This will allow other people to connect to your server using its IP and port
 
 3) On the Create a firewall rule page, fill out the form as follows:
 
-Name: `mirror-demo-rule`
-Target tags: `mirror-demo`
-Source filter: IP ranges
-Source IP ranges: 0.0.0.0/0
-Protocols or ports: Select tcp, and then enter port 7777 into the field provided.
+    - Name: `mirror-demo-rule`
+    - Target tags: `mirror-demo`
+    - Source filter: IP ranges
+    - Source IP ranges: 0.0.0.0/0
+    - Protocols or ports: Select tcp, and then enter port 7777 into the field provided.
 
 > note tcp and port 7777 is default settings for telepathy, if you are using a different transport you will need to find out what settings that uses.
 
