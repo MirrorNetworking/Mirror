@@ -118,6 +118,7 @@ sudo apt-get install -y screen unzip
 ```
 
 `screen` allows you to have multiple terminals, allows you do do other stuff while your game is running
+
 `unzip` unzips can be used to extract files from a ZIP file after you upload it to the instance 
 
 ![update and install packages](./09-update-and-install.jpg)
