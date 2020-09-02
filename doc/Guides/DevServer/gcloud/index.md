@@ -11,8 +11,7 @@ Google cloud offers $300 free credits to new users for a limited time, and it al
 
 > Note: If you don't plan to keep the resources that you create in this procedure, create a project instead of selecting an existing project. After you finish these steps, you can delete the project, removing all resources associated with the project.
 
-<!-- TODO make button -->
-[Go to the project selector page](https://console.cloud.google.com/projectselector2/home/dashboard)
+**[Go to the project selector page](https://console.cloud.google.com/projectselector2/home/dashboard)**
 
 2) You may need to enable billing for your Google Cloud project. If you have free credits (see above) then these will be used first. [Learn how to confirm billing is enabled for your project.](https://cloud.google.com/billing/docs/how-to/modify-project)
 
@@ -22,8 +21,7 @@ Start by creating and configuring a new Compute Engine instance.
 
 1) In the Cloud Console, go to the VM instances page:
 
-<!-- TODO make button -->
-[Go to the VM instances page](https://console.cloud.google.com/compute/instances)
+**[Go to the VM instances page](https://console.cloud.google.com/compute/instances)**
 
 If this is your first instance you will see a dialog prompting you to create a new virtual machine
 
@@ -79,8 +77,7 @@ This will allow other people to connect to your server using its IP and port
 
 1) In the Cloud Console, go to the Firewall page.
 
-<!-- TODO make button -->
-(Go to the Firewall page)[https://console.cloud.google.com/networking/firewalls/list]
+**[Go to the Firewall page](https://console.cloud.google.com/networking/firewalls/list)**
 
 2) Click Create firewall rule.
 
@@ -247,6 +244,5 @@ If you used an existing project you will need to delete the following:
 
 If you have created a new project you should be able to just delete the project. 
 
-<!-- TODO make button -->
-[Go to the Manage resources page](https://console.cloud.google.com/iam-admin/projects)
+**[Go to the Manage resources page](https://console.cloud.google.com/iam-admin/projects)**
 
