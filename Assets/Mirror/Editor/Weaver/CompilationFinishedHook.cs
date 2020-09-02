@@ -47,6 +47,12 @@ namespace Mirror.Weaver
         [InitializeOnLoadMethod]
         public static void OnInitializeOnLoad()
         {
+            if (Environment.CommandLine.IndexOf("-no-weave") != -1)
+            {
+                Debug.LogWarning("Not running weaver because '-no-weave' argument was given");
+                return;
+            }
+
             CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
 
             // We only need to run this once per session
