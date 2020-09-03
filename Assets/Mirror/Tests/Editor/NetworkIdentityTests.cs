@@ -1368,49 +1368,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void HandleSyncEvent()
-        {
-            // add syncevent component
-            SyncEventTestNetworkBehaviour comp0 = gameObject.AddComponent<SyncEventTestNetworkBehaviour>();
-            Assert.That(comp0.called, Is.EqualTo(0));
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(SyncEventTestNetworkBehaviour),
-                nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated),
-                MirrorInvokeType.SyncEvent,
-                SyncEventTestNetworkBehaviour.SyncEventGenerated);
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // call HandleSyncEvent and check if the event was called in the component
-            int componentIndex = 0;
-            int functionHash = RemoteCallHelper.GetMethodHash(typeof(SyncEventTestNetworkBehaviour), nameof(SyncEventTestNetworkBehaviour.SyncEventGenerated));
-            NetworkReader payload = new NetworkReader(new byte[0]);
-            identity.HandleSyncEvent(componentIndex, functionHash, payload);
-            Assert.That(comp0.called, Is.EqualTo(1));
-
-            // try wrong component index. syncevent shouldn't be called again.
-            // warning is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.HandleSyncEvent(1, functionHash, payload);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp0.called, Is.EqualTo(1));
-
-            // try wrong function hash. syncevent shouldn't be called again.
-            // warning is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.HandleSyncEvent(0, functionHash + 1, payload);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp0.called, Is.EqualTo(1));
-
-            // clean up
-            NetworkIdentity.spawned.Clear();
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-        }
-
-        [Test]
         public void ServerUpdate()
         {
             // add components

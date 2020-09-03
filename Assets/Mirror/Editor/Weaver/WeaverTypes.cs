@@ -52,7 +52,6 @@ namespace Mirror.Weaver
         public static TypeReference CommandType;
         public static TypeReference ClientRpcType;
         public static TypeReference TargetRpcType;
-        public static TypeReference SyncEventType;
         public static TypeReference SyncObjectType;
         public static MethodReference InitSyncObjectReference;
 
@@ -96,7 +95,6 @@ namespace Mirror.Weaver
         public static MethodReference getSyncVarNetworkIdentityReference;
         public static MethodReference registerCommandDelegateReference;
         public static MethodReference registerRpcDelegateReference;
-        public static MethodReference registerEventDelegateReference;
         public static MethodReference getTypeReference;
         public static MethodReference getTypeFromHandleReference;
         public static MethodReference logErrorReference;
@@ -104,7 +102,6 @@ namespace Mirror.Weaver
         public static MethodReference sendCommandInternal;
         public static MethodReference sendRpcInternal;
         public static MethodReference sendTargetRpcInternal;
-        public static MethodReference sendEventInternal;
 
 
         public static void SetupUnityTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly)
@@ -119,7 +116,6 @@ namespace Mirror.Weaver
             CommandType = mirrorAssembly.MainModule.GetType("Mirror.CommandAttribute");
             ClientRpcType = mirrorAssembly.MainModule.GetType("Mirror.ClientRpcAttribute");
             TargetRpcType = mirrorAssembly.MainModule.GetType("Mirror.TargetRpcAttribute");
-            SyncEventType = mirrorAssembly.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = mirrorAssembly.MainModule.GetType("Mirror.SyncObject");
         }
 
@@ -233,7 +229,6 @@ namespace Mirror.Weaver
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkIdentity");
             registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterCommandDelegate");
             registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
-            registerEventDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterEventDelegate");
             getTypeReference = Resolvers.ResolveMethod(objectType, currentAssembly, "GetType");
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, currentAssembly, "GetTypeFromHandle");
             logErrorReference = Resolvers.ResolveMethod(unityAssembly.MainModule.GetType("UnityEngine.Debug"), currentAssembly, "LogError");
@@ -241,7 +236,6 @@ namespace Mirror.Weaver
             sendCommandInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendCommandInternal");
             sendRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendRPCInternal");
             sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendTargetRPCInternal");
-            sendEventInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendEventInternal");
 
             SyncObjectType = currentAssembly.MainModule.ImportReference(SyncObjectType);
             InitSyncObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "InitSyncObject");

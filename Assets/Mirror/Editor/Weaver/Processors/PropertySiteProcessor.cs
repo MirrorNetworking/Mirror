@@ -115,12 +115,6 @@ namespace Mirror.Weaver
 
         static int ProcessInstruction(MethodDefinition md, Instruction instr, int iCount)
         {
-            if ((instr.OpCode == OpCodes.Call || instr.OpCode == OpCodes.Callvirt)
-                && instr.Operand is MethodReference opMethod)
-            {
-                ProcessInstructionMethod(md, instr, opMethod, iCount);
-            }
-
             if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
             {
                 // this instruction sets the value of a field. cache the field reference.
@@ -177,38 +171,6 @@ namespace Mirror.Weaver
             }
 
             return 1;
-        }
-
-        static void ProcessInstructionMethod(MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
-        {
-            if (opMethodRef.Name != "Invoke")
-                return;
-
-            // Events use an "Invoke" method to call the delegate.
-            // this code replaces the "Invoke" instruction with the generated "Call***" instruction which send the event to the server.
-            // but the "Invoke" instruction is called on the event field - where the "call" instruction is not.
-            // so the earlier instruction that loads the event field is replaced with a Noop.
-
-            // go backwards until find a ldfld instruction that matches ANY event
-            while (iCount > 0)
-            {
-                iCount -= 1;
-                Instruction inst = md.Body.Instructions[iCount];
-                if (inst.OpCode == OpCodes.Ldfld)
-                {
-                    FieldReference opField = inst.Operand as FieldReference;
-
-                    // find replaceEvent with matching name
-                    // NOTE: original weaver compared .Name, not just the MethodDefinition,
-                    //       that's why we use dict<string,method>.
-                    if (Weaver.WeaveLists.replaceEvents.TryGetValue(opField.FullName, out MethodDefinition replacement))
-                    {
-                        instr.Operand = replacement;
-                        inst.OpCode = OpCodes.Nop;
-                        return;
-                    }
-                }
-            }
         }
     }
 }

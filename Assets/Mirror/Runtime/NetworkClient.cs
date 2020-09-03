@@ -301,7 +301,6 @@ namespace Mirror
                 RegisterHandler<UpdateVarsMessage>(ClientScene.OnUpdateVarsMessage);
             }
             RegisterHandler<RpcMessage>(ClientScene.OnRPCMessage);
-            RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
         /// <summary>

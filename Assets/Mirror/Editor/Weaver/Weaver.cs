@@ -14,9 +14,6 @@ namespace Mirror.Weaver
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
 
-        // [SyncEvent] invoke functions that should be replaced. dict<originalEventName, replacement>
-        public Dictionary<string, MethodDefinition> replaceEvents = new Dictionary<string, MethodDefinition>();
-
         public List<MethodDefinition> generatedReadFunctions = new List<MethodDefinition>();
         public List<MethodDefinition> generatedWriteFunctions = new List<MethodDefinition>();
 
@@ -31,7 +28,6 @@ namespace Mirror.Weaver
     internal static class Weaver
     {
         public static string InvokeRpcPrefix => "InvokeUserCode_";
-        public static string SyncEventPrefix => "SendEventMessage_";
 
         public static WeaverLists WeaveLists { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }

@@ -238,29 +238,6 @@ namespace Mirror.Tests.MessageTests
         }
 
         [Test]
-        public void SyncEventMessage()
-        {
-            // try setting value with constructor
-            SyncEventMessage message = new SyncEventMessage
-            {
-                netId = 42,
-                componentIndex = 4,
-                functionHash = 0xABCDEF,
-                payload = new ArraySegment<byte>(new byte[] { 0x01, 0x02 })
-            };
-            byte[] arr = MessagePacker.Pack(message);
-            SyncEventMessage fresh = MessagePacker.Unpack<SyncEventMessage>(arr);
-
-            Assert.That(fresh.netId, Is.EqualTo(message.netId));
-            Assert.That(fresh.componentIndex, Is.EqualTo(message.componentIndex));
-            Assert.That(fresh.functionHash, Is.EqualTo(message.functionHash));
-            Assert.That(fresh.payload.Count, Is.EqualTo(message.payload.Count));
-            for (int i = 0; i < fresh.payload.Count; ++i)
-                Assert.That(fresh.payload.Array[fresh.payload.Offset + i],
-                    Is.EqualTo(message.payload.Array[message.payload.Offset + i]));
-        }
-
-        [Test]
         public void UpdateVarsMessage()
         {
             // try setting value with constructor

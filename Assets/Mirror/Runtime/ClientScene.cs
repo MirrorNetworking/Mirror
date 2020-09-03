@@ -236,7 +236,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Valids Prefab then adds it to prefabs dictionary 
+        /// Valids Prefab then adds it to prefabs dictionary
         /// </summary>
         /// <param name="prefab">NetworkIdentity on Prefab GameObject</param>
         static void RegisterPrefabIdentity(NetworkIdentity prefab)
@@ -994,21 +994,6 @@ namespace Mirror
             {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
                     identity.HandleRPC(msg.componentIndex, msg.functionHash, networkReader);
-            }
-        }
-
-        internal static void OnSyncEventMessage(SyncEventMessage msg)
-        {
-            if (logger.LogEnabled()) logger.Log("ClientScene.OnSyncEventMessage " + msg.netId);
-
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
-            {
-                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                    identity.HandleSyncEvent(msg.componentIndex, msg.functionHash, networkReader);
-            }
-            else
-            {
-                logger.LogWarning("Did not find target for SyncEvent message for " + msg.netId);
             }
         }
 
