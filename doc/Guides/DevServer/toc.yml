@@ -2,3 +2,5 @@
   href: index.md
 - name: AWS
   href: AWS/index.md
+- name: Google CLoud
+  href: gcloud/index.md
