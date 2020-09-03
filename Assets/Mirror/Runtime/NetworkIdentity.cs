@@ -1168,7 +1168,7 @@ namespace Mirror
                     $"  * Was there an exception in {comp.GetType()}'s OnSerialize/OnDeserialize code?\n" +
                     $"  * Are the server and client the exact same project?\n" +
                     $"  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" +
-                    $"Exeption {e}");
+                    $"Exception {e}");
             }
 
             // now the reader should be EXACTLY at 'before + size'.
