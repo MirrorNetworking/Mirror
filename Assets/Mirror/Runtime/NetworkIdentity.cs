@@ -1210,7 +1210,7 @@ namespace Mirror
         /// <param name="invokeType"></param>
         /// <param name="reader"></param>
         /// <param name="senderConnection"></param>
-        void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
+        internal void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
             // check if unity object has been destroyed
             if (this == null)
@@ -1240,18 +1240,6 @@ namespace Mirror
         /// </summary>
         /// <param name="componentIndex"></param>
         /// <param name="cmdHash"></param>
-        /// <param name="reader"></param>
-        /// <param name="senderConnection"></param>
-        internal void HandleCommand(int componentIndex, int cmdHash, NetworkReader reader, NetworkConnectionToClient senderConnection)
-        {
-            HandleRemoteCall(componentIndex, cmdHash, MirrorInvokeType.Command, reader, senderConnection);
-        }
-
-        /// <summary>
-        /// Runs on server
-        /// </summary>
-        /// <param name="componentIndex"></param>
-        /// <param name="cmdHash"></param>
         /// <returns></returns>
         internal CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
         {
@@ -1273,17 +1261,6 @@ namespace Mirror
                 // error can be logged later
                 return default;
             }
-        }
-
-        /// <summary>
-        /// Runs on client
-        /// </summary>
-        /// <param name="componentIndex"></param>
-        /// <param name="rpcHash"></param>
-        /// <param name="reader"></param>
-        internal void HandleRPC(int componentIndex, int rpcHash, NetworkReader reader)
-        {
-            HandleRemoteCall(componentIndex, rpcHash, MirrorInvokeType.ClientRpc, reader);
         }
 
         internal void ClearObservers()
