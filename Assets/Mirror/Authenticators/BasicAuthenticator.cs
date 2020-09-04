@@ -3,74 +3,79 @@ using UnityEngine;
 
 namespace Mirror.Authenticators
 {
+    /// <summary>
+    /// Basic Authenticator that lets the server/host set a "passcode" in order to connect.
+    /// <para>
+    /// This code could be a short string that can be used to host a private game.
+    /// The host would set the code and then give it to their friends allowing them to join.
+    /// </para>
+    /// </summary>
     [AddComponentMenu("Network/Authenticators/BasicAuthenticator")]
     public class BasicAuthenticator : NetworkAuthenticator
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(BasicAuthenticator));
 
+        /// <summary>
+        /// Code given to clients so that they can connect to the server/host
+        /// <para>
+        /// Set this in inspector or at runtime when the server/host starts
+        /// </para>
+        /// </summary>
         [Header("Custom Properties")]
+        public string serverCode;
 
-        // set these in the inspector
-        public string username;
-        public string password;
 
-        public struct AuthRequestMessage : NetworkMessage
+        /// <summary>
+        /// Use whatever credentials make sense for your game.
+        /// <para>
+        ///     This example uses a code so that only players that know the code can join.
+        /// </para>
+        /// <para>
+        ///     You might want to use an accessToken or passwords. Be aware that the normal connection
+        ///     in mirror is not encrypted so sending secure information directly is not adviced
+        /// </para>
+        /// </summary>
+        class AuthRequestMessage : MessageBase
         {
-            // use whatever credentials make sense for your game
-            // for example, you might want to pass the accessToken if using oauth
-            public string authUsername;
-            public string authPassword;
+            public string serverCode;
         }
 
-        public struct AuthResponseMessage : NetworkMessage
+        class AuthResponseMessage : MessageBase
         {
-            public byte code;
+            public bool success;
             public string message;
         }
+
+
+        #region Server Authenticate
+
+        /*
+            This region should is need to validate the client connection and auth messages sent by the client
+         */
 
         public override void OnStartServer()
         {
             // register a handler for the authentication request we expect from client
             NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage, false);
         }
-
-        public override void OnStartClient()
-        {
-            // register a handler for the authentication response we expect from server
-            NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
-        }
-
         public override void OnServerAuthenticate(NetworkConnection conn)
         {
             // do nothing...wait for AuthRequestMessage from client
         }
 
-        public override void OnClientAuthenticate(NetworkConnection conn)
+        void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
         {
-            AuthRequestMessage authRequestMessage = new AuthRequestMessage
-            {
-                authUsername = username,
-                authPassword = password
-            };
+            if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Authentication Request: {0} {1}", msg.serverCode);
 
-            conn.Send(authRequestMessage);
-        }
-
-        public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
-        {
-            if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Authentication Request: {0} {1}", msg.authUsername, msg.authPassword);
-
-            // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
-            if (msg.authUsername == username && msg.authPassword == password)
+            // check if client send the same code as the one stored in the server
+            if (msg.serverCode == serverCode)
             {
                 // create and send msg to client so it knows to proceed
-                AuthResponseMessage authResponseMessage = new AuthResponseMessage
+                conn.Send(new AuthResponseMessage
                 {
-                    code = 100,
+                    success = true,
                     message = "Success"
-                };
-
-                conn.Send(authResponseMessage);
+                });
 
                 // Invoke the event to complete a successful authentication
                 OnServerAuthenticated.Invoke(conn);
@@ -80,8 +85,8 @@ namespace Mirror.Authenticators
                 // create and send msg to client so it knows to disconnect
                 AuthResponseMessage authResponseMessage = new AuthResponseMessage
                 {
-                    code = 200,
-                    message = "Invalid Credentials"
+                    success = false,
+                    message = "Invalid code"
                 };
 
                 conn.Send(authResponseMessage);
@@ -94,24 +99,50 @@ namespace Mirror.Authenticators
             }
         }
 
-        public IEnumerator DelayedDisconnect(NetworkConnection conn, float waitTime)
+        IEnumerator DelayedDisconnect(NetworkConnection conn, float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
             conn.Disconnect();
         }
 
-        public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg)
+        #endregion
+
+        #region Client Authenticate
+
+        /*
+            This region should send auth message to the server so that the server can validate it
+         */
+
+        public override void OnStartClient()
         {
-            if (msg.code == 100)
+            // register a handler for the authentication response we expect from server
+            NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
+        }
+
+        public override void OnClientAuthenticate(NetworkConnection conn)
+        {
+            // OnClientAuthenticate is called when client connects
+
+            // The serverCode should be set on the client before connection to the server.
+            // When the client connects it sends the code and the server checks that it is correct
+            conn.Send(new AuthRequestMessage
             {
-                if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Authentication Response: {0}", msg.message);
+                serverCode = serverCode,
+            });
+        }
+
+        void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg)
+        {
+            if (msg.success)
+            {
+                if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Authentication Success: {0}", msg.message);
 
                 // Invoke the event to complete a successful authentication
                 OnClientAuthenticated.Invoke(conn);
             }
             else
             {
-                logger.LogFormat(LogType.Error, "Authentication Response: {0}", msg.message);
+                logger.LogFormat(LogType.Error, "Authentication Fail: {0}", msg.message);
 
                 // Set this on the client for local reference
                 conn.isAuthenticated = false;
@@ -120,5 +151,7 @@ namespace Mirror.Authenticators
                 conn.Disconnect();
             }
         }
+
+        #endregion
     }
 }
