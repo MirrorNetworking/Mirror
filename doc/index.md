@@ -39,7 +39,7 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 -   Network [Proximity Checker](Components/NetworkProximityChecker.md) to help with Area of Interest
 -   Network [Scene Checker](Components/NetworkSceneChecker.md) to islolate players and networked objects to Additive scene instances
 -   Network [Match Checker](Components/NetworkMatchChecker.md) to islolate players and networked objects by [Network Visibility](Guides/Visibility.md)
--   [SyncVar](Guides/Sync/SyncVars.md), [SyncList](Guides/Sync/SyncLists.md), [SyncEvent](Guides/Sync/SyncEvent.md), [SyncDictionary](Guides/Sync/SyncDictionary.md), and [SyncHashSet](Guides/Sync/SyncHashSet.md)
+-   [SyncVar](Guides/Sync/SyncVars.md), [SyncList](Guides/Sync/SyncLists.md), [SyncDictionary](Guides/Sync/SyncDictionary.md), and [SyncHashSet](Guides/Sync/SyncHashSet.md)
 
 **Integrations**
 -   [Dissonance Voice Chat](https://assetstore.unity.com/packages/tools/audio/dissonance-voice-chat-70078)
