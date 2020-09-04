@@ -1215,22 +1215,23 @@ namespace Mirror
             // check if unity object has been destroyed
             if (this == null)
             {
-                logger.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + netId + "]");
+                logger.LogWarning($"{invokeType} [{functionHash}] received for deleted object [netId={netId}]");
                 return;
             }
 
             // find the right component to invoke the function on
-            if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
+            if (componentIndex < 0 || componentIndex >= NetworkBehaviours.Length)
             {
-                NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                if (!RemoteCallHelper.InvokeHandlerDelegate(functionHash, invokeType, reader, invokeComponent, senderConnection))
-                {
-                    logger.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
-                }
+                logger.LogWarning($"Component [{componentIndex}] not found for [netId={netId}]");
+                return;
             }
-            else
+
+
+            NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
+
+            if (!RemoteCallHelper.InvokeHandlerDelegate(functionHash, invokeType, reader, invokeComponent, senderConnection))
             {
-                logger.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
+                logger.LogError($"Found no receiver for incoming {invokeType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
             }
         }
 
