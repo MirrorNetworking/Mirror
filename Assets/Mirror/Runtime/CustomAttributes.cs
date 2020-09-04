@@ -48,8 +48,11 @@ namespace Mirror
 
     /// <summary>
     /// SyncEvents are networked events like ClientRpc's, but instead of calling a function on the game object, they trigger Events instead.
+    /// <para>
+    /// **IMPORTANT** SyncEvents have been removed in version 18.0.0, see this [Issue](https://github.com/vis2k/Mirror/pull/2178) for more information
+    /// </para>
     /// </summary>
-    [Obsolete("[SyncEvent] will be removed soon. Use ClientRpc/TargetRpc instead. SyncEvent was a leftover from the UNET days, nobody ever uses or understands it. We will remove it because it requires significant Weaver overhead to maintain.")]
+    [Obsolete("[SyncEvent] has been removed. Use ClientRpc/TargetRpc instead. See https://github.com/vis2k/Mirror/pull/2178", true)]
     [AttributeUsage(AttributeTargets.Event)]
     public class SyncEventAttribute : Attribute
     {

@@ -7,8 +7,9 @@ State synchronization is done from the Server to remote clients. The local clien
 Data is not synchronized in the opposite direction - from remote clients to the server. To do this, you need to use Commands.
 -   [SyncVars](SyncVars.md)  
     SyncVars are variables of scripts that inherit from NetworkBehaviour, which are synchronized from the server to clients. 
--   [SyncEvents](SyncEvent.md)  
-    SyncEvents are networked events like ClientRpc’s, but instead of calling a function on the game object, they trigger Events instead.
+-   [SyncEvents (Obsolete)](SyncEvent.md)  
+    SyncEvents are networked events like ClientRpc’s, but instead of calling a function on the game object, they trigger Events instead. 
+    **IMPORTANT:** removed in version 18.0.0, see this [Issue](https://github.com/vis2k/Mirror/pull/2178) for more information.
 -   [SyncLists](SyncLists.md)  
     SyncLists contain lists of values and synchronize data from servers to clients.
 -   [SyncDictionary](SyncDictionary.md)  

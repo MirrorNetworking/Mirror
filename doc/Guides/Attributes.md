@@ -37,5 +37,6 @@ These attributes can be used for Unity game loop methods like Start or Update, a
     -   Game object with a NetworkIdentity component attached.
 -   **SyncVar**  
     [SyncVars](Sync/SyncVars.md) are used to synchronize a variable from the server to all clients automatically. Don't assign them from a client, it's pointless. Don't let them be null, you will get errors. You can use int, long, float, string, Vector3 etc. (all simple types) and NetworkIdentity and game object if the game object has a NetworkIdentity attached to it. You can use [hooks](Sync/SyncVarHook.md).
--   **SyncEvent**  
+-   **SyncEvent  (Obsolete)**  
     [SyncEvent](Sync/SyncEvent.md) are networked events like ClientRpc's, but instead of calling a function on the game object, they trigger Events instead.
+    **IMPORTANT:** removed in version 18.0.0, see this [Issue](https://github.com/vis2k/Mirror/pull/2178) for more information.
