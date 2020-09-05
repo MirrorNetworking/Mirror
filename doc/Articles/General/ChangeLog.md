@@ -4,6 +4,20 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
+## Version x.y.z -- 2020-Oct-dd
+
+- Added:
+- Added:
+
+- Fixed:
+- Fixed:
+
+- Changed:
+- Changed:
+
+- Removed: SyncEvents, see [Pull Request](https://github.com/vis2k/Mirror/pull/2178)
+- Removed:
+
 ## Version 17.3.0 -- 2020-Sep-04
 - Added: NetworkAnimator now syncs Layer Weight
 - Added: Lists can now be sent in Command/Rpc/Message/etc
