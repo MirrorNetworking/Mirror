@@ -721,6 +721,11 @@ namespace Mirror
                 // Do not add logging to this (see above)
                 NetworkServer.Destroy(gameObject);
             }
+
+            if (isLocalPlayer)
+            {
+                ClientScene.ClearLocalPlayer();
+            }
         }
 
         internal void OnStartServer()
