@@ -16,10 +16,11 @@ We currently allow our users to use the issue tracker for support questions. But
 
 ## How Can I Contribute?
 
+There are multiple ways to help: testing, finding bugs or issues, or even fixing a bug yourself and submitting a Pull Requests.
+
 ### Testing
 
-We have a handful of unit tests, but most of our testbed consists of running it with existing projects. 
-Try our builds and pull requests in your own projects and let us know how it goes.
+We have [unit tests](https://en.wikipedia.org/wiki/Unit_testing) that cover some parts of Mirror, but the best way to find a problem is running it with existing projects. Try our releases and pull requests in your own projects and let us know if there are any issues.
 
 ### Reporting Bugs
 
