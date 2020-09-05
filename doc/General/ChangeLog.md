@@ -5,6 +5,19 @@
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
 ## Version 17.3.0 -- 2020-Sep-04
+- Added: NetworkAnimator now syncs Layer Weight
+- Added: Lists can now be sent in Command/Rpc/Message/etc
+- Added: `[Server]`/`[Client]` can now be used outside of NetworkBehaviour 
+- Fixed: NetworkAnimator now fires triggers immediately on owner
+- Fixed: `isServer` will now keep its value after calling `NetworkServer.Destroy`
+- Fixed: `[Client]` error message now correctly logs the name of the method
+- Fixed: Messages can now be nested within other Message types
+- Fixed: `[Server]`/`[Client]` now correctly give error when used on abstract method 
+- Fixed: Abstract classes can now implement IMessageBase 
+- Fixed: Weaver now correctly gives error when generating a reader methods for abstract classes
+- Changed: NetworkServer no longer runs update if there are no connections
+- Changed: NetworkBehaviour.IsDirty is now a public
+- Removed: isHeadless is now Obsolete, Use preprocessor directive `#if UNITY_SERVER` instead
 
 
 ## Version 16.9.0 -- 2020-Jul-01
