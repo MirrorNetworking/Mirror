@@ -22,7 +22,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Removed: isHeadless is now Obsolete, Use preprocessor directive `#if UNITY_SERVER` instead
 
 
-## Version 16.9.0 -- 2020-Jul-01
+## Version 16.9.0 -- 2020-Aug-01
 
 - Added: [NetworkHeadlessLogger](../Components/NetworkHeadlessLogger.md) log handler that sets console color
 - Added: New Mirror List Server, see [Cloud folder](https://github.com/vis2k/Mirror/tree/master/Assets/Mirror/Cloud)
