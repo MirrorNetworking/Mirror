@@ -7,25 +7,6 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests.ClientSceneTests
 {
-    public class FakeNetworkConnection : NetworkConnectionToClient
-    {
-        public FakeNetworkConnection() : base(1)
-        {
-        }
-
-        public override string address => "Test";
-
-        public override void Disconnect()
-        {
-            // nothing
-        }
-
-        internal override bool Send(ArraySegment<byte> segment, int channelId = 0)
-        {
-            return true;
-        }
-    }
-
     public class PayloadTestBehaviour : NetworkBehaviour
     {
         public int value;
