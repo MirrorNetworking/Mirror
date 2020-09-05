@@ -17,6 +17,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Weaver now correctly gives error when generating a reader methods for abstract classes
 - Changed: NetworkServer no longer runs update if there are no connections
 - Changed: NetworkBehaviour.IsDirty is now a public
+- Changed: SyncEvent are now Obsolete and will be removed in the next version
 - Removed: isHeadless is now Obsolete, Use preprocessor directive `#if UNITY_SERVER` instead
 
 
