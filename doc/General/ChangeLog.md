@@ -8,6 +8,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: NetworkAnimator now syncs Layer Weight
 - Added: Lists can now be sent in Command/Rpc/Message/etc
 - Added: `[Server]`/`[Client]` can now be used outside of NetworkBehaviour 
+- Added: Experimental [NetworkLerpRigidbody](../Components/NetworkLerpRigidbody.md) component that syncs position and velocity and applies them using Lerp.
 - Fixed: NetworkAnimator now fires triggers immediately on owner
 - Fixed: `isServer` will now keep its value after calling `NetworkServer.Destroy`
 - Fixed: `[Client]` error message now correctly logs the name of the method
