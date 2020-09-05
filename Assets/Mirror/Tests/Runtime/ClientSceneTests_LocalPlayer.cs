@@ -8,9 +8,15 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 {
     public class ClientSceneTests_LocalPlayer : ClientSceneTestsBase
     {
-        NetworkIdentity SpawnLocalPlayer()
+        [SetUp]
+        public void Setup()
         {
-            Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
+            PropertyInfo readyConnProperty = typeof(ClientScene).GetProperty(nameof(ClientScene.readyConnection));
+            readyConnProperty.SetValue(null, new FakeNetworkConnection());
+        }
+
+        NetworkIdentity SpawnObject(bool localPlayer)
+        {
             const uint netId = 1000;
 
             GameObject go = new GameObject();
@@ -21,32 +27,50 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
-                isLocalPlayer = true,
-                isOwner = true,
+                isLocalPlayer = localPlayer,
+                isOwner = localPlayer,
             };
-
-            PropertyInfo readyConnProperty = typeof(ClientScene).GetProperty(nameof(ClientScene.readyConnection));
-            readyConnProperty.SetValue(null, new FakeNetworkConnection());
 
             ClientScene.ApplySpawnPayload(identity, msg);
 
-            Assert.That(ClientScene.localPlayer, Is.EqualTo(identity));
+            if (localPlayer)
+            {
+                Assert.That(ClientScene.localPlayer, Is.EqualTo(identity));
+            }
 
             return identity;
         }
 
         [UnityTest]
-        public IEnumerator LocalPlayer_IsSetToNullAfterDestroy()
+        public IEnumerator LocalPlayerIsSetToNullAfterDestroy()
         {
-            NetworkIdentity identity = SpawnLocalPlayer();
+            Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
 
-            GameObject.Destroy(identity);
+
+            NetworkIdentity player = SpawnObject(true);
+
+            GameObject.Destroy(player);
 
             // wait a frame for destroy to happen
             yield return null;
 
             // use "is null" here to avoid unity == check
             Assert.IsTrue(ClientScene.localPlayer is null, "local player should be set to c# null");
+        }
+
+        [UnityTest]
+        public IEnumerator DestroyingOtherObjectDoesntEffectLocalPlayer()
+        {
+            NetworkIdentity player = SpawnObject(true);
+            NetworkIdentity notPlayer = SpawnObject(false);
+
+            GameObject.Destroy(notPlayer);
+
+            // wait a frame for destroy to happen
+            yield return null;
+
+            Assert.IsTrue(ClientScene.localPlayer != null, "local player should not be cleared");
+            Assert.IsTrue(ClientScene.localPlayer == player, "local player should still be equal to player");
         }
     }
 }
