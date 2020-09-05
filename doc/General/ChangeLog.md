@@ -4,6 +4,29 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
+## Version 17.3.0 -- 2020-Sep-04
+
+
+## Version 16.9.0 -- 2020-Jul-01
+
+- Added: [NetworkHeadlessLogger](../Components/NetworkHeadlessLogger.md) log handler that sets console color
+- Added: New Mirror List Server, see [Cloud folder](https://github.com/vis2k/Mirror/tree/master/Assets/Mirror/Cloud)
+- Added: Experimental [NetworkRigidbody](../Components/NetworkRigidbody.md) component that syncs velocity and other rigidbody settings
+- Fixed: base method called inside Command/RPC now work if the first base class does not have an override
+- Fixed: NetworkRoomPlayer now cleans up roomSlots on disable
+- Fixed: Fallback and Multiplex now disable their transports when they are disabled
+- Fixed: Websockets transport SocketState now returns false if socket is `undefined`
+- Fixed: SyncEvents can now have the same name if they are in different classes
+- Fixed: You can now have multiple SyncEvents per class
+- Fixed: Message base classes are now processed even if they are declared later in the file
+- Fixed: Registering a prefab with and same GUID no longer gives an error
+- Fixed: Weaver now generates Serialize methods for classes that implement IMessageBase
+- Changed: NetworkProximityChecker now has slightly better performance
+- Changed: ClientRpc no longer need Rpc prefix
+- Changed: Commands no longer need Cmd prefix 
+- Changed: TargetRpc no longer need Target prefix
+- Changed: NetworkManager.networkSceneName is now protected set as it should not be set directly
+
 ## Version 16.1.1 -- 2020-Jun-13
 - Added: [Command] now has an `ignoreAuthority` option for invoking Commands on objects the client doesn't have authority over, and Command methods can have an optional `NetworkConnectionToClient sender` parameter.
 - Added: [ClientRpc] now has an `excludeOwner` option to prevent messages from going to the client that owns the object.
