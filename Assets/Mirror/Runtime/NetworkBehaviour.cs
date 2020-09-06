@@ -207,17 +207,6 @@ namespace Mirror
             ClientScene.readyConnection.Send(message, channelId);
         }
 
-        /// <summary>
-        /// Manually invoke a Command.
-        /// </summary>
-        /// <param name="cmdHash">Hash of the Command name.</param>
-        /// <param name="reader">Parameters to pass to the command.</param>
-        /// <returns>Returns true if successful.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
-        {
-            return RemoteCallHelper.InvokeHandlerDelegate(cmdHash, MirrorInvokeType.Command, reader, this);
-        }
         #endregion
 
         #region Client RPCs
@@ -295,17 +284,6 @@ namespace Mirror
             conn.Send(message, channelId);
         }
 
-        /// <summary>
-        /// Manually invoke an RPC function.
-        /// </summary>
-        /// <param name="rpcHash">Hash of the RPC name.</param>
-        /// <param name="reader">Parameters to pass to the RPC function.</param>
-        /// <returns>Returns true if successful.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeRPC(int rpcHash, NetworkReader reader)
-        {
-            return RemoteCallHelper.InvokeHandlerDelegate(rpcHash, MirrorInvokeType.ClientRpc, reader, this);
-        }
         #endregion
 
         #region Helpers

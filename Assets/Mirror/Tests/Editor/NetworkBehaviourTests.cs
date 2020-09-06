@@ -393,31 +393,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void InvokeCommand()
-        {
-            // add command component
-            NetworkBehaviourSendCommandInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendCommandInternalComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
-                nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                MirrorInvokeType.Command,
-                NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
-                false);
-
-            // invoke command
-            int cmdHash = RemoteCallHelper.GetMethodHash(
-                typeof(NetworkBehaviourSendCommandInternalComponent),
-                nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated));
-            comp.InvokeCommand(cmdHash, new NetworkReader(new byte[0]));
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-        }
-
-        [Test]
         public void SendRPCInternal()
         {
             // add rpc component
@@ -593,30 +568,6 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
             GameObject.DestroyImmediate(transportGO);
-        }
-
-        [Test]
-        public void InvokeRPC()
-        {
-            // add command component
-            NetworkBehaviourSendRPCInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendRPCInternalComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
-                nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
-                MirrorInvokeType.ClientRpc,
-                NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
-
-            // invoke command
-            int rpcHash = RemoteCallHelper.GetMethodHash(
-                typeof(NetworkBehaviourSendRPCInternalComponent),
-                nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated));
-            comp.InvokeRPC(rpcHash, new NetworkReader(new byte[0]));
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
