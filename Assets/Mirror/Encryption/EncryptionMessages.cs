@@ -1,4 +1,4 @@
-namespace Mirror.Encrpytion
+namespace Mirror.Encryption
 {
     class PublicKeyRequestMessage : MessageBase
     {
