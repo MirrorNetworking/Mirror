@@ -71,5 +71,82 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             Assert.IsTrue(ClientScene.localPlayer != null, "local player should not be cleared");
             Assert.IsTrue(ClientScene.localPlayer == player, "local player should still be equal to player");
         }
+
+        [UnityTest]
+        public IEnumerator LocalPlayerIsSetToNullAfterDestroyMessage()
+        {
+            NetworkIdentity player = SpawnObject(true);
+
+            ClientScene.OnObjectDestroy(new ObjectDestroyMessage
+            {
+                netId = player.netId
+            });
+
+            // wait a frame for destroy to happen
+            yield return null;
+
+            // use "is null" here to avoid unity == check
+            Assert.IsTrue(ClientScene.localPlayer is null, "local player should be set to c# null");
+        }
+    }
+    public class ClientSceneTest_LocalPlayer_asHost : HostSetup
+    {
+        [UnityTest]
+        public IEnumerator LocalPlayerIsSetToNullAfterNetworkDestroy()
+        {
+            const uint netId = 1000;
+
+            GameObject go = new GameObject();
+
+            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+
+            SpawnMessage msg = new SpawnMessage
+            {
+                netId = netId,
+                isLocalPlayer = true,
+                isOwner = true,
+            };
+
+
+            NetworkIdentity.spawned[msg.netId] = identity;
+            ClientScene.OnHostClientSpawn(msg);
+
+            NetworkServer.Destroy(identity.gameObject);
+
+            // wait a frame for destroy to happen
+            yield return null;
+
+            // use "is null" here to avoid unity == check
+            Assert.IsTrue(ClientScene.localPlayer is null, "local player should be set to c# null");
+        }
+
+        [UnityTest]
+        public IEnumerator LocalPlayerIsSetToNullAfterNetworkUnspawn()
+        {
+            const uint netId = 1000;
+
+            GameObject go = new GameObject();
+
+            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+
+            SpawnMessage msg = new SpawnMessage
+            {
+                netId = netId,
+                isLocalPlayer = true,
+                isOwner = true,
+            };
+
+
+            NetworkIdentity.spawned[msg.netId] = identity;
+            ClientScene.OnHostClientSpawn(msg);
+
+            NetworkServer.UnSpawn(identity.gameObject);
+
+            // wait a frame for destroy to happen
+            yield return null;
+
+            // use "is null" here to avoid unity == check
+            Assert.IsTrue(ClientScene.localPlayer is null, "local player should be set to c# null");
+        }
     }
 }
