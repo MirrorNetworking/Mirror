@@ -11,6 +11,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [SetUp]
         public void Setup()
         {
+            Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
+
             PropertyInfo readyConnProperty = typeof(ClientScene).GetProperty(nameof(ClientScene.readyConnection));
             readyConnProperty.SetValue(null, new FakeNetworkConnection());
         }
@@ -44,9 +46,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [UnityTest]
         public IEnumerator LocalPlayerIsSetToNullAfterDestroy()
         {
-            Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
-
-
             NetworkIdentity player = SpawnObject(true);
 
             GameObject.Destroy(player);
