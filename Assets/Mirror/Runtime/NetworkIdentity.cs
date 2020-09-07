@@ -1551,6 +1551,11 @@ namespace Mirror
             networkBehavioursCache = null;
 
             ClearObservers();
+
+            if (isLocalPlayer)
+            {
+                ClientScene.ClearLocalPlayer();
+            }
         }
 
         /// <summary>
