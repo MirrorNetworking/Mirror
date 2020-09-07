@@ -17,7 +17,7 @@ namespace Mirror.Tests
 
         public override void ExtraSetup()
         {
-            bundle = AssetBundle.LoadFromFile("Assets/Mirror/Tests/Runtime/TestScene/testscene");
+            bundle = AssetBundle.LoadFromFile("Assets/Tests/Runtime/TestScene/testscene");
         }
 
         public override void ExtraTearDown()
@@ -174,7 +174,7 @@ namespace Mirror.Tests
 
         public override void ExtraSetup()
         {
-            bundle = AssetBundle.LoadFromFile("Assets/Mirror/Tests/Runtime/TestScene/testscene");
+            bundle = AssetBundle.LoadFromFile("Assets/Tests/Runtime/TestScene/testscene");
         }
 
         public override void ExtraTearDown()
