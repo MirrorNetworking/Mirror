@@ -1,3 +1,10 @@
+# [43.6.0](https://github.com/MirrorNG/MirrorNG/compare/v43.5.0...v43.6.0) (2020-09-07)
+
+
+### Features
+
+* Remove tests from upm package ([#343](https://github.com/MirrorNG/MirrorNG/issues/343)) ([0abbf2a](https://github.com/MirrorNG/MirrorNG/commit/0abbf2a8b5febc3fa153778ae2c4a94a86fb58db))
+
 # [43.5.0](https://github.com/MirrorNG/MirrorNG/compare/v43.4.2...v43.5.0) (2020-08-31)
 
 
