@@ -50,6 +50,37 @@ namespace Mirror.Tests.Runtime
     }
     public class NetworkBehaviourCallbacks : HostSetup
     {
+        [UnityTest]
+        public IEnumerator OnStopClientIsCalledWhenNetworkIdetityIsDestroyed()
+        {
+            GameObject go = new GameObject();
+            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            NetworkBehaviourEvents events = go.AddComponent<NetworkBehaviourEvents>();
+            identity.assetId = new System.Guid();
+
+            int onStartClientCalled = 0;
+            events.onStartClient += () => onStartClientCalled++;
+            int onStopClientCalled = 0;
+            events.onStopClient += () => onStopClientCalled++;
+
+
+            NetworkServer.Spawn(go);
+
+            // wait 1 frame for messages
+            yield return null;
+
+            // start should be called
+            Assert.That(onStartClientCalled, Is.EqualTo(1));
+
+
+            NetworkServer.Destroy(go);
+
+            // wait 1 frame for messages
+            yield return null;
+
+            // stop should have been called
+            Assert.That(onStopClientCalled, Is.EqualTo(1));
+        }
 
         [UnityTest]
         public IEnumerator OnStopClientIsCalledWhenExitingPlayerMode()
