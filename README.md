@@ -26,8 +26,6 @@ With Mirror, the **Server & Client are ONE** project _(hence the name)_. Instead
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
 ## Low Level Transports
-Mirror supports many different low level networking transports:
-
 * (built in) [Telepathy](https://github.com/vis2k/Telepathy): TCP
 * (built in) [UNET LLAPI](https://docs.unity3d.com/Manual/UNetUsingTransport.html): UDP
 * (built in) [Ninja.Websockets](https://github.com/ninjasource/Ninja.WebSockets): Websockets
