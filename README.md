@@ -18,7 +18,7 @@ Mirror is for small indie games & large scale [MMOs](https://www.youtube.com/wat
 
 Mirror is optimized for **ease of use** & **probability of success**. 
 
-_We needed a networking library that allows us to **[launch our games](https://mirror-networking.com/showcase/)** and **survive the next decade**._
+We needed a networking library that allows us to **[launch our games](https://mirror-networking.com/showcase/)** and **survive the next decade**.
 
 ## Architecture
 The **Server & Client** are **ONE project** in order to achieve an order of magnitude gain in productivity.
