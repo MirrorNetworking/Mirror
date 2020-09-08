@@ -47,7 +47,6 @@ Mirror is free & open source software funded by Donations. If you love it, pleas
 ## Benchmarks
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
 * [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
-* [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
 
 ## The Mirror Mantra
 > _“Would you tell me, please, which way I ought to go from here?”_<br/>
