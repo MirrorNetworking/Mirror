@@ -12,7 +12,7 @@
 **Stop worrying about networking. Because we do.**
 
 ## Mirror
-Mirror is a **high level** Networking API for Unity, built on top of the **low level** [Telepathy](https://github.com/vis2k/Telepathy) library.
+Mirror is a **high level** Networking API for Unity, comptabile with several **low level** [Transports](https://github.com/vis2k/Mirror#low-level-transports).
 
 Mirror is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **MMO Scale** Networking by the developers of [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212) and [Cubica](https://cubica.net).
 
