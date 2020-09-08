@@ -16,9 +16,9 @@ Mirror is a **high level** Networking API for Unity, compatible with different *
 
 Mirror is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **MMO Scale** Networking by the developers of [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212) and [Cubica](https://cubica.net).
 
-Mirror is optimized for **ease of use** and **probability of success**. Projects that use Mirror are small, concise and maintainable. uMMORPG was possible with <6000 lines of code.
+Mirror is optimized for **ease of use** & **probability of success**. 
 
-_We needed a networking library that allows us to [launch our games](https://mirror-networking.com/showcase/), period._
+_We needed a networking library that allows us to [launch our games](https://mirror-networking.com/showcase/) and survive the next decade._
 
 ## Architecture
 In order to achieve an order of magnitude gain in productivity, the **Server & Client are ONE** project _(hence the name "Mirror")_ 
