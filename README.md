@@ -32,7 +32,7 @@ _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it 
 * [Apathy](https://mirror-networking.com/apathy/): Native TCP
 * [FizzySteam](https://github.com/Raystorms/FizzySteamyMirror/): SteamNetwork
 * [Ignorance](https://github.com/SoftwareGuy/Ignorance/): ENET UDP
-* [LiteNetLib4](https://github.com/MirrorNetworking/LiteNetLibTransport/) LiteNetLib UDP
+* [LiteNetLib](https://github.com/MirrorNetworking/LiteNetLibTransport/) LiteNetLib UDP
 
 ## Getting Started
 Download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
