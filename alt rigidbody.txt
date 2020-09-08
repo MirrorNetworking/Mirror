@@ -1,6 +1,0 @@
-
-I have made an alternative to the NetworkRigidbody <https://github.com/vis2k/Mirror/pull/2123>
-
-It is Experimental so use at your own risk if production builds. 
-
-It uses Lerp to move towards the servers position and velocity. This should result is movement looking smoother. There is no extrapolation yet so the position and velocity will be behind the server.

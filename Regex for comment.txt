@@ -1,1 +1,0 @@
- // .*\n\s*( static| internal | void| [A-z_][A-z0-9_]*)+ [A-z_][A-z0-9_]*\(
