@@ -12,7 +12,7 @@
 **Stop worrying about networking. Because we do.**
 
 ## Mirror
-Mirror is a **high level** Networking API for Unity, compatible with different **low level** [Transports](https://github.com/vis2k/Mirror#low-level-transports).
+Mirror is a **high level** Networking library for Unity, compatible with different **low level** [Transports](https://github.com/vis2k/Mirror#low-level-transports).
 
 Mirror is for small indie games & large scale [MMOs](https://www.youtube.com/watch?v=mDCNff1S9ZU), made by the developers of [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-components-edition-159401) and [Cubica](https://www.youtube.com/watch?v=D_f_MntrLVE).
 
