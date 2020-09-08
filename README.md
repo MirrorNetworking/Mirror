@@ -21,7 +21,7 @@ Mirror is optimized for **ease of use** & **probability of success**.
 _We needed a networking library that allows us to **[launch our games](https://mirror-networking.com/showcase/)** and **survive the next decade**._
 
 ## Architecture
-In order to achieve an order of magnitude gain in productivity, the **Server & Client are ONE** project _(hence the name "Mirror")_ 
+The **Server & Client** are **ONE project** in order to achieve an order of magnitude gain in productivity.
 
 Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirror provides **NetworkBehaviour** components with:
 * **[Server]** / **[Client]** tags for server-only / client-only code
