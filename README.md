@@ -9,7 +9,7 @@
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
 [![release](https://img.shields.io/github/release/vis2k/Mirror.svg)](https://github.com/vis2k/Mirror/releases/latest)
 
-
+## Mission
 Mirror is a **high level** Networking API for Unity, built on top of the **low level** [Telepathy](https://github.com/vis2k/Telepathy) library.
 
 Mirror is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **MMO Scale** Networking by the developers of [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212) and [Cubica](https://cubica.net).
@@ -48,7 +48,7 @@ Mirror is free & open source software funded by Donations. If you love it, pleas
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
 * [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
 
-## The Mirror Mantra
+## Mirror Development
 > _“Would you tell me, please, which way I ought to go from here?”_<br/>
 > _“That depends a good deal on where you want to get to,"_ said the Cat.<br/>
 > _"I don’t much care where—“_ said Alice.<br/>
