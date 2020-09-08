@@ -31,9 +31,7 @@ Check out our [Documentation](https://mirror-networking.com/docs/).
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Installation
-We **recommend** to download the most **stable Mirror version** from the [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321)!
-
-For the latest improvements, [Download Mirror](https://github.com/vis2k/Mirror/releases) directly from this repository and extract it in your Assets folder.
+Download the latest **stable Mirror** version from the [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the Examples & press Play!
 
 ## Examples
 We included several smaller example projects in Mirror.
