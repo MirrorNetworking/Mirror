@@ -84,7 +84,10 @@ namespace Mirror
             DestroyAllClientObjects();
         }
 
-        // this is called from message handler for Owner message
+        /// <summary>
+        /// this is called from message handler for Owner message
+        /// </summary>
+        /// <param name="identity"></param>
         internal static void InternalAddPlayer(NetworkIdentity identity)
         {
             logger.Log("ClientScene.InternalAddPlayer");
@@ -105,6 +108,17 @@ namespace Mirror
             {
                 logger.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
             }
+        }
+
+        /// <summary>
+        /// Sets localPlayer to null
+        /// <para>Should be called when the local player object is destroyed</para>
+        /// </summary>
+        internal static void ClearLocalPlayer()
+        {
+            logger.Log("ClientScene.ClearLocalPlayer");
+
+            localPlayer = null;
         }
 
         /// <summary>
