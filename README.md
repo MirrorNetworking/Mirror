@@ -25,20 +25,7 @@ With Mirror, the **Server & Client are ONE** project _(hence the name)_. Instead
 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
-## Documentation
-Check out our [Documentation](https://mirror-networking.com/docs/).
-
-If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
-
-## Installation
-Download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
-
-## Examples
-We included several smaller example projects in Mirror.
-
-For a fully polished, complete project example, consider [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-components-edition-159401) or [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015).
-
-## Transports
+## Low Level Transports
 Mirror supports many different low level networking transports:
 
 * (built in) [Telepathy](https://github.com/vis2k/Telepathy): TCP
@@ -48,6 +35,15 @@ Mirror supports many different low level networking transports:
 * [FizzySteam](https://github.com/Raystorms/FizzySteamyMirror/): SteamNetwork
 * [Ignorance](https://github.com/SoftwareGuy/Ignorance/): ENET UDP
 * [LiteNetLib4](https://github.com/MirrorNetworking/LiteNetLibTransport/) LiteNetLib UDP
+
+## Documentation
+
+## Getting Started
+Download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
+
+Check out our [Documentation](https://mirror-networking.com/docs/) to learn how it all works.
+
+If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Donations & Priority Support
 Please support [Mirror on GitHub](https://github.com/sponsors/vis2k). Priority support included!
