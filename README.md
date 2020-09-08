@@ -55,8 +55,8 @@ Mirror is free & open source software funded by Donations. If you love it, pleas
 > _“Then it doesn’t matter which way you go,”_ said the Cat.<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Alice in Wonderland _(Lewis Carroll)_
 
-As Indie Developers, **our #1 goal** for Mirror is **Ease of Use**.
+Our core principle is [KISS](https://en.wikipedia.org/wiki/KISS_principle): **keep it simple & stupid!**
 
-If you want to contribute, always follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle. Everything needs to be **as simple as possible**. As result, the code will be stable, easy to understand, easy to modify and easy to maintain 5 years from now when our games are still running.
+Mirror is used all the way from small indie games to large scale MMORPGs. In other words, Mirror needs to **survive for a decade!**
 
-Pull Requests for bug fixes are always highly appreciated. New features will be considered very carefully and will only be merged if they are the most simple solution to the given problem.
+If you want to contribute, fixing bugs and simplifying existing code is highly appreciated. New features are considered very carefully with the next decade in mind, and most likely rejected unless they make overwhelmingly much sense.
