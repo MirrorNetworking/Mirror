@@ -23,7 +23,7 @@ Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirro
 * **[Server]** / **[Client]** tags for server-only / client-only code
 * **[Command]** for Clients->Server function calls (e.g. UseItem)
 * **[ClientRpc]** / **[TargetRpc]** for Server->Client function calls (e.g. AddChatMessage)
-* **[SyncVar]** s / SyncLists to automatically synchronize variables from Server->Client
+* **[SyncVar]** / SyncList to automatically synchronize variables from Server->Client
 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
