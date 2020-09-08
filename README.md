@@ -18,7 +18,7 @@ Mirror is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **
 
 Mirror is optimized for **ease of use** and **probability of success**. Projects that use Mirror are small, concise and maintainable. uMMORPG was possible with <6000 lines of code.
 
-We needed a networking library that allows us to [launch our games](https://mirror-networking.com/showcase/), period.
+_We needed a networking library that allows us to [launch our games](https://mirror-networking.com/showcase/), period._
 
 ## Architecture
 In order to achieve an order of magnitude gain in productivity, the **Server & Client are ONE** project _(hence the name "Mirror")_ 
