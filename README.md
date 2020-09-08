@@ -49,14 +49,10 @@ Mirror is free & open source software funded by Donations. If you love it, pleas
 * [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
 
 ## Mirror Development
-> _“Would you tell me, please, which way I ought to go from here?”_<br/>
-> _“That depends a good deal on where you want to get to,"_ said the Cat.<br/>
-> _"I don’t much care where—“_ said Alice.<br/>
-> _“Then it doesn’t matter which way you go,”_ said the Cat.<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Alice in Wonderland _(Lewis Carroll)_
+Mirror is used **in production** by games ranging from small indie projects to large scale MMORPGs that will run for a decade.
 
-Our core principle is [KISS](https://en.wikipedia.org/wiki/KISS_principle): **keep it simple & stupid!**
+Imagine if your dream game requires networking bug fixes 10 years from now when most contributors moved on and you are left alone with the code base. It is of utmost importance that we follow the KISS principle in order for our future games to survive.
 
-Mirror is used all the way from small indie games to large scale MMORPGs. In other words, Mirror needs to **survive for a decade!**
+Mirror has plenty of features. What matters now is that we make them as simple, as stable and as performant as possible (in that order).
 
-If you want to contribute, **fixes** / **tests** / **improvements** are highly appreciated. New features are considered very carefully with the next decade in mind, and usually not merged unless they make overwhelmingly much sense.
+If you want to contribute, please keep that mind and understand that while **fixes** / **tests** / **improvements** are highly appreciated, new features have a low probability of being merged.
