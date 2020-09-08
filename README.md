@@ -31,7 +31,7 @@ Check out our [Documentation](https://mirror-networking.com/docs/).
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Installation
-Download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the Examples & press Play!
+Download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
 
 ## Examples
 We included several smaller example projects in Mirror.
