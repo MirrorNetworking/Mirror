@@ -29,6 +29,7 @@ _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it 
 * (built in) [Telepathy](https://github.com/vis2k/Telepathy): TCP
 * (built in) [UNET LLAPI](https://docs.unity3d.com/Manual/UNetUsingTransport.html): UDP
 * (built in) [Ninja.Websockets](https://github.com/ninjasource/Ninja.WebSockets): Websockets
+* (soon) Libuv: Node.js's native C TCP backend
 * [Apathy](https://mirror-networking.com/apathy/): Native TCP
 * [FizzySteam](https://github.com/Raystorms/FizzySteamyMirror/): SteamNetwork
 * [Ignorance](https://github.com/SoftwareGuy/Ignorance/): ENET UDP
