@@ -48,7 +48,7 @@ Mirror is free & open source software funded by Donations. If you love it, pleas
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
 * [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
 
-## Mirror Development
+## Development & Contributing
 Mirror is used **in production** by games ranging from small indie projects to large scale MMORPGs that will run for a decade.
 
 Imagine if your dream game requires networking bug fixes 10 years from now when most contributors moved on and you are left alone with the code base. It is of utmost importance that we follow the KISS principle in order for our future games to survive.
