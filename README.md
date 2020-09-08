@@ -17,7 +17,10 @@ Mirror is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **
 Mirror is optimized for **ease of use** and **probability of success**. Projects that use Mirror are small, concise and maintainable. uMMORPG was possible with <6000 lines of code. We needed a networking library that allows us to [launch our games](https://mirror-networking.com/showcase/), period.
 
 ## Architecture
-With Mirror, the **Server & Client are ONE** project _(hence the name)_. Instead of having one code base for the server and one for the client, we simply use the same code for both of them.
+In order to achieve an order of magnitude gain in productivity, the **Server & Client are ONE** project _(hence the name "Mirror")_ 
+
+Making multiplayer games with Mirror is extremely easy. Instead of MonoBehaviour, Mirror 
+provides NetworkBehaviour components with:
 * **[Server]** / **[Client]** tags can be used for the server-only and client-only parts
 * **[Command]** s are used for Client->Server communication
 * **[ClientRpc]** / **[TargetRpc]** for Server->Client communication
