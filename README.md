@@ -39,7 +39,7 @@ Download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools
 
 Check out our [Documentation](https://mirror-networking.com/docs/) to learn how it all works.
 
-If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
+If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/General/Migration.html).
 
 ## Funding
 Mirror is free & open source software funded by Donations. If you love it, please consider supporting [Mirror on GitHub](https://github.com/sponsors/vis2k). As reward, you'll receive our [Network Profiler](https://mirror-networking.com/docs/Guides/Profiler.html?q=Profiler), priority support access and more :)
