@@ -19,8 +19,7 @@ Mirror is optimized for **ease of use** and **probability of success**. Projects
 ## Architecture
 In order to achieve an order of magnitude gain in productivity, the **Server & Client are ONE** project _(hence the name "Mirror")_ 
 
-Making multiplayer games with Mirror is extremely easy. Instead of MonoBehaviour, Mirror 
-provides NetworkBehaviour components with:
+Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirror provides **NetworkBehaviour** components with:
 * **[Server]** / **[Client]** tags can be used for the server-only and client-only parts
 * **[Command]** s are used for Client->Server communication
 * **[ClientRpc]** / **[TargetRpc]** for Server->Client communication
