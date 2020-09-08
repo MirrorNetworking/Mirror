@@ -21,7 +21,7 @@ In order to achieve an order of magnitude gain in productivity, the **Server & C
 
 Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirror provides **NetworkBehaviour** components with:
 * **[Server]** / **[Client]** tags for server-only / client-only code
-* **[Command]** for Clients->Server function calls (e.g. UseItem)
+* **[Command]** for Client->Server function calls (e.g. UseItem)
 * **[ClientRpc]** / **[TargetRpc]** for Server->Client function calls (e.g. AddChatMessage)
 * **[SyncVar]** / SyncList to automatically synchronize variables from Server->Client
 
