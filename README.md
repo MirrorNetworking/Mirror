@@ -20,10 +20,10 @@ Mirror is optimized for **ease of use** and **probability of success**. Projects
 In order to achieve an order of magnitude gain in productivity, the **Server & Client are ONE** project _(hence the name "Mirror")_ 
 
 Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirror provides **NetworkBehaviour** components with:
-* **[Server]** / **[Client]** tags can be used for the server-only and client-only parts
-* **[Command]** s are used for Client->Server communication
-* **[ClientRpc]** / **[TargetRpc]** for Server->Client communication
-* **[SyncVar]** s / SyncLists are used to automatically synchronize state
+* **[Server]** / **[Client]** tags for server-only / client-only code
+* **[Command]** for Clients->Server function calls (e.g. UseItem)
+* **[ClientRpc]** / **[TargetRpc]** for Server->Client function calls (e.g. AddChatMessage)
+* **[SyncVar]** s / SyncLists to automatically synchronize variables from Server->Client
 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
