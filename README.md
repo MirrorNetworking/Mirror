@@ -49,7 +49,7 @@ Mirror is free & open source software funded by Donations. If you love it, pleas
 * [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
 
 ## Development & Contributing
-Mirror is used **in production** by multiplayer games ranging from small indie projects to large scale MMORPGs that will run for a decade or more.
+Mirror is used **in production** by games ranging from small indie projects to large scale MMOs that will run for a decade or more.
 
 10 years from now if your players encounter a networking bug and most of our contributors already moved on, someone will need to fix it. Therefore it is of utmost importance for us to follow the [KISS principle](https://en.wikipedia.org/wiki/KISS_principle) in order for our future game servers to survive.
 
