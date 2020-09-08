@@ -19,7 +19,7 @@ Mirror is optimized for **ease of use** and **probability of success**. Projects
 ## Architecture
 With Mirror, the **Server & Client are ONE** project _(hence the name)_. Instead of having one code base for the server and one for the client, we simply use the same code for both of them.
 * **[Server]** / **[Client]** tags can be used for the server-only and client-only parts
-* [Command]s are used for Client->Server communication
+* **[Command]**s are used for Client->Server communication
 * **[ClientRpc]** / **[TargetRpc]** for Server->Client communication
 * **[SyncVar]**s / SyncLists are used to automatically synchronize state
 
