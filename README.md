@@ -41,13 +41,13 @@ For a fully polished, complete project example, consider [uMMORPG](https://asset
 ## Transports
 Mirror supports many different low level networking transports:
 
-* (built in) https://github.com/vis2k/Telepathy (Telepathy)
-* (built in) Unity's LLAPI
-* (built in) https://github.com/ninjasource/Ninja.WebSockets (Websockets)
-* https://mirror-networking.com/apathy/ (Apathy)
-* https://github.com/Raystorms/FizzySteamyMirror/ (SteamNetwork)
-* https://github.com/SoftwareGuy/Ignorance/ (ENet)
-* https://github.com/MichalPetryka/LiteNetLib4Mirror (LiteNetLib)
+* (built in) [Telepathy](https://github.com/vis2k/Telepathy): TCP
+* (built in) [UNET LLAPI](https://docs.unity3d.com/Manual/UNetUsingTransport.html): UDP
+* (built in) [Ninja.Websockets](https://github.com/ninjasource/Ninja.WebSockets): Websockets
+* [Apathy](https://mirror-networking.com/apathy/): Native TCP
+* [FizzySteam](https://github.com/Raystorms/FizzySteamyMirror/): SteamNetwork
+* [Ignorance](https://github.com/SoftwareGuy/Ignorance/): ENET UDP
+* [LiteNetLib4](https://github.com/MirrorNetworking/LiteNetLibTransport/) LiteNetLib UDP
 
 ## Donations & Priority Support
 Please support [Mirror on GitHub](https://github.com/sponsors/vis2k). Priority support included!
