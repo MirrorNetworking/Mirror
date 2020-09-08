@@ -10,7 +10,7 @@
 [![release](https://img.shields.io/github/release/vis2k/Mirror.svg)](https://github.com/vis2k/Mirror/releases/latest)
 
 ## Mission
-**Mirror. Stop worrying about networking. Because we do.**
+**Stop worrying about networking. Because we do.**
 
 Mirror is a **high level** Networking API for Unity, built on top of the **low level** [Telepathy](https://github.com/vis2k/Telepathy) library.
 
