@@ -59,4 +59,4 @@ Our core principle is [KISS](https://en.wikipedia.org/wiki/KISS_principle): **ke
 
 Mirror is used all the way from small indie games to large scale MMORPGs. In other words, Mirror needs to **survive for a decade!**
 
-If you want to contribute, fixing bugs and simplifying existing code is highly appreciated. New features are considered very carefully with the next decade in mind, and most likely rejected unless they make overwhelmingly much sense.
+If you want to contribute, fixes/tests/improvements are highly appreciated. New features are considered very carefully with the next decade in mind, and usually not merged unless they make overwhelmingly much sense.
