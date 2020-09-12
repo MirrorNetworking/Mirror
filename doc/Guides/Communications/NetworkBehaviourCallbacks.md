@@ -19,7 +19,7 @@ This is a full list of virtual methods (callbacks) that you can implement on `Ne
 
 ## Client only
 
-- OnClientServer
+- OnStartClient
     - called when behaviour is spawned on client 
 - OnStartAuthority
     - called when behaviour has authority when it is spawned (eg local player)
