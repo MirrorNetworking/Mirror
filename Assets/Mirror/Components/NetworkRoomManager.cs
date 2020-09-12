@@ -330,6 +330,7 @@ namespace Mirror
                 OnRoomServerAddPlayer(conn);
         }
 
+        [Server]
         public void RecalculateRoomPlayerIndices()
         {
             if (roomSlots.Count > 0)
