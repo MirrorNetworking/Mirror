@@ -905,6 +905,10 @@ namespace Mirror
             // use data from scene objects
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.OrderBy(uv => uv.netId))
             {
+                // spawned has null objects after changing scenes on client
+                // TODO remove null objects from spawned so we dont need the check below
+                if (identity == null) { continue; }
+
                 identity.NotifyAuthority();
                 identity.OnStartClient();
                 CheckForLocalPlayer(identity);
