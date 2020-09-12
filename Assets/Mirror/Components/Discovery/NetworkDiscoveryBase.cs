@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 // Based on https://github.com/EnlightenedOne/MirrorNetworkDiscovery
 // forked from https://github.com/in0finite/MirrorNetworkDiscovery
@@ -63,9 +64,8 @@ namespace Mirror.Discovery
         public virtual void Start()
         {
             // Server mode? then start advertising
-#if UNITY_SERVER
-            AdvertiseServer();
-#endif
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+                AdvertiseServer();
         }
 
         // Ensure the ports are cleared no matter when Game/Unity UI exits

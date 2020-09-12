@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.NetworkRoom
@@ -55,11 +56,10 @@ namespace Mirror.Examples.NetworkRoom
         public override void OnRoomServerPlayersReady()
         {
             // calling the base method calls ServerChangeScene as soon as all players are in Ready state.
-#if UNITY_SERVER
-            base.OnRoomServerPlayersReady();
-#else
-            showStartButton = true;
-#endif
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+                base.OnRoomServerPlayersReady();
+            else
+                showStartButton = true;
         }
 
         public override void OnGUI()

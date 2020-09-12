@@ -261,12 +261,10 @@ namespace Mirror
             // some transports might not be ready until Start.
             //
             // (tick rate is applied in StartServer!)
-#if UNITY_SERVER
-            if (autoStartServerBuild)
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && autoStartServerBuild)
             {
                 StartServer();
             }
-#endif
         }
 
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
@@ -684,10 +682,11 @@ namespace Mirror
         public virtual void ConfigureServerFrameRate()
         {
             // only set framerate for server build
-#if UNITY_SERVER
-            Application.targetFrameRate = serverTickRate;
-            if (logger.logEnabled) logger.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
-#endif
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+            {
+                Application.targetFrameRate = serverTickRate;
+                if (logger.logEnabled) logger.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
+            }
         }
 
         bool InitializeSingleton()

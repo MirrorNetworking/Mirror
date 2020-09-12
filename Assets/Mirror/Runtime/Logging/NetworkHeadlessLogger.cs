@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Mirror.Logging
 {
@@ -14,9 +15,8 @@ namespace Mirror.Logging
 
         void Awake()
         {
-#if UNITY_SERVER
-            LogFactory.ReplaceLogHandler(new ConsoleColorLogHandler(showExceptionStackTrace));
-#endif
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+                LogFactory.ReplaceLogHandler(new ConsoleColorLogHandler(showExceptionStackTrace));
         }
     }
 }
