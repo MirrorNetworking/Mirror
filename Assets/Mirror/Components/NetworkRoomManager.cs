@@ -231,7 +231,7 @@ namespace Mirror
                 }
         }
 
-        void CallOnClientExitRoom()
+        internal void CallOnClientExitRoom()
         {
             OnRoomClientExit();
             foreach (NetworkRoomPlayer player in roomSlots)

@@ -71,6 +71,8 @@ namespace Mirror
             {
                 room.roomSlots.Remove(this);
                 room.RecalculateRoomPlayerIndices();
+
+                room.CallOnClientExitRoom();
             }
         }
 
