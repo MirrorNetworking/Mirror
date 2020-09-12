@@ -864,7 +864,7 @@ namespace Mirror
             NetworkIdentity identity = GetAndRemoveSceneObject(msg.sceneId);
             if (identity == null)
             {
-                logger.LogError($"Spawn scene object not found for {msg.sceneId.ToString("X")} SpawnableObjects.Count={spawnableObjects.Count}");
+                logger.LogError($"Spawn scene object not found for {msg.sceneId:X} SpawnableObjects.Count={spawnableObjects.Count}");
 
                 // dump the whole spawnable objects dict for easier debugging
                 if (logger.LogEnabled())

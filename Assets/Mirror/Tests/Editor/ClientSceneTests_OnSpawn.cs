@@ -329,7 +329,7 @@ namespace Mirror.Tests.ClientSceneTests
                 sceneId = sceneId,
             };
 
-            LogAssert.Expect(LogType.Error, $"Spawn scene object not found for {msg.sceneId.ToString("X")} SpawnableObjects.Count={spawnableObjects.Count}");
+            LogAssert.Expect(LogType.Error, $"Spawn scene object not found for {msg.sceneId:X} SpawnableObjects.Count={spawnableObjects.Count}");
             LogAssert.Expect(LogType.Error, $"Could not spawn assetId={msg.assetId} scene={msg.sceneId} netId={msg.netId}");
             bool success = ClientScene.FindOrSpawnObject(msg, out NetworkIdentity networkIdentity);
 
