@@ -896,6 +896,8 @@ namespace Mirror
             isSpawnFinished = false;
         }
 
+
+        static readonly List<uint> toRemoveFromSpawned = new List<uint>();
         internal static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage _)
         {
             logger.Log("SpawnFinished");
@@ -908,9 +910,15 @@ namespace Mirror
             {
                 if (kvp.Value == null)
                 {
-                    NetworkIdentity.spawned.Remove(kvp.Key);
+                    toRemoveFromSpawned.Add(kvp.Key);
                 }
             }
+            // can't modifiy NetworkIdentity.spawned inside foreach so need 2nd loop to remove
+            foreach (uint id in toRemoveFromSpawned)
+            {
+                NetworkIdentity.spawned.Remove(id);
+            }
+            toRemoveFromSpawned.Clear();
 
             // paul: Initialize the objects in the same order as they were initialized
             // in the server.   This is important if spawned objects
