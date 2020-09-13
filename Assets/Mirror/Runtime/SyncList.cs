@@ -46,6 +46,7 @@ namespace Mirror
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
         public event SyncListChanged Callback;
+        public event Action<SyncObject> onDirty;
 
         public enum Operation : byte
         {
@@ -116,6 +117,8 @@ namespace Mirror
             changes.Add(change);
 
             Callback?.Invoke(op, itemIndex, oldItem, newItem);
+
+            onDirty?.Invoke(this);
         }
 
         public void OnSerializeAll(NetworkWriter writer)

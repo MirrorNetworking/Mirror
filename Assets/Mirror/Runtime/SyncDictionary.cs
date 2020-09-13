@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +16,7 @@ namespace Mirror
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
         public event SyncDictionaryChanged Callback;
+        public event Action<SyncObject> onDirty;
 
         public enum Operation : byte
         {
@@ -87,6 +89,8 @@ namespace Mirror
             changes.Add(change);
 
             Callback?.Invoke(op, key, item);
+
+            onDirty?.Invoke(this);
         }
 
         public void OnSerializeAll(NetworkWriter writer)

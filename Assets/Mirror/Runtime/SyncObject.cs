@@ -1,3 +1,5 @@
+using System;
+
 namespace Mirror
 {
     /// <summary>
@@ -6,6 +8,11 @@ namespace Mirror
     /// </summary>
     public interface SyncObject
     {
+        /// <summary>
+        /// called when object is dirty
+        /// </summary>
+        event Action<SyncObject> onDirty;
+
         /// <summary>
         /// true if there are changes since the last flush
         /// </summary>

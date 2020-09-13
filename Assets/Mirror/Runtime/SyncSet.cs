@@ -15,6 +15,7 @@ namespace Mirror
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
         public event SyncSetChanged Callback;
+        public event Action<SyncObject> onDirty;
 
         public enum Operation : byte
         {
@@ -74,6 +75,8 @@ namespace Mirror
             changes.Add(change);
 
             Callback?.Invoke(op, item);
+
+            onDirty?.Invoke(this);
         }
 
         void AddOperation(Operation op) => AddOperation(op, default);

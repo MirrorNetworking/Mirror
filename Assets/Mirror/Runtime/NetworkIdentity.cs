@@ -1561,10 +1561,20 @@ namespace Mirror
             }
         }
 
+        internal void SetDirtyComp(NetworkBehaviour behaviour)
+        {
+            Debug.Assert(behaviour.netId == netId, "Behaviour was on a different NetworkIdentity");
+
+            // TODO add a dirtyComponentsMask simular to syncvar mask
+            //int compId = behaviour.ComponentIndex;
+            //dirtyComponentsMask |= 1UL << compId;
+            NetworkServer.OnObjectDirty(this);
+        }
+
         /// <summary>
         /// Invoked by NetworkServer.Update during LateUpdate
         /// </summary>
-        internal void ServerUpdate()
+        internal void SyncAndClearDirty()
         {
             if (observers != null && observers.Count > 0)
             {

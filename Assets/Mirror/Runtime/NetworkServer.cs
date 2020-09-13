@@ -77,6 +77,8 @@ namespace Mirror
         /// </summary>
         static readonly List<int> connectionIdsCache = new List<int>();
 
+        static readonly List<NetworkIdentity> dirtyObjects = new List<NetworkIdentity>();
+
         /// <summary>
         /// Reset the NetworkServer singleton.
         /// <para>Deprecated 02/23/2020</para>
@@ -482,6 +484,7 @@ namespace Mirror
             connections.Clear();
         }
 
+
         /// <summary>
         /// If connections is empty or if only has host
         /// </summary>
@@ -497,8 +500,8 @@ namespace Mirror
         /// </summary>
         public static void Update()
         {
-            // dont need to update server if not active or no client connections
-            if (!active || NoConnections())
+            // dont need to update server if not active
+            if (!active)
                 return;
 
             // Check for dead clients but exclude the host client because it
@@ -515,21 +518,21 @@ namespace Mirror
                 }
             }
 
-            // update all server objects
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+            foreach (NetworkIdentity identity in dirtyObjects)
             {
-                NetworkIdentity identity = kvp.Value;
+                // identity can be destroyed after being added to dirtyObjects so we need the null check 
                 if (identity != null)
                 {
-                    identity.ServerUpdate();
-                }
-                else
-                {
-                    // spawned list should have no null entries because we
-                    // always call Remove in OnObjectDestroy everywhere.
-                    logger.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                    identity.SyncAndClearDirty();
                 }
             }
+            dirtyObjects.Clear();
+        }
+
+
+        public static void OnObjectDirty(NetworkIdentity identity)
+        {
+            dirtyObjects.Add(identity);
         }
 
         static void OnConnected(int connectionId)

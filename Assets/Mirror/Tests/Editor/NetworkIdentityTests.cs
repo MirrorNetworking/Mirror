@@ -1397,7 +1397,7 @@ namespace Mirror.Tests
 
             // calling update without observers should clear all dirty bits.
             // it would be spawned on new observers anyway.
-            identity.ServerUpdate();
+            identity.SyncAndClearDirty();
             Assert.That(compA.IsDirty(), Is.False);
             Assert.That(compB.IsDirty(), Is.False);
 
@@ -1433,7 +1433,7 @@ namespace Mirror.Tests
 
             // calling update should serialize all components and send them to
             // owner/observers
-            identity.ServerUpdate();
+            identity.SyncAndClearDirty();
 
             // update connections once so that messages are processed
             owner.connectionToServer.Update();

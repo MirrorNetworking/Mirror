@@ -60,7 +60,7 @@ namespace Mirror.Tests.Performance
             for (int j = 0; j < 10000; j++)
             {
                 health.SetDirtyBit(1UL);
-                identity.ServerUpdate();
+                identity.SyncAndClearDirty();
             }
         }
 
@@ -82,7 +82,7 @@ namespace Mirror.Tests.Performance
         {
             for (int j = 0; j < 10000; j++)
             {
-                identity.ServerUpdate();
+                identity.SyncAndClearDirty();
             }
         }
     }

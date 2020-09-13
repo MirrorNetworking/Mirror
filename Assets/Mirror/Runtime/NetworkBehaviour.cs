@@ -166,6 +166,7 @@ namespace Mirror
         protected void InitSyncObject(SyncObject syncObject)
         {
             syncObjects.Add(syncObject);
+            syncObject.onDirty += OnSyncObjectDirty;
         }
 
         #region Commands
@@ -442,7 +443,19 @@ namespace Mirror
         public void SetDirtyBit(ulong dirtyBit)
         {
             syncVarDirtyBits |= dirtyBit;
+            netIdentity.SetDirtyComp(this);
         }
+
+        /// <summary>
+        /// Used to set the behaviour as dirty, so that a network update will be sent for the object.
+        /// these are masks, not bit numbers, ie. 0x004 not 2
+        /// </summary>
+        /// <param name="dirtyBit">Bit mask to set.</param>
+        public void OnSyncObjectDirty(SyncObject syncObject)
+        {
+            netIdentity.SetDirtyComp(this);
+        }
+
 
         /// <summary>
         /// This clears all the dirty bits that were set on this script by SetDirtyBits();
