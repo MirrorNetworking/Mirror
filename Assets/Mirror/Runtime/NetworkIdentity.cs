@@ -112,6 +112,8 @@ namespace Mirror
 
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
+        /// </summary>
+        /// <remarks>
         /// <para>
         ///     <b>IMPORTANT:</b> checking NetworkClient.active means that isClient is false in OnDestroy:
         /// </para>
@@ -125,8 +127,6 @@ namespace Mirror
         /// <para>
         ///     => fixes <see href="https://github.com/vis2k/Mirror/issues/1475"/>
         /// </para>
-        /// </summary>
-        /// <remarks>
         /// </remarks>
         public bool isClient { get; internal set; }
 
