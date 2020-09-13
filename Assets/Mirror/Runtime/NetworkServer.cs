@@ -271,7 +271,6 @@ namespace Mirror
             if (identity == null || identity.observers == null || identity.observers.Count == 0)
                 return;
 
-            // get writer from pool
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message into byte[] once
@@ -321,7 +320,6 @@ namespace Mirror
 
             if (logger.LogEnabled()) logger.Log("Server.SendToAll id:" + typeof(T));
 
-            // get writer from pool
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message only once
@@ -397,7 +395,6 @@ namespace Mirror
             if (identity == null || identity.observers == null || identity.observers.Count == 0)
                 return false;
 
-            // get writer from pool
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message only once
