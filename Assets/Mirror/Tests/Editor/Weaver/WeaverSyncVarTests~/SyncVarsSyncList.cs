@@ -1,3 +1,4 @@
+using System;
 using Mirror;
 
 namespace WeaverSyncVarTests.SyncVarsSyncList
@@ -7,6 +8,8 @@ namespace WeaverSyncVarTests.SyncVarsSyncList
     {
         public class SyncObjImplementer : SyncObject
         {
+            public event Action<SyncObject> onDirty;
+
             public bool IsDirty { get; }
             public void Flush() { }
             public void OnSerializeAll(NetworkWriter writer) { }
