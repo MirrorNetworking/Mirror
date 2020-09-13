@@ -497,8 +497,8 @@ namespace Mirror
         /// </summary>
         public static void Update()
         {
-            // dont need to update server if not active or no client connections
-            if (!active || NoConnections())
+            // dont need to update server if not active
+            if (!active)
                 return;
 
             // Check for dead clients but exclude the host client because it
