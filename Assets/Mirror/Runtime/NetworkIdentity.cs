@@ -1268,6 +1268,9 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Called when NetworkIdentity is destroyed
+        /// </summary>
         internal void ClearObservers()
         {
             if (observers != null)
