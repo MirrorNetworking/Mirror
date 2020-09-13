@@ -896,7 +896,6 @@ namespace Mirror
             isSpawnFinished = false;
         }
 
-
         internal static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage _)
         {
             logger.Log("SpawnFinished");
