@@ -394,7 +394,7 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToReady msgType:" + typeof(T));
 
-            if (identity != null && identity.observers != null)
+            if (identity != null && identity.observers != null && identity.observers.Count > 0)
             {
                 // get writer from pool
                 using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
