@@ -900,15 +900,23 @@ namespace Mirror
         {
             logger.Log("SpawnFinished");
 
+            // spawned has null objects after changing scenes on client using NetworkManager.ServerChangeScene
+            // remove them here so that 2nd loop below does not get NullReferenceException 
+            // see https://github.com/vis2k/Mirror/pull/2240
+            // TODO fix scene logic so that client scene doesn't have null objects
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+            {
+                if (kvp.Value == null)
+                {
+                    NetworkIdentity.spawned.Remove(kvp.Key);
+                }
+            }
+
             // paul: Initialize the objects in the same order as they were initialized
             // in the server.   This is important if spawned objects
             // use data from scene objects
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.OrderBy(uv => uv.netId))
             {
-                // spawned has null objects after changing scenes on client
-                // TODO remove null objects from spawned so we dont need the check below
-                if (identity == null) { continue; }
-
                 identity.NotifyAuthority();
                 identity.OnStartClient();
                 CheckForLocalPlayer(identity);
