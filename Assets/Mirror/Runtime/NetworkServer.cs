@@ -77,7 +77,7 @@ namespace Mirror
         /// </summary>
         static readonly List<int> connectionIdsCache = new List<int>();
 
-        static readonly List<NetworkIdentity> dirtyObjects = new List<NetworkIdentity>();
+        static readonly HashSet<NetworkIdentity> dirtyObjects = new HashSet<NetworkIdentity>();
 
         /// <summary>
         /// Reset the NetworkServer singleton.
