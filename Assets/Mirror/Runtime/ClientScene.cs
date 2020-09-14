@@ -782,7 +782,7 @@ namespace Mirror
 
         internal static void OnSpawn(SpawnMessage msg)
         {
-            if (logger.LogEnabled()) logger.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId} pos={msg.position}");
+            if (logger.LogEnabled()) logger.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId:X} pos={msg.position}");
 
             if (FindOrSpawnObject(msg, out NetworkIdentity identity))
             {
@@ -814,7 +814,7 @@ namespace Mirror
 
             if (identity == null)
             {
-                logger.LogError($"Could not spawn assetId={msg.assetId} scene={msg.sceneId} netId={msg.netId}");
+                logger.LogError($"Could not spawn assetId={msg.assetId} scene={msg.sceneId:X} netId={msg.netId}");
                 return false;
             }
 
@@ -870,11 +870,15 @@ namespace Mirror
                 if (logger.LogEnabled())
                 {
                     foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
-                        logger.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
+                        logger.Log($"Spawnable: SceneId={kvp.Key:X} name={kvp.Value.name}");
                 }
             }
+            else
+            {
+                // only log this when successful
+                if (logger.LogEnabled()) logger.Log($"Client spawn for [netId:{msg.netId}] [sceneId:{msg.sceneId:X}] obj:{identity}");
+            }
 
-            if (logger.LogEnabled()) logger.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + identity);
             return identity;
         }
 
