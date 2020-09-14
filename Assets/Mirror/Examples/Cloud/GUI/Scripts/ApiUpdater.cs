@@ -11,26 +11,37 @@ namespace Mirror.Cloud.Example
     {
         static readonly ILogger logger = LogFactory.GetLogger<ApiUpdater>();
 
-        NetworkManagerListServer manager;
-        ApiConnector connector;
+        [SerializeField] NetworkManagerListServer manager;
+        [SerializeField] ApiConnector connector;
         public string gameName = "Game";
 
-        void Start()
+        void Awake()
         {
-            manager = NetworkManager.singleton as NetworkManagerListServer;
-            connector = manager.GetComponent<ApiConnector>();
+            if (manager == null)
+            {
+                manager = manager.GetComponent<NetworkManagerListServer>();
+            }
+            if (connector == null)
+            {
+                connector = manager.GetComponent<ApiConnector>();
+            }
+
+            Debug.Assert(manager != null, "ApiUpdater could not find NetworkManagerListServer");
+            Debug.Assert(connector != null, "ApiUpdater could not find ApiConnector");
 
             manager.onPlayerListChanged += onPlayerListChanged;
             manager.onServerStarted += ServerStartedHandler;
             manager.onServerStopped += ServerStoppedHandler;
         }
 
-
         void OnDestroy()
         {
-            manager.onPlayerListChanged -= onPlayerListChanged;
-            manager.onServerStarted -= ServerStartedHandler;
-            manager.onServerStopped -= ServerStoppedHandler;
+            if (manager != null)
+            {
+                manager.onPlayerListChanged -= onPlayerListChanged;
+                manager.onServerStarted -= ServerStartedHandler;
+                manager.onServerStopped -= ServerStoppedHandler;
+            }
         }
 
         void onPlayerListChanged(int playerCount)
