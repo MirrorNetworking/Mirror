@@ -1,6 +1,8 @@
+- name: Home
+  href: index.md
+- name: Articles
+  href: Articles/
 - name: API Reference
   href: xref:Mirror
-- name: Examples
-  href: Examples/index.md
 - name: Sponsor Us!
   href: https://github.com/sponsors/vis2k
