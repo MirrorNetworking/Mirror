@@ -60,7 +60,7 @@
         "fileMetadataFiles": [],
         "template": [
             "default",
-            "templates/material"
+            "templates"
         ],
         "xrefService": [
             "https://xref.docs.microsoft.com/query?uid={uid}"
