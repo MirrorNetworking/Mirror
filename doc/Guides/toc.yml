@@ -31,8 +31,8 @@
   href: GameObjects/toc.yml
   topicHref: GameObjects/
 - name: Community Guides
-  href: Community/toc.yml
-  topicHref: Community/
+  href: CommunityGuides/toc.yml
+  topicHref: CommunityGuides/
 - name: Best Practices
   href: BestPractices.md
 - name: Resources
