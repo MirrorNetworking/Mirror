@@ -7,9 +7,9 @@ Key difference between UDP and TCP
 -   UDP has lower latency, unreliable
 
 
-## TCP (Transmission Control Protocol)
+## [TCP (Transmission Control Protocol)](https://en.wikipedia.org/wiki/Transmission_Control_Protocol)
 
-[TCP](https://en.wikipedia.org/wiki/Transmission_Control_Protocol) 
+TCP is the most popular protocol on the internet. TCP is used for HTTP, SSH, FTP, and many more.
 
 TCP features make it easy for programers to work with TCP but at the cost of latency.
 
@@ -29,9 +29,9 @@ TCP is better for slower paced games where latency isn't important.
 * [Apathy](https://mirror-networking.com/apathy/)
 * [WebGL](https://mirror-networking.com/docs/Articles/Transports/WebSockets.html)
 
-## UDP (User Datagram Protocol)
+## [UDP (User Datagram Protocol)](https://en.wikipedia.org/wiki/User_Datagram_Protocol)
 
-[UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol) is used for real time applications such as fast paced action games or voice over ip, where low latency is more important than reliability.
+UDP is used for real time applications such as fast paced action games or voice over ip, where low latency is more important than reliability.
 
 UDP features allow a greater control of how data is sent allowing non-critical data to be send faster.
 
