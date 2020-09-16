@@ -238,7 +238,6 @@ namespace Mirror
         /// <returns>Returns true if the handler was successfully invoked</returns>
         public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
         {
-            // get writer from pool
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // if it is a value type,  just use typeof(T) to avoid boxing
