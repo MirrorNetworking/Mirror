@@ -29,16 +29,16 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 -   [Transports](Articles/Transports/index.md) are interchangeable components
 -   Additive Scene handling
 -   Single and separated Unity projects supported
--   Network [Authenticators](Articles/Components/Authenticators/index.md) to manage access to your game
--   Network [Discovery](Articles/Components/NetworkDiscovery.md) to easily connect LAN players to a LAN Server or Host
--   Network [Manager](Articles/Components/NetworkManager.md) and [HUD](Articles/Components/NetworkManagerHUD.md)
--   Network [Room Manager](Articles/Components/NetworkRoomManager.md) and [Room Player](Articles/Components/NetworkRoomPlayer.md)
--   Network [Identity](Articles/Components/NetworkIdentity.md)
--   Network [Transform](Articles/Components/NetworkTransform.md) to sync position, rotation, and scale with interpolation
--   Network [Animator](Articles/Components/NetworkAnimator.md) with 64 parameters
--   Network [Proximity Checker](Articles/Components/NetworkProximityChecker.md) to help with Area of Interest
--   Network [Scene Checker](Articles/Components/NetworkSceneChecker.md) to islolate players and networked objects to Additive scene instances
--   Network [Match Checker](Articles/Components/NetworkMatchChecker.md) to islolate players and networked objects by [Network Visibility](Articles/Guides/Visibility.md)
+-   [Network Authenticators](Articles/Components/Authenticators/index.md) to manage access to your game
+-   [Network Discovery](Articles/Components/NetworkDiscovery.md) to easily connect LAN players to a LAN Server or Host
+-   [Network Manager](Articles/Components/NetworkManager.md) and [HUD](Articles/Components/NetworkManagerHUD.md)
+-   [Network Room Manager](Articles/Components/NetworkRoomManager.md) and [Room Player](Articles/Components/NetworkRoomPlayer.md)
+-   [Network Identity](Articles/Components/NetworkIdentity.md)
+-   [Network Transform](Articles/Components/NetworkTransform.md) to sync position, rotation, and scale with interpolation
+-   [Network Animator](Articles/Components/NetworkAnimator.md) with 64 parameters
+-   [Network Proximity Checker](Articles/Components/NetworkProximityChecker.md) to help with Area of Interest
+-   [Network Scene Checker](Articles/Components/NetworkSceneChecker.md) to isolate players and networked objects to Additive scene instances
+-   [Network Match Checker](Articles/Components/NetworkMatchChecker.md) to isolate players and networked objects by [Network Visibility](Articles/Guides/Visibility.md)
 -   [SyncVar](Articles/Guides/Sync/SyncVars.md), [SyncList](Articles/Guides/Sync/SyncLists.md), [SyncDictionary](Articles/Guides/Sync/SyncDictionary.md), and [SyncHashSet](Articles/Guides/Sync/SyncHashSet.md)
 
 **Integrations**
