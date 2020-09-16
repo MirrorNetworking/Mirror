@@ -93,7 +93,22 @@ article h4 {
 /* SIDEBAR */
 
 .toc .level1>li {
-    font-weight: 400;
+    font-size: 18px;
+    margin-top: 15px;
+}
+
+.toc .level2>li {
+    font-size: 15px;
+    margin-top: 5px;
+}
+
+.toc .level3>li {
+    font-size: 13px;
+}
+
+.toc .level3 {
+    font-weight: normal;
+    margin: 0px 0px 5px 15px;
 }
 
 .toc .nav>li>a {
