@@ -904,6 +904,8 @@ namespace Mirror
         {
             logger.Log("SpawnFinished");
 
+            ClearNullFromSpawned();
+
             // paul: Initialize the objects in the same order as they were initialized
             // in the server.   This is important if spawned objects
             // use data from scene objects
@@ -914,6 +916,29 @@ namespace Mirror
                 CheckForLocalPlayer(identity);
             }
             isSpawnFinished = true;
+        }
+
+        static readonly List<uint> toRemoveFromSpawned = new List<uint>();
+        static void ClearNullFromSpawned()
+        {
+            // spawned has null objects after changing scenes on client using NetworkManager.ServerChangeScene
+            // remove them here so that 2nd loop below does not get NullReferenceException 
+            // see https://github.com/vis2k/Mirror/pull/2240
+            // TODO fix scene logic so that client scene doesn't have null objects
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+            {
+                if (kvp.Value == null)
+                {
+                    toRemoveFromSpawned.Add(kvp.Key);
+                }
+            }
+
+            // can't modifiy NetworkIdentity.spawned inside foreach so need 2nd loop to remove
+            foreach (uint id in toRemoveFromSpawned)
+            {
+                NetworkIdentity.spawned.Remove(id);
+            }
+            toRemoveFromSpawned.Clear();
         }
 
         internal static void OnObjectHide(ObjectHideMessage msg)
