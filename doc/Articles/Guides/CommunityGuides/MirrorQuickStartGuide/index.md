@@ -1,5 +1,7 @@
-# Mirror Quick Start Guide - by StephenAllenGames.co.uk - V3
-
+# Mirror Quick Start Guide 
+Written by [StephenAllenGames.co.uk](http://stephenallengames.co.uk/) <br />
+Edited by [James Frowen](https://github.com/James-Frowen)
+***
 This guide currently shows you:
 - [Basic scene setup](##part-1)
 - [Player movement](##part-4)
@@ -7,30 +9,28 @@ This guide currently shows you:
 - [Scene script with canvas buttons](##part-11)
 - [Weapon switching](##part-12))
 
-It is best to first make a mini practise game before converting your single player game, or creating
-your ideal brand new multiplayer.
+It is best to first make a mini practice game before converting your single player game, or creating your ideal brand new multiplayer.
 
-The Pre-made Mirror examples are great for using as reference, it is recommend to use them
-regarding connection setup, with ports and firewalls.
-This can be a huge topic that changes from person to person, and is not covered in this guide,
-here we will use localHost (multiple games on same PC).
+The Pre-made Mirror examples are great for using as reference, it is recommend to use them regarding connection setup, with ports and firewalls. This can be a huge topic that changes from person to person, and is not covered in this guide, here we will use localHost (multiple games on same PC).
 
 
 
 ## Part 1
 
-Blank Project, import Mirror from Asset Store.
+Blank Project, import Mirror from [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321).
 
 
 
 ## Part 2
 
-Create new scene, save it, and add it to build settings.
-Create a new gameObject, name it NetworkManager (NM) in the scene, and add these 3
-components.
-On the NM component, drag your Offline and Online scene into the slots, we have only one scene
-for now, so put your scene in both.
-(you may not be able to drag the scene in NM until it is added in the build settings.)
+- Create new scene, save it, and add it to build settings
+- Create a new gameObject, name it NetworkManager in the scene, and add these 3 components
+    - NetworkManager
+    - TelepathyTransport
+    - NetworkManagerHUD
+- On the NetworkManager component, drag your Offline and Online scene into the slots, we have only one scene
+for now, so put your scene in both
+    - The scene must be in the build settings before dragging it to the field
 
 ![](./image--000.jpg)
 
@@ -40,30 +40,36 @@ for now, so put your scene in both.
 
 ## Part 3
 
-Setup the scene, add a simple Plane floor, with positions 0,-1,0 and scale 2,2,2
-You can add a material to this, I added one called dirt, that is provided by Mirror.
-Next we add a gameObject, name does not matter, but it needs the Network Start Position
-component, duplicate a few times, and scatter around your scene floor. I did 4, one near each
-corner.
+Setup the scene
+- Add a simple Plane floor with: 
+    - positions (0, -1, 0)
+    - scale (2, 2, 2)
+- (optional) add a material to this, I added one called dirt that is used one of mirrors examples
+- Next we add a GameObject, name does not matter
+- Add `NetworkStartPosition` component to this GameObject
+- Duplicate the GameObject a few times, and scatter around your scene floor so that you have multiple spawn points. I did 4, one near each corner
 
 ![](./image--002.jpg)
 
 
-
 ## Part 4
 
-Creating the player, create a capsule using the menus as shown in the image, attached a
-NetworkTransform (NT) component, this will auto add a Network Identity (NI). Tick Client Authority
-on the NT.
+Creating the player
+- Create a capsule using the menus as shown in the image
+- Attached a NetworkTransform component, this will auto add a Network Identity
+- Tick Client Authority on the NetworkTransform
 
 ![](./image--003.jpg)
 
-Rename that object Player, add an empty PlayerScript, drag into Project to create a prefab, then
-delete Player from scene.
+- Rename that object Player
+- Add an empty PlayerScript
+- Drag into Project to create a prefab
+- Then delete Player from scene
 
 ![](./image--004.jpg)
 
-Drag your player prefab into Network manager, set spawn method to Round Robin.
+- Drag your player prefab into Network manager,
+- Set spawn method to Round Robin.
 
 ![](./image--005.jpg)
 
@@ -88,8 +94,10 @@ namespace QuickStart
         void Update()
         {
             if (!isLocalPlayer) { return; }
+
             float moveX = Input.GetAxis("Horizontal") * Time.deltaTime * 110.0f;
             float moveZ = Input.GetAxis("Vertical") * Time.deltaTime * 4f;
+
             transform.Rotate(0, moveX, 0);
             transform.Translate(0, 0, moveZ);
         }
@@ -100,8 +108,7 @@ namespace QuickStart
 
 ## Part 6
 
-Press play in Unity editor, and then Host (server + client) button in the game window.
-You should be able to move around with a first person view capsule. :)
+Press play in Unity editor, and then Host (server + client) button in the game window. You should be able to move around with a first person view capsule.
 
 ![](./image--006.jpg)
 
@@ -109,8 +116,7 @@ You should be able to move around with a first person view capsule. :)
 
 ## Part 7
 
-Build and run your scene, open it, host on one, and press the Client button on the other.
-Congrats you made a mini multiplayer game!
+Build and run your scene, open it, host on one, and press the Client button on the other. Congrats you made a mini multiplayer game!
 
 ![](./image--007.jpg)
 
@@ -118,11 +124,7 @@ Congrats you made a mini multiplayer game!
 
 ## Part 8
 
-Player name above heads .
-Inside your player Prefab, create an empty gameobject, name it something like Floating Info, set
-Height to 1.5 and scale X to -1.
-Inside that floating info, create a 3D text using Unity menu (GameObject - 3D Object - 3D Text),
-set it up as shown in the picture below.
+Player name above heads. Inside your player Prefab, create an empty gameobject, name it something like Floating Info, set Height to 1.5 and scale X to -1. Inside that floating info, create a 3D text using Unity menu (GameObject - 3D Object - 3D Text), set it up as shown in the picture below.
 
 ![](./image--008.jpg)
 
@@ -194,11 +196,12 @@ namespace QuickStart
 
 ## Part 10
 
-Add the PlayerNameText and FloatingInfo objects into the script on the player prefab, as shown
-below.
+Add the PlayerNameText and FloatingInfo objects into the script on the player prefab, as shown below.
+
 ![](./image--009.jpg)
-Now if you build and run, host on one, join on the other, you will see player names and colors
-synced across the network!
+
+Now if you build and run, host on one, join on the other, you will see player names and colors synced across the network! 
+
 Well done, 5 stars to you!
 
 ![](./image--010.jpg)
@@ -208,7 +211,9 @@ Well done, 5 stars to you!
 ## Part 11
 
 A scene networked object all can access and adjust.
+
 Create a SceneScript.cs, add it onto an empty GameObject in the scene called SceneScript.
+
 Then create a Canvas with text and button, similar to below.
 
 ![](./image--011.jpg)
