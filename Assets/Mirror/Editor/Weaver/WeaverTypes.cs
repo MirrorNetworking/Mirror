@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -71,7 +72,6 @@ namespace Mirror.Weaver
         public static MethodReference ListAddReference;
 
         // system types
-        public static TypeReference objectType;
         public static TypeReference typeType;
         public static TypeReference gameObjectType;
         public static TypeReference transformType;
@@ -138,7 +138,7 @@ namespace Mirror.Weaver
 
         public static TypeReference Import<T>() => Import(typeof(T));
 
-        public static TypeReference Import(System.Type t)
+        public static TypeReference Import(Type t)
         {
             if (t.Assembly.ManifestModule.Name == systemModule.Name)
                 return ImportSystemModuleType(currentAssembly, systemModule, t.FullName);
@@ -146,14 +146,12 @@ namespace Mirror.Weaver
             throw new SymbolsNotFoundException($"Unable to find class {t}");
         }
 
-
         public static void SetupTargetTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly, AssemblyDefinition currentAssembly)
         {
             // system types
             WeaverTypes.currentAssembly = currentAssembly;
             systemModule = ResolveSystemModule(currentAssembly);
 
-            objectType = Import<System.Object>();
             typeType = Import<System.Type>();
             IEnumeratorType = Import<System.Collections.IEnumerator>();
 
@@ -230,7 +228,6 @@ namespace Mirror.Weaver
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkIdentity");
             registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterCommandDelegate");
             registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
-            getTypeReference = Resolvers.ResolveMethod(objectType, currentAssembly, "GetType");
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, currentAssembly, "GetTypeFromHandle");
             logErrorReference = Resolvers.ResolveMethod(unityAssembly.MainModule.GetType("UnityEngine.Debug"), currentAssembly, "LogError");
             logWarningReference = Resolvers.ResolveMethod(unityAssembly.MainModule.GetType("UnityEngine.Debug"), currentAssembly, "LogWarning");
