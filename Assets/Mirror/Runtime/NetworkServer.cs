@@ -929,7 +929,11 @@ namespace Mirror
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
             if (conn.isReady)
+            {
                 SendSpawnMessage(identity, conn);
+
+                identity.OnShownForConnection(conn);
+            }
         }
 
         internal static void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
@@ -939,6 +943,7 @@ namespace Mirror
                 netId = identity.netId
             };
             conn.Send(msg);
+            identity.OnHiddenForConnection(conn);
         }
 
         /// <summary>

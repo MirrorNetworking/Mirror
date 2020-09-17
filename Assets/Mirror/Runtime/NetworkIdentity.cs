@@ -1664,5 +1664,33 @@ namespace Mirror
                 comp.ResetSyncObjects();
             }
         }
+
+        /// <summary>
+        /// Called on Server when Object is spawned for connection
+        /// <para>This inclides first spawn and when connection is added to observers</para>
+        /// </summary>
+        /// <param name="conn"></param>
+        internal void OnShownForConnection(NetworkConnection conn)
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                comp.OnShownForConnection(conn);
+            }
+        }
+
+        /// <summary>
+        /// Called on Server when object is hideen for connection
+        /// <para>This happens when a connection is removed as an observer</para>
+        /// <para>NOTE this is not called when the object is destroyed on the server</para>
+        /// </summary>
+        /// <param name="conn"></param>
+        internal void OnHiddenForConnection(NetworkConnection conn)
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                comp.OnHiddenForConnection(conn);
+            }
+        }
+
     }
 }

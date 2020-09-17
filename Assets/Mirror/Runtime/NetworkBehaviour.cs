@@ -693,5 +693,20 @@ namespace Mirror
         /// <para>When NetworkIdentity.RemoveClientAuthority is called on the server, this will be called on the client that owns the object.</para>
         /// </summary>
         public virtual void OnStopAuthority() { }
+
+        /// <summary>
+        /// Called on Server after Object is spawned for connection
+        /// <para>This inclides first spawn and when connection is added to observers</para>
+        /// </summary>
+        /// <param name="conn">Connection this object was shown to</param>
+        public virtual void OnShownForConnection(NetworkConnection conn) { }
+
+        /// <summary>
+        /// Called on Server after object is hideen for connection
+        /// <para>This happens when a connection is removed as an observer</para>
+        /// <para>NOTE this is not called when the object is destroyed on the server</para>
+        /// </summary>
+        /// <param name="conn">Connection this object was hidden for</param>
+        public virtual void OnHiddenForConnection(NetworkConnection conn) { }
     }
 }
