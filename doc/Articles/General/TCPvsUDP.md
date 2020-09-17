@@ -39,7 +39,7 @@ UDP is better for fast paced games where latency is important and if a few packe
 
 #### Key features include
 
-* **Low Latency:** UDP is faster because it doesn't need to wait for acknowledge packets so a continuous 
+* **Low Latency:** UDP is faster because it doesn't need to wait for acknowledge packets, instead it can send keep sending new pacakges one after the other.
 * **Channel support:** Channels allow for different delivery types. One channel can be used for critical data that needs to get to the destination, while a different channel can just be specified by send and forget without any reliability.
 * **Different packet types:** Reliable Ordered, Reliable Unordered, Unreliable, and more depending on the implementation
 
