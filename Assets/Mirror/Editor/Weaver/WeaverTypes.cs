@@ -11,6 +11,7 @@ namespace Mirror.Weaver
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
         public static TypeReference NetworkConnectionType;
+        public static TypeReference NetworkConnectionToClientType;
 
         public static TypeReference MessageBaseType;
         public static TypeReference IMessageBaseType;
@@ -188,7 +189,6 @@ namespace Mirror.Weaver
 
             NetworkBehaviourType = mirrorAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
             RemoteCallHelperType = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.RemoteCallHelper");
-            NetworkConnectionType = mirrorAssembly.MainModule.GetType("Mirror.NetworkConnection");
 
             MonoBehaviourType = unityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = unityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");
@@ -199,6 +199,9 @@ namespace Mirror.Weaver
 
             NetworkConnectionType = mirrorAssembly.MainModule.GetType("Mirror.NetworkConnection");
             NetworkConnectionType = currentAssembly.MainModule.ImportReference(NetworkConnectionType);
+
+            NetworkConnectionToClientType = mirrorAssembly.MainModule.GetType("Mirror.NetworkConnectionToClient");
+            NetworkConnectionToClientType = currentAssembly.MainModule.ImportReference(NetworkConnectionToClientType);
 
             MessageBaseType = mirrorAssembly.MainModule.GetType("Mirror.MessageBase");
             IMessageBaseType = mirrorAssembly.MainModule.GetType("Mirror.IMessageBase");
