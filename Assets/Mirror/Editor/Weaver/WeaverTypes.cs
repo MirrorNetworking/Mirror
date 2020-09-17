@@ -71,7 +71,6 @@ namespace Mirror.Weaver
         public static MethodReference ListAddReference;
 
         // system types
-        public static TypeReference voidType;
         public static TypeReference objectType;
         public static TypeReference typeType;
         public static TypeReference gameObjectType;
@@ -137,16 +136,15 @@ namespace Mirror.Weaver
         private static AssemblyDefinition currentAssembly;
         private static ModuleDefinition systemModule;
 
-        public static TypeReference Import<T>()
-        {
-            System.Type t = typeof(T);
+        public static TypeReference Import<T>() => Import(typeof(T));
 
+        public static TypeReference Import(System.Type t)
+        {
             if (t.Assembly.ManifestModule.Name == systemModule.Name)
                 return ImportSystemModuleType(currentAssembly, systemModule, t.FullName);
 
             throw new SymbolsNotFoundException($"Unable to find class {t}");
         }
-
 
 
         public static void SetupTargetTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly, AssemblyDefinition currentAssembly)
@@ -155,7 +153,6 @@ namespace Mirror.Weaver
             WeaverTypes.currentAssembly = currentAssembly;
             systemModule = ResolveSystemModule(currentAssembly);
 
-            voidType = ImportSystemModuleType(currentAssembly, systemModule, "System.Void");
             objectType = Import<System.Object>();
             typeType = Import<System.Type>();
             IEnumeratorType = Import<System.Collections.IEnumerator>();
