@@ -368,16 +368,16 @@ namespace Mirror.Weaver
 
             MethodDefinition serialize = new MethodDefinition(SerializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                    WeaverTypes.boolType);
+                    WeaverTypes.Import<bool>());
 
             serialize.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
-            serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, WeaverTypes.boolType));
+            serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, WeaverTypes.Import<bool>()));
             ILProcessor worker = serialize.Body.GetILProcessor();
 
             serialize.Body.InitLocals = true;
 
             // loc_0,  this local variable is to determine if any variable was dirty
-            VariableDefinition dirtyLocal = new VariableDefinition(WeaverTypes.boolType);
+            VariableDefinition dirtyLocal = new VariableDefinition(WeaverTypes.Import<bool>());
             serialize.Body.Variables.Add(dirtyLocal);
 
             MethodReference baseSerialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, SerializeMethodName);
@@ -436,7 +436,7 @@ namespace Mirror.Weaver
             // base
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkBehaviourDirtyBitsReference));
-            MethodReference writeUint64Func = Writers.GetWriteFunc(WeaverTypes.uint64Type);
+            MethodReference writeUint64Func = Writers.GetWriteFunc(WeaverTypes.Import<ulong>());
             worker.Append(worker.Create(OpCodes.Call, writeUint64Func));
 
             // generate a writer call for any dirty variable in this class
@@ -552,7 +552,7 @@ namespace Mirror.Weaver
             FieldDefinition netIdField = syncVarNetIds[syncVar];
 
             // uint oldNetId = ___qNetId;
-            VariableDefinition oldNetId = new VariableDefinition(WeaverTypes.uint32Type);
+            VariableDefinition oldNetId = new VariableDefinition(WeaverTypes.Import<uint>());
             deserialize.Body.Variables.Add(oldNetId);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldfld, netIdField));
@@ -579,7 +579,7 @@ namespace Mirror.Weaver
             // reader. for 'reader.Read()' below
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             // Read()
-            worker.Append(worker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.uint32Type)));
+            worker.Append(worker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.Import<uint>())));
             // netId
             worker.Append(worker.Create(OpCodes.Stfld, netIdField));
 
@@ -733,11 +733,11 @@ namespace Mirror.Weaver
                     WeaverTypes.voidType);
 
             serialize.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
-            serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, WeaverTypes.boolType));
+            serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, WeaverTypes.Import<bool>()));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
             // setup local for dirty bits
             serialize.Body.InitLocals = true;
-            VariableDefinition dirtyBitsLocal = new VariableDefinition(WeaverTypes.int64Type);
+            VariableDefinition dirtyBitsLocal = new VariableDefinition(WeaverTypes.Import<long>());
             serialize.Body.Variables.Add(dirtyBitsLocal);
 
             MethodReference baseDeserialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, DeserializeMethodName);
@@ -770,7 +770,7 @@ namespace Mirror.Weaver
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-            serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.uint64Type)));
+            serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.Import<ulong>())));
             serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
 
             // conditionally read each syncvar
@@ -844,11 +844,11 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Call, readFunc));
 
                 // conversion.. is this needed?
-                if (param.ParameterType.FullName == WeaverTypes.singleType.FullName)
+                if (param.ParameterType.FullName == typeof(float).FullName)
                 {
                     worker.Append(worker.Create(OpCodes.Conv_R4));
                 }
-                else if (param.ParameterType.FullName == WeaverTypes.doubleType.FullName)
+                else if (param.ParameterType.FullName == typeof(double).FullName)
                 {
                     worker.Append(worker.Create(OpCodes.Conv_R8));
                 }

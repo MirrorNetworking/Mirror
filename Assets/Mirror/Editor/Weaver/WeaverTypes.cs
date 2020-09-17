@@ -1,5 +1,6 @@
 using System.Linq;
 using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -71,13 +72,6 @@ namespace Mirror.Weaver
 
         // system types
         public static TypeReference voidType;
-        public static TypeReference singleType;
-        public static TypeReference doubleType;
-        public static TypeReference boolType;
-        public static TypeReference int64Type;
-        public static TypeReference uint64Type;
-        public static TypeReference int32Type;
-        public static TypeReference uint32Type;
         public static TypeReference objectType;
         public static TypeReference typeType;
         public static TypeReference gameObjectType;
@@ -140,21 +134,31 @@ namespace Mirror.Weaver
             return null;
         }
 
+        private static AssemblyDefinition currentAssembly;
+        private static ModuleDefinition systemModule;
+
+        public static TypeReference Import<T>()
+        {
+            System.Type t = typeof(T);
+
+            if (t.Assembly.ManifestModule.Name == systemModule.Name)
+                return ImportSystemModuleType(currentAssembly, systemModule, t.FullName);
+
+            throw new SymbolsNotFoundException($"Unable to find class {t}");
+        }
+
+
+
         public static void SetupTargetTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly, AssemblyDefinition currentAssembly)
         {
             // system types
-            ModuleDefinition systemModule = ResolveSystemModule(currentAssembly);
+            WeaverTypes.currentAssembly = currentAssembly;
+            systemModule = ResolveSystemModule(currentAssembly);
+
             voidType = ImportSystemModuleType(currentAssembly, systemModule, "System.Void");
-            singleType = ImportSystemModuleType(currentAssembly, systemModule, "System.Single");
-            doubleType = ImportSystemModuleType(currentAssembly, systemModule, "System.Double");
-            boolType = ImportSystemModuleType(currentAssembly, systemModule, "System.Boolean");
-            int64Type = ImportSystemModuleType(currentAssembly, systemModule, "System.Int64");
-            uint64Type = ImportSystemModuleType(currentAssembly, systemModule, "System.UInt64");
-            int32Type = ImportSystemModuleType(currentAssembly, systemModule, "System.Int32");
-            uint32Type = ImportSystemModuleType(currentAssembly, systemModule, "System.UInt32");
-            objectType = ImportSystemModuleType(currentAssembly, systemModule, "System.Object");
-            typeType = ImportSystemModuleType(currentAssembly, systemModule, "System.Type");
-            IEnumeratorType = ImportSystemModuleType(currentAssembly, systemModule, "System.Collections.IEnumerator");
+            objectType = Import<System.Object>();
+            typeType = Import<System.Type>();
+            IEnumeratorType = Import<System.Collections.IEnumerator>();
 
             ArraySegmentType = ImportSystemModuleType(currentAssembly, systemModule, "System.ArraySegment`1");
             ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Array");
