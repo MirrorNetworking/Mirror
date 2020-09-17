@@ -24,7 +24,7 @@ Blank Project, import Mirror from [Asset Store](https://assetstore.unity.com/pac
 ## Part 2
 
 - Create new scene, save it, and add it to build settings
-- Create a new gameObject, name it NetworkManager in the scene, and add these 3 components
+- Create a new GameObject, name it NetworkManager in the scene, and add these 3 components
     - NetworkManager
     - TelepathyTransport
     - NetworkManagerHUD
@@ -238,15 +238,15 @@ Then create a Canvas with text and button, similar to below.
 
 ![](./image--011.jpg)
 
-Add the sceneScript variable, Awake function and CmdSendPlayerMessage to PlayerScript.cs
+Add the sceneScript variable, Awake function, and CmdSendPlayerMessage to PlayerScript.cs
 Also add the new playerName joined line to CmdSetupPlayer();
 ```cs
 private SceneScript sceneScript;
+
 void Awake()
 {
     //allow all players to run this
-    sceneScript =
-    GameObject.Find("SceneScript").GetComponent<SceneScript>();
+    sceneScript = GameObject.FindObjectOfType<SceneScript>();
 }
 [Command]
 public void CmdSendPlayerMessage()
@@ -262,7 +262,7 @@ public void CmdSetupPlayer(string _name, Color _col)
     //player info sent to server, then server updates sync vars which handles it on all clients
     playerName = _name;
     playerColor = _col;
-    sceneScript.statusText = playerName + " joined.";
+    sceneScript.statusText = $"{playerName} joined.";
 }
 public override void OnStartLocalPlayer()
 {
@@ -283,30 +283,37 @@ namespace QuickStart
     {
         public Text canvasStatusText;
         public PlayerScript playerScript;
+
         [SyncVar(hook = nameof(OnStatusTextChanged))]
         public string statusText;
+
         void OnStatusTextChanged(string _Old, string _New)
         {
             //called from sync var hook, to update info on screen for all players
             canvasStatusText.text = statusText;
         }
+
         public void ButtonSendMessage()
         {
-            if (playerScript) { playerScript.CmdSendPlayerMessage(); }
+            if (playerScript != null)  
+            {
+                playerScript.CmdSendPlayerMessage();
+            }
         }
     }
 }
 ```
 
 
-Attach the ButtonSendMessage function to your Canvas Button.
-Attach Canvas Scene Text to SceneScript variable.
-(ignore SceneScript’s, playerScript variable, it automatically sets this!)
+- Attach the ButtonSendMessage function to your Canvas Button.
+- Attach Canvas Scene Text to SceneScript variable.
+    - ignore SceneScript’s, playerScript variable, it automatically sets this!
 
 ![](./image--012.jpg) 
 ![](./image--013.jpg)
 
 Now if you build and run, host and join, you can send messages, and have a text log for actions!
+
 Wahooo!
 
 ![](./image--014.jpg)
@@ -320,6 +327,7 @@ Experiment and adjust, have fun!
 ## Part 12
 
 Weapon switching! The code bits.
+
 Add the following to your PlayerScript.cs
 ```cs
 private int selectedWeaponLocal = 1;
@@ -330,8 +338,30 @@ public int activeWeaponSynced;
 
 void OnWeaponChanged(int _Old, int _New)
 {
-    activeWeaponSynced = _New;
+    // disable old weapon
+    // in range and not null
+    if (0 < _Old && _Old < weaponArray.Length && weaponArray[_Old] != null)
+    {
+        weaponArray[_Old].SetActive(false);
+    }
     
+    // enable new weapon
+    // in range and not null
+    if (0 < _New && _New < weaponArray.Length && weaponArray[_New] != null)
+    {
+        weaponArray[_New].SetActive(true);
+    }
+}
+
+[Command]
+public void CmdChangeActiveWeapon(int newIndex)
+{
+    activeWeaponSynced = newIndex;
+}
+
+void Awake() 
+{
+    // disable all weapons
     foreach (var item in weaponArray)
     {
         if (item != null)
@@ -339,31 +369,18 @@ void OnWeaponChanged(int _Old, int _New)
             item.SetActive(false); 
         }
     }
-    
-    if (_New < weaponArray.Length && weaponArray[_New] != null)
-    {
-        weaponArray[_New].SetActive(true);
-    }
-}
-[Command]
-public void CmdChangeActiveWeapon( int _activeWeaponSynced)
-{
-    activeWeaponSynced = _activeWeaponSynced;
 }
 ```
-And the weapon switch button in update, note only local player switches its own weapon, so it
-goes below the ! isLocalPlayer check.
+Add the weapon switch button in update. Only local player switches its own weapon, so it goes below the `!isLocalPlayer` check.
 ```cs
 void Update()
 {
-    //allow all players to run this
-    if (isLocalPlayer == false)
+    if (!isLocalPlayer)
     {
+        // make non-local players run this
         floatingInfo.transform.LookAt(Camera.main.transform);
+        return;
     }
-
-    //only our own player runs below here
-    if (!isLocalPlayer) { return; }
 
     float moveX = Input.GetAxis("Horizontal") * Time.deltaTime * 110.0f;
     float moveZ = Input.GetAxis("Vertical") * Time.deltaTime * 4f;
@@ -389,21 +406,18 @@ void Update()
 
 ## Part 13
 
-Weapon models, add the basic cube weapons first, change these later.
+Weapon models
 
-Double click your player prefab, to enter it, then add a WeaponsHolder empty gameobject, with
-position and rotation at 0,0,0.
+Add the basic cube weapons first, change these later.
 
-
-Inside that WeaponHolder, create a cube from unity menu, (gameobject, 3D object, cube), and
-remove the box colliders.
-
-Rename this Weapon1, change position and scale to match the below pictures.
+- Double click your player prefab to enter it
+- Add a "WeaponsHolder" empty GameObject, with position and rotation at 0,0,0.
+- Inside that GameObject, create a cube from unity menu, (GameObject, 3D object, cube)- Remove the box colliders.
+- Rename this `Weapon1`, change position and scale to match the below pictures.
 
 ![](./image--017.jpg)
 
-Duplicate weapon 1 for a Weapon 2, and change its scale and position, now you should have 2
-different looking ‘weapons’!
+Duplicate weapon 1 for a Weapon 2, and change its scale and position, now you should have 2 different looking ‘weapons’!
 
 ![](./image--018.jpg)
 
@@ -411,14 +425,15 @@ different looking ‘weapons’!
 ## Part 14
 
 Weapon switch finale.
-Add these 2 gameobjects to your PlayerScript.cs weapons array.
-Disable weapon 2, so only weapon 1 shows when spawning.
+
+- Add these 2 GameObjects to your PlayerScript.cs weapons array.
+- Disable weapon 2, so only weapon 1 shows when spawning.
 
 ![](./image--019.jpg)
 
 Build and run!
-You should see each player switching weapons, and whatever your player has equipped, will auto
-show on new joining players (sync var and hook magic!)
+
+You should see each player switching weapons, and whatever your player has equipped, will auto show on new joining players (sync var and hook magic!)
 
 ![](./image--020.jpg)
 
