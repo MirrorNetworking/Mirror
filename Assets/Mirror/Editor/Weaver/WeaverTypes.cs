@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using Mono.CecilX;
 
@@ -59,27 +58,6 @@ namespace Mirror.Weaver
         public static MethodReference sendCommandInternal;
         public static MethodReference sendRpcInternal;
         public static MethodReference sendTargetRpcInternal;
-
-        static ModuleDefinition ResolveSystemModule(AssemblyDefinition currentAssembly)
-        {
-            AssemblyNameReference name = AssemblyNameReference.Parse("mscorlib");
-            ReaderParameters parameters = new ReaderParameters
-            {
-                AssemblyResolver = currentAssembly.MainModule.AssemblyResolver
-            };
-            return currentAssembly.MainModule.AssemblyResolver.Resolve(name, parameters).MainModule;
-        }
-
-        static TypeReference ImportSystemModuleType(AssemblyDefinition currentAssembly, ModuleDefinition systemModule, string fullName)
-        {
-            TypeDefinition type = systemModule.GetType(fullName) ?? systemModule.ExportedTypes.First(t => t.FullName == fullName).Resolve();
-            if (type != null)
-            {
-                return currentAssembly.MainModule.ImportReference(type);
-            }
-            Weaver.Error("Failed to import mscorlib type: " + fullName + " because Resolve failed. (Might happen when trying to Resolve in NetStandard dll, see also: https://github.com/vis2k/Mirror/issues/791)");
-            return null;
-        }
 
         private static AssemblyDefinition currentAssembly;
 
