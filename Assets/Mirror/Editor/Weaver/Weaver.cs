@@ -221,7 +221,7 @@ namespace Mirror.Weaver
                     SyncListProcessor.Process(td, WeaverTypes.Import(typeof(SyncSet<>)));
                     modified = true;
                 }
-                else if (td.IsDerivedFrom(WeaverTypes.SyncDictionaryType))
+                else if (td.IsDerivedFrom(WeaverTypes.Import(typeof(SyncDictionary<,>))))
                 {
                     SyncDictionaryProcessor.Process(td);
                     modified = true;

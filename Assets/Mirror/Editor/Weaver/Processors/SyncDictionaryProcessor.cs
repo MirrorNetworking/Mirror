@@ -14,10 +14,11 @@ namespace Mirror.Weaver
         public static void Process(TypeDefinition td)
         {
             GenericArgumentResolver resolver = new GenericArgumentResolver(2);
+            TypeReference syncDictBase = WeaverTypes.Import(typeof(SyncDictionary<,>));
 
-            if (resolver.GetGenericFromBaseClass(td, 0, WeaverTypes.SyncDictionaryType, out TypeReference keyType))
+            if (resolver.GetGenericFromBaseClass(td, 0, syncDictBase, out TypeReference keyType))
             {
-                SyncObjectProcessor.GenerateSerialization(td, keyType, WeaverTypes.SyncDictionaryType, "SerializeKey", "DeserializeKey");
+                SyncObjectProcessor.GenerateSerialization(td, keyType, syncDictBase, "SerializeKey", "DeserializeKey");
             }
             else
             {
@@ -25,9 +26,9 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (resolver.GetGenericFromBaseClass(td, 1, WeaverTypes.SyncDictionaryType, out TypeReference itemType))
+            if (resolver.GetGenericFromBaseClass(td, 1, syncDictBase, out TypeReference itemType))
             {
-                SyncObjectProcessor.GenerateSerialization(td, itemType, WeaverTypes.SyncDictionaryType, "SerializeItem", "DeserializeItem");
+                SyncObjectProcessor.GenerateSerialization(td, itemType, syncDictBase, "SerializeItem", "DeserializeItem");
             }
             else
             {

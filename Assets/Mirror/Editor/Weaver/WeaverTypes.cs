@@ -12,8 +12,6 @@ namespace Mirror.Weaver
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
 
-        public static TypeReference SyncDictionaryType;
-
         public static MethodReference ScriptableObjectCreateInstanceMethod;
 
         public static MethodReference NetworkBehaviourDirtyBitsReference;
@@ -156,8 +154,6 @@ namespace Mirror.Weaver
             ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(
                 ScriptableObjectType, currentAssembly,
                 md => md.Name == "CreateInstance" && md.HasGenericParameters);
-
-            SyncDictionaryType = mirrorAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "syncVarDirtyBits");
             TypeDefinition NetworkWriterPoolType = mirrorAssembly.MainModule.GetType("Mirror.NetworkWriterPool");
