@@ -14,7 +14,6 @@ namespace Mirror.Weaver
         public static TypeReference ScriptableObjectType;
         public static TypeReference NetworkConnectionType;
 
-        public static TypeReference MessageBaseType;
         public static TypeReference IMessageBaseType;
         public static TypeReference SyncListType;
         public static TypeReference SyncSetType;
@@ -179,7 +178,6 @@ namespace Mirror.Weaver
             NetworkConnectionType = mirrorAssembly.MainModule.GetType("Mirror.NetworkConnection");
             NetworkConnectionType = currentAssembly.MainModule.ImportReference(NetworkConnectionType);
 
-            MessageBaseType = mirrorAssembly.MainModule.GetType("Mirror.MessageBase");
             IMessageBaseType = mirrorAssembly.MainModule.GetType("Mirror.IMessageBase");
             SyncListType = mirrorAssembly.MainModule.GetType("Mirror.SyncList`1");
             SyncSetType = mirrorAssembly.MainModule.GetType("Mirror.SyncSet`1");
