@@ -11,7 +11,6 @@ namespace Mirror.Weaver
         public static TypeReference RemoteCallHelperType;
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
-        public static TypeReference NetworkConnectionType;
 
         public static TypeReference SyncListType;
         public static TypeReference SyncSetType;
@@ -160,7 +159,6 @@ namespace Mirror.Weaver
 
             NetworkBehaviourType = mirrorAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
             RemoteCallHelperType = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.RemoteCallHelper");
-            NetworkConnectionType = mirrorAssembly.MainModule.GetType("Mirror.NetworkConnection");
 
             MonoBehaviourType = unityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = unityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");
@@ -168,9 +166,6 @@ namespace Mirror.Weaver
             ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(
                 ScriptableObjectType, currentAssembly,
                 md => md.Name == "CreateInstance" && md.HasGenericParameters);
-
-            NetworkConnectionType = mirrorAssembly.MainModule.GetType("Mirror.NetworkConnection");
-            NetworkConnectionType = currentAssembly.MainModule.ImportReference(NetworkConnectionType);
 
             SyncListType = mirrorAssembly.MainModule.GetType("Mirror.SyncList`1");
             SyncSetType = mirrorAssembly.MainModule.GetType("Mirror.SyncSet`1");

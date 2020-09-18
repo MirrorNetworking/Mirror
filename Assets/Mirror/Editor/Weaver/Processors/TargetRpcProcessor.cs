@@ -12,7 +12,7 @@ namespace Mirror.Weaver
         public static bool HasNetworkConnectionParameter(MethodDefinition md)
         {
             return md.Parameters.Count > 0 &&
-                   md.Parameters[0].ParameterType.FullName == WeaverTypes.NetworkConnectionType.FullName;
+                   md.Parameters[0].ParameterType.FullName == typeof(Mirror.NetworkConnection).FullName;
         }
 
         public static MethodDefinition ProcessTargetRpcInvoke(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)

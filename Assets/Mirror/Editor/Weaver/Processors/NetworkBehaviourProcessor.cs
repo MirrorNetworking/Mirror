@@ -861,7 +861,7 @@ namespace Mirror.Weaver
             collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkBehaviourType)));
             collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
             // senderConnection is only used for commands but NetworkBehaviour.CmdDelegate is used for all remote calls
-            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkConnectionType)));
+            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkConnection>()));
         }
 
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
@@ -915,7 +915,7 @@ namespace Mirror.Weaver
         // validate parameters for a remote function call like Rpc/Cmd
         static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
         {
-            bool isNetworkConnection = param.ParameterType.FullName == WeaverTypes.NetworkConnectionType.FullName;
+            bool isNetworkConnection = param.ParameterType.FullName == typeof(Mirror.NetworkConnection).FullName;
             bool isSenderConnection = IsSenderConnection(param, callType);
 
             if (param.IsOut)
