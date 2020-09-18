@@ -862,7 +862,7 @@ namespace Mirror.Weaver
             collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkBehaviour>()));
             collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
             // senderConnection is only used for commands but NetworkBehaviour.CmdDelegate is used for all remote calls
-            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkConnection>()));
+            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkConnectionToClient>()));
         }
 
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
