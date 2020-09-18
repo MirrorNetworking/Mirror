@@ -29,7 +29,6 @@ namespace Mirror.Weaver
         public static MethodReference NetworkClientGetActive;
 
         // custom attribute types
-        public static TypeReference TargetRpcType;
         public static MethodReference InitSyncObjectReference;
 
         // array segment
@@ -74,8 +73,6 @@ namespace Mirror.Weaver
         {
             NetworkClientType = mirrorAssembly.MainModule.GetType("Mirror.NetworkClient");
             NetworkServerType = mirrorAssembly.MainModule.GetType("Mirror.NetworkServer");
-
-            TargetRpcType = mirrorAssembly.MainModule.GetType("Mirror.TargetRpcAttribute");
         }
 
         static ModuleDefinition ResolveSystemModule(AssemblyDefinition currentAssembly)

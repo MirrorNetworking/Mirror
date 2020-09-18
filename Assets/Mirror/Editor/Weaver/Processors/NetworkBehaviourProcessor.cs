@@ -981,7 +981,7 @@ namespace Mirror.Weaver
                         break;
                     }
 
-                    if (ca.AttributeType.FullName == WeaverTypes.TargetRpcType.FullName)
+                    if (ca.AttributeType.FullName == typeof(Mirror.TargetRpcAttribute).FullName)
                     {
                         ProcessTargetRpc(names, md, ca);
                         break;
