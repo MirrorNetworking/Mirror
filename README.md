@@ -108,9 +108,10 @@ We included several small example projects.
 MirrorNG currently supports the following low level networking transports:
 
 * (built in) Tcp
-* (built in) https://github.com/MirrorNG/MirrorNG_Websocket (Websockets)
+* https://github.com/MirrorNG/MirrorNG_Websocket (Websockets)
 * https://github.com/dragonslaya84/FizzySteamyMirror (Steam)
 * https://github.com/uweenukr/LiteNetLibTransportNG (LiteNetLib)
+* https://github.com/dragonslaya84/IgnoranceNG (ENet)
 
 ## The MirrorNG Mantra
 So many quotes to chose from.  This one in particular really encapsulates why this exists:
