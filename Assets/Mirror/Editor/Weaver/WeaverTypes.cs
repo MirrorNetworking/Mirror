@@ -138,13 +138,7 @@ namespace Mirror.Weaver
 
         public static TypeReference Import<T>() => Import(typeof(T));
 
-        public static TypeReference Import(Type t)
-        {
-            if (t.Assembly.ManifestModule.Name == systemModule.Name)
-                return ImportSystemModuleType(currentAssembly, systemModule, t.FullName);
-
-            throw new SymbolsNotFoundException($"Unable to find class {t}");
-        }
+        public static TypeReference Import(Type t) => currentAssembly.MainModule.ImportReference(t);
 
         public static void SetupTargetTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly, AssemblyDefinition currentAssembly)
         {
