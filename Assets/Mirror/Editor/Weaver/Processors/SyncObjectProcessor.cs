@@ -130,7 +130,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     itemType);
 
-            deserializeFunction.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
+            deserializeFunction.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
 
             ILProcessor worker = deserializeFunction.Body.GetILProcessor();
 
