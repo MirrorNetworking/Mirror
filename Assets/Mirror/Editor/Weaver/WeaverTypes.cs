@@ -43,9 +43,6 @@ namespace Mirror.Weaver
         public static MethodReference ListGetItemReference;
         public static MethodReference ListAddReference;
 
-        // system types
-        public static TypeReference typeType;
-
         public static MethodReference syncVarEqualReference;
         public static MethodReference syncVarNetworkIdentityEqualReference;
         public static MethodReference syncVarGameObjectEqualReference;
@@ -104,8 +101,6 @@ namespace Mirror.Weaver
             // system types
             WeaverTypes.currentAssembly = currentAssembly;
             systemModule = ResolveSystemModule(currentAssembly);
-
-            typeType = Import<System.Type>();
 
             ArraySegmentType = ImportSystemModuleType(currentAssembly, systemModule, "System.ArraySegment`1");
             ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Array");
