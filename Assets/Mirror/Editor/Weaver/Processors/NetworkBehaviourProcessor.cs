@@ -975,7 +975,7 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.FullName == WeaverTypes.CommandType.FullName)
+                    if (ca.AttributeType.FullName == typeof(Mirror.CommandAttribute).FullName)
                     {
                         ProcessCommand(names, md, ca);
                         break;

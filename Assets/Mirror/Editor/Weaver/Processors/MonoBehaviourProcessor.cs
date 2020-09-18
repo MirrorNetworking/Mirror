@@ -35,7 +35,7 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.FullName == WeaverTypes.CommandType.FullName)
+                    if (ca.AttributeType.FullName == typeof(Mirror.CommandAttribute).FullName)
                     {
                         Weaver.Error($"Command {md.Name} must be declared inside a NetworkBehaviour", md);
                     }
