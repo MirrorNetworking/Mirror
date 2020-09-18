@@ -12,7 +12,6 @@ namespace Mirror.Weaver
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
 
-        public static TypeReference SyncListType;
         public static TypeReference SyncSetType;
         public static TypeReference SyncDictionaryType;
 
@@ -159,7 +158,6 @@ namespace Mirror.Weaver
                 ScriptableObjectType, currentAssembly,
                 md => md.Name == "CreateInstance" && md.HasGenericParameters);
 
-            SyncListType = mirrorAssembly.MainModule.GetType("Mirror.SyncList`1");
             SyncSetType = mirrorAssembly.MainModule.GetType("Mirror.SyncSet`1");
             SyncDictionaryType = mirrorAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
 

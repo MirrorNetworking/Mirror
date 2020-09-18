@@ -211,9 +211,9 @@ namespace Mirror.Weaver
             // because we still need to check for embeded types
             if (td.IsClass || !td.IsAbstract)
             {
-                if (td.IsDerivedFrom(WeaverTypes.SyncListType))
+                if (td.IsDerivedFrom(WeaverTypes.Import(typeof(SyncList<>))))
                 {
-                    SyncListProcessor.Process(td, WeaverTypes.SyncListType);
+                    SyncListProcessor.Process(td, WeaverTypes.Import(typeof(SyncList<>)));
                     modified = true;
                 }
                 else if (td.IsDerivedFrom(WeaverTypes.SyncSetType))
