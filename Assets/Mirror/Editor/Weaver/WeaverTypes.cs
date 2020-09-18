@@ -18,7 +18,6 @@ namespace Mirror.Weaver
         public static MethodReference GetPooledWriterReference;
         public static MethodReference RecycleWriterReference;
 
-        public static TypeReference ClientSceneType;
         public static MethodReference ReadyConnectionReference;
 
         public static MethodReference CmdDelegateConstructor;
@@ -143,7 +142,7 @@ namespace Mirror.Weaver
             GetPooledWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, currentAssembly, "GetWriter");
             RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, currentAssembly, "Recycle");
 
-            ClientSceneType = mirrorAssembly.MainModule.GetType("Mirror.ClientScene");
+            TypeDefinition ClientSceneType = mirrorAssembly.MainModule.GetType("Mirror.ClientScene");
             ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, currentAssembly, "get_readyConnection");
 
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarEqual");
