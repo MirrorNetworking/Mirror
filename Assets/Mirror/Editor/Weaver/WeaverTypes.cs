@@ -60,7 +60,7 @@ namespace Mirror.Weaver
 
         public static TypeReference Import(Type t) => currentAssembly.MainModule.ImportReference(t);
 
-        public static void SetupTargetTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly, AssemblyDefinition currentAssembly)
+        public static void SetupTargetTypes(AssemblyDefinition currentAssembly)
         {
             // system types
             WeaverTypes.currentAssembly = currentAssembly;
