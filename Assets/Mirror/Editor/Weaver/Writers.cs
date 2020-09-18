@@ -94,12 +94,12 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate writer for component type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (variableReference.FullName == typeof(UnityEngine.Object).FullName)
+            if (variableReference.Is<UnityEngine.Object>())
             {
                 Weaver.Error($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (variableReference.FullName == typeof(UnityEngine.ScriptableObject).FullName)
+            if (variableReference.Is<UnityEngine.ScriptableObject>())
             {
                 Weaver.Error($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;

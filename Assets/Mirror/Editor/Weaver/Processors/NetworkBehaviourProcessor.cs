@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -517,8 +518,8 @@ namespace Mirror.Weaver
         /// <returns></returns>
         static bool IsNetworkIdentityField(FieldDefinition syncVar)
         {
-            return syncVar.FieldType.FullName == typeof(UnityEngine.GameObject).FullName ||
-                   syncVar.FieldType.FullName == typeof(Mirror.NetworkIdentity).FullName;
+            return syncVar.FieldType.Is<UnityEngine.GameObject>() ||
+                   syncVar.FieldType.Is<Mirror.NetworkIdentity>();
         }
 
         /// <summary>
@@ -844,11 +845,11 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Call, readFunc));
 
                 // conversion.. is this needed?
-                if (param.ParameterType.FullName == typeof(float).FullName)
+                if (param.ParameterType.Is<float>())
                 {
                     worker.Append(worker.Create(OpCodes.Conv_R4));
                 }
-                else if (param.ParameterType.FullName == typeof(double).FullName)
+                else if (param.ParameterType.Is<double>())
                 {
                     worker.Append(worker.Create(OpCodes.Conv_R8));
                 }
@@ -880,12 +881,12 @@ namespace Mirror.Weaver
         // check if a Command/TargetRpc/Rpc function is valid for weaving
         static bool ValidateFunction(MethodReference md)
         {
-            if (md.ReturnType.FullName == typeof(System.Collections.IEnumerator).FullName)
+            if (md.ReturnType.Is<System.Collections.IEnumerator>())
             {
                 Weaver.Error($"{md.Name} cannot be a coroutine", md);
                 return false;
             }
-            if (md.ReturnType.FullName != typeof(void).FullName)
+            if (!md.ReturnType.Is(typeof(void)))
             {
                 Weaver.Error($"{md.Name} cannot return a value.  Make it void instead", md);
                 return false;
@@ -915,7 +916,7 @@ namespace Mirror.Weaver
         // validate parameters for a remote function call like Rpc/Cmd
         static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
         {
-            bool isNetworkConnection = param.ParameterType.FullName == typeof(Mirror.NetworkConnection).FullName;
+            bool isNetworkConnection = param.ParameterType.Is<Mirror.NetworkConnection>();
             bool isSenderConnection = IsSenderConnection(param, callType);
 
             if (param.IsOut)
@@ -958,7 +959,7 @@ namespace Mirror.Weaver
 
             TypeReference type = param.ParameterType;
 
-            return type.FullName == typeof(Mirror.NetworkConnectionToClient).FullName
+            return type.Is<Mirror.NetworkConnectionToClient>()
                 || type.Resolve().IsDerivedFrom<Mirror.NetworkConnectionToClient>();
         }
 
@@ -973,19 +974,19 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.FullName == typeof(Mirror.CommandAttribute).FullName)
+                    if (ca.AttributeType.Is<Mirror.CommandAttribute>())
                     {
                         ProcessCommand(names, md, ca);
                         break;
                     }
 
-                    if (ca.AttributeType.FullName == typeof(Mirror.TargetRpcAttribute).FullName)
+                    if (ca.AttributeType.Is<Mirror.TargetRpcAttribute>())
                     {
                         ProcessTargetRpc(names, md, ca);
                         break;
                     }
 
-                    if (ca.AttributeType.FullName == typeof(Mirror.ClientRpcAttribute).FullName)
+                    if (ca.AttributeType.Is<Mirror.ClientRpcAttribute>())
                     {
                         ProcessClientRpc(names, md, ca);
                         break;

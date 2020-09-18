@@ -125,7 +125,7 @@ namespace Mirror.Weaver
             TypeDefinition parent = td;
             while (parent != null)
             {
-                if (parent.FullName == typeof(Mirror.NetworkBehaviour).FullName)
+                if (parent.Is<Mirror.NetworkBehaviour>())
                 {
                     break;
                 }
