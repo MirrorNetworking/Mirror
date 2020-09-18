@@ -352,8 +352,6 @@ namespace Mirror.Weaver
             using (AssemblyDefinition unityAssembly = AssemblyDefinition.ReadAssembly(unityEngineDLLPath))
             using (AssemblyDefinition mirrorAssembly = AssemblyDefinition.ReadAssembly(mirrorNetDLLPath))
             {
-                WeaverTypes.SetupUnityTypes(unityAssembly, mirrorAssembly);
-
                 try
                 {
                     foreach (string asm in assemblies)

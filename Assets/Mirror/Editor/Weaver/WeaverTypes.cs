@@ -68,13 +68,6 @@ namespace Mirror.Weaver
         public static MethodReference sendRpcInternal;
         public static MethodReference sendTargetRpcInternal;
 
-
-        public static void SetupUnityTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly)
-        {
-            NetworkClientType = mirrorAssembly.MainModule.GetType("Mirror.NetworkClient");
-            NetworkServerType = mirrorAssembly.MainModule.GetType("Mirror.NetworkServer");
-        }
-
         static ModuleDefinition ResolveSystemModule(AssemblyDefinition currentAssembly)
         {
             AssemblyNameReference name = AssemblyNameReference.Parse("mscorlib");
@@ -116,6 +109,9 @@ namespace Mirror.Weaver
             systemModule = ResolveSystemModule(currentAssembly);
 
             typeType = Import<System.Type>();
+
+            NetworkClientType = mirrorAssembly.MainModule.GetType("Mirror.NetworkClient");
+            NetworkServerType = mirrorAssembly.MainModule.GetType("Mirror.NetworkServer");
 
             ArraySegmentType = ImportSystemModuleType(currentAssembly, systemModule, "System.ArraySegment`1");
             ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Array");
