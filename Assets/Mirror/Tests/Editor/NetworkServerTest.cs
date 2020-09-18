@@ -868,7 +868,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void GetNetworkIdentity()
+        public void GetNetworkIdentityShouldFindNetworkIdentity()
         {
             // create a GameObject with NetworkIdentity
             GameObject go = new GameObject();
@@ -879,19 +879,23 @@ namespace Mirror.Tests
             Assert.That(result, Is.True);
             Assert.That(value, Is.EqualTo(identity));
 
-            // create a GameObject without NetworkIdentity
-            GameObject goWithout = new GameObject();
-
-            // GetNetworkIdentity for GO without identity
-            // (error log is expected)
-            LogAssert.ignoreFailingMessages = true;
-            result = NetworkServer.GetNetworkIdentity(goWithout, out NetworkIdentity valueNull);
-            Assert.That(result, Is.False);
-            Assert.That(valueNull, Is.Null);
-            LogAssert.ignoreFailingMessages = false;
-
             // clean up
             GameObject.DestroyImmediate(go);
+        }
+
+        [Test]
+        public void GetNetworkIdentityErrorIfNotFound()
+        {
+            // create a GameObject without NetworkIdentity
+            GameObject goWithout = new GameObject("Another Name");
+
+            // GetNetworkIdentity for GO without identity
+            LogAssert.Expect(LogType.Error, $"GameObject {goWithout.name} doesn't have NetworkIdentity.");
+            bool result = NetworkServer.GetNetworkIdentity(goWithout, out NetworkIdentity value);
+            Assert.That(result, Is.False);
+            Assert.That(value, Is.Null);
+
+            // clean up
             GameObject.DestroyImmediate(goWithout);
         }
 
