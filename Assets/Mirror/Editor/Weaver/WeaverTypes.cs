@@ -58,7 +58,6 @@ namespace Mirror.Weaver
 
         // system types
         public static TypeReference typeType;
-        public static TypeReference gameObjectType;
         public static TypeReference transformType;
 
         public static MethodReference syncVarEqualReference;
@@ -84,7 +83,6 @@ namespace Mirror.Weaver
 
         public static void SetupUnityTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly)
         {
-            gameObjectType = unityAssembly.MainModule.GetType("UnityEngine.GameObject");
             transformType = unityAssembly.MainModule.GetType("UnityEngine.Transform");
 
             NetworkClientType = mirrorAssembly.MainModule.GetType("Mirror.NetworkClient");
@@ -151,7 +149,6 @@ namespace Mirror.Weaver
             TypeDefinition cmdDelegateReference = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(cmdDelegateReference, currentAssembly, ".ctor");
 
-            currentAssembly.MainModule.ImportReference(gameObjectType);
             currentAssembly.MainModule.ImportReference(transformType);
 
             TypeReference networkIdentityTmp = mirrorAssembly.MainModule.GetType("Mirror.NetworkIdentity");

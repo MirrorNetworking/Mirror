@@ -517,7 +517,7 @@ namespace Mirror.Weaver
         /// <returns></returns>
         static bool IsNetworkIdentityField(FieldDefinition syncVar)
         {
-            return syncVar.FieldType.FullName == WeaverTypes.gameObjectType.FullName ||
+            return syncVar.FieldType.FullName == typeof(UnityEngine.GameObject).FullName ||
                    syncVar.FieldType.FullName == WeaverTypes.NetworkIdentityType.FullName;
         }
 

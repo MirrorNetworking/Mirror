@@ -82,7 +82,7 @@ namespace Mirror.Weaver
             ILProcessor worker = get.Body.GetILProcessor();
 
             // [SyncVar] GameObject?
-            if (fd.FieldType.FullName == WeaverTypes.gameObjectType.FullName)
+            if (fd.FieldType.FullName == typeof(UnityEngine.GameObject).FullName)
             {
                 // return this.GetSyncVarGameObject(ref field, uint netId);
                 // this.
@@ -141,7 +141,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             // reference to field to set
             // make generic version of SetSyncVar with field type
-            if (fd.FieldType.FullName == WeaverTypes.gameObjectType.FullName)
+            if (fd.FieldType.FullName == typeof(UnityEngine.GameObject).FullName)
             {
                 // reference to netId Field to set
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -191,7 +191,7 @@ namespace Mirror.Weaver
             // 8 byte integer aka long
             worker.Append(worker.Create(OpCodes.Ldc_I8, dirtyBit));
 
-            if (fd.FieldType.FullName == WeaverTypes.gameObjectType.FullName)
+            if (fd.FieldType.FullName == typeof(UnityEngine.GameObject).FullName)
             {
                 // reference to netId Field to set
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -262,11 +262,11 @@ namespace Mirror.Weaver
         public static void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit)
         {
             string originalName = fd.Name;
-            Weaver.DLog(td, "Sync Var " + fd.Name + " " + fd.FieldType + " " + WeaverTypes.gameObjectType);
+            Weaver.DLog(td, "Sync Var " + fd.Name + " " + fd.FieldType);
 
             // GameObject/NetworkIdentity SyncVars have a new field for netId
             FieldDefinition netIdField = null;
-            if (fd.FieldType.FullName == WeaverTypes.gameObjectType.FullName ||
+            if (fd.FieldType.FullName == typeof(UnityEngine.GameObject).FullName ||
                 fd.FieldType.FullName == WeaverTypes.NetworkIdentityType.FullName)
             {
                 netIdField = new FieldDefinition("___" + fd.Name + "NetId",
@@ -297,7 +297,7 @@ namespace Mirror.Weaver
             // netId instead
             // -> only for GameObjects, otherwise an int syncvar's getter would
             //    end up in recursion.
-            if (fd.FieldType.FullName == WeaverTypes.gameObjectType.FullName ||
+            if (fd.FieldType.FullName == typeof(UnityEngine.GameObject).FullName ||
                 fd.FieldType.FullName == WeaverTypes.NetworkIdentityType.FullName)
             {
                 Weaver.WeaveLists.replacementGetterProperties[fd] = get;
