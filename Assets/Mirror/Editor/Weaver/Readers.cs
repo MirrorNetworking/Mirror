@@ -54,7 +54,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
-            if (variableReference.FullName == WeaverTypes.ObjectType.FullName)
+            if (variableReference.FullName == typeof(UnityEngine.Object).FullName)
             {
                 Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
