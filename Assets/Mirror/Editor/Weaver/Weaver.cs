@@ -162,7 +162,7 @@ namespace Mirror.Weaver
 
             bool modified = false;
 
-            if (td.ImplementsInterface(WeaverTypes.IMessageBaseType))
+            if (td.ImplementsInterface<Mirror.IMessageBase>())
             {
                 // process this and base classes from parent to child order
                 try
