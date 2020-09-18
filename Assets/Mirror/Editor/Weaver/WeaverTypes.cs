@@ -19,8 +19,6 @@ namespace Mirror.Weaver
         public static TypeReference NetworkClientType;
         public static TypeReference NetworkServerType;
 
-        public static TypeReference NetworkIdentityType;
-
         public static TypeReference ClientSceneType;
         public static MethodReference ReadyConnectionReference;
 
@@ -140,9 +138,6 @@ namespace Mirror.Weaver
 
             TypeDefinition cmdDelegateReference = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(cmdDelegateReference, currentAssembly, ".ctor");
-
-            TypeReference networkIdentityTmp = mirrorAssembly.MainModule.GetType("Mirror.NetworkIdentity");
-            NetworkIdentityType = currentAssembly.MainModule.ImportReference(networkIdentityTmp);
 
             NetworkBehaviourType = mirrorAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
             RemoteCallHelperType = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.RemoteCallHelper");
