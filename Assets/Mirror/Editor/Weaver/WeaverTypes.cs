@@ -7,7 +7,6 @@ namespace Mirror.Weaver
     public static class WeaverTypes
     {
         // Network types
-        public static TypeReference NetworkBehaviourType;
         public static TypeReference RemoteCallHelperType;
         public static TypeReference ScriptableObjectType;
 
@@ -97,7 +96,7 @@ namespace Mirror.Weaver
             TypeDefinition cmdDelegateReference = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(cmdDelegateReference, currentAssembly, ".ctor");
 
-            NetworkBehaviourType = mirrorAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
+            TypeReference NetworkBehaviourType = Import<Mirror.NetworkBehaviour>();
             RemoteCallHelperType = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.RemoteCallHelper");
 
             ScriptableObjectType = unityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");

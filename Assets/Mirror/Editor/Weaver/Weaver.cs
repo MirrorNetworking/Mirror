@@ -96,7 +96,7 @@ namespace Mirror.Weaver
 
         public static bool IsNetworkBehaviour(TypeDefinition td)
         {
-            return td.IsDerivedFrom(WeaverTypes.NetworkBehaviourType);
+            return td.IsDerivedFrom(WeaverTypes.Import<Mirror.NetworkBehaviour>());
         }
 
         static void CheckMonoBehaviour(TypeDefinition td)
@@ -125,7 +125,7 @@ namespace Mirror.Weaver
             TypeDefinition parent = td;
             while (parent != null)
             {
-                if (parent.FullName == WeaverTypes.NetworkBehaviourType.FullName)
+                if (parent.FullName == typeof(Mirror.NetworkBehaviour).FullName)
                 {
                     break;
                 }
