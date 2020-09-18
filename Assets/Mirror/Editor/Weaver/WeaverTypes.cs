@@ -30,14 +30,12 @@ namespace Mirror.Weaver
         public static MethodReference InitSyncObjectReference;
 
         // array segment
-        public static TypeReference ArraySegmentType;
         public static MethodReference ArraySegmentConstructorReference;
         public static MethodReference ArraySegmentArrayReference;
         public static MethodReference ArraySegmentOffsetReference;
         public static MethodReference ArraySegmentCountReference;
 
         // list
-        public static TypeReference ListType;
         public static MethodReference ListConstructorReference;
         public static MethodReference ListCountReference;
         public static MethodReference ListGetItemReference;
@@ -84,7 +82,6 @@ namespace Mirror.Weaver
         }
 
         private static AssemblyDefinition currentAssembly;
-        private static ModuleDefinition systemModule;
 
         public static TypeReference Import<T>() => Import(typeof(T));
 
@@ -100,15 +97,14 @@ namespace Mirror.Weaver
         {
             // system types
             WeaverTypes.currentAssembly = currentAssembly;
-            systemModule = ResolveSystemModule(currentAssembly);
 
-            ArraySegmentType = ImportSystemModuleType(currentAssembly, systemModule, "System.ArraySegment`1");
+            TypeReference ArraySegmentType = Import(typeof(System.ArraySegment<>));
             ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Array");
             ArraySegmentCountReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Count");
             ArraySegmentOffsetReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Offset");
             ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, currentAssembly, ".ctor");
 
-            ListType = ImportSystemModuleType(currentAssembly, systemModule, "System.Collections.Generic.List`1");
+            TypeReference ListType = Import(typeof(System.Collections.Generic.List<>));
             ListCountReference = Resolvers.ResolveProperty(ListType, currentAssembly, "Count");
             ListGetItemReference = Resolvers.ResolveMethod(ListType, currentAssembly, "get_Item");
             ListAddReference = Resolvers.ResolveMethod(ListType, currentAssembly, "Add");
