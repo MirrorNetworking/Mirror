@@ -180,10 +180,11 @@ namespace Mirror.Weaver
             return null;
         }
 
-        public static bool HasCustomAttribute(this ICustomAttributeProvider attributeProvider, TypeReference attribute)
+        public static bool HasCustomAttribute<TAttribute>(this ICustomAttributeProvider attributeProvider)
         {
+            Type t = typeof(TAttribute);
             // Linq allocations don't matter in weaver
-            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.FullName == attribute.FullName);
+            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.FullName == t.FullName);
         }
 
         public static T GetField<T>(this CustomAttribute ca, string field, T defaultValue)

@@ -316,7 +316,7 @@ namespace Mirror.Weaver
             // find syncvars
             foreach (FieldDefinition fd in td.Fields)
             {
-                if (fd.HasCustomAttribute(WeaverTypes.Import<Mirror.SyncVarAttribute>()))
+                if (fd.HasCustomAttribute<Mirror.SyncVarAttribute>())
                 {
                     if ((fd.Attributes & FieldAttributes.Static) != 0)
                     {
