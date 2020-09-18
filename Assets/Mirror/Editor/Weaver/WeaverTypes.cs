@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using Mono.CecilX;
 
 namespace Mirror.Weaver
@@ -61,7 +62,6 @@ namespace Mirror.Weaver
         public static MethodReference registerCommandDelegateReference;
         public static MethodReference registerRpcDelegateReference;
         public static MethodReference getTypeReference;
-        public static MethodReference getTypeFromHandleReference;
         public static MethodReference logErrorReference;
         public static MethodReference logWarningReference;
         public static MethodReference sendCommandInternal;
@@ -102,6 +102,12 @@ namespace Mirror.Weaver
         public static TypeReference Import<T>() => Import(typeof(T));
 
         public static TypeReference Import(Type t) => currentAssembly.MainModule.ImportReference(t);
+
+        public static MethodReference Import(MethodInfo method) => currentAssembly.MainModule.ImportReference(method);
+
+        public static MethodReference Import<A>(Func<A> del) => Import(del.GetMethodInfo());
+        public static MethodReference Import<A, B>(Func<A, B> del) => Import(del.GetMethodInfo());
+        public static MethodReference Import<A, B, C>(Func<A, B, C> del) => Import(del.GetMethodInfo());
 
         public static void SetupTargetTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly, AssemblyDefinition currentAssembly)
         {
@@ -160,7 +166,6 @@ namespace Mirror.Weaver
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkIdentity");
             registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterCommandDelegate");
             registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
-            getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, currentAssembly, "GetTypeFromHandle");
             logErrorReference = Resolvers.ResolveMethod(unityAssembly.MainModule.GetType("UnityEngine.Debug"), currentAssembly, "LogError");
             logWarningReference = Resolvers.ResolveMethod(unityAssembly.MainModule.GetType("UnityEngine.Debug"), currentAssembly, "LogWarning");
             sendCommandInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendCommandInternal");

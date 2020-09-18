@@ -1,3 +1,4 @@
+using System;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
@@ -117,7 +118,7 @@ namespace Mirror.Weaver
             }
             worker.Append(worker.Create(OpCodes.Ldtoken, td));
             // invokerClass
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.Import<RuntimeTypeHandle, Type>(Type.GetTypeFromHandle)));
             worker.Append(worker.Create(OpCodes.Ldstr, rpcName));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc_0));
