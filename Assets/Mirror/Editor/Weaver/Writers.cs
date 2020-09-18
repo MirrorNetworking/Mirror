@@ -99,7 +99,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (variableReference.FullName == WeaverTypes.ScriptableObjectType.FullName)
+            if (variableReference.FullName == typeof(UnityEngine.ScriptableObject).FullName)
             {
                 Weaver.Error($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;

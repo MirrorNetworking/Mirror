@@ -59,7 +59,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
-            if (variableReference.FullName == WeaverTypes.ScriptableObjectType.FullName)
+            if (variableReference.FullName == typeof(UnityEngine.ScriptableObject).FullName)
             {
                 Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
@@ -467,7 +467,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldloca, 0));
                 worker.Append(worker.Create(OpCodes.Initobj, variable));
             }
-            else if (td.IsDerivedFrom(WeaverTypes.ScriptableObjectType))
+            else if (td.IsDerivedFrom(WeaverTypes.Import<UnityEngine.ScriptableObject>()))
             {
                 GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(WeaverTypes.ScriptableObjectCreateInstanceMethod);
                 genericInstanceMethod.GenericArguments.Add(variable);
