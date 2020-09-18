@@ -20,7 +20,7 @@ namespace Mirror.Weaver
         // Get hook method if any
         public static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar)
         {
-            CustomAttribute syncVarAttr = syncVar.GetCustomAttribute(WeaverTypes.SyncVarType.FullName);
+            CustomAttribute syncVarAttr = syncVar.GetCustomAttribute(typeof(Mirror.SyncVarAttribute).FullName);
 
             if (syncVarAttr == null)
                 return null;
@@ -316,7 +316,7 @@ namespace Mirror.Weaver
             // find syncvars
             foreach (FieldDefinition fd in td.Fields)
             {
-                if (fd.HasCustomAttribute(WeaverTypes.SyncVarType))
+                if (fd.HasCustomAttribute(WeaverTypes.Import<Mirror.SyncVarAttribute>()))
                 {
                     if ((fd.Attributes & FieldAttributes.Static) != 0)
                     {
