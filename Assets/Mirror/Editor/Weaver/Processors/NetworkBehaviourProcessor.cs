@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -325,7 +324,7 @@ namespace Mirror.Weaver
         void GenerateRegisterRemoteDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, string cmdName)
         {
             worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.Import<RuntimeTypeHandle, Type>(Type.GetTypeFromHandle)));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             worker.Append(worker.Create(OpCodes.Ldnull));
             worker.Append(worker.Create(OpCodes.Ldftn, func));
@@ -341,7 +340,7 @@ namespace Mirror.Weaver
             bool ignoreAuthority = cmdResult.ignoreAuthority;
 
             worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.Import<RuntimeTypeHandle, Type>(Type.GetTypeFromHandle)));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             worker.Append(worker.Create(OpCodes.Ldnull));
             worker.Append(worker.Create(OpCodes.Ldftn, func));

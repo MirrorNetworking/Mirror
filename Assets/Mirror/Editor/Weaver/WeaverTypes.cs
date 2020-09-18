@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Linq;
 using Mono.CecilX;
 
 namespace Mirror.Weaver
@@ -48,6 +49,7 @@ namespace Mirror.Weaver
         public static MethodReference registerCommandDelegateReference;
         public static MethodReference registerRpcDelegateReference;
         public static MethodReference getTypeReference;
+        public static MethodReference getTypeFromHandleReference;
         public static MethodReference logErrorReference;
         public static MethodReference logWarningReference;
         public static MethodReference sendCommandInternal;
@@ -59,12 +61,6 @@ namespace Mirror.Weaver
         public static TypeReference Import<T>() => Import(typeof(T));
 
         public static TypeReference Import(Type t) => currentAssembly.MainModule.ImportReference(t);
-
-        public static MethodReference Import(MethodInfo method) => currentAssembly.MainModule.ImportReference(method);
-
-        public static MethodReference Import<A>(Func<A> del) => Import(del.GetMethodInfo());
-        public static MethodReference Import<A, B>(Func<A, B> del) => Import(del.GetMethodInfo());
-        public static MethodReference Import<A, B, C>(Func<A, B, C> del) => Import(del.GetMethodInfo());
 
         public static void SetupTargetTypes(AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly, AssemblyDefinition currentAssembly)
         {
@@ -125,6 +121,9 @@ namespace Mirror.Weaver
             TypeReference unityDebug = Import(typeof(UnityEngine.Debug));
             logErrorReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogError");
             logWarningReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogWarning");
+
+            TypeReference typeType = Import(typeof(Type));
+            getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, currentAssembly, "GetTypeFromHandle");
             sendCommandInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendCommandInternal");
             sendRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendRPCInternal");
             sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendTargetRPCInternal");
