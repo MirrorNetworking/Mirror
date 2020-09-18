@@ -17,8 +17,6 @@ namespace Mirror.Weaver
         public static MethodReference NetworkBehaviourDirtyBitsReference;
         public static MethodReference GetPooledWriterReference;
         public static MethodReference RecycleWriterReference;
-        public static TypeReference NetworkClientType;
-        public static TypeReference NetworkServerType;
 
         public static TypeReference ClientSceneType;
         public static MethodReference ReadyConnectionReference;
@@ -110,9 +108,6 @@ namespace Mirror.Weaver
 
             typeType = Import<System.Type>();
 
-            NetworkClientType = mirrorAssembly.MainModule.GetType("Mirror.NetworkClient");
-            NetworkServerType = mirrorAssembly.MainModule.GetType("Mirror.NetworkServer");
-
             ArraySegmentType = ImportSystemModuleType(currentAssembly, systemModule, "System.ArraySegment`1");
             ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Array");
             ArraySegmentCountReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Count");
@@ -125,8 +120,10 @@ namespace Mirror.Weaver
             ListAddReference = Resolvers.ResolveMethod(ListType, currentAssembly, "Add");
             ListConstructorReference = Resolvers.ResolveMethod(ListType, currentAssembly, ".ctor");
 
+            TypeDefinition NetworkServerType = mirrorAssembly.MainModule.GetType("Mirror.NetworkServer");
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_localClientActive");
+            TypeDefinition NetworkClientType = mirrorAssembly.MainModule.GetType("Mirror.NetworkClient");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, currentAssembly, "get_active");
 
             TypeDefinition cmdDelegateReference = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.CmdDelegate");
