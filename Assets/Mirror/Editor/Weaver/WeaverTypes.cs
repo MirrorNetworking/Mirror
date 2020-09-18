@@ -9,7 +9,6 @@ namespace Mirror.Weaver
         // Network types
         public static TypeReference NetworkBehaviourType;
         public static TypeReference RemoteCallHelperType;
-        public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
 
         public static MethodReference ScriptableObjectCreateInstanceMethod;
@@ -148,7 +147,6 @@ namespace Mirror.Weaver
             NetworkBehaviourType = mirrorAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
             RemoteCallHelperType = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.RemoteCallHelper");
 
-            MonoBehaviourType = unityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = unityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");
 
             ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(

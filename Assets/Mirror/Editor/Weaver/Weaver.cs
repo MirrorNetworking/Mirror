@@ -101,7 +101,7 @@ namespace Mirror.Weaver
 
         static void CheckMonoBehaviour(TypeDefinition td)
         {
-            if (td.IsDerivedFrom(WeaverTypes.MonoBehaviourType))
+            if (td.IsDerivedFrom(WeaverTypes.Import<UnityEngine.MonoBehaviour>()))
             {
                 MonoBehaviourProcessor.Process(td);
             }
