@@ -33,7 +33,6 @@ namespace Mirror.Weaver
         public static TypeReference ComponentType;
         public static TypeReference ObjectType;
 
-        public static TypeReference CmdDelegateReference;
         public static MethodReference CmdDelegateConstructor;
 
         public static MethodReference NetworkServerGetActive;
@@ -153,8 +152,8 @@ namespace Mirror.Weaver
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_localClientActive");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, currentAssembly, "get_active");
 
-            CmdDelegateReference = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.CmdDelegate");
-            CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, currentAssembly, ".ctor");
+            TypeDefinition cmdDelegateReference = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.CmdDelegate");
+            CmdDelegateConstructor = Resolvers.ResolveMethod(cmdDelegateReference, currentAssembly, ".ctor");
 
             currentAssembly.MainModule.ImportReference(gameObjectType);
             currentAssembly.MainModule.ImportReference(transformType);
