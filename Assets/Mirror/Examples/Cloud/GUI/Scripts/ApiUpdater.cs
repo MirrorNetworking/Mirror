@@ -19,7 +19,7 @@ namespace Mirror.Cloud.Example
         {
             if (manager == null)
             {
-                manager = manager.GetComponent<NetworkManagerListServer>();
+                manager = FindObjectOfType<NetworkManagerListServer>();
             }
             if (connector == null)
             {
