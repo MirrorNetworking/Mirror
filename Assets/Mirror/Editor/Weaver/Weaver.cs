@@ -277,7 +277,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static bool Weave(string assName, AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
+        static bool Weave(string assName, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
         {
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
@@ -294,7 +294,7 @@ namespace Mirror.Weaver
                     }
                 }
 
-                WeaverTypes.SetupTargetTypes(unityAssembly, mirrorAssembly, CurrentAssembly);
+                WeaverTypes.SetupTargetTypes(CurrentAssembly);
                 System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 ReaderWriterProcessor.Process(CurrentAssembly);
                 rwstopwatch.Stop();
@@ -349,24 +349,20 @@ namespace Mirror.Weaver
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
 
-            using (AssemblyDefinition unityAssembly = AssemblyDefinition.ReadAssembly(unityEngineDLLPath))
-            using (AssemblyDefinition mirrorAssembly = AssemblyDefinition.ReadAssembly(mirrorNetDLLPath))
+            try
             {
-                try
+                foreach (string asm in assemblies)
                 {
-                    foreach (string asm in assemblies)
+                    if (!Weave(asm, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
                     {
-                        if (!Weave(asm, unityAssembly, mirrorAssembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
-                catch (Exception e)
-                {
-                    Log.Error("Exception :" + e);
-                    return false;
-                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Exception :" + e);
+                return false;
             }
             return true;
         }
