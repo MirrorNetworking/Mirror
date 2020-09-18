@@ -49,7 +49,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
                 return null;
             }
-            if (variableDefinition.IsDerivedFrom(WeaverTypes.Import<UnityEngine.Component>()))
+            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
                 Weaver.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
@@ -467,7 +467,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldloca, 0));
                 worker.Append(worker.Create(OpCodes.Initobj, variable));
             }
-            else if (td.IsDerivedFrom(WeaverTypes.Import<UnityEngine.ScriptableObject>()))
+            else if (td.IsDerivedFrom<UnityEngine.ScriptableObject>())
             {
                 GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(WeaverTypes.ScriptableObjectCreateInstanceMethod);
                 genericInstanceMethod.GenericArguments.Add(variable);

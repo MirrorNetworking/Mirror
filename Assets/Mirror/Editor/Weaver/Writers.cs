@@ -89,7 +89,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variableReference.Name} is not a supported type. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (variableDefinition.IsDerivedFrom(WeaverTypes.Import<UnityEngine.Component>()))
+            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
                 Weaver.Error($"Cannot generate writer for component type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;

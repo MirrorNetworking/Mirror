@@ -959,10 +959,7 @@ namespace Mirror.Weaver
 
             TypeReference type = param.ParameterType;
 
-            const string ConnectionToClient = "Mirror.NetworkConnectionToClient";
-            bool isConnectionToClient = type.FullName == ConnectionToClient || type.Resolve().IsDerivedFrom(ConnectionToClient);
-
-            return isConnectionToClient;
+            return type.FullName == typeof(Mirror.NetworkConnectionToClient).FullName || type.Resolve().IsDerivedFrom<Mirror.NetworkConnectionToClient>();
         }
 
         void ProcessMethods()

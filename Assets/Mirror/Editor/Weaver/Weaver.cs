@@ -96,12 +96,12 @@ namespace Mirror.Weaver
 
         public static bool IsNetworkBehaviour(TypeDefinition td)
         {
-            return td.IsDerivedFrom(WeaverTypes.Import<Mirror.NetworkBehaviour>());
+            return td.IsDerivedFrom<Mirror.NetworkBehaviour>();
         }
 
         static void CheckMonoBehaviour(TypeDefinition td)
         {
-            if (td.IsDerivedFrom(WeaverTypes.Import<UnityEngine.MonoBehaviour>()))
+            if (td.IsDerivedFrom<UnityEngine.MonoBehaviour>())
             {
                 MonoBehaviourProcessor.Process(td);
             }
@@ -211,17 +211,17 @@ namespace Mirror.Weaver
             // because we still need to check for embeded types
             if (td.IsClass || !td.IsAbstract)
             {
-                if (td.IsDerivedFrom(WeaverTypes.Import(typeof(SyncList<>))))
+                if (td.IsDerivedFrom(typeof(SyncList<>)))
                 {
                     SyncListProcessor.Process(td, WeaverTypes.Import(typeof(SyncList<>)));
                     modified = true;
                 }
-                else if (td.IsDerivedFrom(WeaverTypes.Import(typeof(SyncSet<>))))
+                else if (td.IsDerivedFrom(typeof(SyncSet<>)))
                 {
                     SyncListProcessor.Process(td, WeaverTypes.Import(typeof(SyncSet<>)));
                     modified = true;
                 }
-                else if (td.IsDerivedFrom(WeaverTypes.Import(typeof(SyncDictionary<,>))))
+                else if (td.IsDerivedFrom(typeof(SyncDictionary<,>)))
                 {
                     SyncDictionaryProcessor.Process(td);
                     modified = true;
