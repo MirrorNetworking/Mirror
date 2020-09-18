@@ -903,7 +903,7 @@ namespace Mirror
             identity = go.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                logger.LogError("GameObject " + go.name + " doesn't have NetworkIdentity.");
+                logger.LogError($"GameObject {go.name} doesn't have NetworkIdentity.");
                 return false;
             }
             return true;
