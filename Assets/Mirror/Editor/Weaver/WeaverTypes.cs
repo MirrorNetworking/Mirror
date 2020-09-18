@@ -28,8 +28,6 @@ namespace Mirror.Weaver
         public static TypeReference NetworkClientType;
         public static TypeReference NetworkServerType;
 
-        public static TypeReference PooledNetworkWriterType;
-
         public static TypeReference NetworkIdentityType;
 
         public static TypeReference ClientSceneType;
@@ -155,9 +153,6 @@ namespace Mirror.Weaver
             ListGetItemReference = Resolvers.ResolveMethod(ListType, currentAssembly, "get_Item");
             ListAddReference = Resolvers.ResolveMethod(ListType, currentAssembly, "Add");
             ListConstructorReference = Resolvers.ResolveMethod(ListType, currentAssembly, ".ctor");
-
-            TypeReference pooledNetworkWriterTmp = mirrorAssembly.MainModule.GetType("Mirror.PooledNetworkWriter");
-            PooledNetworkWriterType = currentAssembly.MainModule.ImportReference(pooledNetworkWriterTmp);
 
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_localClientActive");
