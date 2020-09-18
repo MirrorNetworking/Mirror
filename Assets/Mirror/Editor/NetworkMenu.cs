@@ -11,7 +11,7 @@ namespace Mirror
         [MenuItem("GameObject/Network/NetworkManager", priority = 7)]
         public static GameObject CreateNetworkManager()
         {
-            var go = new GameObject("NetworkManager", typeof(TcpTransport), typeof(NetworkSceneManager), typeof(NetworkClient), typeof(NetworkServer), typeof(NetworkManager), typeof(PlayerSpawner), typeof(NetworkManagerHUD));
+            var go = new GameObject("NetworkManager", typeof(TcpTransport), typeof(NetworkSceneManager), typeof(NetworkClient), typeof(NetworkServer), typeof(NetworkManager), typeof(PlayerSpawner), typeof(NetworkManagerHud));
 
             TcpTransport transport = go.GetComponent<TcpTransport>();
             NetworkSceneManager nsm = go.GetComponent<NetworkSceneManager>();

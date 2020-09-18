@@ -94,6 +94,28 @@ namespace Mirror.Tests
             Assert.That(spawnDelegateTestCalled, Is.EqualTo(1));
         });
 
+        [UnityTest]
+        public IEnumerator OnDestroySpawnHandlerTest() => RunAsync(async () =>
+        {
+            Guid guid = Guid.NewGuid();
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            identity.AssetId = guid;
+
+            client.RegisterSpawnHandler(guid, SpawnDelegateTest, UnSpawnDelegateTest);
+            client.RegisterPrefab(gameObject, guid);
+            server.SendSpawnMessage(identity, connectionToClient);
+
+            await WaitFor(() => spawnDelegateTestCalled != 0);
+
+            client.OnObjectDestroy(new ObjectDestroyMessage
+            {
+                netId = identity.NetId
+            });
+
+            Assert.That(unspawnDelegateTestCalled, Is.EqualTo(1));
+        });
+
         int spawnDelegateTestCalled;
         GameObject SpawnDelegateTest(Vector3 position, Guid assetId)
         {

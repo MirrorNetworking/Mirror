@@ -12,49 +12,49 @@ namespace Mirror.Tests
     public class NetworkManagerHudTest : HostSetup<MockComponent>
     {
         GameObject gameObject;
-        NetworkManagerHUD networkManagerHUD;
+        NetworkManagerHud networkManagerHud;
         public override void ExtraSetup()
         {
-            gameObject = new GameObject("NetworkManagerHUD", typeof(NetworkManagerHUD));
-            networkManagerHUD = gameObject.GetComponent<NetworkManagerHUD>();
-            networkManagerHUD.NetworkManager = manager;
-            networkManagerHUD.OfflineGO = new GameObject();
-            networkManagerHUD.OnlineGO = new GameObject();
+            gameObject = new GameObject("NetworkManagerHud", typeof(NetworkManagerHud));
+            networkManagerHud = gameObject.GetComponent<NetworkManagerHud>();
+            networkManagerHud.NetworkManager = manager;
+            networkManagerHud.OfflineGO = new GameObject();
+            networkManagerHud.OnlineGO = new GameObject();
 
             //Initial state in the prefab
-            networkManagerHUD.OfflineGO.SetActive(true);
-            networkManagerHUD.OnlineGO.SetActive(false);
+            networkManagerHud.OfflineGO.SetActive(true);
+            networkManagerHud.OnlineGO.SetActive(false);
         }
 
         public override void ExtraTearDown()
         {
-            Object.DestroyImmediate(networkManagerHUD.OfflineGO);
-            Object.DestroyImmediate(networkManagerHUD.OnlineGO);
+            Object.DestroyImmediate(networkManagerHud.OfflineGO);
+            Object.DestroyImmediate(networkManagerHud.OnlineGO);
             Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void OnlineSetActiveTest()
         {
-            networkManagerHUD.OnlineSetActive();
-            Assert.That(networkManagerHUD.OfflineGO.activeSelf, Is.False);
-            Assert.That(networkManagerHUD.OnlineGO.activeSelf, Is.True);
+            networkManagerHud.OnlineSetActive();
+            Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.False);
+            Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.True);
         }
 
         [Test]
         public void OfflineSetActiveTest()
         {
-            networkManagerHUD.OfflineSetActive();
-            Assert.That(networkManagerHUD.OfflineGO.activeSelf, Is.True);
-            Assert.That(networkManagerHUD.OnlineGO.activeSelf, Is.False);
+            networkManagerHud.OfflineSetActive();
+            Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.True);
+            Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.False);
         }
 
         [Test]
         public void StartHostButtonTest()
         {
-            networkManagerHUD.StartHostButtonHandler();
-            Assert.That(networkManagerHUD.OfflineGO.activeSelf, Is.False);
-            Assert.That(networkManagerHUD.OnlineGO.activeSelf, Is.True);
+            networkManagerHud.StartHostButtonHandler();
+            Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.False);
+            Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.True);
 
             Assert.That(manager.server.Active, Is.True);
             Assert.That(manager.client.Active, Is.True);
@@ -63,9 +63,9 @@ namespace Mirror.Tests
         [Test]
         public void StartServerOnlyButtonTest()
         {
-            networkManagerHUD.StartServerOnlyButtonHandler();
-            Assert.That(networkManagerHUD.OfflineGO.activeSelf, Is.False);
-            Assert.That(networkManagerHUD.OnlineGO.activeSelf, Is.True);
+            networkManagerHud.StartServerOnlyButtonHandler();
+            Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.False);
+            Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.True);
 
             Assert.That(manager.server.Active, Is.True);
         }
@@ -73,9 +73,9 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator StopButtonTest() => RunAsync(async () =>
         {
-            networkManagerHUD.StopButtonHandler();
-            Assert.That(networkManagerHUD.OfflineGO.activeSelf, Is.True);
-            Assert.That(networkManagerHUD.OnlineGO.activeSelf, Is.False);
+            networkManagerHud.StopButtonHandler();
+            Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.True);
+            Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.False);
 
             await WaitFor(() => !manager.IsNetworkActive);
 
@@ -87,34 +87,34 @@ namespace Mirror.Tests
     public class NetworkManagerHudClientServerTest : ClientServerSetup<MockComponent>
     {
         GameObject gameObject;
-        NetworkManagerHUD networkManagerHUD;
+        NetworkManagerHud networkManagerHud;
         public override void ExtraSetup()
         {
-            gameObject = new GameObject("NetworkManagerHUD", typeof(NetworkManagerHUD));
-            networkManagerHUD = gameObject.GetComponent<NetworkManagerHUD>();
-            networkManagerHUD.NetworkManager = clientGo.AddComponent<NetworkManager>();
-            networkManagerHUD.NetworkManager.client = client;
-            networkManagerHUD.OfflineGO = new GameObject();
-            networkManagerHUD.OnlineGO = new GameObject();
+            gameObject = new GameObject("NetworkManagerHud", typeof(NetworkManagerHud));
+            networkManagerHud = gameObject.GetComponent<NetworkManagerHud>();
+            networkManagerHud.NetworkManager = clientGo.AddComponent<NetworkManager>();
+            networkManagerHud.NetworkManager.client = client;
+            networkManagerHud.OfflineGO = new GameObject();
+            networkManagerHud.OnlineGO = new GameObject();
 
             //Initial state in the prefab
-            networkManagerHUD.OfflineGO.SetActive(true);
-            networkManagerHUD.OnlineGO.SetActive(false);
+            networkManagerHud.OfflineGO.SetActive(true);
+            networkManagerHud.OnlineGO.SetActive(false);
         }
 
         public override void ExtraTearDown()
         {
-            Object.DestroyImmediate(networkManagerHUD.OfflineGO);
-            Object.DestroyImmediate(networkManagerHUD.OnlineGO);
+            Object.DestroyImmediate(networkManagerHud.OfflineGO);
+            Object.DestroyImmediate(networkManagerHud.OnlineGO);
             Object.DestroyImmediate(gameObject);
         }
 
         [Test]
         public void StartClientButtonTest()
         {
-            networkManagerHUD.StartClientButtonHandler();
-            Assert.That(networkManagerHUD.OfflineGO.activeSelf, Is.False);
-            Assert.That(networkManagerHUD.OnlineGO.activeSelf, Is.True);
+            networkManagerHud.StartClientButtonHandler();
+            Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.False);
+            Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.True);
         }
     }
 }

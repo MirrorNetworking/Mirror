@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace Mirror
 {
-    public class NetworkManagerHUD : MonoBehaviour
+    public class NetworkManagerHud : MonoBehaviour
     {
         public NetworkManager NetworkManager;
         public string NetworkAddress = "localhost";
