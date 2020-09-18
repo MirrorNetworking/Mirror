@@ -83,13 +83,13 @@ namespace Mirror.Weaver
             ListAddReference = Resolvers.ResolveMethod(ListType, currentAssembly, "Add");
             ListConstructorReference = Resolvers.ResolveMethod(ListType, currentAssembly, ".ctor");
 
-            TypeDefinition NetworkServerType = mirrorAssembly.MainModule.GetType("Mirror.NetworkServer");
+            TypeReference NetworkServerType = Import(typeof(Mirror.NetworkServer));
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_localClientActive");
-            TypeDefinition NetworkClientType = mirrorAssembly.MainModule.GetType("Mirror.NetworkClient");
+            TypeReference NetworkClientType = Import(typeof(Mirror.NetworkClient));
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, currentAssembly, "get_active");
 
-            TypeDefinition cmdDelegateReference = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.CmdDelegate");
+            TypeReference cmdDelegateReference = Import<Mirror.RemoteCalls.CmdDelegate>();
             CmdDelegateConstructor = Resolvers.ResolveMethod(cmdDelegateReference, currentAssembly, ".ctor");
 
             TypeReference NetworkBehaviourType = Import<Mirror.NetworkBehaviour>();
@@ -102,11 +102,11 @@ namespace Mirror.Weaver
                 md => md.Name == "CreateInstance" && md.HasGenericParameters);
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "syncVarDirtyBits");
-            TypeDefinition NetworkWriterPoolType = mirrorAssembly.MainModule.GetType("Mirror.NetworkWriterPool");
+            TypeReference NetworkWriterPoolType = Import(typeof(Mirror.NetworkWriterPool));
             GetPooledWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, currentAssembly, "GetWriter");
             RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, currentAssembly, "Recycle");
 
-            TypeDefinition ClientSceneType = mirrorAssembly.MainModule.GetType("Mirror.ClientScene");
+            TypeReference ClientSceneType = Import(typeof(Mirror.ClientScene));
             ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, currentAssembly, "get_readyConnection");
 
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarEqual");
@@ -122,8 +122,9 @@ namespace Mirror.Weaver
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkIdentity");
             registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterCommandDelegate");
             registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
-            logErrorReference = Resolvers.ResolveMethod(unityAssembly.MainModule.GetType("UnityEngine.Debug"), currentAssembly, "LogError");
-            logWarningReference = Resolvers.ResolveMethod(unityAssembly.MainModule.GetType("UnityEngine.Debug"), currentAssembly, "LogWarning");
+            TypeReference unityDebug = Import(typeof(UnityEngine.Debug));
+            logErrorReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogError");
+            logWarningReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogWarning");
             sendCommandInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendCommandInternal");
             sendRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendRPCInternal");
             sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendTargetRPCInternal");
