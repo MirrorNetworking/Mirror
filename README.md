@@ -56,7 +56,7 @@ Code review takes too long in Mirror. I think code reviews are top priority.
 These are some notable differences between Mirror and MirrorNG:
 * [Done] CI/CD pipeline.  Tests are executed with every pull request, quality is *enforced*
 * [Done] Unity package manager.  Makes it easier to install and upgrade MirrorNG in your project
-* [WIP] Code quality,  the goal is to turn this [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=alert_status)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG) green. Help welcome. This will have a great impact on reducing the amount of defects.
+* [Done] Code quality,  the goal is to turn this [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=alert_status)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG) green. Help welcome. This will have a great impact on reducing the amount of defects.
 * [Done] Make it work in unity 2019.3.0 with domain reload turned off 
 * [WIP] Allow connection to multiple servers simultaneously
 * [WIP] Error handling via Exceptions
