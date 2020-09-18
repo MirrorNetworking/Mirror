@@ -87,7 +87,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
 
-            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             serializeFunc.Parameters.Add(new ParameterDefinition("item", ParameterAttributes.None, itemType));
             ILProcessor worker = serializeFunc.Body.GetILProcessor();
 

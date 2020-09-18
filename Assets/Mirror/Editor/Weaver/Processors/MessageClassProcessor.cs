@@ -32,7 +32,7 @@ namespace Mirror.Weaver
         static void GenerateSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateSerialization");
-            MethodDefinition existingMethod = td.GetMethodWith1Arg("Serialize", WeaverTypes.NetworkWriterType);
+            MethodDefinition existingMethod = td.GetMethodWith1Arg("Serialize", WeaverTypes.Import<Mirror.NetworkWriter>());
             // do nothing if method exists and is abstract or not empty
             if (existingMethod != null && (existingMethod.IsAbstract || !existingMethod.Body.IsEmptyDefault()))
             {
@@ -61,7 +61,7 @@ namespace Mirror.Weaver
             //only add to new method
             if (existingMethod == null)
             {
-                serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+                serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             }
             ILProcessor worker = serializeFunc.Body.GetILProcessor();
             if (existingMethod != null)

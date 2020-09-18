@@ -149,7 +149,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -233,7 +233,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
 
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
@@ -334,7 +334,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, variable));
 
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
@@ -430,7 +430,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, variable));
 
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
