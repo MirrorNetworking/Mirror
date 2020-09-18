@@ -66,10 +66,10 @@ namespace Mirror.Weaver
             throw new ArgumentException($"Invalid enum {td.FullName}");
         }
 
-        public static bool ImplementsInterface<Interface>(this TypeDefinition td)
+        public static bool ImplementsInterface<TInterface>(this TypeDefinition td)
         {
             TypeDefinition typedef = td;
-            Type baseInterface = typeof(Interface);
+            Type baseInterface = typeof(TInterface);
 
             while (typedef != null)
             {
