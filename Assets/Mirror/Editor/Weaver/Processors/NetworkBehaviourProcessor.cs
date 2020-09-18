@@ -880,7 +880,7 @@ namespace Mirror.Weaver
         // check if a Command/TargetRpc/Rpc function is valid for weaving
         static bool ValidateFunction(MethodReference md)
         {
-            if (md.ReturnType.FullName == WeaverTypes.IEnumeratorType.FullName)
+            if (md.ReturnType.FullName == typeof(System.Collections.IEnumerator).FullName)
             {
                 Weaver.Error($"{md.Name} cannot be a coroutine", md);
                 return false;

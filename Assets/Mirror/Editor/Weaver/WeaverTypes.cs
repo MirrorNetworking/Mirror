@@ -31,7 +31,6 @@ namespace Mirror.Weaver
         public static TypeReference PooledNetworkWriterType;
 
         public static TypeReference NetworkIdentityType;
-        public static TypeReference IEnumeratorType;
 
         public static TypeReference ClientSceneType;
         public static MethodReference ReadyConnectionReference;
@@ -144,7 +143,6 @@ namespace Mirror.Weaver
             systemModule = ResolveSystemModule(currentAssembly);
 
             typeType = Import<System.Type>();
-            IEnumeratorType = Import<System.Collections.IEnumerator>();
 
             ArraySegmentType = ImportSystemModuleType(currentAssembly, systemModule, "System.ArraySegment`1");
             ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Array");
