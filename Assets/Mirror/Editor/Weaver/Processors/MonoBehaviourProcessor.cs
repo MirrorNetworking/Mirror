@@ -35,17 +35,17 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.FullName == typeof(Mirror.CommandAttribute).FullName)
+                    if (ca.AttributeType.Is<Mirror.CommandAttribute>())
                     {
                         Weaver.Error($"Command {md.Name} must be declared inside a NetworkBehaviour", md);
                     }
 
-                    if (ca.AttributeType.FullName == typeof(Mirror.ClientRpcAttribute).FullName)
+                    if (ca.AttributeType.Is<Mirror.ClientRpcAttribute>())
                     {
                         Weaver.Error($"ClientRpc {md.Name} must be declared inside a NetworkBehaviour", md);
                     }
 
-                    if (ca.AttributeType.FullName == typeof(Mirror.TargetRpcAttribute).FullName)
+                    if (ca.AttributeType.Is<Mirror.TargetRpcAttribute>())
                     {
                         Weaver.Error($"TargetRpc {md.Name} must be declared inside a NetworkBehaviour", md);
                     }

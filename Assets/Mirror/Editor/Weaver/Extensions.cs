@@ -7,6 +7,10 @@ namespace Mirror.Weaver
 {
     public static class Extensions
     {
+        public static bool Is(this TypeReference td, Type t) =>
+            td.FullName == t.FullName;
+
+        public static bool Is<T>(this TypeReference td) => Is(td, typeof(T));
 
         // removes <T> from class names (if any generic parameters)
         internal static string StripGenericParametersFromClassName(string className)
@@ -67,13 +71,12 @@ namespace Mirror.Weaver
         public static bool ImplementsInterface<TInterface>(this TypeDefinition td)
         {
             TypeDefinition typedef = td;
-            Type baseInterface = typeof(TInterface);
 
             while (typedef != null)
             {
                 foreach (InterfaceImplementation iface in typedef.Interfaces)
                 {
-                    if (iface.InterfaceType.FullName == baseInterface.FullName)
+                    if (iface.InterfaceType.Is<TInterface>())
                         return true;
                 }
 
@@ -170,10 +173,9 @@ namespace Mirror.Weaver
 
         public static CustomAttribute GetCustomAttribute<TAttribute>(this ICustomAttributeProvider method)
         {
-            Type t = typeof(TAttribute);
             foreach (CustomAttribute ca in method.CustomAttributes)
             {
-                if (ca.AttributeType.FullName == t.FullName)
+                if (ca.AttributeType.Is<TAttribute>())
                     return ca;
             }
             return null;
@@ -181,9 +183,8 @@ namespace Mirror.Weaver
 
         public static bool HasCustomAttribute<TAttribute>(this ICustomAttributeProvider attributeProvider)
         {
-            Type t = typeof(TAttribute);
             // Linq allocations don't matter in weaver
-            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.FullName == t.FullName);
+            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.Is<TAttribute>());
         }
 
         public static T GetField<T>(this CustomAttribute ca, string field, T defaultValue)
