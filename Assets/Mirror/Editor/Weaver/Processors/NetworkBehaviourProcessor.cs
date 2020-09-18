@@ -886,7 +886,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"{md.Name} cannot be a coroutine", md);
                 return false;
             }
-            if (md.ReturnType.Is(typeof(void)))
+            if (!md.ReturnType.Is(typeof(void)))
             {
                 Weaver.Error($"{md.Name} cannot return a value.  Make it void instead", md);
                 return false;
