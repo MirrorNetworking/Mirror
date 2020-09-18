@@ -48,7 +48,6 @@ namespace Mirror.Weaver
         public static TypeReference CommandType;
         public static TypeReference ClientRpcType;
         public static TypeReference TargetRpcType;
-        public static TypeReference SyncObjectType;
         public static MethodReference InitSyncObjectReference;
 
         // array segment
@@ -103,7 +102,6 @@ namespace Mirror.Weaver
             CommandType = mirrorAssembly.MainModule.GetType("Mirror.CommandAttribute");
             ClientRpcType = mirrorAssembly.MainModule.GetType("Mirror.ClientRpcAttribute");
             TargetRpcType = mirrorAssembly.MainModule.GetType("Mirror.TargetRpcAttribute");
-            SyncObjectType = mirrorAssembly.MainModule.GetType("Mirror.SyncObject");
         }
 
         static ModuleDefinition ResolveSystemModule(AssemblyDefinition currentAssembly)
@@ -217,7 +215,6 @@ namespace Mirror.Weaver
             sendRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendRPCInternal");
             sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendTargetRPCInternal");
 
-            SyncObjectType = currentAssembly.MainModule.ImportReference(SyncObjectType);
             InitSyncObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "InitSyncObject");
         }
     }
