@@ -133,7 +133,7 @@ namespace Mirror.Weaver
         public static void WriteSetupLocals(ILProcessor worker)
         {
             worker.Body.InitLocals = true;
-            worker.Body.Variables.Add(new VariableDefinition(WeaverTypes.PooledNetworkWriterType));
+            worker.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<Mirror.PooledNetworkWriter>()));
         }
 
         public static void WriteCreateWriter(ILProcessor worker)
@@ -212,7 +212,7 @@ namespace Mirror.Weaver
         {
             if (!WasProcessed(td))
             {
-                MethodDefinition versionMethod = new MethodDefinition(ProcessedFunctionName, MethodAttributes.Private, WeaverTypes.voidType);
+                MethodDefinition versionMethod = new MethodDefinition(ProcessedFunctionName, MethodAttributes.Private, WeaverTypes.Import(typeof(void)));
                 ILProcessor worker = versionMethod.Body.GetILProcessor();
                 worker.Append(worker.Create(OpCodes.Ret));
                 td.Methods.Add(versionMethod);
@@ -255,7 +255,7 @@ namespace Mirror.Weaver
                         MethodAttributes.SpecialName |
                         MethodAttributes.RTSpecialName |
                         MethodAttributes.Static,
-                        WeaverTypes.voidType);
+                        WeaverTypes.Import(typeof(void)));
             }
 
             // find instance constructor
@@ -368,16 +368,16 @@ namespace Mirror.Weaver
 
             MethodDefinition serialize = new MethodDefinition(SerializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                    WeaverTypes.boolType);
+                    WeaverTypes.Import<bool>());
 
-            serialize.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
-            serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, WeaverTypes.boolType));
+            serialize.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
+            serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, WeaverTypes.Import<bool>()));
             ILProcessor worker = serialize.Body.GetILProcessor();
 
             serialize.Body.InitLocals = true;
 
             // loc_0,  this local variable is to determine if any variable was dirty
-            VariableDefinition dirtyLocal = new VariableDefinition(WeaverTypes.boolType);
+            VariableDefinition dirtyLocal = new VariableDefinition(WeaverTypes.Import<bool>());
             serialize.Body.Variables.Add(dirtyLocal);
 
             MethodReference baseSerialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, SerializeMethodName);
@@ -436,7 +436,7 @@ namespace Mirror.Weaver
             // base
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkBehaviourDirtyBitsReference));
-            MethodReference writeUint64Func = Writers.GetWriteFunc(WeaverTypes.uint64Type);
+            MethodReference writeUint64Func = Writers.GetWriteFunc(WeaverTypes.Import<ulong>());
             worker.Append(worker.Create(OpCodes.Call, writeUint64Func));
 
             // generate a writer call for any dirty variable in this class
@@ -517,8 +517,8 @@ namespace Mirror.Weaver
         /// <returns></returns>
         static bool IsNetworkIdentityField(FieldDefinition syncVar)
         {
-            return syncVar.FieldType.FullName == WeaverTypes.gameObjectType.FullName ||
-                   syncVar.FieldType.FullName == WeaverTypes.NetworkIdentityType.FullName;
+            return syncVar.FieldType.FullName == typeof(UnityEngine.GameObject).FullName ||
+                   syncVar.FieldType.FullName == typeof(Mirror.NetworkIdentity).FullName;
         }
 
         /// <summary>
@@ -552,7 +552,7 @@ namespace Mirror.Weaver
             FieldDefinition netIdField = syncVarNetIds[syncVar];
 
             // uint oldNetId = ___qNetId;
-            VariableDefinition oldNetId = new VariableDefinition(WeaverTypes.uint32Type);
+            VariableDefinition oldNetId = new VariableDefinition(WeaverTypes.Import<uint>());
             deserialize.Body.Variables.Add(oldNetId);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldfld, netIdField));
@@ -579,7 +579,7 @@ namespace Mirror.Weaver
             // reader. for 'reader.Read()' below
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             // Read()
-            worker.Append(worker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.uint32Type)));
+            worker.Append(worker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.Import<uint>())));
             // netId
             worker.Append(worker.Create(OpCodes.Stfld, netIdField));
 
@@ -730,14 +730,14 @@ namespace Mirror.Weaver
 
             MethodDefinition serialize = new MethodDefinition(DeserializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                    WeaverTypes.voidType);
+                    WeaverTypes.Import(typeof(void)));
 
-            serialize.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
-            serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, WeaverTypes.boolType));
+            serialize.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
+            serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, WeaverTypes.Import<bool>()));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
             // setup local for dirty bits
             serialize.Body.InitLocals = true;
-            VariableDefinition dirtyBitsLocal = new VariableDefinition(WeaverTypes.int64Type);
+            VariableDefinition dirtyBitsLocal = new VariableDefinition(WeaverTypes.Import<long>());
             serialize.Body.Variables.Add(dirtyBitsLocal);
 
             MethodReference baseDeserialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, DeserializeMethodName);
@@ -770,7 +770,7 @@ namespace Mirror.Weaver
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-            serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.uint64Type)));
+            serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.Import<ulong>())));
             serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
 
             // conditionally read each syncvar
@@ -844,11 +844,11 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Call, readFunc));
 
                 // conversion.. is this needed?
-                if (param.ParameterType.FullName == WeaverTypes.singleType.FullName)
+                if (param.ParameterType.FullName == typeof(float).FullName)
                 {
                     worker.Append(worker.Create(OpCodes.Conv_R4));
                 }
-                else if (param.ParameterType.FullName == WeaverTypes.doubleType.FullName)
+                else if (param.ParameterType.FullName == typeof(double).FullName)
                 {
                     worker.Append(worker.Create(OpCodes.Conv_R8));
                 }
@@ -858,10 +858,10 @@ namespace Mirror.Weaver
 
         public static void AddInvokeParameters(ICollection<ParameterDefinition> collection)
         {
-            collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkBehaviourType)));
-            collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
+            collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkBehaviour>()));
+            collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
             // senderConnection is only used for commands but NetworkBehaviour.CmdDelegate is used for all remote calls
-            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkConnectionToClientType)));
+            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkConnection>()));
         }
 
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
@@ -880,12 +880,12 @@ namespace Mirror.Weaver
         // check if a Command/TargetRpc/Rpc function is valid for weaving
         static bool ValidateFunction(MethodReference md)
         {
-            if (md.ReturnType.FullName == WeaverTypes.IEnumeratorType.FullName)
+            if (md.ReturnType.FullName == typeof(System.Collections.IEnumerator).FullName)
             {
                 Weaver.Error($"{md.Name} cannot be a coroutine", md);
                 return false;
             }
-            if (md.ReturnType.FullName != WeaverTypes.voidType.FullName)
+            if (md.ReturnType.FullName != typeof(void).FullName)
             {
                 Weaver.Error($"{md.Name} cannot return a value.  Make it void instead", md);
                 return false;
@@ -915,7 +915,7 @@ namespace Mirror.Weaver
         // validate parameters for a remote function call like Rpc/Cmd
         static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
         {
-            bool isNetworkConnection = param.ParameterType.FullName == WeaverTypes.NetworkConnectionType.FullName;
+            bool isNetworkConnection = param.ParameterType.FullName == typeof(Mirror.NetworkConnection).FullName;
             bool isSenderConnection = IsSenderConnection(param, callType);
 
             if (param.IsOut)
@@ -958,10 +958,8 @@ namespace Mirror.Weaver
 
             TypeReference type = param.ParameterType;
 
-            const string ConnectionToClient = "Mirror.NetworkConnectionToClient";
-            bool isConnectionToClient = type.FullName == ConnectionToClient || type.Resolve().IsDerivedFrom(ConnectionToClient);
-
-            return isConnectionToClient;
+            return type.FullName == typeof(Mirror.NetworkConnectionToClient).FullName
+                || type.Resolve().IsDerivedFrom<Mirror.NetworkConnectionToClient>();
         }
 
         void ProcessMethods()
@@ -975,19 +973,19 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.FullName == WeaverTypes.CommandType.FullName)
+                    if (ca.AttributeType.FullName == typeof(Mirror.CommandAttribute).FullName)
                     {
                         ProcessCommand(names, md, ca);
                         break;
                     }
 
-                    if (ca.AttributeType.FullName == WeaverTypes.TargetRpcType.FullName)
+                    if (ca.AttributeType.FullName == typeof(Mirror.TargetRpcAttribute).FullName)
                     {
                         ProcessTargetRpc(names, md, ca);
                         break;
                     }
 
-                    if (ca.AttributeType.FullName == WeaverTypes.ClientRpcType.FullName)
+                    if (ca.AttributeType.FullName == typeof(Mirror.ClientRpcAttribute).FullName)
                     {
                         ProcessClientRpc(names, md, ca);
                         break;

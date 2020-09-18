@@ -154,7 +154,7 @@ namespace Mirror.Weaver
         // this is required to early-out from a function with a return value.
         static void InjectGuardReturnValue(MethodDefinition md, ILProcessor worker, Instruction top)
         {
-            if (md.ReturnType.FullName != WeaverTypes.voidType.FullName)
+            if (md.ReturnType.FullName != typeof(void).FullName)
             {
                 md.Body.Variables.Add(new VariableDefinition(md.ReturnType));
                 md.Body.InitLocals = true;

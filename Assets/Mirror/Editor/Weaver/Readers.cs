@@ -49,17 +49,17 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
                 return null;
             }
-            if (variableDefinition.IsDerivedFrom(WeaverTypes.ComponentType))
+            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
                 Weaver.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
-            if (variableReference.FullName == WeaverTypes.ObjectType.FullName)
+            if (variableReference.FullName == typeof(UnityEngine.Object).FullName)
             {
                 Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
-            if (variableReference.FullName == WeaverTypes.ScriptableObjectType.FullName)
+            if (variableReference.FullName == typeof(UnityEngine.ScriptableObject).FullName)
             {
                 Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
@@ -154,18 +154,18 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     variable);
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
 
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             readerFunc.Body.InitLocals = true;
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
             // int length = reader.ReadPackedInt32();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<int>())));
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
             // if (length < 0) {
@@ -248,21 +248,21 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     variable);
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
 
             // int lengh
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             // T[] array
             readerFunc.Body.Variables.Add(new VariableDefinition(elementType.MakeArrayType()));
             // int i;
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             readerFunc.Body.InitLocals = true;
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
             // int length = reader.ReadPackedInt32();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<int>())));
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
             // T[] array = new int[length]
@@ -339,18 +339,18 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     variable);
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
 
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             readerFunc.Body.InitLocals = true;
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
             // int count = reader.ReadPackedInt32();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.int32Type)));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<int>())));
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
             // -1 is null list, so if count is less than 0 return null
@@ -444,7 +444,7 @@ namespace Mirror.Weaver
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
             readerFunc.Body.InitLocals = true;
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkReaderType)));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
@@ -467,7 +467,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldloca, 0));
                 worker.Append(worker.Create(OpCodes.Initobj, variable));
             }
-            else if (td.IsDerivedFrom(WeaverTypes.ScriptableObjectType))
+            else if (td.IsDerivedFrom<UnityEngine.ScriptableObject>())
             {
                 GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(WeaverTypes.ScriptableObjectCreateInstanceMethod);
                 genericInstanceMethod.GenericArguments.Add(variable);

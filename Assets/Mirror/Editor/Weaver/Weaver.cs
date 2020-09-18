@@ -82,12 +82,12 @@ namespace Mirror.Weaver
             {
                 WeaveLists.generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
                         TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass,
-                        WeaverTypes.objectType);
+                        WeaverTypes.Import<System.Object>());
 
                 const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-                MethodDefinition method = new MethodDefinition(".ctor", methodAttributes, WeaverTypes.voidType);
+                MethodDefinition method = new MethodDefinition(".ctor", methodAttributes, WeaverTypes.Import(typeof(void)));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(WeaverTypes.objectType, CurrentAssembly, ".ctor")));
+                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(WeaverTypes.Import<System.Object>(), CurrentAssembly, ".ctor")));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
                 WeaveLists.generateContainerClass.Methods.Add(method);
@@ -96,12 +96,12 @@ namespace Mirror.Weaver
 
         public static bool IsNetworkBehaviour(TypeDefinition td)
         {
-            return td.IsDerivedFrom(WeaverTypes.NetworkBehaviourType);
+            return td.IsDerivedFrom<Mirror.NetworkBehaviour>();
         }
 
         static void CheckMonoBehaviour(TypeDefinition td)
         {
-            if (td.IsDerivedFrom(WeaverTypes.MonoBehaviourType))
+            if (td.IsDerivedFrom<UnityEngine.MonoBehaviour>())
             {
                 MonoBehaviourProcessor.Process(td);
             }
@@ -125,7 +125,7 @@ namespace Mirror.Weaver
             TypeDefinition parent = td;
             while (parent != null)
             {
-                if (parent.FullName == WeaverTypes.NetworkBehaviourType.FullName)
+                if (parent.FullName == typeof(Mirror.NetworkBehaviour).FullName)
                 {
                     break;
                 }
@@ -162,7 +162,7 @@ namespace Mirror.Weaver
 
             bool modified = false;
 
-            if (td.ImplementsInterface(WeaverTypes.IMessageBaseType))
+            if (td.ImplementsInterface<Mirror.IMessageBase>())
             {
                 // process this and base classes from parent to child order
                 try
@@ -211,17 +211,17 @@ namespace Mirror.Weaver
             // because we still need to check for embeded types
             if (td.IsClass || !td.IsAbstract)
             {
-                if (td.IsDerivedFrom(WeaverTypes.SyncListType))
+                if (td.IsDerivedFrom(typeof(SyncList<>)))
                 {
-                    SyncListProcessor.Process(td, WeaverTypes.SyncListType);
+                    SyncListProcessor.Process(td, WeaverTypes.Import(typeof(SyncList<>)));
                     modified = true;
                 }
-                else if (td.IsDerivedFrom(WeaverTypes.SyncSetType))
+                else if (td.IsDerivedFrom(typeof(SyncSet<>)))
                 {
-                    SyncListProcessor.Process(td, WeaverTypes.SyncSetType);
+                    SyncListProcessor.Process(td, WeaverTypes.Import(typeof(SyncSet<>)));
                     modified = true;
                 }
-                else if (td.IsDerivedFrom(WeaverTypes.SyncDictionaryType))
+                else if (td.IsDerivedFrom(typeof(SyncDictionary<,>)))
                 {
                     SyncDictionaryProcessor.Process(td);
                     modified = true;
@@ -352,8 +352,6 @@ namespace Mirror.Weaver
             using (AssemblyDefinition unityAssembly = AssemblyDefinition.ReadAssembly(unityEngineDLLPath))
             using (AssemblyDefinition mirrorAssembly = AssemblyDefinition.ReadAssembly(mirrorNetDLLPath))
             {
-                WeaverTypes.SetupUnityTypes(unityAssembly, mirrorAssembly);
-
                 try
                 {
                     foreach (string asm in assemblies)

@@ -7,10 +7,7 @@ namespace Mirror.Weaver
 {
     public static class Extensions
     {
-        public static bool IsDerivedFrom(this TypeDefinition td, TypeReference baseClass)
-        {
-            return IsDerivedFrom(td, baseClass.FullName);
-        }
+        public static bool IsDerivedFrom<T>(this TypeDefinition td) => IsDerivedFrom(td, typeof(T));
 
         // removes <T> from class names (if any generic parameters)
         internal static string StripGenericParametersFromClassName(string className)
@@ -23,7 +20,7 @@ namespace Mirror.Weaver
             return className;
         }
 
-        public static bool IsDerivedFrom(this TypeDefinition td, string baseClassFullName)
+        public static bool IsDerivedFrom(this TypeDefinition td, Type baseClass)
         {
             if (!td.IsClass)
                 return false;
@@ -37,7 +34,7 @@ namespace Mirror.Weaver
                 // strip generic <T> parameters from class name (if any)
                 parentName = StripGenericParametersFromClassName(parentName);
 
-                if (parentName == baseClassFullName)
+                if (parentName == baseClass.FullName)
                 {
                     return true;
                 }
@@ -66,9 +63,11 @@ namespace Mirror.Weaver
             throw new ArgumentException($"Invalid enum {td.FullName}");
         }
 
-        public static bool ImplementsInterface(this TypeDefinition td, TypeReference baseInterface)
+        public static bool ImplementsInterface<TInterface>(this TypeDefinition td)
         {
             TypeDefinition typedef = td;
+            Type baseInterface = typeof(TInterface);
+
             while (typedef != null)
             {
                 foreach (InterfaceImplementation iface in typedef.Interfaces)
@@ -168,20 +167,22 @@ namespace Mirror.Weaver
             return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
         }
 
-        public static CustomAttribute GetCustomAttribute(this ICustomAttributeProvider method, string attributeName)
+        public static CustomAttribute GetCustomAttribute<TAttribute>(this ICustomAttributeProvider method)
         {
+            Type t = typeof(TAttribute);
             foreach (CustomAttribute ca in method.CustomAttributes)
             {
-                if (ca.AttributeType.FullName == attributeName)
+                if (ca.AttributeType.FullName == t.FullName)
                     return ca;
             }
             return null;
         }
 
-        public static bool HasCustomAttribute(this ICustomAttributeProvider attributeProvider, TypeReference attribute)
+        public static bool HasCustomAttribute<TAttribute>(this ICustomAttributeProvider attributeProvider)
         {
+            Type t = typeof(TAttribute);
             // Linq allocations don't matter in weaver
-            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.FullName == attribute.FullName);
+            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.FullName == t.FullName);
         }
 
         public static T GetField<T>(this CustomAttribute ca, string field, T defaultValue)
