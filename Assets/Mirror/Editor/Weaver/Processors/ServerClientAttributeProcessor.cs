@@ -64,13 +64,13 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
         {
-            if (md.HasCustomAttribute<Mirror.ServerAttribute>())
+            if (md.HasCustomAttribute<ServerAttribute>())
                 InjectServerGuard(md, true);
-            else if (md.HasCustomAttribute<Mirror.ServerCallbackAttribute>())
+            else if (md.HasCustomAttribute<ServerCallbackAttribute>())
                 InjectServerGuard(md, false);
-            else if (md.HasCustomAttribute<Mirror.ClientAttribute>())
+            else if (md.HasCustomAttribute<ClientAttribute>())
                 InjectClientGuard(md, true);
-            else if (md.HasCustomAttribute<Mirror.ClientCallbackAttribute>())
+            else if (md.HasCustomAttribute<ClientCallbackAttribute>())
                 InjectClientGuard(md, false);
             else
                 return false;
