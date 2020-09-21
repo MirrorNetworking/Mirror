@@ -20,13 +20,22 @@
   href: Visibility.md
 - name: Development Servers
   href: DevServer/toc.yml
-  topicHref: DevServer/
+  topicHref: DevServer/index.md
 - name: Synchronization
   href: Sync/toc.yml
-  topicHref: Sync/
+  topicHref: Sync/index.md
 - name: Communications
   href: Communications/toc.yml
-  topicHref: Communications/
+  topicHref: Communications/index.md
 - name: GameObjects
   href: GameObjects/toc.yml
-  topicHref: GameObjects/
+  topicHref: GameObjects/index.md
+- name: Community Guides
+  href: CommunityGuides/toc.yml
+  topicHref: CommunityGuides/index.md
+- name: Best Practices
+  href: BestPractices.md
+- name: Resources
+  href: Resources.md
+- name: FAQ
+  href: FAQ.md

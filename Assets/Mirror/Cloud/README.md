@@ -84,3 +84,69 @@ void onServerListUpdated()
     // Update UI here
 }
 ```
+
+
+## Debug
+
+If someone doesn't seem to be working then here are some tips to help solve the problem
+
+### Check logs
+
+Enable `showDebugMessages` on your NetworkManager or use the log level window so enable logging for the cloud scripts
+
+Below are some examples logs to look for to check things are working.
+
+#### Add Server
+
+The add request is sent to add a server to the list server
+
+```
+Request: POST servers {"protocol":"tcp4","port":7777,"playerCount":0,"maxPlayerCount":4,"displayName":"Tanks Game 521","address":"","customAddress":"","customData":[]}
+```
+```
+Response: POST 200 /servers {"id":"BI6bQQ2TbNiqhdp1D7UB"}
+```
+
+#### Update Server
+
+The object sent in update request maybe be empty, this is sent to keep the server record alive so it shows up.
+
+The update request can also be used to change info. For example the player count when someone joins or leaves
+
+```
+Request: PATCH servers/BI6bQQ2TbNiqhdp1D7UB {}
+```
+```
+Response: PATCH 204 /servers/BI6bQQ2TbNiqhdp1D7UB
+```
+
+#### Remove Server
+
+The remove request is sent to remove a server from the list server. This is automatically called whe the ApiConnection is destroyed.
+
+```
+Request: DELETE servers/BI6bQQ2TbNiqhdp1D7UB
+```
+```
+Response: DELETE 204 /servers/BI6bQQ2TbNiqhdp1D7UB 
+```
+
+
+#### Get Servers
+
+The get request is sent in order to get the list of servers.
+
+The example below shows an array of 2 servers, one with name `Tanks Game 521` and the other with name `Tanks Game 212`
+
+```
+Request: GET servers
+```
+```
+Response: GET 200 /servers {"servers":[{"address":"tcp4://xx.xx.xx.xx:7777","displayName":"Tanks Game 521","port":7777,"protocol":"tcp4","playerCount":0,"maxPlayerCount":4,"customAddress":"","customData":[]},{"address":"tcp4://xx.xx.xx.xx:7777","displayName":"Tanks Game 212","port":7777,"protocol":"tcp4","playerCount":0,"maxPlayerCount":4,"customData":[]}]}
+```
+*xx.xx.xx.xx will be the ip address for the server*
+
+
+### Use the QuickListServerDebug
+
+The QuickListServerDebug scripts uses `OnGUI` to show the list of servers. This script can be used to check the server list without using Canvas UI.

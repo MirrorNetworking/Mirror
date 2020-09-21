@@ -63,7 +63,7 @@ namespace Mirror.Weaver
                 if (method.ReturnType.FullName != "System.Void")
                     continue;
 
-                if (method.GetCustomAttribute("System.Runtime.CompilerServices.ExtensionAttribute") == null)
+                if (!method.HasCustomAttribute<System.Runtime.CompilerServices.ExtensionAttribute>())
                     continue;
 
                 TypeReference dataType = method.Parameters[1].ParameterType;
@@ -85,7 +85,7 @@ namespace Mirror.Weaver
                 if (method.ReturnType.FullName == "System.Void")
                     continue;
 
-                if (method.GetCustomAttribute("System.Runtime.CompilerServices.ExtensionAttribute") == null)
+                if (!method.HasCustomAttribute<System.Runtime.CompilerServices.ExtensionAttribute>())
                     continue;
 
                 Readers.Register(method.ReturnType, currentAssembly.MainModule.ImportReference(method));

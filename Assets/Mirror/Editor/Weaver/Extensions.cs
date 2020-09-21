@@ -7,10 +7,10 @@ namespace Mirror.Weaver
 {
     public static class Extensions
     {
-        public static bool IsDerivedFrom(this TypeDefinition td, TypeReference baseClass)
-        {
-            return IsDerivedFrom(td, baseClass.FullName);
-        }
+        public static bool Is(this TypeReference td, Type t) =>
+            td.FullName == t.FullName;
+
+        public static bool Is<T>(this TypeReference td) => Is(td, typeof(T));
 
         // removes <T> from class names (if any generic parameters)
         internal static string StripGenericParametersFromClassName(string className)
@@ -23,7 +23,9 @@ namespace Mirror.Weaver
             return className;
         }
 
-        public static bool IsDerivedFrom(this TypeDefinition td, string baseClassFullName)
+        public static bool IsDerivedFrom<T>(this TypeDefinition td) => IsDerivedFrom(td, typeof(T));
+
+        public static bool IsDerivedFrom(this TypeDefinition td, Type baseClass)
         {
             if (!td.IsClass)
                 return false;
@@ -37,7 +39,7 @@ namespace Mirror.Weaver
                 // strip generic <T> parameters from class name (if any)
                 parentName = StripGenericParametersFromClassName(parentName);
 
-                if (parentName == baseClassFullName)
+                if (parentName == baseClass.FullName)
                 {
                     return true;
                 }
@@ -65,17 +67,18 @@ namespace Mirror.Weaver
             throw new ArgumentException($"Invalid enum {td.FullName}");
         }
 
-        public static bool ImplementsInterface(this TypeDefinition td, TypeReference baseInterface)
+        public static bool ImplementsInterface<TInterface>(this TypeDefinition td)
         {
-            TypeDefinition typedef = td;
-            if (td.FullName == baseInterface.FullName)
+            if (td.Is<TInterface>())
                 return true;
+
+            TypeDefinition typedef = td;
 
             while (typedef != null)
             {
                 foreach (InterfaceImplementation iface in typedef.Interfaces)
                 {
-                    if (iface.InterfaceType.FullName == baseInterface.FullName)
+                    if (iface.InterfaceType.Is<TInterface>())
                         return true;
                 }
 
@@ -169,20 +172,20 @@ namespace Mirror.Weaver
             return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
         }
 
-        public static CustomAttribute GetCustomAttribute(this ICustomAttributeProvider method, string attributeName)
+        public static CustomAttribute GetCustomAttribute<TAttribute>(this ICustomAttributeProvider method)
         {
             foreach (CustomAttribute ca in method.CustomAttributes)
             {
-                if (ca.AttributeType.FullName == attributeName)
+                if (ca.AttributeType.Is<TAttribute>())
                     return ca;
             }
             return null;
         }
 
-        public static bool HasCustomAttribute(this ICustomAttributeProvider attributeProvider, TypeReference attribute)
+        public static bool HasCustomAttribute<TAttribute>(this ICustomAttributeProvider attributeProvider)
         {
             // Linq allocations don't matter in weaver
-            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.FullName == attribute.FullName);
+            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.Is<TAttribute>());
         }
 
         public static T GetField<T>(this CustomAttribute ca, string field, T defaultValue)

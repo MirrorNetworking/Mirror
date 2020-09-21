@@ -32,10 +32,7 @@ h5 {
     padding: 10px 0px;
 }
 
-article h1,
-article h2,
-article h3,
-article h4 {
+article h1, article h2, article h3, article h4 {
     margin-top: 35px;
     margin-bottom: 15px;
 }
@@ -65,28 +62,24 @@ article h4 {
 }
 
 .navbar-inverse {
-    background-color: #000;
+    background-color: #0b0c0a;
     z-index: 100;
 }
 
-.navbar-inverse .navbar-nav>li>a,
-.navbar-inverse .navbar-text {
+.navbar-inverse .navbar-nav>li>a, .navbar-inverse .navbar-text {
     color: #fff;
     /*background-color: #0d47a1;*/
     border-bottom: 3px solid transparent;
     padding-bottom: 12px;
 }
 
-.navbar-inverse .navbar-nav>li>a:focus,
-.navbar-inverse .navbar-nav>li>a:hover {
+.navbar-inverse .navbar-nav>li>a:focus, .navbar-inverse .navbar-nav>li>a:hover {
     color: #fff;
     /*background-color: #0d47a1;*/
     border-bottom: 3px solid white;
 }
 
-.navbar-inverse .navbar-nav>.active>a,
-.navbar-inverse .navbar-nav>.active>a:focus,
-.navbar-inverse .navbar-nav>.active>a:hover {
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:focus, .navbar-inverse .navbar-nav>.active>a:hover {
     color: #fff;
     /*background-color: #0d47a1;*/
     border-bottom: 3px solid white;
@@ -100,28 +93,42 @@ article h4 {
 /* SIDEBAR */
 
 .toc .level1>li {
-    font-weight: 400;
+    font-size: 18px;
+    margin-top: 15px;
+}
+
+.toc .level2>li {
+    font-size: 15px;
+    margin-top: 5px;
+}
+
+.toc .level3>li {
+    font-size: 13px;
+}
+
+.toc .level3 {
+    font-weight: normal;
+    margin: 0px 0px 5px 15px;
 }
 
 .toc .nav>li>a {
     color: #34393e;
 }
 
-.sidefilter {
+.sidefilter, .sidetoc {
     background-color: #fff;
-    border-left: none;
-    border-right: none;
-}
-
-.sidefilter {
-    background-color: #fff;
-    border-left: none;
-    border-right: none;
+    border: none;
 }
 
 .toc-filter {
+    background-color: inherit;
     padding: 10px;
     margin: 0;
+}
+
+.sidetoc>.toc {
+    background-color: inherit;
+    overflow-x: hidden;
 }
 
 .toc-filter>input {
@@ -131,16 +138,6 @@ article h4 {
 
 .toc-filter>.filter-icon {
     display: none;
-}
-
-.sidetoc>.toc {
-    background-color: #fff;
-    overflow-x: hidden;
-}
-
-.sidetoc {
-    background-color: #fff;
-    border: none;
 }
 
 /* ALERTS */
@@ -190,13 +187,14 @@ article h4 {
 }
 
 /* CODE HIGHLIGHT */
+
 pre {
-	padding: 9.5px;
-	margin: 0 0 10px;
-	font-size: 13px;
-	word-break: break-all;
-	word-wrap: break-word;
-	background-color: #fffaef;
-	border-radius: 4px;
-	box-shadow: 0px 1px 4px 1px rgba(100, 100, 100, 0.4);
+    padding: 9.5px;
+    margin: 0 0 10px;
+    font-size: 13px;
+    word-break: break-all;
+    word-wrap: break-word;
+    background-color: #fffaef;
+    border-radius: 4px;
+    box-shadow: 0px 1px 4px 1px rgba(100, 100, 100, 0.4);
 }

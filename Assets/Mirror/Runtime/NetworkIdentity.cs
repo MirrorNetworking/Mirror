@@ -112,6 +112,8 @@ namespace Mirror
 
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
+        /// </summary>
+        /// <remarks>
         /// <para>
         ///     <b>IMPORTANT:</b> checking NetworkClient.active means that isClient is false in OnDestroy:
         /// </para>
@@ -1097,6 +1099,9 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Called when NetworkIdentity is destroyed
+        /// </summary>
         internal void ClearObservers()
         {
             foreach (INetworkConnection conn in observers)

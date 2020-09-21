@@ -1,13 +1,13 @@
 {
     "name": "Mirror.Tests",
     "references": [
-        "Mirror",
-        "Mirror.Weaver",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "MirrorNG",
+        "Mirror",
         "Mirror.Tests.Common",
-        "Mirror.Editor"
+        "MirrorNG",
+        "Mirror.Editor",
+        "Mirror.Weaver"
     ],
     "includePlatforms": [
         "Editor"
@@ -16,11 +16,10 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "NSubstitute.dll",
-        "Castle.Core.dll",
-        "System.Threading.Tasks.Extensions.dll",
         "nunit.framework.dll",
-        "Mono.Cecil.dll"
+        "NSubstitute.dll",
+        "Mono.Cecil.dll",
+        "System.Threading.Tasks.Extensions.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [
