@@ -1,3 +1,41 @@
+# [43.7.0](https://github.com/MirrorNG/MirrorNG/compare/v43.6.0...v43.7.0) (2020-09-21)
+
+
+### Bug Fixes
+
+* adding error for generated read writer for abstract class ([#2191](https://github.com/MirrorNG/MirrorNG/issues/2191)) ([a9d21ea](https://github.com/MirrorNG/MirrorNG/commit/a9d21ea9ab28c74348437d7df899d49f913aaf30))
+* adding error when Server/Client is used on abstract methods ([#1978](https://github.com/MirrorNG/MirrorNG/issues/1978)) ([c1410b0](https://github.com/MirrorNG/MirrorNG/commit/c1410b09248e0c18646a622bca3cc66ebae972b4))
+* adding version define from v17 breaking change ([c6fa49c](https://github.com/MirrorNG/MirrorNG/commit/c6fa49c72ada6859debf26088daed6e8f073b655))
+* auto fill serialize/deserialize for classes ([#2120](https://github.com/MirrorNG/MirrorNG/issues/2120)) ([890ee6b](https://github.com/MirrorNG/MirrorNG/commit/890ee6b58da85f040a3157b11ea85ca89d796073)), closes [#2117](https://github.com/MirrorNG/MirrorNG/issues/2117) [#2117](https://github.com/MirrorNG/MirrorNG/issues/2117)
+* ClientScene.localplayer is now set to null when it is destroyed ([#2227](https://github.com/MirrorNG/MirrorNG/issues/2227)) ([5edba81](https://github.com/MirrorNG/MirrorNG/commit/5edba81dee66eb6140c7a54bb6050779656828e1))
+* fixing cloud log not using logger ([#2141](https://github.com/MirrorNG/MirrorNG/issues/2141)) ([a124f3f](https://github.com/MirrorNG/MirrorNG/commit/a124f3f439c914d422c774495b50ef3fbdadbfaf))
+* Fixing IndexChanged hook not being called for NetworkRoomPlayer ([#2242](https://github.com/MirrorNG/MirrorNG/issues/2242)) ([94da8ae](https://github.com/MirrorNG/MirrorNG/commit/94da8aec343ea894a85873dc986889b7a09d09de))
+* fixing NullReferenceException when loading scene ([#2240](https://github.com/MirrorNG/MirrorNG/issues/2240)) ([5eb5ff6](https://github.com/MirrorNG/MirrorNG/commit/5eb5ff6601102683023ae0f1a71cdc62217c2227))
+* fixing unity crash on StackOverflowException ([#2146](https://github.com/MirrorNG/MirrorNG/issues/2146)) ([ec54ee6](https://github.com/MirrorNG/MirrorNG/commit/ec54ee6d8c0e73bbb7f59510bc7bcfa82229c4bb))
+* fixing warning message for client attribute ([#2144](https://github.com/MirrorNG/MirrorNG/issues/2144)) ([ddc6139](https://github.com/MirrorNG/MirrorNG/commit/ddc61397257e518a4740dca154c2fe68f45e98da))
+* fixing width and layout group on cloud example ([#2201](https://github.com/MirrorNG/MirrorNG/issues/2201)) ([fc53078](https://github.com/MirrorNG/MirrorNG/commit/fc530782ccaa12b2c412b4e0db04ce5843cbe6af))
+* isServer false in OnDestroy ([#2101](https://github.com/MirrorNG/MirrorNG/issues/2101)) ([d46469a](https://github.com/MirrorNG/MirrorNG/commit/d46469a79c6651720cd4d4cbd49cd0d0922f16f2))
+* making triggers be called right away instead on owner ([#2125](https://github.com/MirrorNG/MirrorNG/issues/2125)) ([7604e65](https://github.com/MirrorNG/MirrorNG/commit/7604e65c2c2cf9f1d85416284cefeb699e65d91e))
+* Nested messages ([#2148](https://github.com/MirrorNG/MirrorNG/issues/2148)) ([e4a5ce7](https://github.com/MirrorNG/MirrorNG/commit/e4a5ce795b221b46b2f9cde01b7234f0763978b8))
+* Unity Editor 2019/2020 crashes in Play Mode when resizing Editor for Macbooks with on board graphics cards. Using Metal instead of OpenGL fixes it. See also: https://forum.unity.com/threads/unity-editor-crashes-macos.739535/ ([e2fd195](https://github.com/MirrorNG/MirrorNG/commit/e2fd19547cb5ea54e462803fbb1b1dfa802aaf36))
+* weaver test for abstract methods ([#2166](https://github.com/MirrorNG/MirrorNG/issues/2166)) ([3a276b4](https://github.com/MirrorNG/MirrorNG/commit/3a276b4e3079c928df0577a9f1aad92080530cb6))
+
+
+### Features
+
+* Added Layer Weight to NetworkAnimator ([#2134](https://github.com/MirrorNG/MirrorNG/issues/2134)) ([23b9fb0](https://github.com/MirrorNG/MirrorNG/commit/23b9fb0214c2caf0b99e23a8c77e5ac8d393ec7b))
+* Adding Custom Data and Custom Address fields to list server ([#2110](https://github.com/MirrorNG/MirrorNG/issues/2110)) ([e136f48](https://github.com/MirrorNG/MirrorNG/commit/e136f481012d093d8a176771ba7b6a846d843b10))
+* adding script to help debug list server ([#2202](https://github.com/MirrorNG/MirrorNG/issues/2202)) ([5701369](https://github.com/MirrorNG/MirrorNG/commit/5701369e84698a6110c06e4dfb0b1db452cc7843))
+* allowing lists to automatically be sent in Commands, Rpc, and Messages ([#2151](https://github.com/MirrorNG/MirrorNG/issues/2151)) ([381e5a1](https://github.com/MirrorNG/MirrorNG/commit/381e5a115b8944fd06fae6bf3827be206d77efb6))
+* making NetworkBehaviour.IsDirty public ([#2208](https://github.com/MirrorNG/MirrorNG/issues/2208)) ([1ade82d](https://github.com/MirrorNG/MirrorNG/commit/1ade82d4357875fb72472fd1339c5d4ee80214d9))
+* Use Server Client attribute outside of NetworkBehaviour ([#2150](https://github.com/MirrorNG/MirrorNG/issues/2150)) ([eec49fa](https://github.com/MirrorNG/MirrorNG/commit/eec49fafce9931727fa6dfa9019aeacee654f631))
+
+
+### Performance Improvements
+
+* **weaver:** No need to manually load mirror and unity assemblies ([#2261](https://github.com/MirrorNG/MirrorNG/issues/2261)) ([e50ea63](https://github.com/MirrorNG/MirrorNG/commit/e50ea6318f60af454a7021b7d8d6009a9116379d))
+* adding check for no connections ([#2130](https://github.com/MirrorNG/MirrorNG/issues/2130)) ([150b14a](https://github.com/MirrorNG/MirrorNG/commit/150b14a2ed73bd5e23e94f8c975b0202db0ed8bf))
+
 # [43.6.0](https://github.com/MirrorNG/MirrorNG/compare/v43.5.0...v43.6.0) (2020-09-07)
 
 
