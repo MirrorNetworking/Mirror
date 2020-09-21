@@ -39,7 +39,7 @@ namespace Mirror.Weaver
 
             if (md.Body != null && md.Body.Instructions != null)
             {
-                return ProcessMethodAttributes(td, md);
+                return ProcessMethodAttributes(md);
             }
             return false;
         }
@@ -60,7 +60,7 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static bool ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
+        public static bool ProcessMethodAttributes(MethodDefinition md)
         {
             // note: we process ALL attributes instead of returning after the
             //       first one. so in theory, we allow multiple attributes.
