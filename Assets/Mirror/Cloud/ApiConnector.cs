@@ -54,8 +54,8 @@ namespace Mirror.Cloud
 
         public void OnDestroy()
         {
-            ListServer.ServerApi.Shutdown();
-            ListServer.ClientApi.Shutdown();
+            ListServer?.ServerApi.Shutdown();
+            ListServer?.ClientApi.Shutdown();
         }
     }
 }

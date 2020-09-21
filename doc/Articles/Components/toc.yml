@@ -4,7 +4,7 @@
   href: NetworkAnimator.md
 - name: Network Authenticators
   href: Authenticators/toc.yml
-  topicHref: Authenticators/
+  topicHref: Authenticators/index.md
 - name: Network Discovery
   href: NetworkDiscovery.md
 - name: Network Identity

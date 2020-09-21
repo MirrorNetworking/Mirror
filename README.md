@@ -1,4 +1,4 @@
-![Mirror Logo](https://i.imgur.com/fDxMOOT.png)
+![Mirror Logo](https://i.imgur.com/we6li1x.png)
 
 [![Documentation](https://img.shields.io/badge/documentation-brightgreen.svg)](https://mirrorng.github.io/MirrorNG/)
 [![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)

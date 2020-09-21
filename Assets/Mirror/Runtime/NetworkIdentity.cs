@@ -112,19 +112,6 @@ namespace Mirror
 
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
-        /// <para>
-        ///     <b>IMPORTANT:</b> checking NetworkClient.active means that isClient is false in OnDestroy:
-        /// </para>
-        /// <c>
-        ///     public bool isClient => NetworkClient.active &amp;&amp; netId != 0 &amp;&amp; !serverOnly;
-        /// </c>
-        /// <para>
-        ///     but we need it in OnDestroy, e.g. when saving skillbars on quit. this
-        ///     works fine if we keep the UNET way of setting isClient manually.
-        /// </para>
-        /// <para>
-        ///     => fixes <see href="https://github.com/vis2k/Mirror/issues/1475"/>
-        /// </para>
         /// </summary>
         public bool IsClient => Client != null && Client.Active && NetId != 0 && !serverOnly;
 
@@ -1097,6 +1084,9 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Called when NetworkIdentity is destroyed
+        /// </summary>
         internal void ClearObservers()
         {
             foreach (INetworkConnection conn in observers)

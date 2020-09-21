@@ -13,7 +13,7 @@ namespace Mirror.Weaver
         public static bool HasNetworkConnectionParameter(MethodDefinition md)
         {
             return md.Parameters.Count > 0 &&
-                   md.Parameters[0].ParameterType.FullName == WeaverTypes.INetworkConnectionType.FullName;
+                   md.Parameters[0].ParameterType.Is<INetworkConnection>();
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Mirror.Weaver
             var rpc = new MethodDefinition(
                 MethodProcessor.SkeletonPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                WeaverTypes.voidType);
+                WeaverTypes.Import(typeof(void)));
 
             ILProcessor worker = rpc.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);

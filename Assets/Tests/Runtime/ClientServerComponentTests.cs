@@ -6,6 +6,7 @@ using UnityEngine.TestTools;
 using Guid = System.Guid;
 using Object = UnityEngine.Object;
 using static Mirror.Tests.AsyncUtil;
+using NSubstitute;
 
 namespace Mirror.Tests
 {
@@ -97,12 +98,14 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator OnDestroySpawnHandlerTest() => RunAsync(async () =>
         {
-            Guid guid = Guid.NewGuid();
-            GameObject gameObject = new GameObject();
+            var guid = Guid.NewGuid();
+            var gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             identity.AssetId = guid;
 
-            client.RegisterSpawnHandler(guid, SpawnDelegateTest, UnSpawnDelegateTest);
+            var unspawnDelegate = Substitute.For<UnSpawnDelegate>();
+
+            client.RegisterSpawnHandler(guid, SpawnDelegateTest, unspawnDelegate);
             client.RegisterPrefab(gameObject, guid);
             server.SendSpawnMessage(identity, connectionToClient);
 
@@ -112,8 +115,7 @@ namespace Mirror.Tests
             {
                 netId = identity.NetId
             });
-
-            Assert.That(unspawnDelegateTestCalled, Is.EqualTo(1));
+            unspawnDelegate.Received().Invoke(Arg.Any<GameObject>());
         });
 
         int spawnDelegateTestCalled;

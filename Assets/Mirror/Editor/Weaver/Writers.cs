@@ -89,17 +89,17 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variableReference.Name} is not a supported type. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (variableDefinition.IsDerivedFrom(WeaverTypes.ComponentType))
+            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
                 Weaver.Error($"Cannot generate writer for component type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (variableReference.FullName == WeaverTypes.ObjectType.FullName)
+            if (variableReference.Is<UnityEngine.Object>())
             {
                 Weaver.Error($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
             }
-            if (variableReference.FullName == WeaverTypes.ScriptableObjectType.FullName)
+            if (variableReference.Is<UnityEngine.ScriptableObject>())
             {
                 Weaver.Error($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
                 return null;
@@ -147,9 +147,9 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    WeaverTypes.voidType);
+                    WeaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -209,7 +209,7 @@ namespace Mirror.Weaver
 
             TypeReference elementType = variable.GetElementType();
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
-            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
+            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.Import<int>());
             if (elementWriteFunc == null)
             {
                 Weaver.Error($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
@@ -231,13 +231,13 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    WeaverTypes.voidType);
+                    WeaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
 
-            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
-            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
+            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             writerFunc.Body.InitLocals = true;
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -309,7 +309,7 @@ namespace Mirror.Weaver
             var genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
-            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
+            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.Import<int>());
 
             if (elementWriteFunc == null)
             {
@@ -332,13 +332,13 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    WeaverTypes.voidType);
+                    WeaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, variable));
 
-            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
-            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
+            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             writerFunc.Body.InitLocals = true;
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -405,7 +405,7 @@ namespace Mirror.Weaver
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
             MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
-            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.int32Type);
+            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.Import<int>());
 
             if (elementWriteFunc == null)
             {
@@ -428,13 +428,13 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    WeaverTypes.voidType);
+                    WeaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(WeaverTypes.NetworkWriterType)));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, variable));
 
-            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
-            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
+            writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             writerFunc.Body.InitLocals = true;
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();

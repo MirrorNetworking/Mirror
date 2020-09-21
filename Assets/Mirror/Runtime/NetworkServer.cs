@@ -685,7 +685,7 @@ namespace Mirror
             NetworkIdentity identity = go.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                throw new InvalidOperationException("Gameobject does not have NetworkIdentity " + go);
+                throw new InvalidOperationException($"Gameobject {go.name} doesn't have NetworkIdentity.");
             }
             return identity;
         }
