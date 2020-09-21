@@ -108,7 +108,7 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger<NetworkIdentity>();
 
         [NonSerialized]
-        NetworkBehaviour[] networkBehavioursCache = null;
+        NetworkBehaviour[] networkBehavioursCache;
 
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.

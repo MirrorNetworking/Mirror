@@ -236,7 +236,7 @@ namespace Mirror.Weaver
                 bool modified = false;
 
                 // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
-                System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+                var watch = System.Diagnostics.Stopwatch.StartNew();
                 foreach (TypeDefinition td in moduleDefinition.Types)
                 {
                     if (td.IsClass && td.BaseType.CanBeResolved())
@@ -287,7 +287,7 @@ namespace Mirror.Weaver
                 }
 
                 WeaverTypes.SetupTargetTypes(unityAssembly, mirrorAssembly, CurrentAssembly);
-                System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
+                var rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 ReaderWriterProcessor.Process(CurrentAssembly);
                 rwstopwatch.Stop();
                 Console.WriteLine("Find all reader and writers took " + rwstopwatch.ElapsedMilliseconds + " milliseconds");
@@ -368,13 +368,13 @@ namespace Mirror.Weaver
 
         public static bool Process(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
         {
-            Validate(unityEngine, netDLL, outputDirectory, assemblies, extraAssemblyPaths);
+            Validate(unityEngine, netDLL, outputDirectory, assemblies);
             Log.WarningMethod = printWarning;
             Log.ErrorMethod = printError;
             return WeaveAssemblies(assemblies, extraAssemblyPaths, outputDirectory, unityEngine, netDLL);
         }
 
-        static void Validate(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths)
+        static void Validate(string unityEngine, string netDLL, string outputDirectory, string[] assemblies)
         {
             CheckDllPath(unityEngine);
             CheckDllPath(netDLL);

@@ -7,22 +7,22 @@ namespace Mirror.Experimental
     public class NetworkLerpRigidbody : NetworkBehaviour
     {
         [Header("Settings")]
-        [SerializeField] internal Rigidbody target = null;
+        [SerializeField] internal Rigidbody target;
         [Tooltip("How quickly current velocity approaches target velocity")]
         [SerializeField] float lerpVelocityAmount = 0.5f;
         [Tooltip("How quickly current position approaches target position")]
         [SerializeField] float lerpPositionAmount = 0.5f;
 
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        [SerializeField] bool clientAuthority = false;
+        [SerializeField] bool clientAuthority;
 
         float nextSyncTime;
 
 
-        [SyncVar()]
+        [SyncVar]
         Vector3 targetVelocity;
 
-        [SyncVar()]
+        [SyncVar]
         Vector3 targetPosition;
 
         /// <summary>

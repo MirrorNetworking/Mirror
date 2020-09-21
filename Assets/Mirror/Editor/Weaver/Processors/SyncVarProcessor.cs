@@ -310,8 +310,8 @@ namespace Mirror.Weaver
 
         public static (List<FieldDefinition> syncVars, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds) ProcessSyncVars(TypeDefinition td)
         {
-            List<FieldDefinition> syncVars = new List<FieldDefinition>();
-            Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
+            var syncVars = new List<FieldDefinition>();
+            var syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
 
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
             // start assigning syncvars at the place the base class stopped, if any
@@ -348,7 +348,6 @@ namespace Mirror.Weaver
                         if (dirtyBitCounter == SyncVarLimit)
                         {
                             Weaver.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
-                            continue;
                         }
                     }
                 }
