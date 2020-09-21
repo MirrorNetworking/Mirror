@@ -11,7 +11,7 @@ namespace Mirror.Weaver
             bool modified = false;
             foreach (MethodDefinition md in td.Methods)
             {
-                modified |= ProcessSiteMethod(td, md);
+                modified |= ProcessSiteMethod(md);
             }
 
             foreach (TypeDefinition nested in td.NestedTypes)
@@ -21,7 +21,7 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool ProcessSiteMethod(TypeDefinition td, MethodDefinition md)
+        static bool ProcessSiteMethod(MethodDefinition md)
         {
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
