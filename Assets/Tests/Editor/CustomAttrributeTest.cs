@@ -39,17 +39,5 @@ namespace Mirror.Tests
 
             Assert.That(attrib.channel == Channels.DefaultUnreliable);
         }
-
-        [Test]
-        public void SyncEventAttributeTest()
-        {
-            var attrib = new SyncEventAttribute();
-
-            Assert.That(attrib.channel == Channels.DefaultReliable);
-
-            attrib.channel = Channels.DefaultUnreliable;
-
-            Assert.That(attrib.channel == Channels.DefaultUnreliable);
-        }
     }
 }

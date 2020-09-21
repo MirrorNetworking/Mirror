@@ -13,7 +13,7 @@ namespace Mirror.Weaver
         public static bool HasNetworkConnectionParameter(MethodDefinition md)
         {
             return md.Parameters.Count > 0 &&
-                   md.Parameters[0].ParameterType.FullName == Weaver.INetworkConnectionType.FullName;
+                   md.Parameters[0].ParameterType.FullName == WeaverTypes.INetworkConnectionType.FullName;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Mirror.Weaver
             var rpc = new MethodDefinition(
                 MethodProcessor.SkeletonPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                Weaver.voidType);
+                WeaverTypes.voidType);
 
             ILProcessor worker = rpc.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
@@ -60,7 +60,7 @@ namespace Mirror.Weaver
             {
                 //client.connection
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Call, Weaver.BehaviorConnectionToServerReference));
+                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.BehaviorConnectionToServerReference));
             }
             
             if (!NetworkBehaviourProcessor.ReadArguments(md, worker, hasNetworkConnection))
@@ -159,7 +159,7 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ldtoken, md.DeclaringType));
             // invokerClass
-            worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, rpcName));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc_0));
@@ -168,11 +168,11 @@ namespace Mirror.Weaver
             if (target == Client.Observers)
             {
                 worker.Append(worker.Create(excludeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
-                worker.Append(worker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
+                worker.Append(worker.Create(OpCodes.Callvirt, WeaverTypes.sendRpcInternal));
             }
             else
             {
-                worker.Append(worker.Create(OpCodes.Callvirt, Weaver.sendTargetRpcInternal));
+                worker.Append(worker.Create(OpCodes.Callvirt, WeaverTypes.sendTargetRpcInternal));
             }
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
@@ -184,17 +184,6 @@ namespace Mirror.Weaver
 
         public static bool Validate(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            if (md.IsAbstract)
-            {
-                Weaver.Error("Abstract ClientRpc are currently not supported, use virtual method instead", md);
-                return false;
-            }
-
-            if (md.IsStatic)
-            {
-                Weaver.Error($"{md.Name} must not be static", md);
-                return false;
-            }
 
             Client target = clientRpcAttr.GetField("target", Client.Observers); 
             if (target == Client.Connection && !HasNetworkConnectionParameter(md))
@@ -209,10 +198,8 @@ namespace Mirror.Weaver
                 Weaver.Error("ClientRpc with Client.Owner cannot have excludeOwner set as true", md);
                 return false;
             }
+            return true;
 
-            // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, RemoteCallType.ClientRpc);
         }
     }
 }

@@ -16,9 +16,9 @@ Mirror supports a number of data types you can use with these, including:
 - ScriptableObject as long as each field has a supported data type 
     - These will allocate garbage and will be instantiated new on the receiver every time they're sent.
 - Arrays of any of the above 
-    - Not supported with syncvars or synclists
+    - Not supported with SyncVars or SyncLists
 - ArraySegments of any of the above 
-    - Not supported with syncvars or synclists
+    - Not supported with SyncVars or SyncLists
 
 ## Game Objects
 

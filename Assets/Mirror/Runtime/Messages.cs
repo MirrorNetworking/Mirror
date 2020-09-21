@@ -131,33 +131,6 @@ namespace Mirror
             writer.WriteBytesAndSizeSegment(payload);
         }
     }
-
-    public struct SyncEventMessage : IMessageBase
-    {
-        public uint netId;
-        public int componentIndex;
-        public int functionHash;
-        // the parameters for the Cmd function
-        // -> ArraySegment to avoid unnecessary allocations
-        public ArraySegment<byte> payload;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            componentIndex = (int)reader.ReadPackedUInt32();
-            // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
-            functionHash = reader.ReadInt32();
-            payload = reader.ReadBytesAndSizeSegment();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32((uint)componentIndex);
-            writer.WriteInt32(functionHash);
-            writer.WriteBytesAndSizeSegment(payload);
-        }
-    }
     #endregion
 
     #region Internal System Messages

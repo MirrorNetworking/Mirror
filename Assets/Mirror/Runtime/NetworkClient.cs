@@ -286,7 +286,6 @@ namespace Mirror
             Connection.RegisterHandler<ObjectSpawnFinishedMessage>(msg => { });
             Connection.RegisterHandler<UpdateVarsMessage>(msg => { });
             Connection.RegisterHandler<RpcMessage>(OnRpcMessage);
-            Connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
         internal void RegisterMessageHandlers()
@@ -299,7 +298,6 @@ namespace Mirror
             Connection.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
             Connection.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
             Connection.RegisterHandler<RpcMessage>(OnRpcMessage);
-            Connection.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
         /// <summary>
@@ -827,22 +825,7 @@ namespace Mirror
             if (Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity != null)
             {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                    identity.HandleRpc(msg.componentIndex, msg.functionHash, networkReader);
-            }
-        }
-
-        internal void OnSyncEventMessage(SyncEventMessage msg)
-        {
-            if (logger.LogEnabled()) logger.Log("ClientScene.OnSyncEventMessage " + msg.netId);
-
-            if (Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity != null)
-            {
-                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                    identity.HandleSyncEvent(msg.componentIndex, msg.functionHash, networkReader);
-            }
-            else
-            {
-                logger.LogWarning("Did not find target for SyncEvent message for " + msg.netId);
+                    identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, MirrorInvokeType.ClientRpc, networkReader);
             }
         }
 

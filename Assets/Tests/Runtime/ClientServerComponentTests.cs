@@ -80,12 +80,12 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator OnSpawnSpawnHandlerTest() => RunAsync(async () =>
         {
-            Guid guid = Guid.NewGuid();
-            GameObject gameObject = new GameObject();
+            var guid = Guid.NewGuid();
+            var gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             identity.AssetId = guid;
 
-            client.RegisterSpawnHandler(guid, SpawnDelegateTest, UnSpawnDelegateTest);
+            client.RegisterSpawnHandler(guid, SpawnDelegateTest, go => { });
             client.RegisterPrefab(gameObject, guid);
             server.SendSpawnMessage(identity, connectionToClient);
 
@@ -105,12 +105,5 @@ namespace Mirror.Tests
             }
             return null;
         }
-
-        int unspawnDelegateTestCalled;
-        void UnSpawnDelegateTest(GameObject obj)
-        {
-            unspawnDelegateTestCalled++;
-        }
-
     }
 }

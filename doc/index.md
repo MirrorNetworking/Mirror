@@ -10,7 +10,7 @@ uMMORPG was possible with \<6000 lines of code. We needed a networking library t
 -   **Full Source included** for debugging convenience
 -   Several working examples included
 -   Active [Discord](https://discord.gg/2BvnM4R) for prompt support
--   **Requires Unity 2018.3.6+ and Runtime .Net 4.x (default in Unity 2019) and .Net 2.0 Compatibility is recommended**
+-   **Requires Unity 2018.4 LTS and Runtime .Net 4.x (default in Unity 2019) and .Net 2.0 Compatibility is recommended**
 -   Alpha / Beta Unity versions cannot be supported
 
 **Multiple Transports Available:**
@@ -39,7 +39,7 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 -   Network [Proximity Checker](Components/NetworkProximityChecker.md) to help with Area of Interest
 -   Network [Scene Checker](Components/NetworkSceneChecker.md) to islolate players and networked objects to Additive scene instances
 -   Network [Match Checker](Components/NetworkMatchChecker.md) to islolate players and networked objects by [Network Visibility](Guides/Visibility.md)
--   [SyncVar](Guides/Sync/SyncVars.md), [SyncList](Guides/Sync/SyncLists.md), [SyncEvent](Guides/Sync/SyncEvent.md), [SyncDictionary](Guides/Sync/SyncDictionary.md), and [SyncHashSet](Guides/Sync/SyncHashSet.md)
+-   [SyncVar](Guides/Sync/SyncVars.md), [SyncList](Guides/Sync/SyncLists.md), [SyncDictionary](Guides/Sync/SyncDictionary.md), and [SyncHashSet](Guides/Sync/SyncHashSet.md)
 
 **Integrations**
 -   [Dissonance Voice Chat](https://assetstore.unity.com/packages/tools/audio/dissonance-voice-chat-70078)

@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.unity.ext.nunit": "1.0.0",
+    "com.unity.ide.visualstudio": "2.0.2",
     "com.unity.ide.vscode": "1.2.1",
     "com.unity.test-framework": "1.1.16",
     "com.unity.test-framework.performance": "2.2.0-preview",

@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Mirror.Tests.MessageInheritance
+namespace Mirror.Tests
 {
     class ParentMessage : MessageBase
     {
@@ -67,7 +67,7 @@ namespace Mirror.Tests.MessageInheritance
         [Test]
         public void SendsVauesWhenUsingAbstractClass()
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
 
             const int state = 2;
             const string message = "hello world";
@@ -81,8 +81,8 @@ namespace Mirror.Tests.MessageInheritance
 
             byte[] arr = writer.ToArray();
 
-            NetworkReader reader = new NetworkReader(arr);
-            ResponseMessage received = new ResponseMessage();
+            var reader = new NetworkReader(arr);
+            var received = new ResponseMessage();
             received.Deserialize(reader);
 
             Assert.AreEqual(state, received.state);
@@ -97,7 +97,7 @@ namespace Mirror.Tests.MessageInheritance
         [Test]
         public void SendsVauesWhenUsingAbstractClassReverseDefineOrder()
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
 
             const int state = 2;
             const string message = "hello world";
@@ -111,8 +111,8 @@ namespace Mirror.Tests.MessageInheritance
 
             byte[] arr = writer.ToArray();
 
-            NetworkReader reader = new NetworkReader(arr);
-            ResponseMessageReverse received = new ResponseMessageReverse();
+            var reader = new NetworkReader(arr);
+            var received = new ResponseMessageReverse();
             received.Deserialize(reader);
 
             Assert.AreEqual(state, received.state);

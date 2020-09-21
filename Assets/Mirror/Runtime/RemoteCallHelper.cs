@@ -59,7 +59,7 @@ namespace Mirror.RemoteCalls
 
 
         /// <summary>
-        /// helper function register a ServerRpc/Rpc/SyncEvent delegate
+        /// helper function register a ServerRpc/Rpc delegate
         /// </summary>
         /// <param name="invokeClass"></param>
         /// <param name="cmdName"></param>
@@ -122,11 +122,6 @@ namespace Mirror.RemoteCalls
             RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func);
         }
 
-        public static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
-        {
-            RegisterDelegate(invokeClass, eventName, MirrorInvokeType.SyncEvent, func);
-        }
-
         // we need a way to clean up delegates after tests
         [System.Obsolete("Removing all delegates will cause problems with other tests as their hashs can not be re-added without reloading scripts", true)]
         internal static void ClearDelegates()
@@ -157,7 +152,7 @@ namespace Mirror.RemoteCalls
             return false;
         }
 
-        // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
+        // InvokeCmd/Rpc can all use the same function here
         internal static bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
         {
             if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(invokingType))

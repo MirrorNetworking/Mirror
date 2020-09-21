@@ -14,6 +14,8 @@
   href: ClockSync.md
 - name: Data Types
   href: DataTypes.md
+- name: Serialization
+  href: Serialization.md
 - name: Visibility
   href: Visibility.md
 - name: Development Servers

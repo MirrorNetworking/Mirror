@@ -30,21 +30,64 @@ namespace Mirror.Tests
         }
     }
 
-    struct WovenTestMessage : IMessageBase
+    struct StructWithEmptyMethodMessage : IMessageBase
     {
         public int IntValue;
         public string StringValue;
         public double DoubleValue;
 
+        // Mirror will fill out these empty methods
         public void Deserialize(NetworkReader reader) { }
         public void Serialize(NetworkWriter writer) { }
+    }
+
+    class ClassWithoutBaseMessage : IMessageBase
+    {
+        public int[] array;
+
+        // Mirror will fill out these empty methods
+        public void Deserialize(NetworkReader reader) { }
+        public void Serialize(NetworkWriter writer) { }
+    }
+
+    abstract class AbstractMessage : IMessageBase
+    {
+        public abstract void Deserialize(NetworkReader reader);
+        public abstract void Serialize(NetworkWriter writer);
+    }
+
+    class OverrideMessage : AbstractMessage
+    {
+        public int someValue;
+
+        // Mirror will fill out these empty methods
+        public override void Serialize(NetworkWriter writer) { }
+        public override void Deserialize(NetworkReader reader) { }
+    }
+
+    class Layer1Message : IMessageBase
+    {
+        public int value1;
+
+        // Mirror will fill out these empty methods
+        public virtual void Serialize(NetworkWriter writer) { }
+        public virtual void Deserialize(NetworkReader reader) { }
+    }
+
+    class Layer2Message : Layer1Message
+    {
+        public int value2;
+    }
+    class Layer3Message : Layer2Message
+    {
+        public int value3;
     }
 
     [TestFixture]
     public class MessageBaseTests
     {
         [Test]
-        public void Roundtrip()
+        public void StructWithMethods()
         {
             byte[] arr = MessagePacker.Pack(new TestMessage(1, "2", 3.3));
             TestMessage t = MessagePacker.Unpack<TestMessage>(arr);
@@ -53,14 +96,67 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void WovenSerializationBodyRoundtrip()
+        public void StructWithEmptyMethods()
         {
-            byte[] arr = MessagePacker.Pack(new WovenTestMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
-            WovenTestMessage t = MessagePacker.Unpack<WovenTestMessage>(arr);
+            byte[] arr = MessagePacker.Pack(new StructWithEmptyMethodMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
+            StructWithEmptyMethodMessage t = MessagePacker.Unpack<StructWithEmptyMethodMessage>(arr);
 
             Assert.AreEqual(1, t.IntValue);
             Assert.AreEqual("2", t.StringValue);
             Assert.AreEqual(3.3, t.DoubleValue);
+        }
+
+        [Test]
+        public void ClassWithEmptyMethods()
+        {
+            ClassWithoutBaseMessage intMessage = new ClassWithoutBaseMessage
+            {
+                array = new[] { 3, 4, 5 }
+            };
+
+            byte[] data = MessagePacker.Pack(intMessage);
+
+            ClassWithoutBaseMessage unpacked = MessagePacker.Unpack<ClassWithoutBaseMessage>(data);
+
+            Assert.That(unpacked.array, Is.EquivalentTo(new int[] { 3, 4, 5 }));
+        }
+
+        [Test]
+        public void AbstractBaseClassWorks()
+        {
+            const int value = 10;
+            OverrideMessage intMessage = new OverrideMessage
+            {
+                someValue = value
+            };
+
+            byte[] data = MessagePacker.Pack(intMessage);
+
+            OverrideMessage unpacked = MessagePacker.Unpack<OverrideMessage>(data);
+
+            Assert.That(unpacked.someValue, Is.EqualTo(value));
+        }
+
+        [Test]
+        public void MessageInheirtanceWorksWithMultipleLayers()
+        {
+            const int value1 = 10;
+            const int value2 = 13;
+            const int value3 = 15;
+            Layer3Message intMessage = new Layer3Message
+            {
+                value1 = value1,
+                value2 = value2,
+                value3 = value3
+            };
+
+            byte[] data = MessagePacker.Pack(intMessage);
+
+            Layer3Message unpacked = MessagePacker.Unpack<Layer3Message>(data);
+
+            Assert.That(unpacked.value1, Is.EqualTo(value1));
+            Assert.That(unpacked.value2, Is.EqualTo(value2));
+            Assert.That(unpacked.value3, Is.EqualTo(value3));
         }
     }
 }

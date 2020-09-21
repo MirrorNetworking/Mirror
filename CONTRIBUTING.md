@@ -12,14 +12,15 @@ If you haven't already, come find us in [Discord](https://discord.gg/N9QVxbM). W
 
 ### I don't want to read this whole thing I just have a question!!
 
-We currently allow our users to use the issue tracker for support questions. But please be wary that maintaining an open source project can take a lot of time from the maintainers. If asking for a support question, state it clearly and take the time to explain your problem properly. Also, if your problem is not strictly related to this project we recommend you to use [Stack Overlow](https://stackoverflow.com) instead.
+We currently allow our users to use the issue tracker for support questions. But please be wary that maintaining an open source project can take a lot of time from the maintainers. If asking for a support question, state it clearly and take the time to explain your problem properly. Also, if your problem is not strictly related to this project we recommend you to use [Stack Overflow](https://stackoverflow.com) instead.
 
 ## How Can I Contribute?
 
+There are multiple ways to help: testing, finding bugs or issues, or even fixing a bug yourself and submitting a Pull Requests.
+
 ### Testing
 
-We have a handful of unit tests, but most of our testbed consists of running it with existing projects. 
-Try our builds and pull requests in your own projects and let us know how it goes.
+We have [unit tests](https://en.wikipedia.org/wiki/Unit_testing) that cover some parts of Mirror, but the best way to find a problem is running it with existing projects. Try our releases and pull requests in your own projects and let us know if there are any issues.
 
 ### Reporting Bugs
 
@@ -84,8 +85,9 @@ We can always use more test coverage.
 * **Provide a link to the related issue** if the pull request is a follow up of an existing bug report or enhancement suggestion.
 * **Comment why this pull request represents an enhancement** and give a rationale explaining why you did it that way and not another way.
 * **Use the same coding style as the one used in this project**.
-* **Documentation:** If your PR adds or changes any public properties or methods, you must retain the old versions preceded with `[Obsolete("Describe what to do / use instead")` attribute wherever possbile, and you must update any relevant pages in the /docs folder.  It's not done until it's documented!
+* **Documentation:** If your PR adds or changes any public properties or methods, you must retain the old versions preceded with `[Obsolete("Describe what to do / use instead")` attribute wherever possible, and you must update any relevant pages in the /docs folder.  It's not done until it's documented!
 * **Welcome suggestions from the maintainers to improve your pull request**.
+* **Include unit tests for new code** Unit test for new code helps us check if it works. See the [Unity Test Runner](https://docs.unity3d.com/2018.4/Documentation/Manual/testing-editortestsrunner.html) for more information about running tests in unity.
 
 Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). Rebase your pull requests if necessary.
 
@@ -140,6 +142,5 @@ Start reading our code and you'll get the hang of it. We optimize for readabilit
 * **int** vs. **Int32**: use int instead of Int32, double instead of Double, string instead of String and so on. We won't convert all ints to Int32, so it makes most sense to never use Int32 anywhere and avoid time wasting discussions.
 * When in doubt, consult Microsoft's official [C# coding conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) they exist for a reason.
 * This is open source software. Consider the people who will read your code, and make it look nice for them. It's sort of like driving a car: Perhaps you love doing donuts when you're alone, but with passengers the goal is to make the ride as smooth as possible.
-
 
 Thanks.

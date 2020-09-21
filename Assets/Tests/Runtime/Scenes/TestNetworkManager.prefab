@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8279465151912833971}
   - component: {fileID: 1233094718765946942}
-  - component: {fileID: 5249265672789143826}
+  - component: {fileID: 2509988586038888270}
   m_Layer: 0
   m_Name: TestNetworkManager
   m_TagString: Untagged
@@ -51,16 +51,18 @@ MonoBehaviour:
   serverTickRate: 30
   offlineScene: 
   onlineScene: 
-  transport: {fileID: 5249265672789143826}
+  transport: {fileID: 2509988586038888270}
   networkAddress: localhost
   maxConnections: 4
+  disconnectInactiveConnections: 0
+  disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 796411093575107534, guid: 5d01c4bf42a9b434dac396c2ba1aea10,
     type: 3}
   autoCreatePlayer: 0
   playerSpawnMethod: 0
   spawnPrefabs: []
---- !u!114 &5249265672789143826
+--- !u!114 &2509988586038888270
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -69,7 +71,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4064655512664549480}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7424c1070fad4ba2a7a96b02fbeb4bb, type: 3}
+  m_Script: {fileID: 11500000, guid: 6131cf1e8a1c14ef5b5253f86f3fc9c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   OnClientConnected:
@@ -110,7 +112,3 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: Mirror.UnityEventInt, Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  port: 7777
-  NoDelay: 1
-  serverMaxMessageSize: 16384
-  clientMaxMessageSize: 16384
