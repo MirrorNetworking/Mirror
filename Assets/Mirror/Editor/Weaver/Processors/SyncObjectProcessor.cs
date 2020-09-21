@@ -18,7 +18,7 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition fd in td.Fields)
             {
-                if (fd.FieldType.Resolve().ImplementsInterface<Mirror.SyncObject>())
+                if (fd.FieldType.Resolve().ImplementsInterface<SyncObject>())
                 {
                     if (fd.IsStatic)
                     {
@@ -87,7 +87,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
 
-            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
+            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<NetworkWriter>()));
             serializeFunc.Parameters.Add(new ParameterDefinition("item", ParameterAttributes.None, itemType));
             ILProcessor worker = serializeFunc.Body.GetILProcessor();
 
@@ -130,7 +130,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     itemType);
 
-            deserializeFunction.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
+            deserializeFunction.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
 
             ILProcessor worker = deserializeFunction.Body.GetILProcessor();
 
