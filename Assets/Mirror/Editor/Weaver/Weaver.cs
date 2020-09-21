@@ -376,13 +376,13 @@ namespace Mirror.Weaver
 
         public static bool Process(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
         {
-            Validate(unityEngine, netDLL, outputDirectory, assemblies, extraAssemblyPaths);
+            Validate(unityEngine, netDLL, outputDirectory, assemblies);
             Log.Warning = printWarning;
             Log.Error = printError;
             return WeaveAssemblies(assemblies, extraAssemblyPaths, outputDirectory, unityEngine, netDLL);
         }
 
-        static void Validate(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths)
+        static void Validate(string unityEngine, string netDLL, string outputDirectory, string[] assemblies)
         {
             CheckDllPath(unityEngine);
             CheckDllPath(netDLL);
