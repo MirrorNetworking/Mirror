@@ -18,7 +18,7 @@ namespace Mirror.Weaver
             // find syncvars
             foreach (FieldDefinition fd in td.Fields)
             {
-                if (fd.HasCustomAttribute<Mirror.SyncVarAttribute>())
+                if (fd.HasCustomAttribute<SyncVarAttribute>())
                     Weaver.Error($"SyncVar {fd.Name} must be inside a NetworkBehaviour.  {td.Name} is not a NetworkBehaviour", fd);
 
                 if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
@@ -35,17 +35,17 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.Is<Mirror.CommandAttribute>())
+                    if (ca.AttributeType.Is<CommandAttribute>())
                     {
                         Weaver.Error($"Command {md.Name} must be declared inside a NetworkBehaviour", md);
                     }
 
-                    if (ca.AttributeType.Is<Mirror.ClientRpcAttribute>())
+                    if (ca.AttributeType.Is<ClientRpcAttribute>())
                     {
                         Weaver.Error($"ClientRpc {md.Name} must be declared inside a NetworkBehaviour", md);
                     }
 
-                    if (ca.AttributeType.Is<Mirror.TargetRpcAttribute>())
+                    if (ca.AttributeType.Is<TargetRpcAttribute>())
                     {
                         Weaver.Error($"TargetRpc {md.Name} must be declared inside a NetworkBehaviour", md);
                     }
