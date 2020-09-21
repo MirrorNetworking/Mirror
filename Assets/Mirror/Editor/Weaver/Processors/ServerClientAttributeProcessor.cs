@@ -64,33 +64,18 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
         {
-            bool modified = false;
-            foreach (CustomAttribute attr in md.CustomAttributes)
-            {
-                switch (attr.Constructor.DeclaringType.ToString())
-                {
-                    case "Mirror.ServerAttribute":
-                        InjectServerGuard(md, true);
-                        modified = true;
-                        break;
-                    case "Mirror.ServerCallbackAttribute":
-                        InjectServerGuard(md, false);
-                        modified = true;
-                        break;
-                    case "Mirror.ClientAttribute":
-                        InjectClientGuard(md, true);
-                        modified = true;
-                        break;
-                    case "Mirror.ClientCallbackAttribute":
-                        InjectClientGuard(md, false);
-                        modified = true;
-                        break;
-                    default:
-                        break;
-                }
-            }
+            if (md.HasCustomAttribute<Mirror.ServerAttribute>())
+                InjectServerGuard(md, true);
+            else if (md.HasCustomAttribute<Mirror.ServerCallbackAttribute>())
+                InjectServerGuard(md, false);
+            else if (md.HasCustomAttribute<Mirror.ClientAttribute>())
+                InjectClientGuard(md, true);
+            else if (md.HasCustomAttribute<Mirror.ClientCallbackAttribute>())
+                InjectClientGuard(md, false);
+            else
+                return false;
 
-            return modified;
+            return true;
         }
 
         static void InjectServerGuard(MethodDefinition md, bool logWarning)
