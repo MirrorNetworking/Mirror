@@ -262,6 +262,8 @@ namespace Mirror
         /// <summary>
         /// called by LocalClient to add itself. dont call directly.
         /// </summary>
+        /// <param name="client">The local client</param>
+        /// <param name="tconn">The connection to the client</param>
         internal void SetLocalConnection(NetworkClient client, IConnection tconn)
         {
             if (LocalConnection != null)
@@ -295,8 +297,14 @@ namespace Mirror
             }
         }
 
-        // this is like SendToReady - but it doesn't check the ready flag on the connection.
-        // this is used for ObjectDestroy messages.
+        /// <summary>
+        /// this is like SendToReady - but it doesn't check the ready flag on the connection.
+        /// this is used for ObjectDestroy messages.
+        /// </summary>
+        /// <typeparam name="T">The message type</typeparam>
+        /// <param name="identity"></param>
+        /// <param name="msg"></param>
+        /// <param name="channelId"></param>
         void SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToObservers id:" + typeof(T));
@@ -368,9 +376,10 @@ namespace Mirror
             // update all server objects
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in Spawned)
             {
-                if (kvp.Value != null && kvp.Value.gameObject != null)
+                NetworkIdentity identity = kvp.Value;
+                if (identity != null)
                 {
-                    kvp.Value.ServerUpdate();
+                    identity.ServerUpdate();
                 }
                 else
                 {
@@ -742,7 +751,11 @@ namespace Mirror
             }
         }
 
-        // default ready handler.
+        /// <summary>
+        /// default ready handler. 
+        /// </summary>
+        /// <param name="conn"></param>
+        /// <param name="msg"></param>
         void OnClientReadyMessage(INetworkConnection conn, ReadyMessage msg)
         {
             if (logger.LogEnabled()) logger.Log("Default handler for ready message from " + conn);
@@ -771,7 +784,11 @@ namespace Mirror
             }
         }
 
-        // Handle ServerRpc from specific player, this could be one of multiple players on a single client
+        /// <summary>
+        /// Handle ServerRpc from specific player, this could be one of multiple players on a single client
+        /// </summary>
+        /// <param name="conn"></param>
+        /// <param name="msg"></param>
         void OnServerRpcMessage(INetworkConnection conn, ServerRpcMessage msg)
         {
             if (!Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) || identity == null)
@@ -794,7 +811,7 @@ namespace Mirror
             if (logger.LogEnabled()) logger.Log("OnServerRpcMessage for netId=" + msg.netId + " conn=" + conn);
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                identity.HandleServerRpc(msg.componentIndex, msg.functionHash, networkReader, conn);
+                identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, MirrorInvokeType.ServerRpc, networkReader, conn);
         }
 
         internal void SpawnObject(GameObject obj, INetworkConnection ownerConnection)

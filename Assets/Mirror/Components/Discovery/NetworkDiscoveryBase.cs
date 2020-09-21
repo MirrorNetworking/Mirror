@@ -32,7 +32,7 @@ namespace Mirror.Discovery
 
         [SerializeField]
         [Tooltip("The UDP port the server will listen for multi-cast messages")]
-        int serverBroadcastListenPort = 47777;
+        protected int serverBroadcastListenPort = 47777;
 
         [SerializeField]
         [Tooltip("Time in seconds between multi-cast messages")]

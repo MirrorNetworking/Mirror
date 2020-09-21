@@ -102,7 +102,9 @@ To define a Client RPC call in your code, you must write a function which:
 
 See [Communications](Communications/index.md) and related sections for more information.
 
-## Networked Events
+## Networked Events (Obsolete)
+
+> **IMPORTANT** SyncEvents have been removed in version 18.0.0, see this [Issue](https://github.com/vis2k/Mirror/pull/2178) for more information
 
 Networked events are like Client RPC calls, but instead of calling a function on the game object, they trigger Events instead.
 

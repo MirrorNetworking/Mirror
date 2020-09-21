@@ -61,13 +61,13 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldtoken, md.DeclaringType));
             // invokerClass
-            worker.Append(worker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4, channel));
             worker.Append(worker.Create(requireAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.sendServerRpcInternal));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.sendServerRpcInternal));
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 
@@ -100,7 +100,7 @@ namespace Mirror.Weaver
         {
             var cmd = new MethodDefinition(MethodProcessor.SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                Weaver.voidType);
+                WeaverTypes.voidType);
 
             ILProcessor worker = cmd.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
@@ -137,25 +137,6 @@ namespace Mirror.Weaver
                     worker.Append(worker.Create(OpCodes.Ldarg_2));
                 }
             }
-        }
-
-        public static bool Validate(MethodDefinition md)
-        {
-            if (md.IsAbstract)
-            {
-                Weaver.Error("Abstract ServerRpcs are currently not supported, use virtual method instead", md);
-                return false;
-            }
-
-            if (md.IsStatic)
-            {
-                Weaver.Error($"{md.Name} cannot be static", md);
-                return false;
-            }
-
-            // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, RemoteCallType.ServerRpc);
         }
     }
 }

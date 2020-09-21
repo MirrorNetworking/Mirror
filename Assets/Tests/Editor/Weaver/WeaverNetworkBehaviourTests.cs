@@ -7,92 +7,114 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void NetworkBehaviourAbstractBaseValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void NetworkBehaviourGeneric()
         {
-            Assert.That(weaverErrors, Contains.Item("NetworkBehaviourGeneric`1 cannot have generic parameters (at WeaverNetworkBehaviourTests.NetworkBehaviourGeneric.NetworkBehaviourGeneric`1)"));
+            HasError("NetworkBehaviourGeneric`1 cannot have generic parameters",
+                "WeaverNetworkBehaviourTests.NetworkBehaviourGeneric.NetworkBehaviourGeneric`1");
         }
 
         [Test]
         public void NetworkBehaviourCmdGenericParam()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveGeneric cannot have generic parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdGenericParam.NetworkBehaviourCmdGenericParam::CmdCantHaveGeneric())"));
+            HasError("CmdCantHaveGeneric cannot have generic parameters",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdGenericParam.NetworkBehaviourCmdGenericParam::CmdCantHaveGeneric()");
         }
 
         [Test]
         public void NetworkBehaviourCmdCoroutine()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveCoroutine cannot be a coroutine (at System.Collections.IEnumerator WeaverNetworkBehaviourTests.NetworkBehaviourCmdCoroutine.NetworkBehaviourCmdCoroutine::CmdCantHaveCoroutine())"));
+            HasError("CmdCantHaveCoroutine cannot be a coroutine",
+                "System.Collections.IEnumerator WeaverNetworkBehaviourTests.NetworkBehaviourCmdCoroutine.NetworkBehaviourCmdCoroutine::CmdCantHaveCoroutine()");
         }
 
         [Test]
         public void NetworkBehaviourCmdVoidReturn()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveNonVoidReturn cannot return a value.  Make it void instead (at System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourCmdVoidReturn.NetworkBehaviourCmdVoidReturn::CmdCantHaveNonVoidReturn())"));
+            HasError("CmdCantHaveNonVoidReturn cannot return a value.  Make it void instead",
+                "System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourCmdVoidReturn.NetworkBehaviourCmdVoidReturn::CmdCantHaveNonVoidReturn()");
         }
 
         [Test]
         public void NetworkBehaviourClientRpcGenericParam()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveGeneric cannot have generic parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcGenericParam.NetworkBehaviourClientRpcGenericParam::RpcCantHaveGeneric())"));
+            HasError("RpcCantHaveGeneric cannot have generic parameters",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcGenericParam.NetworkBehaviourClientRpcGenericParam::RpcCantHaveGeneric()");
         }
 
         [Test]
         public void NetworkBehaviourClientRpcCoroutine()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveCoroutine cannot be a coroutine (at System.Collections.IEnumerator WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcCoroutine.NetworkBehaviourClientRpcCoroutine::RpcCantHaveCoroutine())"));
+            HasError("RpcCantHaveCoroutine cannot be a coroutine",
+                "System.Collections.IEnumerator WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcCoroutine.NetworkBehaviourClientRpcCoroutine::RpcCantHaveCoroutine()");
         }
 
         [Test]
         public void NetworkBehaviourClientRpcVoidReturn()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveNonVoidReturn cannot return a value.  Make it void instead (at System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcVoidReturn.NetworkBehaviourClientRpcVoidReturn::RpcCantHaveNonVoidReturn())"));
+            HasError("RpcCantHaveNonVoidReturn cannot return a value.  Make it void instead",
+                "System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcVoidReturn.NetworkBehaviourClientRpcVoidReturn::RpcCantHaveNonVoidReturn()");
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamOut()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveParamOut cannot have out parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamOut.NetworkBehaviourClientRpcParamOut::RpcCantHaveParamOut(System.Int32&))"));
+            HasError("RpcCantHaveParamOut cannot have out parameters",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamOut.NetworkBehaviourClientRpcParamOut::RpcCantHaveParamOut(System.Int32&)");
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamOptional()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveParamOptional cannot have optional parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamOptional.NetworkBehaviourClientRpcParamOptional::RpcCantHaveParamOptional(System.Int32))"));
+            HasError("RpcCantHaveParamOptional cannot have optional parameters",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamOptional.NetworkBehaviourClientRpcParamOptional::RpcCantHaveParamOptional(System.Int32)");
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamRef()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot pass Int32& by reference (at System.Int32&)"));
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveParamRef has invalid parameter monkeys (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamRef.NetworkBehaviourClientRpcParamRef::RpcCantHaveParamRef(System.Int32&))"));
-            Assert.That(weaverErrors, Contains.Item("Cannot pass type Int32& by reference (at System.Int32&)"));
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported Mirror type instead (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamRef.NetworkBehaviourClientRpcParamRef::RpcCantHaveParamRef(System.Int32&))"));
-            ;
+            HasError("Cannot pass Int32& by reference",
+                "System.Int32&");
+            HasError("RpcCantHaveParamRef has invalid parameter monkeys",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamRef.NetworkBehaviourClientRpcParamRef::RpcCantHaveParamRef(System.Int32&)");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot pass type Int32& by reference",
+            //    "System.Int32&");
+            //HasError("RpcCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported Mirror type instead",
+            //    "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamRef.NetworkBehaviourClientRpcParamRef::RpcCantHaveParamRef(System.Int32&)");
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamAbstract()
         {
-            Assert.That(weaverErrors, Contains.Item("AbstractClass can't be deserialized because it has no default constructor (at WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass)"));
+            HasError("Cannot generate writer for abstract class AbstractClass. Use a supported type or provide a custom writer",
+                "WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("AbstractClass can't be deserialized because it has no default constructor",
+            //    "WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass");
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamComponent()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type ComponentClass. Use a supported type or provide a custom writer (at WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass)"));
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveParamComponent has invalid parameter monkeyComp (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent::RpcCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass))"));
-            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for component type ComponentClass. Use a supported type or provide a custom reader (at WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass)"));
-            Assert.That(weaverErrors, Contains.Item("RpcCantHaveParamComponent has invalid parameter monkeyComp.  Unsupported type WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass,  use a supported Mirror type instead (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent::RpcCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass))"));
+            HasError("Cannot generate writer for component type ComponentClass. Use a supported type or provide a custom writer",
+                "WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass");
+            HasError("RpcCantHaveParamComponent has invalid parameter monkeyComp",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent::RpcCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass)");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot generate reader for component type ComponentClass. Use a supported type or provide a custom reader",
+            //    "WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass");
+            //HasError("RpcCantHaveParamComponent has invalid parameter monkeyComp.  Unsupported type WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass,  use a supported Mirror type instead",
+            //    "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent::RpcCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass)");
         }
 
         [Test]
@@ -104,49 +126,64 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourClientRpcParamNetworkConnectionNotFirst()
         {
-            Assert.That(weaverErrors, Contains.Item("ClientRpc with Client.Connection needs a network connection parameter (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst::ClientRpcCantHaveParamOptional(System.Int32,Mirror.INetworkConnection))"));
+            Assert.That(weaverErrors, Contains.Item("ClientRpcCantHaveParamOptional has invalid parameter monkeyCon, Cannot pass NetworkConnections (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst::ClientRpcCantHaveParamOptional(System.Int32,Mirror.INetworkConnection))"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcDuplicateName()
         {
-            Assert.That(weaverErrors, Contains.Item("Duplicate ClientRpc name RpcCantHaveSameName (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcDuplicateName.NetworkBehaviourClientRpcDuplicateName::RpcCantHaveSameName(System.Int32,System.Int32))"));
+            HasError("Duplicate ClientRpc name RpcCantHaveSameName",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcDuplicateName.NetworkBehaviourClientRpcDuplicateName::RpcCantHaveSameName(System.Int32,System.Int32)");
         }
 
         [Test]
         public void NetworkBehaviourCmdParamOut()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamOut cannot have out parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOut.NetworkBehaviourCmdParamOut::CmdCantHaveParamOut(System.Int32&))"));
+            HasError("CmdCantHaveParamOut cannot have out parameters",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOut.NetworkBehaviourCmdParamOut::CmdCantHaveParamOut(System.Int32&)");
         }
 
         [Test]
         public void NetworkBehaviourCmdParamOptional()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamOptional cannot have optional parameters (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOptional.NetworkBehaviourCmdParamOptional::CmdCantHaveParamOptional(System.Int32))"));
+            HasError("CmdCantHaveParamOptional cannot have optional parameters",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamOptional.NetworkBehaviourCmdParamOptional::CmdCantHaveParamOptional(System.Int32)");
         }
 
         [Test]
         public void NetworkBehaviourCmdParamRef()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot pass Int32& by reference (at System.Int32&)"));
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamRef has invalid parameter monkeys (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef.NetworkBehaviourCmdParamRef::CmdCantHaveParamRef(System.Int32&))"));
-            Assert.That(weaverErrors, Contains.Item("Cannot pass type Int32& by reference (at System.Int32&)"));
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported Mirror type instead (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef.NetworkBehaviourCmdParamRef::CmdCantHaveParamRef(System.Int32&))"));
+            HasError("Cannot pass Int32& by reference",
+                "System.Int32&");
+            HasError("CmdCantHaveParamRef has invalid parameter monkeys",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef.NetworkBehaviourCmdParamRef::CmdCantHaveParamRef(System.Int32&)");
+            HasError("Cannot pass type Int32& by reference",
+                "System.Int32&");
+            HasError("CmdCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported Mirror type instead",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef.NetworkBehaviourCmdParamRef::CmdCantHaveParamRef(System.Int32&)");
         }
 
         [Test]
         public void NetworkBehaviourCmdParamAbstract()
         {
-            Assert.That(weaverErrors, Contains.Item("AbstractClass can't be deserialized because it has no default constructor (at WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass)"));
+            HasError("Cannot generate writer for abstract class AbstractClass. Use a supported type or provide a custom writer",
+                "WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("AbstractClass can't be deserialized because it has no default constructor",
+            //    "WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass");
         }
 
         [Test]
         public void NetworkBehaviourCmdParamComponent()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type ComponentClass. Use a supported type or provide a custom writer (at WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass)"));
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamComponent has invalid parameter monkeyComp (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent::CmdCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass))"));
-            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for component type ComponentClass. Use a supported type or provide a custom reader (at WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass)"));
-            Assert.That(weaverErrors, Contains.Item("CmdCantHaveParamComponent has invalid parameter monkeyComp.  Unsupported type WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass,  use a supported Mirror type instead (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent::CmdCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass))"));
+            HasError("Cannot generate writer for component type ComponentClass. Use a supported type or provide a custom writer",
+                "WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass");
+            HasError("CmdCantHaveParamComponent has invalid parameter monkeyComp",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent::CmdCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass)");
+            HasError("Cannot generate reader for component type ComponentClass. Use a supported type or provide a custom reader",
+                "WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass");
+            HasError("CmdCantHaveParamComponent has invalid parameter monkeyComp.  Unsupported type WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass,  use a supported Mirror type instead",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent::CmdCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass)");
         }
 
         [Test]

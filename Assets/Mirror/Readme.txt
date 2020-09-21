@@ -4,7 +4,7 @@ and several MMO projects in development.
 *** IMPORTANT -- You must restart Unity after importing Mirror for the Components Menu to update! ***
 
 Requirements:
-  Unity 2018.3.6+
+  Unity 2018.4 LTS
   Runtime .Net 4.x (Project Settings > Player > Other Settings)
 
 Documentation:

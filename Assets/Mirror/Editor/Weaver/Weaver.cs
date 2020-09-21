@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -15,9 +14,6 @@ namespace Mirror.Weaver
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
 
-        // [SyncEvent] invoke functions that should be replaced. dict<originalEventName, replacement>
-        public Dictionary<string, MethodDefinition> replaceEvents = new Dictionary<string, MethodDefinition>();
-
         public List<MethodDefinition> generatedReadFunctions = new List<MethodDefinition>();
         public List<MethodDefinition> generatedWriteFunctions = new List<MethodDefinition>();
 
@@ -25,123 +21,17 @@ namespace Mirror.Weaver
 
         // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
+
+        public HashSet<string> ProcessedMessages = new HashSet<string>();
     }
 
     internal static class Weaver
     {
         public static string InvokeRpcPrefix => "InvokeUserCode_";
-        public static string SyncEventPrefix => "SendEventMessage_";
 
         public static WeaverLists WeaveLists { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }
-        public static ModuleDefinition CorLibModule { get; private set; }
-        public static AssemblyDefinition UnityAssembly { get; private set; }
-        public static AssemblyDefinition NetAssembly { get; private set; }
         public static bool WeavingFailed { get; private set; }
-
-        // Network types
-        public static TypeReference NetworkBehaviourType;
-        public static TypeReference RemoteCallHelperType;
-        public static TypeReference MonoBehaviourType;
-        public static TypeReference ScriptableObjectType;
-        public static TypeReference INetworkConnectionType;
-
-        public static TypeReference MessageBaseType;
-        public static TypeReference IMessageBaseType;
-        public static TypeReference SyncListType;
-        public static TypeReference SyncSetType;
-        public static TypeReference SyncDictionaryType;
-
-        public static MethodReference ScriptableObjectCreateInstanceMethod;
-
-        public static MethodReference NetworkBehaviourDirtyBitsReference;
-        public static MethodReference GetPooledWriterReference;
-        public static MethodReference RecycleWriterReference;
-        public static TypeReference NetworkClientType;
-        public static TypeReference NetworkServerType;
-
-        public static TypeReference NetworkReaderType;
-
-        public static TypeReference NetworkWriterType;
-        public static TypeReference PooledNetworkWriterType;
-
-        public static TypeReference NetworkIdentityType;
-        public static TypeReference IEnumeratorType;
-
-        public static MethodReference BehaviorConnectionToServerReference;
-
-        public static TypeReference ComponentType;
-        public static TypeReference ObjectType;
-
-        public static TypeReference CmdDelegateReference;
-        public static MethodReference CmdDelegateConstructor;
-
-        public static MethodReference NetworkServerGetActive;
-        public static MethodReference NetworkServerGetLocalClientActive;
-        public static MethodReference NetworkClientGetActive;
-
-        public static MethodReference NetworkBehaviourGetIdentity;
-        public static MethodReference NetworkIdentityGetServer;
-        public static MethodReference NetworkIdentityGetClient;
-
-        public static MethodReference NetworkBehaviourIsServer;
-        public static MethodReference NetworkBehaviourIsClient;
-        public static MethodReference NetworkBehaviourIsLocalClient;
-        public static MethodReference NetworkBehaviourHasAuthority;
-        public static MethodReference NetworkBehaviourIsLocalPlayer;
-
-        public static MethodReference MethodInvocationExceptionConstructor;
-
-        // custom attribute types
-        public static TypeReference SyncVarType;
-        public static TypeReference ServerRpcType;
-        public static TypeReference ClientRpcType;
-        public static TypeReference SyncEventType;
-        public static TypeReference SyncObjectType;
-        public static MethodReference InitSyncObjectReference;
-
-        // array segment
-        public static TypeReference ArraySegmentType;
-        public static MethodReference ArraySegmentConstructorReference;
-        public static MethodReference ArraySegmentArrayReference;
-        public static MethodReference ArraySegmentOffsetReference;
-        public static MethodReference ArraySegmentCountReference;
-
-        // system types
-        public static TypeReference voidType;
-        public static TypeReference singleType;
-        public static TypeReference doubleType;
-        public static TypeReference boolType;
-        public static TypeReference int64Type;
-        public static TypeReference uint64Type;
-        public static TypeReference int32Type;
-        public static TypeReference uint32Type;
-        public static TypeReference objectType;
-        public static TypeReference typeType;
-        public static TypeReference gameObjectType;
-        public static TypeReference transformType;
-
-        public static MethodReference syncVarEqualReference;
-        public static MethodReference syncVarNetworkIdentityEqualReference;
-        public static MethodReference syncVarGameObjectEqualReference;
-        public static MethodReference setSyncVarReference;
-        public static MethodReference setSyncVarHookGuard;
-        public static MethodReference getSyncVarHookGuard;
-        public static MethodReference setSyncVarGameObjectReference;
-        public static MethodReference getSyncVarGameObjectReference;
-        public static MethodReference setSyncVarNetworkIdentityReference;
-        public static MethodReference getSyncVarNetworkIdentityReference;
-        public static MethodReference registerServerRpcDelegateReference;
-        public static MethodReference registerRpcDelegateReference;
-        public static MethodReference registerEventDelegateReference;
-        public static MethodReference getTypeReference;
-        public static MethodReference getTypeFromHandleReference;
-        public static MethodReference logErrorReference;
-        public static MethodReference logWarningReference;
-        public static MethodReference sendServerRpcInternal;
-        public static MethodReference sendRpcInternal;
-        public static MethodReference sendTargetRpcInternal;
-        public static MethodReference sendEventInternal;
 
         public static void DLog(TypeDefinition td, string fmt, params object[] args)
         {
@@ -185,182 +75,26 @@ namespace Mirror.Weaver
             {
                 WeaveLists.generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
                         TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass,
-                        objectType);
+                        WeaverTypes.objectType);
 
                 const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-                var method = new MethodDefinition(".ctor", methodAttributes, voidType);
+                var method = new MethodDefinition(".ctor", methodAttributes, WeaverTypes.voidType);
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(objectType, CurrentAssembly, ".ctor")));
+                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(WeaverTypes.objectType, CurrentAssembly, ".ctor")));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
                 WeaveLists.generateContainerClass.Methods.Add(method);
             }
         }
 
-        static bool ProcessNetworkBehaviourType(TypeDefinition td)
-        {
-            if (!NetworkBehaviourProcessor.WasProcessed(td))
-            {                
-                var proc = new NetworkBehaviourProcessor(td);
-                proc.Process();
-                return true;
-            }
-            return false;
-        }
-
-        static void SetupUnityTypes()
-        {
-            gameObjectType = UnityAssembly.MainModule.GetType("UnityEngine.GameObject");
-            transformType = UnityAssembly.MainModule.GetType("UnityEngine.Transform");
-
-            NetworkClientType = NetAssembly.MainModule.GetType("Mirror.NetworkClient");
-            NetworkServerType = NetAssembly.MainModule.GetType("Mirror.NetworkServer");
-
-            SyncVarType = NetAssembly.MainModule.GetType("Mirror.SyncVarAttribute");
-            ServerRpcType = NetAssembly.MainModule.GetType("Mirror.ServerRpcAttribute");
-            ClientRpcType = NetAssembly.MainModule.GetType("Mirror.ClientRpcAttribute");
-            SyncEventType = NetAssembly.MainModule.GetType("Mirror.SyncEventAttribute");
-            SyncObjectType = NetAssembly.MainModule.GetType("Mirror.ISyncObject");
-        }
-
-        static void SetupCorLib()
-        {
-            var name = AssemblyNameReference.Parse("mscorlib");
-            var parameters = new ReaderParameters
-            {
-                AssemblyResolver = CurrentAssembly.MainModule.AssemblyResolver
-            };
-            CorLibModule = CurrentAssembly.MainModule.AssemblyResolver.Resolve(name, parameters).MainModule;
-        }
-
-        static TypeReference ImportCorLibType(string fullName)
-        {
-            TypeDefinition type = CorLibModule.GetType(fullName) ?? CorLibModule.ExportedTypes.First(t => t.FullName == fullName).Resolve();
-            if (type != null)
-            {
-                return CurrentAssembly.MainModule.ImportReference(type);
-            }
-            Error("Failed to import mscorlib type: " + fullName + " because Resolve failed. (Might happen when trying to Resolve in NetStandard dll, see also: https://github.com/vis2k/Mirror/issues/791)");
-            return null;
-        }
-
-        static void SetupTargetTypes()
-        {
-            // system types
-            SetupCorLib();
-            voidType = ImportCorLibType("System.Void");
-            singleType = ImportCorLibType("System.Single");
-            doubleType = ImportCorLibType("System.Double");
-            boolType = ImportCorLibType("System.Boolean");
-            int64Type = ImportCorLibType("System.Int64");
-            uint64Type = ImportCorLibType("System.UInt64");
-            int32Type = ImportCorLibType("System.Int32");
-            uint32Type = ImportCorLibType("System.UInt32");
-            objectType = ImportCorLibType("System.Object");
-            typeType = ImportCorLibType("System.Type");
-            IEnumeratorType = ImportCorLibType("System.Collections.IEnumerator");
-
-            ArraySegmentType = ImportCorLibType("System.ArraySegment`1");
-            ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, CurrentAssembly, "Array");
-            ArraySegmentCountReference = Resolvers.ResolveProperty(ArraySegmentType, CurrentAssembly, "Count");
-            ArraySegmentOffsetReference = Resolvers.ResolveProperty(ArraySegmentType, CurrentAssembly, "Offset");
-            ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, CurrentAssembly, ".ctor");
-
-            NetworkReaderType = NetAssembly.MainModule.GetType("Mirror.NetworkReader");
-            NetworkWriterType = NetAssembly.MainModule.GetType("Mirror.NetworkWriter");
-            TypeReference pooledNetworkWriterTmp = NetAssembly.MainModule.GetType("Mirror.PooledNetworkWriter");
-            PooledNetworkWriterType = CurrentAssembly.MainModule.ImportReference(pooledNetworkWriterTmp);
-
-            NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_Active");
-            NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_LocalClientActive");
-            NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, CurrentAssembly, "get_Active");
-
-            CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.RemoteCalls.CmdDelegate");
-            CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, CurrentAssembly, ".ctor");
-
-            CurrentAssembly.MainModule.ImportReference(gameObjectType);
-            CurrentAssembly.MainModule.ImportReference(transformType);
-
-            TypeReference networkIdentityTmp = NetAssembly.MainModule.GetType("Mirror.NetworkIdentity");
-            NetworkIdentityType = CurrentAssembly.MainModule.ImportReference(networkIdentityTmp);
-
-            NetworkBehaviourType = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
-            //NetworkBehaviourType2 = CurrentAssembly.MainModule.ImportReference(NetworkBehaviourType);
-            INetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.INetworkConnection");
-            INetworkConnectionType = CurrentAssembly.MainModule.ImportReference(INetworkConnectionType);
-
-            NetworkBehaviourGetIdentity = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_NetIdentity");
-            NetworkIdentityGetServer = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_Server");
-            NetworkIdentityGetClient = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_Client");
-
-            NetworkBehaviourIsServer = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsServer");
-            NetworkBehaviourIsClient = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsClient");
-            NetworkBehaviourIsLocalClient = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsLocalClient");
-            RemoteCallHelperType = NetAssembly.MainModule.GetType("Mirror.RemoteCalls.RemoteCallHelper");
-            NetworkBehaviourHasAuthority = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "HasAuthority");
-            NetworkBehaviourIsLocalPlayer = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "IsLocalPlayer");
-
-            MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
-            ScriptableObjectType = UnityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");
-
-            ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(
-                ScriptableObjectType, CurrentAssembly,
-                md => md.Name == "CreateInstance" && md.HasGenericParameters);
-
-            var MethodInvocationException = NetAssembly.MainModule.GetType("Mirror.MethodInvocationException");
-
-            MethodInvocationExceptionConstructor = Resolvers.ResolveMethodWithArg(MethodInvocationException, CurrentAssembly, ".ctor", "System.String");
-
-            MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
-            IMessageBaseType = NetAssembly.MainModule.GetType("Mirror.IMessageBase");
-            SyncListType = NetAssembly.MainModule.GetType("Mirror.SyncList`1");
-            SyncSetType = NetAssembly.MainModule.GetType("Mirror.SyncSet`1");
-            SyncDictionaryType = NetAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
-
-            NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "SyncVarDirtyBits");
-            TypeDefinition NetworkWriterPoolType = NetAssembly.MainModule.GetType("Mirror.NetworkWriterPool");
-            GetPooledWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, CurrentAssembly, "GetWriter");
-            RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, CurrentAssembly, "Recycle");
-
-            ComponentType = UnityAssembly.MainModule.GetType("UnityEngine.Component");
-            BehaviorConnectionToServerReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_ConnectionToServer");
-            ObjectType = UnityAssembly.MainModule.GetType("UnityEngine.Object");
-
-            syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarEqual");
-            syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarNetworkIdentityEqual");
-            syncVarGameObjectEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarGameObjectEqual");
-            setSyncVarReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SetSyncVar");
-            setSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SetSyncVarHookGuard");
-            getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "GetSyncVarHookGuard");
-
-            setSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SetSyncVarGameObject");
-            getSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "GetSyncVarGameObject");
-            setSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SetSyncVarNetworkIdentity");
-            getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "GetSyncVarNetworkIdentity");
-            registerServerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, CurrentAssembly, "RegisterServerRpcDelegate");
-            registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, CurrentAssembly, "RegisterRpcDelegate");
-            registerEventDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, CurrentAssembly, "RegisterEventDelegate");
-            getTypeReference = Resolvers.ResolveMethod(objectType, CurrentAssembly, "GetType");
-            getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, CurrentAssembly, "GetTypeFromHandle");
-            logErrorReference = Resolvers.ResolveMethod(UnityAssembly.MainModule.GetType("UnityEngine.Debug"), CurrentAssembly, "LogError");
-            logWarningReference = Resolvers.ResolveMethod(UnityAssembly.MainModule.GetType("UnityEngine.Debug"), CurrentAssembly, "LogWarning");
-            sendServerRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendServerRpcInternal");
-            sendRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendRPCInternal");
-            sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendTargetRPCInternal");
-            sendEventInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendEventInternal");
-
-            SyncObjectType = CurrentAssembly.MainModule.ImportReference(SyncObjectType);
-            InitSyncObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "InitSyncObject");
-        }
-
         public static bool IsNetworkBehaviour(TypeDefinition td)
         {
-            return td.IsDerivedFrom(NetworkBehaviourType);
+            return td.IsDerivedFrom(WeaverTypes.NetworkBehaviourType);
         }
 
         static void CheckMonoBehaviour(TypeDefinition td)
         {
-            if (td.IsDerivedFrom(MonoBehaviourType))
+            if (td.IsDerivedFrom(WeaverTypes.MonoBehaviourType))
             {
                 MonoBehaviourProcessor.Process(td);
             }
@@ -384,10 +118,11 @@ namespace Mirror.Weaver
             TypeDefinition parent = td;
             while (parent != null)
             {
-                if (parent.FullName == NetworkBehaviourType.FullName)
+                if (parent.FullName == WeaverTypes.NetworkBehaviourType.FullName)
                 {
                     break;
                 }
+
                 try
                 {
                     behaviourClasses.Insert(0, parent);
@@ -403,7 +138,7 @@ namespace Mirror.Weaver
             bool modified = false;
             foreach (TypeDefinition behaviour in behaviourClasses)
             {
-                modified |= ProcessNetworkBehaviourType(behaviour);
+                modified |= new NetworkBehaviourProcessor(behaviour).Process();
             }
             return modified;
         }
@@ -413,12 +148,15 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
+            // already processed
+            if (WeaveLists.ProcessedMessages.Contains(td.FullName))
+                return false;
+
             bool modified = false;
 
-            if (td.ImplementsInterface(IMessageBaseType))
+            if (td.ImplementsInterface(WeaverTypes.IMessageBaseType))
             {
                 // process this and base classes from parent to child order
-
                 try
                 {
                     TypeDefinition parent = td.BaseType.Resolve();
@@ -433,10 +171,12 @@ namespace Mirror.Weaver
 
                 // process this
                 MessageClassProcessor.Process(td);
+                WeaveLists.ProcessedMessages.Add(td.FullName);
                 modified = true;
             }
 
             // check for embedded types
+            // inner classes should be processed after outter class to avoid StackOverflowException
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
                 modified |= WeaveMessage(embedded);
@@ -463,17 +203,17 @@ namespace Mirror.Weaver
             // because we still need to check for embeded types
             if (td.IsClass || !td.IsAbstract)
             {
-                if (td.IsDerivedFrom(SyncListType))
+                if (td.IsDerivedFrom(WeaverTypes.SyncListType))
                 {
-                    SyncListProcessor.Process(td, SyncListType);
+                    SyncListProcessor.Process(td, WeaverTypes.SyncListType);
                     modified = true;
                 }
-                else if (td.IsDerivedFrom(SyncSetType))
+                else if (td.IsDerivedFrom(WeaverTypes.SyncSetType))
                 {
-                    SyncListProcessor.Process(td, SyncSetType);
+                    SyncListProcessor.Process(td, WeaverTypes.SyncSetType);
                     modified = true;
                 }
-                else if (td.IsDerivedFrom(SyncDictionaryType))
+                else if (td.IsDerivedFrom(WeaverTypes.SyncDictionaryType))
                 {
                     SyncDictionaryProcessor.Process(td);
                     modified = true;
@@ -489,7 +229,47 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool Weave(string assName, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
+        static bool WeaveModule(ModuleDefinition moduleDefinition)
+        {
+            try
+            {
+                bool modified = false;
+
+                // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                foreach (TypeDefinition td in moduleDefinition.Types)
+                {
+                    if (td.IsClass && td.BaseType.CanBeResolved())
+                    {
+                        modified |= WeaveSyncObject(td);
+                    }
+                }
+                watch.Stop();
+                Console.WriteLine("Weave sync objects took " + watch.ElapsedMilliseconds + " milliseconds");
+
+                watch.Start();
+                foreach (TypeDefinition td in moduleDefinition.Types)
+                {
+                    if (td.IsClass && td.BaseType.CanBeResolved())
+                    {
+                        modified |= WeaveNetworkBehavior(td);
+                        modified |= WeaveMessage(td);
+                        modified |= ServerClientAttributeProcessor.Process(td);
+                    }
+                }
+                watch.Stop();
+                Console.WriteLine("Weave behaviours and messages took" + watch.ElapsedMilliseconds + " milliseconds");
+
+                return modified;
+            }
+            catch (Exception ex)
+            {
+                Error(ex.ToString());
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        static bool Weave(string assName, AssemblyDefinition unityAssembly, AssemblyDefinition mirrorAssembly, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
         {
             using (var asmResolver = new DefaultAssemblyResolver())
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
@@ -506,9 +286,9 @@ namespace Mirror.Weaver
                     }
                 }
 
-                SetupTargetTypes();
+                WeaverTypes.SetupTargetTypes(unityAssembly, mirrorAssembly, CurrentAssembly);
                 var rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
-                ReaderWriterProcessor.ProcessReadersAndWriters(CurrentAssembly);
+                ReaderWriterProcessor.Process(CurrentAssembly);
                 rwstopwatch.Stop();
                 Console.WriteLine("Find all reader and writers took " + rwstopwatch.ElapsedMilliseconds + " milliseconds");
 
@@ -527,7 +307,7 @@ namespace Mirror.Weaver
                     // this must be done for ALL code, not just NetworkBehaviours
                     try
                     {
-                        PropertySiteProcessor.ProcessSitesModule(CurrentAssembly.MainModule);
+                        PropertySiteProcessor.Process(moduleDefinition);
                     }
                     catch (Exception e)
                     {
@@ -542,7 +322,7 @@ namespace Mirror.Weaver
 
                     // write to outputDir if specified, otherwise perform in-place write
                     var writeParams = new WriterParameters { WriteSymbols = true };
-                    if (outputDir != null)
+                    if (!string.IsNullOrEmpty(outputDir))
                     {
                         CurrentAssembly.Write(Helpers.DestinationFileFor(outputDir, assName), writeParams);
                     }
@@ -556,60 +336,21 @@ namespace Mirror.Weaver
             return true;
         }
 
-        static bool WeaveModule(ModuleDefinition moduleDefinition)
-        {
-            try
-            {
-                bool modified = false;
-
-                // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
-                System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
-                foreach (TypeDefinition td in moduleDefinition.Types)
-                {
-                    if (td.IsClass && td.BaseType.CanBeResolved())
-                    {
-                        modified |= WeaveSyncObject(td);
-                    }
-                }
-                watch.Stop();
-                Console.WriteLine("Weave sync objects took " + watch.ElapsedMilliseconds + " milliseconds");
-
-                watch.Start();
-                foreach (TypeDefinition td in moduleDefinition.Types)
-                {
-                    if (td.IsClass && td.BaseType.CanBeResolved())
-                    {
-                        modified |= WeaveNetworkBehavior(td);
-                        modified |= WeaveMessage(td);
-                    }
-                }
-                watch.Stop();
-                Console.WriteLine("Weave behaviours and messages took" + watch.ElapsedMilliseconds + " milliseconds");
-
-                return modified;
-            }
-            catch (Exception ex)
-            {
-                Error(ex.ToString());
-                throw;
-            }
-        }
-
-        public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
+        static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
 
-            using (UnityAssembly = AssemblyDefinition.ReadAssembly(unityEngineDLLPath))
-            using (NetAssembly = AssemblyDefinition.ReadAssembly(mirrorNetDLLPath))
+            using (var unityAssembly = AssemblyDefinition.ReadAssembly(unityEngineDLLPath))
+            using (var mirrorAssembly = AssemblyDefinition.ReadAssembly(mirrorNetDLLPath))
             {
-                SetupUnityTypes();
+                WeaverTypes.SetupUnityTypes(unityAssembly, mirrorAssembly);
 
                 try
                 {
-                    foreach (string ass in assemblies)
+                    foreach (string asm in assemblies)
                     {
-                        if (!Weave(ass, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
+                        if (!Weave(asm, unityAssembly, mirrorAssembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
                         {
                             return false;
                         }
@@ -622,6 +363,45 @@ namespace Mirror.Weaver
                 }
             }
             return true;
+        }
+
+
+        public static bool Process(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
+        {
+            Validate(unityEngine, netDLL, outputDirectory, assemblies);
+            Log.WarningMethod = printWarning;
+            Log.ErrorMethod = printError;
+            return WeaveAssemblies(assemblies, extraAssemblyPaths, outputDirectory, unityEngine, netDLL);
+        }
+
+        static void Validate(string unityEngine, string netDLL, string outputDirectory, string[] assemblies)
+        {
+            CheckDllPath(unityEngine);
+            CheckDllPath(netDLL);
+            CheckOutputDirectory(outputDirectory);
+            CheckAssemblies(assemblies);
+        }
+        static void CheckDllPath(string path)
+        {
+            if (!File.Exists(path))
+                throw new Exception("dll could not be located at " + path + "!");
+        }
+        static void CheckAssemblies(IEnumerable<string> assemblyPaths)
+        {
+            foreach (string assemblyPath in assemblyPaths)
+                CheckAssemblyPath(assemblyPath);
+        }
+        static void CheckAssemblyPath(string assemblyPath)
+        {
+            if (!File.Exists(assemblyPath))
+                throw new Exception("Assembly " + assemblyPath + " does not exist!");
+        }
+        static void CheckOutputDirectory(string outputDir)
+        {
+            if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
+            {
+                Directory.CreateDirectory(outputDir);
+            }
         }
     }
 }

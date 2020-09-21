@@ -1,7 +1,6 @@
-![Mirror Logo](https://i.imgur.com/ikP9eYs.png)
+![Mirror Logo](https://i.imgur.com/fDxMOOT.png)
 
 [![Documentation](https://img.shields.io/badge/documentation-brightgreen.svg)](https://mirrorng.github.io/MirrorNG/)
-[![Video Tutorial](https://img.shields.io/badge/video_tutorial-brightgreen.svg)](https://www.youtube.com/playlist?list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP)
 [![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
 [![release](https://img.shields.io/github/release/MirrorNG/MirrorNG.svg)](https://github.com/MirrorNG/MirrorNG/releases/latest)
@@ -19,14 +18,12 @@ MirrorNG is a **high level** Networking API for Unity.
 
 MirrorNG is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **MMO Scale** Networking by the developers of  [Cubica](https://cubica.net).
 
-MirrorNG is optimized for **ease of use** and **probability of success**. Projects that use MirrorNG are small, concise and maintainable.
+MirrorNG is optimized for **ease of use** and **probability of success**.
 
-With MirrorNG, the **Server & Client are ONE** project _(hence the name)_. Instead of having one code base for the server and one for the client, we simply use the same code for both of them.
-* `[Server]` / `[Client]` tags can be used for the server-only and client-only parts.
-* `[ServerRpc]`'s are used for Client->Server, and `[ClientRpc]`'s (with options) for Server->Client communication.
-* `[SyncVar]`'s and `SyncList`'s are used to automatically synchronize state.
+With MirrorNG the objects in the client are mirror images of the objects in the server.  MirrorNG takes provides all the tools necessary to keep them in sync and pass messages between them.
 
-What previously required **10.000** lines of code, now takes **1.000** lines of code. Therein lies the **magic of Mirror**.
+## Architecture
+The **Server & Client** are **ONE project** in order to achieve an order of magnitude gain in productivity.
 
 ## Why fork Mirror?
 I have worked on [Mirror](https://github.com/vis2k/Mirror) for over a year, I am the one that came up with the name and the second contributor. It has served me well and there are some really smart people working on it.

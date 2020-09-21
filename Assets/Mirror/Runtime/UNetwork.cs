@@ -16,8 +16,7 @@ namespace Mirror
     public enum MirrorInvokeType
     {
         ServerRpc,
-        ClientRpc,
-        SyncEvent
+        ClientRpc
     }
 
     public enum Version

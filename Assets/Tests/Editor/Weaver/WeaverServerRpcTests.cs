@@ -13,7 +13,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ServerRpcCantBeStatic()
         {
-            Assert.That(weaverErrors, Contains.Item("CmdCantBeStatic cannot be static (at System.Void WeaverServerRpcTests.ServerRpcCantBeStatic.ServerRpcCantBeStatic::CmdCantBeStatic())"));
+            Assert.That(weaverErrors, Contains.Item("CmdCantBeStatic must not be static (at System.Void WeaverServerRpcTests.ServerRpcCantBeStatic.ServerRpcCantBeStatic::CmdCantBeStatic())"));
         }
 
         [Test]

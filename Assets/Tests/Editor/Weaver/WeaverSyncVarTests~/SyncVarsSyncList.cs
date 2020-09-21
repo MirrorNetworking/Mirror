@@ -16,26 +16,10 @@ namespace WeaverSyncVarTests.SyncVarsSyncList
             public void Reset() { }
         }
 
-        [SyncVar(hook = nameof(OnChangeHealth))]
-        int health;
-
         [SyncVar]
         SyncObjImplementer syncobj;
 
         [SyncVar]
         SyncListInt syncints;
-
-        public void TakeDamage(int amount)
-        {
-            if (!IsServer)
-                return;
-
-            health -= amount;
-        }
-
-        void OnChangeHealth(int oldHealth, int newHealth)
-        {
-            // do things with your health bar
-        }
     }
 }

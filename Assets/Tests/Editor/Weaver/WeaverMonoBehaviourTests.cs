@@ -7,19 +7,21 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MonoBehaviourValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void MonoBehaviourSyncVar()
         {
-            Assert.That(weaverErrors, Contains.Item("SyncVar potato must be inside a NetworkBehaviour.  MonoBehaviourSyncVar is not a NetworkBehaviour (at System.Int32 WeaverMonoBehaviourTests.MonoBehaviourSyncVar.MonoBehaviourSyncVar::potato)"));
+            HasError("SyncVar potato must be inside a NetworkBehaviour.  MonoBehaviourSyncVar is not a NetworkBehaviour",
+                "System.Int32 WeaverMonoBehaviourTests.MonoBehaviourSyncVar.MonoBehaviourSyncVar::potato");
         }
 
         [Test]
         public void MonoBehaviourSyncList()
         {
-            Assert.That(weaverErrors, Contains.Item("potato is a SyncObject and must be inside a NetworkBehaviour.  MonoBehaviourSyncList is not a NetworkBehaviour (at Mirror.SyncListInt WeaverMonoBehaviourTests.MonoBehaviourSyncList.MonoBehaviourSyncList::potato)"));
+            HasError("potato is a SyncObject and must be inside a NetworkBehaviour.  MonoBehaviourSyncList is not a NetworkBehaviour",
+                "Mirror.SyncListInt WeaverMonoBehaviourTests.MonoBehaviourSyncList.MonoBehaviourSyncList::potato");
         }
 
         [Test]
@@ -31,13 +33,15 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void MonoBehaviourClientRpc()
         {
-            Assert.That(weaverErrors, Contains.Item("ClientRpc RpcThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourClientRpc.MonoBehaviourClientRpc::RpcThisCantBeOutsideNetworkBehaviour())"));
+            HasError("ClientRpc RpcThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour",
+                "System.Void WeaverMonoBehaviourTests.MonoBehaviourClientRpc.MonoBehaviourClientRpc::RpcThisCantBeOutsideNetworkBehaviour()");
         }
 
         [Test]
         public void MonoBehaviourServer()
         {
             Assert.That(weaverErrors, Contains.Item("Server method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourServer.MonoBehaviourServer::ThisCantBeOutsideNetworkBehaviour())"));
+            Assert.That(weaverErrors, Contains.Item("ServerAttribute method ThisCantBeOutsideNetworkBehaviour must be declared in a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourServer.MonoBehaviourServer::ThisCantBeOutsideNetworkBehaviour())"));
         }
 
         [Test]
@@ -50,6 +54,7 @@ namespace Mirror.Weaver.Tests
         public void MonoBehaviourClient()
         {
             Assert.That(weaverErrors, Contains.Item("Client method ThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourClient.MonoBehaviourClient::ThisCantBeOutsideNetworkBehaviour())"));
+            Assert.That(weaverErrors, Contains.Item("ClientAttribute method ThisCantBeOutsideNetworkBehaviour must be declared in a NetworkBehaviour (at System.Void WeaverMonoBehaviourTests.MonoBehaviourClient.MonoBehaviourClient::ThisCantBeOutsideNetworkBehaviour())"));
         }
 
         [Test]

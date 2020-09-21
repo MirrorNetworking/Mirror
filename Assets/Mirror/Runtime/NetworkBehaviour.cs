@@ -148,10 +148,11 @@ namespace Mirror
                 if (((object)netIdentityCache) == null)
                 {
                     netIdentityCache = GetComponent<NetworkIdentity>();
-                }
-                if (((object)netIdentityCache) == null)
-                {
-                    logger.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
+                    // do this 2nd check inside first if so that we are not checking == twice on unity Object
+                    if (netIdentityCache == null)
+                    {
+                        logger.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
+                    }
                 }
                 return netIdentityCache;
             }
@@ -196,7 +197,7 @@ namespace Mirror
             //       to avoid Wrapper functions. a lot of people requested this.
             if (!Client.Active)
             {
-                throw new InvalidOperationException("ServerRpc Function " + cmdName + " called on server without an active client.");
+                throw new InvalidOperationException($"ServerRpc Function {cmdName} called on server without an active client.");
             }
 
             // local players can always send ServerRpcs, regardless of authority, other objects must have authority.
@@ -316,43 +317,6 @@ namespace Mirror
         public virtual bool InvokeRpc(int rpcHash, NetworkReader reader)
         {
             return RemoteCallHelper.InvokeHandlerDelegate(rpcHash, MirrorInvokeType.ClientRpc, reader, this);
-        }
-        #endregion
-
-        #region Sync Events
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
-        {
-            if (!Server.Active)
-            {
-                logger.LogWarning("SendEvent no server?");
-                return;
-            }
-
-            // construct the message
-            var message = new SyncEventMessage
-            {
-                netId = NetId,
-                componentIndex = ComponentIndex,
-                // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = RemoteCallHelper.GetMethodHash(invokeClass, eventName),
-                // segment to avoid reader allocations
-                payload = writer.ToArraySegment()
-            };
-
-            Server.SendToReady(NetIdentity, message, channelId);
-        }
-
-        /// <summary>
-        /// Manually invoke a SyncEvent.
-        /// </summary>
-        /// <param name="eventHash">Hash of the SyncEvent name.</param>
-        /// <param name="reader">Parameters to pass to the SyncEvent.</param>
-        /// <returns>Returns true if successful.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeSyncEvent(int eventHash, NetworkReader reader)
-        {
-             return RemoteCallHelper.InvokeHandlerDelegate(eventHash, MirrorInvokeType.SyncEvent, reader, this);
         }
         #endregion
 
@@ -552,7 +516,7 @@ namespace Mirror
             return false;
         }
 
-        internal bool IsDirty()
+        public bool IsDirty()
         {
             if (Time.time - lastSyncTime >= syncInterval)
             {

@@ -78,18 +78,15 @@ namespace Mirror.Weaver
             {
                 string parentName = parent.FullName;
 
-                // strip generic parameters
-                int index = parentName.IndexOf('<');
-                if (index != -1)
-                {
-                    parentName = parentName.Substring(0, index);
-                }
+                // strip generic <T> parameters from class name (if any)
+                parentName = Extensions.StripGenericParametersFromClassName(parentName);
 
                 if (parentName == baseType.FullName)
                 {
                     found = parent as GenericInstanceType;
                     break;
                 }
+
                 try
                 {
                     stack.Push(parent);
