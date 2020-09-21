@@ -8,13 +8,15 @@ namespace Mirror.Experimental
     {
         [Header("Settings")]
         [SerializeField] internal Rigidbody target;
+
         [Tooltip("How quickly current velocity approaches target velocity")]
-        [SerializeField] float lerpVelocityAmount = 0.5f;
+        public float lerpVelocityAmount = 0.5f;
+
         [Tooltip("How quickly current position approaches target position")]
-        [SerializeField] float lerpPositionAmount = 0.5f;
+        public float lerpPositionAmount = 0.5f;
 
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        [SerializeField] bool clientAuthority;
+        public bool clientAuthority;
 
         float nextSyncTime;
 
