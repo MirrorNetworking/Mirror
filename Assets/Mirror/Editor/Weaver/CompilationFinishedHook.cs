@@ -144,8 +144,10 @@ namespace Mirror.Weaver
             HashSet<string> dependencyPaths = GetDependecyPaths(assemblyPath);
             dependencyPaths.Add(Path.GetDirectoryName(mirrorRuntimeDll));
             dependencyPaths.Add(Path.GetDirectoryName(unityEngineCoreModuleDLL));
+            Log.WarningMethod = HandleWarning;
+            Log.ErrorMethod = HandleError;
 
-            if (Weaver.Process(assemblyPath, dependencyPaths.ToArray(), HandleWarning, HandleError))
+            if (Weaver.WeaveAssembly(assemblyPath, dependencyPaths.ToArray()))
             {
                 // NOTE: WeaveFailed is critical for unit tests but isn't used elsewhere
                 WeaveFailed = false;

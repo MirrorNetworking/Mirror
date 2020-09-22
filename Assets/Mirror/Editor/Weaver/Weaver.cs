@@ -323,7 +323,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies)
+        public static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies)
         {
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
@@ -339,12 +339,5 @@ namespace Mirror.Weaver
             }
         }
 
-
-        public static bool Process(string assembly, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
-        {
-            Log.WarningMethod = printWarning;
-            Log.ErrorMethod = printError;
-            return WeaveAssembly(assembly, extraAssemblyPaths);
-        }
     }
 }
