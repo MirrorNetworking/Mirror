@@ -46,7 +46,7 @@ namespace Mirror.Weaver
 
         static bool InjectGuard<TAttribute>(MethodDefinition md, MethodReference predicate, string message)
         {
-            var attribute = md.GetCustomAttribute<TAttribute>();
+            CustomAttribute attribute = md.GetCustomAttribute<TAttribute>();
             if (attribute == null)
                 return false;
 
