@@ -458,7 +458,8 @@ namespace Mirror.Weaver
             // else not null
             worker.Append(labelNull);
 
-            MethodReference countref = WeaverTypes.ListCountReference.MakeHostInstanceGeneric(genericInstance);
+            MethodReference genericCountRef = WeaverTypes.ImportGet(typeof(List<>), nameof(List<object>.Count));
+            MethodReference countref = genericCountRef.MakeHostInstanceGeneric(genericInstance);
 
             // int count = value.Count;
             worker.Append(worker.Create(OpCodes.Ldarg_1));
@@ -485,7 +486,8 @@ namespace Mirror.Weaver
             Instruction labelBody = worker.Create(OpCodes.Nop);
             worker.Append(labelBody);
 
-            MethodReference getItem = WeaverTypes.ListGetItemReference.MakeHostInstanceGeneric(genericInstance);
+            MethodReference genericGetItemRef = WeaverTypes.Import(typeof(List<>), "get_Item");
+            MethodReference getItem = genericGetItemRef.MakeHostInstanceGeneric(genericInstance);
 
             // writer.Write(value[i]);
             worker.Append(worker.Create(OpCodes.Ldarg_0)); // writer
