@@ -14,7 +14,7 @@ namespace Mirror.Weaver
         public static void Process(TypeDefinition td)
         {
             var resolver = new GenericArgumentResolver(2);
-            var syncDictionaryType = WeaverTypes.Import(typeof(SyncDictionary<,>));
+            TypeReference syncDictionaryType = WeaverTypes.Import(typeof(SyncDictionary<,>));
             TypeReference keyType = resolver.GetGenericFromBaseClass(td, 0, syncDictionaryType);
             if (keyType != null)
             {
