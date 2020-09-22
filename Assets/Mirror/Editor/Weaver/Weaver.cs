@@ -349,10 +349,7 @@ namespace Mirror.Weaver
 
                 try
                 {
-                    if (!Weave(assembly, unityAssembly, mirrorAssembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath))
-                    {
-                        return false;
-                    }
+                    return Weave(assembly, unityAssembly, mirrorAssembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath);
                 }
                 catch (Exception e)
                 {
@@ -360,7 +357,6 @@ namespace Mirror.Weaver
                     return false;
                 }
             }
-            return true;
         }
 
         public static bool Process(string unityEngine, string netDLL, string assembly, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
