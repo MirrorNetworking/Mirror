@@ -268,6 +268,10 @@ namespace Mirror.Weaver
                 watch.Stop();
                 Console.WriteLine("Weave behaviours and messages took" + watch.ElapsedMilliseconds + " milliseconds");
 
+
+                if (modified)
+                    PropertySiteProcessor.Process(moduleDefinition);
+
                 return modified;
             }
             catch (Exception ex)
@@ -312,22 +316,6 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    // this must be done for ALL code, not just NetworkBehaviours
-                    try
-                    {
-                        PropertySiteProcessor.Process(moduleDefinition);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error("ProcessPropertySites exception: " + e);
-                        return false;
-                    }
-
-                    if (WeavingFailed)
-                    {
-                        return false;
-                    }
-
                     // write to outputDir if specified, otherwise perform in-place write
                     WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
                     CurrentAssembly.Write(writeParams);
