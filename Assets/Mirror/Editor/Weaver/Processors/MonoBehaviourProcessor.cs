@@ -33,23 +33,12 @@ namespace Mirror.Weaver
             // find command and RPC functions
             foreach (MethodDefinition md in td.Methods)
             {
-                foreach (CustomAttribute ca in md.CustomAttributes)
-                {
-                    if (ca.AttributeType.Is<CommandAttribute>())
-                    {
-                        Weaver.Error($"Command {md.Name} must be declared inside a NetworkBehaviour", md);
-                    }
-
-                    if (ca.AttributeType.Is<ClientRpcAttribute>())
-                    {
-                        Weaver.Error($"ClientRpc {md.Name} must be declared inside a NetworkBehaviour", md);
-                    }
-
-                    if (ca.AttributeType.Is<TargetRpcAttribute>())
-                    {
-                        Weaver.Error($"TargetRpc {md.Name} must be declared inside a NetworkBehaviour", md);
-                    }
-                }
+                if (md.HasCustomAttribute<CommandAttribute>())
+                    Weaver.Error($"Command {md.Name} must be declared inside a NetworkBehaviour", md);
+                if (md.HasCustomAttribute<ClientRpcAttribute>())
+                    Weaver.Error($"ClientRpc {md.Name} must be declared inside a NetworkBehaviour", md);
+                if (md.HasCustomAttribute<TargetRpcAttribute>())
+                    Weaver.Error($"TargetRpc {md.Name} must be declared inside a NetworkBehaviour", md);
             }
         }
     }
