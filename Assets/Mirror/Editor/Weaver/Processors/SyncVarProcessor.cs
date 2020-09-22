@@ -70,7 +70,7 @@ namespace Mirror.Weaver
                    method.Parameters[1].ParameterType.FullName == syncVar.FieldType.FullName;
         }
 
-        public static MethodDefinition ProcessSyncVarGet(FieldDefinition fd, string originalName, FieldDefinition netFieldId)
+        public static MethodDefinition GenerateSyncVarGetter(FieldDefinition fd, string originalName, FieldDefinition netFieldId)
         {
             //Create the get method
             var get = new MethodDefinition(
@@ -123,7 +123,7 @@ namespace Mirror.Weaver
             return get;
         }
 
-        public static MethodDefinition ProcessSyncVarSet(FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
+        public static MethodDefinition GenerateSyncVarSetter(FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
         {
             //Create the set method
             var set = new MethodDefinition("set_Network" + originalName, MethodAttributes.Public |
@@ -279,8 +279,8 @@ namespace Mirror.Weaver
                 syncVarNetIds[fd] = netIdField;
             }
 
-            MethodDefinition get = ProcessSyncVarGet(fd, originalName, netIdField);
-            MethodDefinition set = ProcessSyncVarSet(fd, originalName, dirtyBit, netIdField);
+            MethodDefinition get = GenerateSyncVarGetter(fd, originalName, netIdField);
+            MethodDefinition set = GenerateSyncVarSetter(fd, originalName, dirtyBit, netIdField);
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property

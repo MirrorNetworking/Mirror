@@ -87,11 +87,6 @@ namespace Mirror.Weaver
             }
         }
 
-        public static bool IsNetworkBehaviour(TypeDefinition td)
-        {
-            return td.IsDerivedFrom<NetworkBehaviour>();
-        }
-
         static void CheckMonoBehaviour(TypeDefinition td)
         {
             if (td.IsDerivedFrom<UnityEngine.MonoBehaviour>())
@@ -105,7 +100,7 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
-            if (!IsNetworkBehaviour(td))
+            if (!td.IsDerivedFrom<NetworkBehaviour>())
             {
                 CheckMonoBehaviour(td);
                 return false;
@@ -260,6 +255,10 @@ namespace Mirror.Weaver
                 watch.Stop();
                 Console.WriteLine("Weave behaviours and messages took" + watch.ElapsedMilliseconds + " milliseconds");
 
+
+                if (modified)
+                    PropertySiteProcessor.Process(moduleDefinition);
+
                 return modified;
             }
             catch (Exception ex)
@@ -269,15 +268,13 @@ namespace Mirror.Weaver
             }
         }
 
-        static bool Weave(string assName, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
+        static bool Weave(string assName, IEnumerable<string> dependencies)
         {
             using (var asmResolver = new DefaultAssemblyResolver())
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
             {
                 asmResolver.AddSearchDirectory(Path.GetDirectoryName(assName));
                 asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
-                asmResolver.AddSearchDirectory(Path.GetDirectoryName(unityEngineDLLPath));
-                asmResolver.AddSearchDirectory(Path.GetDirectoryName(mirrorNetDLLPath));
                 if (dependencies != null)
                 {
                     foreach (string path in dependencies)
@@ -290,10 +287,10 @@ namespace Mirror.Weaver
                 var rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 ReaderWriterProcessor.Process(CurrentAssembly);
                 rwstopwatch.Stop();
-                Console.WriteLine("Find all reader and writers took " + rwstopwatch.ElapsedMilliseconds + " milliseconds");
+                Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
 
                 ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
-                Console.WriteLine("Script Module: {0}", moduleDefinition.Name);
+                Console.WriteLine($"Script Module: {moduleDefinition.Name}");
 
                 bool modified = WeaveModule(moduleDefinition);
 
@@ -304,98 +301,30 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    // this must be done for ALL code, not just NetworkBehaviours
-                    try
-                    {
-                        PropertySiteProcessor.Process(moduleDefinition);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error("ProcessPropertySites exception: " + e);
-                        return false;
-                    }
-
-                    if (WeavingFailed)
-                    {
-                        return false;
-                    }
-
                     // write to outputDir if specified, otherwise perform in-place write
                     var writeParams = new WriterParameters { WriteSymbols = true };
-                    if (!string.IsNullOrEmpty(outputDir))
-                    {
-                        CurrentAssembly.Write(Helpers.DestinationFileFor(outputDir, assName), writeParams);
-                    }
-                    else
-                    {
-                        CurrentAssembly.Write(writeParams);
-                    }
+                    CurrentAssembly.Write(writeParams);
                 }
             }
 
             return true;
         }
 
-        static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
+        public static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies)
         {
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
 
             try
             {
-                foreach (string asm in assemblies)
-                {
-                    if (!Weave(asm, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
-                    {
-                        return false;
-                    }
-                }
+                return Weave(assembly, dependencies);
             }
             catch (Exception e)
             {
                 Log.Error("Exception :" + e);
                 return false;
             }
-            return true;
         }
 
-
-        public static bool Process(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
-        {
-            Validate(unityEngine, netDLL, outputDirectory, assemblies);
-            Log.WarningMethod = printWarning;
-            Log.ErrorMethod = printError;
-            return WeaveAssemblies(assemblies, extraAssemblyPaths, outputDirectory, unityEngine, netDLL);
-        }
-
-        static void Validate(string unityEngine, string netDLL, string outputDirectory, string[] assemblies)
-        {
-            CheckDllPath(unityEngine);
-            CheckDllPath(netDLL);
-            CheckOutputDirectory(outputDirectory);
-            CheckAssemblies(assemblies);
-        }
-        static void CheckDllPath(string path)
-        {
-            if (!File.Exists(path))
-                throw new Exception("dll could not be located at " + path + "!");
-        }
-        static void CheckAssemblies(IEnumerable<string> assemblyPaths)
-        {
-            foreach (string assemblyPath in assemblyPaths)
-                CheckAssemblyPath(assemblyPath);
-        }
-        static void CheckAssemblyPath(string assemblyPath)
-        {
-            if (!File.Exists(assemblyPath))
-                throw new Exception("Assembly " + assemblyPath + " does not exist!");
-        }
-        static void CheckOutputDirectory(string outputDir)
-        {
-            if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
-            {
-                Directory.CreateDirectory(outputDir);
-            }
-        }
     }
 }
