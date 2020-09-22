@@ -477,7 +477,8 @@ namespace Mirror.Weaver
             }
             else if (td.IsDerivedFrom<UnityEngine.ScriptableObject>())
             {
-                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(WeaverTypes.ScriptableObjectCreateInstanceMethod);
+                MethodReference createInstanceMethod = WeaverTypes.Import<ScriptableObject>(nameof(ScriptableObject.CreateInstance));
+                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(createInstanceMethod);
                 genericInstanceMethod.GenericArguments.Add(variable);
                 worker.Append(worker.Create(OpCodes.Call, genericInstanceMethod));
                 worker.Append(worker.Create(OpCodes.Stloc_0));

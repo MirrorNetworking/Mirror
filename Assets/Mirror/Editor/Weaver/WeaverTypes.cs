@@ -6,8 +6,6 @@ namespace Mirror.Weaver
 {
     public static class WeaverTypes
     {
-        public static MethodReference ScriptableObjectCreateInstanceMethod;
-
         public static MethodReference NetworkBehaviourDirtyBitsReference;
         public static MethodReference GetPooledWriterReference;
         public static MethodReference RecycleWriterReference;
@@ -67,12 +65,6 @@ namespace Mirror.Weaver
             CmdDelegateConstructor = Resolvers.ResolveMethod(cmdDelegateReference, currentAssembly, ".ctor");
 
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
-
-            TypeReference ScriptableObjectType = Import<UnityEngine.ScriptableObject>();
-
-            ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(
-                ScriptableObjectType, currentAssembly,
-                md => md.Name == "CreateInstance" && md.HasGenericParameters);
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "syncVarDirtyBits");
             TypeReference NetworkWriterPoolType = Import(typeof(NetworkWriterPool));
