@@ -28,80 +28,40 @@ namespace Mirror.Weaver
                 md.Name.StartsWith(Weaver.InvokeRpcPrefix))
                 return false;
 
-            if (md.IsAbstract)
-            {
-                if (HasServerClientAttribute(md))
-                {
-                    Weaver.Error("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.", md);
-                }
-                return false;
-            }
-
-            if (md.Body != null && md.Body.Instructions != null)
-            {
-                return ProcessMethodAttributes(md);
-            }
-            return false;
-        }
-
-        public static bool HasServerClientAttribute(MethodDefinition md)
-        {
-            foreach (CustomAttribute attr in md.CustomAttributes)
-            {
-                switch (attr.Constructor.DeclaringType.ToString())
-                {
-                    case "Mirror.ServerAttribute":
-                    case "Mirror.ClientAttribute":
-                    case "Mirror.HasAuthorityAttribute":
-                    case "Mirror.LocalPlayerAttribute":
-                        return true;
-                    default:
-                        break;
-                }
-            }
-            return false;
+            return ProcessMethodAttributes(md);
         }
 
         static bool ProcessMethodAttributes(MethodDefinition md)
         {
-            bool modified = false;
-            foreach (CustomAttribute attr in md.CustomAttributes)
-            {
-                switch (attr.Constructor.DeclaringType.ToString())
-                {
-                    case "Mirror.ServerAttribute":
-                        InjectGuard(md, attr, WeaverTypes.NetworkBehaviourIsServer, "[Server] function '" + md.FullName + "' called on client");
-                        modified = true;
-                        break;
-                    case "Mirror.ClientAttribute":
-                        InjectGuard(md, attr, WeaverTypes.NetworkBehaviourIsClient, "[Client] function '" + md.FullName + "' called on server");
-                        modified = true;
-                        break;
-                    case "Mirror.HasAuthorityAttribute":
-                        InjectGuard(md, attr, WeaverTypes.NetworkBehaviourHasAuthority, "[Has Authority] function '" + md.FullName + "' called on player without authority");
-                        modified = true;
-                        break;
-                    case "Mirror.LocalPlayerAttribute":
-                        InjectGuard(md, attr, WeaverTypes.NetworkBehaviourIsLocalPlayer, "[Local Player] function '" + md.FullName + "' called on nonlocal player");
-                        modified = true;
-                        break;
-                    default:
-                        break;
-                }
-                return modified;
-            }
+            bool modified = InjectGuard<ServerAttribute>(md, WeaverTypes.NetworkBehaviourIsServer, "[Server] function '" + md.FullName + "' called on client");
+
+            modified |= InjectGuard<ClientAttribute>(md, WeaverTypes.NetworkBehaviourIsClient, "[Client] function '" + md.FullName + "' called on server");
+
+            modified |= InjectGuard<HasAuthorityAttribute>(md, WeaverTypes.NetworkBehaviourHasAuthority, "[Has Authority] function '" + md.FullName + "' called on player without authority");
+
+            modified |= InjectGuard<LocalPlayerAttribute>(md, WeaverTypes.NetworkBehaviourIsLocalPlayer, "[Local Player] function '" + md.FullName + "' called on nonlocal player");
 
             return modified;
         }
 
-        static void InjectGuard(MethodDefinition md, CustomAttribute attribute, MethodReference predicate, string message)
+        static bool InjectGuard<TAttribute>(MethodDefinition md, MethodReference predicate, string message)
         {
+            var attribute = md.GetCustomAttribute<TAttribute>();
+            if (attribute == null)
+                return false;
+
+            if (md.IsAbstract)
+            {
+                Weaver.Error($" {typeof(TAttribute)} can't be applied to abstract method. Apply to override methods instead.", md);
+                return false;
+            }
+
             bool throwError = attribute.GetField("error", true);
 
             if (!Weaver.IsNetworkBehaviour(md.DeclaringType))
             {
                 Weaver.Error($"{attribute.AttributeType.Name} method {md.Name} must be declared in a NetworkBehaviour", md);
-                return;
+                return true;
             }
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
@@ -118,6 +78,7 @@ namespace Mirror.Weaver
             InjectGuardParameters(md, worker, top);
             InjectGuardReturnValue(md, worker, top);
             worker.InsertBefore(top, worker.Create(OpCodes.Ret));
+            return true;
         }
 
         // this is required to early-out from a function with "ref" or "out" parameters

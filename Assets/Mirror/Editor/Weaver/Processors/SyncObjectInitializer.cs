@@ -61,7 +61,7 @@ namespace Mirror.Weaver
                     return false;
                 }
 
-                return typeRef.Resolve().ImplementsInterface<Mirror.ISyncObject>();
+                return typeRef.Resolve().ImplementsInterface<ISyncObject>();
             }
             catch
             {
