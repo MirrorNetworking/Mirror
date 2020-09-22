@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 using Mono.CecilX.Rocks;
+using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -305,7 +307,11 @@ namespace Mirror.Weaver
 
             // return new ArraySegment<T>(array);
             worker.Append(worker.Create(OpCodes.Ldloc_1));
-            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance)));
+
+            // import the constructor that receives 1 parameter
+            var constructor = typeof(System.ArraySegment<>).GetConstructors().First(c => c.GetParameters().Length == 1);
+            MethodReference constructorRef = WeaverTypes.Import(constructor);
+            worker.Append(worker.Create(OpCodes.Newobj, constructorRef.MakeHostInstanceGeneric(genericInstance)));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
         }

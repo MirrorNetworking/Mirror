@@ -342,8 +342,8 @@ namespace Mirror.Weaver
             writerFunc.Body.InitLocals = true;
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
-
-            MethodReference countref = WeaverTypes.ArraySegmentCountReference.MakeHostInstanceGeneric(genericInstance);
+            MethodReference countGetterRef = WeaverTypes.ImportGet(typeof(System.ArraySegment<>), nameof(System.ArraySegment<object>.Count));
+            MethodReference countref = countGetterRef.MakeHostInstanceGeneric(genericInstance);
 
             // int length = value.Count;
             worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
@@ -374,10 +374,12 @@ namespace Mirror.Weaver
             // writer.Write(value.Array[i + value.Offset]);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.ArraySegmentArrayReference.MakeHostInstanceGeneric(genericInstance)));
+            MethodReference arrayGetterRef = WeaverTypes.ImportGet(typeof(System.ArraySegment<>), nameof(System.ArraySegment<object>.Array));
+            worker.Append(worker.Create(OpCodes.Call, arrayGetterRef.MakeHostInstanceGeneric(genericInstance)));
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.ArraySegmentOffsetReference.MakeHostInstanceGeneric(genericInstance)));
+            MethodReference offsetGetterRef = WeaverTypes.ImportGet(typeof(System.ArraySegment<>), nameof(System.ArraySegment<object>.Offset));
+            worker.Append(worker.Create(OpCodes.Call, offsetGetterRef.MakeHostInstanceGeneric(genericInstance)));
             worker.Append(worker.Create(OpCodes.Add));
             worker.Append(worker.Create(OpCodes.Ldelema, elementType));
             worker.Append(worker.Create(OpCodes.Ldobj, elementType));

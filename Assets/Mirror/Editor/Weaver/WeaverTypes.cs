@@ -23,12 +23,6 @@ namespace Mirror.Weaver
         // custom attribute types
         public static MethodReference InitSyncObjectReference;
 
-        // array segment
-        public static MethodReference ArraySegmentConstructorReference;
-        public static MethodReference ArraySegmentArrayReference;
-        public static MethodReference ArraySegmentOffsetReference;
-        public static MethodReference ArraySegmentCountReference;
-
         // list
         public static MethodReference ListConstructorReference;
         public static MethodReference ListCountReference;
@@ -62,17 +56,13 @@ namespace Mirror.Weaver
         public static MethodReference Import(MethodBase method) => currentAssembly.MainModule.ImportReference(method);
         public static MethodReference Import(Type t, string method) => Import(t.GetMethod(method));
         public static MethodReference Import<A>(string method) => Import(typeof(A), method);
+        public static MethodReference ImportGet(Type t, string property) => Import(t.GetProperty(property).GetGetMethod());
+        public static MethodReference ImportConstructor(Type t, params Type[] args) => Import(t.GetConstructor(args));
 
         public static void SetupTargetTypes(AssemblyDefinition currentAssembly)
         {
             // system types
             WeaverTypes.currentAssembly = currentAssembly;
-
-            TypeReference ArraySegmentType = Import(typeof(ArraySegment<>));
-            ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Array");
-            ArraySegmentCountReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Count");
-            ArraySegmentOffsetReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Offset");
-            ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, currentAssembly, ".ctor");
 
             TypeReference ListType = Import(typeof(System.Collections.Generic.List<>));
             ListCountReference = Resolvers.ResolveProperty(ListType, currentAssembly, "Count");
