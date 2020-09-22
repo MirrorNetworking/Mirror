@@ -34,28 +34,14 @@ namespace Mirror.Weaver
             // find ServerRpc and RPC functions
             foreach (MethodDefinition md in td.Methods)
             {
-                foreach (CustomAttribute ca in md.CustomAttributes)
-                {
-                    if (ca.AttributeType.Is<ServerRpcAttribute>())
-                    {
-                        Weaver.Error($"ServerRpc {md.Name} must be declared inside a NetworkBehaviour", md);
-                    }
-
-                    if (ca.AttributeType.Is<ClientRpcAttribute>())
-                    {
-                        Weaver.Error($"ClientRpc {md.Name} must be declared inside a NetworkBehaviour", md);
-                    }
-
-                    if (ca.AttributeType.Is<ClientAttribute>())
-                    {
-                        Weaver.Error($"Client method {md.Name} must be declared inside a NetworkBehaviour", md);                        
-                    }
-
-                    if (ca.AttributeType.Is<ServerAttribute>())
-                    {
-                        Weaver.Error($"Server method {md.Name} must be declared inside a NetworkBehaviour", md);
-                    }
-                }
+                if (md.HasCustomAttribute<ServerRpcAttribute>())
+                    Weaver.Error($"ServerRpc {md.Name} must be declared inside a NetworkBehaviour", md);
+                if (md.HasCustomAttribute<ClientRpcAttribute>())
+                    Weaver.Error($"ClientRpc {md.Name} must be declared inside a NetworkBehaviour", md);
+                if (md.HasCustomAttribute<ClientAttribute>())
+                    Weaver.Error($"Client method {md.Name} must be declared inside a NetworkBehaviour", md);                        
+                if (md.HasCustomAttribute<ServerAttribute>())
+                    Weaver.Error($"Server method {md.Name} must be declared inside a NetworkBehaviour", md);
             }
         }
     }

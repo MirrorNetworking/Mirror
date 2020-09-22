@@ -58,7 +58,7 @@ namespace Mirror.Weaver
 
             bool throwError = attribute.GetField("error", true);
 
-            if (!Weaver.IsNetworkBehaviour(md.DeclaringType))
+            if (!md.DeclaringType.IsDerivedFrom<NetworkBehaviour>())
             {
                 Weaver.Error($"{attribute.AttributeType.Name} method {md.Name} must be declared in a NetworkBehaviour", md);
                 return true;
