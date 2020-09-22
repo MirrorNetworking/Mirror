@@ -365,28 +365,9 @@ namespace Mirror.Weaver
 
         public static bool Process(string unityEngine, string netDLL, string assembly, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
         {
-            Validate(unityEngine, netDLL, assembly);
             Log.Warning = printWarning;
             Log.Error = printError;
             return WeaveAssembly(assembly, extraAssemblyPaths, unityEngine, netDLL);
-        }
-
-        static void Validate(string unityEngine, string netDLL, string assembly)
-        {
-            CheckDllPath(unityEngine);
-            CheckDllPath(netDLL);
-            CheckAssemblyPath(assembly);
-        }
-        static void CheckDllPath(string path)
-        {
-            if (!File.Exists(path))
-                throw new Exception("dll could not be located at " + path + "!");
-        }
-        // TODO reuse CheckDllPath instead?
-        static void CheckAssemblyPath(string assemblyPath)
-        {
-            if (!File.Exists(assemblyPath))
-                throw new Exception("Assembly " + assemblyPath + " does not exist!");
         }
     }
 }
