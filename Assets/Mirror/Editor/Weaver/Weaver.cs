@@ -75,12 +75,12 @@ namespace Mirror.Weaver
             {
                 WeaveLists.generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
                         TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass,
-                        WeaverTypes.Import<System.Object>());
+                        WeaverTypes.Import<object>());
 
                 const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
                 var method = new MethodDefinition(".ctor", methodAttributes, WeaverTypes.Import(typeof(void)));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(WeaverTypes.Import<System.Object>(), CurrentAssembly, ".ctor")));
+                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(WeaverTypes.Import<object>(), CurrentAssembly, ".ctor")));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
                 WeaveLists.generateContainerClass.Methods.Add(method);
@@ -89,7 +89,7 @@ namespace Mirror.Weaver
 
         public static bool IsNetworkBehaviour(TypeDefinition td)
         {
-            return td.IsDerivedFrom<Mirror.NetworkBehaviour>();
+            return td.IsDerivedFrom<NetworkBehaviour>();
         }
 
         static void CheckMonoBehaviour(TypeDefinition td)
@@ -118,7 +118,7 @@ namespace Mirror.Weaver
             TypeDefinition parent = td;
             while (parent != null)
             {
-                if (parent.Is<Mirror.NetworkBehaviour>())
+                if (parent.Is<NetworkBehaviour>())
                 {
                     break;
                 }
@@ -154,7 +154,7 @@ namespace Mirror.Weaver
 
             bool modified = false;
 
-            if (td.ImplementsInterface<Mirror.IMessageBase>())
+            if (td.ImplementsInterface<IMessageBase>())
             {
                 // process this and base classes from parent to child order
                 try
