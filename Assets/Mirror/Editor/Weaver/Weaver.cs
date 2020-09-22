@@ -281,15 +281,13 @@ namespace Mirror.Weaver
             }
         }
 
-        static bool Weave(string assName, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath)
+        static bool Weave(string assName, IEnumerable<string> dependencies)
         {
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
             {
                 asmResolver.AddSearchDirectory(Path.GetDirectoryName(assName));
                 asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
-                asmResolver.AddSearchDirectory(Path.GetDirectoryName(unityEngineDLLPath));
-                asmResolver.AddSearchDirectory(Path.GetDirectoryName(mirrorNetDLLPath));
                 if (dependencies != null)
                 {
                     foreach (string path in dependencies)
@@ -325,14 +323,14 @@ namespace Mirror.Weaver
             return true;
         }
 
-        static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath)
+        static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies)
         {
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
 
             try
             {
-                return Weave(assembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath);
+                return Weave(assembly, dependencies);
             }
             catch (Exception e)
             {
@@ -342,11 +340,11 @@ namespace Mirror.Weaver
         }
 
 
-        public static bool Process(string unityEngine, string netDLL, string assembly, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
+        public static bool Process(string assembly, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
         {
             Log.WarningMethod = printWarning;
             Log.ErrorMethod = printError;
-            return WeaveAssembly(assembly, extraAssemblyPaths, unityEngine, netDLL);
+            return WeaveAssembly(assembly, extraAssemblyPaths);
         }
     }
 }
