@@ -277,7 +277,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static bool Weave(string assName, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
+        static bool Weave(string assName, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
@@ -330,21 +330,14 @@ namespace Mirror.Weaver
 
                     // write to outputDir if specified, otherwise perform in-place write
                     WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
-                    if (!string.IsNullOrEmpty(outputDir))
-                    {
-                        CurrentAssembly.Write(Helpers.DestinationFileFor(outputDir, assName), writeParams);
-                    }
-                    else
-                    {
-                        CurrentAssembly.Write(writeParams);
-                    }
+                    CurrentAssembly.Write(writeParams);
                 }
             }
 
             return true;
         }
 
-        static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
+        static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
@@ -353,7 +346,7 @@ namespace Mirror.Weaver
             {
                 foreach (string asm in assemblies)
                 {
-                    if (!Weave(asm, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
+                    if (!Weave(asm, dependencies, unityEngineDLLPath, mirrorNetDLLPath))
                     {
                         return false;
                     }
@@ -368,19 +361,18 @@ namespace Mirror.Weaver
         }
 
 
-        public static bool Process(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
+        public static bool Process(string unityEngine, string netDLL, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
         {
-            Validate(unityEngine, netDLL, outputDirectory, assemblies);
+            Validate(unityEngine, netDLL, assemblies);
             Log.WarningMethod = printWarning;
             Log.ErrorMethod = printError;
-            return WeaveAssemblies(assemblies, extraAssemblyPaths, outputDirectory, unityEngine, netDLL);
+            return WeaveAssemblies(assemblies, extraAssemblyPaths, unityEngine, netDLL);
         }
 
-        static void Validate(string unityEngine, string netDLL, string outputDirectory, string[] assemblies)
+        static void Validate(string unityEngine, string netDLL, string[] assemblies)
         {
             CheckDllPath(unityEngine);
             CheckDllPath(netDLL);
-            CheckOutputDirectory(outputDirectory);
             CheckAssemblies(assemblies);
         }
         static void CheckDllPath(string path)
@@ -398,12 +390,6 @@ namespace Mirror.Weaver
             if (!File.Exists(assemblyPath))
                 throw new Exception("Assembly " + assemblyPath + " does not exist!");
         }
-        static void CheckOutputDirectory(string outputDir)
-        {
-            if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
-            {
-                Directory.CreateDirectory(outputDir);
-            }
-        }
+
     }
 }
