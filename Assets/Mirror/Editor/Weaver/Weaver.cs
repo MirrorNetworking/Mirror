@@ -344,17 +344,13 @@ namespace Mirror.Weaver
 
             try
             {
-                if (!Weave(assembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath))
-                {
-                    return false;
-                }
+                return Weave(assembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath);
             }
             catch (Exception e)
             {
                 Log.Error("Exception :" + e);
                 return false;
             }
-            return true;
         }
 
 
