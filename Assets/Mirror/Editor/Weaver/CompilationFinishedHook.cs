@@ -26,10 +26,6 @@ namespace Mirror.Weaver
         // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool UnityLogEnabled = true;
 
-        // holds the result status of our latest Weave operation
-        // NOTE: WeaveFailed is critical to unit tests, but isn't used for anything else.
-        public static bool WeaveFailed { get; private set; }
-
         // warning message handler that also calls OnWarningMethod delegate
         static void HandleWarning(string msg)
         {
@@ -145,17 +141,10 @@ namespace Mirror.Weaver
 
             Log.Warning = HandleWarning;
             Log.Error = HandleError;
-            if (Weaver.WeaveAssembly(assemblyPath, dependencyPaths.ToArray(), unityEngineCoreModuleDLL, mirrorRuntimeDll))
-            {
-                // NOTE: WeaveFailed is critical for unit tests but isn't used elsewhere
-                WeaveFailed = false;
-            }
-            else
+            if (!Weaver.WeaveAssembly(assemblyPath, dependencyPaths.ToArray(), unityEngineCoreModuleDLL, mirrorRuntimeDll))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
-
-                WeaveFailed = true;
                 if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
             }
         }
