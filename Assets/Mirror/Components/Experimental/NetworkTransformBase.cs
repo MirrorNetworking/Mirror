@@ -224,7 +224,7 @@ namespace Mirror.Experimental
         void SetGoal(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // put it into a data point immediately
-            DataPoint temp = new DataPoint
+            var temp = new DataPoint
             {
                 // deserialize position
                 localPosition = position,

@@ -9,39 +9,31 @@ namespace Mirror.Experimental
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkRigidbody));
 
         [Header("Settings")]
-        [SerializeField]
         public Rigidbody target;
 
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        [SerializeField]
         public bool clientAuthority;
 
         [Header("Velocity")]
 
         [Tooltip("Syncs Velocity every SyncInterval")]
-        [SerializeField]
         public bool syncVelocity = true;
 
         [Tooltip("Set velocity to 0 each frame (only works if syncVelocity is false")]
-        [SerializeField]
         public bool clearVelocity;
 
         [Tooltip("Only Syncs Value if distance between previous and current is great than sensitivity")]
-        [SerializeField]
         public float velocitySensitivity = 0.1f;
 
         [Header("Angular Velocity")]
 
         [Tooltip("Syncs AngularVelocity every SyncInterval")]
-        [SerializeField]
         public bool syncAngularVelocity = true;
 
         [Tooltip("Set angularVelocity to 0 each frame (only works if syncAngularVelocity is false")]
-        [SerializeField]
         public bool clearAngularVelocity;
 
         [Tooltip("Only Syncs Value if distance between previous and current is great than sensitivity")]
-        [SerializeField]
         public float angularVelocitySensitivity = 0.1f;
 
         /// <summary>
