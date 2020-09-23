@@ -42,7 +42,7 @@ namespace Mirror
         [HideInInspector] public ClientDataReceivedEvent OnClientDataReceived = new ClientDataReceivedEvent();
 
         /// <summary>
-        /// Notify subscribers when this clianet encounters an error communicating with the server
+        /// Notify subscribers when this client encounters an error communicating with the server
         /// </summary>
         [HideInInspector] public UnityEventException OnClientError = new UnityEventException();
 
