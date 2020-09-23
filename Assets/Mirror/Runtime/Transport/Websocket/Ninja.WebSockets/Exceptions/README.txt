@@ -1,1 +1,0 @@
-﻿Make sure that exceptions follow the microsoft standards
