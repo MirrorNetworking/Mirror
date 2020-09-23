@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Mirror.RemoteCalls;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
@@ -285,18 +287,20 @@ namespace Mirror.Weaver
             for (int i = 0; i < commands.Count; ++i)
             {
                 CmdResult cmdResult = commands[i];
-                GenerateRegisterCommandDelegate(cctorWorker, WeaverTypes.registerCommandDelegateReference, commandInvocationFuncs[i], cmdResult);
+                MethodReference registerCommandRef = WeaverTypes.Import((Action<Type, string, CmdDelegate, bool>) RemoteCallHelper.RegisterCommandDelegate);
+                GenerateRegisterCommandDelegate(cctorWorker, registerCommandRef, commandInvocationFuncs[i], cmdResult);
             }
 
+            MethodReference registerRpcRef = WeaverTypes.Import((Action<Type, string, CmdDelegate>)RemoteCallHelper.RegisterRpcDelegate);
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
                 ClientRpcResult clientRpcResult = clientRpcs[i];
-                GenerateRegisterRemoteDelegate(cctorWorker, WeaverTypes.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcResult.method.Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, registerRpcRef, clientRpcInvocationFuncs[i], clientRpcResult.method.Name);
             }
 
             for (int i = 0; i < targetRpcs.Count; ++i)
             {
-                GenerateRegisterRemoteDelegate(cctorWorker, WeaverTypes.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, registerRpcRef, targetRpcInvocationFuncs[i], targetRpcs[i].Name);
             }
 
             foreach (FieldDefinition fd in syncObjects)

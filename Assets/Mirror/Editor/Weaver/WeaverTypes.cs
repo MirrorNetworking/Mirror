@@ -44,8 +44,6 @@ namespace Mirror.Weaver
         public static MethodReference getSyncVarGameObjectReference;
         public static MethodReference setSyncVarNetworkIdentityReference;
         public static MethodReference getSyncVarNetworkIdentityReference;
-        public static MethodReference registerCommandDelegateReference;
-        public static MethodReference registerRpcDelegateReference;
         public static MethodReference getTypeReference;
         public static MethodReference getTypeFromHandleReference;
         public static MethodReference logErrorReference;
@@ -59,6 +57,8 @@ namespace Mirror.Weaver
         public static TypeReference Import<T>() => Import(typeof(T));
 
         public static TypeReference Import(Type t) => currentAssembly.MainModule.ImportReference(t);
+
+        public static MethodReference Import(Delegate method) => currentAssembly.MainModule.ImportReference(method.Method);
 
         public static void SetupTargetTypes(AssemblyDefinition currentAssembly)
         {
@@ -87,7 +87,6 @@ namespace Mirror.Weaver
             CmdDelegateConstructor = Resolvers.ResolveMethod(cmdDelegateReference, currentAssembly, ".ctor");
 
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
-            TypeReference RemoteCallHelperType = Import(typeof(RemoteCalls.RemoteCallHelper));
 
             TypeReference ScriptableObjectType = Import<UnityEngine.ScriptableObject>();
 
@@ -114,8 +113,6 @@ namespace Mirror.Weaver
             getSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarGameObject");
             setSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SetSyncVarNetworkIdentity");
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkIdentity");
-            registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterCommandDelegate");
-            registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
             TypeReference unityDebug = Import(typeof(UnityEngine.Debug));
             logErrorReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogError");
             logWarningReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogWarning");
