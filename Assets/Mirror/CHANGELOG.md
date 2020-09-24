@@ -1,3 +1,10 @@
+# [43.9.0](https://github.com/MirrorNG/MirrorNG/compare/v43.8.0...v43.9.0) (2020-09-24)
+
+
+### Features
+
+* starting NetworkObjectManager ([#354](https://github.com/MirrorNG/MirrorNG/issues/354)) ([01f3bb3](https://github.com/MirrorNG/MirrorNG/commit/01f3bb3d02eb7462030cf1ee204ab80f3d9c1a2e))
+
 # [43.8.0](https://github.com/MirrorNG/MirrorNG/compare/v43.7.0...v43.8.0) (2020-09-24)
 
 
