@@ -1691,6 +1691,5 @@ namespace Mirror
                 comp.OnHiddenForConnection(conn);
             }
         }
-
     }
 }
