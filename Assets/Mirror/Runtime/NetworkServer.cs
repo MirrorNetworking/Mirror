@@ -197,7 +197,7 @@ namespace Mirror
 
                 while ((connection = await transport.AcceptAsync()) != null)
                 {
-                    var networkConnectionToClient = new NetworkConnection(connection);
+                    var networkConnectionToClient = GetNewConnection(connection);
 
                     _ = ConnectionAcceptedAsync(networkConnectionToClient);
                 }
@@ -232,6 +232,14 @@ namespace Mirror
             Stopped.Invoke();
             initialized = false;
             Active = false;
+        }
+
+        /// <summary>
+        /// Creates a new INetworkConnection based on the provided IConnection.
+        /// </summary>
+        public virtual INetworkConnection GetNewConnection(IConnection connection)
+        {
+            return new NetworkConnection(connection);
         }
 
         /// <summary>
@@ -271,7 +279,7 @@ namespace Mirror
                 throw new InvalidOperationException("Local Connection already exists");
             }
 
-            var conn = new NetworkConnection(tconn);
+            var conn = GetNewConnection(tconn);
             LocalConnection = conn;
             LocalClient = client;
 

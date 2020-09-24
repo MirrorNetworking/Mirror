@@ -148,7 +148,7 @@ namespace Mirror
                 InitializeAuthEvents();
 
                 // setup all the handlers
-                Connection = new NetworkConnection(transportConnection);
+                Connection = GetNewConnection(transportConnection);
                 Time.Reset();
 
                 RegisterMessageHandlers();
@@ -175,12 +175,20 @@ namespace Mirror
 
             server.SetLocalConnection(this, c2);
             hostServer = server;
-            Connection = new NetworkConnection(c1);
+            Connection = GetNewConnection(c1);
             RegisterHostHandlers();
 
             server.ActivateHostScene();
 
             _ = OnConnected();
+        }
+
+        /// <summary>
+        /// Creates a new INetworkConnection based on the provided IConnection.
+        /// </summary>
+        public virtual INetworkConnection GetNewConnection(IConnection connection)
+        {
+            return new NetworkConnection(connection);
         }
 
         void InitializeAuthEvents()

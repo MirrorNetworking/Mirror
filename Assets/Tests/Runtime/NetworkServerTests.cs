@@ -289,5 +289,11 @@ namespace Mirror.Tests
 
             Assert.That(server.AddPlayerForConnection(connectionToClient, playerReplacement, replacementGuid), Is.True);
         }
+
+        [Test]
+        public void GetNewConnectionTest()
+        {
+            Assert.That(server.GetNewConnection(Substitute.For<IConnection>()), Is.Not.Null);
+        }
     }
 }

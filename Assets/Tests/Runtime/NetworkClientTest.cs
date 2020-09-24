@@ -7,6 +7,7 @@ using Object = UnityEngine.Object;
 
 using static Mirror.Tests.AsyncUtil;
 using System.Threading.Tasks;
+using NSubstitute;
 
 namespace Mirror.Tests
 {
@@ -135,5 +136,11 @@ namespace Mirror.Tests
 
             Assert.That(identity == null);
         });
+
+        [Test]
+        public void GetNewConnectionTest()
+        {
+            Assert.That(client.GetNewConnection(Substitute.For<IConnection>()), Is.Not.Null);
+        }
     }
 }
