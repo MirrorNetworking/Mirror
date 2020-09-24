@@ -5,6 +5,8 @@ namespace Mirror
 {
     public interface IServerObjectManager
     {
+        void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase;
+
         bool AddPlayerForConnection(INetworkConnection conn, GameObject player);
 
         bool AddPlayerForConnection(INetworkConnection conn, GameObject player, Guid assetId);
@@ -36,7 +38,7 @@ namespace Mirror
         void SetClientNotReady(INetworkConnection conn);
     }
 
-    public interface INetworkServer : IServerObjectManager, IServerSceneManager
+    public interface INetworkServer : IServerSceneManager
     {
         void Disconnect();
 
@@ -49,7 +51,5 @@ namespace Mirror
         void SendToReady<T>(NetworkIdentity identity, T msg, int channelId) where T : IMessageBase;
 
         void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable) where T : IMessageBase;
-
-        void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase;
     }
 }
