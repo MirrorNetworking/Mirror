@@ -1,3 +1,10 @@
+# [43.8.0](https://github.com/MirrorNG/MirrorNG/compare/v43.7.0...v43.8.0) (2020-09-24)
+
+
+### Features
+
+* Add support for customer INetworkConnections ([#346](https://github.com/MirrorNG/MirrorNG/issues/346)) ([9d0b219](https://github.com/MirrorNG/MirrorNG/commit/9d0b219e585b6c1f5747f594a46b799ab8ecbba0))
+
 # [43.7.0](https://github.com/MirrorNG/MirrorNG/compare/v43.6.0...v43.7.0) (2020-09-21)
 
 
