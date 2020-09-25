@@ -1,3 +1,10 @@
+## [43.9.1](https://github.com/MirrorNG/MirrorNG/compare/v43.9.0...v43.9.1) (2020-09-25)
+
+
+### Bug Fixes
+
+* asmdef issues related to runtime tests ([#357](https://github.com/MirrorNG/MirrorNG/issues/357)) ([175b6b7](https://github.com/MirrorNG/MirrorNG/commit/175b6b78c0d0ae428873da99b9a47b994f6cbd87))
+
 # [43.9.0](https://github.com/MirrorNG/MirrorNG/compare/v43.8.0...v43.9.0) (2020-09-24)
 
 
