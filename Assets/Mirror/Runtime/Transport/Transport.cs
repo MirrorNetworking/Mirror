@@ -186,24 +186,6 @@ namespace Mirror
         /// </summary>
         public abstract void Shutdown();
 
-        // block Update() to force Transports to use LateUpdate to avoid race
-        // conditions. messages should be processed after all the game state
-        // was processed in Update.
-        // -> in other words: use LateUpdate!
-        // -> uMMORPG 480 CCU stress test: when bot machine stops, it causes
-        //    'Observer not ready for ...' log messages when using Update
-        // -> occupying a public Update() function will cause Warnings if a
-        //    transport uses Update.
-        //
-        // IMPORTANT: set script execution order to >1000 to call Transport's
-        //            LateUpdate after all others. Fixes race condition where
-        //            e.g. in uSurvival Transport would apply Cmds before
-        //            ShoulderRotation.LateUpdate, resulting in projectile
-        //            spawns at the point before shoulder rotation.
-#pragma warning disable UNT0001 // Empty Unity message
-        public void Update() { }
-#pragma warning restore UNT0001 // Empty Unity message
-
         /// <summary>
         /// called when quitting the application by closing the window / pressing stop in the editor
         /// <para>virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too</para>
