@@ -1,15 +1,13 @@
 {
     "name": "Mirror",
-    "references": [
-        "Mirror.CompilerSymbols",
-        "Telepathy"
-    ],
-    "optionalUnityReferences": [],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

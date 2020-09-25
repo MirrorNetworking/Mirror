@@ -7,7 +7,8 @@
         "UnityEditor.TestRunner",
         "Mirror.Authenticators",
         "Mirror.Weaver",
-        "Mirror.Experimental"
+        "Mirror.Experimental",
+        "MirrorNG"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,7 +1,7 @@
-using Mirror.Experimental;
+using Mirror.Tests;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Experimental.Tests
 {
     [TestFixture]
     public class NetworkTransformTest : HostSetup<NetworkTransform>
