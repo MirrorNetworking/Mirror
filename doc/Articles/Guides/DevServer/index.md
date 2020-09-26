@@ -34,15 +34,19 @@ In the upcoming sections we will go through setting up a provider with the free 
 
 **Always double check that you do not select a paid feature as this is purely meant as a short term period to test out basic functionality during development of your project.**
 
-### Microsoft Azure
+### Amazon Web Services (AWS)
 
-Microsoft Azure (as of time of writing) allows setting up a windows instance during the free trial without an active payment method.
+See [AWS setup](https://mirror-networking.com/docs/Articles/Guides/DevServer/gcloud/index.html)
 
-**To be added**
 
 ### Google Compute Engine
 
-Google Compute Engine (as of time of writing) does not allow setting up a windows instance during the free trial without an active payment method.
+See [Google cloud setup](https://mirror-networking.com/docs/Articles/Guides/DevServer/gcloud/index.html)
+
+
+### Microsoft Azure
+
+Microsoft Azure (as of time of writing) allows setting up a windows instance during the free trial without an active payment method.
 
 **To be added**
 
