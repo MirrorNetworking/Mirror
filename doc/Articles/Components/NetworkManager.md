@@ -23,7 +23,7 @@ If you are already familiar with multiplayer game development, you might find it
 
 ## Transports
 
-Mirror's uses a separate component (derived from the Transport class) to connect across the network. By default, it is Telepathy Transport. This design choice of separating the transport into its own component allows game developers to choose the transport that best fits their game needs. Changing transports is as simple as swapping out the component on the Network Manager object and assigning it to the Transport field.
+Mirror uses a separate component (derived from the Transport class) to connect across the network. By default, it is Telepathy Transport. This design choice of separating the transport into its own component allows game developers to choose the transport that best fits their game needs. Changing transports is as simple as swapping out the component on the Network Manager object and assigning it to the Transport field.
 
 Transports are available for TCP, UDP, WebGL, and Steam. Additionally, there's a Multiplex transport that allows for using two transports together on the server, e.g. Telepathy and WebSockets, so that desktop and browser players can play together on the same server seamlessly. See [Transports](../Transports/index.md) for more information.
 
