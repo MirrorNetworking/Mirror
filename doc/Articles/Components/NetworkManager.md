@@ -50,7 +50,7 @@ Use the Network Manager to manage the spawning (networked instantiation) of netw
 
 Most games have a Prefab which represents the player, so the Network Manager has a Player Prefab slot. You should assign this slot with your player Prefab. When you have a player Prefab set, a player game object is automatically spawned from that Prefab for each user in the game. This applies to the local player on a hosted server, and remote players on remote clients. You must attach a Network Identity component to the Player Prefab before assigning it to this field.
 
-Once you have assigned a Player Prefab, you can start the game as a host and see the player game object spawn. Stopping the game destroys the player game object . If you build and run another copy of the game and connect it as a client to *localhost*, the Network Manager makes another player game object appear. When you stop that client, it destroys that player’s game object .
+Once you have assigned a Player Prefab, you can start the game as a host and see the player game object spawn. Stopping the game destroys the player game object . If you build and run another copy of the game and connect it as a client to *localhost*, the Network Manager makes another player game object appear. When you stop that client, it destroys that player’s game object.
 
 In addition to the Player Prefab, you must also register other prefabs that you want to dynamically spawn during game play with the Network Manager.
 
