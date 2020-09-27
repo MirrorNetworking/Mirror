@@ -66,6 +66,9 @@ namespace Mirror.Weaver
                 if (!method.HasCustomAttribute<System.Runtime.CompilerServices.ExtensionAttribute>())
                     continue;
 
+                if (method.HasGenericParameters)
+                    continue;
+
                 TypeReference dataType = method.Parameters[1].ParameterType;
                 Writers.Register(dataType, currentAssembly.MainModule.ImportReference(method));
             }
