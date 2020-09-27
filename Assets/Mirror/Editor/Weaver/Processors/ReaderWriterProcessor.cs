@@ -57,10 +57,10 @@ namespace Mirror.Weaver
                 if (method.Parameters.Count != 2)
                     continue;
 
-                if (method.Parameters[0].ParameterType.FullName != "Mirror.NetworkWriter")
+                if (!method.Parameters[0].ParameterType.Is<NetworkWriter>())
                     continue;
 
-                if (method.ReturnType.FullName != "System.Void")
+                if (!method.ReturnType.Is(typeof(void)))
                     continue;
 
                 if (!method.HasCustomAttribute<System.Runtime.CompilerServices.ExtensionAttribute>())
