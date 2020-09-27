@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 
 namespace Mirror.Weaver
 {
@@ -37,11 +38,6 @@ namespace Mirror.Weaver
             {
                 return foundFunc;
             }
-            else if (variable.Resolve().IsEnum)
-            {
-                // serialize enum as their base type
-                return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType());
-            }
             else
             {
                 MethodDefinition newWriterFunc = GenerateWriter(variable, recursionCount);
@@ -69,6 +65,12 @@ namespace Mirror.Weaver
             if (variableReference.IsArray)
             {
                 return GenerateArrayWriteFunc(variableReference, recursionCount);
+            }
+
+            if (variableReference.Resolve()?.IsEnum ?? false)
+            {
+                // serialize enum as their base type
+                return GenerateEnumWriteFunc(variableReference);
             }
 
             // check for collections
@@ -124,6 +126,39 @@ namespace Mirror.Weaver
             // generate writer for class/struct
 
             return GenerateClassOrStructWriterFunction(variableReference, recursionCount);
+        }
+
+        private static MethodDefinition GenerateEnumWriteFunc(TypeReference variable)
+        {
+            string functionName = "_Write" + variable.Name + "_";
+            if (variable.DeclaringType != null)
+            {
+                functionName += variable.DeclaringType.Name;
+            }
+            else
+            {
+                functionName += "None";
+            }
+            // create new writer for this type
+            var writerFunc = new MethodDefinition(functionName,
+                    MethodAttributes.Public |
+                    MethodAttributes.Static |
+                    MethodAttributes.HideBySig,
+                    WeaverTypes.Import(typeof(void)));
+
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
+            writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
+
+            ILProcessor worker = writerFunc.Body.GetILProcessor();
+
+            MethodReference underlyingWriter = Writers.GetWriteFunc(variable.Resolve().GetEnumUnderlyingType());
+
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Call, underlyingWriter));
+
+            worker.Append(worker.Create(OpCodes.Ret));
+            return writerFunc;
         }
 
         static MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable, int recursionCount)
