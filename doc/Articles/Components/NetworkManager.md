@@ -153,7 +153,7 @@ There are virtual functions on the `NetworkManager` class that you can customize
         Returns the `NetworkClient.singleton`.
 
     -   **isHeadless**  
-        Bool that indicates of the application was started in headless mode.
+        Bool that indicates if the application was started in headless mode.
 
 ## Methods
 
