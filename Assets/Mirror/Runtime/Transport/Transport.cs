@@ -39,6 +39,7 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// </summary>
+        // Note: we provide channelId for NetworkDiagnostics.
         [HideInInspector] public ClientDataReceivedEvent OnClientDataReceived = new ClientDataReceivedEvent();
 
         /// <summary>
@@ -109,6 +110,7 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// </summary>
+        // Note: we provide channelId for NetworkDiagnostics.
         [HideInInspector] public ServerDataReceivedEvent OnServerDataReceived = new ServerDataReceivedEvent();
 
         /// <summary>
