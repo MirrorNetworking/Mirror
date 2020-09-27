@@ -218,6 +218,7 @@ namespace Mirror
         }
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [Obsolete("Use ReadInt32 instead")]
         public static int ReadPackedInt32(this NetworkReader reader)
         {
             uint data = reader.ReadPackedUInt32();
@@ -227,15 +228,18 @@ namespace Mirror
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         // NOTE: big endian.
         // Use checked() to force it to throw OverflowException if data is invalid
+        [Obsolete("Use ReadUInt32 instead")]
         public static uint ReadPackedUInt32(this NetworkReader reader) => checked((uint)reader.ReadPackedUInt64());
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [Obsolete("Use ReadInt64 instead")]
         public static long ReadPackedInt64(this NetworkReader reader)
         {
             ulong data = reader.ReadPackedUInt64();
             return ((long)(data >> 1)) ^ -((long)data & 1);
         }
 
+        [Obsolete("Use ReadUInt64 instead")]
         public static ulong ReadPackedUInt64(this NetworkReader reader)
         {
             byte a0 = reader.ReadByte();

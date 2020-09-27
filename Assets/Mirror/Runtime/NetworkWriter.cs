@@ -271,6 +271,7 @@ namespace Mirror
         }
 
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [Obsolete("Use WriteInt32 instead")]
         public static void WritePackedInt32(this NetworkWriter writer, int i)
         {
             uint zigzagged = (uint)((i >> 31) ^ (i << 1));
@@ -278,6 +279,7 @@ namespace Mirror
         }
 
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
+        [Obsolete("Use WriteUInt32 instead")]
         public static void WritePackedUInt32(this NetworkWriter writer, uint value)
         {
             // for 32 bit values WritePackedUInt64 writes the
@@ -286,12 +288,14 @@ namespace Mirror
         }
 
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [Obsolete("Use WriteInt64 instead")]
         public static void WritePackedInt64(this NetworkWriter writer, long i)
         {
             ulong zigzagged = (ulong)((i >> 63) ^ (i << 1));
             writer.WritePackedUInt64(zigzagged);
         }
 
+        [Obsolete("Use WriteUInt64 instead")]
         public static void WritePackedUInt64(this NetworkWriter writer, ulong value)
         {
             if (value <= 240)
