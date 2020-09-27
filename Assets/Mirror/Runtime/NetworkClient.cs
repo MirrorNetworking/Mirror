@@ -20,8 +20,6 @@ namespace Mirror
     /// </summary>
     public static class NetworkClient
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkClient));
-
         /// <summary>
         /// The registered network message handlers.
         /// </summary>
@@ -62,8 +60,7 @@ namespace Mirror
         /// <param name="address"></param>
         public static void Connect(string address)
         {
-            if (logger.LogEnabled()) logger.Log("Client Connect: " + address);
-            logger.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.activeTransport' first");
+            // Debug.Log("Client Connect: " + address);
 
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
@@ -83,8 +80,7 @@ namespace Mirror
         /// <param name="uri">Address of the server to connect to</param>
         public static void Connect(Uri uri)
         {
-            if (logger.LogEnabled()) logger.Log("Client Connect: " + uri);
-            logger.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.activeTransport' first");
+            // Debug.Log("Client Connect: " + uri);
 
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
@@ -100,7 +96,7 @@ namespace Mirror
 
         public static void ConnectHost()
         {
-            logger.Log("Client Connect Host to Server");
+            Debug.Log("Client Connect Host to Server");
 
             RegisterSystemHandlers(true);
 
@@ -155,7 +151,7 @@ namespace Mirror
 
         static void OnError(Exception exception)
         {
-            logger.LogException(exception);
+            Debug.LogException(exception);
         }
 
         static void OnDisconnected()
@@ -173,7 +169,7 @@ namespace Mirror
             {
                 connection.TransportReceive(data, channelId);
             }
-            else logger.LogError("Skipped Data message handling because connection is null.");
+            else Debug.LogError("Skipped Data message handling because connection is null.");
         }
 
         static void OnConnected()
@@ -189,7 +185,7 @@ namespace Mirror
                 NetworkTime.UpdateClient();
                 connection.InvokeHandler(new ConnectMessage(), -1);
             }
-            else logger.LogError("Skipped Connect message handling because connection is null.");
+            else Debug.LogError("Skipped Connect message handling because connection is null.");
         }
 
         /// <summary>
@@ -246,12 +242,12 @@ namespace Mirror
             {
                 if (connectState != ConnectState.Connected)
                 {
-                    logger.LogError("NetworkClient Send when not connected to a server");
+                    Debug.LogError("NetworkClient Send when not connected to a server");
                     return false;
                 }
                 return connection.Send(message, channelId);
             }
-            logger.LogError("NetworkClient Send with no connection");
+            Debug.LogError("NetworkClient Send with no connection");
             return false;
         }
 
@@ -315,7 +311,7 @@ namespace Mirror
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
-                logger.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
+                Debug.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
             handlers[msgType] = MessagePacker.MessageHandler(handler, requireAuthentication);
         }
@@ -374,7 +370,7 @@ namespace Mirror
         /// </summary>
         public static void Shutdown()
         {
-            logger.Log("Shutting down client.");
+            Debug.Log("Shutting down client.");
             ClientScene.Shutdown();
             connectState = ConnectState.None;
             handlers.Clear();

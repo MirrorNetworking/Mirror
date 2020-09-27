@@ -21,8 +21,6 @@ namespace Mirror
     /// </summary>
     public static class NetworkWriterPool
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkWriterPool), LogType.Error);
-
         /// <summary>
         /// Size of the pool
         /// <para>If pool is too small getting writers will causes memory allocation</para>
@@ -91,7 +89,7 @@ namespace Mirror
             }
             else
             {
-                logger.LogWarning("NetworkWriterPool.Recycle, Pool was full leaving extra writer for GC");
+                Debug.LogWarning("NetworkWriterPool.Recycle, Pool was full leaving extra writer for GC");
             }
         }
     }

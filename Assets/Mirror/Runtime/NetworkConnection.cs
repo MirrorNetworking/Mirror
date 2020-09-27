@@ -17,7 +17,6 @@ namespace Mirror
     public abstract class NetworkConnection : IDisposable
     {
         public const int LocalConnectionId = 0;
-        static readonly ILogger logger = LogFactory.GetLogger<NetworkConnection>();
 
         // internal so it can be tested
         internal readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
@@ -94,7 +93,7 @@ namespace Mirror
         /// </summary>
         internal NetworkConnection()
         {
-            // set lastTime to current time when creating connection to make sure it isn't instantly kicked for inactivity 
+            // set lastTime to current time when creating connection to make sure it isn't instantly kicked for inactivity
             lastMessageTime = Time.time;
         }
 
@@ -166,14 +165,14 @@ namespace Mirror
         {
             if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
-                logger.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
+                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
             if (segment.Count == 0)
             {
                 // zero length packets getting into the packet queues are bad.
-                logger.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
+                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
                 return false;
             }
 
@@ -225,7 +224,7 @@ namespace Mirror
                 msgDelegate(this, reader, channelId);
                 return true;
             }
-            if (logger.LogEnabled()) logger.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+            // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
             return false;
         }
 
@@ -271,7 +270,7 @@ namespace Mirror
                 if (MessagePacker.UnpackMessage(networkReader, out int msgType))
                 {
                     // logging
-                    if (logger.LogEnabled()) logger.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+                    // Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                     // try to invoke the handler for that message
                     if (InvokeHandler(msgType, networkReader, channelId))
@@ -281,7 +280,7 @@ namespace Mirror
                 }
                 else
                 {
-                    logger.LogError("Closed connection: " + this + ". Invalid message header.");
+                    Debug.LogError("Closed connection: " + this + ". Invalid message header.");
                     Disconnect();
                 }
             }

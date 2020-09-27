@@ -6,8 +6,6 @@ namespace Mirror
 {
     public class NetworkConnectionToClient : NetworkConnection
     {
-        static readonly ILogger logger = LogFactory.GetLogger<NetworkConnectionToClient>();
-
         public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId) { }
 
         public override string address => Transport.activeTransport.ServerGetClientAddress(connectionId);
@@ -23,7 +21,7 @@ namespace Mirror
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
-            if (logger.LogEnabled()) logger.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
+            Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
             // validate packet size first.
             if (ValidatePacketSize(segment, channelId))

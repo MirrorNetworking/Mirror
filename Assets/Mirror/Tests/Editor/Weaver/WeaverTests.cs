@@ -42,13 +42,11 @@ namespace Mirror.Weaver.Tests
     [Category("Weaver")]
     public abstract class WeaverTests
     {
-        public static readonly ILogger logger = LogFactory.GetLogger<WeaverTests>(LogType.Exception);
-
         protected List<string> weaverErrors = new List<string>();
         void HandleWeaverError(string msg)
         {
             LogAssert.ignoreFailingMessages = true;
-            logger.LogError(msg);
+            Debug.LogError(msg);
             LogAssert.ignoreFailingMessages = false;
 
             weaverErrors.Add(msg);
@@ -57,7 +55,7 @@ namespace Mirror.Weaver.Tests
         protected List<string> weaverWarnings = new List<string>();
         void HandleWeaverWarning(string msg)
         {
-            logger.LogWarning(msg);
+            Debug.LogWarning(msg);
             weaverWarnings.Add(msg);
         }
 
