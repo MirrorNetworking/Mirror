@@ -43,13 +43,13 @@ namespace Mirror.Weaver
                 // static classes are represented as sealed and abstract
                 if (klass.IsAbstract && klass.IsSealed)
                 {
-                    LoadWriters(CurrentAssembly, klass);
-                    LoadReaders(CurrentAssembly, klass);
+                    LoadDeclaredWriters(CurrentAssembly, klass);
+                    LoadDeclaredReaders(CurrentAssembly, klass);
                 }
             }
         }
 
-        static void LoadWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
+        static void LoadDeclaredWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
         {
             // register all the writers in this class.  Skip the ones with wrong signature
             foreach (MethodDefinition method in klass.Methods)
@@ -71,7 +71,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static void LoadReaders(AssemblyDefinition currentAssembly, TypeDefinition klass)
+        static void LoadDeclaredReaders(AssemblyDefinition currentAssembly, TypeDefinition klass)
         {
             // register all the reader in this class.  Skip the ones with wrong signature
             foreach (MethodDefinition method in klass.Methods)
