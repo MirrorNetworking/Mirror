@@ -974,8 +974,8 @@ namespace Mirror
             // write regular dirty mask for owner,
             // writer 'dirty mask & syncMode==Everyone' for everyone else
             // (WritePacked64 so we don't write full 8 bytes if we don't have to)
-            ownerWriter.WritePackedUInt64(dirtyComponentsMask);
-            observersWriter.WritePackedUInt64(dirtyComponentsMask & syncModeObserversMask);
+            ownerWriter.WriteUInt64(dirtyComponentsMask);
+            observersWriter.WriteUInt64(dirtyComponentsMask & syncModeObserversMask);
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -1103,7 +1103,7 @@ namespace Mirror
         internal void OnDeserializeAllSafely(NetworkReader reader, bool initialState)
         {
             // read component dirty mask
-            ulong dirtyComponentsMask = reader.ReadPackedUInt64();
+            ulong dirtyComponentsMask = reader.ReadUInt64();
 
             NetworkBehaviour[] components = NetworkBehaviours;
             // loop through all components and deserialize the dirty ones

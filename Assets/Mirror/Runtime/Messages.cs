@@ -118,8 +118,8 @@ namespace Mirror
 
         public void Deserialize(NetworkReader reader)
         {
-            netId = reader.ReadPackedUInt32();
-            componentIndex = (int)reader.ReadPackedUInt32();
+            netId = reader.ReadUInt32();
+            componentIndex = (int)reader.ReadUInt32();
             // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
             functionHash = reader.ReadInt32();
             payload = reader.ReadBytesAndSizeSegment();
@@ -127,8 +127,8 @@ namespace Mirror
 
         public void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32((uint)componentIndex);
+            writer.WriteUInt32(netId);
+            writer.WriteUInt32((uint)componentIndex);
             writer.WriteInt32(functionHash);
             writer.WriteBytesAndSizeSegment(payload);
         }
@@ -145,8 +145,8 @@ namespace Mirror
 
         public void Deserialize(NetworkReader reader)
         {
-            netId = reader.ReadPackedUInt32();
-            componentIndex = (int)reader.ReadPackedUInt32();
+            netId = reader.ReadUInt32();
+            componentIndex = (int)reader.ReadUInt32();
             // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
             functionHash = reader.ReadInt32();
             payload = reader.ReadBytesAndSizeSegment();
@@ -154,8 +154,8 @@ namespace Mirror
 
         public void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32((uint)componentIndex);
+            writer.WriteUInt32(netId);
+            writer.WriteUInt32((uint)componentIndex);
             writer.WriteInt32(functionHash);
             writer.WriteBytesAndSizeSegment(payload);
         }
@@ -206,10 +206,10 @@ namespace Mirror
 
         public void Deserialize(NetworkReader reader)
         {
-            netId = reader.ReadPackedUInt32();
+            netId = reader.ReadUInt32();
             isLocalPlayer = reader.ReadBoolean();
             isOwner = reader.ReadBoolean();
-            sceneId = reader.ReadPackedUInt64();
+            sceneId = reader.ReadUInt64();
             if (sceneId == 0)
             {
                 assetId = reader.ReadGuid();
@@ -222,10 +222,10 @@ namespace Mirror
 
         public void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32(netId);
+            writer.WriteUInt32(netId);
             writer.WriteBoolean(isLocalPlayer);
             writer.WriteBoolean(isOwner);
-            writer.WritePackedUInt64(sceneId);
+            writer.WriteUInt64(sceneId);
             if (sceneId == 0)
             {
                 writer.WriteGuid(assetId);
@@ -257,12 +257,12 @@ namespace Mirror
 
         public void Deserialize(NetworkReader reader)
         {
-            netId = reader.ReadPackedUInt32();
+            netId = reader.ReadUInt32();
         }
 
         public void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32(netId);
+            writer.WriteUInt32(netId);
         }
     }
 
@@ -272,12 +272,12 @@ namespace Mirror
 
         public void Deserialize(NetworkReader reader)
         {
-            netId = reader.ReadPackedUInt32();
+            netId = reader.ReadUInt32();
         }
 
         public void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32(netId);
+            writer.WriteUInt32(netId);
         }
     }
 
@@ -290,13 +290,13 @@ namespace Mirror
 
         public void Deserialize(NetworkReader reader)
         {
-            netId = reader.ReadPackedUInt32();
+            netId = reader.ReadUInt32();
             payload = reader.ReadBytesAndSizeSegment();
         }
 
         public void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32(netId);
+            writer.WriteUInt32(netId);
             writer.WriteBytesAndSizeSegment(payload);
         }
     }

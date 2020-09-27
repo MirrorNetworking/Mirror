@@ -19,14 +19,14 @@ namespace Mirror
 
     public class SyncListInt : SyncList<int>
     {
-        protected override void SerializeItem(NetworkWriter writer, int item) => writer.WritePackedInt32(item);
-        protected override int DeserializeItem(NetworkReader reader) => reader.ReadPackedInt32();
+        protected override void SerializeItem(NetworkWriter writer, int item) => writer.WriteInt32(item);
+        protected override int DeserializeItem(NetworkReader reader) => reader.ReadInt32();
     }
 
     public class SyncListUInt : SyncList<uint>
     {
-        protected override void SerializeItem(NetworkWriter writer, uint item) => writer.WritePackedUInt32(item);
-        protected override uint DeserializeItem(NetworkReader reader) => reader.ReadPackedUInt32();
+        protected override void SerializeItem(NetworkWriter writer, uint item) => writer.WriteUInt32(item);
+        protected override uint DeserializeItem(NetworkReader reader) => reader.ReadUInt32();
     }
 
     public class SyncListBool : SyncList<bool>
@@ -121,7 +121,7 @@ namespace Mirror
         public void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
-            writer.WritePackedUInt32((uint)objects.Count);
+            writer.WriteUInt32((uint)objects.Count);
 
             for (int i = 0; i < objects.Count; i++)
             {
@@ -133,13 +133,13 @@ namespace Mirror
             // thus the client will need to skip all the pending changes
             // or they would be applied again.
             // So we write how many changes are pending
-            writer.WritePackedUInt32((uint)changes.Count);
+            writer.WriteUInt32((uint)changes.Count);
         }
 
         public void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
-            writer.WritePackedUInt32((uint)changes.Count);
+            writer.WriteUInt32((uint)changes.Count);
 
             for (int i = 0; i < changes.Count; i++)
             {
@@ -156,12 +156,12 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVEAT:
-                        writer.WritePackedUInt32((uint)change.index);
+                        writer.WriteUInt32((uint)change.index);
                         break;
 
                     case Operation.OP_INSERT:
                     case Operation.OP_SET:
-                        writer.WritePackedUInt32((uint)change.index);
+                        writer.WriteUInt32((uint)change.index);
                         SerializeItem(writer, change.item);
                         break;
                 }
@@ -174,7 +174,7 @@ namespace Mirror
             IsReadOnly = true;
 
             // if init,  write the full list content
-            int count = (int)reader.ReadPackedUInt32();
+            int count = (int)reader.ReadUInt32();
 
             objects.Clear();
             changes.Clear();
@@ -188,7 +188,7 @@ namespace Mirror
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
-            changesAhead = (int)reader.ReadPackedUInt32();
+            changesAhead = (int)reader.ReadUInt32();
         }
 
         public void OnDeserializeDelta(NetworkReader reader)
@@ -196,7 +196,7 @@ namespace Mirror
             // This list can now only be modified by synchronization
             IsReadOnly = true;
 
-            int changesCount = (int)reader.ReadPackedUInt32();
+            int changesCount = (int)reader.ReadUInt32();
 
             for (int i = 0; i < changesCount; i++)
             {
@@ -228,7 +228,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_INSERT:
-                        index = (int)reader.ReadPackedUInt32();
+                        index = (int)reader.ReadUInt32();
                         newItem = DeserializeItem(reader);
                         if (apply)
                         {
@@ -237,7 +237,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVEAT:
-                        index = (int)reader.ReadPackedUInt32();
+                        index = (int)reader.ReadUInt32();
                         if (apply)
                         {
                             oldItem = objects[index];
@@ -246,7 +246,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_SET:
-                        index = (int)reader.ReadPackedUInt32();
+                        index = (int)reader.ReadUInt32();
                         newItem = DeserializeItem(reader);
                         if (apply)
                         {
