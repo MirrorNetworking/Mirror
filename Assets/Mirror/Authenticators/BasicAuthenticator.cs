@@ -15,7 +15,7 @@ namespace Mirror.Authenticators
         public string Username;
         public string Password;
 
-        public class AuthRequestMessage : MessageBase
+        public struct AuthRequestMessage
         {
             // use whatever credentials make sense for your game
             // for example, you might want to pass the accessToken if using oauth
@@ -23,7 +23,7 @@ namespace Mirror.Authenticators
             public string AuthPassword;
         }
 
-        public class AuthResponseMessage : MessageBase
+        public struct AuthResponseMessage
         {
             public byte Code;
             public string Message;

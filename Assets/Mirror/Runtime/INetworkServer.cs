@@ -5,7 +5,7 @@ namespace Mirror
 {
     public interface IServerObjectManager
     {
-        void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase;
+        void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable);
 
         bool AddPlayerForConnection(INetworkConnection conn, GameObject player);
 
@@ -46,10 +46,10 @@ namespace Mirror
 
         void RemoveConnection(INetworkConnection conn);
 
-        void SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase;
+        void SendToAll<T>(T msg, int channelId = Channels.DefaultReliable);
 
-        void SendToReady<T>(NetworkIdentity identity, T msg, int channelId) where T : IMessageBase;
+        void SendToReady<T>(NetworkIdentity identity, T msg, int channelId);
 
-        void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable) where T : IMessageBase;
+        void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable);
     }
 }

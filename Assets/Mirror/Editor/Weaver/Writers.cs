@@ -161,6 +161,37 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
+        // Initialize each writer in Writer<t>.write
+        internal static void GenerateRegister(ILProcessor worker)
+        {
+            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
+
+            TypeReference genericWriterClassRef = module.ImportReference(typeof(Writer<>));
+
+            System.Reflection.FieldInfo fieldInfo = typeof(Writer<>).GetField(nameof(Writer<object>.write));
+            FieldReference fieldRef = module.ImportReference(fieldInfo);
+            TypeReference networkWriterRef = module.ImportReference(typeof(NetworkWriter));
+            TypeReference actionRef = module.ImportReference(typeof(Action<,>));
+            MethodReference actionConstructorRef = module.ImportReference(typeof(Action<,>).GetConstructors()[0]);
+
+            foreach (MethodReference writerMethod in writeFuncs.Values) {
+
+                TypeReference dataType = writerMethod.Parameters[1].ParameterType;
+
+                // create a Action<NetworkWriter, T> delegate
+                worker.Append(worker.Create(OpCodes.Ldnull));
+                worker.Append(worker.Create(OpCodes.Ldftn, writerMethod));
+                GenericInstanceType actionGenericInstance = actionRef.MakeGenericInstanceType(networkWriterRef, dataType);
+                MethodReference actionRefInstance = actionConstructorRef.MakeHostInstanceGeneric(actionGenericInstance);
+                worker.Append(worker.Create(OpCodes.Newobj, actionRefInstance));
+
+                // save it in Writer<T>.write
+                GenericInstanceType genericInstance = genericWriterClassRef.MakeGenericInstanceType(dataType);
+                FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
+                worker.Append(worker.Create(OpCodes.Stsfld, specializedField));
+            }
+        }
+
         static MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable, int recursionCount)
         {
             if (recursionCount > MaxRecursionCount)
@@ -225,11 +256,6 @@ namespace Mirror.Weaver
                     Weaver.Error($"{field.Name} has unsupported type. Use a type supported by Mirror instead", field);
                     return false;
                 }
-            }
-
-            if (fields == 0)
-            {
-                Log.Warning($"{variable} has no no public or non-static fields to serialize");
             }
 
             return true;

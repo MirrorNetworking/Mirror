@@ -313,7 +313,7 @@ namespace Mirror
         /// <param name="identity"></param>
         /// <param name="msg"></param>
         /// <param name="channelId"></param>
-        void SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        void SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable)
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToObservers id:" + typeof(T));
 
@@ -329,7 +329,7 @@ namespace Mirror
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <param name="sendToReadyOnly">Indicates if only ready clients should receive the message</param>
-        public void SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public void SendToAll<T>(T msg, int channelId = Channels.DefaultReliable)
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToAll id:" + typeof(T));
             NetworkConnection.Send(connections, msg, channelId);
@@ -344,7 +344,7 @@ namespace Mirror
         /// <param name="msg">Message</param>
         /// <param name="includeOwner">Should the owner of the object be included</param>
         /// <param name="channelId">Transport channel to use</param>
-        public void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable)
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToReady msgType:" + typeof(T));
 
@@ -370,7 +370,7 @@ namespace Mirror
         /// <param name="identity">identity of the object</param>
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
-        public void SendToReady<T>(NetworkIdentity identity, T msg, int channelId) where T : IMessageBase
+        public void SendToReady<T>(NetworkIdentity identity, T msg, int channelId)
         {
             SendToReady(identity, msg, true, channelId);
         }
@@ -475,7 +475,7 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity"></param>
         /// <param name="msg"></param>
-        public void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable)
         {
             if (identity != null)
             {

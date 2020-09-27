@@ -10,14 +10,11 @@ using System.Linq;
 namespace Mirror.Tests
 {
 
-    struct WovenTestMessage : IMessageBase
+    struct WovenTestMessage
     {
         public int IntValue;
         public string StringValue;
         public double DoubleValue;
-
-        public void Deserialize(NetworkReader reader) { }
-        public void Serialize(NetworkWriter writer) { }
     }
 
     [TestFixture]

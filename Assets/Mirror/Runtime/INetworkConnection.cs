@@ -9,18 +9,17 @@ namespace Mirror
     /// </summary>
     public interface IMessageHandler
     {
-        void RegisterHandler<T>(Action<INetworkConnection, T> handler)
-                where T : IMessageBase, new();
+        void RegisterHandler<T>(Action<INetworkConnection, T> handler);
 
-        void RegisterHandler<T>(Action<T> handler) where T : IMessageBase, new();
+        void RegisterHandler<T>(Action<T> handler);
 
-        void UnregisterHandler<T>() where T : IMessageBase;
+        void UnregisterHandler<T>();
 
         void ClearHandlers();
 
-        void Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase;
+        void Send<T>(T msg, int channelId = Channels.DefaultReliable);
 
-        Task SendAsync<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase;
+        Task SendAsync<T>(T msg, int channelId = Channels.DefaultReliable);
 
         Task ProcessMessagesAsync();
 

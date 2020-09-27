@@ -262,12 +262,12 @@ namespace Mirror
         /// <param name="message"></param>
         /// <param name="channelId"></param>
         /// <returns>True if message was sent.</returns>
-        public Task SendAsync<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public Task SendAsync<T>(T message, int channelId = Channels.DefaultReliable)
         {
             return Connection.SendAsync(message, channelId);
         }
 
-        public void Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public void Send<T>(T message, int channelId = Channels.DefaultReliable)
         {
             _ = Connection.SendAsync(message, channelId);
         }

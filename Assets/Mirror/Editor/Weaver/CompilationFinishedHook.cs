@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -74,18 +73,6 @@ namespace Mirror.Weaver
 #endif
         }
 
-        static string FindMirrorRuntime()
-        {
-            foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
-            {
-                if (assembly.name == MirrorRuntimeAssemblyName)
-                {
-                    return assembly.outputPath;
-                }
-            }
-            return "";
-        }
-
         static bool CompilerMessagesContainError(CompilerMessage[] messages)
         {
             return messages.Any(msg => msg.type == CompilerMessageType.Error);
@@ -113,37 +100,24 @@ namespace Mirror.Weaver
                 return;
             }
 
-            // find Mirror.dll
-            string mirrorRuntimeDll = FindMirrorRuntime();
-            if (string.IsNullOrEmpty(mirrorRuntimeDll))
+            UnityAssembly assembly = CompilationPipeline.GetAssemblies().FirstOrDefault(ass => ass.outputPath == assemblyPath);
+
+            if (assembly == null)
             {
-                Debug.LogError("Failed to find Mirror runtime assembly");
-                return;
-            }
-            if (!File.Exists(mirrorRuntimeDll))
-            {
-                // this is normal, it happens with any assembly that is built before mirror
-                // such as unity packages or your own assemblies
-                // those don't need to be weaved
-                // if any assembly depends on mirror, then it will be built after
-                return;
+                // no assembly found, this can happen if you use the AssemblyBuilder
+                // happens with our weaver tests.
+                // create an assembly object manually
+                assembly = CreateUnityAssembly(assemblyPath);
             }
 
-            // find UnityEngine.CoreModule.dll
-            string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
-            if (string.IsNullOrEmpty(unityEngineCoreModuleDLL))
-            {
-                Debug.LogError("Failed to find UnityEngine assembly");
+            // don't weave if this does not depend on mirror
+            if (!assembly.allReferences.Any(path => Path.GetFileNameWithoutExtension(path) == MirrorRuntimeAssemblyName))
                 return;
-            }
 
-            HashSet<string> dependencyPaths = GetDependecyPaths(assemblyPath);
-            dependencyPaths.Add(Path.GetDirectoryName(mirrorRuntimeDll));
-            dependencyPaths.Add(Path.GetDirectoryName(unityEngineCoreModuleDLL));
             Log.WarningMethod = HandleWarning;
             Log.ErrorMethod = HandleError;
 
-            if (!Weaver.WeaveAssembly(assemblyPath, dependencyPaths.ToArray()))
+            if (!Weaver.WeaveAssembly(assembly))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
@@ -151,25 +125,20 @@ namespace Mirror.Weaver
             }
         }
 
-        static HashSet<string> GetDependecyPaths(string assemblyPath)
+        private static UnityAssembly CreateUnityAssembly(string assemblyPath)
         {
-            // build directory list for later asm/symbol resolving using CompilationPipeline refs
-            var dependencyPaths = new HashSet<string>
-            {
-                Path.GetDirectoryName(assemblyPath)
-            };
-            foreach (UnityAssembly unityAsm in CompilationPipeline.GetAssemblies())
-            {
-                if (unityAsm.outputPath != assemblyPath)
-                    continue;
+            // copy from one of the assemblies
+            UnityAssembly first = CompilationPipeline.GetAssemblies().First();
 
-                foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
-                {
-                    dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
-                }
-            }
+            return new UnityAssembly(
+                Path.GetFileNameWithoutExtension(assemblyPath),
+                assemblyPath,
+                new string[] { },
+                CompilationPipeline.GetDefinesFromAssemblyName(assemblyPath),
+                CompilationPipeline.GetAssemblies(),
+                first.compiledAssemblyReferences,
 
-            return dependencyPaths;
+                AssemblyFlags.None) ;
         }
     }
 }

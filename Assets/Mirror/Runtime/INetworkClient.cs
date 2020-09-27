@@ -35,8 +35,8 @@ namespace Mirror
     {
         void Disconnect();
 
-        void Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase;
+        void Send<T>(T message, int channelId = Channels.DefaultReliable);
 
-        Task SendAsync<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase;
+        Task SendAsync<T>(T message, int channelId = Channels.DefaultReliable);
     }
 }

@@ -93,7 +93,6 @@ namespace Mirror
         }
 
         private static NetworkMessageDelegate MessageHandler<T>(Action<INetworkConnection, T> handler)
-            where T : IMessageBase, new()
         {
             void AdapterFunction(INetworkConnection conn, NetworkReader reader, int channelId)
             {
@@ -109,10 +108,10 @@ namespace Mirror
                 //
                 // let's catch them all and then disconnect that connection to avoid
                 // further attacks.
-                T message = default(T) != null ? default : new T();
+                var message = default(T);
                 try
-                {                    
-                    message.Deserialize(reader);
+                {
+                    message = reader.ReadMessage<T>();
                 }
                 finally
                 {
@@ -132,7 +131,6 @@ namespace Mirror
         /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
         public void RegisterHandler<T>(Action<INetworkConnection, T> handler)
-            where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
             if (logger.filterLogType == LogType.Log && messageHandlers.ContainsKey(msgType))
@@ -149,7 +147,7 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
-        public void RegisterHandler<T>(Action<T> handler) where T : IMessageBase, new()
+        public void RegisterHandler<T>(Action<T> handler)
         {
             RegisterHandler<T>((_, value) => { handler(value); });
         }
@@ -158,7 +156,7 @@ namespace Mirror
         /// Unregisters a handler for a particular message type.
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        public void UnregisterHandler<T>() where T : IMessageBase
+        public void UnregisterHandler<T>()
         {
             int msgType = MessagePacker.GetId<T>();
             messageHandlers.Remove(msgType);
@@ -179,7 +177,7 @@ namespace Mirror
         /// <param name="msg">The message to send</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual void Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public virtual void Send<T>(T msg, int channelId = Channels.DefaultReliable)
         {
             _ = SendAsync(msg, channelId);
         }
@@ -191,7 +189,7 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual Task SendAsync<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public virtual Task SendAsync<T>(T msg, int channelId = Channels.DefaultReliable)
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
@@ -202,7 +200,7 @@ namespace Mirror
             }
         }
 
-        public static void Send<T>(IEnumerable<INetworkConnection> connections, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public static void Send<T>(IEnumerable<INetworkConnection> connections, T msg, int channelId = Channels.DefaultReliable)
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {

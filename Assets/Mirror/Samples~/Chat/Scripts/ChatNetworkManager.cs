@@ -17,7 +17,7 @@ namespace Mirror.Examples.Chat
             client.Authenticated.AddListener(OnClientAuthenticated);
         }
 
-        public class CreatePlayerMessage : MessageBase
+        public struct CreatePlayerMessage
         {
             public string name;
         }
