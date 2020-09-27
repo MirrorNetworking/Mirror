@@ -207,10 +207,7 @@ namespace Mirror
 
             // proceed with the login handshake by calling OnServerConnect
             if (!string.IsNullOrEmpty(NetworkSceneName))
-            {
-                var msg = new SceneMessage { sceneName = NetworkSceneName };
-                conn.Send(msg);
-            }
+                conn.Send(new SceneMessage { sceneName = NetworkSceneName });
         }
 
         /// <summary>

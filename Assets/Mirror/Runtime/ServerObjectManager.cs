@@ -362,11 +362,7 @@ namespace Mirror
 
         internal void HideForConnection(NetworkIdentity identity, INetworkConnection conn)
         {
-            var msg = new ObjectHideMessage
-            {
-                netId = identity.NetId
-            };
-            conn.Send(msg);
+            conn.Send(new ObjectHideMessage { netId = identity.NetId });
         }
 
         /// <summary>
@@ -465,7 +461,7 @@ namespace Mirror
 
                 ArraySegment<byte> payload = CreateSpawnMessagePayload(isOwner, identity, ownerWriter, observersWriter);
 
-                var msg = new SpawnMessage
+                conn.Send(new SpawnMessage
                 {
                     netId = identity.NetId,
                     isLocalPlayer = conn.Identity == identity,
@@ -478,9 +474,7 @@ namespace Mirror
                     scale = identity.transform.localScale,
 
                     payload = payload,
-                };
-
-                conn.Send(msg);
+                });
             }
         }
 
@@ -586,11 +580,7 @@ namespace Mirror
             Spawned.Remove(identity.NetId);
             identity.ConnectionToClient?.RemoveOwnedObject(identity);
 
-            var msg = new ObjectDestroyMessage
-            {
-                netId = identity.NetId
-            };
-            SendToObservers(identity, msg);
+            SendToObservers(identity, new ObjectDestroyMessage { netId = identity.NetId });
 
             identity.ClearObservers();
             if (server.LocalClientActive)
