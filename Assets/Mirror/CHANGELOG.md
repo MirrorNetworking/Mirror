@@ -1,3 +1,15 @@
+# [44.0.0](https://github.com/MirrorNG/MirrorNG/compare/v43.9.1...v44.0.0) (2020-09-27)
+
+
+### Features
+
+* Send any data type as message ([#359](https://github.com/MirrorNG/MirrorNG/issues/359)) ([f04e17c](https://github.com/MirrorNG/MirrorNG/commit/f04e17cfa8421eb2f23d1f82de4945016857487a))
+
+
+### BREAKING CHANGES
+
+* IMessageBase has been removed,  you don't need to implement anything
+
 ## [43.9.1](https://github.com/MirrorNG/MirrorNG/compare/v43.9.0...v43.9.1) (2020-09-25)
 
 
