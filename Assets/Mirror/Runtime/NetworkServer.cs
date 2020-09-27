@@ -102,13 +102,13 @@ namespace Mirror
                     // we do NOT call Transport.Shutdown, because someone only
                     // called NetworkServer.Shutdown. we can't assume that the
                     // client is supposed to be shut down too!
-                    Transport.activeTransport.ServerStop();
+                    ActiveTransport.server.ServerStop();
                 }
 
-                Transport.activeTransport.OnServerDisconnected.RemoveListener(OnDisconnected);
-                Transport.activeTransport.OnServerConnected.RemoveListener(OnConnected);
-                Transport.activeTransport.OnServerDataReceived.RemoveListener(OnDataReceived);
-                Transport.activeTransport.OnServerError.RemoveListener(OnError);
+                ActiveTransport.server.OnServerDisconnected.RemoveListener(OnDisconnected);
+                ActiveTransport.server.OnServerConnected.RemoveListener(OnConnected);
+                ActiveTransport.server.OnServerDataReceived.RemoveListener(OnDataReceived);
+                ActiveTransport.server.OnServerError.RemoveListener(OnError);
 
                 initialized = false;
             }
@@ -152,11 +152,11 @@ namespace Mirror
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
 
-            logger.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'Transport.activeTransport' first");
-            Transport.activeTransport.OnServerDisconnected.AddListener(OnDisconnected);
-            Transport.activeTransport.OnServerConnected.AddListener(OnConnected);
-            Transport.activeTransport.OnServerDataReceived.AddListener(OnDataReceived);
-            Transport.activeTransport.OnServerError.AddListener(OnError);
+            logger.Assert(ActiveTransport.server != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'ActiveTransport.server' first");
+            ActiveTransport.server.OnServerDisconnected.AddListener(OnDisconnected);
+            ActiveTransport.server.OnServerConnected.AddListener(OnConnected);
+            ActiveTransport.server.OnServerDataReceived.AddListener(OnDataReceived);
+            ActiveTransport.server.OnServerError.AddListener(OnError);
         }
 
         internal static void RegisterMessageHandlers()
@@ -178,7 +178,7 @@ namespace Mirror
             // only start server if we want to listen
             if (!dontListen)
             {
-                Transport.activeTransport.ServerStart();
+                ActiveTransport.server.ServerStart();
                 logger.Log("Server started listening");
             }
 
@@ -536,14 +536,14 @@ namespace Mirror
             if (connectionId <= 0)
             {
                 logger.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be >0, because 0 is reserved for local player.");
-                Transport.activeTransport.ServerDisconnect(connectionId);
+                ActiveTransport.server.ServerDisconnect(connectionId);
                 return;
             }
 
             // connectionId not in use yet?
             if (connections.ContainsKey(connectionId))
             {
-                Transport.activeTransport.ServerDisconnect(connectionId);
+                ActiveTransport.server.ServerDisconnect(connectionId);
                 if (logger.LogEnabled()) logger.Log("Server connectionId " + connectionId + " already in use. kicked client:" + connectionId);
                 return;
             }
@@ -562,7 +562,7 @@ namespace Mirror
             else
             {
                 // kick
-                Transport.activeTransport.ServerDisconnect(connectionId);
+                ActiveTransport.server.ServerDisconnect(connectionId);
                 if (logger.LogEnabled()) logger.Log("Server full, kicked client:" + connectionId);
             }
         }

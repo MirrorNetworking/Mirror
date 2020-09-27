@@ -30,7 +30,8 @@ namespace Mirror.Discovery
             // so make sure we set it here in Start()  (after awakes)
             // Or just let the user assign it in the inspector
             if (transport == null)
-                transport = Transport.activeTransport;
+                // TODO stop this breaking when server is not Transport
+                transport = ActiveTransport.server as Transport;
 
             base.Start();
         }

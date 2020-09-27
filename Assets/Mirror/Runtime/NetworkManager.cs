@@ -723,7 +723,8 @@ namespace Mirror
 
             // set active transport AFTER setting singleton.
             // so only if we didn't destroy ourselves.
-            Transport.activeTransport = transport;
+            ActiveTransport.client = transport;
+            ActiveTransport.server = transport;
 
             return true;
         }
@@ -823,7 +824,7 @@ namespace Mirror
 
             // Suspend the server's transport while changing scenes
             // It will be re-enabled in FinishScene.
-            Transport.activeTransport.enabled = false;
+            ActiveTransport.server.enabled = false;
 
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
@@ -858,7 +859,7 @@ namespace Mirror
             // the state as soon as the load is finishing, causing all kinds of bugs because of missing state.
             // (client may be null after StopClient etc.)
             if (logger.LogEnabled()) logger.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
-            Transport.activeTransport.enabled = false;
+            ActiveTransport.client.enabled = false;
 
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName, sceneOperation, customHandling);
@@ -888,7 +889,7 @@ namespace Mirror
                         logger.LogWarning($"Scene {newSceneName} is already loaded");
 
                         // Re-enable the transport that we disabled before entering this switch
-                        Transport.activeTransport.enabled = true;
+                        ActiveTransport.client.enabled = true;
                     }
                     break;
                 case SceneOperation.UnloadAdditive:
@@ -901,7 +902,7 @@ namespace Mirror
                         logger.LogWarning($"Cannot unload {newSceneName} with UnloadAdditive operation");
 
                         // Re-enable the transport that we disabled before entering this switch
-                        Transport.activeTransport.enabled = true;
+                        ActiveTransport.client.enabled = true;
                     }
                     break;
             }
@@ -955,21 +956,24 @@ namespace Mirror
 
             // process queued messages that we received while loading the scene
             logger.Log("FinishLoadScene: resuming handlers after scene was loading.");
-            Transport.activeTransport.enabled = true;
 
             // host mode?
             if (mode == NetworkManagerMode.Host)
             {
+                ActiveTransport.server.enabled = true;
+                ActiveTransport.client.enabled = true;
                 FinishLoadSceneHost();
             }
             // server-only mode?
             else if (mode == NetworkManagerMode.ServerOnly)
             {
+                ActiveTransport.server.enabled = true;
                 FinishLoadSceneServerOnly();
             }
             // client-only mode?
             else if (mode == NetworkManagerMode.ClientOnly)
             {
+                ActiveTransport.client.enabled = true;
                 FinishLoadSceneClientOnly();
             }
             // otherwise we called it after stopping when loading offline scene.

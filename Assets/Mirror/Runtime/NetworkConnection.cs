@@ -157,30 +157,6 @@ namespace Mirror
             }
         }
 
-        // validate packet size before sending. show errors if too big/small.
-        // => it's best to check this here, we can't assume that all transports
-        //    would check max size and show errors internally. best to do it
-        //    in one place in hlapi.
-        // => it's important to log errors, so the user knows what went wrong.
-        protected internal static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
-        {
-            if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
-            {
-                logger.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
-                return false;
-            }
-
-            if (segment.Count == 0)
-            {
-                // zero length packets getting into the packet queues are bad.
-                logger.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
-                return false;
-            }
-
-            // good size
-            return true;
-        }
-
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
         internal abstract bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);

@@ -14,9 +14,9 @@ namespace Mirror
             if (logger.LogEnabled()) logger.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
             // validate packet size first.
-            if (ValidatePacketSize(segment, channelId))
+            if (ActiveTransport.client.ValidatePacketSize(segment, channelId))
             {
-                return Transport.activeTransport.ClientSend(channelId, segment);
+                return ActiveTransport.client.ClientSend(channelId, segment);
             }
             return false;
         }
@@ -30,7 +30,7 @@ namespace Mirror
             // (might be client or host mode here)
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
-            Transport.activeTransport.ClientDisconnect();
+            ActiveTransport.client.ClientDisconnect();
         }
     }
 }

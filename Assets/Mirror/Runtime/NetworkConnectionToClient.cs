@@ -10,7 +10,7 @@ namespace Mirror
 
         public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId) { }
 
-        public override string address => Transport.activeTransport.ServerGetClientAddress(connectionId);
+        public override string address => ActiveTransport.server.ServerGetClientAddress(connectionId);
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
@@ -26,10 +26,10 @@ namespace Mirror
             if (logger.LogEnabled()) logger.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
             // validate packet size first.
-            if (ValidatePacketSize(segment, channelId))
+            if (ActiveTransport.server.ValidatePacketSize(segment, channelId))
             {
                 singleConnectionId[0] = connectionId;
-                return Transport.activeTransport.ServerSend(singleConnectionId, channelId, segment);
+                return ActiveTransport.server.ServerSend(singleConnectionId, channelId, segment);
             }
             return false;
         }
@@ -38,13 +38,13 @@ namespace Mirror
         internal static bool Send(List<int> connectionIds, ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             // validate packet size first.
-            if (ValidatePacketSize(segment, channelId))
+            if (ActiveTransport.server.ValidatePacketSize(segment, channelId))
             {
                 // only the server sends to many, we don't have that function on
                 // a client.
-                if (Transport.activeTransport.ServerActive())
+                if (ActiveTransport.server.ServerActive())
                 {
-                    return Transport.activeTransport.ServerSend(connectionIds, channelId, segment);
+                    return ActiveTransport.server.ServerSend(connectionIds, channelId, segment);
                 }
             }
             return false;
@@ -58,7 +58,7 @@ namespace Mirror
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
-            Transport.activeTransport.ServerDisconnect(connectionId);
+            ActiveTransport.server.ServerDisconnect(connectionId);
             RemoveObservers();
         }
     }

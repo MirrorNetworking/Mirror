@@ -14,11 +14,87 @@ namespace Mirror
     [Serializable] public class ServerDataReceivedEvent : UnityEvent<int, ArraySegment<byte>, int> { }
     [Serializable] public class UnityEventIntException : UnityEvent<int, Exception> { }
 
-    public abstract class Transport : MonoBehaviour
+    public static class TransportExtensions
+    {
+        static readonly ILogger logger = LogFactory.GetLogger(typeof(TransportExtensions));
+
+
+        // validate packet size before sending. show errors if too big/small.
+        // => it's best to check this here, we can't assume that all transports
+        //    would check max size and show errors internally. best to do it
+        //    in one place in hlapi.
+        // => it's important to log errors, so the user knows what went wrong.
+        public static bool ValidatePacketSize(this ICommonTransport transport, ArraySegment<byte> segment, int channelId)
+        {
+            if (segment.Count > transport.GetMaxPacketSize(channelId))
+            {
+                logger.LogError("cannot send packet larger than " + transport.GetMaxPacketSize(channelId) + " bytes");
+                return false;
+            }
+
+            if (segment.Count == 0)
+            {
+                // zero length packets getting into the packet queues are bad.
+                logger.LogError("cannot send zero bytes");
+                return false;
+            }
+
+            // good size
+            return true;
+        }
+    }
+    public interface ICommonTransport
+    {
+        bool Available();
+        int GetMaxPacketSize(int channelId = 0);
+        void Shutdown();
+
+        // from MonoBehaviour
+        // TODO remove need to set enable for transports
+        bool enabled { get; set; }
+    }
+
+    public interface IClientTransport : ICommonTransport
+    {
+        UnityEvent OnClientConnected { get; }
+        ClientDataReceivedEvent OnClientDataReceived { get; }
+        UnityEventException OnClientError { get; }
+        UnityEvent OnClientDisconnected { get; }
+
+        bool ClientConnected();
+        void ClientConnect(string address);
+        void ClientConnect(Uri uri);
+        void ClientDisconnect();
+        bool ClientSend(int channelId, ArraySegment<byte> segment);
+    }
+    public interface IServerTransport : ICommonTransport
+    {
+        UnityEventInt OnServerConnected { get; }
+        ServerDataReceivedEvent OnServerDataReceived { get; }
+        UnityEventIntException OnServerError { get; }
+        UnityEventInt OnServerDisconnected { get; }
+
+        bool ServerActive();
+        void ServerStart();
+        void ServerStop();
+        bool ServerDisconnect(int connectionId);
+        bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment);
+        string ServerGetClientAddress(int connectionId);
+        Uri ServerUri();
+    }
+
+    public static class ActiveTransport
+    {
+        public static IClientTransport client;
+        public static IServerTransport server;
+    }
+
+    public abstract class Transport : MonoBehaviour, IClientTransport, IServerTransport
     {
         /// <summary>
         /// The current transport used by Mirror.
         /// </summary>
+        [System.Obsolete("Use ActiveTransport instead", true)]
         public static Transport activeTransport;
 
         /// <summary>
@@ -34,23 +110,23 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when when this client establish a successful connection to the server
         /// </summary>
-        [HideInInspector] public UnityEvent OnClientConnected = new UnityEvent();
+        [HideInInspector] public UnityEvent OnClientConnected { get; } = new UnityEvent();
 
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// </summary>
         // Note: we provide channelId for NetworkDiagnostics.
-        [HideInInspector] public ClientDataReceivedEvent OnClientDataReceived = new ClientDataReceivedEvent();
+        [HideInInspector] public ClientDataReceivedEvent OnClientDataReceived { get; } = new ClientDataReceivedEvent();
 
         /// <summary>
         /// Notify subscribers when this client encounters an error communicating with the server
         /// </summary>
-        [HideInInspector] public UnityEventException OnClientError = new UnityEventException();
+        [HideInInspector] public UnityEventException OnClientError { get; } = new UnityEventException();
 
         /// <summary>
         /// Notify subscribers when this client disconnects from the server
         /// </summary>
-        [HideInInspector] public UnityEvent OnClientDisconnected = new UnityEvent();
+        [HideInInspector] public UnityEvent OnClientDisconnected { get; } = new UnityEvent();
 
         /// <summary>
         /// Determines if we are currently connected to the server
@@ -105,23 +181,23 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when a client connects to this server
         /// </summary>
-        [HideInInspector] public UnityEventInt OnServerConnected = new UnityEventInt();
+        [HideInInspector] public UnityEventInt OnServerConnected { get; } = new UnityEventInt();
 
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// </summary>
         // Note: we provide channelId for NetworkDiagnostics.
-        [HideInInspector] public ServerDataReceivedEvent OnServerDataReceived = new ServerDataReceivedEvent();
+        [HideInInspector] public ServerDataReceivedEvent OnServerDataReceived { get; } = new ServerDataReceivedEvent();
 
         /// <summary>
         /// Notify subscribers when this server has some problem communicating with the client
         /// </summary>
-        [HideInInspector] public UnityEventIntException OnServerError = new UnityEventIntException();
+        [HideInInspector] public UnityEventIntException OnServerError { get; } = new UnityEventIntException();
 
         /// <summary>
         /// Notify subscribers when a client disconnects from this server
         /// </summary>
-        [HideInInspector] public UnityEventInt OnServerDisconnected = new UnityEventInt();
+        [HideInInspector] public UnityEventInt OnServerDisconnected { get; } = new UnityEventInt();
 
         /// <summary>
         /// Determines if the server is up and running

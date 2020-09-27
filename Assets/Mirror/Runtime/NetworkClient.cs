@@ -63,14 +63,14 @@ namespace Mirror
         public static void Connect(string address)
         {
             if (logger.LogEnabled()) logger.Log("Client Connect: " + address);
-            logger.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.activeTransport' first");
+            logger.Assert(ActiveTransport.client != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'ActiveTransport.client' first");
 
             RegisterSystemHandlers(false);
-            Transport.activeTransport.enabled = true;
+            ActiveTransport.client.enabled = true;
             InitializeTransportHandlers();
 
             connectState = ConnectState.Connecting;
-            Transport.activeTransport.ClientConnect(address);
+            ActiveTransport.client.ClientConnect(address);
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
@@ -84,14 +84,14 @@ namespace Mirror
         public static void Connect(Uri uri)
         {
             if (logger.LogEnabled()) logger.Log("Client Connect: " + uri);
-            logger.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.activeTransport' first");
+            logger.Assert(ActiveTransport.client != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'ActiveTransport.client' first");
 
             RegisterSystemHandlers(false);
-            Transport.activeTransport.enabled = true;
+            ActiveTransport.client.enabled = true;
             InitializeTransportHandlers();
 
             connectState = ConnectState.Connecting;
-            Transport.activeTransport.ClientConnect(uri);
+            ActiveTransport.client.ClientConnect(uri);
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
@@ -147,10 +147,10 @@ namespace Mirror
 
         static void InitializeTransportHandlers()
         {
-            Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
-            Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
-            Transport.activeTransport.OnClientDisconnected.AddListener(OnDisconnected);
-            Transport.activeTransport.OnClientError.AddListener(OnError);
+            ActiveTransport.client.OnClientConnected.AddListener(OnConnected);
+            ActiveTransport.client.OnClientDataReceived.AddListener(OnDataReceived);
+            ActiveTransport.client.OnClientDisconnected.AddListener(OnDisconnected);
+            ActiveTransport.client.OnClientError.AddListener(OnError);
         }
 
         static void OnError(Exception exception)
@@ -225,10 +225,10 @@ namespace Mirror
         static void RemoveTransportHandlers()
         {
             // so that we don't register them more than once
-            Transport.activeTransport.OnClientConnected.RemoveListener(OnConnected);
-            Transport.activeTransport.OnClientDataReceived.RemoveListener(OnDataReceived);
-            Transport.activeTransport.OnClientDisconnected.RemoveListener(OnDisconnected);
-            Transport.activeTransport.OnClientError.RemoveListener(OnError);
+            ActiveTransport.client.OnClientConnected.RemoveListener(OnConnected);
+            ActiveTransport.client.OnClientDataReceived.RemoveListener(OnDataReceived);
+            ActiveTransport.client.OnClientDisconnected.RemoveListener(OnDisconnected);
+            ActiveTransport.client.OnClientError.RemoveListener(OnError);
         }
 
         /// <summary>
@@ -382,7 +382,7 @@ namespace Mirror
             // we do NOT call Transport.Shutdown, because someone only called
             // NetworkClient.Shutdown. we can't assume that the server is
             // supposed to be shut down too!
-            Transport.activeTransport.ClientDisconnect();
+            ActiveTransport.client.ClientDisconnect();
         }
     }
 }
