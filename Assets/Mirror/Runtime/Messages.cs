@@ -61,18 +61,6 @@ namespace Mirror
         public void Serialize(NetworkWriter writer) { }
     }
 
-    // Deprecated 5/2/2020
-    /// <summary>
-    /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, bool)">NetworkServer.RemovePlayerForConnection</see> instead.
-    /// </summary>
-    [Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, bool keepAuthority = false) instead")]
-    public struct RemovePlayerMessage : IMessageBase
-    {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
-    }
-
     public struct DisconnectMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }

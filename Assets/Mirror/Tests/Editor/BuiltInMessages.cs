@@ -164,19 +164,6 @@ namespace Mirror.Tests.MessageTests
         }
 
         [Test]
-        [Obsolete("RemovePlayerMessage is Obsolete")]
-        public void RemovePlayerMessage()
-        {
-            // try setting value with constructor
-            RemovePlayerMessage message = new RemovePlayerMessage();
-            byte[] arr = MessagePackerTest.PackToByteArray(message);
-            Assert.DoesNotThrow(() =>
-            {
-                RemovePlayerMessage fresh = MessagePacker.Unpack<RemovePlayerMessage>(arr);
-            });
-        }
-
-        [Test]
         public void RpcMessage()
         {
             // try setting value with constructor

@@ -50,9 +50,6 @@ namespace Mirror
         [FormerlySerializedAs("startOnHeadless")]
         public bool autoStartServerBuild = true;
 
-        [Obsolete("Use autoStartServerBuild instead.")]
-        public bool startOnHeadless { get => autoStartServerBuild; set => autoStartServerBuild = value; }
-
         /// <summary>
         /// Enables verbose debug messages in the console
         /// </summary>
@@ -1190,13 +1187,6 @@ namespace Mirror
 
             OnServerAddPlayer(conn);
         }
-
-        // Deprecated 5/2/2020
-        /// <summary>
-        /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, bool)">NetworkServer.RemovePlayerForConnection</see> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, bool keepAuthority = false) instead", true)]
-        void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg) { }
 
         void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
         {
