@@ -84,15 +84,7 @@ namespace Mirror.Weaver
             // [SyncVar] GameObject?
             if (fd.FieldType.Is<UnityEngine.GameObject>())
             {
-                // return this.GetSyncVarGameObject(ref field, uint netId);
-                // this.
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldfld, netFieldId));
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldflda, fd));
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getSyncVarGameObjectReference));
-                worker.Append(worker.Create(OpCodes.Ret));
+                Log.Error("[SyncVar] GameObject not supported anymore. Use [SyncVar] NetworkIdentity instead for: " + fd.FullName);
             }
             // [SyncVar] NetworkIdentity?
             else if (fd.FieldType.Is<NetworkIdentity>())
@@ -143,11 +135,7 @@ namespace Mirror.Weaver
             // make generic version of SetSyncVar with field type
             if (fd.FieldType.Is<UnityEngine.GameObject>())
             {
-                // reference to netId Field to set
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldfld, netFieldId));
-
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.syncVarGameObjectEqualReference));
+                Log.Error("[SyncVar] GameObject not supported anymore. Use [SyncVar] NetworkIdentity instead for: " + fd.FullName);
             }
             else if (fd.FieldType.Is<NetworkIdentity>())
             {
@@ -193,11 +181,7 @@ namespace Mirror.Weaver
 
             if (fd.FieldType.Is<UnityEngine.GameObject>())
             {
-                // reference to netId Field to set
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldflda, netFieldId));
-
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.setSyncVarGameObjectReference));
+                Log.Error("[SyncVar] GameObject not supported anymore. Use [SyncVar] NetworkIdentity instead for: " + fd.FullName);
             }
             else if (fd.FieldType.Is<NetworkIdentity>())
             {

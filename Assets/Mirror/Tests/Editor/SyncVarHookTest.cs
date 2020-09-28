@@ -18,19 +18,6 @@ namespace Mirror.Tests
         }
     }
 
-    class GameObjectHookBehaviour : NetworkBehaviour
-    {
-        [SyncVar(hook = nameof(OnValueChanged))]
-        public GameObject value = null;
-
-        public event Action<GameObject, GameObject> HookCalled;
-
-        void OnValueChanged(GameObject oldValue, GameObject newValue)
-        {
-            HookCalled.Invoke(oldValue, newValue);
-        }
-    }
-
     class NetworkIdentityHookBehaviour : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnValueChanged))]
@@ -141,7 +128,7 @@ namespace Mirror.Tests
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="serverObject"></param>
@@ -240,33 +227,6 @@ namespace Mirror.Tests
             bool written = SyncToClient(serverObject, clientObject, intialState);
             Assert.IsTrue(written);
             Assert.That(hookcallCount, Is.EqualTo(1));
-        }
-
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void GameObjectHook_HookCalledWhenSyncingChangedValue(bool intialState)
-        {
-            GameObjectHookBehaviour serverObject = CreateObject<GameObjectHookBehaviour>();
-            GameObjectHookBehaviour clientObject = CreateObject<GameObjectHookBehaviour>();
-
-            GameObject clientValue = null;
-            GameObject serverValue = CreateNetworkIdentity(2032).gameObject;
-
-            serverObject.value = serverValue;
-            clientObject.value = clientValue;
-
-            int callCount = 0;
-            clientObject.HookCalled += (oldValue, newValue) =>
-            {
-                callCount++;
-                Assert.That(oldValue, Is.EqualTo(clientValue));
-                Assert.That(newValue, Is.EqualTo(serverValue));
-            };
-
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
-            Assert.That(callCount, Is.EqualTo(1));
         }
 
         [Test]
