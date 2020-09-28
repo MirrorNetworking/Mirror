@@ -250,10 +250,10 @@ namespace Mirror
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
             if (buffer == null)
             {
-                writer.WritePackedUInt32(0u);
+                writer.WriteUInt32(0u);
                 return;
             }
-            writer.WritePackedUInt32(checked((uint)count) + 1u);
+            writer.WriteUInt32(checked((uint)count) + 1u);
             writer.WriteBytes(buffer, offset, count);
         }
 
@@ -270,115 +270,32 @@ namespace Mirror
             writer.WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
         }
 
-        // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        // TODO this is still used by weaver
         [Obsolete("Use WriteInt32 instead")]
         public static void WritePackedInt32(this NetworkWriter writer, int i)
         {
-            uint zigzagged = (uint)((i >> 31) ^ (i << 1));
-            writer.WritePackedUInt32(zigzagged);
+            writer.WriteInt32(i);
         }
 
-        // http://sqlite.org/src4/doc/trunk/www/varint.wiki
+        // TODO this is still used by weaver
         [Obsolete("Use WriteUInt32 instead")]
         public static void WritePackedUInt32(this NetworkWriter writer, uint value)
         {
-            // for 32 bit values WritePackedUInt64 writes the
-            // same exact thing bit by bit
-            writer.WritePackedUInt64(value);
+            writer.WriteUInt32(value);
         }
 
-        // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        // TODO this is still used by weaver
         [Obsolete("Use WriteInt64 instead")]
         public static void WritePackedInt64(this NetworkWriter writer, long i)
         {
-            ulong zigzagged = (ulong)((i >> 63) ^ (i << 1));
-            writer.WritePackedUInt64(zigzagged);
+            writer.WriteInt64(i);
         }
 
+        // TODO this is still used by weaver
         [Obsolete("Use WriteUInt64 instead")]
         public static void WritePackedUInt64(this NetworkWriter writer, ulong value)
         {
-            if (value <= 240)
-            {
-                writer.WriteByte((byte)value);
-                return;
-            }
-            if (value <= 2287)
-            {
-                writer.WriteByte((byte)(((value - 240) >> 8) + 241));
-                writer.WriteByte((byte)(value - 240));
-                return;
-            }
-            if (value <= 67823)
-            {
-                writer.WriteByte(249);
-                writer.WriteByte((byte)((value - 2288) >> 8));
-                writer.WriteByte((byte)(value - 2288));
-                return;
-            }
-            if (value <= 16777215)
-            {
-                writer.WriteByte(250);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                return;
-            }
-            if (value <= 4294967295)
-            {
-                writer.WriteByte(251);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                return;
-            }
-            if (value <= 1099511627775)
-            {
-                writer.WriteByte(252);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                writer.WriteByte((byte)(value >> 32));
-                return;
-            }
-            if (value <= 281474976710655)
-            {
-                writer.WriteByte(253);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                writer.WriteByte((byte)(value >> 32));
-                writer.WriteByte((byte)(value >> 40));
-                return;
-            }
-            if (value <= 72057594037927935)
-            {
-                writer.WriteByte(254);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                writer.WriteByte((byte)(value >> 32));
-                writer.WriteByte((byte)(value >> 40));
-                writer.WriteByte((byte)(value >> 48));
-                return;
-            }
-
-            // all others
-            {
-                writer.WriteByte(255);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                writer.WriteByte((byte)(value >> 32));
-                writer.WriteByte((byte)(value >> 40));
-                writer.WriteByte((byte)(value >> 48));
-                writer.WriteByte((byte)(value >> 56));
-            }
+            writer.WriteUInt64(value);
         }
 
         public static void WriteVector2(this NetworkWriter writer, Vector2 value)
@@ -404,15 +321,15 @@ namespace Mirror
 
         public static void WriteVector2Int(this NetworkWriter writer, Vector2Int value)
         {
-            writer.WritePackedInt32(value.x);
-            writer.WritePackedInt32(value.y);
+            writer.WriteInt32(value.x);
+            writer.WriteInt32(value.y);
         }
 
         public static void WriteVector3Int(this NetworkWriter writer, Vector3Int value)
         {
-            writer.WritePackedInt32(value.x);
-            writer.WritePackedInt32(value.y);
-            writer.WritePackedInt32(value.z);
+            writer.WriteInt32(value.x);
+            writer.WriteInt32(value.y);
+            writer.WriteInt32(value.z);
         }
 
         public static void WriteColor(this NetworkWriter writer, Color value)
@@ -489,28 +406,28 @@ namespace Mirror
         {
             if (value == null)
             {
-                writer.WritePackedUInt32(0);
+                writer.WriteUInt32(0);
                 return;
             }
-            writer.WritePackedUInt32(value.netId);
+            writer.WriteUInt32(value.netId);
         }
 
         public static void WriteTransform(this NetworkWriter writer, Transform value)
         {
             if (value == null)
             {
-                writer.WritePackedUInt32(0);
+                writer.WriteUInt32(0);
                 return;
             }
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
-                writer.WritePackedUInt32(identity.netId);
+                writer.WriteUInt32(identity.netId);
             }
             else
             {
                 Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
-                writer.WritePackedUInt32(0);
+                writer.WriteUInt32(0);
             }
         }
 
@@ -518,18 +435,18 @@ namespace Mirror
         {
             if (value == null)
             {
-                writer.WritePackedUInt32(0);
+                writer.WriteUInt32(0);
                 return;
             }
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
-                writer.WritePackedUInt32(identity.netId);
+                writer.WriteUInt32(identity.netId);
             }
             else
             {
                 Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
-                writer.WritePackedUInt32(0);
+                writer.WriteUInt32(0);
             }
         }
 

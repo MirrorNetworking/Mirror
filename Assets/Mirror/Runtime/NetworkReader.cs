@@ -205,7 +205,7 @@ namespace Mirror
         {
             // count = 0 means the array was null
             // otherwise count -1 is the length of the array
-            uint count = reader.ReadPackedUInt32();
+            uint count = reader.ReadUInt32();
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }
 
@@ -213,7 +213,7 @@ namespace Mirror
         {
             // count = 0 means the array was null
             // otherwise count - 1 is the length of the array
-            uint count = reader.ReadPackedUInt32();
+            uint count = reader.ReadUInt32();
             return count == 0 ? default : reader.ReadBytesSegment(checked((int)(count - 1u)));
         }
 
@@ -221,89 +221,35 @@ namespace Mirror
         [Obsolete("Use ReadInt32 instead")]
         public static int ReadPackedInt32(this NetworkReader reader)
         {
-            uint data = reader.ReadPackedUInt32();
-            return (int)((data >> 1) ^ -(data & 1));
+            return reader.ReadInt32();
         }
 
-        // http://sqlite.org/src4/doc/trunk/www/varint.wiki
-        // NOTE: big endian.
-        // Use checked() to force it to throw OverflowException if data is invalid
+        // TODO this is still used by weaver
         [Obsolete("Use ReadUInt32 instead")]
-        public static uint ReadPackedUInt32(this NetworkReader reader) => checked((uint)reader.ReadPackedUInt64());
+        public static uint ReadPackedUInt32(this NetworkReader reader)
+        {
+            return reader.ReadUInt32();
+        }
 
-        // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        // TODO this is still used by weaver
         [Obsolete("Use ReadInt64 instead")]
         public static long ReadPackedInt64(this NetworkReader reader)
         {
-            ulong data = reader.ReadPackedUInt64();
-            return ((long)(data >> 1)) ^ -((long)data & 1);
+            return reader.ReadInt64();
         }
 
+        // TODO this is still used by weaver
         [Obsolete("Use ReadUInt64 instead")]
         public static ulong ReadPackedUInt64(this NetworkReader reader)
         {
-            byte a0 = reader.ReadByte();
-            if (a0 < 241)
-            {
-                return a0;
-            }
-
-            byte a1 = reader.ReadByte();
-            if (a0 >= 241 && a0 <= 248)
-            {
-                return 240 + ((a0 - (ulong)241) << 8) + a1;
-            }
-
-            byte a2 = reader.ReadByte();
-            if (a0 == 249)
-            {
-                return 2288 + ((ulong)a1 << 8) + a2;
-            }
-
-            byte a3 = reader.ReadByte();
-            if (a0 == 250)
-            {
-                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16);
-            }
-
-            byte a4 = reader.ReadByte();
-            if (a0 == 251)
-            {
-                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24);
-            }
-
-            byte a5 = reader.ReadByte();
-            if (a0 == 252)
-            {
-                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32);
-            }
-
-            byte a6 = reader.ReadByte();
-            if (a0 == 253)
-            {
-                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40);
-            }
-
-            byte a7 = reader.ReadByte();
-            if (a0 == 254)
-            {
-                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40) + (((ulong)a7) << 48);
-            }
-
-            byte a8 = reader.ReadByte();
-            if (a0 == 255)
-            {
-                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40) + (((ulong)a7) << 48) + (((ulong)a8) << 56);
-            }
-
-            throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
+            return reader.ReadUInt64();
         }
 
         public static Vector2 ReadVector2(this NetworkReader reader) => new Vector2(reader.ReadSingle(), reader.ReadSingle());
         public static Vector3 ReadVector3(this NetworkReader reader) => new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         public static Vector4 ReadVector4(this NetworkReader reader) => new Vector4(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-        public static Vector2Int ReadVector2Int(this NetworkReader reader) => new Vector2Int(reader.ReadPackedInt32(), reader.ReadPackedInt32());
-        public static Vector3Int ReadVector3Int(this NetworkReader reader) => new Vector3Int(reader.ReadPackedInt32(), reader.ReadPackedInt32(), reader.ReadPackedInt32());
+        public static Vector2Int ReadVector2Int(this NetworkReader reader) => new Vector2Int(reader.ReadInt32(), reader.ReadInt32());
+        public static Vector3Int ReadVector3Int(this NetworkReader reader) => new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
         public static Color ReadColor(this NetworkReader reader) => new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         public static Color32 ReadColor32(this NetworkReader reader) => new Color32(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
         public static Quaternion ReadQuaternion(this NetworkReader reader) => new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
@@ -358,7 +304,7 @@ namespace Mirror
 
         public static NetworkIdentity ReadNetworkIdentity(this NetworkReader reader)
         {
-            uint netId = reader.ReadPackedUInt32();
+            uint netId = reader.ReadUInt32();
             if (netId == 0)
                 return null;
 
