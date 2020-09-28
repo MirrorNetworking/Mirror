@@ -25,12 +25,12 @@ namespace Mirror.Weaver
             // in later PR throw here if elementWriteFunc is null, see null check top of Create
             if (elementWriteFunc == null)
             {
-                throw new GenerateWriterException($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
+                throw new GenerateWriterException($"Cannot generate writer for {Name} because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
             }
         }
 
-        protected abstract string namePrefix { get; }
-        protected abstract bool needNullCheck { get; }
+        protected abstract string Name { get; }
+        protected abstract bool NeedNullCheck { get; }
 
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         protected virtual void ValidateType(TypeReference variable) { /* no validation */ }
@@ -44,7 +44,7 @@ namespace Mirror.Weaver
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
-            if (needNullCheck)
+            if (NeedNullCheck)
             {
                 AppendNullCheck(worker);
             }
@@ -68,7 +68,7 @@ namespace Mirror.Weaver
 
         string CreateFunctionName(TypeReference elementType)
         {
-            string functionName = $"_Write{namePrefix}_{elementType.Name}_";
+            string functionName = $"_Write{Name}_{elementType.Name}_";
             if (variable.DeclaringType != null)
             {
                 functionName += variable.DeclaringType.Name;

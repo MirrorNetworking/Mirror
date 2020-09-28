@@ -10,8 +10,8 @@ namespace Mirror.Weaver
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public ListWriter(TypeReference variable, int recursionCount) : base(variable, recursionCount) { }
 
-        protected override string namePrefix => "List";
-        protected override bool needNullCheck => true;
+        protected override string Name => "List";
+        protected override bool NeedNullCheck => true;
 
         protected override TypeReference GetElementType(TypeReference variable)
         {

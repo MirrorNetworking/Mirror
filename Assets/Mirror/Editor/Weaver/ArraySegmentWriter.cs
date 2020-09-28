@@ -1,4 +1,4 @@
-﻿using Mono.CecilX;
+using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
@@ -10,8 +10,8 @@ namespace Mirror.Weaver
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public ArraySegmentWriter(TypeReference variable, int recursionCount) : base(variable, recursionCount) { }
 
-        protected override string namePrefix => "ArraySegment";
-        protected override bool needNullCheck => false;
+        protected override string Name => "ArraySegment";
+        protected override bool NeedNullCheck => false;
 
         protected override TypeReference GetElementType(TypeReference variable)
         {
