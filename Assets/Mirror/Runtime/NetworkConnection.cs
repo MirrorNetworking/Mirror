@@ -16,8 +16,6 @@ namespace Mirror
     /// </remarks>
     public abstract class NetworkConnection : IDisposable
     {
-        public const int LocalConnectionId = 0;
-
         // internal so it can be tested
         internal readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 

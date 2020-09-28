@@ -36,39 +36,12 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void serverIp()
-        {
-            NetworkClient.ConnectHost();
-            Assert.That(NetworkClient.serverIp, Is.EqualTo("localhost"));
-        }
-
-        [Test]
-        public void isConnected()
-        {
-            Assert.That(NetworkClient.isConnected, Is.False);
-            NetworkClient.ConnectHost();
-            Assert.That(NetworkClient.isConnected, Is.True);
-        }
-
-        [Test]
         public void ConnectUri()
         {
             NetworkClient.Connect(new Uri("memory://localhost"));
             // update transport so connect event is processed
             ((MemoryTransport)Transport.activeTransport).LateUpdate();
             Assert.That(NetworkClient.isConnected, Is.True);
-        }
-
-        [Test]
-        public void DisconnectInHostMode()
-        {
-            NetworkClient.ConnectHost();
-            Assert.That(NetworkClient.isConnected, Is.True);
-            Assert.That(NetworkServer.localConnection, !Is.Null);
-
-            NetworkClient.Disconnect();
-            Assert.That(NetworkClient.isConnected, Is.False);
-            Assert.That(NetworkServer.localConnection, Is.Null);
         }
 
         [Test]

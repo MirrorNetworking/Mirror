@@ -16,7 +16,6 @@ namespace Mirror.Weaver
         public static MethodReference CmdDelegateConstructor;
 
         public static MethodReference NetworkServerGetActive;
-        public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
 
         // custom attribute types
@@ -37,8 +36,6 @@ namespace Mirror.Weaver
         public static MethodReference syncVarEqualReference;
         public static MethodReference syncVarNetworkIdentityEqualReference;
         public static MethodReference setSyncVarReference;
-        public static MethodReference setSyncVarHookGuard;
-        public static MethodReference getSyncVarHookGuard;
         public static MethodReference setSyncVarNetworkIdentityReference;
         public static MethodReference getSyncVarNetworkIdentityReference;
         public static MethodReference registerCommandDelegateReference;
@@ -76,7 +73,6 @@ namespace Mirror.Weaver
 
             TypeReference NetworkServerType = Import(typeof(NetworkServer));
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_active");
-            NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_localClientActive");
             TypeReference NetworkClientType = Import(typeof(NetworkClient));
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, currentAssembly, "get_active");
 
@@ -103,8 +99,6 @@ namespace Mirror.Weaver
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarEqual");
             syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarNetworkIdentityEqual");
             setSyncVarReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SetSyncVar");
-            setSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "setSyncVarHookGuard");
-            getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "getSyncVarHookGuard");
 
             setSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SetSyncVarNetworkIdentity");
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkIdentity");

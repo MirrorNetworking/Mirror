@@ -121,33 +121,6 @@ namespace Mirror.Tests
             }
         }
 
-        class SetHostVisibilityExceptionNetworkBehaviour : NetworkVisibility
-        {
-            public int called;
-            public bool valuePassed;
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
-            public override bool OnCheckObserver(NetworkConnection conn) { return true; }
-            public override void OnSetHostVisibility(bool visible)
-            {
-                ++called;
-                valuePassed = visible;
-                throw new Exception("some exception");
-            }
-
-        }
-
-        class SetHostVisibilityNetworkBehaviour : NetworkVisibility
-        {
-            public int called;
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
-            public override bool OnCheckObserver(NetworkConnection conn) { return true; }
-            public override void OnSetHostVisibility(bool visible)
-            {
-                ++called;
-                base.OnSetHostVisibility(visible);
-            }
-        }
-
         class CheckObserverExceptionNetworkBehaviour : NetworkVisibility
         {
             public int called;
@@ -159,7 +132,6 @@ namespace Mirror.Tests
                 valuePassed = conn;
                 throw new Exception("some exception");
             }
-            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class CheckObserverTrueNetworkBehaviour : NetworkVisibility
@@ -171,7 +143,6 @@ namespace Mirror.Tests
                 ++called;
                 return true;
             }
-            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class CheckObserverFalseNetworkBehaviour : NetworkVisibility
@@ -183,7 +154,6 @@ namespace Mirror.Tests
                 ++called;
                 return false;
             }
-            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class SerializeTest1NetworkBehaviour : NetworkBehaviour
@@ -250,20 +220,12 @@ namespace Mirror.Tests
             {
                 observers.Add(observer);
             }
-            public override void OnSetHostVisibility(bool visible) { }
         }
 
         class RebuildEmptyObserversNetworkBehaviour : NetworkVisibility
         {
             public override bool OnCheckObserver(NetworkConnection conn) { return true; }
             public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) { }
-            public int hostVisibilityCalled;
-            public bool hostVisibilityValue;
-            public override void OnSetHostVisibility(bool visible)
-            {
-                ++hostVisibilityCalled;
-                hostVisibilityValue = visible;
-            }
         }
 
         class IsClientServerCheckComponent : NetworkBehaviour
@@ -389,42 +351,6 @@ namespace Mirror.Tests
             NetworkIdentity.spawned.Clear();
         }
 
-        // check isClient/isServer/isLocalPlayer in host mode
-        [Test]
-        public void HostMode_IsFlags_Test()
-        {
-            // start the server
-            NetworkServer.Listen(1000);
-
-            // start the client
-            NetworkClient.ConnectHost();
-
-            // add component
-            IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
-
-            // set is as local player
-            ClientScene.InternalAddPlayer(identity);
-
-            // spawn it
-            NetworkServer.Spawn(gameObject);
-
-            // OnStartServer should have been called. check the flags.
-            Assert.That(component.OnStartServer_isClient, Is.EqualTo(true));
-            Assert.That(component.OnStartServer_isLocalPlayer, Is.EqualTo(true));
-            Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
-
-            // stop the client
-            NetworkClient.Shutdown();
-            NetworkServer.RemoveLocalConnection();
-            ClientScene.Shutdown();
-
-            // stop the server
-            NetworkServer.Shutdown();
-
-            // clean up
-            NetworkIdentity.spawned.Clear();
-        }
-
         [Test]
         public void GetSetAssetId()
         {
@@ -484,23 +410,6 @@ namespace Mirror.Tests
 
             // guid was still empty
             Assert.That(identity.assetId, Is.EqualTo(Guid.Empty));
-        }
-
-        [Test]
-        public void SetClientOwner()
-        {
-            // SetClientOwner
-            ULocalConnectionToClient original = new ULocalConnectionToClient();
-            identity.SetClientOwner(original);
-            Assert.That(identity.connectionToClient, Is.EqualTo(original));
-
-            // setting it when it's already set shouldn't overwrite the original
-            ULocalConnectionToClient overwrite = new ULocalConnectionToClient();
-            // will log a warning
-            LogAssert.ignoreFailingMessages = true;
-            identity.SetClientOwner(overwrite);
-            Assert.That(identity.connectionToClient, Is.EqualTo(original));
-            LogAssert.ignoreFailingMessages = false;
         }
 
         [Test]
@@ -651,119 +560,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void AssignAndRemoveClientAuthority()
-        {
-            // test the callback too
-            int callbackCalled = 0;
-            NetworkConnection callbackConnection = null;
-            NetworkIdentity callbackIdentity = null;
-            bool callbackState = false;
-            NetworkIdentity.clientAuthorityCallback += (conn, networkIdentity, state) =>
-            {
-                ++callbackCalled;
-                callbackConnection = conn;
-                callbackIdentity = identity;
-                callbackState = state;
-            };
-
-            // create a connection
-            ULocalConnectionToClient owner = new ULocalConnectionToClient();
-            owner.isReady = true;
-            // add client handlers
-            owner.connectionToServer = new ULocalConnectionToServer();
-            int spawnCalled = 0;
-            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>{
-                { MessagePacker.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++spawnCalled) }
-            });
-
-            // assigning authority should only work on server.
-            // if isServer is false because server isn't running yet then it
-            // should fail.
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            bool result = identity.AssignClientAuthority(owner);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(result, Is.False);
-
-            // server is needed
-            NetworkServer.Listen(1);
-
-            // call OnStartServer so that isServer is true
-            identity.OnStartServer();
-            Assert.That(identity.isServer, Is.True);
-
-            // assign authority
-            result = identity.AssignClientAuthority(owner);
-            Assert.That(result, Is.True);
-            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
-            Assert.That(callbackCalled, Is.EqualTo(1));
-            Assert.That(callbackConnection, Is.EqualTo(owner));
-            Assert.That(callbackIdentity, Is.EqualTo(identity));
-            Assert.That(callbackState, Is.EqualTo(true));
-
-            // assigning authority should respawn the object with proper authority
-            // on the client. that's the best way to sync the new state right now.
-            // process pending messages
-            owner.connectionToServer.Update();
-            Assert.That(spawnCalled, Is.EqualTo(1));
-
-            // shouldn't be able to assign authority while already owned by
-            // another connection
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            result = identity.AssignClientAuthority(new NetworkConnectionToClient(43));
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(result, Is.False);
-            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
-            Assert.That(callbackCalled, Is.EqualTo(1));
-
-            // someone might try to remove authority by assigning null.
-            // make sure this fails.
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            result = identity.AssignClientAuthority(null);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(result, Is.False);
-
-            // removing authority while not isServer shouldn't work.
-            // only allow it on server.
-            identity.isServer = false;
-
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.RemoveClientAuthority();
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
-            Assert.That(callbackCalled, Is.EqualTo(1));
-
-            // enable isServer again
-            identity.isServer = true;
-
-            // removing authority for the main player object shouldn't work
-            // set connection's player object
-            owner.identity = identity;
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.RemoveClientAuthority();
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(identity.connectionToClient, Is.EqualTo(owner));
-            Assert.That(callbackCalled, Is.EqualTo(1));
-
-            // removing authority for a non-main-player object should work
-            owner.identity = null;
-            identity.RemoveClientAuthority();
-            Assert.That(identity.connectionToClient, Is.Null);
-            Assert.That(callbackCalled, Is.EqualTo(2));
-            // the one that was removed
-            Assert.That(callbackConnection, Is.EqualTo(owner));
-            Assert.That(callbackIdentity, Is.EqualTo(identity));
-            Assert.That(callbackState, Is.EqualTo(false));
-
-            // clean up
-            NetworkServer.Shutdown();
-        }
-
-        [Test]
         public void NotifyAuthorityCallsOnStartStopAuthority()
         {
             // add components
@@ -809,33 +605,6 @@ namespace Mirror.Tests
             Assert.That(compStart.called, Is.EqualTo(1));
             // same as before
             Assert.That(compStop.called, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void OnSetHostVisibilityCallsComponentsAndCatchesExceptions()
-        {
-            // add component
-            SetHostVisibilityExceptionNetworkBehaviour comp = gameObject.AddComponent<SetHostVisibilityExceptionNetworkBehaviour>();
-
-            // make sure that comp.OnSetHostVisibility was called and make sure that
-            // the exception was caught and not thrown in here.
-            // an exception in OnSetHostVisibility should be caught, so that one
-            // component's exception doesn't stop all other components from
-            // being initialized
-            // (an error log is expected though)
-            LogAssert.ignoreFailingMessages = true;
-
-            // should catch the exception internally and not throw it
-            identity.OnSetHostVisibility(true);
-            Assert.That(comp.called, Is.EqualTo(1));
-            Assert.That(comp.valuePassed, Is.True);
-
-            // should catch the exception internally and not throw it
-            identity.OnSetHostVisibility(false);
-            Assert.That(comp.called, Is.EqualTo(2));
-            Assert.That(comp.valuePassed, Is.False);
-
-            LogAssert.ignoreFailingMessages = false;
         }
 
         // OnStartServer in host mode should set isClient=true
@@ -1368,83 +1137,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ServerUpdate()
-        {
-            // add components
-            SerializeTest1NetworkBehaviour compA = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            // test value
-            compA.value = 1337;
-            // set syncInterval so IsDirty passes the interval check
-            compA.syncInterval = 0;
-            // one needs to sync to owner
-            compA.syncMode = SyncMode.Owner;
-            SerializeTest2NetworkBehaviour compB = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
-            // test value
-            compB.value = "test";
-            // set syncInterval so IsDirty passes the interval check
-            compB.syncInterval = 0;
-            // one needs to sync to owner
-            compB.syncMode = SyncMode.Observers;
-
-            // call OnStartServer once so observers are created
-            identity.OnStartServer();
-
-            // set it dirty
-            compA.SetDirtyBit(ulong.MaxValue);
-            compB.SetDirtyBit(ulong.MaxValue);
-            Assert.That(compA.IsDirty(), Is.True);
-            Assert.That(compB.IsDirty(), Is.True);
-
-            // calling update without observers should clear all dirty bits.
-            // it would be spawned on new observers anyway.
-            identity.ServerUpdate();
-            Assert.That(compA.IsDirty(), Is.False);
-            Assert.That(compB.IsDirty(), Is.False);
-
-            // add an owner connection that will receive the updates
-            ULocalConnectionToClient owner = new ULocalConnectionToClient();
-            // for syncing
-            owner.isReady = true;
-            // add a client to server connection + handler to receive syncs
-            owner.connectionToServer = new ULocalConnectionToServer();
-            int ownerCalled = 0;
-            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
-            {
-                { MessagePacker.GetId<UpdateVarsMessage>(), ((conn, reader, channelId) => ++ownerCalled) }
-            });
-            identity.connectionToClient = owner;
-
-            // add an observer connection that will receive the updates
-            ULocalConnectionToClient observer = new ULocalConnectionToClient();
-            // we only sync to ready observers
-            observer.isReady = true;
-            // add a client to server connection + handler to receive syncs
-            observer.connectionToServer = new ULocalConnectionToServer();
-            int observerCalled = 0;
-            observer.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
-            {
-                { MessagePacker.GetId<UpdateVarsMessage>(), ((conn, reader, channelId) => ++observerCalled) }
-            });
-            identity.observers[observer.connectionId] = observer;
-
-            // set components dirty again
-            compA.SetDirtyBit(ulong.MaxValue);
-            compB.SetDirtyBit(ulong.MaxValue);
-
-            // calling update should serialize all components and send them to
-            // owner/observers
-            identity.ServerUpdate();
-
-            // update connections once so that messages are processed
-            owner.connectionToServer.Update();
-            observer.connectionToServer.Update();
-
-            // was it received on the clients?
-            Assert.That(ownerCalled, Is.EqualTo(1));
-            Assert.That(observerCalled, Is.EqualTo(1));
-        }
-
-        [Test]
         public void GetNewObservers()
         {
             // add components
@@ -1477,78 +1169,6 @@ namespace Mirror.Tests
             HashSet<NetworkConnection> observers = new HashSet<NetworkConnection>();
             bool result = identity.GetNewObservers(observers, true);
             Assert.That(result, Is.False);
-        }
-
-        [Test]
-        public void AddAllReadyServerConnectionsToObservers()
-        {
-            // add some server connections
-            NetworkServer.connections[12] = new NetworkConnectionToClient(12) { isReady = true };
-            NetworkServer.connections[13] = new NetworkConnectionToClient(13) { isReady = false };
-
-            // add a host connection
-            ULocalConnectionToClient localConnection = new ULocalConnectionToClient();
-            localConnection.connectionToServer = new ULocalConnectionToServer();
-            localConnection.isReady = true;
-            NetworkServer.SetLocalConnection(localConnection);
-
-            // call OnStartServer so that observers dict is created
-            identity.OnStartServer();
-
-            // add all to observers. should have the two ready connections then.
-            identity.AddAllReadyServerConnectionsToObservers();
-            Assert.That(identity.observers.Count, Is.EqualTo(2));
-            Assert.That(identity.observers.ContainsKey(12));
-            Assert.That(identity.observers.ContainsKey(NetworkServer.localConnection.connectionId));
-
-            // clean up
-            NetworkServer.RemoveLocalConnection();
-            NetworkServer.Shutdown();
-        }
-
-        // RebuildObservers should always add the own ready connection
-        // (if any). fixes https://github.com/vis2k/Mirror/issues/692
-        [Test]
-        public void RebuildObserversAddsOwnReadyPlayer()
-        {
-            // add at least one observers component, otherwise it will just add
-            // all server connections
-            gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
-
-            // add own player connection
-            ULocalConnectionToClient connection = new ULocalConnectionToClient();
-            connection.connectionToServer = new ULocalConnectionToServer();
-            connection.isReady = true;
-            identity.connectionToClient = connection;
-
-            // call OnStartServer so that observers dict is created
-            identity.OnStartServer();
-
-            // rebuild should at least add own ready player
-            identity.RebuildObservers(true);
-            Assert.That(identity.observers.ContainsKey(identity.connectionToClient.connectionId));
-        }
-
-        // RebuildObservers should always add the own ready connection
-        // (if any). fixes https://github.com/vis2k/Mirror/issues/692
-        [Test]
-        public void RebuildObserversOnlyAddsOwnPlayerIfReady()
-        {
-            // add at least one observers component, otherwise it will just add
-            // all server connections
-            gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
-
-            // add own player connection that isn't ready
-            ULocalConnectionToClient connection = new ULocalConnectionToClient();
-            connection.connectionToServer = new ULocalConnectionToServer();
-            identity.connectionToClient = connection;
-
-            // call OnStartServer so that observers dict is created
-            identity.OnStartServer();
-
-            // rebuild shouldn't add own player because conn wasn't set ready
-            identity.RebuildObservers(true);
-            Assert.That(!identity.observers.ContainsKey(identity.connectionToClient.connectionId));
         }
 
         [Test]
@@ -1674,35 +1294,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RebuildObserversSetsHostVisibility()
-        {
-            // set local connection for host mode
-            ULocalConnectionToClient localConnection = new ULocalConnectionToClient();
-            localConnection.connectionToServer = new ULocalConnectionToServer();
-            localConnection.isReady = true;
-            NetworkServer.SetLocalConnection(localConnection);
-
-            // add at least one observers component, otherwise it will just add
-            // all server connections
-            RebuildEmptyObserversNetworkBehaviour comp = gameObject.AddComponent<RebuildEmptyObserversNetworkBehaviour>();
-            Assert.That(comp.hostVisibilityCalled, Is.EqualTo(0));
-
-            // call OnStartServer so that observers dict is created
-            identity.OnStartServer();
-
-            // rebuild will result in 0 observers. it won't contain host
-            // connection so it should call OnSetHostVisibility(false)
-            identity.RebuildObservers(true);
-            Assert.That(identity.observers.Count, Is.EqualTo(0));
-            Assert.That(comp.hostVisibilityCalled, Is.EqualTo(1));
-            Assert.That(comp.hostVisibilityValue, Is.False);
-
-            // clean up
-            NetworkServer.RemoveLocalConnection();
-            NetworkServer.Shutdown();
-        }
-
-        [Test]
         public void RebuildObserversReturnsIfNull()
         {
             // add a server connection
@@ -1773,19 +1364,6 @@ namespace Mirror.Tests
             ulong mask = identity.GetDirtyComponentsMask();
 
             Assert.That(mask, Is.EqualTo(0UL));
-        }
-
-        [Test]
-        public void OnSetHostVisibilityBaseTest()
-        {
-            SpriteRenderer renderer;
-
-            renderer = gameObject.AddComponent<SpriteRenderer>();
-            SetHostVisibilityNetworkBehaviour comp = gameObject.AddComponent<SetHostVisibilityNetworkBehaviour>();
-            comp.OnSetHostVisibility(false);
-
-            Assert.That(comp.called, Is.EqualTo(1));
-            Assert.That(renderer.enabled, Is.False);
         }
     }
 }

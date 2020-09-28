@@ -91,20 +91,6 @@ namespace Mirror
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
 
         protected ulong syncVarDirtyBits { get; private set; }
-        ulong syncVarHookGuard;
-
-        protected bool getSyncVarHookGuard(ulong dirtyBit)
-        {
-            return (syncVarHookGuard & dirtyBit) != 0UL;
-        }
-
-        protected void setSyncVarHookGuard(ulong dirtyBit, bool value)
-        {
-            if (value)
-                syncVarHookGuard |= dirtyBit;
-            else
-                syncVarHookGuard &= ~dirtyBit;
-        }
 
         /// <summary>
         /// objects that can synchronize themselves, such as synclists
@@ -310,9 +296,6 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
         {
-            if (getSyncVarHookGuard(dirtyBit))
-                return;
-
             uint newNetId = 0;
             if (newIdentity != null)
             {

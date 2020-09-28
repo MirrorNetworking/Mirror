@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using Guid = System.Guid;
@@ -151,13 +150,6 @@ namespace Mirror
             readyConnection.Send(new AddPlayerMessage());
             return true;
         }
-
-        // Deprecated 5/2/2020
-        /// <summary>
-        /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, bool)">NetworkServer.RemovePlayerForConnection</see> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, bool keepAuthority = false) instead", true)]
-        public static bool RemovePlayer() { return false; }
 
         /// <summary>
         /// Signal that the client connection is ready to enter the game.
@@ -971,38 +963,6 @@ namespace Mirror
             else
             {
                 // Debug.LogWarning("Did not find target for destroy message for " + netId);
-            }
-        }
-
-        internal static void OnHostClientObjectDestroy(ObjectDestroyMessage msg)
-        {
-            // Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId);
-
-            NetworkIdentity.spawned.Remove(msg.netId);
-        }
-
-        internal static void OnHostClientObjectHide(ObjectHideMessage msg)
-        {
-            // Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
-
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
-            {
-                localObject.OnSetHostVisibility(false);
-            }
-        }
-
-        internal static void OnHostClientSpawn(SpawnMessage msg)
-        {
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
-            {
-                if (msg.isLocalPlayer)
-                    InternalAddPlayer(localObject);
-
-                localObject.hasAuthority = msg.isOwner;
-                localObject.NotifyAuthority();
-                localObject.OnStartClient();
-                localObject.OnSetHostVisibility(true);
-                CheckForLocalPlayer(localObject);
             }
         }
 

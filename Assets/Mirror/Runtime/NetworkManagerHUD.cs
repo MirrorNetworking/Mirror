@@ -76,15 +76,6 @@ namespace Mirror
         {
             if (!NetworkClient.active)
             {
-                // Server + Client
-                if (Application.platform != RuntimePlatform.WebGLPlayer)
-                {
-                    if (GUILayout.Button("Host (Server + Client)"))
-                    {
-                        manager.StartHost();
-                    }
-                }
-
                 // Client + IP
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Client"))
@@ -131,16 +122,8 @@ namespace Mirror
 
         void StopButtons()
         {
-            // stop host if host mode
-            if (NetworkServer.active && NetworkClient.isConnected)
-            {
-                if (GUILayout.Button("Stop Host"))
-                {
-                    manager.StopHost();
-                }
-            }
             // stop client if client-only
-            else if (NetworkClient.isConnected)
+            if (NetworkClient.isConnected)
             {
                 if (GUILayout.Button("Stop Client"))
                 {
