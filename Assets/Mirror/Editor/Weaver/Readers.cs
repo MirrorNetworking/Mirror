@@ -89,7 +89,7 @@ namespace Mirror.Weaver
 
             if (variableDefinition.IsEnum)
             {
-                newReaderFunc = GenerateEnumReadFunc(variableDefinition);
+                newReaderFunc = GenerateEnumReadFunc(variableReference);
             }
             else if (variableDefinition.Is(typeof(ArraySegment<>)))
             {
@@ -169,15 +169,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_ReadArray" + variable.GetElementType().Name + "_";
-            if (variable.DeclaringType != null)
-            {
-                functionName += variable.DeclaringType.Name;
-            }
-            else
-            {
-                functionName += "None";
-            }
+            string functionName = "_Read_" + variable.FullName;
 
             // create new reader for this type
             var readerFunc = new MethodDefinition(functionName,
@@ -251,17 +243,9 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateEnumReadFunc(TypeDefinition variable)
+        static MethodDefinition GenerateEnumReadFunc(TypeReference variable)
         {
-            string functionName = "_Read" + variable.Name + "_";
-            if (variable.DeclaringType != null)
-            {
-                functionName += variable.DeclaringType.Name;
-            }
-            else
-            {
-                functionName += "None";
-            }
+            string functionName = "_Read_" + variable.FullName;
 
             // create new reader for this type
             var readerFunc = new MethodDefinition(functionName,
@@ -279,7 +263,7 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
 
-            TypeReference underlyingType = variable.GetEnumUnderlyingType();
+            TypeReference underlyingType = variable.Resolve().GetEnumUnderlyingType();
             MethodReference underlyingFunc = GetReadFunc(underlyingType);
 
             worker.Append(worker.Create(OpCodes.Call, underlyingFunc));
@@ -299,15 +283,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_ReadArraySegment_" + elementType.Name + "_";
-            if (variable.DeclaringType != null)
-            {
-                functionName += variable.DeclaringType.Name;
-            }
-            else
-            {
-                functionName += "None";
-            }
+            string functionName = "_Read_" + variable.FullName;
 
             // create new reader for this type
             var readerFunc = new MethodDefinition(functionName,
@@ -390,15 +366,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_ReadList_" + elementType.Name + "_";
-            if (variable.DeclaringType != null)
-            {
-                functionName += variable.DeclaringType.Name;
-            }
-            else
-            {
-                functionName += "None";
-            }
+            string functionName = "_Read_" + variable.FullName + "_";
 
             // create new reader for this type
             MethodDefinition readerFunc = new MethodDefinition(functionName,
@@ -491,15 +459,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_Read" + variable.Name + "_";
-            if (variable.DeclaringType != null)
-            {
-                functionName += variable.DeclaringType.Name;
-            }
-            else
-            {
-                functionName += "None";
-            }
+            string functionName = "_Read_" + variable.FullName;
 
             // create new reader for this type
             var readerFunc = new MethodDefinition(functionName,
