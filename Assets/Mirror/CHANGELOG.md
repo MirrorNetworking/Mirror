@@ -1,3 +1,10 @@
+# [44.2.0](https://github.com/MirrorNG/MirrorNG/compare/v44.1.0...v44.2.0) (2020-09-28)
+
+
+### Features
+
+* Support reading and writing recursive types ([a82f3fd](https://github.com/MirrorNG/MirrorNG/commit/a82f3fd95f308aac5ffb07f560163b84f2fe49eb))
+
 # [44.1.0](https://github.com/MirrorNG/MirrorNG/compare/v44.0.0...v44.1.0) (2020-09-28)
 
 
