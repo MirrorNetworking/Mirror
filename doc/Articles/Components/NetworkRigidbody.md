@@ -14,7 +14,7 @@ By default, Network Rigidbody is server-authoritative unless you check the box f
 
 The **Sensitivity** options allow you to set a minimum thresholds before values are send over network. This helps minimize network traffic for very small changes.
 
-For some object you may not want them to rotate but don't need to sync the Angular Velocity. The **Clear Angular Velocity** will set the Angular Velocity to zero each frame causing the minimizing when objects rotation. The same can apply to **Clear Velocity**. If **Clear Velocity Velocity** is enabled then clear is ignored.
+For some object you may not want them to rotate but don't need to sync the Angular Velocity. The **Clear Angular Velocity** will set the Angular Velocity to zero each frame causing the minimizing when objects rotation. If **Sync Angular Velocity** is enabled then clear is ignored. The same can apply to **Clear Velocity**.
 
 Normally, changes are sent to all observers of the object this component is on. Setting **Sync Mode** to Owner Only makes the changes private between the server and the client owner of the object.
 

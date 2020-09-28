@@ -1,62 +1,76 @@
 # Network Authority
 
-Servers and clients can both manage a game object’s behavior. The concept of “authority” refers to how and where a game object is managed.
+Authority is a way of deciding who owns an object and has control over it. 
+
 
 ## Server Authority
 
-The default state of authority in networked games using Mirror is that the Server has authority over all game objects which do not represent players. This means, for example, the server would manage control of all collectible items, moving platforms, NPCs, and any other parts of your game that players can interact with, and player game objects have authority on their owner’s client (meaning the client manages their behavior).
+Server authority means that the server has control of an object. Server has authority over an object by default. This means the server would manage and control of all collectible items, moving platforms, NPCs, and any other networked objects that aren't the player.
 
 ## Client Authority
 
-Client authority means the local client can control a networked game object. By default only the server has control over a networked object.
+Client authority means that the client has control of an object. 
 
-In practical terms, having client authority means that the client can call [ServerRpc](Communications/RemoteActions.md) methods, and if the client disconnects, the object is automatically destroyed.
+When a client has authority over an object it means that they can call [ServerRpc](Communications/RemoteActions.md) and that the object will automatically be destroyed when the client disconnects.
 
-Use the `NetworkIdentity.hasAuthority` property in the client to find out whether a game object has local authority (also accessible on `NetworkBehaviour` for convenience).
+Even if a client has authority over an object the server still controls SyncVar and control other serialization features. A component will need to use a [Commands](Communications/RemoteActions.md) to update the state on the server in order for it to sync to other clients.
 
-Assigning authority to a client causes Mirror to call `OnStartAuthority()` on each `NetworkBehaviour` on the game object on the authority client, and sets the `hasAuthority` property to true. On other clients, the `hasAuthority` property remains false.
 
-Player objects always have client authority. This is required for controlling movement and other player actions.
+## How to give authority
 
-**Client Authority is not to be confused with client authoritative architecture** Any action must still go to the server via a [ServerRpc](Communications/RemoteActions.md). The client cannot modify SyncVars or affect other clients directly.
+By default the server has Authority over all objects. The server can give authority to objects that a client needs to control, like the player object. 
 
-## Non-Player Game Objects
+If you spawn a player object using `NetworkServer.AddPlayerForConnection` then it will automatically be given authority.
 
-There are two ways to grant client authority over non-player game objects:
 
-1. Spawn the game object using `NetworkServer.Spawn` and pass the network connection of the client to take ownership.
-2. Use `NetworkIdentity.AssignClientAuthority` with the network connection of the client to take ownership.
+### Using NetworkServer.Spawn
 
-Additionally, there is an optional parameter for [ServerRpc] that bypasses the authority check: `[ServerRpc(requireAuthority = false)]` which allows them to be invoked without the client having authority of the object.
+You can give authority to a client when an object is spawned. This is done by passing in the connection to the spawn message
+```cs
+GameObject go = Instantiate(prefab);
+NetworkServer.Spawn(go, connectionToClient);
+```
 
-The example below spawns a game object and assigns authority to the client of the player that spawned it, and also shows how to assign authority on request.
+### Using identity.AssignClientAuthority
 
-``` cs
+You can give authority to a client any time using `AssignClientAuthority`. This can be done by calling `AssignClientAuthority` on the object you want to give authority too
+```cs
+identity.AssignClientAuthority(conn);
+```
+
+You may want to do this when a player picks up an item
+
+```cs
+// Command on player object
 [ServerRpc]
-void CmdSpawn()
+void PickupItem(NetworkIdentity item)
 {
-    GameObject go = Instantiate(otherPrefab, transform.position + new Vector3(0,1,0), Quaternion.identity);
-    NetworkServer.Spawn(go, connectionToClient);
-}
-
-[ServerRpc]
-void GrantAuthority(GameObject target)
-{
-    // target must have a NetworkIdentity component to be passed through a ServerRpc
-    // and must already exist on both server and client
-    target.GetComponent<NetworkIdentity>().AssignClientAuthority(connectionToClient);
+    item.AssignClientAuthority(connectionToClient); 
 }
 ```
 
-## Network Context Properties
+## How to remove authority
 
-The `NetworkBehaviour` class contains properties that allow scripts to know what the context of a networked game object is at any time.
+You can use `identity.RemoveClientAuthority` to remove client authority from an object. 
 
--   **isServer**: true if the game object is on a server and has been spawned.
--   **isClient**: true if the game object is on a client, and was created by the server.
--   **isLocalPlayer**: true if the game object is a player game object for this client.
--   **hasAuthority**: true if the game object is owned by this client.
+```cs
+identity.RemoveClientAuthority();
+```
 
-On the server, the `NetworkIdentity` holds the owning client in `connectionToClient`.
+Authority can't be removed from the player object. Instead you will have to replace the player object using `NetworkServer.ReplacePlayerForConnection`.
 
-To see these properties, select the game object you want to inspect, and in the Inspector window, view the preview window for the NetworkBehaviour scripting components. You can use the value of these properties to execute code based on the context in which the script is running.
+
+## On Authority
+
+When authority is given to or removed from an object a message will be sent to that client to notify them. This will cause the `OnStartAuthority` or `OnStopAuthority` functions to be called. 
+
+
+## Check Authority
+
+### Client Side
+
+The `identity.hasAuthority` property can be used to check if the local player has authority over an object.
+
+### Server Side
+
+The `identity.connectionToClient` property can be check to see which client has authority over an object. If it is null then the server has authority.
