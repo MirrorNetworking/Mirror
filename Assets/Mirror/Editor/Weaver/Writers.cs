@@ -23,9 +23,9 @@ namespace Mirror.Weaver
             writeFuncs[dataType.FullName] = methodReference;
         }
 
-        static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
+        static void RegisterWriteFunc(TypeReference typeReference, MethodDefinition newWriterFunc)
         {
-            writeFuncs[name] = newWriterFunc;
+            writeFuncs[typeReference.FullName] = newWriterFunc;
             Weaver.WeaveLists.generatedWriteFunctions.Add(newWriterFunc);
 
             Weaver.ConfirmGeneratedCodeClass();
@@ -38,15 +38,8 @@ namespace Mirror.Weaver
             {
                 return foundFunc;
             }
-            else
-            {
-                MethodDefinition newWriterFunc = GenerateWriter(variable, recursionCount);
-                if (newWriterFunc != null)
-                {
-                    RegisterWriteFunc(variable.FullName, newWriterFunc);
-                }
-                return newWriterFunc;
-            }
+
+            return GenerateWriter(variable, recursionCount);
         }
 
         static MethodDefinition GenerateWriter(TypeReference variableReference, int recursionCount = 0)
@@ -157,6 +150,8 @@ namespace Mirror.Weaver
             writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
             writerFunc.Body.InitLocals = true;
+
+            RegisterWriteFunc(variable, writerFunc);
             return writerFunc;
         }
 
