@@ -5,6 +5,7 @@ namespace Mirror.Weaver
 {
     public class ArrayWriter : CollectionWriter
     {
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public ArrayWriter(TypeReference variable, int recursionCount) : base(variable, recursionCount) { }
 
         protected override string namePrefix => "Array";
@@ -30,6 +31,7 @@ namespace Mirror.Weaver
     {
         GenericInstanceType genericInstance;
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public ArraySegmentWriter(TypeReference variable, int recursionCount) : base(variable, recursionCount) { }
 
         protected override string namePrefix => "ArraySegment";
@@ -78,6 +80,7 @@ namespace Mirror.Weaver
     {
         GenericInstanceType genericInstance;
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public ListWriter(TypeReference variable, int recursionCount) : base(variable, recursionCount) { }
 
         protected override string namePrefix => "List";
@@ -116,6 +119,7 @@ namespace Mirror.Weaver
         private readonly MethodReference intWriterFunc;
 
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public CollectionWriter(TypeReference variable, int recursionCount)
         {
             this.variable = variable;
@@ -135,6 +139,7 @@ namespace Mirror.Weaver
         protected virtual void ValidateType(TypeReference variable) { /* no validation */ }
         protected abstract TypeReference GetElementType(TypeReference variable);
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public MethodDefinition Create()
         {
             // need this null check till later PR when GetWriteFunc throws exception instead
