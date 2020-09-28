@@ -121,7 +121,6 @@ namespace Mirror.Weaver
         private readonly MethodReference elementWriteFunc;
         private readonly MethodReference intWriterFunc;
 
-
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public CollectionWriter(TypeReference variable, int recursionCount)
         {
@@ -141,7 +140,6 @@ namespace Mirror.Weaver
         }
 
         protected abstract string namePrefix { get; }
-
         protected abstract bool needNullCheck { get; }
 
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
@@ -149,11 +147,10 @@ namespace Mirror.Weaver
 
         protected abstract TypeReference GetElementType(TypeReference variable);
 
-        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public MethodDefinition Create()
         {
-            string functionName = createFunctionName(elementType);
-            MethodDefinition writerFunc = createMethod(functionName);
+            string functionName = CreateFunctionName(elementType);
+            MethodDefinition writerFunc = CreateMethod(functionName);
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
@@ -179,7 +176,7 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        string createFunctionName(TypeReference elementType)
+        string CreateFunctionName(TypeReference elementType)
         {
             string functionName = $"_Write{namePrefix}_{elementType.Name}_";
             if (variable.DeclaringType != null)
@@ -193,7 +190,8 @@ namespace Mirror.Weaver
 
             return functionName;
         }
-        MethodDefinition createMethod(string functionName)
+
+        MethodDefinition CreateMethod(string functionName)
         {
             // create new writer for this type
             MethodDefinition writerFunc = new MethodDefinition(functionName,
@@ -210,6 +208,7 @@ namespace Mirror.Weaver
             writerFunc.Body.InitLocals = true;
             return writerFunc;
         }
+
         void AppendNullCheck(ILProcessor worker)
         {
             // if (value == null)
@@ -229,6 +228,7 @@ namespace Mirror.Weaver
             // else not null
             worker.Append(labelNull);
         }
+
         void AppendWriteLength(ILProcessor worker)
         {
             // int length = value.Length;
@@ -241,6 +241,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Call, intWriterFunc));
         }
+
         protected abstract Instruction CreateLengthInstruction(ILProcessor worker);
 
         static void AppendStartLoop(ILProcessor worker, Instruction labelCheckLength, Instruction labelLoopBody)
@@ -254,6 +255,7 @@ namespace Mirror.Weaver
 
             worker.Append(labelLoopBody);
         }
+
         static void AppendEndLoop(ILProcessor worker, Instruction labelCheckLength, Instruction labelLoopBody)
         {
             // ... i++)
@@ -271,11 +273,11 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Blt, labelLoopBody));
         }
+
         static void AppendReturn(ILProcessor worker)
         {
             worker.Append(worker.Create(OpCodes.Ret));
         }
-
 
         void AppendWriteElement(ILProcessor worker)
         {
@@ -297,11 +299,13 @@ namespace Mirror.Weaver
             // arg1 is the array/list/etc
             worker.Append(worker.Create(OpCodes.Ldarg_1));
         }
+
         protected virtual void AppendIndex(ILProcessor worker)
         {
             // local 1 is i
             worker.Append(worker.Create(OpCodes.Ldloc_1));
         }
+
         protected virtual void AppendGetElement(ILProcessor worker)
         {
             // adds  value [i] to stack
