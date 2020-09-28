@@ -130,15 +130,7 @@ namespace Mirror.Weaver
 
         private static MethodDefinition GenerateEnumWriteFunc(TypeReference variable)
         {
-            string functionName = "_Write" + variable.Name + "_";
-            if (variable.DeclaringType != null)
-            {
-                functionName += variable.DeclaringType.Name;
-            }
-            else
-            {
-                functionName += "None";
-            }
+            string functionName = "_Write_" + variable.FullName ;
             // create new writer for this type
             var writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
@@ -200,15 +192,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_Write" + variable.Name + "_";
-            if (variable.DeclaringType != null)
-            {
-                functionName += variable.DeclaringType.Name;
-            }
-            else
-            {
-                functionName += "None";
-            }
+            string functionName = "_Write_" + variable.Name;
             // create new writer for this type
             var writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
@@ -278,16 +262,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_WriteArray" + variable.GetElementType().Name + "_";
-            if (variable.DeclaringType != null)
-            {
-                functionName += variable.DeclaringType.Name;
-            }
-            else
-            {
-                functionName += "None";
-            }
-
+            string functionName = "_Write_" + variable.FullName;
             // create new writer for this type
             var writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
@@ -379,16 +354,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_WriteArraySegment_" + elementType.Name + "_";
-            if (variable.DeclaringType != null)
-            {
-                functionName += variable.DeclaringType.Name;
-            }
-            else
-            {
-                functionName += "None";
-            }
-
+            string functionName = "_Write_" + variable.FullName;
             // create new writer for this type
             var writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
@@ -475,16 +441,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_WriteList_" + elementType.Name + "_";
-            if (variable.DeclaringType != null)
-            {
-                functionName += variable.DeclaringType.Name;
-            }
-            else
-            {
-                functionName += "None";
-            }
-
+            string functionName = "_Write_" + variable.FullName;
             // create new writer for this type
             MethodDefinition writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
