@@ -32,25 +32,15 @@ namespace Mirror.Tests
     [TestFixture]
     public class CustomRWTest
     {
-
-        class QuestMessage : MessageBase
-        {
-            public MockQuest quest;
-        }
-
         [Test]
         public void TestCustomRW()
         {
-            var message = new QuestMessage
-            {
-                quest = new MockQuest(100)
-            };
+            var quest = new MockQuest(100);
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePacker.Pack(quest);
 
-            QuestMessage unpacked = MessagePacker.Unpack<QuestMessage>(data);
-
-            Assert.That(unpacked.quest.Id, Is.EqualTo(100));
+            MockQuest unpacked = MessagePacker.Unpack<MockQuest>(data);
+            Assert.That(unpacked.Id, Is.EqualTo(100));
         }
     }
 }

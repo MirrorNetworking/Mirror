@@ -4,108 +4,80 @@ namespace Mirror.Tests
     [TestFixture]
     public class ArrayWriterTest
     {
-        class ArrayByteMessage : MessageBase
-        {
-            public byte[] array;
-        }
-
         [Test]
         public void TestNullByterray()
         {
-            var intMessage = new ArrayByteMessage
-            {
-                array = null
-            };
+            byte[] array = null;
 
-            byte[] data = MessagePacker.Pack(intMessage);
+            byte[] data = MessagePacker.Pack(array);
 
-            ArrayByteMessage unpacked = MessagePacker.Unpack<ArrayByteMessage>(data);
+            byte[] unpacked = MessagePacker.Unpack<byte[]>(data);
 
-            Assert.IsNull(unpacked.array);
+            Assert.IsNull(unpacked);
         }
 
         [Test]
         public void TestEmptyByteArray()
         {
-            var intMessage = new ArrayByteMessage
-            {
-                array = new byte[] { }
-            };
+            byte[] array = new byte[] { };
 
-            byte[] data = MessagePacker.Pack(intMessage);
+            byte[] data = MessagePacker.Pack(array);
 
-            ArrayByteMessage unpacked = MessagePacker.Unpack<ArrayByteMessage>(data);
+            byte[] unpacked = MessagePacker.Unpack<byte[]>(data);
 
-            Assert.IsNotNull(unpacked.array);
-            Assert.IsEmpty(unpacked.array);
-            Assert.That(unpacked.array, Is.EquivalentTo(new int[] { }));
+            Assert.IsNotNull(unpacked);
+            Assert.IsEmpty(unpacked);
+            Assert.That(unpacked, Is.EquivalentTo(new int[] { }));
         }
 
         [Test]
         public void TestDataByteArray()
         {
-            var intMessage = new ArrayByteMessage
-            {
-                array = new byte[] { 3, 4, 5 }
-            };
+            byte[] array = new byte[] { 3, 4, 5 };
 
-            byte[] data = MessagePacker.Pack(intMessage);
+            byte[] data = MessagePacker.Pack(array);
 
-            ArrayByteMessage unpacked = MessagePacker.Unpack<ArrayByteMessage>(data);
+            byte[] unpacked = MessagePacker.Unpack<byte[]>(data);
 
-            Assert.IsNotNull(unpacked.array);
-            Assert.IsNotEmpty(unpacked.array);
-            Assert.That(unpacked.array, Is.EquivalentTo(new byte[] { 3, 4, 5 }));
-        }
-
-        class ArrayIntMessage : MessageBase
-        {
-            public int[] array;
+            Assert.IsNotNull(unpacked);
+            Assert.IsNotEmpty(unpacked);
+            Assert.That(unpacked, Is.EquivalentTo(new byte[] { 3, 4, 5 }));
         }
 
         [Test]
         public void TestNullIntArray()
         {
-            var intMessage = new ArrayIntMessage
-            {
-                array = null
-            };
+            int[] array = null;
 
-            byte[] data = MessagePacker.Pack(intMessage);
+            byte[] data = MessagePacker.Pack(array);
 
-            ArrayIntMessage unpacked = MessagePacker.Unpack<ArrayIntMessage>(data);
+            int[] unpacked = MessagePacker.Unpack<int[]>(data);
 
-            Assert.That(unpacked.array, Is.Null);
+            Assert.That(unpacked, Is.Null);
         }
 
         [Test]
         public void TestEmptyIntArray()
         {
-            var intMessage = new ArrayIntMessage
-            {
-                array = new int[] { }
-            };
+            int[] array = new int[] { };
 
-            byte[] data = MessagePacker.Pack(intMessage);
+            byte[] data = MessagePacker.Pack(array);
 
-            ArrayIntMessage unpacked = MessagePacker.Unpack<ArrayIntMessage>(data);
+            int[] unpacked = MessagePacker.Unpack<int[]>(data);
 
-            Assert.That(unpacked.array, Is.EquivalentTo(new int[] { }));
+            Assert.That(unpacked, Is.EquivalentTo(new int[] { }));
         }
 
         [Test]
         public void TestDataIntArray()
         {
-            var intMessage = new ArrayIntMessage
-            {
-                array = new[] { 3, 4, 5 }
-            };
+            var array = new[] { 3, 4, 5 };
 
-            byte[] data = MessagePacker.Pack(intMessage);
+            byte[] data = MessagePacker.Pack(array);
 
-            ArrayIntMessage unpacked = MessagePacker.Unpack<ArrayIntMessage>(data);
+            int[] unpacked = MessagePacker.Unpack<int[]>(data);
 
-            Assert.That(unpacked.array, Is.EquivalentTo(new int[] { 3, 4, 5 }));
+            Assert.That(unpacked, Is.EquivalentTo(new int[] { 3, 4, 5 }));
         }
     }
 }

@@ -56,7 +56,10 @@ namespace Mirror
         {
             if (UnityEngine.Time.time - lastPingTime >= PingFrequency)
             {
-                var pingMessage = new NetworkPingMessage(LocalTime());
+                var pingMessage = new NetworkPingMessage
+                {
+                    clientTime = LocalTime()
+                };
                 client.Connection.Send(pingMessage);
                 lastPingTime = UnityEngine.Time.time;
             }

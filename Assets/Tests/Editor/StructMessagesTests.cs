@@ -2,13 +2,9 @@ using NUnit.Framework;
 
 namespace Mirror.Tests.StructMessages
 {
-    public struct SomeStructMessage : IMessageBase
+    public struct SomeStructMessage
     {
         public int someValue;
-
-        // Mirror will automatically implement message that are empty
-        public void Serialize(NetworkWriter writer) { }
-        public void Deserialize(NetworkReader reader) { }
     }
 
     [TestFixture]
@@ -28,8 +24,7 @@ namespace Mirror.Tests.StructMessages
             byte[] arr = writer.ToArray();
 
             NetworkReader reader = new NetworkReader(arr);
-            SomeStructMessage received = new SomeStructMessage();
-            received.Deserialize(reader);
+            SomeStructMessage received = reader.ReadMessage<SomeStructMessage>();
 
             Assert.AreEqual(someValue, received.someValue);
 

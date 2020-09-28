@@ -23,19 +23,15 @@ namespace Mirror.Tests
     }
     public class EnumReadWriteTests
     {
-        public class ByteMessage : MessageBase { public MyByteEnum byteEnum; }
         public enum MyByteEnum : byte
         {
             A, B, C, D
         }
 
-        public class ShortMessage : MessageBase { public MyShortEnum shortEnum; }
         public enum MyShortEnum : short
         {
             E, F, G, H
         }
-
-        public class CustomMessage : MessageBase { public MyCustomEnum customEnum; }
 
         public enum MyCustomEnum
         {
@@ -46,10 +42,10 @@ namespace Mirror.Tests
         [Test]
         public void ByteIsSentForByteEnum()
         {
-            ByteMessage msg = new ByteMessage() { byteEnum = MyByteEnum.B };
+            MyByteEnum byteEnum = MyByteEnum.B;
 
-            NetworkWriter writer = new NetworkWriter();
-            msg.Serialize(writer);
+            var writer = new NetworkWriter();
+            writer.WriteMessage(byteEnum);
 
             // should only be 1 byte
             Assert.That(writer.Length, Is.EqualTo(1));
@@ -58,10 +54,10 @@ namespace Mirror.Tests
         [Test]
         public void ShortIsSentForShortEnum()
         {
-            ShortMessage msg = new ShortMessage() { shortEnum = MyShortEnum.G };
+            MyShortEnum shortEnum = MyShortEnum.G;
 
-            NetworkWriter writer = new NetworkWriter();
-            msg.Serialize(writer);
+            var writer = new NetworkWriter();
+            writer.WriteMessage(shortEnum);
 
             // should only be 1 byte
             Assert.That(writer.Length, Is.EqualTo(2));
@@ -70,23 +66,20 @@ namespace Mirror.Tests
         [Test]
         public void CustomWriterIsUsedForEnum()
         {
-            CustomMessage serverMsg = new CustomMessage() { customEnum = MyCustomEnum.O };
-            CustomMessage clientMsg = SerializeAndDeserializeMessage(serverMsg);
+            MyCustomEnum customEnum = MyCustomEnum.O;
+            MyCustomEnum clientMsg = SerializeAndDeserializeMessage(customEnum);
 
             // custom writer should write N if it sees O
-            Assert.That(clientMsg.customEnum, Is.EqualTo(MyCustomEnum.N));
+            Assert.That(clientMsg, Is.EqualTo(MyCustomEnum.N));
         }
-        T SerializeAndDeserializeMessage<T>(T msg) where T : MessageBase, new()
+
+        T SerializeAndDeserializeMessage<T>(T msg)
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
+            writer.WriteMessage(msg);
 
-            msg.Serialize(writer);
-
-            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
-
-            T msg2 = new T();
-            msg2.Deserialize(reader);
-            return msg2;
+            var reader = new NetworkReader(writer.ToArraySegment());
+            return reader.ReadMessage<T>();
         }
     }
 }

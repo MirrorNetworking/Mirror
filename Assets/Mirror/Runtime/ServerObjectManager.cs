@@ -100,7 +100,7 @@ namespace Mirror
         /// <param name="identity"></param>
         /// <param name="msg"></param>
         /// <param name="channelId"></param>
-        void SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        void SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable)
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToObservers id:" + typeof(T));
 
@@ -114,7 +114,7 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity"></param>
         /// <param name="msg"></param>
-        public void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable)
         {
             if (identity != null)
             {

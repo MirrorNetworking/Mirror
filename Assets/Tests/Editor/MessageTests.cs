@@ -30,7 +30,7 @@ namespace Mirror.Tests
                     Is.EqualTo(message.payload.Array[message.payload.Offset + i]));
         }
 
-        private void TestSerializeDeserialize<T>(T message) where T : IMessageBase, new()
+        private void TestSerializeDeserialize<T>(T message)
         {
             // serialize
             byte[] arr = MessagePacker.Pack(message);
@@ -41,7 +41,10 @@ namespace Mirror.Tests
         [Test]
         public void NetworkPingMessageTest()
         {
-            TestSerializeDeserialize(new NetworkPingMessage(DateTime.Now.ToOADate()));
+            TestSerializeDeserialize(new NetworkPingMessage
+            {
+                clientTime = DateTime.Now.ToOADate()
+            });
         }
 
         [Test]
