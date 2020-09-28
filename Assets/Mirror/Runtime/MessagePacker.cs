@@ -121,11 +121,6 @@ namespace Mirror
                 conn.Disconnect();
                 return;
             }
-            finally
-            {
-                // TODO: Figure out the correct channel
-                NetworkDiagnostics.OnReceive(message, channelId, reader.Length);
-            }
 
             handler((C)conn, message);
         };

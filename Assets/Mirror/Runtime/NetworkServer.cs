@@ -282,8 +282,6 @@ namespace Mirror
                 {
                     NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
                 }
-
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, identity.observers.Count);
             }
         }
 
@@ -338,8 +336,6 @@ namespace Mirror
                 {
                     result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
                 }
-
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
 
                 return result;
             }
@@ -414,8 +410,6 @@ namespace Mirror
                 {
                     result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
                 }
-
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
 
                 return result;
             }
