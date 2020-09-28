@@ -130,16 +130,7 @@ namespace Mirror.Weaver
 
         private static MethodDefinition GenerateEnumWriteFunc(TypeReference variable)
         {
-            string functionName = "_Write_" + variable.FullName ;
-            // create new writer for this type
-            var writerFunc = new MethodDefinition(functionName,
-                    MethodAttributes.Public |
-                    MethodAttributes.Static |
-                    MethodAttributes.HideBySig,
-                    WeaverTypes.Import(typeof(void)));
-
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
-            writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
+            MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
@@ -150,6 +141,22 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, underlyingWriter));
 
             worker.Append(worker.Create(OpCodes.Ret));
+            return writerFunc;
+        }
+
+        private static MethodDefinition GenerateWriterFunc(TypeReference variable)
+        {
+            string functionName = "_Write_" + variable.FullName;
+            // create new writer for this type
+            var writerFunc = new MethodDefinition(functionName,
+                    MethodAttributes.Public |
+                    MethodAttributes.Static |
+                    MethodAttributes.HideBySig,
+                    WeaverTypes.Import(typeof(void)));
+
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
+            writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
+            writerFunc.Body.InitLocals = true;
             return writerFunc;
         }
 
@@ -192,16 +199,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_Write_" + variable.Name;
-            // create new writer for this type
-            var writerFunc = new MethodDefinition(functionName,
-                    MethodAttributes.Public |
-                    MethodAttributes.Static |
-                    MethodAttributes.HideBySig,
-                    WeaverTypes.Import(typeof(void)));
-
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
-            writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
+            MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
@@ -262,20 +260,10 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_Write_" + variable.FullName;
-            // create new writer for this type
-            var writerFunc = new MethodDefinition(functionName,
-                    MethodAttributes.Public |
-                    MethodAttributes.Static |
-                    MethodAttributes.HideBySig,
-                    WeaverTypes.Import(typeof(void)));
-
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
-            writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
-
+            MethodDefinition writerFunc = GenerateWriterFunc(variable);
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
-            writerFunc.Body.InitLocals = true;
+
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
@@ -354,20 +342,10 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_Write_" + variable.FullName;
-            // create new writer for this type
-            var writerFunc = new MethodDefinition(functionName,
-                    MethodAttributes.Public |
-                    MethodAttributes.Static |
-                    MethodAttributes.HideBySig,
-                    WeaverTypes.Import(typeof(void)));
-
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
-            writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, variable));
+            MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
-            writerFunc.Body.InitLocals = true;
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
@@ -441,16 +419,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            string functionName = "_Write_" + variable.FullName;
-            // create new writer for this type
-            MethodDefinition writerFunc = new MethodDefinition(functionName,
-                    MethodAttributes.Public |
-                    MethodAttributes.Static |
-                    MethodAttributes.HideBySig,
-                    WeaverTypes.Import(typeof(void)));
-
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
-            writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, variable));
+            MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
