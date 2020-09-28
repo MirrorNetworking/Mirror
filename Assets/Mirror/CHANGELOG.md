@@ -1,3 +1,15 @@
+# [44.1.0](https://github.com/MirrorNG/MirrorNG/compare/v44.0.0...v44.1.0) (2020-09-28)
+
+
+### Bug Fixes
+
+* fixing new import ([bdd81e3](https://github.com/MirrorNG/MirrorNG/commit/bdd81e33babe2a35b71028fac2130819ff61c4a2))
+
+
+### Features
+
+* Component based Ready system ([#358](https://github.com/MirrorNG/MirrorNG/issues/358)) ([23b0afc](https://github.com/MirrorNG/MirrorNG/commit/23b0afc505940117a5e9cc780d4315eba0d46cd7))
+
 # [44.0.0](https://github.com/MirrorNG/MirrorNG/compare/v43.9.1...v44.0.0) (2020-09-27)
 
 
