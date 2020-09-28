@@ -23,6 +23,37 @@ namespace Mirror.Weaver
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
 
         public HashSet<string> ProcessedMessages = new HashSet<string>();
+
+
+        public int GetSyncVarStart(string className)
+        {
+            return numSyncVars.ContainsKey(className)
+                   ? numSyncVars[className]
+                   : 0;
+        }
+
+        public void SetNumSyncVars(string className, int num)
+        {
+            numSyncVars[className] = num;
+        }
+
+        public void ConfirmGeneratedCodeClass()
+        {
+            if (generateContainerClass == null)
+            {
+                generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
+                        TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass,
+                        WeaverTypes.Import<object>());
+
+                const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
+                MethodDefinition method = new MethodDefinition(".ctor", methodAttributes, WeaverTypes.Import(typeof(void)));
+                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
+                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(WeaverTypes.Import<object>(), Weaver.CurrentAssembly, ".ctor")));
+                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+
+                generateContainerClass.Methods.Add(method);
+            }
+        }
     }
 
     internal static class Weaver
@@ -64,35 +95,6 @@ namespace Mirror.Weaver
             Log.Warning($"{message} (at {mr})");
         }
 
-        public static int GetSyncVarStart(string className)
-        {
-            return WeaveLists.numSyncVars.ContainsKey(className)
-                   ? WeaveLists.numSyncVars[className]
-                   : 0;
-        }
-
-        public static void SetNumSyncVars(string className, int num)
-        {
-            WeaveLists.numSyncVars[className] = num;
-        }
-
-        internal static void ConfirmGeneratedCodeClass()
-        {
-            if (WeaveLists.generateContainerClass == null)
-            {
-                WeaveLists.generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
-                        TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass,
-                        WeaverTypes.Import<object>());
-
-                const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-                MethodDefinition method = new MethodDefinition(".ctor", methodAttributes, WeaverTypes.Import(typeof(void)));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(WeaverTypes.Import<object>(), CurrentAssembly, ".ctor")));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
-
-                WeaveLists.generateContainerClass.Methods.Add(method);
-            }
-        }
 
         static void CheckMonoBehaviour(TypeDefinition td)
         {
