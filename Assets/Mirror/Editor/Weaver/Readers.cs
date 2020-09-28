@@ -28,20 +28,13 @@ namespace Mirror.Weaver
                 return foundFunc;
             }
 
-            MethodDefinition newReaderFunc;
-
             // Arrays are special,  if we resolve them, we get teh element type,
             // so the following ifs might choke on it for scriptable objects
             // or other objects that require a custom serializer
             // thus check if it is an array and skip all the checks.
             if (variableReference.IsArray)
             {
-                newReaderFunc = GenerateArrayReadFunc(variableReference, recursionCount);
-                if (newReaderFunc != null)
-                {
-                    RegisterReadFunc(variableReference.FullName, newReaderFunc);
-                }
-                return newReaderFunc;
+                return GenerateArrayReadFunc(variableReference, recursionCount);
             }
 
             TypeDefinition variableDefinition = variableReference.Resolve();
@@ -89,28 +82,18 @@ namespace Mirror.Weaver
 
             if (variableDefinition.IsEnum)
             {
-                newReaderFunc = GenerateEnumReadFunc(variableReference);
+                return GenerateEnumReadFunc(variableReference);
             }
             else if (variableDefinition.Is(typeof(ArraySegment<>)))
             {
-                newReaderFunc = GenerateArraySegmentReadFunc(variableReference, recursionCount);
+                return GenerateArraySegmentReadFunc(variableReference, recursionCount);
             }
             else if (variableDefinition.Is(typeof(List<>)))
             {
-                newReaderFunc = GenerateListReadFunc(variableReference, recursionCount);
-            }
-            else
-            {
-                newReaderFunc = GenerateClassOrStructReadFunction(variableReference, recursionCount);
+                return GenerateListReadFunc(variableReference, recursionCount);
             }
 
-            if (newReaderFunc == null)
-            {
-                Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
-                return null;
-            }
-            RegisterReadFunc(variableReference.FullName, newReaderFunc);
-            return newReaderFunc;
+            return GenerateClassOrStructReadFunction(variableReference, recursionCount);
         }
 
         internal static void GenerateRegister(ILProcessor worker)
@@ -144,9 +127,9 @@ namespace Mirror.Weaver
 
         }
 
-        static void RegisterReadFunc(string name, MethodDefinition newReaderFunc)
+        static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
         {
-            readFuncs[name] = newReaderFunc;
+            readFuncs[typeReference.FullName] = newReaderFunc;
             Weaver.WeaveLists.generatedReadFunctions.Add(newReaderFunc);
 
             Weaver.ConfirmGeneratedCodeClass();
@@ -336,6 +319,8 @@ namespace Mirror.Weaver
 
             readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
             readerFunc.Body.InitLocals = true;
+            RegisterReadFunc(variable, readerFunc);
+
             return readerFunc;
         }
 
