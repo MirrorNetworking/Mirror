@@ -1,6 +1,6 @@
 ﻿namespace Mirror.Weaver
 {
-    internal class WeaverConstants
+    internal static class WeaverConstants
     {
         public static string InvokeRpcPrefix => "InvokeUserCode_";
     }
