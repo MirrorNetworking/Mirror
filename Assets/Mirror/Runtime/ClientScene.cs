@@ -23,23 +23,7 @@ namespace Mirror
         /// <summary>
         /// NetworkIdentity of the localPlayer
         /// </summary>
-        public static NetworkIdentity localPlayer
-        {
-            get => _localPlayer;
-            private set
-            {
-                NetworkIdentity oldPlayer = _localPlayer;
-                NetworkIdentity newPlayer = value;
-                if (oldPlayer != newPlayer)
-                {
-                    _localPlayer = value;
-                    onLocalPlayerChanged?.Invoke(oldPlayer, newPlayer);
-                }
-            }
-        }
-
-        public delegate void LocalplayerChanged(NetworkIdentity oldPlayer, NetworkIdentity newPlayer);
-        public static event LocalplayerChanged onLocalPlayerChanged;
+        public static NetworkIdentity localPlayer { get; private set; }
 
         /// <summary>
         /// Returns true when a client's connection has been set to ready.
