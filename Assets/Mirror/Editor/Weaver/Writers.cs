@@ -21,9 +21,9 @@ namespace Mirror.Weaver
             writeFuncs[dataType.FullName] = methodReference;
         }
 
-        static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
+        static void RegisterWriteFunc(TypeReference typeReference, MethodDefinition newWriterFunc)
         {
-            writeFuncs[name] = newWriterFunc;
+            writeFuncs[typeReference.FullName] = newWriterFunc;
             Weaver.WeaveLists.generatedWriteFunctions.Add(newWriterFunc);
 
             Weaver.WeaveLists.ConfirmGeneratedCodeClass();
@@ -43,26 +43,8 @@ namespace Mirror.Weaver
             {
                 return foundFunc;
             }
-            else
-            {
-                MethodDefinition newWriterFunc = null;
 
-                // this try/catch will be removed in future PR and make `GetWriteFunc` throw instead
-                try
-                {
-                    newWriterFunc = GenerateWriter(variable, recursionCount);
-                }
-                catch (GenerateWriterException e)
-                {
-                    Weaver.Error(e.Message, e.MemberReference);
-                }
-
-                if (newWriterFunc != null)
-                {
-                    RegisterWriteFunc(variable.FullName, newWriterFunc);
-                }
-                return newWriterFunc;
-            }
+            return GenerateWriter(variable, recursionCount);
         }
 
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
@@ -165,6 +147,8 @@ namespace Mirror.Weaver
             writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
             writerFunc.Body.InitLocals = true;
+
+            RegisterWriteFunc(variable, writerFunc);
             return writerFunc;
         }
 
