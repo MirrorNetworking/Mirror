@@ -26,13 +26,17 @@ namespace Mirror.Weaver
 
             return worker.Create(OpCodes.Call, countref);
         }
+        protected override Instruction CreateLoadArg1Instruction(ILProcessor worker)
+        {
+            return worker.Create(OpCodes.Ldarga_S, (byte)1);
+        }
 
         protected override void AppendCollection(ILProcessor worker)
         {
             MethodReference getArray = WeaverTypes.ArraySegmentArrayReference.MakeHostInstanceGeneric(genericInstance);
 
             // arg1 is the segment
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(CreateLoadArg1Instruction(worker));
             // value.Array
             worker.Append(worker.Create(OpCodes.Call, getArray));
         }
@@ -45,7 +49,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_1));
 
             // value.Offset
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(CreateLoadArg1Instruction(worker));
             worker.Append(worker.Create(OpCodes.Call, getOffset));
 
             // add (i + offset)

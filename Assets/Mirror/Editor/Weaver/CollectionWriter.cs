@@ -107,7 +107,7 @@ namespace Mirror.Weaver
             //     return;
             // }
             Instruction labelNull = worker.Create(OpCodes.Nop);
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(CreateLoadArg1Instruction(worker));
             worker.Append(worker.Create(OpCodes.Brtrue, labelNull));
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -122,7 +122,7 @@ namespace Mirror.Weaver
         void AppendWriteLength(ILProcessor worker)
         {
             // int length = value.Length;
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(CreateLoadArg1Instruction(worker));
             worker.Append(CreateLengthInstruction(worker));
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
@@ -133,6 +133,11 @@ namespace Mirror.Weaver
         }
 
         protected abstract Instruction CreateLengthInstruction(ILProcessor worker);
+
+        /// <summary>
+        /// Array Segment doesn't work with Ldarg_1 so need to override this
+        /// </summary>
+        protected virtual Instruction CreateLoadArg1Instruction(ILProcessor worker) => worker.Create(OpCodes.Ldarg_1);
 
         static void AppendStartLoop(ILProcessor worker, Instruction labelCheckLength, Instruction labelLoopBody)
         {
@@ -187,7 +192,7 @@ namespace Mirror.Weaver
         protected virtual void AppendCollection(ILProcessor worker)
         {
             // arg1 is the array/list/etc
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(CreateLoadArg1Instruction(worker));
         }
 
         protected virtual void AppendIndex(ILProcessor worker)
