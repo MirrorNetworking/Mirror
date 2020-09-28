@@ -545,9 +545,6 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Stfld, fieldRef));
                 fields++;
             }
-
         }
-
     }
-
 }
