@@ -68,7 +68,6 @@ namespace Mirror.Weaver
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         static MethodDefinition GenerateWriter(TypeReference variableReference, int recursionCount = 0)
         {
-            // TODO: do we need this check? do we ever receieve types that are "ByReference"s
             if (variableReference.IsByReference)
             {
                 throw new GenerateWriterException($"Cannot pass {variableReference.Name} by reference", variableReference);
