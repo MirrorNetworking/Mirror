@@ -15,6 +15,8 @@ namespace Mirror.Weaver
         {
             return variable.GetElementType();
         }
+
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         protected override void ValidateType(TypeReference variable)
         {
             if (!variable.IsArrayType())
@@ -22,6 +24,7 @@ namespace Mirror.Weaver
                 throw new GenerateWriterException($"{variable.Name} is an unsupported type. Jagged and multidimensional arrays are not supported", variable);
             }
         }
+
         protected override Instruction CreateLengthInstruction(ILProcessor worker)
         {
             return worker.Create(OpCodes.Ldlen);
@@ -131,25 +134,24 @@ namespace Mirror.Weaver
             intWriterFunc = Writers.GetWriteFunc(WeaverTypes.Import<int>());
 
             // in later PR throw here if elementWriteFunc is null, see null check top of Create
+            if (elementWriteFunc == null)
+            {
+                throw new GenerateWriterException($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
+            }
         }
 
         protected abstract string namePrefix { get; }
+
         protected abstract bool needNullCheck { get; }
 
+        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         protected virtual void ValidateType(TypeReference variable) { /* no validation */ }
+
         protected abstract TypeReference GetElementType(TypeReference variable);
 
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
         public MethodDefinition Create()
         {
-            // need this null check till later PR when GetWriteFunc throws exception instead
-            if (elementWriteFunc == null)
-            {
-                Weaver.Error($"Cannot generate writer for Array because element {elementType.Name} does not have a writer. Use a supported type or provide a custom writer", variable);
-                return null;
-            }
-
-
             string functionName = createFunctionName(elementType);
             MethodDefinition writerFunc = createMethod(functionName);
 
