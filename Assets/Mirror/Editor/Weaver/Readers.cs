@@ -89,7 +89,7 @@ namespace Mirror.Weaver
 
             if (variableDefinition.IsEnum)
             {
-                return GetReadFunc(variableDefinition.GetEnumUnderlyingType(), recursionCount);
+                newReaderFunc = GenerateEnumReadFunc(variableDefinition);
             }
             else if (variableDefinition.Is(typeof(ArraySegment<>)))
             {
@@ -216,6 +216,42 @@ namespace Mirror.Weaver
 
             // return value;
             worker.Append(worker.Create(OpCodes.Ldloc_1));
+            worker.Append(worker.Create(OpCodes.Ret));
+            return readerFunc;
+        }
+
+        static MethodDefinition GenerateEnumReadFunc(TypeDefinition variable)
+        {
+            string functionName = "_Read" + variable.Name + "_";
+            if (variable.DeclaringType != null)
+            {
+                functionName += variable.DeclaringType.Name;
+            }
+            else
+            {
+                functionName += "None";
+            }
+
+            // create new reader for this type
+            var readerFunc = new MethodDefinition(functionName,
+                    MethodAttributes.Public |
+                    MethodAttributes.Static |
+                    MethodAttributes.HideBySig,
+                    Weaver.CurrentAssembly.MainModule.ImportReference(variable));
+
+            // create local for return value
+            readerFunc.Body.InitLocals = true;
+
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
+
+            ILProcessor worker = readerFunc.Body.GetILProcessor();
+
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+
+            TypeReference underlyingType = variable.GetEnumUnderlyingType();
+            MethodReference underlyingFunc = GetReadFunc(underlyingType);
+
+            worker.Append(worker.Create(OpCodes.Call, underlyingFunc));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
         }
