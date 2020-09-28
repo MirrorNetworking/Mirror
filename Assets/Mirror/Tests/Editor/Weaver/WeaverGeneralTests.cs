@@ -7,8 +7,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void RecursionCount()
         {
-            HasError("Potato1 can't be serialized because it references itself",
-                "WeaverGeneralTests.RecursionCount.RecursionCount/Potato1");
+            IsSuccess();
         }
 
         [Test]
