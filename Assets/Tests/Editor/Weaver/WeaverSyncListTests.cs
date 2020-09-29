@@ -72,8 +72,6 @@ namespace Mirror.Weaver.Tests
             // we need this negative test to make sure that SyncList is being processed 
             HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
                 "UnityEngine.Object");
-            HasError("target has unsupported type. Use a type supported by Mirror instead",
-                "UnityEngine.Object WeaverSyncListTests.SyncListNestedInAbstractClassWithInvalid.SyncListNestedStructWithInvalid/SomeAbstractClass/MyNestedStruct::target");
             HasError("MyNestedStructList has sync object generic type MyNestedStruct.  Use a type supported by mirror instead",
                 "WeaverSyncListTests.SyncListNestedInAbstractClassWithInvalid.SyncListNestedStructWithInvalid/SomeAbstractClass/MyNestedStructList");
         }
@@ -90,8 +88,6 @@ namespace Mirror.Weaver.Tests
             // we need this negative test to make sure that SyncList is being processed 
             HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
                 "UnityEngine.Object");
-            HasError("target has unsupported type. Use a type supported by Mirror instead",
-                "UnityEngine.Object WeaverSyncListTests.SyncListNestedInStructWithInvalid.SyncListNestedInStructWithInvalid/SomeData::target");
             HasError("SyncList has sync object generic type SomeData.  Use a type supported by mirror instead",
                 "WeaverSyncListTests.SyncListNestedInStructWithInvalid.SyncListNestedInStructWithInvalid/SomeData/SyncList");
         }

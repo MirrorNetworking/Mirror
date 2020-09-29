@@ -85,7 +85,6 @@ namespace Mirror.Weaver
             }
         }
 
-
         private static void GenerateReadersWriters(AssemblyDefinition currentAssembly, Instruction instruction)
         {
             if (instruction.OpCode == OpCodes.Ldsfld)
@@ -242,7 +241,7 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ret));
 
-            Weaver.ConfirmGeneratedCodeClass();
+            Weaver.WeaveLists.ConfirmGeneratedCodeClass();
             TypeDefinition generateClass = Weaver.WeaveLists.generateContainerClass;
 
             generateClass.Methods.Add(rwInitializer);

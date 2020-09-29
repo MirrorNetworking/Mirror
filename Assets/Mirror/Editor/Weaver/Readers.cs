@@ -131,7 +131,7 @@ namespace Mirror.Weaver
             readFuncs[typeReference.FullName] = newReaderFunc;
             Weaver.WeaveLists.generatedReadFunctions.Add(newReaderFunc);
 
-            Weaver.ConfirmGeneratedCodeClass();
+            Weaver.WeaveLists.ConfirmGeneratedCodeClass();
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
@@ -152,29 +152,19 @@ namespace Mirror.Weaver
                 return readerFunc;
             }
 
-
+            // int lengh
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
+            // T[] array
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
+            // int i;
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
             // int length = reader.ReadPackedInt32();
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<int>())));
-            worker.Append(worker.Create(OpCodes.Stloc_0));
+            GenerateReadLength(worker);
 
-            // if (length < 0) {
-            //    return null
-            // }
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
-            worker.Append(worker.Create(OpCodes.Bge, labelEmptyArray));
-            // return null
-            worker.Append(worker.Create(OpCodes.Ldnull));
-            worker.Append(worker.Create(OpCodes.Ret));
-            worker.Append(labelEmptyArray);
+            GenerateNullLengthCheck(worker);
 
             // T value = new T[length];
             worker.Append(worker.Create(OpCodes.Ldloc_0));
@@ -182,37 +172,28 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Stloc_1));
 
             // for (int i=0; i< length ; i++) {
-            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Stloc_2));
-            Instruction labelHead = worker.Create(OpCodes.Nop);
-            worker.Append(worker.Create(OpCodes.Br, labelHead));
-
-            // loop body
-            Instruction labelBody = worker.Create(OpCodes.Nop);
-            worker.Append(labelBody);
-            // value[i] = reader.ReadT();
-            worker.Append(worker.Create(OpCodes.Ldloc_1));
-            worker.Append(worker.Create(OpCodes.Ldloc_2));
-            worker.Append(worker.Create(OpCodes.Ldelema, variable.GetElementType()));
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, elementReadFunc));
-            worker.Append(worker.Create(OpCodes.Stobj, variable.GetElementType()));
-
-            worker.Append(worker.Create(OpCodes.Ldloc_2));
-            worker.Append(worker.Create(OpCodes.Ldc_I4_1));
-            worker.Append(worker.Create(OpCodes.Add));
-            worker.Append(worker.Create(OpCodes.Stloc_2));
-
-            // loop while check
-            worker.Append(labelHead);
-            worker.Append(worker.Create(OpCodes.Ldloc_2));
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Blt, labelBody));
+            GenerateFor(worker, () =>
+            {
+                // value[i] = reader.ReadT();
+                worker.Append(worker.Create(OpCodes.Ldloc_1));
+                worker.Append(worker.Create(OpCodes.Ldloc_2));
+                worker.Append(worker.Create(OpCodes.Ldelema, variable.GetElementType()));
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Call, elementReadFunc));
+                worker.Append(worker.Create(OpCodes.Stobj, variable.GetElementType()));
+            });
 
             // return value;
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
+        }
+
+        private static void GenerateReadLength(ILProcessor worker)
+        {
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<int>())));
+            worker.Append(worker.Create(OpCodes.Stloc_0));
         }
 
         static MethodDefinition GenerateEnumReadFunc(TypeReference variable)
@@ -236,40 +217,28 @@ namespace Mirror.Weaver
             var genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
 
-            MethodReference elementReadFunc = GetReadFunc(elementType);
-            if (elementReadFunc == null)
-            {
-                Weaver.Error($"Cannot generate reader for ArraySegment because element {elementType.Name} does not have a reader. Use a supported type or provide a custom reader", variable);
-                return null;
-            }
-
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
-
-            // int lengh
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
-            // T[] array
-            readerFunc.Body.Variables.Add(new VariableDefinition(elementType.MakeArrayType()));
-            // int i;
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
-            
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
-            // int length = reader.ReadPackedInt32();
+            // $array = reader.Read<[T]>()
+            ArrayType arrayType = elementType.MakeArrayType();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<int>())));
-            worker.Append(worker.Create(OpCodes.Stloc_0));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(arrayType)));
 
-            // T[] array = new int[length]
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Newarr, elementType));
-            worker.Append(worker.Create(OpCodes.Stloc_1));
+            // return new ArraySegment<T>($array);
+            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance)));
+            worker.Append(worker.Create(OpCodes.Ret));
+            return readerFunc;
+        }
 
+        private static void GenerateFor(ILProcessor worker, Action body)
+        {
             // loop through array and deserialize each element
             // generates code like this
             // for (int i=0; i< length ; i++)
             // {
-            //     value[i] = reader.ReadXXX();
+            //     <body>
             // }
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Stloc_2));
@@ -279,13 +248,8 @@ namespace Mirror.Weaver
             // loop body
             Instruction labelBody = worker.Create(OpCodes.Nop);
             worker.Append(labelBody);
-            // value[i] = reader.ReadT();
-            worker.Append(worker.Create(OpCodes.Ldloc_1));
-            worker.Append(worker.Create(OpCodes.Ldloc_2));
-            worker.Append(worker.Create(OpCodes.Ldelema, elementType));
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, elementReadFunc));
-            worker.Append(worker.Create(OpCodes.Stobj, elementType));
+
+            body();
 
             worker.Append(worker.Create(OpCodes.Ldloc_2));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
@@ -297,12 +261,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_2));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Blt, labelBody));
-
-            // return new ArraySegment<T>(array);
-            worker.Append(worker.Create(OpCodes.Ldloc_1));
-            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance)));
-            worker.Append(worker.Create(OpCodes.Ret));
-            return readerFunc;
         }
 
         private static MethodDefinition GenerateReaderFunction(TypeReference variable)
@@ -316,7 +274,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     Weaver.CurrentAssembly.MainModule.ImportReference(variable));
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
             readerFunc.Body.InitLocals = true;
             RegisterReadFunc(variable, readerFunc);
 
@@ -337,18 +295,44 @@ namespace Mirror.Weaver
                 return readerFunc;
             }
 
-
+            // int length
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
+            // List<T> list;
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
+            // int i
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
-            // int count = reader.ReadPackedInt32();
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<int>())));
-            worker.Append(worker.Create(OpCodes.Stloc_0));
+            // int length = reader.ReadPackedInt32();
+            GenerateReadLength(worker);
 
+            GenerateNullLengthCheck(worker);
+
+            // List<T> list = new List<T>();
+            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ListConstructorReference.MakeHostInstanceGeneric(genericInstance)));
+            worker.Append(worker.Create(OpCodes.Stloc_1));
+
+            // for(int i=0; i< length ; i++)
+            GenerateFor(worker, () =>
+            {
+                // list.Add(reader.ReadT());
+                worker.Append(worker.Create(OpCodes.Ldloc_1)); // list
+                worker.Append(worker.Create(OpCodes.Ldarg_0)); // reader
+                worker.Append(worker.Create(OpCodes.Call, elementReadFunc)); // Read
+
+                MethodReference addItem = WeaverTypes.ListAddReference.MakeHostInstanceGeneric(genericInstance);
+                worker.Append(worker.Create(OpCodes.Call, addItem)); // add
+            });
+
+            // return value;
+            worker.Append(worker.Create(OpCodes.Ldloc_1));
+            worker.Append(worker.Create(OpCodes.Ret));
+            return readerFunc;
+        }
+
+        private static void GenerateNullLengthCheck(ILProcessor worker)
+        {
             // -1 is null list, so if count is less than 0 return null
             // if (count < 0) {
             //    return null
@@ -361,55 +345,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldnull));
             worker.Append(worker.Create(OpCodes.Ret));
             worker.Append(labelEmptyArray);
-
-            // List<T> list = new List<T>();
-            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ListConstructorReference.MakeHostInstanceGeneric(genericInstance)));
-            worker.Append(worker.Create(OpCodes.Stloc_1));
-
-            // loop through array and deserialize each element
-            // generates code like this
-            // for (int i=0; i< length ; i++)
-            // {
-            //     list[i] = reader.ReadXXX();
-            // }
-            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Stloc_2));
-            Instruction labelHead = worker.Create(OpCodes.Nop);
-            worker.Append(worker.Create(OpCodes.Br, labelHead));
-
-            // loop body
-            Instruction labelBody = worker.Create(OpCodes.Nop);
-            worker.Append(labelBody);
-
-            MethodReference addItem = WeaverTypes.ListAddReference.MakeHostInstanceGeneric(genericInstance);
-
-            // list.Add(reader.ReadT());
-            worker.Append(worker.Create(OpCodes.Ldloc_1)); // list
-            worker.Append(worker.Create(OpCodes.Ldarg_0)); // reader
-            worker.Append(worker.Create(OpCodes.Call, elementReadFunc)); // Read
-            worker.Append(worker.Create(OpCodes.Call, addItem)); // set_Item
-
-            // end for loop
-
-            // for loop i++
-            worker.Append(worker.Create(OpCodes.Ldloc_2));
-            worker.Append(worker.Create(OpCodes.Ldc_I4_1));
-            worker.Append(worker.Create(OpCodes.Add));
-            worker.Append(worker.Create(OpCodes.Stloc_2));
-
-            // loop while check
-            worker.Append(labelHead);
-            // for loop i < count
-            worker.Append(worker.Create(OpCodes.Ldloc_2));
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Blt, labelBody));
-
-            // return value;
-            worker.Append(worker.Create(OpCodes.Ldloc_1));
-            worker.Append(worker.Create(OpCodes.Ret));
-            return readerFunc;
         }
-
 
         static MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable)
         {
@@ -423,12 +359,31 @@ namespace Mirror.Weaver
 
             TypeDefinition td = variable.Resolve();
 
+            if (!td.IsValueType)
+                GenerateNullCheck(worker);
+
             CreateNew(variable, worker, td);
             ReadAllFields(variable, worker);
 
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
+        }
+
+        private static void GenerateNullCheck(ILProcessor worker)
+        {
+            // if (!reader.ReadBoolean()) {
+            //   return null;
+            // }
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<bool>())));
+
+            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
+            worker.Append(worker.Create(OpCodes.Brtrue, labelEmptyArray));
+            // return null
+            worker.Append(worker.Create(OpCodes.Ldnull));
+            worker.Append(worker.Create(OpCodes.Ret));
+            worker.Append(labelEmptyArray);
         }
 
         // Initialize the local variable with a new instance
@@ -450,7 +405,6 @@ namespace Mirror.Weaver
             else
             {
                 // classes are created with their constructor
-
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
