@@ -16,7 +16,7 @@ namespace Mirror.Tests.StructMessages
             NetworkWriter writer = new NetworkWriter();
 
             const int someValue = 3;
-            writer.WriteMessage(new SomeStructMessage
+            writer.Write(new SomeStructMessage
             {
                 someValue = someValue,
             });
@@ -24,7 +24,7 @@ namespace Mirror.Tests.StructMessages
             byte[] arr = writer.ToArray();
 
             NetworkReader reader = new NetworkReader(arr);
-            SomeStructMessage received = reader.ReadMessage<SomeStructMessage>();
+            SomeStructMessage received = reader.Read<SomeStructMessage>();
 
             Assert.AreEqual(someValue, received.someValue);
 

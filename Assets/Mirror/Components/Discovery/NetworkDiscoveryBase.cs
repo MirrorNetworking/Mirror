@@ -195,7 +195,7 @@ namespace Mirror.Discovery
                 try
                 {
                     writer.WriteInt64(secretHandshake);
-                    writer.WriteMessage(info);
+                    writer.Write(info);
 
                     var data = writer.ToArraySegment();
                     // signature matches
@@ -305,7 +305,7 @@ namespace Mirror.Discovery
                 try
                 {
                     Request request = GetRequest();
-                    writer.WriteMessage(request);
+                    writer.Write(request);
 
                     var data = writer.ToArraySegment();
 

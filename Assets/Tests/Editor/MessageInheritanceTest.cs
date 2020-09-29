@@ -44,7 +44,7 @@ namespace Mirror.Tests
         {
             var writer = new NetworkWriter();
 
-            writer.WriteMessage(new ChildMessage
+            writer.Write(new ChildMessage
             {
                 parentValue = 3,
                 childValue = 4
@@ -53,7 +53,7 @@ namespace Mirror.Tests
             byte[] arr = writer.ToArray();
 
             var reader = new NetworkReader(arr);
-            ChildMessage received = reader.ReadMessage<ChildMessage>();
+            ChildMessage received = reader.Read<ChildMessage>();
 
             Assert.AreEqual(3, received.parentValue);
             Assert.AreEqual(4, received.childValue);
@@ -71,7 +71,7 @@ namespace Mirror.Tests
             const int state = 2;
             const string message = "hello world";
             const int responseId = 5;
-            writer.WriteMessage(new ResponseMessage
+            writer.Write(new ResponseMessage
             {
                 state = state,
                 message = message,
@@ -81,7 +81,7 @@ namespace Mirror.Tests
             byte[] arr = writer.ToArray();
 
             var reader = new NetworkReader(arr);
-            ResponseMessage received = reader.ReadMessage<ResponseMessage>();
+            ResponseMessage received = reader.Read<ResponseMessage>();
 
             Assert.AreEqual(state, received.state);
             Assert.AreEqual(message, received.message);
@@ -100,7 +100,7 @@ namespace Mirror.Tests
             const int state = 2;
             const string message = "hello world";
             const int responseId = 5;
-            writer.WriteMessage(new ResponseMessageReverse
+            writer.Write(new ResponseMessageReverse
             {
                 state = state,
                 message = message,
@@ -110,7 +110,7 @@ namespace Mirror.Tests
             byte[] arr = writer.ToArray();
 
             var reader = new NetworkReader(arr);
-            ResponseMessageReverse received = reader.ReadMessage<ResponseMessageReverse>();
+            ResponseMessageReverse received = reader.Read<ResponseMessageReverse>();
 
             Assert.AreEqual(state, received.state);
             Assert.AreEqual(message, received.message);

@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-
     /// <summary>
     /// a class that holds writers for the different types
     /// Note that c# creates a different static variable for each
@@ -17,7 +16,6 @@ namespace Mirror
     {
         public static Action<NetworkWriter, T> write;
     }
-
 
     /// <summary>
     /// Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
@@ -169,7 +167,12 @@ namespace Mirror
 
         public void WriteInt64(long value) => WriteUInt64((ulong)value);
 
-        public void WriteMessage<T>(T msg)
+        /// <summary>
+        /// Writes any type that mirror supports
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="msg"></param>
+        public void Write<T>(T msg)
         {
             Writer<T>.write(this, msg);
         }

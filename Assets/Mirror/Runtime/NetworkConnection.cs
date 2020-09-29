@@ -111,7 +111,7 @@ namespace Mirror
                 var message = default(T);
                 try
                 {
-                    message = reader.ReadMessage<T>();
+                    message = reader.Read<T>();
                 }
                 finally
                 {

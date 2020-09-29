@@ -43,7 +43,7 @@ namespace Mirror
             int msgType = GetId(mstType);
             writer.WriteUInt16((ushort)msgType);
 
-            writer.WriteMessage(message);
+            writer.Write(message);
         }
 
         // helper function to pack message into a simple byte[] (which allocates)
@@ -72,7 +72,7 @@ namespace Mirror
                 if (id != msgType)
                     throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
 
-                return networkReader.ReadMessage<T>();
+                return networkReader.Read<T>();
             }
         }
         // unpack message after receiving

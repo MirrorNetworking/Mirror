@@ -45,7 +45,7 @@ namespace Mirror.Tests
             MyByteEnum byteEnum = MyByteEnum.B;
 
             var writer = new NetworkWriter();
-            writer.WriteMessage(byteEnum);
+            writer.Write(byteEnum);
 
             // should only be 1 byte
             Assert.That(writer.Length, Is.EqualTo(1));
@@ -57,7 +57,7 @@ namespace Mirror.Tests
             MyShortEnum shortEnum = MyShortEnum.G;
 
             var writer = new NetworkWriter();
-            writer.WriteMessage(shortEnum);
+            writer.Write(shortEnum);
 
             // should only be 1 byte
             Assert.That(writer.Length, Is.EqualTo(2));
@@ -76,10 +76,10 @@ namespace Mirror.Tests
         T SerializeAndDeserializeMessage<T>(T msg)
         {
             var writer = new NetworkWriter();
-            writer.WriteMessage(msg);
+            writer.Write(msg);
 
             var reader = new NetworkReader(writer.ToArraySegment());
-            return reader.ReadMessage<T>();
+            return reader.Read<T>();
         }
     }
 }

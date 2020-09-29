@@ -32,12 +32,12 @@ namespace Mirror.Tests
 
             // serialize
             var writer = new NetworkWriter();
-            writer.WriteMessage(message);
+            writer.Write(message);
             byte[] writerData = writer.ToArray();
 
             // try deserialize
-            NetworkReader reader = new NetworkReader(writerData);
-            var fresh = reader.ReadMessage<AuthRequestMessage>();
+            var reader = new NetworkReader(writerData);
+            AuthRequestMessage fresh = reader.Read<AuthRequestMessage>();
             Assert.That(fresh.authUsername, Is.EqualTo("abc"));
             Assert.That(fresh.authPassword, Is.EqualTo("123"));
         }
@@ -56,12 +56,12 @@ namespace Mirror.Tests
 
             // serialize
             var writer = new NetworkWriter();
-            writer.WriteMessage(message);
+            writer.Write(message);
             byte[] writerData = writer.ToArray();
 
             // try deserialize
             var reader = new NetworkReader(writerData);
-            var fresh = reader.ReadMessage<AuthResponseMessage>();
+            AuthResponseMessage fresh = reader.Read<AuthResponseMessage>();
             Assert.That(fresh.code, Is.EqualTo(123));
             Assert.That(fresh.message, Is.EqualTo("abc"));
         }

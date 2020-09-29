@@ -122,8 +122,8 @@ namespace Mirror.Weaver
                 method.Is(typeof(MessagePacker), nameof(MessagePacker.Pack)) ||
                 method.Is(typeof(MessagePacker), nameof(MessagePacker.GetId)) ||
                 method.Is(typeof(MessagePacker), nameof(MessagePacker.Unpack)) ||
-                method.Is<NetworkWriter>(nameof(NetworkWriter.WriteMessage)) ||
-                method.Is<NetworkReader>(nameof(NetworkReader.ReadMessage)) ||
+                method.Is<NetworkWriter>(nameof(NetworkWriter.Write)) ||
+                method.Is<NetworkReader>(nameof(NetworkReader.Read)) ||
                 method.Is<IMessageHandler>(nameof(IMessageHandler.Send)) ||
                 method.Is<IMessageHandler>(nameof(IMessageHandler.SendAsync)) ||
                 method.Is<IMessageHandler>(nameof(IMessageHandler.RegisterHandler)) ||
