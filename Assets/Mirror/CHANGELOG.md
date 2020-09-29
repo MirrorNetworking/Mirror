@@ -1,3 +1,11 @@
+# [44.3.0](https://github.com/MirrorNG/MirrorNG/compare/v44.2.0...v44.3.0) (2020-09-29)
+
+
+### Features
+
+* support null when serializing classes ([#2290](https://github.com/MirrorNG/MirrorNG/issues/2290)) ([513a0f9](https://github.com/MirrorNG/MirrorNG/commit/513a0f9945ec4414b0da1f0b79f7668875d3eea1))
+* Support recursive data types ([#2288](https://github.com/MirrorNG/MirrorNG/issues/2288)) ([3ccb7d9](https://github.com/MirrorNG/MirrorNG/commit/3ccb7d9da4a2b67124b2adbb3f1bc4d701552aa7))
+
 # [44.2.0](https://github.com/MirrorNG/MirrorNG/compare/v44.1.0...v44.2.0) (2020-09-28)
 
 
