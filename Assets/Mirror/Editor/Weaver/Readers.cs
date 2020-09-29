@@ -285,7 +285,7 @@ namespace Mirror.Weaver
         {
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
-            GenericInstanceType genericInstance = (GenericInstanceType)variable;
+            var genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
 
             MethodReference elementReadFunc = GetReadFunc(elementType);
