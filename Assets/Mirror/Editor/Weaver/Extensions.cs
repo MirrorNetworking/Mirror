@@ -24,48 +24,26 @@ namespace Mirror.Weaver
         public static bool Is<T>(this MethodReference method, string name) =>
             method.DeclaringType.Is<T>() && method.Name == name;
 
-        // removes <T> from class names (if any generic parameters)
-        internal static string StripGenericParametersFromClassName(string className)
-        {
-            int index = className.IndexOf('<');
-            if (index != -1)
-            {
-                return className.Substring(0, index);
-            }
-            return className;
-        }
-
         public static bool IsDerivedFrom<T>(this TypeDefinition td) => IsDerivedFrom(td, typeof(T));
 
         public static bool IsDerivedFrom(this TypeDefinition td, Type baseClass)
         {
+
             if (!td.IsClass)
                 return false;
 
             // are ANY parent classes of baseClass?
             TypeReference parent = td.BaseType;
-            while (parent != null)
-            {
-                string parentName = parent.FullName;
 
-                // strip generic <T> parameters from class name (if any)
-                parentName = StripGenericParametersFromClassName(parentName);
+            if (parent == null)
+                return false;
 
-                if (parentName == baseClass.FullName)
-                {
-                    return true;
-                }
+            if (parent.Is(baseClass))
+                return true;
 
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for plugins.
-                    break;
-                }
-            }
+            if (parent.CanBeResolved())
+                return IsDerivedFrom(parent.Resolve(), baseClass);
+
             return false;
         }
 
