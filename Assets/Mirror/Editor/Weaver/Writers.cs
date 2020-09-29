@@ -251,7 +251,9 @@ namespace Mirror.Weaver
                 return writerFunc;
             }
 
+            // int length 
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
+            // int i
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
 
 
@@ -265,7 +267,7 @@ namespace Mirror.Weaver
 
 
             // writer.WritePackedInt32(count);
-            // for (int i=0; i < count; i++)
+            // for (int i=0; i < length; i++)
             GenerateFor(worker, () =>
             {
                 // writer.Write(value[i]);
@@ -317,7 +319,9 @@ namespace Mirror.Weaver
                 return writerFunc;
             }
 
+            // int length
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
+            // int i
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -330,7 +334,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
             // writer.WritePackedInt32(count);
-            // for (int i=0; i < count; i++)
+            // for (int i=0; i < length; i++)
             GenerateFor(worker, () =>
             {
                 // writer.Write(value.Array[i + value.Offset]);
@@ -367,8 +371,9 @@ namespace Mirror.Weaver
                 return writerFunc;
             }
 
-
+            // int length
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
+            // int i;
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             writerFunc.Body.InitLocals = true;
 
