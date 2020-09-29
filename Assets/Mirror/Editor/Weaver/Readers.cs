@@ -134,17 +134,7 @@ namespace Mirror.Weaver
             // int length = reader.ReadPackedInt32();
             GenerateReadLength(worker);
 
-            // if (length < 0) {
-            //    return null
-            // }
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
-            worker.Append(worker.Create(OpCodes.Bge, labelEmptyArray));
-            // return null
-            worker.Append(worker.Create(OpCodes.Ldnull));
-            worker.Append(worker.Create(OpCodes.Ret));
-            worker.Append(labelEmptyArray);
+            GenerateNullLengthCheck(worker);
 
             // T value = new T[length];
             worker.Append(worker.Create(OpCodes.Ldloc_0));
@@ -318,18 +308,7 @@ namespace Mirror.Weaver
             // int length = reader.ReadPackedInt32();
             GenerateReadLength(worker);
 
-            // -1 is null list, so if count is less than 0 return null
-            // if (count < 0) {
-            //    return null
-            // }
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
-            worker.Append(worker.Create(OpCodes.Bge, labelEmptyArray));
-            // return null
-            worker.Append(worker.Create(OpCodes.Ldnull));
-            worker.Append(worker.Create(OpCodes.Ret));
-            worker.Append(labelEmptyArray);
+            GenerateNullLengthCheck(worker);
 
             // List<T> list = new List<T>();
             worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ListConstructorReference.MakeHostInstanceGeneric(genericInstance)));
@@ -355,6 +334,21 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
+        private static void GenerateNullLengthCheck(ILProcessor worker)
+        {
+            // -1 is null list, so if count is less than 0 return null
+            // if (count < 0) {
+            //    return null
+            // }
+            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
+            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
+            worker.Append(worker.Create(OpCodes.Bge, labelEmptyArray));
+            // return null
+            worker.Append(worker.Create(OpCodes.Ldnull));
+            worker.Append(worker.Create(OpCodes.Ret));
+            worker.Append(labelEmptyArray);
+        }
 
         static MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable)
         {
