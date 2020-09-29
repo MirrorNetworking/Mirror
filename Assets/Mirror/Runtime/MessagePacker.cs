@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
@@ -46,21 +45,6 @@ namespace Mirror
 
             // serialize message into writer
             message.Serialize(writer);
-        }
-
-        // helper function to pack message into a simple byte[] (which allocates)
-        // => useful for tests
-        // => useful for local client message enqueue
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static byte[] Pack<T>(T message) where T : IMessageBase
-        {
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                Pack(message, writer);
-                byte[] data = writer.ToArray();
-
-                return data;
-            }
         }
 
         // unpack a message we received

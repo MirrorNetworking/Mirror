@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Mirror.Tests.Generated.CollectionWriters
 {
-    
+
     public class Array_int_Test
     {
         class Message : MessageBase
@@ -23,7 +23,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             int[] unpackedCollection = unpacked.collection;
@@ -39,7 +39,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new int[] { }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             int[] unpackedCollection = unpacked.collection;
@@ -59,7 +59,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             int[] unpackedCollection = unpacked.collection;
@@ -87,7 +87,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             string[] unpackedCollection = unpacked.collection;
@@ -103,7 +103,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new string[] { }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             string[] unpackedCollection = unpacked.collection;
@@ -123,7 +123,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             string[] unpackedCollection = unpacked.collection;
@@ -151,7 +151,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             Vector3[] unpackedCollection = unpacked.collection;
@@ -167,7 +167,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new Vector3[] { }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             Vector3[] unpackedCollection = unpacked.collection;
@@ -187,7 +187,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             Vector3[] unpackedCollection = unpacked.collection;
@@ -215,7 +215,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             FloatStringStruct[] unpackedCollection = unpacked.collection;
@@ -231,7 +231,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new FloatStringStruct[] { }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             FloatStringStruct[] unpackedCollection = unpacked.collection;
@@ -251,7 +251,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             FloatStringStruct[] unpackedCollection = unpacked.collection;
@@ -279,7 +279,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
@@ -295,7 +295,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ClassWithNoConstructor[] { }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
@@ -315,7 +315,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
@@ -343,7 +343,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<int> unpackedCollection = unpacked.collection;
@@ -366,7 +366,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ArraySegment<int>(array, 0, 0)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<int> unpackedCollection = unpacked.collection;
@@ -393,7 +393,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ArraySegment<int>(array, 1, 3)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<int> unpackedCollection = unpacked.collection;
@@ -421,7 +421,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<string> unpackedCollection = unpacked.collection;
@@ -444,7 +444,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ArraySegment<string>(array, 0, 0)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<string> unpackedCollection = unpacked.collection;
@@ -471,7 +471,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ArraySegment<string>(array, 1, 3)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<string> unpackedCollection = unpacked.collection;
@@ -499,7 +499,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<Vector3> unpackedCollection = unpacked.collection;
@@ -522,7 +522,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ArraySegment<Vector3>(array, 0, 0)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<Vector3> unpackedCollection = unpacked.collection;
@@ -549,7 +549,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ArraySegment<Vector3>(array, 1, 3)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<Vector3> unpackedCollection = unpacked.collection;
@@ -577,7 +577,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<FloatStringStruct> unpackedCollection = unpacked.collection;
@@ -600,7 +600,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ArraySegment<FloatStringStruct>(array, 0, 0)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<FloatStringStruct> unpackedCollection = unpacked.collection;
@@ -627,7 +627,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ArraySegment<FloatStringStruct>(array, 1, 3)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<FloatStringStruct> unpackedCollection = unpacked.collection;
@@ -655,7 +655,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
@@ -678,7 +678,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ArraySegment<ClassWithNoConstructor>(array, 0, 0)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
@@ -705,7 +705,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new ArraySegment<ClassWithNoConstructor>(array, 1, 3)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
@@ -733,7 +733,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<int> unpackedCollection = unpacked.collection;
@@ -749,7 +749,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new List<int> { }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<int> unpackedCollection = unpacked.collection;
@@ -769,7 +769,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<int> unpackedCollection = unpacked.collection;
@@ -797,7 +797,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<string> unpackedCollection = unpacked.collection;
@@ -813,7 +813,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new List<string> { }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<string> unpackedCollection = unpacked.collection;
@@ -833,7 +833,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<string> unpackedCollection = unpacked.collection;
@@ -861,7 +861,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<Vector3> unpackedCollection = unpacked.collection;
@@ -877,7 +877,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new List<Vector3> { }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<Vector3> unpackedCollection = unpacked.collection;
@@ -897,7 +897,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<Vector3> unpackedCollection = unpacked.collection;
@@ -925,7 +925,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<FloatStringStruct> unpackedCollection = unpacked.collection;
@@ -941,7 +941,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new List<FloatStringStruct> { }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<FloatStringStruct> unpackedCollection = unpacked.collection;
@@ -961,7 +961,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<FloatStringStruct> unpackedCollection = unpacked.collection;
@@ -989,7 +989,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = default
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
@@ -1005,7 +1005,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 collection = new List<ClassWithNoConstructor> { }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
@@ -1025,7 +1025,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
                 }
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             Message unpacked = MessagePacker.Unpack<Message>(data);
             List<ClassWithNoConstructor> unpackedCollection = unpacked.collection;

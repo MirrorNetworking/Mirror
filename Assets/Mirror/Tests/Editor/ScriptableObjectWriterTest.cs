@@ -31,7 +31,7 @@ namespace Mirror.Tests
 
             message.scriptableObject.someData = 10;
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
             ScriptableObjectMessage unpacked = MessagePacker.Unpack<ScriptableObjectMessage>(data);
 
