@@ -168,7 +168,7 @@ namespace Mirror.Discovery
                     throw new ProtocolViolationException("Invalid handshake");
                 }
 
-                Request request = networkReader.ReadMessage<Request>();
+                Request request = networkReader.Read<Request>();
 
                 ProcessClientRequest(request, udpReceiveResult.RemoteEndPoint);
             }
@@ -339,7 +339,7 @@ namespace Mirror.Discovery
                 if (networkReader.ReadInt64() != secretHandshake)
                     return;
 
-                Response response = networkReader.ReadMessage<Response>();
+                Response response = networkReader.Read<Response>();
 
                 ProcessResponse(response, udpReceiveResult.RemoteEndPoint);
             }
