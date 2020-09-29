@@ -266,7 +266,6 @@ namespace Mirror.Weaver
 
             TypeReference elementType = variable.GetElementType();
             MethodReference elementWriteFunc = GetWriteFunc(elementType);
-            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.Import<int>());
 
             // need this null check till later PR when GetWriteFunc throws exception instead
             if (elementWriteFunc == null)
@@ -381,10 +380,9 @@ namespace Mirror.Weaver
         {
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
-            GenericInstanceType genericInstance = (GenericInstanceType)variable;
+            var genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
             MethodReference elementWriteFunc = GetWriteFunc(elementType);
-            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.Import<int>());
 
             // need this null check till later PR when GetWriteFunc throws exception instead
             if (elementWriteFunc == null)
