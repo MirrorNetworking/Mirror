@@ -188,46 +188,16 @@ namespace Mirror.Weaver
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
 
-            MethodReference elementReadFunc = GetReadFunc(elementType);
-            if (elementReadFunc == null)
-            {
-                Weaver.Error($"Cannot generate reader for ArraySegment because element {elementType.Name} does not have a reader. Use a supported type or provide a custom reader", variable);
-                return null;
-            }
-
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
-
-            // int length
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
-            // T[] array
-            readerFunc.Body.Variables.Add(new VariableDefinition(elementType.MakeArrayType()));
-            // int i;
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
-            // int length = reader.ReadPackedInt32();
-            GenerateReadLength(worker);
+            // $array = reader.Read<[T]>()
+            ArrayType arrayType = elementType.MakeArrayType();
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(arrayType)));
 
-            // T[] array = new int[length]
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Newarr, elementType));
-            worker.Append(worker.Create(OpCodes.Stloc_1));
-
-            // for(int i=0; i< length ; i++)
-            GenerateFor(worker, ()=>
-            {
-                // value[i] = reader.ReadT();
-                worker.Append(worker.Create(OpCodes.Ldloc_1));
-                worker.Append(worker.Create(OpCodes.Ldloc_2));
-                worker.Append(worker.Create(OpCodes.Ldelema, elementType));
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Call, elementReadFunc));
-                worker.Append(worker.Create(OpCodes.Stobj, elementType));
-            });
-
-            // return new ArraySegment<T>(array);
-            worker.Append(worker.Create(OpCodes.Ldloc_1));
+            // return new ArraySegment<T>($array);
             worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance)));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
