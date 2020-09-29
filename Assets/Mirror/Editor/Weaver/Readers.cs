@@ -198,7 +198,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, GetReadFunc(arrayType)));
 
             // return new ArraySegment<T>($array);
-            worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance)));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
