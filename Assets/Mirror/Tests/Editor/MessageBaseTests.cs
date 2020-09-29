@@ -41,6 +41,21 @@ namespace Mirror.Tests.MessageTests
         public void Serialize(NetworkWriter writer) {}
     }
 
+    class NullableObject
+    {
+        public int id = 3;
+    }
+
+    struct NullableObjectMessage : NetworkMessage
+    {
+        public string name;
+        public NullableObject nullObj;
+
+        // weaver populates (de)serialize automatically
+        public void Deserialize(NetworkReader reader) {}
+        public void Serialize(NetworkWriter writer) {}
+    }
+
     [TestFixture]
     public class MessageBaseTests
     {
@@ -62,6 +77,22 @@ namespace Mirror.Tests.MessageTests
             Assert.AreEqual(1, t.IntValue);
             Assert.AreEqual("2", t.StringValue);
             Assert.AreEqual(3.3, t.DoubleValue);
+        }
+
+        [Test]
+        public void NullObjectMessageTest()
+        {
+            NullableObjectMessage nullableObjectMessage = new NullableObjectMessage
+            {
+                name = "anon",
+                nullObj = null
+            };
+
+            byte[] data = MessagePackingTest.PackToByteArray(nullableObjectMessage);
+
+            NullableObjectMessage unpacked = MessagePackingTest.UnpackFromByteArray<NullableObjectMessage>(data);
+            Assert.That(unpacked.name, Is.EqualTo("anon"));
+            Assert.That(unpacked.nullObj, Is.Null);
         }
     }
 }

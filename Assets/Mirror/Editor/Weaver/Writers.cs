@@ -154,11 +154,37 @@ namespace Mirror.Weaver
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
+            if (!variable.Resolve().IsValueType)
+                WriteNullCheck(worker);
+
             if (!WriteAllFields(variable, recursionCount, worker))
                 return null;
 
             worker.Emit(OpCodes.Ret);
             return writerFunc;
+        }
+
+        private static void WriteNullCheck(ILProcessor worker)
+        {
+            // if (value == null)
+            // {
+            //     writer.WriteBoolean(false);
+            //     return;
+            // }
+
+            Instruction labelNotNull = worker.Create(OpCodes.Nop);
+            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Brtrue, labelNotNull));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
+            worker.Append(worker.Create(OpCodes.Call,  GetWriteFunc(WeaverTypes.boolType)));
+            worker.Append(worker.Create(OpCodes.Ret));
+            worker.Append(labelNotNull);
+
+            // write.WriteBoolean(true);
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldc_I4_1));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.boolType)));
         }
 
         /// <summary>
