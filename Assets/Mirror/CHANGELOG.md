@@ -1,3 +1,14 @@
+# [45.0.0](https://github.com/MirrorNG/MirrorNG/compare/v44.3.1...v45.0.0) (2020-09-29)
+
+
+* Renamed ReadMessage -> Reader ([1bb89f2](https://github.com/MirrorNG/MirrorNG/commit/1bb89f2408c51ced2229c9d9635b7e2319b59b05))
+
+
+### BREAKING CHANGES
+
+* NetworkReader.ReadMessage renamed to NetworkReader.Read
+* NetworkWriter.WriteMessage renamed to NetworkReader.Write
+
 ## [44.3.1](https://github.com/MirrorNG/MirrorNG/compare/v44.3.0...v44.3.1) (2020-09-29)
 
 
