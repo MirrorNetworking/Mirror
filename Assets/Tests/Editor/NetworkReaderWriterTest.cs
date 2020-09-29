@@ -1,6 +1,4 @@
-using System;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
@@ -46,9 +44,9 @@ namespace Mirror.Tests
                 name = "Yo Gaba Gaba"
             };
             var writer = new NetworkWriter();
-            Writer<MyType>.write(writer, data);
+            writer.Write(data);
             var reader = new NetworkReader(writer.ToArray());
-            MyType copy = Reader<MyType>.read(reader);
+            MyType copy = reader.Read<MyType>();
 
             Assert.That(copy, Is.EqualTo(data));
         }

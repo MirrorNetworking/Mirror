@@ -223,7 +223,15 @@ namespace Mirror.Weaver
             }
         }
 
-        public static void GenerateRWRegister(AssemblyDefinition currentAssembly)
+        /// <summary>
+        /// Creates a method that will store all the readers and writers into
+        /// <see cref="Writer{T}.write"/> and <see cref="Reader{T}.read"/>
+        ///
+        /// The method will be marked InitializeOnLoadMethodAttribute so it gets
+        /// executed before mirror runtime code
+        /// </summary>
+        /// <param name="currentAssembly"></param>
+        public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly)
         {
             var rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
                     MethodAttributes.Static,
@@ -236,8 +244,8 @@ namespace Mirror.Weaver
 
             ILProcessor worker = rwInitializer.Body.GetILProcessor();
 
-            Writers.GenerateRegister(worker);
-            Readers.GenerateRegister(worker);
+            Writers.InitializeWriters(worker);
+            Readers.InitializeReaders(worker);
 
             worker.Append(worker.Create(OpCodes.Ret));
 

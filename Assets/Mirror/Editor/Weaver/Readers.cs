@@ -95,37 +95,6 @@ namespace Mirror.Weaver
             return GenerateClassOrStructReadFunction(variableReference);
         }
 
-        internal static void GenerateRegister(ILProcessor worker)
-        {
-            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
-
-            TypeReference genericReaderClassRef = module.ImportReference(typeof(Reader<>));
-
-            System.Reflection.FieldInfo fieldInfo = typeof(Reader<>).GetField(nameof(Reader<object>.read));
-            FieldReference fieldRef = module.ImportReference(fieldInfo);
-            TypeReference networkReaderRef = module.ImportReference(typeof(NetworkReader));
-            TypeReference funcRef = module.ImportReference(typeof(Func<,>));
-            MethodReference funcConstructorRef = module.ImportReference(typeof(Func<,>).GetConstructors()[0]);
-
-            foreach (MethodReference readFunc in readFuncs.Values)
-            {
-                TypeReference dataType = readFunc.ReturnType;
-
-                // create a Func<NetworkReader, T> delegate
-                worker.Append(worker.Create(OpCodes.Ldnull));
-                worker.Append(worker.Create(OpCodes.Ldftn, readFunc));
-                GenericInstanceType funcGenericInstance = funcRef.MakeGenericInstanceType(networkReaderRef, dataType);
-                MethodReference funcConstructorInstance = funcConstructorRef.MakeHostInstanceGeneric(funcGenericInstance);
-                worker.Append(worker.Create(OpCodes.Newobj, funcConstructorInstance));
-
-                // save it in Writer<T>.write
-                GenericInstanceType genericInstance = genericReaderClassRef.MakeGenericInstanceType(dataType);
-                FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
-                worker.Append(worker.Create(OpCodes.Stsfld, specializedField));
-            }
-
-        }
-
         static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
         {
             readFuncs[typeReference.FullName] = newReaderFunc;
@@ -442,6 +411,41 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Stfld, fieldRef));
                 fields++;
             }
+        }
+
+        /// <summary>
+        /// Save a delegate for each one of the readers into <see cref="Reader{T}.read"/>
+        /// </summary>
+        /// <param name="worker"></param>
+        internal static void InitializeReaders(ILProcessor worker)
+        {
+            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
+
+            TypeReference genericReaderClassRef = module.ImportReference(typeof(Reader<>));
+
+            System.Reflection.FieldInfo fieldInfo = typeof(Reader<>).GetField(nameof(Reader<object>.read));
+            FieldReference fieldRef = module.ImportReference(fieldInfo);
+            TypeReference networkReaderRef = module.ImportReference(typeof(NetworkReader));
+            TypeReference funcRef = module.ImportReference(typeof(Func<,>));
+            MethodReference funcConstructorRef = module.ImportReference(typeof(Func<,>).GetConstructors()[0]);
+
+            foreach (MethodReference readFunc in readFuncs.Values)
+            {
+                TypeReference dataType = readFunc.ReturnType;
+
+                // create a Func<NetworkReader, T> delegate
+                worker.Append(worker.Create(OpCodes.Ldnull));
+                worker.Append(worker.Create(OpCodes.Ldftn, readFunc));
+                GenericInstanceType funcGenericInstance = funcRef.MakeGenericInstanceType(networkReaderRef, dataType);
+                MethodReference funcConstructorInstance = funcConstructorRef.MakeHostInstanceGeneric(funcGenericInstance);
+                worker.Append(worker.Create(OpCodes.Newobj, funcConstructorInstance));
+
+                // save it in Writer<T>.write
+                GenericInstanceType genericInstance = genericReaderClassRef.MakeGenericInstanceType(dataType);
+                FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
+                worker.Append(worker.Create(OpCodes.Stsfld, specializedField));
+            }
+
         }
     }
 }
