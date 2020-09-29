@@ -129,7 +129,6 @@ namespace Mirror.Weaver
         static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
         {
             readFuncs[typeReference.FullName] = newReaderFunc;
-            Weaver.WeaveLists.generatedReadFunctions.Add(newReaderFunc);
 
             Weaver.WeaveLists.ConfirmGeneratedCodeClass();
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);

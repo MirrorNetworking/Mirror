@@ -15,9 +15,6 @@ namespace Mirror.Weaver
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
 
-        public List<MethodDefinition> generatedReadFunctions = new List<MethodDefinition>();
-        public List<MethodDefinition> generatedWriteFunctions = new List<MethodDefinition>();
-
         public TypeDefinition generateContainerClass;
 
         // amount of SyncVars per class. dict<className, amount>
