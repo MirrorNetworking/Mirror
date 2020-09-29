@@ -309,9 +309,11 @@ namespace Mirror.Weaver
                 return readerFunc;
             }
 
-
+            // int i
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
+            // List<T> list;
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
+            // int length
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
