@@ -132,7 +132,7 @@ namespace Mirror.Weaver
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
-            MethodReference underlyingWriter = Writers.GetWriteFunc(variable.Resolve().GetEnumUnderlyingType());
+            MethodReference underlyingWriter = GetWriteFunc(variable.Resolve().GetEnumUnderlyingType());
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldarg_1));
@@ -146,13 +146,13 @@ namespace Mirror.Weaver
         {
             string functionName = "_Write_" + variable.FullName;
             // create new writer for this type
-            var writerFunc = new MethodDefinition(functionName,
+            MethodDefinition writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
             writerFunc.Body.InitLocals = true;
 
