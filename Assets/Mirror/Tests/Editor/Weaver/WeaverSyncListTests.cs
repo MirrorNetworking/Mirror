@@ -31,8 +31,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListGenericInheritanceWithMultipleGeneric()
         {
-            HasError("Could not find generic arguments for SyncList`1 in WeaverSyncListTests.SyncListGenericInheritanceWithMultipleGeneric.SyncListGenericInheritanceWithMultipleGeneric/SomeListInt",
-                "WeaverSyncListTests.SyncListGenericInheritanceWithMultipleGeneric.SyncListGenericInheritanceWithMultipleGeneric/SomeListInt");
+            IsSuccess();
         }
 
         [Test]

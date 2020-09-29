@@ -210,12 +210,12 @@ namespace Mirror.Weaver
             {
                 if (td.IsDerivedFrom(typeof(SyncList<>)))
                 {
-                    SyncListProcessor.Process(td, WeaverTypes.Import(typeof(SyncList<>)));
+                    SyncListProcessor.Process(td, typeof(SyncList<>));
                     modified = true;
                 }
                 else if (td.IsDerivedFrom(typeof(SyncSet<>)))
                 {
-                    SyncListProcessor.Process(td, WeaverTypes.Import(typeof(SyncSet<>)));
+                    SyncListProcessor.Process(td, typeof(SyncSet<>));
                     modified = true;
                 }
                 else if (td.IsDerivedFrom(typeof(SyncDictionary<,>)))

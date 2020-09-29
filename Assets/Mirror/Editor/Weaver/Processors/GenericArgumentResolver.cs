@@ -1,107 +1,56 @@
-using System.Collections.Generic;
+using System;
 using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
-    public class GenericArgumentResolver
+    public static class GenericArgumentResolver
     {
-        readonly Stack<TypeReference> stack = new Stack<TypeReference>();
-        readonly int maxGenericArgument;
-
-        public GenericArgumentResolver(int maxGenericArgument)
+        static TypeReference[] GetGenericArguments(TypeReference tr, Type baseType, TypeReference[] genericArguments)
         {
-            this.maxGenericArgument = maxGenericArgument;
-        }
+            if (tr == null)
+                return null;
 
-        public bool GetGenericFromBaseClass(TypeDefinition td, int genericArgument, TypeReference baseType, out TypeReference itemType)
-        {
-            itemType = null;
-            if (GetGenericBaseType(td, baseType, out GenericInstanceType parent))
+            TypeReference[] resolvedArguments = new TypeReference[0];
+
+            if (tr is GenericInstanceType genericInstance)
             {
-                TypeReference arg = parent.GenericArguments[genericArgument];
-                if (arg.IsGenericParameter)
+                // this type is a generic instance,  for example List<int>
+                // however, the parameter may be generic itself,  for example:
+                // List<T>.  If T is a generic parameter,  then look it up in
+                // from the arguments we got.
+                resolvedArguments = genericInstance.GenericArguments.ToArray();
+
+                for (int i = 0; i< resolvedArguments.Length; i++)
                 {
-                    itemType = FindParameterInStack(td, genericArgument);
-                }
-                else
-                {
-                    itemType = Weaver.CurrentAssembly.MainModule.ImportReference(arg);
+                    TypeReference argument = resolvedArguments[i];
+                    if (argument is GenericParameter genericArgument)
+                    {
+                        resolvedArguments[i] = genericArguments[genericArgument.Position];
+                    }
                 }
             }
 
-            return itemType != null;
-        }
+            if (tr.Is(baseType))
+                return resolvedArguments;
 
-        TypeReference FindParameterInStack(TypeDefinition td, int genericArgument)
-        {
-            while (stack.Count > 0)
-            {
-                TypeReference next = stack.Pop();
+            if (tr.CanBeResolved())
+                return GetGenericArguments(tr.Resolve().BaseType, baseType, resolvedArguments);
 
-                if (!(next is GenericInstanceType genericType))
-                {
-                    // if type is not GenericInstanceType something has gone wrong
-                    return null;
-                }
-
-                if (genericType.GenericArguments.Count < genericArgument)
-                {
-                    // if less than `genericArgument` then we didnt find generic argument
-                    return null;
-                }
-
-                if (genericType.GenericArguments.Count > maxGenericArgument)
-                {
-                    // if greater than `genericArgument` it is hard to know which generic arg we want
-                    // See SyncListGenericInheritanceWithMultipleGeneric test
-                    Weaver.Error($"Type {td.Name} has too many generic arguments in base class {next}", td);
-                    return null;
-                }
-
-                TypeReference genericArg = genericType.GenericArguments[genericArgument];
-                if (!genericArg.IsGenericParameter)
-                {
-                    // if not generic, successfully found type
-                    return Weaver.CurrentAssembly.MainModule.ImportReference(genericArg);
-                }
-            }
-
-            // nothing left in stack, something went wrong
             return null;
         }
 
-        bool GetGenericBaseType(TypeDefinition td, TypeReference baseType, out GenericInstanceType found)
+        /// <summary>
+        /// Find out what the arguments are to a generic base type
+        /// </summary>
+        /// <param name="td"></param>
+        /// <param name="baseType"></param>
+        /// <returns></returns>
+        public static TypeReference[] GetGenericArguments(TypeDefinition td, Type baseType)
         {
-            stack.Clear();
-            TypeReference parent = td.BaseType;
-            found = null;
+            if (td == null)
+                return null;
 
-            while (parent != null)
-            {
-                string parentName = parent.FullName;
-
-                // strip generic <T> parameters from class name (if any)
-                parentName = Extensions.StripGenericParametersFromClassName(parentName);
-
-                if (parentName == baseType.FullName)
-                {
-                    found = parent as GenericInstanceType;
-                    break;
-                }
-
-                try
-                {
-                    stack.Push(parent);
-                    parent = parent.Resolve().BaseType;
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for plugins.
-                    break;
-                }
-            }
-
-            return found != null;
+            return GetGenericArguments(td.BaseType, baseType, new TypeReference[] { });
         }
     }
 }
