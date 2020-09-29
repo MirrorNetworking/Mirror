@@ -83,14 +83,6 @@ namespace Mirror.Weaver
                 WeaveLists.generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
                         TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass,
                         WeaverTypes.objectType);
-
-                const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-                MethodDefinition method = new MethodDefinition(".ctor", methodAttributes, WeaverTypes.voidType);
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(WeaverTypes.objectType, CurrentAssembly, ".ctor")));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
-
-                WeaveLists.generateContainerClass.Methods.Add(method);
             }
         }
 
