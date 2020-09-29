@@ -256,23 +256,7 @@ namespace Mirror.Weaver
 
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
-
-            // if (value == null)
-            // {
-            //     writer.WritePackedInt32(-1);
-            //     return;
-            // }
-            Instruction labelNull = worker.Create(OpCodes.Nop);
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
-            worker.Append(worker.Create(OpCodes.Brtrue, labelNull));
-
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Ldc_I4_M1));
-            worker.Append(worker.Create(OpCodes.Call, intWriterFunc));
-            worker.Append(worker.Create(OpCodes.Ret));
-
-            // else not null
-            worker.Append(labelNull);
+            GenerateContainerNullCheck(worker);
 
             // int length = value.Length;
             worker.Append(worker.Create(OpCodes.Ldarg_1));
@@ -317,6 +301,26 @@ namespace Mirror.Weaver
             // return
             worker.Append(worker.Create(OpCodes.Ret));
             return writerFunc;
+        }
+
+        private static void GenerateContainerNullCheck(ILProcessor worker)
+        {
+            // if (value == null)
+            // {
+            //     writer.WritePackedInt32(-1);
+            //     return;
+            // }
+            Instruction labelNull = worker.Create(OpCodes.Nop);
+            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Brtrue, labelNull));
+
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldc_I4_M1));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.Import<int>())));
+            worker.Append(worker.Create(OpCodes.Ret));
+
+            // else not null
+            worker.Append(labelNull);
         }
 
         static MethodDefinition GenerateArraySegmentWriteFunc(TypeReference variable)
@@ -420,22 +424,7 @@ namespace Mirror.Weaver
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
-            // if (value == null)
-            // {
-            //     writer.WritePackedInt32(-1);
-            //     return;
-            // }
-            Instruction labelNull = worker.Create(OpCodes.Nop);
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
-            worker.Append(worker.Create(OpCodes.Brtrue, labelNull));
-
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Ldc_I4_M1));
-            worker.Append(worker.Create(OpCodes.Call, intWriterFunc));
-            worker.Append(worker.Create(OpCodes.Ret));
-
-            // else not null
-            worker.Append(labelNull);
+            GenerateContainerNullCheck(worker);
 
             MethodReference countref = WeaverTypes.ListCountReference.MakeHostInstanceGeneric(genericInstance);
 
