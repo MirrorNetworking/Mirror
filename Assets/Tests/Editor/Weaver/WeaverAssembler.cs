@@ -55,27 +55,6 @@ namespace Mirror.Weaver.Tests
             }
         }
 
-        // Add a range of reference files by full path
-        public static void AddReferencesByFullPath(string[] refAsms)
-        {
-            foreach (string asm in refAsms)
-            {
-                ReferenceAssemblies.Add(asm);
-            }
-        }
-
-        // Add a range of reference files by assembly name only
-        public static void AddReferencesByAssemblyName(string[] refAsms)
-        {
-            foreach (string asm in refAsms)
-            {
-                if (FindReferenceAssemblyPath(asm, out string asmFullPath))
-                {
-                    ReferenceAssemblies.Add(asmFullPath);
-                }
-            }
-        }
-
         // Find reference assembly specified by asmName and store its full path in asmFullPath
         // do not pass in paths in asmName, just assembly names
         public static bool FindReferenceAssemblyPath(string asmName, out string asmFullPath)
@@ -157,8 +136,9 @@ namespace Mirror.Weaver.Tests
         {
             var assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray())
             {
-                additionalReferences = ReferenceAssemblies.ToArray()
+                referencesOptions = ReferencesOptions.UseEngineModules
             };
+
             if (AllowUnsafe)
             {
                 assemblyBuilder.compilerOptions.AllowUnsafeCode = true;

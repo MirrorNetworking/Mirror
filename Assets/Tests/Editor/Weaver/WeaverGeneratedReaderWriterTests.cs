@@ -7,8 +7,6 @@ namespace Mirror.Weaver.Tests
         [SetUp]
         public override void TestSetup()
         {
-            WeaverAssembler.AddReferencesByAssemblyName(new string[] { "WeaverTestExtraAssembly.dll" });
-
             base.TestSetup();
         }
 

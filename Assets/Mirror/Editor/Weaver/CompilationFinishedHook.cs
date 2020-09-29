@@ -107,6 +107,7 @@ namespace Mirror.Weaver
                 // no assembly found, this can happen if you use the AssemblyBuilder
                 // happens with our weaver tests.
                 // create an assembly object manually
+
                 assembly = CreateUnityAssembly(assemblyPath);
             }
 
@@ -128,7 +129,7 @@ namespace Mirror.Weaver
         private static UnityAssembly CreateUnityAssembly(string assemblyPath)
         {
             // copy from one of the assemblies
-            UnityAssembly first = CompilationPipeline.GetAssemblies().First();
+            UnityAssembly mirrordll = CompilationPipeline.GetAssemblies().First(assembly => assembly.name=="Mirror");
 
             return new UnityAssembly(
                 Path.GetFileNameWithoutExtension(assemblyPath),
@@ -136,8 +137,7 @@ namespace Mirror.Weaver
                 new string[] { },
                 CompilationPipeline.GetDefinesFromAssemblyName(assemblyPath),
                 CompilationPipeline.GetAssemblies(),
-                first.compiledAssemblyReferences,
-
+                mirrordll.compiledAssemblyReferences,
                 AssemblyFlags.None) ;
         }
     }

@@ -75,9 +75,6 @@ namespace Mirror.Weaver.Tests
         [OneTimeSetUp]
         public void FixtureSetup()
         {
-            // TextRenderingModule is only referenced to use TextMesh type to throw errors about types from another module
-            WeaverAssembler.AddReferencesByAssemblyName(new string[] { "UnityEngine.dll", "UnityEngine.CoreModule.dll", "UnityEngine.TextRenderingModule.dll", "Mirror.dll" });
-
             CompilationFinishedHook.UnityLogEnabled = false;
             CompilationFinishedHook.OnWeaverError += HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning += HandleWeaverWarning;
