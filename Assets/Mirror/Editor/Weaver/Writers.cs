@@ -79,7 +79,6 @@ namespace Mirror.Weaver
             }
 
             // check for collections
-
             if (variableReference.Is(typeof(ArraySegment<>)))
             {
                 return GenerateArraySegmentWriteFunc(variableReference);
@@ -90,7 +89,6 @@ namespace Mirror.Weaver
             }
 
             // check for invalid types
-
             TypeDefinition variableDefinition = variableReference.Resolve();
             if (variableDefinition == null)
             {
@@ -122,7 +120,6 @@ namespace Mirror.Weaver
             }
 
             // generate writer for class/struct
-
             return GenerateClassOrStructWriterFunction(variableReference);
         }
 
@@ -180,8 +177,8 @@ namespace Mirror.Weaver
         {
             // if (value == null)
             // {
-            //  writer.WriteBoolean(false);
-            //  return;
+            //     writer.WriteBoolean(false);
+            //     return;
             // }
             //
 
@@ -256,7 +253,6 @@ namespace Mirror.Weaver
             // int i
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
 
-
             ILProcessor worker = writerFunc.Body.GetILProcessor();
             GenerateContainerNullCheck(worker);
 
@@ -264,7 +260,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             worker.Append(worker.Create(OpCodes.Ldlen));
             worker.Append(worker.Create(OpCodes.Stloc_0));
-
 
             // writer.WritePackedInt32(count);
             // for (int i=0; i < length; i++)

@@ -121,7 +121,6 @@ namespace Mirror.Weaver
                 return readerFunc;
             }
 
-
             // int lengh
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             // T[] array
@@ -140,7 +139,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Newarr, variable.GetElementType()));
             worker.Append(worker.Create(OpCodes.Stloc_1));
-
 
             // for (int i=0; i< length ; i++) {
             GenerateFor(worker, () =>
@@ -284,11 +282,9 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.ListConstructorReference.MakeHostInstanceGeneric(genericInstance)));
             worker.Append(worker.Create(OpCodes.Stloc_1));
 
-
             // for(int i=0; i< length ; i++)
             GenerateFor(worker, () =>
             {
-
                 // list.Add(reader.ReadT());
                 worker.Append(worker.Create(OpCodes.Ldloc_1)); // list
                 worker.Append(worker.Create(OpCodes.Ldarg_0)); // reader
@@ -347,7 +343,6 @@ namespace Mirror.Weaver
             // if (!reader.ReadBoolean()) {
             //   return null;
             // }
-
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<bool>())));
 
@@ -378,7 +373,6 @@ namespace Mirror.Weaver
             else
             {
                 // classes are created with their constructor
-
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
@@ -423,7 +417,5 @@ namespace Mirror.Weaver
                 Log.Warning($"{variable} has no public or non-static fields to deserialize");
             }
         }
-
     }
-
 }
