@@ -246,7 +246,9 @@ namespace Mirror.Weaver
             }
 
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
+            // int length
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            // int i
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -331,8 +333,9 @@ namespace Mirror.Weaver
             }
 
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
-
+            // int length
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            // int i
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -408,8 +411,9 @@ namespace Mirror.Weaver
             }
 
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
-
+            // int length
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            // int i
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
