@@ -217,7 +217,7 @@ namespace Mirror.Weaver
 
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
-            // int lengh
+            // int length
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             // T[] array
             readerFunc.Body.Variables.Add(new VariableDefinition(elementType.MakeArrayType()));
@@ -309,11 +309,11 @@ namespace Mirror.Weaver
                 return readerFunc;
             }
 
-            // int i
+            // int length
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             // List<T> list;
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
-            // int length
+            // int i
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
