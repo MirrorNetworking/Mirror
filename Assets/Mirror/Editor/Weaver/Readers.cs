@@ -397,12 +397,32 @@ namespace Mirror.Weaver
 
             TypeDefinition td = variable.Resolve();
 
+            if (!td.IsValueType)
+                GenerateNullCheck(worker);
+
             CreateNew(variable, worker, td);
             ReadAllFields(variable, recursionCount, worker);
 
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
+        }
+
+        private static void GenerateNullCheck(ILProcessor worker)
+        {
+            // if (!reader.ReadBoolean()) {
+            //   return null;
+            // }
+
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<bool>())));
+
+            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
+            worker.Append(worker.Create(OpCodes.Brtrue, labelEmptyArray));
+            // return null
+            worker.Append(worker.Create(OpCodes.Ldnull));
+            worker.Append(worker.Create(OpCodes.Ret));
+            worker.Append(labelEmptyArray);
         }
 
         // Initialize the local variable with a new instance
