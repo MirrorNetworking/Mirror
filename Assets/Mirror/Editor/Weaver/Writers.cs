@@ -375,7 +375,6 @@ namespace Mirror.Weaver
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
             // int i;
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
-            writerFunc.Body.InitLocals = true;
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
