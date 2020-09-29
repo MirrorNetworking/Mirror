@@ -139,8 +139,11 @@ namespace Mirror.Weaver
 
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
+            // int length
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
+            // T[] array
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
+            // int it;
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
