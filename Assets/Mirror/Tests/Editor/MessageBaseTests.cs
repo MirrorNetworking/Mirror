@@ -83,6 +83,17 @@ namespace Mirror.Tests.MessageTests
         public int value3;
     }
 
+    class NullableObject
+    {
+        public int id = 3;
+    }
+
+    class NullableObjectMessage : MessageBase
+    {
+        public string name;
+        public NullableObject nullObj;
+    }
+
     [TestFixture]
     public class MessageBaseTests
     {
@@ -157,6 +168,23 @@ namespace Mirror.Tests.MessageTests
             Assert.That(unpacked.value1, Is.EqualTo(value1));
             Assert.That(unpacked.value2, Is.EqualTo(value2));
             Assert.That(unpacked.value3, Is.EqualTo(value3));
+        }
+
+        [Test]
+        public void NullObjectMessageTest()
+        {
+            NullableObjectMessage nullableObjectMessage = new NullableObjectMessage
+            {
+                name = "pepe",
+                nullObj = null
+            };
+
+            byte[] data = MessagePacker.Pack(nullableObjectMessage);
+
+            NullableObjectMessage unpacked = MessagePacker.Unpack<NullableObjectMessage>(data);
+
+            Assert.That(unpacked.name, Is.EqualTo("pepe"));
+            Assert.That(unpacked.nullObj, Is.Null);
         }
     }
 }
