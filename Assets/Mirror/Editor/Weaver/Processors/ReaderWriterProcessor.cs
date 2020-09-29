@@ -1,6 +1,8 @@
 // finds all readers and writers and register them
 using System.IO;
 using Mono.CecilX;
+using Mono.CecilX.Cil;
+using UnityEditor;
 using UnityEditor.Compilation;
 
 namespace Mirror.Weaver
@@ -97,5 +99,38 @@ namespace Mirror.Weaver
                 Readers.Register(method.ReturnType, currentAssembly.MainModule.ImportReference(method));
             }
         }
+
+        /// <summary>
+        /// Creates a method that will store all the readers and writers into
+        /// <see cref="Writer{T}.write"/> and <see cref="Reader{T}.read"/>
+        ///
+        /// The method will be marked InitializeOnLoadMethodAttribute so it gets
+        /// executed before mirror runtime code
+        /// </summary>
+        /// <param name="currentAssembly"></param>
+        public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly)
+        {
+            var rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
+                    MethodAttributes.Static,
+                    WeaverTypes.Import(typeof(void)));
+
+            System.Reflection.ConstructorInfo attributeconstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructors()[0];
+
+            CustomAttribute customAttributeRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(attributeconstructor));
+            rwInitializer.CustomAttributes.Add(customAttributeRef);
+
+            ILProcessor worker = rwInitializer.Body.GetILProcessor();
+
+            Writers.InitializeWriters(worker);
+            Readers.InitializeReaders(worker);
+
+            worker.Append(worker.Create(OpCodes.Ret));
+
+            Weaver.WeaveLists.ConfirmGeneratedCodeClass();
+            TypeDefinition generateClass = Weaver.WeaveLists.generateContainerClass;
+
+            generateClass.Methods.Add(rwInitializer);
+        }
+
     }
 }
