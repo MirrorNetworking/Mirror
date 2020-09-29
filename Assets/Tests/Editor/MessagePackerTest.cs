@@ -7,6 +7,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class MessagePackerTest
     {
+
         [Test]
         public void TestPacking()
         {

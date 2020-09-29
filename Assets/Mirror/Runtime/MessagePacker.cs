@@ -18,14 +18,14 @@ namespace Mirror
     {
         public static int GetId<T>()
         {
-            // paul: 16 bits is enough to avoid collisions
-            //  - keeps the message size small because it gets varinted
-            //  - in case of collisions,  Mirror will display an error
-            return typeof(T).FullName.GetStableHashCode() & 0xFFFF;
+            return GetId(typeof(T));
         }
 
         public static int GetId(Type type)
         {
+            // paul: 16 bits is enough to avoid collisions
+            //  - keeps the message size small because it gets varinted
+            //  - in case of collisions,  Mirror will display an error
             return type.FullName.GetStableHashCode() & 0xFFFF;
         }
 

@@ -1,3 +1,4 @@
+using System;
 using Mono.Cecil;
 
 namespace Mirror.Weaver
@@ -12,14 +13,12 @@ namespace Mirror.Weaver
         /// </summary>
         /// <param name="td">The synclist class</param>
         /// <param name="mirrorBaseType">the base SyncObject td inherits from</param>
-        public static void Process(TypeDefinition td, TypeReference mirrorBaseType)
+        public static void Process(TypeDefinition td, Type mirrorBaseType)
         {
-            var resolver = new GenericArgumentResolver(1);
-
-            TypeReference itemType = resolver.GetGenericFromBaseClass(td, 0, mirrorBaseType);
-            if (itemType != null)
+            TypeReference [] arguments = GenericArgumentResolver.GetGenericArguments(td, mirrorBaseType);
+            if (arguments != null)
             {
-                SyncObjectProcessor.GenerateSerialization(td, itemType, mirrorBaseType, "SerializeItem", "DeserializeItem");
+                SyncObjectProcessor.GenerateSerialization(td, arguments[0], mirrorBaseType, "SerializeItem", "DeserializeItem");
             }
             else
             {
