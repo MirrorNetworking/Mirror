@@ -316,54 +316,6 @@ namespace Mirror
         /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
         /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
         /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
-        /// </summary>
-        /// <param name="prefab">A Prefab that will be spawned.</param>
-        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
-        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
-        public static void RegisterPrefab(GameObject prefab, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
-        {
-            if (prefab == null)
-            {
-                Debug.LogError("Could not register handler for prefab because the prefab was null");
-                return;
-            }
-
-            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
-            if (identity == null)
-            {
-                Debug.LogError("Could not register handler for '" + prefab.name + "' since it contains no NetworkIdentity component");
-                return;
-            }
-
-            if (identity.sceneId != 0)
-            {
-                Debug.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
-                return;
-            }
-
-            Guid assetId = identity.assetId;
-
-            if (assetId == Guid.Empty)
-            {
-                Debug.LogError($"Can not Register handler for '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
-                return;
-            }
-
-            // We need this check here because we don't want a null handler in the lambda expression below
-            if (spawnHandler == null)
-            {
-                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
-                return;
-            }
-
-            RegisterPrefab(prefab, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
-        }
-
-        /// <summary>
-        /// Registers a prefab with the spawning system.
-        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
-        /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
-        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
         /// <para>NOTE: newAssetId can not be set on GameObjects that already have an assetId</para>
         /// </summary>
         /// <param name="prefab">A GameObject that will be spawned.</param>
