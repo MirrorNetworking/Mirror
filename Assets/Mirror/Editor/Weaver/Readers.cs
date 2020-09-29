@@ -338,14 +338,14 @@ namespace Mirror.Weaver
             // for(int i=0; i< length ; i++)
             GenerateFor(worker, () =>
             {
-                //     list[i] = reader.ReadXXX();
-                MethodReference addItem = WeaverTypes.ListAddReference.MakeHostInstanceGeneric(genericInstance);
 
                 // list.Add(reader.ReadT());
                 worker.Append(worker.Create(OpCodes.Ldloc_1)); // list
                 worker.Append(worker.Create(OpCodes.Ldarg_0)); // reader
                 worker.Append(worker.Create(OpCodes.Call, elementReadFunc)); // Read
-                worker.Append(worker.Create(OpCodes.Call, addItem)); // set_Item
+
+                MethodReference addItem = WeaverTypes.ListAddReference.MakeHostInstanceGeneric(genericInstance);
+                worker.Append(worker.Create(OpCodes.Call, addItem)); // add
             });
 
             // return value;
