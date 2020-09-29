@@ -10,15 +10,6 @@ namespace Mirror
         void Serialize(NetworkWriter writer);
     }
 
-    public abstract class MessageBase : IMessageBase
-    {
-        // De-serialize the contents of the reader into this message
-        public virtual void Deserialize(NetworkReader reader) { }
-
-        // Serialize the contents of this message into the writer
-        public virtual void Serialize(NetworkWriter writer) { }
-    }
-
     #region Public System Messages
     public struct ErrorMessage : IMessageBase
     {

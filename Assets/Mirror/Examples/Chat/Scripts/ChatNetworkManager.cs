@@ -14,9 +14,13 @@ namespace Mirror.Examples.Chat
 
         public ChatWindow chatWindow;
 
-        public class CreatePlayerMessage : MessageBase
+        public class CreatePlayerMessage : IMessageBase
         {
             public string name;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         public override void OnStartServer()

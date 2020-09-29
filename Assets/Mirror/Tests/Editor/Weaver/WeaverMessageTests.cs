@@ -11,19 +11,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void MessageWithBaseClass()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void MessageSelfReferencing()
-        {
-            HasError("MessageSelfReferencing has field selfReference that references itself",
-                "WeaverMessageTests.MessageSelfReferencing.MessageSelfReferencing WeaverMessageTests.MessageSelfReferencing.MessageSelfReferencing::selfReference");
-        }
-
-        [Test]
         public void MessageMemberGeneric()
         {
             HasError("Cannot generate writer for generic type HasGeneric`1. Use a supported type or provide a custom writer",
@@ -39,12 +26,6 @@ namespace Mirror.Weaver.Tests
                 "WeaverMessageTests.MessageMemberInterface.SuperCoolInterface");
             HasError("invalidField has unsupported type",
                 "WeaverMessageTests.MessageMemberInterface.SuperCoolInterface WeaverMessageTests.MessageMemberInterface.MessageMemberInterface::invalidField");
-        }
-
-        [Test]
-        public void MessageNestedInheritance()
-        {
-            IsSuccess();
         }
 
         [Test]

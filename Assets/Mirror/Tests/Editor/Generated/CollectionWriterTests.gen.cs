@@ -10,9 +10,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class Array_int_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public int[] collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -74,9 +78,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class Array_string_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public string[] collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -138,9 +146,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class Array_Vector3_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public Vector3[] collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -202,9 +214,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class Array_FloatStringStruct_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public FloatStringStruct[] collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -266,9 +282,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class Array_ClassWithNoConstructor_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public ClassWithNoConstructor[] collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -330,9 +350,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class ArraySegment_int_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public ArraySegment<int> collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -408,9 +432,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class ArraySegment_string_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public ArraySegment<string> collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -486,9 +514,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class ArraySegment_Vector3_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public ArraySegment<Vector3> collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -564,9 +596,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class ArraySegment_FloatStringStruct_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public ArraySegment<FloatStringStruct> collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -642,9 +678,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class ArraySegment_ClassWithNoConstructor_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public ArraySegment<ClassWithNoConstructor> collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -720,9 +760,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class List_int_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public List<int> collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -784,9 +828,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class List_string_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public List<string> collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -848,9 +896,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class List_Vector3_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public List<Vector3> collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -912,9 +964,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class List_FloatStringStruct_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public List<FloatStringStruct> collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -976,9 +1032,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class List_ClassWithNoConstructor_Test
     {
-        class Message : MessageBase
+        struct Message : IMessageBase
         {
             public List<ClassWithNoConstructor> collection;
+
+            // Weaver will generate serialization
+            public void Serialize(NetworkWriter writer) {}
+            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
