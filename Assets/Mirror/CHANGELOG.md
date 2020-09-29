@@ -1,3 +1,11 @@
+## [44.3.1](https://github.com/MirrorNG/MirrorNG/compare/v44.3.0...v44.3.1) (2020-09-29)
+
+
+### Bug Fixes
+
+* generic arguments resolution ([#2300](https://github.com/MirrorNG/MirrorNG/issues/2300)) ([8dbf467](https://github.com/MirrorNG/MirrorNG/commit/8dbf46720e5b8fb9a0bd06af36e8bd445e772332))
+* typos ([#2297](https://github.com/MirrorNG/MirrorNG/issues/2297)) ([aba69ca](https://github.com/MirrorNG/MirrorNG/commit/aba69ca4d00fd093a6184cec0cfdd4a688bca3fb))
+
 # [44.3.0](https://github.com/MirrorNG/MirrorNG/compare/v44.2.0...v44.3.0) (2020-09-29)
 
 
