@@ -155,8 +155,10 @@ namespace Mirror.Weaver.Tests
 
         public static void Build()
         {
-            AssemblyBuilder assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray());
-            assemblyBuilder.additionalReferences = ReferenceAssemblies.ToArray();
+            AssemblyBuilder assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray())
+            {
+                additionalReferences = ReferenceAssemblies.ToArray()
+            };
             if (AllowUnsafe)
             {
                 assemblyBuilder.compilerOptions.AllowUnsafeCode = true;
