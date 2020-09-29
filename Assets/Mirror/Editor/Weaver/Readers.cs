@@ -269,13 +269,13 @@ namespace Mirror.Weaver
             string functionName = "_Read_" + variable.FullName;
 
             // create new reader for this type
-            var readerFunc = new MethodDefinition(functionName,
+            MethodDefinition readerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
                     Weaver.CurrentAssembly.MainModule.ImportReference(variable));
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
             readerFunc.Body.InitLocals = true;
             RegisterReadFunc(variable, readerFunc);
 
