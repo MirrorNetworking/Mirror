@@ -249,12 +249,12 @@ namespace Mirror.Weaver
         /// <param name="methodName"></param>
         /// <param name="stopAt"></param>
         /// <returns></returns>
-        public static bool HasMethodInBaseType(this TypeDefinition td, string methodName, TypeReference stopAt)
+        public static bool HasMethodInBaseType(this TypeDefinition td, string methodName, Type stopAt)
         {
             TypeDefinition typedef = td;
             while (typedef != null)
             {
-                if (typedef.FullName == stopAt.FullName)
+                if (typedef.Is(stopAt))
                     break;
 
                 foreach (MethodDefinition md in typedef.Methods)

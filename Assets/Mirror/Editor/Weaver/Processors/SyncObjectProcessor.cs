@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -48,7 +49,7 @@ namespace Mirror.Weaver
         /// <param name="mirrorBaseType">the base SyncObject td inherits from</param>
         /// <param name="serializeMethod">The name of the serialize method</param>
         /// <param name="deserializeMethod">The name of the deserialize method</param>
-        public static void GenerateSerialization(TypeDefinition td, TypeReference itemType, TypeReference mirrorBaseType, string serializeMethod, string deserializeMethod)
+        public static void GenerateSerialization(TypeDefinition td, TypeReference itemType, Type mirrorBaseType, string serializeMethod, string deserializeMethod)
         {
             Weaver.DLog(td, "SyncObjectProcessor Start item:" + itemType.FullName);
 
@@ -65,7 +66,7 @@ namespace Mirror.Weaver
         }
 
         // serialization of individual element
-        static bool GenerateSerialization(string methodName, TypeDefinition td, TypeReference itemType, TypeReference mirrorBaseType)
+        static bool GenerateSerialization(string methodName, TypeDefinition td, TypeReference itemType, Type mirrorBaseType)
         {
             Weaver.DLog(td, "  GenerateSerialization");
             bool existing = td.HasMethodInBaseType(methodName, mirrorBaseType);
@@ -109,7 +110,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        static bool GenerateDeserialization(string methodName, TypeDefinition td, TypeReference itemType, TypeReference mirrorBaseType)
+        static bool GenerateDeserialization(string methodName, TypeDefinition td, TypeReference itemType, Type mirrorBaseType)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
             bool existing = td.HasMethodInBaseType(methodName, mirrorBaseType);
