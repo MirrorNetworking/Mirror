@@ -373,7 +373,7 @@ namespace Mirror.Weaver
 
             // int length
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
-            // int i;
+            // int i
             writerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -388,7 +388,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
             // writer.WritePackedInt32(count);
-            // for (int i=0; i < count; i++)
+            // for (int i=0; i < length; i++)
             GenerateFor(worker, () => {
                 MethodReference getItem = WeaverTypes.ListGetItemReference.MakeHostInstanceGeneric(genericInstance);
 
@@ -416,7 +416,7 @@ namespace Mirror.Weaver
 
             // Loop through the List<T> and call the writer for each element.
             // generates this:
-            // for (int i=0; i < count; i++)
+            // for (int i=0; i < length; i++)
             // {
             //    writer.WriteT(value[i]);
             // }
@@ -439,7 +439,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Stloc_1));
 
             worker.Append(labelHead);
-            // for loop i < count
+            // for loop i < length
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Blt, labelBody));
