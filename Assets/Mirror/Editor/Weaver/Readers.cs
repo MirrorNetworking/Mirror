@@ -122,8 +122,11 @@ namespace Mirror.Weaver
             }
 
 
+            // int lengh
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
+            // T[] array
             readerFunc.Body.Variables.Add(new VariableDefinition(variable));
+            // int i;
             readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<int>()));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
