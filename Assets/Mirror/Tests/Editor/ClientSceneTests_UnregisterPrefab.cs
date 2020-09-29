@@ -17,26 +17,6 @@ namespace Mirror.Tests.ClientSceneTests
         }
 
         [Test]
-        public void RemovesSpawnHandlerFromDictionary()
-        {
-            spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
-
-            ClientScene.UnregisterPrefab(validPrefab);
-
-            Assert.IsFalse(spawnHandlers.ContainsKey(validPrefabGuid));
-        }
-
-        [Test]
-        public void RemovesUnSpawnHandlerFromDictionary()
-        {
-            unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => { }));
-
-            ClientScene.UnregisterPrefab(validPrefab);
-
-            Assert.IsFalse(unspawnHandlers.ContainsKey(validPrefabGuid));
-        }
-
-        [Test]
         public void ErrorWhenPrefabIsNull()
         {
             LogAssert.Expect(LogType.Error, "Could not unregister prefab because it was null");

@@ -51,10 +51,6 @@ namespace Mirror
         /// </summary>
         public static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects = new Dictionary<ulong, NetworkIdentity>();
 
-        // spawn handlers
-        internal static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
-        internal static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
-
         internal static void Shutdown()
         {
             ClearSpawners();
@@ -253,11 +249,6 @@ namespace Mirror
                 Debug.LogWarning($"Replacing existing prefab with assetId '{prefab.assetId}'. Old prefab '{existingPrefab.name}', New prefab '{prefab.name}'");
             }
 
-            if (spawnHandlers.ContainsKey(prefab.assetId) || unspawnHandlers.ContainsKey(prefab.assetId))
-            {
-                Debug.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId}' when spawnHandlers with same assetId already exists.");
-            }
-
             // Debug.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");
 
             prefabs[prefab.assetId] = prefab.gameObject;
@@ -310,8 +301,6 @@ namespace Mirror
             Guid assetId = identity.assetId;
 
             prefabs.Remove(assetId);
-            spawnHandlers.Remove(assetId);
-            unspawnHandlers.Remove(assetId);
         }
 
         /// <summary>
@@ -320,18 +309,6 @@ namespace Mirror
         public static void ClearSpawners()
         {
             prefabs.Clear();
-            spawnHandlers.Clear();
-            unspawnHandlers.Clear();
-        }
-
-        static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
-        {
-            if (unspawnHandlers.TryGetValue(assetId, out UnSpawnDelegate handler) && handler != null)
-            {
-                handler(obj);
-                return true;
-            }
-            return false;
         }
 
         /// <summary>
@@ -349,18 +326,14 @@ namespace Mirror
                 {
                     if (identity != null && identity.gameObject != null)
                     {
-                        bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
-                        if (!wasUnspawned)
+                        if (identity.sceneId == 0)
                         {
-                            if (identity.sceneId == 0)
-                            {
-                                Object.Destroy(identity.gameObject);
-                            }
-                            else
-                            {
-                                identity.Reset();
-                                identity.gameObject.SetActive(false);
-                            }
+                            Object.Destroy(identity.gameObject);
+                        }
+                        else
+                        {
+                            identity.Reset();
+                            identity.gameObject.SetActive(false);
                         }
                     }
                 }
@@ -470,22 +443,6 @@ namespace Mirror
 
                 return obj.GetComponent<NetworkIdentity>();
             }
-            if (spawnHandlers.TryGetValue(msg.assetId, out SpawnHandlerDelegate handler))
-            {
-                GameObject obj = handler(msg);
-                if (obj == null)
-                {
-                    Debug.LogError($"Spawn Handler returned null, Handler assetId '{msg.assetId}'");
-                    return null;
-                }
-                NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
-                if (identity == null)
-                {
-                    Debug.LogError($"Object Spawned by handler did not have a NetworkIdentity, Handler assetId '{msg.assetId}'");
-                    return null;
-                }
-                return identity;
-            }
             Debug.LogError($"Failed to spawn server object, did you forget to add it to the NetworkManager? assetId={msg.assetId} netId={msg.netId}");
             return null;
         }
@@ -587,20 +544,18 @@ namespace Mirror
             {
                 localObject.OnStopClient();
 
-                if (!InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
+                // default handling
+                if (localObject.sceneId == 0)
                 {
-                    // default handling
-                    if (localObject.sceneId == 0)
-                    {
-                        Object.Destroy(localObject.gameObject);
-                    }
-                    else
-                    {
-                        // scene object.. disable it in scene instead of destroying
-                        localObject.gameObject.SetActive(false);
-                        spawnableObjects[localObject.sceneId] = localObject;
-                    }
+                    Object.Destroy(localObject.gameObject);
                 }
+                else
+                {
+                    // scene object.. disable it in scene instead of destroying
+                    localObject.gameObject.SetActive(false);
+                    spawnableObjects[localObject.sceneId] = localObject;
+                }
+
                 NetworkIdentity.spawned.Remove(netId);
                 localObject.Reset();
             }

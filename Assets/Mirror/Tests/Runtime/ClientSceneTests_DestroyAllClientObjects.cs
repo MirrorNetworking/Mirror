@@ -49,7 +49,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
     {
         public static readonly List<GameObject> _createdObjects = new List<GameObject>();
         Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
-        Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
 
         [TearDown]
         public void TearDown()
@@ -61,7 +60,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             _createdObjects.Clear();
 
             spawned.Clear();
-            unspawnHandlers.Clear();
         }
 
         TestListenerBehaviour CreateAndAddObject(uint netId, ulong sceneId)
@@ -153,13 +151,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             Guid guid2 = Guid.NewGuid();
             Guid guid3 = Guid.NewGuid();
 
-            int unspawnCalled1 = 0;
-            int unspawnCalled2 = 0;
-            int unspawnCalled3 = 0;
-
-            unspawnHandlers.Add(guid1, x => unspawnCalled1++);
-            unspawnHandlers.Add(guid2, x => unspawnCalled2++);
-            unspawnHandlers.Add(guid3, x => unspawnCalled3++);
             listener1.GetComponent<NetworkIdentity>().assetId = guid1;
             listener2.GetComponent<NetworkIdentity>().assetId = guid2;
             listener3.GetComponent<NetworkIdentity>().assetId = guid3;
@@ -173,10 +164,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             listener3.onDisableCalled += () => disableCalled3++;
 
             ClientScene.DestroyAllClientObjects();
-
-            Assert.That(unspawnCalled1, Is.EqualTo(1));
-            Assert.That(unspawnCalled2, Is.EqualTo(1));
-            Assert.That(unspawnCalled3, Is.EqualTo(1));
 
             Assert.That(disableCalled1, Is.EqualTo(0), "Object with UnspawnHandler should not be destroyed");
             Assert.That(disableCalled2, Is.EqualTo(0), "Object with UnspawnHandler should not be destroyed");
