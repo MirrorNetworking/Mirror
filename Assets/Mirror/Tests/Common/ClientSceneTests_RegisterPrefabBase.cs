@@ -12,20 +12,6 @@ namespace Mirror.Tests
     {
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab, false)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, true)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate, false)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, true)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate, false)]
-        [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId, true)]
-        public void CheckOverloadWithAssetId(RegisterPrefabOverload overload, bool expected)
-        {
-            // test to make sure OverloadWithAssetId correctly works with flags
-            Assert.That(OverloadWithAssetId(overload), Is.EqualTo(expected));
-        }
-
-        [Test]
-        [TestCase(RegisterPrefabOverload.Prefab, false)]
-        [TestCase(RegisterPrefabOverload.Prefab_NewAssetId, false)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate, true)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId, true)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate, true)]
@@ -44,19 +30,12 @@ namespace Mirror.Tests
         public enum RegisterPrefabOverload
         {
             Prefab = 1,
-            Prefab_NewAssetId = 2,
             Prefab_SpawnDelegate = 4,
             Prefab_SpawnDelegate_NewAssetId = 8,
             Prefab_SpawnHandlerDelegate = 16,
             Prefab_SpawnHandlerDelegate_NewAssetId = 32,
 
-            WithAssetId = Prefab_NewAssetId | Prefab_SpawnDelegate_NewAssetId | Prefab_SpawnHandlerDelegate_NewAssetId,
             WithHandler = Prefab_SpawnDelegate | Prefab_SpawnDelegate_NewAssetId | Prefab_SpawnHandlerDelegate | Prefab_SpawnHandlerDelegate_NewAssetId
-        }
-
-        protected static bool OverloadWithAssetId(RegisterPrefabOverload overload)
-        {
-            return (overload & RegisterPrefabOverload.WithAssetId) != 0;
         }
 
         protected static bool OverloadWithHandler(RegisterPrefabOverload overload)
@@ -74,9 +53,6 @@ namespace Mirror.Tests
             {
                 case RegisterPrefabOverload.Prefab:
                     ClientScene.RegisterPrefab(prefab);
-                    break;
-                case RegisterPrefabOverload.Prefab_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnDelegate:
                     ClientScene.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
@@ -105,9 +81,6 @@ namespace Mirror.Tests
 
             switch (overload)
             {
-                case RegisterPrefabOverload.Prefab_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, guid);
-                    break;
                 case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
                     ClientScene.RegisterPrefab(prefab, guid, spawnHandler, unspawnHandler);
                     break;
@@ -140,7 +113,6 @@ namespace Mirror.Tests
                     break;
 
                 case RegisterPrefabOverload.Prefab:
-                case RegisterPrefabOverload.Prefab_NewAssetId:
                 case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate:
                 case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId:
                     Debug.LogError("Overload did not have SpawnDelegate parameter");
@@ -165,7 +137,6 @@ namespace Mirror.Tests
                     break;
 
                 case RegisterPrefabOverload.Prefab:
-                case RegisterPrefabOverload.Prefab_NewAssetId:
                 case RegisterPrefabOverload.Prefab_SpawnDelegate:
                 case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
                     Debug.LogError("Overload did not have SpawnHandlerDelegate parameter");
@@ -198,15 +169,10 @@ namespace Mirror.Tests
                     break;
 
                 case RegisterPrefabOverload.Prefab:
-                case RegisterPrefabOverload.Prefab_NewAssetId:
-                    Debug.LogError("Overload did not have UnSpawnDelegate parameter");
-                    break;
                 default:
                     Debug.LogError("Overload not found");
                     break;
             }
         }
-
-        protected Guid GuidForOverload(RegisterPrefabOverload overload) => OverloadWithAssetId(overload) ? anotherGuid : validPrefabGuid;
     }
 }
