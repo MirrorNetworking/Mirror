@@ -16,7 +16,7 @@ namespace Mirror
     //    (probably even shorter)
     public static class MessagePacker
     {
-        public static int GetId<T>() where T : IMessageBase
+        public static int GetId<T>() where T : NetworkMessage
         {
             return GetId(typeof(T));
         }
@@ -32,7 +32,7 @@ namespace Mirror
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
         //    and do an allocation free send before recycling it.
-        public static void Pack<T>(T message, NetworkWriter writer) where T : IMessageBase
+        public static void Pack<T>(T message, NetworkWriter writer) where T : NetworkMessage
         {
             // if it is a value type,  just use typeof(T) to avoid boxing
             // this works because value types cannot be derived
@@ -46,7 +46,7 @@ namespace Mirror
         }
 
         // unpack a message we received
-        public static T Unpack<T>(byte[] data) where T : IMessageBase, new()
+        public static T Unpack<T>(byte[] data) where T : NetworkMessage, new()
         {
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(data))
             {
@@ -83,7 +83,7 @@ namespace Mirror
         }
 
         internal static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
-            where T : IMessageBase, new()
+            where T : NetworkMessage, new()
             where C : NetworkConnection
             => (conn, reader, channelId) =>
         {

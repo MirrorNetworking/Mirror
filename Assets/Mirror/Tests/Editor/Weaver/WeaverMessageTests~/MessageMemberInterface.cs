@@ -6,7 +6,7 @@ namespace WeaverMessageTests.MessageMemberInterface
 {
     interface SuperCoolInterface { }
 
-    struct MessageMemberInterface : IMessageBase
+    struct MessageMemberInterface : NetworkMessage
     {
         public uint netId;
         public Guid assetId;

@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests.StructMessages
 {
-    public struct SomeStructMessage : IMessageBase
+    public struct SomeStructMessage : NetworkMessage
     {
         public int someValue;
 

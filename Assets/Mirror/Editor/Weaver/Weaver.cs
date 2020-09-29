@@ -148,7 +148,7 @@ namespace Mirror.Weaver
 
             bool modified = false;
 
-            if (td.ImplementsInterface<IMessageBase>())
+            if (td.ImplementsInterface<NetworkMessage>())
             {
                 // process this and base classes from parent to child order
                 try

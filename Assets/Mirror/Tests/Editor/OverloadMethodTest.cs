@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests.MessageTests
 {
-    class NoArgMethodMessage : IMessageBase
+    struct NoArgMethodMessage : NetworkMessage
     {
         public int someValue;
 
@@ -15,7 +15,7 @@ namespace Mirror.Tests.MessageTests
         public void Deserialize(NetworkReader reader) { }
     }
 
-    class TwoArgMethodMessage : IMessageBase
+    struct TwoArgMethodMessage : NetworkMessage
     {
         public int someValue;
 
