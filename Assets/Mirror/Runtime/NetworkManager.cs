@@ -136,8 +136,6 @@ namespace Mirror
         [NonSerialized]
         public bool isNetworkActive;
 
-        static NetworkConnection clientReadyConnection;
-
         /// <summary>
         /// This is true if the client loaded a new scene when connecting to the server.
         /// <para>This is set before OnClientConnect is called, so it can be checked there to perform different logic if a scene load occurred.</para>
@@ -484,7 +482,6 @@ namespace Mirror
 
             startPositions.Clear();
             startPositionIndex = 0;
-            clientReadyConnection = null;
 
             singleton = null;
         }
