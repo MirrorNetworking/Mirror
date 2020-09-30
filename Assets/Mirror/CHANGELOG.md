@@ -1,3 +1,10 @@
+## [46.0.1](https://github.com/MirrorNG/MirrorNG/compare/v46.0.0...v46.0.1) (2020-09-30)
+
+
+### Bug Fixes
+
+* NetMan cleanup and simplify ([#364](https://github.com/MirrorNG/MirrorNG/issues/364)) ([4bfa3c6](https://github.com/MirrorNG/MirrorNG/commit/4bfa3c6a4bafdbce65e5384c654bc7819c6ebad9))
+
 # [46.0.0](https://github.com/MirrorNG/MirrorNG/compare/v45.0.1...v46.0.0) (2020-09-30)
 
 
