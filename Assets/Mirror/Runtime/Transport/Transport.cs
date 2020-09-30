@@ -1,7 +1,6 @@
 // abstract transport layer component
 // note: not all transports need a port, so add it to yours if needed.
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -116,18 +115,14 @@ namespace Mirror
         public abstract void ServerStart();
 
         /// <summary>
-        /// Send data to one or multiple clients. We provide a list, so that transports can make use
-        /// of multicasting, and avoid allocations where possible.
-        ///
-        /// We don't provide a single ServerSend function to reduce complexity. Simply overwrite this
-        /// one in your Transport.
+        /// Send data to a client.
         /// </summary>
-        /// <param name="connectionIds">The list of client connection ids to send the data to</param>
+        /// <param name="connectionId">The client connection id to send the data to</param>
         /// <param name="channelId">The channel to be used.  Transports can use channels to implement
         /// other features such as unreliable, encryption, compression, etc...</param>
         /// <param name="data"></param>
         /// <returns>true if the data was sent to all clients</returns>
-        public abstract bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment);
+        public abstract bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment);
 
         /// <summary>
         /// Disconnect a client from this server.  Useful to kick people out.

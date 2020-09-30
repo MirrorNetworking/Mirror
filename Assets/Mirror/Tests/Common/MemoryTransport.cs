@@ -109,7 +109,7 @@ namespace Mirror.Tests
 
         public override bool ServerActive() => serverActive;
         public override void ServerStart() { serverActive = true; }
-        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
+        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
             // only if server is running and client is connected
             if (serverActive && clientConnected)

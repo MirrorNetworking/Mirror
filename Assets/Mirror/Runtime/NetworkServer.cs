@@ -53,11 +53,6 @@ namespace Mirror
         public static float disconnectInactiveTimeout = 60f;
 
         /// <summary>
-        /// cache the Send(connectionIds) list to avoid allocating each time
-        /// </summary>
-        static readonly List<int> connectionIdsCache = new List<int>();
-
-        /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
         public static void Shutdown()
@@ -207,19 +202,10 @@ namespace Mirror
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
-                // filter and then send to all internet connections at once
-                // -> makes code more complicated, but is HIGHLY worth it to
-                //    avoid allocations, allow for multicast, etc.
-                connectionIdsCache.Clear();
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                // send
+                foreach (NetworkConnection conn in identity.observers.Values)
                 {
-                    connectionIdsCache.Add(kvp.Key);
-                }
-
-                // send to all internet connections at once
-                if (connectionIdsCache.Count > 0)
-                {
-                    NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
+                    conn.Send(segment, channelId);
                 }
             }
         }
@@ -250,25 +236,15 @@ namespace Mirror
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
-                // filter and then send to all internet connections at once
-                // -> makes code more complicated, but is HIGHLY worth it to
-                //    avoid allocations, allow for multicast, etc.
-                connectionIdsCache.Clear();
+                // send
                 bool result = true;
-                foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
+                foreach (NetworkConnectionToClient conn in connections.Values)
                 {
-                    if (sendToReadyOnly && !kvp.Value.isReady)
+                    if (sendToReadyOnly && !conn.isReady)
                         continue;
 
-                    connectionIdsCache.Add(kvp.Key);
+                    result &= conn.Send(segment, channelId);
                 }
-
-                // send to all internet connections at once
-                if (connectionIdsCache.Count > 0)
-                {
-                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
-                }
-
                 return result;
             }
         }
@@ -317,26 +293,16 @@ namespace Mirror
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
-                // filter and then send to all internet connections at once
-                // -> makes code more complicated, but is HIGHLY worth it to
-                //    avoid allocations, allow for multicast, etc.
-                connectionIdsCache.Clear();
+                // send
                 bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                foreach (NetworkConnection conn in identity.observers.Values)
                 {
-                    bool isOwner = kvp.Value == identity.connectionToClient;
-                    if ((!isOwner || includeOwner) && kvp.Value.isReady)
+                    bool isOwner = conn == identity.connectionToClient;
+                    if ((!isOwner || includeOwner) && conn.isReady)
                     {
-                        connectionIdsCache.Add(kvp.Key);
+                        result &= conn.Send(segment, channelId);
                     }
                 }
-
-                // send to all internet connections at once
-                if (connectionIdsCache.Count > 0)
-                {
-                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment, channelId);
-                }
-
                 return result;
             }
         }
