@@ -1,3 +1,10 @@
+## [45.0.1](https://github.com/MirrorNG/MirrorNG/compare/v45.0.0...v45.0.1) (2020-09-30)
+
+
+### Bug Fixes
+
+* issue with readers and writers from other assemblies ([18f3eba](https://github.com/MirrorNG/MirrorNG/commit/18f3eba5609e4a2fd9d668369eb7de2716f14372))
+
 # [45.0.0](https://github.com/MirrorNG/MirrorNG/compare/v44.3.1...v45.0.0) (2020-09-29)
 
 
