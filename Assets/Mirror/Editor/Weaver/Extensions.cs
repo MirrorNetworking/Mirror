@@ -203,14 +203,6 @@ namespace Mirror.Weaver
             return td.Methods.FirstOrDefault(method => method.Name == methodName);
         }
 
-        public static MethodDefinition GetMethodWith1Arg(this TypeDefinition tr, string methodName, TypeReference argType)
-        {
-            return tr.GetMethods(methodName).Where(m =>
-                m.Parameters.Count == 1
-             && m.Parameters[0].ParameterType.FullName == argType.FullName
-            ).FirstOrDefault();
-        }
-
         public static List<MethodDefinition> GetMethods(this TypeDefinition td, string methodName)
         {
             // Linq allocations don't matter in weaver
@@ -241,42 +233,6 @@ namespace Mirror.Weaver
             }
 
             return null;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="td"></param>
-        /// <param name="methodName"></param>
-        /// <param name="stopAt"></param>
-        /// <returns></returns>
-        public static bool HasMethodInBaseType(this TypeDefinition td, string methodName, Type stopAt)
-        {
-            TypeDefinition typedef = td;
-            while (typedef != null)
-            {
-                if (typedef.Is(stopAt))
-                    break;
-
-                foreach (MethodDefinition md in typedef.Methods)
-                {
-                    if (md.Name == methodName)
-                        return true;
-                }
-
-                try
-                {
-                    TypeReference parent = typedef.BaseType;
-                    typedef = parent?.Resolve();
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for plugins.
-                    break;
-                }
-            }
-
-            return false;
         }
 
         /// <summary>
