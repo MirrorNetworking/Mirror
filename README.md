@@ -50,6 +50,7 @@ If you look under the hood,  the code base has some significant diferences based
 * Mirror uses singletons.  MirrorNG avoids singletons and static state in general.
 * MirrorNG has better  [![Test Coverage](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=coverage)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG)
 * MirrorNG has much lower [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=sqale_index)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG)
+* MirrorNG values code quality,  Mirror values API stability
 
 ## Installation
 If you want to make a game with MirrorNG, the preferred installation method is Unity Package manager.
