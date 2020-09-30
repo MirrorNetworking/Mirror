@@ -1,9 +1,8 @@
 // finds all readers and writers and register them
-using System.IO;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
-using UnityEditor;
 using UnityEditor.Compilation;
+using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -106,9 +105,10 @@ namespace Mirror.Weaver
                     MethodAttributes.Static,
                     WeaverTypes.Import(typeof(void)));
 
-            System.Reflection.ConstructorInfo attributeconstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructors()[0];
+            System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
 
             CustomAttribute customAttributeRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(attributeconstructor));
+            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(WeaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
             rwInitializer.CustomAttributes.Add(customAttributeRef);
 
             ILProcessor worker = rwInitializer.Body.GetILProcessor();
