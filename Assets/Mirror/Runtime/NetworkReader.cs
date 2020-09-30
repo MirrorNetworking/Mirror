@@ -217,7 +217,7 @@ namespace Mirror
             return count == 0 ? default : reader.ReadBytesSegment(checked((int)(count - 1u)));
         }
 
-        // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        // TODO this is still used by weaver
         [Obsolete("Use ReadInt32 instead")]
         public static int ReadPackedInt32(this NetworkReader reader)
         {
