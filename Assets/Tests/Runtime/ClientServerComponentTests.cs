@@ -129,5 +129,13 @@ namespace Mirror.Tests
             }
             return null;
         }
+
+        [UnityTest]
+        public IEnumerator ClientDisconnectTest() => RunAsync(async () =>
+        {
+            client.Disconnect();
+
+            await WaitFor(() => client.connectState == ConnectState.Disconnected);
+        });
     }
 }

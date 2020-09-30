@@ -142,5 +142,13 @@ namespace Mirror.Tests
         {
             Assert.That(client.GetNewConnection(Substitute.For<IConnection>()), Is.Not.Null);
         }
+
+        [UnityTest]
+        public IEnumerator ClientDisconnectTest() => RunAsync(async () =>
+        {
+            client.Disconnect();
+
+            await WaitFor(() => client.connectState == ConnectState.Disconnected);
+        });
     }
 }
