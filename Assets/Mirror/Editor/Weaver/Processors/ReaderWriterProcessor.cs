@@ -12,27 +12,21 @@ namespace Mirror.Weaver
 
         public static void Process(AssemblyDefinition CurrentAssembly, Assembly unityAssembly)
         {
+            // darn global state causing bugs
+            Weaver.WeaveLists.generateContainerClass = null;
             Readers.Init();
             Writers.Init();
             foreach (Assembly unityAsm in unityAssembly.assemblyReferences)
             {
                 // cute optimization,  None of the unity libraries have readers and writers
                 // saves about .3 seconds in every weaver test
-                if (Path.GetFileName(unityAsm.outputPath).StartsWith("Unity"))
-                    continue;
-
-                try
+                if (unityAsm.name == "Mirror")
                 {
                     using (var asmResolver = new DefaultAssemblyResolver())
                     using (var assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
                     {
                         ProcessAssemblyClasses(CurrentAssembly, assembly);
                     }
-                }
-                catch (FileNotFoundException)
-                {
-                    // During first import,  this gets called before some assemblies
-                    // are built,  just skip them
                 }
             }
 
