@@ -13,8 +13,8 @@ namespace Mirror.Tests
         [Test]
         public void ServerRpcWithoutAuthority()
         {
-            var gameObject2 = new GameObject();
-            MockComponent rpcComponent2 = gameObject2.AddComponent<MockComponent>();
+            var gameObject2 = new GameObject("rpcObject", typeof(NetworkIdentity), typeof(MockComponent));
+            MockComponent rpcComponent2 = gameObject2.GetComponent<MockComponent>();
 
             // spawn it without client authority
             server.Spawn(gameObject2);
