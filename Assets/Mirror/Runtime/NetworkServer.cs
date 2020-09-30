@@ -44,15 +44,6 @@ namespace Mirror
         public static bool active { get; internal set; }
 
         /// <summary>
-        /// Timeout in seconds since last message from a client after which server will auto-disconnect.
-        /// <para>This value is initially set from NetworkManager in SetupServer and can be changed at runtime</para>
-        /// <para>By default, clients send at least a Ping message every 2 seconds.</para>
-        /// <para>The Host client is immune from idle timeout disconnection.</para>
-        /// <para>Default value is 60 seconds.</para>
-        /// </summary>
-        public static float disconnectInactiveTimeout = 60f;
-
-        /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
         public static void Shutdown()
