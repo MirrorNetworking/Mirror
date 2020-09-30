@@ -25,48 +25,34 @@ With MirrorNG the objects in the client are mirror images of the objects in the 
 ## Architecture
 The **Server & Client** are **ONE project** in order to achieve an order of magnitude gain in productivity.
 
-## Why fork Mirror?
-I have worked on [Mirror](https://github.com/vis2k/Mirror) for over a year, I am the one that came up with the name and the second contributor. It has served me well and there are some really smart people working on it.
+## Comparison with Mirror
+When migrating a project from Mirror to MirrorNG, these will be the most notable differences.
 
-However, the project is not moving forward as fast as I would like. There is a big emphasis on keeping backwards compatiblity, which is really good for many users, but it is seriously slowing me down.
+| MirrorNG                                   | Mirror                                 |
+| ------------------------------------------ | -------------------------------------- |
+| Install via Unity Package Manager          | Install from Asset Store               |
+| Domain Reload optional                     |                                        |
+| Errors are thrown as exceptions            | Errors are logged                      |
+| `[ServerRpc]`                              | `[Command]`                            |
+| `[ClientRpc(target=Client.Owner)]`         | `[TargetRpc]`                          |
+| Use Synclist directly                      | Create child class of Synclist         |
+| Subscribe to events in `NetworkServer`     | Override methods in `NetworkManager`   |
+| Subscribe to events in `NetworkClient`     | Override methods in `NetworkManager`   |
+| Subscribe to events in `NetworkIdentity`   | Override methods in `NetworkBehaviour` |
+| Methods use PascalCase (C# guidelines)     | No consistency                         |
+| `Time` available in `NetworkBehaviour`     | `NetworkTime.Time` is global static    |
+| Send any data as messages                  | Messages must implement IMessageBase   |
+| Supports Unity 2019.3 or later             | Supports Unity 2018.4 or later         |
+| Components can be added in child objects   | Components must be added at root level |
 
-Mirror relies heavily on manual testing.  Manual testing does not scale. I can cover so much more code with automated tests, and have much more confidence on my changes. This will require large breaking changes that will be hard to swallow for many people,  but at the end of the day I should be able to reduce the amount of defects significantly. While there has been signficiant progress in improving test coverage in Mirror, the code is not designed to be tested. There is a limit to how much can be tested.  This can be fixed, but not without bold changes.
-
-Mirror makes heavy use of the [singleton anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in Unity 2019.3 and later.  A lot of people will disable domain reloading which completely breaks singletons. 
-
-Mirror has very poor error handling. Many methods return true/false to indicate success/failure and use Debug.LogError to report errors. True/false is terrible for reporting errors,  it does not tell you why it failed, and in many places in mirror we forget to check the result, a hidden and subtle bug. Debug.LogError is not easy to test. I would like to show a popup and display a sensible error to the user, but I can't do it if the error is simply sent to Debug.LogError. Since day 1, C# has had a much better mechanism to handle abnormal conditions: Exceptions. Methods in MirrorNG should either succeed or throw exceptions if something is wrong with full explanation. This lets the developer catch the exception and take action:  display an error message to the user, report it to your servers, report it to google play, etc...
-
-Mirror is distributed in the unity asset store and github. Both of these are majorly inconvenient to work with when you want to stay up to date.  I am developing a game,  and I spent significant amount of time just updating Mirror in my game. Fortunately Unity has a new mechanism that eliminates most of the pain:  Unity Package Manager.  There has been resistance in Mirror to distribute it using UPM.
-
-There is not a whole lot of innovation in Mirror anymore.  Just bug fixes and minor changes. I have a very difficult time getting any new feature merged.  I have tons of ideas of things we can add to make things easier and better, most of them get shut down.
-
-I want to adhere as much as possible to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID). Many things in Mirror do not.
-
-Mirror is all about simple code. Yet many things are unnecesarily complicated. The code can be a lot simpler by using modern C#: Exceptions, async/await, events.  We have already significantly reduced [cognitive complexity](https://sonarcloud.io/project/activity?custom_metrics=cognitive_complexity&graph=custom&id=MirrorNG_MirrorNG).
-
-Mirror has it's own code conventions based on personal preferences.  I would rather follow official [C# code conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).  Anybody that speaks C# should feel right at home with this code.
-
-Code review takes too long in Mirror. I think code reviews are top priority.
-
-## Notable changes
-
-These are some notable differences between Mirror and MirrorNG:
-* [Done] CI/CD pipeline.  Tests are executed with every pull request, quality is *enforced*
-* [Done] Unity package manager.  Makes it easier to install and upgrade MirrorNG in your project
-* [Done] Code quality,  the goal is to turn this [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=alert_status)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG) green. Help welcome. This will have a great impact on reducing the amount of defects.
-* [Done] Make it work in unity 2019.3.0 with domain reload turned off 
-* [DONE] Error handling via Exceptions
-* [Done] Events instead of overrides for lifecycle events
-* [WIP] Allow connection to multiple servers simultaneously
-* [WIP] Global Client RPC
-
-## Documentation
-Check out our [Documentation](https://mirrorng.github.io/MirrorNG/).
-
-If you are migrating from UNET, then please check out our [Migration Guide](https://mirrorng.github.io/MirrorNG//General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
+If you look under the hood,  the code base has some significant diferences based on the core values of each project
+* MirrorNG tries to adhere to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID).
+* Mirror uses singletons.  MirrorNG avoids singletons and static state in general.
+* MirrorNG has better  [![Test Coverage](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=coverage)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG)
+* MirrorNG has much lower [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=sqale_index)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG)
 
 ## Installation
-The preferred installation method is Unity Package manager.
+If you want to make a game with MirrorNG, the preferred installation method is Unity Package manager.
 
 If you are using unity 2019.3 or later: 
 
@@ -81,7 +67,7 @@ If you are using unity 2019.2, you can use [openupm](https://openupm.com/package
 Alternatively you can download it from [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases).  You will need to install some dependencies yourself such as cecil.
 
 ## Development environment
-If you want to work on MirrorNG, follow these steps:
+If you want to contribute to  MirrorNG, follow these steps:
 
 ### Linux and Mac
 1) Install git
@@ -109,13 +95,6 @@ MirrorNG currently supports the following low level networking transports:
 * https://github.com/dragonslaya84/FizzySteamyMirror (Steam)
 * https://github.com/uweenukr/LiteNetLibTransportNG (LiteNetLib)
 * https://github.com/dragonslaya84/IgnoranceNG (ENet)
-
-## The MirrorNG Mantra
-So many quotes to chose from.  This one in particular really encapsulates why this exists:
-
-> “All code is guilty, until proven innocent.” – Anonymous
-
-I assume every line of code I write is broken in some random obscure corner case. The only way to ensure it's quality is by testing. I don't have time to test my software,  I would rather the machine tested it for me while I work on something else. So the big theme of MirrorNG is to improve on automated testing. I am a big proponent of [Test Driven Development](https://www.guru99.com/test-driven-development.html) and I want to bring this practice to Unity networking.
 
 ## Contributing
 
