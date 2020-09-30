@@ -6,12 +6,6 @@ namespace Mirror.Weaver.Tests
     public class WeaverSyncSetTests : WeaverTestsBuildFromTestName
     {
         [Test]
-        public void SyncSet()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void SyncSetByteValid()
         {
             IsSuccess();

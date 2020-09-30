@@ -407,7 +407,7 @@ namespace Mirror.Tests
         [Test]
         public void InitSyncObject()
         {
-            ISyncObject syncObject = new SyncListBool();
+            ISyncObject syncObject = new SyncList<bool>();
             InitSyncObject(syncObject);
             Assert.That(syncObjects.Count, Is.EqualTo(1));
             Assert.That(syncObjects[0], Is.EqualTo(syncObject));

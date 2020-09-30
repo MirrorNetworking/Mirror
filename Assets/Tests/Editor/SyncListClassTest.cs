@@ -8,8 +8,11 @@ namespace Mirror.Tests
         [Test]
         public void RemoveShouldRemoveItem()
         {
-            SyncListTestObject serverList = new SyncListTestObject();
-            SyncListTestObject clientList = new SyncListTestObject();
+            // this lets the weaver know to generate a reader and writer for TestObject
+            _ = Writer<TestObject>.write;
+
+            SyncList<TestObject> serverList = new SyncList<TestObject>();
+            SyncList<TestObject> clientList = new SyncList<TestObject>();
 
             SyncListTest.SerializeAllTo(serverList, clientList);
 
@@ -35,8 +38,8 @@ namespace Mirror.Tests
         [Test]
         public void ClearShouldClearAll()
         {
-            SyncListTestObject serverList = new SyncListTestObject();
-            SyncListTestObject clientList = new SyncListTestObject();
+            SyncList<TestObject> serverList = new SyncList<TestObject>();
+            SyncList<TestObject> clientList = new SyncList<TestObject>();
 
             SyncListTest.SerializeAllTo(serverList, clientList);
 
@@ -62,11 +65,6 @@ namespace Mirror.Tests
         }
     }
 
-
-    public class SyncListTestObject : SyncList<TestObject>
-    {
-
-    }
     [System.Serializable]
     public class TestObject
     {

@@ -5,6 +5,6 @@ namespace WeaverMonoBehaviourTests.MonoBehaviourSyncList
 {
     class MonoBehaviourSyncList : MonoBehaviour
     {
-        SyncListInt potato;
+        SyncList<int> potato;
     }
 }

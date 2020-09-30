@@ -7,8 +7,11 @@ namespace Mirror.Tests
         [Test]
         public void ListIsDirtyWhenModifingAndSettingStruct()
         {
-            var serverList = new SyncListTestPlayer();
-            var clientList = new SyncListTestPlayer();
+            // let the weaver know to generate a reader and writer for TestPlayer
+            _ = Writer<TestPlayer>.write;
+
+            var serverList = new SyncList<TestPlayer>();
+            var clientList = new SyncList<TestPlayer>();
             SyncListTest.SerializeAllTo(serverList, clientList);
             serverList.Add(new TestPlayer { item = new TestItem { price = 10 } });
             SyncListTest.SerializeDeltaTo(serverList, clientList);
@@ -22,11 +25,6 @@ namespace Mirror.Tests
         }
     }
 
-
-    public class SyncListTestPlayer : SyncList<TestPlayer>
-    {
-
-    }
     public struct TestPlayer
     {
         public TestItem item;

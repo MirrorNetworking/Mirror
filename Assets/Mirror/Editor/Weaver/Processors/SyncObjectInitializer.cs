@@ -15,7 +15,7 @@ namespace Mirror.Weaver
             GenerateSyncObjectRegistration(worker, fd);
         }
 
-        // generates 'syncListInt = new SyncListInt()' if user didn't do that yet
+        // generates 'SyncList<int> = new SyncList<int>()' if user didn't do that yet
         static void GenerateSyncObjectInstanceInitializer(ILProcessor worker, FieldDefinition fd)
         {
             // check the ctor's instructions for an Stfld op-code for this specific sync list field.
@@ -27,14 +27,14 @@ namespace Mirror.Weaver
                     if (field.DeclaringType == fd.DeclaringType && field.Name == fd.Name)
                     {
                         // Already initialized by the user in the field definition, e.g:
-                        // public SyncListInt Foo = new SyncListInt();
+                        // public SyncList<int> Foo = new SyncList<int>();
                         return;
                     }
                 }
             }
 
             // Not initialized by the user in the field definition, e.g:
-            // public SyncListInt Foo;
+            // public SyncList<int> Foo;
 
             TypeDefinition fieldType = fd.FieldType.Resolve();
             // find ctor with no parameters

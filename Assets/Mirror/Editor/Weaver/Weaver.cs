@@ -126,67 +126,13 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool WeaveSyncObject(TypeDefinition td)
-        {
-            bool modified = false;
-
-            // ignore generic classes
-            // we can not process generic classes
-            // we give error if a generic syncObject is used in NetworkBehaviour
-            if (td.HasGenericParameters)
-                return false;
-
-            // ignore abstract classes
-            // we dont need to process abstract classes because classes that
-            // inherit from them will be processed instead
-
-            // We cant early return with non classes or Abstract classes
-            // because we still need to check for embeded types
-            if (td.IsClass || !td.IsAbstract)
-            {
-                if (td.IsDerivedFrom(typeof(SyncList<>)))
-                {
-                    SyncListProcessor.Process(td, typeof(SyncList<>));
-                    modified = true;
-                }
-                else if (td.IsDerivedFrom(typeof(SyncSet<>)))
-                {
-                    SyncListProcessor.Process(td, typeof(SyncSet<>));
-                    modified = true;
-                }
-                else if (td.IsDerivedFrom(typeof(SyncDictionary<,>)))
-                {
-                    SyncDictionaryProcessor.Process(td);
-                    modified = true;
-                }
-            }
-
-            // check for embedded types
-            foreach (TypeDefinition embedded in td.NestedTypes)
-            {
-                modified |= WeaveSyncObject(embedded);
-            }
-
-            return modified;
-        }
-
         static bool WeaveModule(ModuleDefinition moduleDefinition)
         {
             try
             {
                 bool modified = false;
 
-                // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                foreach (TypeDefinition td in moduleDefinition.Types)
-                {
-                    if (td.IsClass && td.BaseType.CanBeResolved())
-                    {
-                        modified |= WeaveSyncObject(td);
-                    }
-                }
-                watch.Stop();
-                Console.WriteLine("Weave sync objects took " + watch.ElapsedMilliseconds + " milliseconds");
 
                 watch.Start();
                 foreach (TypeDefinition td in moduleDefinition.Types)

@@ -8,7 +8,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
     #region No OnSerialize/OnDeserialize override
     abstract class AbstractBehaviour : NetworkBehaviour
     {
-        public readonly SyncListBool syncListInAbstract = new SyncListBool();
+        public readonly SyncList<bool> syncListInAbstract = new SyncList<bool>();
 
         [SyncVar]
         public int SyncFieldInAbstract;
@@ -16,7 +16,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
     class BehaviourWithSyncVar : NetworkBehaviour
     {
-        public readonly SyncListBool syncList = new SyncListBool();
+        public readonly SyncList<bool> syncList = new SyncList<bool>();
 
         [SyncVar]
         public int SyncField;
@@ -29,7 +29,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
     class OverrideBehaviourWithSyncVarFromSyncVar : AbstractBehaviour
     {
-        public readonly SyncListBool syncListInOverride = new SyncListBool();
+        public readonly SyncList<bool> syncListInOverride = new SyncList<bool>();
 
         [SyncVar]
         public int SyncFieldInOverride;
@@ -69,7 +69,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
     class BehaviourWithSyncVarWithOnSerialize : NetworkBehaviour
     {
-        public readonly SyncListBool syncList = new SyncListBool();
+        public readonly SyncList<bool> syncList = new SyncList<bool>();
 
         [SyncVar]
         public int SyncField;
@@ -106,7 +106,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
     class OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize : AbstractBehaviour
     {
-        public readonly SyncListBool syncListInOverride = new SyncListBool();
+        public readonly SyncList<bool> syncListInOverride = new SyncList<bool>();
 
         [SyncVar]
         public int SyncFieldInOverride;

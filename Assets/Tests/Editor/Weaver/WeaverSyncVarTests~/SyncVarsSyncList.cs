@@ -20,6 +20,6 @@ namespace WeaverSyncVarTests.SyncVarsSyncList
         SyncObjImplementer syncobj;
 
         [SyncVar]
-        SyncListInt syncints;
+        SyncList<int> syncints;
     }
 }

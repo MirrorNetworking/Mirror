@@ -72,9 +72,6 @@ namespace Mirror
             objects.Clear();
         }
 
-        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
-        protected virtual T DeserializeItem(NetworkReader reader) => default;
-
         public bool IsDirty => changes.Count > 0;
 
         // throw away all the changes
@@ -126,7 +123,7 @@ namespace Mirror
 
             foreach (T obj in objects)
             {
-                SerializeItem(writer, obj);
+                writer.Write(obj);
             }
 
             // all changes have been applied already
@@ -149,14 +146,14 @@ namespace Mirror
                 switch (change.operation)
                 {
                     case Operation.OP_ADD:
-                        SerializeItem(writer, change.item);
+                        writer.Write(change.item);
                         break;
 
                     case Operation.OP_CLEAR:
                         break;
 
                     case Operation.OP_REMOVE:
-                        SerializeItem(writer, change.item);
+                        writer.Write(change.item);
                         break;
                 }
             }
@@ -175,7 +172,7 @@ namespace Mirror
 
             for (int i = 0; i < count; i++)
             {
-                T obj = DeserializeItem(reader);
+                T obj = reader.Read<T>();
                 objects.Add(obj);
             }
 
@@ -205,7 +202,7 @@ namespace Mirror
                 switch (operation)
                 {
                     case Operation.OP_ADD:
-                        item = DeserializeItem(reader);
+                        item = reader.Read<T>();
                         if (apply)
                         {
                             objects.Add(item);
@@ -220,7 +217,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVE:
-                        item = DeserializeItem(reader);
+                        item = reader.Read<T>();
                         if (apply)
                         {
                             objects.Remove(item);
@@ -371,7 +368,7 @@ namespace Mirror
         }
     }
 
-    public abstract class SyncHashSet<T> : SyncSet<T>
+    public class SyncHashSet<T> : SyncSet<T>
     {
         protected SyncHashSet(IEqualityComparer<T> comparer = null) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) { }
 
@@ -379,7 +376,7 @@ namespace Mirror
         public new HashSet<T>.Enumerator GetEnumerator() => ((HashSet<T>)objects).GetEnumerator();
     }
 
-    public abstract class SyncSortedSet<T> : SyncSet<T>
+    public class SyncSortedSet<T> : SyncSet<T>
     {
         protected SyncSortedSet(IComparer<T> comparer = null) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
 

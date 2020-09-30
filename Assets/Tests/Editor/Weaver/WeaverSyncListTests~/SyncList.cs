@@ -2,8 +2,8 @@ using Mirror;
 
 namespace WeaverSyncListTests.SyncList
 {
-    class SyncList : NetworkBehaviour
+    class SyncListBehaviour : NetworkBehaviour
     {
-        public SyncListInt Foo;
+        public SyncList<int> Foo;
     }
 }
