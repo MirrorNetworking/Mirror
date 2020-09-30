@@ -56,12 +56,6 @@ namespace Mirror
         public abstract string address { get; }
 
         /// <summary>
-        /// The last time that a message was received on this connection.
-        /// <para>This includes internal system messages (such as Commands and ClientRpc calls) and user messages.</para>
-        /// </summary>
-        public float lastMessageTime;
-
-        /// <summary>
         /// The NetworkIdentity for this connection.
         /// </summary>
         public NetworkIdentity identity { get; internal set; }
@@ -78,11 +72,7 @@ namespace Mirror
         /// <summary>
         /// Creates a new NetworkConnection
         /// </summary>
-        internal NetworkConnection()
-        {
-            // set lastTime to current time when creating connection to make sure it isn't instantly kicked for inactivity
-            lastMessageTime = Time.time;
-        }
+        internal NetworkConnection() {}
 
         /// <summary>
         /// Creates a new NetworkConnection with the specified connectionId
@@ -261,10 +251,7 @@ namespace Mirror
                     // Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                     // try to invoke the handler for that message
-                    if (InvokeHandler(msgType, networkReader, channelId))
-                    {
-                        lastMessageTime = Time.time;
-                    }
+                    InvokeHandler(msgType, networkReader, channelId);
                 }
                 else
                 {
@@ -272,17 +259,6 @@ namespace Mirror
                     Disconnect();
                 }
             }
-        }
-
-        // Failsafe to kick clients that have stopped sending anything to the server.
-        // Clients Ping the server every 2 seconds but transports are unreliable
-        // when it comes to properly generating Disconnect messages to the server.
-        // This cannot be abstract because then NetworkConnectionToServer
-        // would require and override that would never be called
-        // This is overriden in NetworkConnectionToClient.
-        internal virtual bool IsClientAlive()
-        {
-            return true;
         }
 
         internal void AddOwnedObject(NetworkIdentity obj)

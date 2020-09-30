@@ -44,12 +44,6 @@ namespace Mirror
         public static bool active { get; internal set; }
 
         /// <summary>
-        /// Should the server disconnect remote connections that have gone silent for more than Server Idle Timeout?
-        /// <para>This value is initially set from NetworkManager in SetupServer and can be changed at runtime</para>
-        /// </summary>
-        public static bool disconnectInactiveConnections;
-
-        /// <summary>
         /// Timeout in seconds since last message from a client after which server will auto-disconnect.
         /// <para>This value is initially set from NetworkManager in SetupServer and can be changed at runtime</para>
         /// <para>By default, clients send at least a Ping message every 2 seconds.</para>
@@ -405,20 +399,6 @@ namespace Mirror
             // dont need to update server if not active
             if (!active)
                 return;
-
-            // Check for dead clients but exclude the host client because it
-            // doesn't ping itself and therefore may appear inactive.
-            if (disconnectInactiveConnections)
-            {
-                foreach (NetworkConnectionToClient conn in connections.Values)
-                {
-                    if (!conn.IsClientAlive())
-                    {
-                        Debug.LogWarning($"Disconnecting {conn} for inactivity!");
-                        conn.Disconnect();
-                    }
-                }
-            }
 
             // update all server objects
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
