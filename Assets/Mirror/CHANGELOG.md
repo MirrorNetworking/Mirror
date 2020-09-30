@@ -1,3 +1,15 @@
+# [46.1.0](https://github.com/MirrorNG/MirrorNG/compare/v46.0.2...v46.1.0) (2020-09-30)
+
+
+### Bug Fixes
+
+* reduce prefab count to prevent errors when examples are missing ([a531fa0](https://github.com/MirrorNG/MirrorNG/commit/a531fa0a3572eed5a3792fded4cd7cca65982c26))
+
+
+### Features
+
+* NetworkBehaviors can be added to child gameobjects ([#371](https://github.com/MirrorNG/MirrorNG/issues/371)) ([266dc8d](https://github.com/MirrorNG/MirrorNG/commit/266dc8d6f2a748483d88fc09991c9309716fc69a))
+
 ## [46.0.2](https://github.com/MirrorNG/MirrorNG/compare/v46.0.1...v46.0.2) (2020-09-30)
 
 
