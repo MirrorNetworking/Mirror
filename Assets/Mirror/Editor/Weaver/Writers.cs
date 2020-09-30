@@ -217,11 +217,6 @@ namespace Mirror.Weaver
                 }
             }
 
-            if (fields == 0)
-            {
-                Log.Warning($"{variable} has no no public or non-static fields to serialize");
-            }
-
             return true;
         }
 

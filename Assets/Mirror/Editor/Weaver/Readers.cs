@@ -443,11 +443,6 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Stfld, fieldRef);
                 fields++;
             }
-
-            if (fields == 0)
-            {
-                Log.Warning($"{variable} has no public or non-static fields to deserialize");
-            }
         }
 
     }
