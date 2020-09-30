@@ -79,9 +79,9 @@ namespace Mirror.Tests
         [Test]
         public void TestSyncIntervalAndClearAllComponents()
         {
-            var gameObject = new GameObject();
+            var gameObject = new GameObject("Player", typeof(NetworkIdentity), typeof(MockPlayer));
 
-            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            MockPlayer player = gameObject.GetComponent<MockPlayer>();
             player.lastSyncTime = Time.time;
             // synchronize immediately
             player.syncInterval = 1f;
@@ -108,9 +108,9 @@ namespace Mirror.Tests
         public void TestSynchronizingObjects()
         {
             // set up a "server" object
-            var gameObject1 = new GameObject();
-            NetworkIdentity identity1 = gameObject1.AddComponent<NetworkIdentity>();
-            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+            var gameObject1 = new GameObject("player", typeof(NetworkIdentity), typeof(MockPlayer));
+            NetworkIdentity identity1 = gameObject1.GetComponent<NetworkIdentity>();
+            MockPlayer player1 = gameObject1.GetComponent<MockPlayer>();
             var myGuild = new MockPlayer.Guild
             {
                 name = "Back street boys"
@@ -139,8 +139,8 @@ namespace Mirror.Tests
         [Test]
         public void TestSyncModeObserversMask()
         {
-            var gameObject1 = new GameObject();
-            NetworkIdentity identity = gameObject1.AddComponent<NetworkIdentity>();
+            var gameObject1 = new GameObject("player", typeof(NetworkIdentity));
+            NetworkIdentity identity = gameObject1.GetComponent<NetworkIdentity>();
             MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
             player1.syncInterval = 0;
             MockPlayer player2 = gameObject1.AddComponent<MockPlayer>();
