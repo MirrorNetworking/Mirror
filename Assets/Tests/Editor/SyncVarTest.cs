@@ -22,9 +22,9 @@ namespace Mirror.Tests
         public void TestSettingStruct()
         {
 
-            var gameObject = new GameObject();
+            var gameObject = new GameObject("player", typeof(NetworkIdentity), typeof(MockPlayer));
 
-            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            MockPlayer player = gameObject.GetComponent<MockPlayer>();
 
             // synchronize immediatelly
             player.syncInterval = 0f;
@@ -51,9 +51,9 @@ namespace Mirror.Tests
         public void TestSyncIntervalAndClearDirtyComponents()
         {
 
-            var gameObject = new GameObject();
+            var gameObject = new GameObject("player", typeof(NetworkIdentity), typeof(MockPlayer));
 
-            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            MockPlayer player = gameObject.GetComponent<MockPlayer>();
             player.lastSyncTime = Time.time;
             // synchronize immediately
             player.syncInterval = 1f;
