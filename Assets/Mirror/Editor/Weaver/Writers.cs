@@ -230,7 +230,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateArrayWriteFunc(TypeReference variable, int recursionCount)
         {
-            if (!variable.IsArrayType())
+            if (variable.IsMultidimensionalArray())
             {
                 Weaver.Error($"{variable.Name} is an unsupported type. Jagged and multidimensional arrays are not supported", variable);
                 return null;

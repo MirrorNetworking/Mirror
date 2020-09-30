@@ -184,8 +184,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorForJaggedArray()
         {
-            HasError("Int32[][] is an unsupported type. Jagged and multidimensional arrays are not supported",
-                "System.Int32[][]");
+            IsSuccess();
         }
 
         [Test]
