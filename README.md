@@ -31,7 +31,7 @@ When migrating a project from Mirror to MirrorNG, these will be the most notable
 | MirrorNG                                   | Mirror                                 |
 | ------------------------------------------ | -------------------------------------- |
 | Install via Unity Package Manager          | Install from Asset Store               |
-| Domain Reload optional                     |                                        |
+| [Domain Reload](https://blogs.unity3d.com/2019/11/05/enter-play-mode-faster-in-unity-2019-3/)                     |                                        |
 | Errors are thrown as exceptions            | Errors are logged                      |
 | `[ServerRpc]`                              | `[Command]`                            |
 | `[ClientRpc(target=Client.Owner)]`         | `[TargetRpc]`                          |
@@ -83,9 +83,6 @@ If you want to contribute to  MirrorNG, follow these steps:
     It you don't want to use administrator, [add symlink support](https://www.joshkel.com/2018/01/18/symlinks-in-windows/) to your account.
     If you don't enable symlinks, you will be able to work on MirrorNG but Unity will not see the examples.
 3) Open in unity 2019.4.x or later
-
-## Examples
-We included several small example projects.
 
 ## Transports
 MirrorNG currently supports the following low level networking transports:
