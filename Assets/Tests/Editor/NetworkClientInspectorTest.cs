@@ -1,5 +1,3 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -19,7 +17,7 @@ namespace Mirror.Tests
             NetworkClientInspector inspector = ScriptableObject.CreateInstance<NetworkClientInspector>();
             inspector.RegisterPrefabs(client);
 
-            Assert.That(client.spawnPrefabs, Has.Count.GreaterThan(13));
+            Assert.That(client.spawnPrefabs, Has.Count.GreaterThan(2));
 
             foreach (var prefab in client.spawnPrefabs)
             {
