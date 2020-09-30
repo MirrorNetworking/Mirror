@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -72,14 +71,6 @@ namespace Mirror
         // client
         public override bool ClientConnected() => client.Connected;
         public override void ClientConnect(string address) => client.Connect(address, port);
-        public override void ClientConnect(Uri uri)
-        {
-            if (uri.Scheme != Scheme)
-                throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
-
-            int serverPort = uri.IsDefaultPort ? port : uri.Port;
-            client.Connect(uri.Host, serverPort);
-        }
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
             // telepathy doesn't support allocation-free sends yet.
@@ -162,15 +153,6 @@ namespace Mirror
                     break;
                 }
             }
-        }
-
-        public override Uri ServerUri()
-        {
-            UriBuilder builder = new UriBuilder();
-            builder.Scheme = Scheme;
-            builder.Host = Dns.GetHostName();
-            builder.Port = port;
-            return builder.Uri;
         }
 
         // server

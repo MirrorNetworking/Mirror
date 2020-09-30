@@ -409,40 +409,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This starts a network client. It uses the Uri parameter as the address to connect to.
-        /// <para>This makes the newly created client connect to the server immediately.</para>
-        /// </summary>
-        /// <param name="uri">location of the server to connect to</param>
-        public void StartClient(Uri uri)
-        {
-            mode = NetworkManagerMode.ClientOnly;
-
-            InitializeSingleton();
-
-            if (authenticator != null)
-            {
-                authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
-            }
-
-            if (runInBackground)
-            {
-                Application.runInBackground = true;
-            }
-
-            isNetworkActive = true;
-
-            RegisterClientMessages();
-
-            // Debug.Log("NetworkManager StartClient address:" + uri);
-            networkAddress = uri.Host;
-
-            NetworkClient.Connect(uri);
-
-            OnStartClient();
-        }
-
-        /// <summary>
         /// Stops the server that the manager is using.
         /// </summary>
         public void StopServer()

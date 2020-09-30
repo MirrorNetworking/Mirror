@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -137,21 +136,6 @@ namespace Mirror.Tests
             Assert.That(manager.GetStartPosition(), Is.SameAs(gameObject.transform));
 
             NetworkManager.UnRegisterStartPosition(gameObject.transform);
-        }
-
-        [Test]
-        public void StartClientUriTest()
-        {
-            UriBuilder uriBuilder = new UriBuilder()
-            {
-                Host = "localhost",
-                Scheme = "local"
-            };
-            manager.StartClient(uriBuilder.Uri);
-
-            Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.ClientOnly));
-            Assert.That(manager.isNetworkActive, Is.EqualTo(true));
-            Assert.That(manager.networkAddress, Is.EqualTo(uriBuilder.Uri.Host));
         }
     }
 }

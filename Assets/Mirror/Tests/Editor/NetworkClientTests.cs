@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -33,15 +32,6 @@ namespace Mirror.Tests
             NetworkClient.Shutdown();
             GameObject.DestroyImmediate(transportGO);
             Transport.activeTransport = null;
-        }
-
-        [Test]
-        public void ConnectUri()
-        {
-            NetworkClient.Connect(new Uri("memory://localhost"));
-            // update transport so connect event is processed
-            ((MemoryTransport)Transport.activeTransport).LateUpdate();
-            Assert.That(NetworkClient.isConnected, Is.True);
         }
 
         [Test]

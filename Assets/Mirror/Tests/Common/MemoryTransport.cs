@@ -108,7 +108,6 @@ namespace Mirror.Tests
         }
 
         public override bool ServerActive() => serverActive;
-        public override Uri ServerUri() => throw new NotImplementedException();
         public override void ServerStart() { serverActive = true; }
         public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
         {
