@@ -167,7 +167,7 @@ namespace Mirror.Weaver
                 WriteNullCheck(worker);
 
             if (!WriteAllFields(variable, worker))
-                return null;
+                return writerFunc;
 
             worker.Append(worker.Create(OpCodes.Ret));
             return writerFunc;
