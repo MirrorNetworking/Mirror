@@ -159,7 +159,7 @@ namespace Mirror.Weaver
         /// <para> Note that calling ArraySegment`T.get_Count directly gives an invalid IL error </para>
         /// </summary>
         /// <param name="self"></param>
-        /// <param name="instanceType"></param>
+        /// <param name="instanceType">Generic Instance eg Writer<int></param>
         /// <returns></returns>
         public static FieldReference SpecializeField(this FieldReference self, GenericInstanceType instanceType)
         {

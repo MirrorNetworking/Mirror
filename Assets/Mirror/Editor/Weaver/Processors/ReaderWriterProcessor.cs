@@ -1,9 +1,11 @@
 // finds all readers and writers and register them
-using System.IO;
+using System;
+using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using UnityEditor.Compilation;
 using UnityEditor;
+using UnityEditor.Compilation;
+using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -18,8 +20,6 @@ namespace Mirror.Weaver
             Writers.Init();
             foreach (Assembly unityAsm in unityAssembly.assemblyReferences)
             {
-                // cute optimization,  None of the unity libraries have readers and writers
-                // saves about .3 seconds in every weaver test
                 if (unityAsm.name == "Mirror")
                 {
                     using (var asmResolver = new DefaultAssemblyResolver())
@@ -217,6 +217,13 @@ namespace Mirror.Weaver
             }
         }
 
+        private static bool IsEditorAssembly(AssemblyDefinition currentAssembly)
+        {
+            return currentAssembly.MainModule.AssemblyReferences.Any(assemblyReference =>
+                assemblyReference.Name == nameof(UnityEditor)
+                ) ;
+        }
+
         /// <summary>
         /// Creates a method that will store all the readers and writers into
         /// <see cref="Writer{T}.write"/> and <see cref="Reader{T}.read"/>
@@ -231,10 +238,19 @@ namespace Mirror.Weaver
                     MethodAttributes.Static,
                     WeaverTypes.Import(typeof(void)));
 
-            System.Reflection.ConstructorInfo attributeconstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructors()[0];
+            System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
 
-            var customAttributeRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(attributeconstructor));
+            CustomAttribute customAttributeRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(attributeconstructor));
+            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(WeaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
             rwInitializer.CustomAttributes.Add(customAttributeRef);
+
+            if (IsEditorAssembly(currentAssembly))
+            {
+                // editor assembly,  add InitializeOnLoadMethod too.  Useful for the editor tests
+                System.Reflection.ConstructorInfo initializeOnLoadConstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructor(new Type[0]);
+                CustomAttribute initializeCustomConstructorRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(initializeOnLoadConstructor));
+                rwInitializer.CustomAttributes.Add(initializeCustomConstructorRef);
+            }
 
             ILProcessor worker = rwInitializer.Body.GetILProcessor();
 
