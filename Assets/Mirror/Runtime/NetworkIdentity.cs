@@ -906,31 +906,11 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Serializes component and its lengths
-        /// </summary>
-        /// <param name="comp"></param>
-        /// <param name="writer"></param>
-        /// <param name="initialState"></param>
-        /// <returns></returns>
-        /// <remarks>
-        /// vis2k: readstring bug prevention:
-        /// <see cref="https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients"/>
-        /// <list type="bullet">
-        ///     <item>
-        ///         OnSerialize writes length,componentData,length,componentData,...
-        ///     </item>
-        ///     <item>
-        ///         OnDeserialize carefully extracts each data, then deserializes each component with separate readers
-        ///     </item>
-        ///     <item>
-        ///         It will be impossible to read too many or too few bytes in OnDeserialize
-        ///     </item>
-        ///     <item>
-        ///         We can properly track down errors
-        ///     </item>
-        /// </list>
-        /// </remarks>
+        // vis2k: readstring bug prevention: https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients
+        // -> OnSerialize writes length,componentData,length,componentData,...
+        // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
+        //    -> it will be impossible to read too many or too few bytes in OnDeserialize
+        //    -> we can properly track down errors
         bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
             // write placeholder length bytes
