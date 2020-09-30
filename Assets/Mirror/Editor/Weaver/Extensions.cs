@@ -79,14 +79,9 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static bool IsArrayType(this TypeReference tr)
+        public static bool IsMultidimensionalArray(this TypeReference tr)
         {
-            // jagged array
-            if ((tr.IsArray && ((ArrayType)tr).ElementType.IsArray) ||
-                // multidimensional array
-                (tr.IsArray && ((ArrayType)tr).Rank > 1))
-                return false;
-            return true;
+            return tr is ArrayType arrayType && arrayType.Rank > 1;
         }
 
         public static bool CanBeResolved(this TypeReference parent)

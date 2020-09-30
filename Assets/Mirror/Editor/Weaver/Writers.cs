@@ -230,9 +230,9 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateArrayWriteFunc(TypeReference variable)
         {
-            if (!variable.IsArrayType())
+            if (variable.IsMultidimensionalArray())
             {
-                throw new GenerateWriterException($"{variable.Name} is an unsupported type. Jagged and multidimensional arrays are not supported", variable);
+                throw new GenerateWriterException($"{variable.Name} is an unsupported type. Multidimensional arrays are not supported", variable);
             }
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
 

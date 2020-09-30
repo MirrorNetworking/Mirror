@@ -105,9 +105,9 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateArrayReadFunc(TypeReference variable)
         {
-            if (!variable.IsArrayType())
+            if (variable.IsMultidimensionalArray())
             {
-                Weaver.Error($"{variable.Name} is an unsupported type. Jagged and multidimensional arrays are not supported", variable);
+                Weaver.Error($"{variable.Name} is an unsupported type. Multidimensional arrays are not supported", variable);
                 return null;
             }
 
