@@ -1013,6 +1013,7 @@ namespace Mirror
 
             return dirtyComponentsMask;
         }
+
         internal ulong GetInitialComponentsMask()
         {
             // loop through all components only once and then write dirty+payload into the writer afterwards
@@ -1024,7 +1025,6 @@ namespace Mirror
 
             return dirtyComponentsMask;
         }
-
 
         /// <summary>
         /// a mask that contains all the components with SyncMode.Observers
