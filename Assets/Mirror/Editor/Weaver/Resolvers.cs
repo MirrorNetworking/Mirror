@@ -67,12 +67,6 @@ namespace Mirror.Weaver
             return ResolveMethod(tr, scriptDef, Match);
         }
 
-        // reuse ResolveMethodWithArg string version
-        public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, TypeReference argType)
-        {
-            return ResolveMethodWithArg(tr, scriptDef, name, argType.FullName);
-        }
-
         public static MethodDefinition ResolveDefaultPublicCtor(TypeReference variable)
         {
             foreach (MethodDefinition methodRef in variable.Resolve().Methods)
@@ -84,27 +78,6 @@ namespace Mirror.Weaver
                     return methodRef;
                 }
             }
-            return null;
-        }
-
-        public static GenericInstanceMethod ResolveMethodGeneric(TypeReference t, AssemblyDefinition scriptDef, string name, TypeReference genericType)
-        {
-            foreach (MethodDefinition methodRef in t.Resolve().Methods)
-            {
-                if (methodRef.Name == name && methodRef.Parameters.Count == 0 && methodRef.GenericParameters.Count == 1)
-                {
-                    MethodReference tmp = scriptDef.MainModule.ImportReference(methodRef);
-                    var gm = new GenericInstanceMethod(tmp);
-                    gm.GenericArguments.Add(genericType);
-                    if (gm.GenericArguments[0].FullName == genericType.FullName)
-                    {
-
-                        return gm;
-                    }
-                }
-            }
-
-            Weaver.Error($"Method {name} not found in {t.Name}", t);
             return null;
         }
 
