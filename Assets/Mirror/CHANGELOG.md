@@ -1,3 +1,20 @@
+# [46.0.0](https://github.com/MirrorNG/MirrorNG/compare/v45.0.1...v46.0.0) (2020-09-30)
+
+
+### Bug Fixes
+
+* potential NRE with weaver errors ([9e0c18c](https://github.com/MirrorNG/MirrorNG/commit/9e0c18c9a0881ab9df9e8e6d3ed6ae38154d4a66))
+
+
+### Features
+
+* You can use synclists directly ([#366](https://github.com/MirrorNG/MirrorNG/issues/366)) ([ca18d11](https://github.com/MirrorNG/MirrorNG/commit/ca18d11a7129a90166b397f03c718499e957aaf8))
+
+
+### BREAKING CHANGES
+
+* SyncList and other syncobjects no longer have override methods to serialize and deserialize data
+
 ## [45.0.1](https://github.com/MirrorNG/MirrorNG/compare/v45.0.0...v45.0.1) (2020-09-30)
 
 
