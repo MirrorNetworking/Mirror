@@ -129,6 +129,22 @@ namespace Mirror
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
+        /// <param name="serverIp">Address of the server to connect to</param>
+        public void ConnectAsync(string serverIp)
+        {
+            if (logger.LogEnabled()) logger.Log("Client address:" + serverIp);
+
+            var builder = new UriBuilder
+            {
+                Host = serverIp,
+                Scheme = Transport.Scheme.First(),
+            };
+
+            _ = ConnectAsync(builder.Uri);
+        }
+        /// <summary>
+        /// Connect client to a NetworkServer instance.
+        /// </summary>
         /// <param name="uri">Address of the server to connect to</param>
         public async Task ConnectAsync(Uri uri)
         {

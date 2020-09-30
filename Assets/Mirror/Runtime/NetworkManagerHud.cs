@@ -34,13 +34,13 @@ namespace Mirror
 
         public void StartServerOnlyButtonHandler()
         {
-            _ = NetworkManager.StartServer();
+            _ = NetworkManager.server.ListenAsync();
             OnlineSetActive();
         }
 
         public void StartClientButtonHandler()
         {
-            _ = NetworkManager.StartClient(NetworkAddress);
+            NetworkManager.client.ConnectAsync(NetworkAddress);
             OnlineSetActive();
         }
 

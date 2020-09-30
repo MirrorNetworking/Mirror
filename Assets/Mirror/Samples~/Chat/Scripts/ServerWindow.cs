@@ -11,7 +11,7 @@ namespace Mirror.Examples.Chat
 
         public void StartClient()
         {
-            NetworkManager.StartClient(serverIp);
+            NetworkManager.client.ConnectAsync(serverIp);
         }
 
         public void StartHost()

@@ -24,7 +24,7 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator StopServerTest() => RunAsync(async () =>
         {
-            manager.StopServer();
+            manager.server.Disconnect();
 
             await WaitFor(() => !client.Active);
 
@@ -36,7 +36,7 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator StopClientTest() => RunAsync(async () =>
         {
-            manager.StopClient();
+            manager.client.Disconnect();
 
             await WaitFor(() => !client.Active);
         });

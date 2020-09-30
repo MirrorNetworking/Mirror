@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -36,61 +34,14 @@ namespace Mirror
         /// </summary>
         public UnityEvent OnStopHost = new UnityEvent();
 
-        // full server setup code, without spawning objects yet
-        async Task SetupServer()
-        {
-            logger.Log("NetworkManager SetupServer");
-
-            // start listening to network connections
-            await server.ListenAsync();
-        }
-
-        /// <summary>
-        /// This starts a new server.
-        /// </summary>
-        /// <returns></returns>
-        public async Task StartServer()
-        {
-            await SetupServer();
-        }
-
-        /// <summary>
-        /// This starts a network client. It uses the networkAddress property as the address to connect to.
-        /// <para>This makes the newly created client connect to the server immediately.</para>
-        /// </summary>
-        public Task StartClient(string serverIp)
-        {
-            if (logger.LogEnabled()) logger.Log("NetworkManager StartClient address:" + serverIp);
-
-            var builder = new UriBuilder
-            {
-                Host = serverIp,
-                Scheme = client.Transport.Scheme.First(),
-            };
-
-            return client.ConnectAsync(builder.Uri);
-        }
-
-        /// <summary>
-        /// This starts a network client. It uses the Uri parameter as the address to connect to.
-        /// <para>This makes the newly created client connect to the server immediately.</para>
-        /// </summary>
-        /// <param name="uri">location of the server to connect to</param>
-        public void StartClient(Uri uri)
-        {
-            if (logger.LogEnabled()) logger.Log("NetworkManager StartClient address:" + uri);
-
-            _ = client.ConnectAsync(uri);
-        }
-
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
         /// </summary>
         public async Task StartHost()
         {
-            // setup server first
-            await SetupServer();
+            // start listening to network connections
+            await server.ListenAsync();
 
             client.ConnectHost(server);
 
@@ -108,24 +59,8 @@ namespace Mirror
         public void StopHost()
         {
             OnStopHost.Invoke();
-            StopClient();
-            StopServer();
-        }
-
-        /// <summary>
-        /// Stops the server that the manager is using.
-        /// </summary>
-        public void StopServer()
-        {
-            server.Disconnect();
-        }
-
-        /// <summary>
-        /// Stops the client that the manager is using.
-        /// </summary>
-        public void StopClient()
-        {
             client.Disconnect();
+            server.Disconnect();
         }
     }
 }
