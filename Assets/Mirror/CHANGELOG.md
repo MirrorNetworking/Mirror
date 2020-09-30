@@ -1,3 +1,10 @@
+## [46.0.2](https://github.com/MirrorNG/MirrorNG/compare/v46.0.1...v46.0.2) (2020-09-30)
+
+
+### Bug Fixes
+
+* invalid reference to UnityEditor in standalone build ([69f5be7](https://github.com/MirrorNG/MirrorNG/commit/69f5be7523087c2ad3e5b44d33558b958f3d844f))
+
 ## [46.0.1](https://github.com/MirrorNG/MirrorNG/compare/v46.0.0...v46.0.1) (2020-09-30)
 
 
