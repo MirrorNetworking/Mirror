@@ -205,7 +205,7 @@ namespace Mirror
                 if (networkBehavioursCache != null)
                     return networkBehavioursCache;
 
-                NetworkBehaviour[] components = GetComponents<NetworkBehaviour>();
+                NetworkBehaviour[] components = GetComponentsInChildren<NetworkBehaviour>(true);
 
                 if (components.Length > 64)
                     throw new InvalidOperationException("Only 64 NetworkBehaviour per gameobject allowed");
