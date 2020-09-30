@@ -31,7 +31,6 @@ namespace Mirror.Tests
             Assert.That(manager.autoStartServerBuild, Is.True);
             Assert.That(manager.showDebugMessages, Is.False);
             Assert.That(manager.serverTickRate, Is.EqualTo(30));
-            Assert.That(manager.offlineScene, Is.Empty);
             Assert.That(manager.networkAddress, Is.EqualTo("localhost"));
             Assert.That(manager.maxConnections, Is.EqualTo(4));
             Assert.That(manager.autoCreatePlayer, Is.True);
@@ -39,7 +38,6 @@ namespace Mirror.Tests
             Assert.That(manager.numPlayers, Is.Zero);
             Assert.That(manager.isNetworkActive, Is.False);
 
-            Assert.That(NetworkManager.networkSceneName, Is.Empty);
             Assert.That(NetworkManager.startPositionIndex, Is.Zero);
             Assert.That(NetworkManager.startPositions, Is.Empty);
         }

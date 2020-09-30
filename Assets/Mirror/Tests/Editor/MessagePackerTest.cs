@@ -2,6 +2,28 @@ using System;
 using NUnit.Framework;
 namespace Mirror.Tests
 {
+    struct TestMessage : NetworkMessage
+    {
+        public string sceneName;
+        // Normal = 0, LoadAdditive = 1, UnloadAdditive = 2
+        public SceneOperation sceneOperation;
+        public bool customHandling;
+
+        public void Deserialize(NetworkReader reader)
+        {
+            sceneName = reader.ReadString();
+            sceneOperation = (SceneOperation)reader.ReadByte();
+            customHandling = reader.ReadBoolean();
+        }
+
+        public void Serialize(NetworkWriter writer)
+        {
+            writer.WriteString(sceneName);
+            writer.WriteByte((byte)sceneOperation);
+            writer.WriteBoolean(customHandling);
+        }
+    }
+
     [TestFixture]
     public class MessagePackerTest
     {
@@ -18,7 +40,7 @@ namespace Mirror.Tests
         [Test]
         public void TestPacking()
         {
-            SceneMessage message = new SceneMessage()
+            TestMessage message = new TestMessage()
             {
                 sceneName = "Hello world",
                 sceneOperation = SceneOperation.LoadAdditive
@@ -26,7 +48,7 @@ namespace Mirror.Tests
 
             byte[] data = PackToByteArray(message);
 
-            SceneMessage unpacked = MessagePacker.Unpack<SceneMessage>(data);
+            TestMessage unpacked = MessagePacker.Unpack<TestMessage>(data);
 
             Assert.That(unpacked.sceneName, Is.EqualTo("Hello world"));
             Assert.That(unpacked.sceneOperation, Is.EqualTo(SceneOperation.LoadAdditive));
@@ -51,7 +73,7 @@ namespace Mirror.Tests
             // Unpack<T> has a id != msgType case that throws a FormatException.
             // let's try to trigger it.
 
-            SceneMessage message = new SceneMessage()
+            TestMessage message = new TestMessage()
             {
                 sceneName = "Hello world",
                 sceneOperation = SceneOperation.LoadAdditive
@@ -65,7 +87,7 @@ namespace Mirror.Tests
 
             Assert.Throws<FormatException>(() =>
             {
-                SceneMessage unpacked = MessagePacker.Unpack<SceneMessage>(data);
+                TestMessage unpacked = MessagePacker.Unpack<TestMessage>(data);
             });
         }
 
@@ -73,7 +95,7 @@ namespace Mirror.Tests
         public void TestUnpackMessageNonGeneric()
         {
             // try a regular message
-            SceneMessage message = new SceneMessage()
+            TestMessage message = new TestMessage()
             {
                 sceneName = "Hello world",
                 sceneOperation = SceneOperation.LoadAdditive
