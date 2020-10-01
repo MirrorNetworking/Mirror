@@ -33,9 +33,8 @@ namespace Mirror
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         int position;
-        int length;
 
-        public int Length => length;
+        public int Length { get; private set; }
 
         public int Position
         {
@@ -56,7 +55,7 @@ namespace Mirror
         public void Reset()
         {
             position = 0;
-            length = 0;
+            Length = 0;
         }
 
         /// <summary>
@@ -68,7 +67,7 @@ namespace Mirror
         /// </remarks>
         public void SetLength(int newLength)
         {
-            int oldLength = length;
+            int oldLength = Length;
 
             // ensure length & capacity
             EnsureLength(newLength);
@@ -79,16 +78,16 @@ namespace Mirror
                 Array.Clear(buffer, oldLength, newLength - oldLength);
             }
 
-            length = newLength;
-            position = Mathf.Min(position, length);
+            Length = newLength;
+            position = Mathf.Min(position, Length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void EnsureLength(int value)
         {
-            if (length < value)
+            if (Length < value)
             {
-                length = value;
+                Length = value;
                 EnsureCapacity(value);
             }
         }
@@ -110,8 +109,8 @@ namespace Mirror
         // ToArray returns all the data we have written,  regardless of the current position
         public byte[] ToArray()
         {
-            byte[] data = new byte[length];
-            Array.ConstrainedCopy(buffer, 0, data, 0, length);
+            byte[] data = new byte[Length];
+            Array.ConstrainedCopy(buffer, 0, data, 0, Length);
             return data;
         }
 
@@ -122,7 +121,7 @@ namespace Mirror
         // while you are using the ArraySegment
         public ArraySegment<byte> ToArraySegment()
         {
-            return new ArraySegment<byte>(buffer, 0, length);
+            return new ArraySegment<byte>(buffer, 0, Length);
         }
 
         public void WriteByte(byte value)
