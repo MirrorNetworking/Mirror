@@ -171,10 +171,10 @@ namespace Mirror
         /// Writes any type that mirror supports
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="msg"></param>
-        public void Write<T>(T msg)
+        /// <param name="value"></param>
+        public void Write<T>(T value)
         {
-            Writer<T>.write(this, msg);
+            Writer<T>.write(this, value);
         }
     }
 
