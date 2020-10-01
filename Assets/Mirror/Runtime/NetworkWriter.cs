@@ -152,8 +152,6 @@ namespace Mirror
             return false;
         }
 
-        public void WriteByte(byte value) => WriteBlittable(value);
-
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
         public void WriteBytes(byte[] buffer, int offset, int count)
@@ -162,11 +160,6 @@ namespace Mirror
             Array.ConstrainedCopy(buffer, offset, this.buffer, position, count);
             position += count;
         }
-
-        public void WriteUInt32(uint value) => WriteBlittable(value);
-        public void WriteInt32(int value) => WriteBlittable(value);
-        public void WriteUInt64(ulong value) => WriteBlittable(value);
-        public void WriteInt64(long value) => WriteBlittable(value);
     }
 
 
@@ -186,6 +179,10 @@ namespace Mirror
         public static void WriteBoolean(this NetworkWriter writer, bool value) => writer.WriteBlittable((byte)(value ? 1 : 0));
         public static void WriteUInt16(this NetworkWriter writer, ushort value) => writer.WriteBlittable(value);
         public static void WriteInt16(this NetworkWriter writer, short value) => writer.WriteUInt16((ushort)value);
+        public static void WriteUInt32(this NetworkWriter writer, uint value) => writer.WriteBlittable(value);
+        public static void WriteInt32(this NetworkWriter writer, int value) => writer.WriteBlittable(value);
+        public static void WriteUInt64(this NetworkWriter writer, ulong value) => writer.WriteBlittable(value);
+        public static void WriteInt64(this NetworkWriter writer, long value) => writer.WriteBlittable(value);
         public static void WriteSingle(this NetworkWriter writer, float value) => writer.WriteBlittable(value);
         public static void WriteDouble(this NetworkWriter writer, double value) => writer.WriteBlittable(value);
         public static void WriteDecimal(this NetworkWriter writer, decimal value) => writer.WriteBlittable(value);
@@ -244,34 +241,6 @@ namespace Mirror
         public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
         {
             writer.WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
-        }
-
-        // TODO this is still used by weaver
-        [Obsolete("Use WriteInt32 instead")]
-        public static void WritePackedInt32(this NetworkWriter writer, int i)
-        {
-            writer.WriteInt32(i);
-        }
-
-        // TODO this is still used by weaver
-        [Obsolete("Use WriteUInt32 instead")]
-        public static void WritePackedUInt32(this NetworkWriter writer, uint value)
-        {
-            writer.WriteUInt32(value);
-        }
-
-        // TODO this is still used by weaver
-        [Obsolete("Use WriteInt64 instead")]
-        public static void WritePackedInt64(this NetworkWriter writer, long i)
-        {
-            writer.WriteInt64(i);
-        }
-
-        // TODO this is still used by weaver
-        [Obsolete("Use WriteUInt64 instead")]
-        public static void WritePackedUInt64(this NetworkWriter writer, ulong value)
-        {
-            writer.WriteUInt64(value);
         }
 
         public static void WriteVector2(this NetworkWriter writer, Vector2 value) => writer.WriteBlittable(value);

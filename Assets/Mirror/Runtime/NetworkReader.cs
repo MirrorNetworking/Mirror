@@ -77,12 +77,6 @@ namespace Mirror
             throw new EndOfStreamException($"ReadBlittable<{typeof(T)}> out of range: {ToString()}");
         }
 
-        public byte ReadByte() => ReadBlittable<byte>();
-        public int ReadInt32() => ReadBlittable<int>();
-        public uint ReadUInt32() => ReadBlittable<uint>();
-        public long ReadInt64() => ReadBlittable<long>();
-        public ulong ReadUInt64() => ReadBlittable<ulong>();
-
         // read bytes into the passed buffer
         public byte[] ReadBytes(byte[] bytes, int count)
         {
@@ -181,34 +175,6 @@ namespace Mirror
             // otherwise count - 1 is the length of the array
             uint count = reader.ReadUInt32();
             return count == 0 ? default : reader.ReadBytesSegment(checked((int)(count - 1u)));
-        }
-
-        // TODO this is still used by weaver
-        [Obsolete("Use ReadInt32 instead")]
-        public static int ReadPackedInt32(this NetworkReader reader)
-        {
-            return reader.ReadInt32();
-        }
-
-        // TODO this is still used by weaver
-        [Obsolete("Use ReadUInt32 instead")]
-        public static uint ReadPackedUInt32(this NetworkReader reader)
-        {
-            return reader.ReadUInt32();
-        }
-
-        // TODO this is still used by weaver
-        [Obsolete("Use ReadInt64 instead")]
-        public static long ReadPackedInt64(this NetworkReader reader)
-        {
-            return reader.ReadInt64();
-        }
-
-        // TODO this is still used by weaver
-        [Obsolete("Use ReadUInt64 instead")]
-        public static ulong ReadPackedUInt64(this NetworkReader reader)
-        {
-            return reader.ReadUInt64();
         }
 
         public static Vector2 ReadVector2(this NetworkReader reader) => reader.ReadBlittable<Vector2>();

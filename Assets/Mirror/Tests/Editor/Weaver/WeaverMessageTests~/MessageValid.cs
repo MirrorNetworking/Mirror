@@ -14,7 +14,7 @@ namespace WeaverMessageTests.MessageValid
 
         public void Deserialize(NetworkReader reader)
         {
-            netId = reader.ReadPackedUInt32();
+            netId = reader.ReadUInt32();
             assetId = reader.ReadGuid();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
@@ -23,7 +23,7 @@ namespace WeaverMessageTests.MessageValid
 
         public void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32(netId);
+            writer.WriteUInt32(netId);
             writer.WriteGuid(assetId);
             writer.WriteVector3(position);
             writer.WriteQuaternion(rotation);
