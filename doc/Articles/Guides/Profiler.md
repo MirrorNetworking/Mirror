@@ -9,12 +9,13 @@ As of this writing it is accessible to our [GitHub Sponsors](https://github.com/
 
 1. Make sure you have the latest version of Mirror.
 2. Become a [GitHub Sponsor](https://github.com/sponsors/vis2k) if you haven't.
-3. Download the profiler.
+3. Visit with the Mirror Networking Discord. In the _information_ channel you will learn how to join the _github_sponsors_ channel.
+3. In the _github_sponsors_ channel, pinned messages will guide you on how to download the profiler.
 4. Install the unity package in your project.
 
 
 ## Usage
-1. In Unity menu,  click on Open Window -> Analysis -> Mirror Network Profiler.  The profiler view will appear
+1. In Unity menu, click on Open Window -> Analysis -> Mirror Network Profiler. The profiler view will appear
 2. You may dock the profiler anywhere you want
 3. Start your game in the editor
 4. Press "Record" in the profiler
