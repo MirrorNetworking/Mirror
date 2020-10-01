@@ -57,11 +57,12 @@ If you want to make a game with MirrorNG, the preferred installation method is U
 
 If you are using unity 2019.3 or later: 
 
-1) Open your project in unity
-2) Click on Windows -> Package Manager
-3) Click on the plus sign on the left and click on "Add package from git URL..."
-4) enter https://github.com/MirrorNG/MirrorNG.git?path=/Assets/Mirror
-5) Unity will download and install MirrorNG
+1) Install [git](https://www.git-scm.com/)
+2) Open your project in unity
+3) Click on Windows -> Package Manager
+4) Click on the plus sign on the left and click on "Add package from git URL..."
+5) enter https://github.com/MirrorNG/MirrorNG.git?path=/Assets/Mirror
+6) Unity will download and install MirrorNG
 
 If you are using unity 2019.2, you can use [openupm](https://openupm.com/packages/com.mirrorng.mirrorng/) or you can manually add the url to your [packages.json](https://docs.unity3d.com/Manual/upm-git.html) file. 
 
