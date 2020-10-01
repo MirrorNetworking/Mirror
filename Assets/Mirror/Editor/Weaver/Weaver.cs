@@ -299,6 +299,8 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
+                    ReaderWriterProcessor.InitializeReaderAndWriters(CurrentAssembly);
+
                     // write to outputDir if specified, otherwise perform in-place write
                     WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
                     CurrentAssembly.Write(writeParams);

@@ -7,6 +7,18 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>
+    /// a class that holds writers for the different types
+    /// Note that c# creates a different static variable for each
+    /// type
+    /// This will be populated by the weaver
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public static class Writer<T>
+    {
+        public static Action<NetworkWriter, T> write;
+    }
+
+    /// <summary>
     /// Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
     /// <para>Use <see cref="NetworkWriterPool.GetWriter">NetworkWriter.GetWriter</see> to reduce memory allocation</para>
     /// </summary>
@@ -159,6 +171,16 @@ namespace Mirror
             EnsureLength(position + count);
             Array.ConstrainedCopy(buffer, offset, this.buffer, position, count);
             position += count;
+        }
+
+        /// <summary>
+        /// Writes any type that mirror supports
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        public void Write<T>(T value)
+        {
+            Writer<T>.write(this, value);
         }
     }
 

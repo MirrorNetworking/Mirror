@@ -139,6 +139,22 @@ namespace Mirror.Weaver
             return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
         }
 
+        /// <summary>
+        /// Given a field of a generic class such as Writer<T>.write,
+        /// and a generic instance such as ArraySegment`int
+        /// Creates a reference to the specialized method  ArraySegment`int`.get_Count
+        /// <para> Note that calling ArraySegment`T.get_Count directly gives an invalid IL error </para>
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="instanceType">Generic Instance eg Writer<int></param>
+        /// <returns></returns>
+        public static FieldReference SpecializeField(this FieldReference self, GenericInstanceType instanceType)
+        {
+            FieldReference reference = new FieldReference(self.Name, self.FieldType, instanceType);
+
+            return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
+        }
+
         public static CustomAttribute GetCustomAttribute<TAttribute>(this ICustomAttributeProvider method)
         {
             foreach (CustomAttribute ca in method.CustomAttributes)
