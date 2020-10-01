@@ -20,7 +20,7 @@ MirrorNG is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for 
 
 MirrorNG is optimized for **ease of use** and **probability of success**.
 
-With MirrorNG the objects in the client are mirror images of the objects in the server.  MirrorNG takes provides all the tools necessary to keep them in sync and pass messages between them.
+With MirrorNG the objects in the client are mirror images of the objects in the server.  MirrorNG provides all the tools necessary to keep them in sync and pass messages between them.
 
 ## Architecture
 The **Server & Client** are **ONE project** in order to achieve an order of magnitude gain in productivity.
