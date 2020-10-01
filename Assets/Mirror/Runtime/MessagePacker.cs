@@ -102,30 +102,32 @@ namespace Mirror
             //
             // let's catch them all and then disconnect that connection to avoid
             // further attacks.
-            T message = default;
             try
             {
-                if (requireAuthenication && !conn.isAuthenticated)
+                // check authentication
+                // -> either we don't need it
+                // -> or if we need it, connection needs to be authenticated
+                if (!requireAuthenication || conn.isAuthenticated)
+                {
+                    // deserialize
+                    T message = default;
+                    message.Deserialize(reader);
+
+                    // call it
+                    handler((C)conn, message);
+                }
+                else
                 {
                     // message requires authentication, but the connection was not authenticated
                     Debug.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
                     conn.Disconnect();
-                    return;
                 }
-
-                // if it is a value type, just use defult(T)
-                // otherwise allocate a new instance
-                message = default(T);
-                message.Deserialize(reader);
             }
             catch (Exception exception)
             {
                 Debug.LogError("Closed connection: " + conn + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
                 conn.Disconnect();
-                return;
             }
-
-            handler((C)conn, message);
         };
     }
 }
