@@ -1,7 +1,11 @@
 // finds all readers and writers and register them
-using System.IO;
+using System;
+using System.Linq;
 using Mono.CecilX;
+using Mono.CecilX.Cil;
+using UnityEditor;
 using UnityEditor.Compilation;
+using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -14,20 +18,12 @@ namespace Mirror.Weaver
 
             foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())
             {
-                if (unityAsm.name != CurrentAssembly.Name.Name)
+                if (unityAsm.name == "Mirror")
                 {
-                    try
+                    using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+                    using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
                     {
-                        using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-                        using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
-                        {
-                            ProcessAssemblyClasses(CurrentAssembly, assembly);
-                        }
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        // During first import,  this gets called before some assemblies
-                        // are built,  just skip them
+                        ProcessAssemblyClasses(CurrentAssembly, assembly);
                     }
                 }
             }
@@ -97,5 +93,54 @@ namespace Mirror.Weaver
                 Readers.Register(method.ReturnType, currentAssembly.MainModule.ImportReference(method));
             }
         }
+
+        private static bool IsEditorAssembly(AssemblyDefinition currentAssembly)
+        {
+            return currentAssembly.MainModule.AssemblyReferences.Any(assemblyReference =>
+                assemblyReference.Name == nameof(UnityEditor)
+                ) ;
+        }
+
+        /// <summary>
+        /// Creates a method that will store all the readers and writers into
+        /// <see cref="Writer{T}.write"/> and <see cref="Reader{T}.read"/>
+        ///
+        /// The method will be marked InitializeOnLoadMethodAttribute so it gets
+        /// executed before mirror runtime code
+        /// </summary>
+        /// <param name="currentAssembly"></param>
+        public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly)
+        {
+            var rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
+                    MethodAttributes.Static,
+                    WeaverTypes.Import(typeof(void)));
+
+            System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
+
+            CustomAttribute customAttributeRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(attributeconstructor));
+            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(WeaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
+            rwInitializer.CustomAttributes.Add(customAttributeRef);
+
+            if (IsEditorAssembly(currentAssembly))
+            {
+                // editor assembly,  add InitializeOnLoadMethod too.  Useful for the editor tests
+                System.Reflection.ConstructorInfo initializeOnLoadConstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructor(new Type[0]);
+                CustomAttribute initializeCustomConstructorRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(initializeOnLoadConstructor));
+                rwInitializer.CustomAttributes.Add(initializeCustomConstructorRef);
+            }
+
+            ILProcessor worker = rwInitializer.Body.GetILProcessor();
+
+            Writers.InitializeWriters(worker);
+            Readers.InitializeReaders(worker);
+
+            worker.Append(worker.Create(OpCodes.Ret));
+
+            Weaver.WeaveLists.ConfirmGeneratedCodeClass();
+            TypeDefinition generateClass = Weaver.WeaveLists.generateContainerClass;
+
+            generateClass.Methods.Add(rwInitializer);
+        }
+
     }
 }

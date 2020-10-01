@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
+using Mono.CecilX.Rocks;
 
 namespace Mirror.Weaver
 {
@@ -433,5 +434,41 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Blt, labelBody));
         }
+
+        /// <summary>
+        /// Save a delegate for each one of the writers into <see cref="Writer{T}.write"/>
+        /// </summary>
+        /// <param name="worker"></param>
+        internal static void InitializeWriters(ILProcessor worker)
+        {
+            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
+
+            TypeReference genericWriterClassRef = module.ImportReference(typeof(Writer<>));
+
+            System.Reflection.FieldInfo fieldInfo = typeof(Writer<>).GetField(nameof(Writer<object>.write));
+            FieldReference fieldRef = module.ImportReference(fieldInfo);
+            TypeReference networkWriterRef = module.ImportReference(typeof(NetworkWriter));
+            TypeReference actionRef = module.ImportReference(typeof(Action<,>));
+            MethodReference actionConstructorRef = module.ImportReference(typeof(Action<,>).GetConstructors()[0]);
+
+            foreach (MethodReference writerMethod in writeFuncs.Values)
+            {
+
+                TypeReference dataType = writerMethod.Parameters[1].ParameterType;
+
+                // create a Action<NetworkWriter, T> delegate
+                worker.Append(worker.Create(OpCodes.Ldnull));
+                worker.Append(worker.Create(OpCodes.Ldftn, writerMethod));
+                GenericInstanceType actionGenericInstance = actionRef.MakeGenericInstanceType(networkWriterRef, dataType);
+                MethodReference actionRefInstance = actionConstructorRef.MakeHostInstanceGeneric(actionGenericInstance);
+                worker.Append(worker.Create(OpCodes.Newobj, actionRefInstance));
+
+                // save it in Writer<T>.write
+                GenericInstanceType genericInstance = genericWriterClassRef.MakeGenericInstanceType(dataType);
+                FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
+                worker.Append(worker.Create(OpCodes.Stsfld, specializedField));
+            }
+        }
+
     }
 }

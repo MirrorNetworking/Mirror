@@ -13,6 +13,18 @@ using UnityEngine;
 
 namespace Mirror
 {
+    /// <summary>
+    /// a class that holds readers for the different types
+    /// Note that c# creates a different static variable for each
+    /// type
+    /// This will be populated by the weaver
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public static class Reader<T>
+    {
+        public static Func<NetworkReader, T> read;
+    }
+
     // Note: This class is intended to be extremely pedantic, and
     // throw exceptions whenever stuff is going slightly wrong.
     // The exceptions will be handled in NetworkServer/NetworkClient.
@@ -107,6 +119,16 @@ namespace Mirror
         public override string ToString()
         {
             return "NetworkReader pos=" + Position + " len=" + Length + " buffer=" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count);
+        }
+
+        /// <summary>
+        /// Reads any data type that mirror supports
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T Read<T>()
+        {
+            return Reader<T>.read(this);
         }
     }
 
