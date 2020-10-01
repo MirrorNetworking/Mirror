@@ -173,6 +173,12 @@ namespace Mirror
         /// <param name="msg"></param>
         public void Write<T>(T msg)
         {
+            if (Writer<T>.write == null)
+                Debug.AssertFormat(
+                    Writer<T>.write != null,
+                    @"No writer found for {0}. See https://mirrorng.github.io/MirrorNG/Articles/General/Troubleshooting.html for details",
+                    typeof(T));
+
             Writer<T>.write(this, msg);
         }
     }

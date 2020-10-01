@@ -129,6 +129,12 @@ namespace Mirror
         /// <returns></returns>
         public T Read<T>()
         {
+            if (Reader<T>.read == null)
+                Debug.AssertFormat(
+                    Reader<T>.read != null,
+                    @"No reader found for {0}. See https://mirrorng.github.io/MirrorNG/Articles/General/Troubleshooting.html for details",
+                    typeof(T));
+
             return Reader<T>.read(this);
         }
     }

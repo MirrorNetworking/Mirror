@@ -14,5 +14,7 @@
   href: Integrations/index.md
 - name: TCP vs UDP
   href: TCPvsUDP.md
+- name: Troubleshooting
+  href: Troubleshooting.md
 - name: Support
   href: Support.md
