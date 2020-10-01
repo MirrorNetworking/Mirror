@@ -7,10 +7,10 @@ using UnityEngine.Events;
 namespace Mirror
 {
     // UnityEvent definitions
-    [Serializable] public class ClientDataReceivedEvent : UnityEvent<ArraySegment<byte>, int> { }
+    [Serializable] public class ClientDataReceivedEvent : UnityEvent<ArraySegment<byte>> { }
     [Serializable] public class UnityEventException : UnityEvent<Exception> { }
     [Serializable] public class UnityEventInt : UnityEvent<int> { }
-    [Serializable] public class ServerDataReceivedEvent : UnityEvent<int, ArraySegment<byte>, int> { }
+    [Serializable] public class ServerDataReceivedEvent : UnityEvent<int, ArraySegment<byte>> { }
     [Serializable] public class UnityEventIntException : UnityEvent<int, Exception> { }
 
     public abstract class Transport : MonoBehaviour

@@ -88,7 +88,7 @@ namespace Mirror
         internal static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
             where T : struct, NetworkMessage
             where C : NetworkConnection
-            => (conn, reader, channelId) =>
+            => (conn, reader) =>
         {
             // protect against DOS attacks if attackers try to send invalid
             // data packets to crash the server/client. there are a thousand

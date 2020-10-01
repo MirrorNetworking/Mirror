@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 namespace Mirror
 {
     // Handles network messages on client and server
-    public delegate void NetworkMessageDelegate(NetworkConnection conn, NetworkReader reader, int channelId);
+    public delegate void NetworkMessageDelegate(NetworkConnection conn, NetworkReader reader);
 
     // invoke type for Cmd/Rpc
     public enum MirrorInvokeType

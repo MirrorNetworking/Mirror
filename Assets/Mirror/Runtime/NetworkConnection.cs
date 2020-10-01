@@ -194,11 +194,11 @@ namespace Mirror
             visList.Clear();
         }
 
-        internal bool InvokeHandler(int msgType, NetworkReader reader, int channelId)
+        internal bool InvokeHandler(int msgType, NetworkReader reader)
         {
             if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
-                msgDelegate(this, reader, channelId);
+                msgDelegate(this, reader);
                 return true;
             }
             // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
@@ -212,7 +212,7 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="msg">The message object to process.</param>
         /// <returns>Returns true if the handler was successfully invoked</returns>
-        public bool InvokeHandler<T>(T msg, int channelId)
+        public bool InvokeHandler<T>(T msg)
             where T : struct, NetworkMessage
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -226,7 +226,7 @@ namespace Mirror
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(segment))
-                    return InvokeHandler(msgType, networkReader, channelId);
+                    return InvokeHandler(msgType, networkReader);
             }
         }
 
@@ -240,7 +240,7 @@ namespace Mirror
         /// This function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
         /// <param name="buffer">The data received.</param>
-        internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
+        internal void TransportReceive(ArraySegment<byte> buffer)
         {
             // unpack message
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(buffer))
@@ -251,7 +251,7 @@ namespace Mirror
                     // Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                     // try to invoke the handler for that message
-                    InvokeHandler(msgType, networkReader, channelId);
+                    InvokeHandler(msgType, networkReader);
                 }
                 else
                 {

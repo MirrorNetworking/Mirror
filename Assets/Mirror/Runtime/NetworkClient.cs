@@ -88,14 +88,14 @@ namespace Mirror
 
             ClientScene.HandleClientDisconnect(connection);
 
-            connection?.InvokeHandler(new DisconnectMessage(), -1);
+            connection?.InvokeHandler(new DisconnectMessage());
         }
 
-        internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
+        internal static void OnDataReceived(ArraySegment<byte> data)
         {
             if (connection != null)
             {
-                connection.TransportReceive(data, channelId);
+                connection.TransportReceive(data);
             }
             else Debug.LogError("Skipped Data message handling because connection is null.");
         }
@@ -111,7 +111,7 @@ namespace Mirror
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
                 NetworkTime.UpdateClient();
-                connection.InvokeHandler(new ConnectMessage(), -1);
+                connection.InvokeHandler(new ConnectMessage());
             }
             else Debug.LogError("Skipped Connect message handling because connection is null.");
         }

@@ -387,7 +387,7 @@ namespace Mirror.Tests
             // -> should call NetworkServer.OnDataReceived
             //    -> conn.TransportReceive
             //       -> Handler(CommandMessage)
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, segment, 0);
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, segment);
 
             // was our message handler called now?
             Assert.That(wasReceived, Is.True);
@@ -427,7 +427,7 @@ namespace Mirror.Tests
             // call transport.OnDataReceived with an invalid connectionId
             // an error log is expected.
             LogAssert.ignoreFailingMessages = true;
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, segment, 0);
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, segment);
             LogAssert.ignoreFailingMessages = false;
 
             // message handler should never be called
@@ -464,13 +464,13 @@ namespace Mirror.Tests
             // serialize first message, send it to server, check if it was handled
             NetworkWriter writer = new NetworkWriter();
             MessagePacker.Pack(new TestMessage1(), writer);
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment());
             Assert.That(variant1Called, Is.EqualTo(1));
 
             // serialize second message, send it to server, check if it was handled
             writer = new NetworkWriter();
             MessagePacker.Pack(new TestMessage2(), writer);
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment());
             Assert.That(variant2Called, Is.EqualTo(1));
 
             // unregister first handler, send, should fail
@@ -479,7 +479,7 @@ namespace Mirror.Tests
             MessagePacker.Pack(new TestMessage1(), writer);
             // log error messages are expected
             LogAssert.ignoreFailingMessages = true;
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment());
             LogAssert.ignoreFailingMessages = false;
             // still 1, not 2
             Assert.That(variant1Called, Is.EqualTo(1));
@@ -492,7 +492,7 @@ namespace Mirror.Tests
             MessagePacker.Pack(new TestMessage1(), writer);
             // log error messages are expected
             LogAssert.ignoreFailingMessages = true;
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment());
             LogAssert.ignoreFailingMessages = false;
             // still 1, not 2
             Assert.That(variant2Called, Is.EqualTo(1));
