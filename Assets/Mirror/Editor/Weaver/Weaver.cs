@@ -185,7 +185,6 @@ namespace Mirror.Weaver
             {
                 bool modified = false;
 
-                // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
                 System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
 
                 watch.Start();
