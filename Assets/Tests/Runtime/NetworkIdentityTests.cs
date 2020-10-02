@@ -215,5 +215,22 @@ namespace Mirror.Tests
         {
             Assert.That(identity.Server, Is.Not.Null);
         }
+
+        [UnityTest]
+        public IEnumerator DestroyOwnedObjectsTest() => RunAsync(async () =>
+        {
+            GameObject testObj1 = new GameObject();
+            GameObject testObj2 = new GameObject();
+            GameObject testObj3 = new GameObject();
+
+            server.LocalConnection.AddOwnedObject(testObj1.AddComponent<NetworkIdentity>());
+            server.LocalConnection.AddOwnedObject(testObj2.AddComponent<NetworkIdentity>());
+            server.LocalConnection.AddOwnedObject(testObj3.AddComponent<NetworkIdentity>());
+            server.LocalConnection.DestroyOwnedObjects();
+
+            await WaitFor(() => !testObj1);
+            await WaitFor(() => !testObj2);
+            await WaitFor(() => !testObj3);
+        });
     }
 }

@@ -313,11 +313,15 @@ namespace Mirror
             var tmp = new HashSet<NetworkIdentity>(clientOwnedObjects);
             foreach (NetworkIdentity netIdentity in tmp)
             {
-                if (netIdentity != null)
+                //dont destroy self yet.
+                if (netIdentity != null && netIdentity != Identity)
                 {
                     Identity.Server.Destroy(netIdentity.gameObject);
                 }
             }
+
+            // Destroy the connections own identity.
+            Identity.Server.Destroy(Identity.gameObject);
 
             // clear the hashset because we destroyed them all
             clientOwnedObjects.Clear();
