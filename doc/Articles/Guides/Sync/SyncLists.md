@@ -6,18 +6,18 @@ A SyncList can contain any [supported mirror type](../DataTypes.md).
 
 ## Differences with HLAPI
 
-HLAPI also supports SyncLists, but we have redesigned them to better suit our needs. Some of the key differences include:
+HLAPI also supports SyncLists, but we have redesigned them to make them more efficient and easier to use. Some of the key differences include:
 -   In HLAPI, SyncLists were synchronized immediately when they changed. If you add 10 elements, that means 10 separate messages. Mirror synchronizes SyncLists with the SyncVars. The 10 elements and other SyncVars are batched together into a single message. Mirror also respects the sync interval when synchronizing lists.
 -   In HLAPI if you want a list of structs, you have to use `SyncListStruct<MyStructure>`, we changed it to just `SyncList<MyStructure>`
 -   In HLAPI the Callback is a delegate. In Mirror we changed it to an event, so that you can add many subscribers.
 -   In HLAPI the Callback tells you the operation and index. In Mirror, the callback also receives an item. We made this change so that we could tell what item was removed.
+-   In HLAPI you must create a class that inherits from SyncList<T>. In Mirror you can just use SyncList<T> directly (starting with version 20.0.0)
 
 ## Usage
 
-Create a class that derives from SyncList for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncList field to your NetworkBehaviour class. For example:
+Add a SyncList field to your NetworkBehaviour class. For example:
 
 ```cs
-[System.Serializable]
 public struct Item
 {
     public string name;
@@ -25,12 +25,9 @@ public struct Item
     public Color32 color;
 }
 
-[System.Serializable]
-public class SyncListItem : SyncList<Item> {}
-
 public class Player : NetworkBehaviour
 {
-    readonly SyncListItem inventory = new SyncListItem();
+    readonly SyncList<Item> inventory = new SyncList<Item>();
 
     public int coins = 100;
 
@@ -54,13 +51,6 @@ public class Player : NetworkBehaviour
 }
 ```
 
-There are some ready made SyncLists you can use:
--   SyncListString
--   SyncListFloat
--   SyncListInt
--   SyncListUInt
--   SyncListBool
-
 You can also detect when a SyncList changes in the client or server. This is useful for refreshing your character when you add equipment or determining when you need to update your database. Subscribe to the Callback event typically during `Start`, `OnClientStart`, or `OnServerStart` for that. 
 
 
@@ -70,7 +60,7 @@ You can also detect when a SyncList changes in the client or server. This is use
 ```cs
 class Player : NetworkBehaviour {
 
-    readonly SyncListItem inventory = new SyncListItem();
+    readonly SyncList<Item> inventory = new SyncList<Item>();
 
     // this will add the delegates on both server and client.
     // Use OnStartClient instead if you just want the client to act upon updates
@@ -79,26 +69,26 @@ class Player : NetworkBehaviour {
         inventory.Callback += OnInventoryUpdated;
     }
 
-    void OnInventoryUpdated(SyncListItem.Operation op, int index, Item oldItem, Item newItem)
+    void OnInventoryUpdated(SyncList<Item>.Operation op, int index, Item oldItem, Item newItem)
     {
         switch (op)
         {
-            case SyncListItem.Operation.OP_ADD:
+            case SyncList<Item>.Operation.OP_ADD:
                 // index is where it got added in the list
                 // item is the new item
                 break;
-            case SyncListItem.Operation.OP_CLEAR:
+            case SyncList<Item>.Operation.OP_CLEAR:
                 // list got cleared
                 break;
-            case SyncListItem.Operation.OP_INSERT:
+            case SyncList<Item>.Operation.OP_INSERT:
                 // index is where it got added in the list
                 // item is the new item
                 break;
-            case SyncListItem.Operation.OP_REMOVEAT:
+            case SyncList<Item>.Operation.OP_REMOVEAT:
                 // index is where it got removed in the list
                 // item is the item that was removed
                 break;
-            case SyncListItem.Operation.OP_SET:
+            case SyncList<Item>.Operation.OP_SET:
                 // index is the index of the item that was updated
                 // item is the previous item
                 break;
@@ -107,11 +97,10 @@ class Player : NetworkBehaviour {
 }
 ```
 
-By default, SyncList uses a List to store it's data. If you want to use a different list implementation, add a constructor and pass the list implementation to the parent constructor. For example:
+By default, SyncList uses a List to store it's data. If you want to use a different list implementation, pass it to the constructor of of SyncList. For example:
 
 ```cs
-class SyncListItem : SyncList<Item>
-{
-    public SyncListItem() : base(new MyIList<Item>()) {}
+class Player : NetworkBehaviour {
+    public SyncList<Item> inventory = new SyncList<Item>(new MyItemList());
 }
 ```

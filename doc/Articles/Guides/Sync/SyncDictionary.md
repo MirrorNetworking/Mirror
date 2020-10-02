@@ -1,16 +1,12 @@
 # SyncDictionary
 
-A SyncDictionary is an associative array containing an unordered list of key, value pairs. Keys and values can be of the following types:
--   Basic type (byte, int, float, string, UInt64, etc)
--   Built-in Unity math type (Vector3, Quaternion, etc)
--   NetworkIdentity
--   Game object with a NetworkIdentity component attached.
--   Struct with any of the above
+A SyncDictionary is an associative array containing an unordered list of key, value pairs. Keys and values can be any [supported mirror type](../DataTypes.md). By default we use .Net [Dictionary](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=netcore-3.1) which may impose additional constraints on the keys and values.
 
-SyncDictionary works much like [SyncLists](SyncLists.md): when you make a change on the server the change is propagated to all clients and the Callback is called.
+SyncDictionary works much like [SyncLists](SyncLists.md): when you make a change on the server the change is propagated to all clients and the Callback is called. Only deltas are transmitted.
 
+## Usage
 
-To use it, create a class that derives from SyncDictionary for your specific type. This is necessary because the Weaver will add methods to that class. Then add a field to your NetworkBehaviour class.
+Add a field to your NetworkBehaviour class fo type `SyncDictionary<Key, Value>`. For example:
 
 > Note that by the time you subscribe to the callback, the dictionary will already be initialized, so you will not get a call for the initial data, only updates.</p>
 
@@ -22,7 +18,6 @@ To use it, create a class that derives from SyncDictionary for your specific typ
 using UnityEngine;
 using Mirror;
 
-[System.Serializable]
 public struct Item
 {
     public string name;
@@ -30,13 +25,9 @@ public struct Item
     public int durability;
 }
 
-[System.Serializable]
-public class SyncDictionaryStringItem : SyncDictionary<string, Item> {}
-
 public class ExamplePlayer : NetworkBehaviour
 {
-    [SerializeField]
-    public readonly SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
+    public readonly SyncDictionary<string, Item> Equipment = new SyncDictionary<string, Item>();
 
     public override void OnStartServer()
     {
@@ -53,7 +44,7 @@ public class ExamplePlayer : NetworkBehaviour
         Equipment.Callback += OnEquipmentChange;
     }
 
-    void OnEquipmentChange(SyncDictionaryStringItem.Operation op, string key, Item item)
+    void OnEquipmentChange(SyncDictionary<string, Item>.Operation op, string key, Item item)
     {
         // equipment changed,  perhaps update the gameobject
         Debug.Log(op + " - " + key);
@@ -61,19 +52,14 @@ public class ExamplePlayer : NetworkBehaviour
 }
 ```
 
-By default, SyncDictionary uses a Dictionary to store it's data. If you want to use a different `IDictionary `implementation such as `SortedList` or `SortedDictionary`, add a constructor to your SyncDictionary implementation and pass a dictionary to the base class. For example:
+By default, SyncDictionary uses a [Dictionary](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=netcore-3.1) to store it's data. If you want to use a different `IDictionary` implementation such as [SortedList](https://docs.microsoft.com/en-us/dotnet/api/system.collections.sortedlist?view=netcore-3.1) or [SortedDictionary](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.sorteddictionary-2?view=netcore-3.1), then use `SyncIDictionary<Key,Value>` and pass the dictionary instance you want it to use.  For example:
 
 ```cs
-[System.Serializable]
-public class SyncDictionaryStringItem : SyncDictionary<string, Item> 
-{
-    public SyncDictionaryStringItem() : base (new SortedList<string,Item>()) {}
-}
-    
 public class ExamplePlayer : NetworkBehaviour
 {
-    [SerializeField]
-    public readonly SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
+    public readonly SyncIDictionary<string, Item> Equipment = 
+        new SyncIDictionary<string, Item>(new SortedList<string, Item>());
 }
+
 ```
 
