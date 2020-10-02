@@ -1,3 +1,25 @@
+# [47.0.0](https://github.com/MirrorNG/MirrorNG/compare/v46.2.0...v47.0.0) (2020-10-02)
+
+
+### breaking
+
+* Use SyncLists directly (delete overrides) ([#2307](https://github.com/MirrorNG/MirrorNG/issues/2307)) ([fb49d19](https://github.com/MirrorNG/MirrorNG/commit/fb49d197939e41816310694e33325c75a8fa986b)), closes [#2305](https://github.com/MirrorNG/MirrorNG/issues/2305)
+
+
+### Features
+
+* new generic Read and Write methods for all types ([#2301](https://github.com/MirrorNG/MirrorNG/issues/2301)) ([85252c3](https://github.com/MirrorNG/MirrorNG/commit/85252c3d840353014f003eaa1d565eeb8635c673))
+* support Jagged arrays ([0267dbe](https://github.com/MirrorNG/MirrorNG/commit/0267dbe1f22efd9452371e5a29c2b85958ddf7e5))
+
+
+### BREAKING CHANGES
+
+* Serialize and Deserialize methods in synclists don't do anything anymore
+
+* Remove old comment
+
+* Fix compilatio error
+
 # [46.2.0](https://github.com/MirrorNG/MirrorNG/compare/v46.1.0...v46.2.0) (2020-10-02)
 
 
