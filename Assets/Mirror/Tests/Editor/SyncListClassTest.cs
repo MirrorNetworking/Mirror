@@ -3,13 +3,20 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
+    class TestObjectBehaviour : NetworkBehaviour
+    {
+        // note synclists must be a property of a NetworkBehavior so that
+        // the weaver generates the reader and writer for the object
+        public SyncList<TestObject> myList = new SyncList<TestObject>();
+    }
+
     public class SyncListClassTest
     {
         [Test]
         public void RemoveShouldRemoveItem()
         {
-            SyncListTestObject serverList = new SyncListTestObject();
-            SyncListTestObject clientList = new SyncListTestObject();
+            SyncList<TestObject> serverList = new SyncList<TestObject>();
+            SyncList<TestObject> clientList = new SyncList<TestObject>();
 
             SyncListTest.SerializeAllTo(serverList, clientList);
 
@@ -35,8 +42,8 @@ namespace Mirror.Tests
         [Test]
         public void ClearShouldClearAll()
         {
-            SyncListTestObject serverList = new SyncListTestObject();
-            SyncListTestObject clientList = new SyncListTestObject();
+            SyncList<TestObject> serverList = new SyncList<TestObject>();
+            SyncList<TestObject> clientList = new SyncList<TestObject>();
 
             SyncListTest.SerializeAllTo(serverList, clientList);
 
@@ -62,11 +69,6 @@ namespace Mirror.Tests
         }
     }
 
-
-    public class SyncListTestObject : SyncList<TestObject>
-    {
-
-    }
     [System.Serializable]
     public class TestObject
     {
