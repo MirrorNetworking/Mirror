@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Mono.CecilX;
 
 namespace Mirror.Weaver
