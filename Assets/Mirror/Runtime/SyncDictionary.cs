@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,7 +7,7 @@ using JetBrains.Annotations;
 namespace Mirror
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject, IReadOnlyDictionary<TKey, TValue>
+    public class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject, IReadOnlyDictionary<TKey, TValue>
     {
         public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
 
@@ -46,9 +47,13 @@ namespace Mirror
             objects.Clear();
         }
 
+        [Obsolete("Use custom writer instead")]
         protected virtual void SerializeKey(NetworkWriter writer, TKey item) { }
+        [Obsolete("Use custom writer instead")]
         protected virtual void SerializeItem(NetworkWriter writer, TValue item) { }
+        [Obsolete("Use custom reader instead")]
         protected virtual TKey DeserializeKey(NetworkReader reader) => default;
+        [Obsolete("Use custom reader instead")]
         protected virtual TValue DeserializeItem(NetworkReader reader) => default;
 
         public bool IsDirty => changes.Count > 0;
@@ -65,7 +70,7 @@ namespace Mirror
         // this should be called after a successfull sync
         public void Flush() => changes.Clear();
 
-        protected SyncIDictionary(IDictionary<TKey, TValue> objects)
+        public SyncIDictionary(IDictionary<TKey, TValue> objects)
         {
             this.objects = objects;
         }
@@ -96,8 +101,8 @@ namespace Mirror
 
             foreach (KeyValuePair<TKey, TValue> syncItem in objects)
             {
-                SerializeKey(writer, syncItem.Key);
-                SerializeItem(writer, syncItem.Value);
+                writer.Write(syncItem.Key);
+                writer.Write(syncItem.Value);
             }
 
             // all changes have been applied already
@@ -122,8 +127,8 @@ namespace Mirror
                     case Operation.OP_ADD:
                     case Operation.OP_REMOVE:
                     case Operation.OP_SET:
-                        SerializeKey(writer, change.key);
-                        SerializeItem(writer, change.item);
+                        writer.Write(change.key);
+                        writer.Write(change.item);
                         break;
                     case Operation.OP_CLEAR:
                         break;
@@ -144,8 +149,8 @@ namespace Mirror
 
             for (int i = 0; i < count; i++)
             {
-                TKey key = DeserializeKey(reader);
-                TValue obj = DeserializeItem(reader);
+                TKey key = reader.Read<TKey>();
+                TValue obj = reader.Read<TValue>();
                 objects.Add(key, obj);
             }
 
@@ -176,8 +181,8 @@ namespace Mirror
                 {
                     case Operation.OP_ADD:
                     case Operation.OP_SET:
-                        key = DeserializeKey(reader);
-                        item = DeserializeItem(reader);
+                        key = reader.Read<TKey>();
+                        item = reader.Read<TValue>();
                         if (apply)
                         {
                             objects[key] = item;
@@ -192,8 +197,8 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVE:
-                        key = DeserializeKey(reader);
-                        item = DeserializeItem(reader);
+                        key = reader.Read<TKey>();
+                        item = reader.Read<TValue>();
                         if (apply)
                         {
                             objects.Remove(key);
@@ -298,13 +303,13 @@ namespace Mirror
         IEnumerator IEnumerable.GetEnumerator() => objects.GetEnumerator();
     }
 
-    public abstract class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
+    public class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
     {
-        protected SyncDictionary() : base(new Dictionary<TKey, TValue>())
+        public SyncDictionary() : base(new Dictionary<TKey, TValue>())
         {
         }
 
-        protected SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq))
+        public SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq))
         {
         }
 
