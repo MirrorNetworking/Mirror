@@ -13,10 +13,9 @@ namespace Mirror
 
     public enum ConnectState
     {
-        None,
+        Disconnected,
         Connecting,
         Connected,
-        Disconnected
     }
 
     /// <summary>
@@ -64,7 +63,7 @@ namespace Mirror
         /// </summary>
         public NetworkIdentity LocalPlayer => Connection?.Identity;
 
-        internal ConnectState connectState = ConnectState.None;
+        internal ConnectState connectState = ConnectState.Disconnected;
 
         /// <summary>
         /// active is true while a client is connecting/connected
@@ -337,7 +336,7 @@ namespace Mirror
             isSpawnFinished = false;
             hostServer = null;
 
-            connectState = ConnectState.None;
+            connectState = ConnectState.Disconnected;
 
             if (authenticator != null)
             {
