@@ -63,6 +63,36 @@
 
 ### breaking
 
+* Remove GameObject sync ([#370](https://github.com/MirrorNG/MirrorNG/issues/370)) ([5b223fa](https://github.com/MirrorNG/MirrorNG/commit/5b223fa31985bd07e658eb43122a4f3cd426511d))
+* Use SyncLists directly (delete overrides) ([#2307](https://github.com/MirrorNG/MirrorNG/issues/2307)) ([fb49d19](https://github.com/MirrorNG/MirrorNG/commit/fb49d197939e41816310694e33325c75a8fa986b)), closes [#2305](https://github.com/MirrorNG/MirrorNG/issues/2305)
+
+
+### Bug Fixes
+
+* bug Client ConnectionState not set properly in Disconnect ([#369](https://github.com/MirrorNG/MirrorNG/issues/369)) ([74298c5](https://github.com/MirrorNG/MirrorNG/commit/74298c50b330216edbd19cf087eece910a05f656))
+* Bug with  NI destroy order ([#374](https://github.com/MirrorNG/MirrorNG/issues/374)) ([485f78b](https://github.com/MirrorNG/MirrorNG/commit/485f78b0d011950bb98ebf5ed0bd12673773224b))
+
+
+### Features
+
+* new generic Read and Write methods for all types ([#2301](https://github.com/MirrorNG/MirrorNG/issues/2301)) ([85252c3](https://github.com/MirrorNG/MirrorNG/commit/85252c3d840353014f003eaa1d565eeb8635c673))
+* support Jagged arrays ([0267dbe](https://github.com/MirrorNG/MirrorNG/commit/0267dbe1f22efd9452371e5a29c2b85958ddf7e5))
+
+
+### BREAKING CHANGES
+
+* You can no longer use gameobjects in syncvars
+* Serialize and Deserialize methods in synclists don't do anything anymore
+
+* Remove old comment
+
+* Fix compilatio error
+
+# [47.0.0](https://github.com/MirrorNG/MirrorNG/compare/v46.2.0...v47.0.0) (2020-10-02)
+
+
+### breaking
+
 * Use SyncLists directly (delete overrides) ([#2307](https://github.com/MirrorNG/MirrorNG/issues/2307)) ([fb49d19](https://github.com/MirrorNG/MirrorNG/commit/fb49d197939e41816310694e33325c75a8fa986b)), closes [#2305](https://github.com/MirrorNG/MirrorNG/issues/2305)
 
 
