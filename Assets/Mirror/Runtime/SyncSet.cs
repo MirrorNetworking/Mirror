@@ -339,7 +339,7 @@ namespace Mirror
     {
         public SyncSortedSet() : this(Comparer<T>.Default) { }
 
-        public SyncSortedSet(IComparer<T> comparer = null) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
+        public SyncSortedSet(IComparer<T> comparer) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
 
         // allocation free enumerator
         public new SortedSet<T>.Enumerator GetEnumerator() => ((SortedSet<T>)objects).GetEnumerator();
