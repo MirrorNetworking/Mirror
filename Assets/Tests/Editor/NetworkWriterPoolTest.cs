@@ -1,5 +1,6 @@
 using System.Linq;
 using NUnit.Framework;
+using static Mirror.Tests.LogExpect;
 
 namespace Mirror.Tests
 {
@@ -63,7 +64,10 @@ namespace Mirror.Tests
 
             // recycle all
             NetworkWriterPool.Recycle(a);
-            NetworkWriterPool.Recycle(b);
+            ExpectWarn("NetworkWriterPool.Recycle, Pool was full leaving extra writer for GC", () =>
+            {
+                NetworkWriterPool.Recycle(b);
+            });
 
             // get 2 new ones
             PooledNetworkWriter c = NetworkWriterPool.GetWriter();
