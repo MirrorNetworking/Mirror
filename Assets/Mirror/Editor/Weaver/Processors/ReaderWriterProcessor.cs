@@ -46,54 +46,29 @@ namespace Mirror.Weaver
                 }
             }
 
-            foreach (TypeDefinition klass in assembly.MainModule.Types)
-            {             
-                // Generate readers and writers
-                // find all the Send<> and Register<> calls and generate
-                // readers and writers for them.
-                GenerateReadersWriters(CurrentAssembly, klass);
-            }
+            // Generate readers and writers
+            // find all the Send<> and Register<> calls and generate
+            // readers and writers for them.
+            CodePass.InstructionPass(assembly.MainModule, (md, instr) => GenerateReadersWriters(CurrentAssembly.MainModule, instr));
         }
 
-        private static void GenerateReadersWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
-        {
-            foreach (MethodDefinition method in klass.Methods)
-            {
-                GenerateReadersWriters(currentAssembly, method);
-            }
-
-            foreach (TypeDefinition nested in klass.NestedTypes)
-            {
-                GenerateReadersWriters(currentAssembly, nested);
-            }
-        }
-
-        private static void GenerateReadersWriters(AssemblyDefinition currentAssembly, MethodDefinition method)
-        {
-            if (method.IsAbstract || method.Body == null)
-                return;
-
-            foreach (Instruction instruction in method.Body.Instructions)
-            {
-                GenerateReadersWriters(currentAssembly, instruction);
-            }
-        }
-
-        private static void GenerateReadersWriters(AssemblyDefinition currentAssembly, Instruction instruction)
+        private static Instruction GenerateReadersWriters(ModuleDefinition module, Instruction instruction)
         {
             if (instruction.OpCode == OpCodes.Ldsfld)
             {
-                GenerateReadersWriters(currentAssembly, (FieldReference)instruction.Operand);
+                GenerateReadersWriters(module, (FieldReference)instruction.Operand);
             }
 
             // We are looking for calls to some specific types
             if (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt)
             {
-                GenerateReadersWriters(currentAssembly, (MethodReference)instruction.Operand);
+                GenerateReadersWriters(module, (MethodReference)instruction.Operand);
             }
+
+            return instruction;
         }
 
-        private static void GenerateReadersWriters(AssemblyDefinition currentAssembly, FieldReference field)
+        private static void GenerateReadersWriters(ModuleDefinition module, FieldReference field)
         {
             TypeReference type = field.DeclaringType;
 
@@ -103,11 +78,11 @@ namespace Mirror.Weaver
 
                 TypeReference parameterType = typeGenericInstance.GenericArguments[0];
 
-                GenerateReadersWriters(currentAssembly, parameterType);
+                GenerateReadersWriters(module, parameterType);
             }
         }
 
-        private static void GenerateReadersWriters(AssemblyDefinition currentAssembly, MethodReference method)
+        private static void GenerateReadersWriters(ModuleDefinition module, MethodReference method)
         {
             if (!method.IsGenericInstance)
                 return;
@@ -141,11 +116,11 @@ namespace Mirror.Weaver
             {
                 var instanceMethod = (GenericInstanceMethod)method;
                 TypeReference parameterType = instanceMethod.GenericArguments[0];
-                GenerateReadersWriters(currentAssembly, parameterType);
+                GenerateReadersWriters(module, parameterType);
             }
         }
 
-        private static void GenerateReadersWriters(AssemblyDefinition currentAssembly, TypeReference parameterType)
+        private static void GenerateReadersWriters(ModuleDefinition module, TypeReference parameterType)
         {
             if (!parameterType.IsGenericParameter && parameterType.CanBeResolved())
             {
@@ -156,13 +131,13 @@ namespace Mirror.Weaver
                     MethodDefinition constructor = typeDefinition.GetMethod(".ctor");
 
                     bool hasAccess = constructor.IsPublic
-                        || constructor.IsAssembly && typeDefinition.Module == currentAssembly.MainModule;
+                        || constructor.IsAssembly && typeDefinition.Module == module;
 
                     if (!hasAccess)
                         return;
                 }
 
-                parameterType = currentAssembly.MainModule.ImportReference(parameterType);
+                parameterType = module.ImportReference(parameterType);
                 Writers.GetWriteFunc(parameterType);
                 Readers.GetReadFunc(parameterType);
             }

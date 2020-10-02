@@ -34,6 +34,9 @@ public static class CodePass
         }
     }
 
+    public static void InstructionPass(ModuleDefinition module, InstructionProcessor processor) =>
+        InstructionPass(module, md => true, processor);
+
     private static void InstructionPass(TypeDefinition td, Predicate<MethodDefinition> selector, InstructionProcessor processor)
     {
         foreach (MethodDefinition md in td.Methods)
