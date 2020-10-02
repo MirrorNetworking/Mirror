@@ -78,11 +78,38 @@ namespace Mirror
             }
         }
 
+        // add new observers and send spawn messages
+        void AddNewObservers()
+        {
+            // foreach spawned
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            {
+                // foreach rebuild
+                foreach (NetworkConnectionToClient conn in identity.rebuild)
+                {
+                    // was it not in old observers?
+                    // TODO use set to avoid O(n) contains
+                    if (!identity.observars.Contains(conn))
+                    {
+                        // is the entity owned by the observer connection?
+                        bool owned = identity.connectionToClient != null &&
+                                     identity.connectionToClient.connectionId == conn.connectionId;
+
+                        // TODO send spawn message with owned flag
+                        Debug.LogWarning($"TODO Spawn {identity.name} for connectionId {conn.connectionId}");
+
+                        // add it to observers
+                        identity.observars.Add(conn);
+                    }
+                }
+            }
+        }
+
         public override void RebuildAll()
         {
             RebuildObservers();
             RemoveOldObservers();
-            //AddNewObservers();
+            AddNewObservers();
         }
 
         // update rebuilds every couple of seconds
