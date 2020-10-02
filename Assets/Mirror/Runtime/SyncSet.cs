@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace Mirror
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncSet<T> : ISet<T>, SyncObject
+    public class SyncSet<T> : ISet<T>, SyncObject
     {
         public delegate void SyncSetChanged(Operation op, T item);
 
@@ -49,8 +49,8 @@ namespace Mirror
             objects.Clear();
         }
 
-        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
-        protected virtual T DeserializeItem(NetworkReader reader) => default;
+        protected virtual void SerializeItem(NetworkWriter writer, T item) => writer.Write(item);
+        protected virtual T DeserializeItem(NetworkReader reader) => reader.Read<T>();
 
         public bool IsDirty => changes.Count > 0;
 
@@ -323,17 +323,21 @@ namespace Mirror
         }
     }
 
-    public abstract class SyncHashSet<T> : SyncSet<T>
+    public class SyncHashSet<T> : SyncSet<T>
     {
-        protected SyncHashSet(IEqualityComparer<T> comparer = null) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) { }
+        public SyncHashSet() : this(EqualityComparer<T>.Default) { }
+
+        public SyncHashSet(IEqualityComparer<T> comparer) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) { }
 
         // allocation free enumerator
         public new HashSet<T>.Enumerator GetEnumerator() => ((HashSet<T>)objects).GetEnumerator();
     }
 
-    public abstract class SyncSortedSet<T> : SyncSet<T>
+    public class SyncSortedSet<T> : SyncSet<T>
     {
-        protected SyncSortedSet(IComparer<T> comparer = null) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
+        public SyncSortedSet() : this(Comparer<T>.Default) { }
+
+        public SyncSortedSet(IComparer<T> comparer = null) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
 
         // allocation free enumerator
         public new SortedSet<T>.Enumerator GetEnumerator() => ((SortedSet<T>)objects).GetEnumerator();

@@ -1325,7 +1325,7 @@ namespace Mirror.Tests
             Assert.That(comp.IsDirty(), Is.False);
 
             // create a synclist and dirty it
-            SyncListInt obj = new SyncListInt();
+            SyncList<int> obj = new SyncList<int>();
             obj.Add(42);
             Assert.That(obj.IsDirty, Is.True);
 
@@ -1350,13 +1350,13 @@ namespace Mirror.Tests
             Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b0));
 
             // add a dirty synclist
-            SyncListInt dirtyList = new SyncListInt();
+            SyncList<int> dirtyList = new SyncList<int>();
             dirtyList.Add(42);
             Assert.That(dirtyList.IsDirty, Is.True);
             comp.InitSyncObjectExposed(dirtyList);
 
             // add a clean synclist
-            SyncListInt cleanList = new SyncListInt();
+            SyncList<int> cleanList = new SyncList<int>();
             Assert.That(cleanList.IsDirty, Is.False);
             comp.InitSyncObjectExposed(cleanList);
 
@@ -1375,7 +1375,7 @@ namespace Mirror.Tests
             NetworkBehaviourInitSyncObjectExposed comp = gameObject.AddComponent<NetworkBehaviourInitSyncObjectExposed>();
 
             // add a synclist
-            SyncListInt list = new SyncListInt();
+            SyncList<int> list = new SyncList<int>();
             list.Add(42);
             list.Add(43);
             Assert.That(list.IsDirty, Is.True);
@@ -1404,7 +1404,7 @@ namespace Mirror.Tests
             NetworkBehaviourInitSyncObjectExposed comp = gameObject.AddComponent<NetworkBehaviourInitSyncObjectExposed>();
 
             // add a synclist
-            SyncListInt list = new SyncListInt();
+            SyncList<int> list = new SyncList<int>();
             list.Add(42);
             list.Add(43);
             Assert.That(list.IsDirty, Is.True);
@@ -1500,7 +1500,7 @@ namespace Mirror.Tests
         [Test]
         public void InitSyncObject()
         {
-            SyncObject syncObject = new SyncListBool();
+            SyncObject syncObject = new SyncList<bool>();
             InitSyncObject(syncObject);
             Assert.That(syncObjects.Count, Is.EqualTo(1));
             Assert.That(syncObjects[0], Is.EqualTo(syncObject));

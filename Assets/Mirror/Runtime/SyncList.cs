@@ -5,38 +5,33 @@ using System.ComponentModel;
 
 namespace Mirror
 {
+    [Obsolete("Use SyncList<string> instead")]
     public class SyncListString : SyncList<string>
     {
-        protected override void SerializeItem(NetworkWriter writer, string item) => writer.WriteString(item);
-        protected override string DeserializeItem(NetworkReader reader) => reader.ReadString();
     }
 
+    [Obsolete("Use SyncList<float> instead")]
     public class SyncListFloat : SyncList<float>
     {
-        protected override void SerializeItem(NetworkWriter writer, float item) => writer.WriteSingle(item);
-        protected override float DeserializeItem(NetworkReader reader) => reader.ReadSingle();
     }
 
+    [Obsolete("Use SyncList<int> instead")]
     public class SyncListInt : SyncList<int>
     {
-        protected override void SerializeItem(NetworkWriter writer, int item) => writer.WritePackedInt32(item);
-        protected override int DeserializeItem(NetworkReader reader) => reader.ReadPackedInt32();
     }
 
+    [Obsolete("Use SyncList<uint> instead")]
     public class SyncListUInt : SyncList<uint>
     {
-        protected override void SerializeItem(NetworkWriter writer, uint item) => writer.WritePackedUInt32(item);
-        protected override uint DeserializeItem(NetworkReader reader) => reader.ReadPackedUInt32();
     }
 
+    [Obsolete("Use SyncList<bool> instead")]
     public class SyncListBool : SyncList<bool>
     {
-        protected override void SerializeItem(NetworkWriter writer, bool item) => writer.WriteBoolean(item);
-        protected override bool DeserializeItem(NetworkReader reader) => reader.ReadBoolean();
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncList<T> : IList<T>, IReadOnlyList<T>, SyncObject
+    public class SyncList<T> : IList<T>, IReadOnlyList<T>, SyncObject
     {
         public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem);
 
@@ -70,16 +65,18 @@ namespace Mirror
         // so we need to skip them
         int changesAhead;
 
-        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
-        protected virtual T DeserializeItem(NetworkReader reader) => default;
+        protected virtual void SerializeItem(NetworkWriter writer, T item) => writer.Write<T>(item);
+        protected virtual T DeserializeItem(NetworkReader reader) => reader.Read<T>();
 
-        protected SyncList(IEqualityComparer<T> comparer = null)
+        public SyncList() : this(EqualityComparer<T>.Default) { }
+
+        public SyncList(IEqualityComparer<T> comparer )
         {
             this.comparer = comparer ?? EqualityComparer<T>.Default;
             objects = new List<T>();
         }
 
-        protected SyncList(IList<T> objects, IEqualityComparer<T> comparer = null)
+        public SyncList(IList<T> objects, IEqualityComparer<T> comparer = null)
         {
             this.comparer = comparer ?? EqualityComparer<T>.Default;
             this.objects = objects;

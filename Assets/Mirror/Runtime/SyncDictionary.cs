@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace Mirror
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject, IReadOnlyDictionary<TKey, TValue>
+    public class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject, IReadOnlyDictionary<TKey, TValue>
     {
         public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
 
@@ -46,10 +46,10 @@ namespace Mirror
             objects.Clear();
         }
 
-        protected virtual void SerializeKey(NetworkWriter writer, TKey item) { }
-        protected virtual void SerializeItem(NetworkWriter writer, TValue item) { }
-        protected virtual TKey DeserializeKey(NetworkReader reader) => default;
-        protected virtual TValue DeserializeItem(NetworkReader reader) => default;
+        protected virtual void SerializeKey(NetworkWriter writer, TKey key) => writer.Write(key);
+        protected virtual void SerializeItem(NetworkWriter writer, TValue item) => writer.Write(item);
+        protected virtual TKey DeserializeKey(NetworkReader reader) => reader.Read<TKey>();
+        protected virtual TValue DeserializeItem(NetworkReader reader) => reader.Read<TValue>();
 
         public bool IsDirty => changes.Count > 0;
 
@@ -65,7 +65,7 @@ namespace Mirror
         // this should be called after a successfull sync
         public void Flush() => changes.Clear();
 
-        protected SyncIDictionary(IDictionary<TKey, TValue> objects)
+        public SyncIDictionary(IDictionary<TKey, TValue> objects)
         {
             this.objects = objects;
         }
@@ -298,13 +298,13 @@ namespace Mirror
         IEnumerator IEnumerable.GetEnumerator() => objects.GetEnumerator();
     }
 
-    public abstract class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
+    public class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
     {
-        protected SyncDictionary() : base(new Dictionary<TKey, TValue>())
+        public SyncDictionary() : base(new Dictionary<TKey, TValue>())
         {
         }
 
-        protected SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq))
+        public SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq))
         {
         }
 
