@@ -1,3 +1,10 @@
+# [46.2.0](https://github.com/MirrorNG/MirrorNG/compare/v46.1.0...v46.2.0) (2020-10-02)
+
+
+### Features
+
+* Generate rw for synclist items ([518840c](https://github.com/MirrorNG/MirrorNG/commit/518840c1a49fd5f2343122822b3fb22d600859b0))
+
 # [46.1.0](https://github.com/MirrorNG/MirrorNG/compare/v46.0.2...v46.1.0) (2020-09-30)
 
 
