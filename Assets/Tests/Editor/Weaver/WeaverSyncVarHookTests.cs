@@ -23,12 +23,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void FindsHookWithGameObjects()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void FindsHookWithNetworkIdentity()
         {
             IsSuccess();

@@ -81,21 +81,8 @@ namespace Mirror.Weaver
 
             ILProcessor worker = get.Body.GetILProcessor();
 
-            // [SyncVar] GameObject?
-            if (fd.FieldType.Is<UnityEngine.GameObject>())
-            {
-                // return this.GetSyncVarGameObject(ref field, uint netId);
-                // this.
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldfld, netFieldId));
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldflda, fd));
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getSyncVarGameObjectReference));
-                worker.Append(worker.Create(OpCodes.Ret));
-            }
             // [SyncVar] NetworkIdentity?
-            else if (fd.FieldType.Is<NetworkIdentity>())
+            if (fd.FieldType.Is<NetworkIdentity>())
             {
                 // return this.GetSyncVarNetworkIdentity(ref field, uint netId);
                 // this.
@@ -142,15 +129,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             // reference to field to set
             // make generic version of SetSyncVar with field type
-            if (fd.FieldType.Is<UnityEngine.GameObject>())
-            {
-                // reference to netId Field to set
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldfld, netFieldId));
-
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.syncVarGameObjectEqualReference));
-            }
-            else if (fd.FieldType.Is<NetworkIdentity>())
+            if (fd.FieldType.Is<NetworkIdentity>())
             {
                 // reference to netId Field to set
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -192,15 +171,7 @@ namespace Mirror.Weaver
             // 8 byte integer aka long
             worker.Append(worker.Create(OpCodes.Ldc_I8, dirtyBit));
 
-            if (fd.FieldType.Is<UnityEngine.GameObject>())
-            {
-                // reference to netId Field to set
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldflda, netFieldId));
-
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.setSyncVarGameObjectReference));
-            }
-            else if (fd.FieldType.Is<NetworkIdentity>())
+            if (fd.FieldType.Is<NetworkIdentity>())
             {
                 // reference to netId Field to set
                 worker.Append(worker.Create(OpCodes.Ldarg_0));

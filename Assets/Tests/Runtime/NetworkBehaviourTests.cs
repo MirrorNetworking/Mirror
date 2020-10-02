@@ -7,11 +7,6 @@ namespace Mirror.Tests
 {
     public class SampleBehavior : NetworkBehaviour
     {
-        public bool SyncVarGameObjectEqualExposed(GameObject newGameObject, uint netIdField)
-        {
-            return SyncVarGameObjectEqual(newGameObject, netIdField);
-        }
-
         public bool SyncVarNetworkIdentityEqualExposed(NetworkIdentity ni, uint netIdField)
         {
             return SyncVarNetworkIdentityEqual(ni, netIdField);
@@ -157,131 +152,6 @@ namespace Mirror.Tests
             GameObject.Destroy(extraObject);
         }
 
-
-        // NOTE: SyncVarGameObjectEqual should be static later
-        [Test]
-        public void SyncVarGameObjectEqualZeroNetIdNullIsTrue()
-        {
-            // null and identity.netid==0 returns true (=equal)
-            //
-            // later we should reevaluate if this is so smart or not. might be
-            // better to return false here.
-            // => we possibly return false so that resync doesn't happen when
-            //    GO disappears? or not?
-            bool result = component.SyncVarGameObjectEqualExposed(null, 0);
-            Assert.That(result, Is.True);
-        }
-
-        // NOTE: SyncVarGameObjectEqual should be static later
-        [Test]
-        public void SyncVarGameObjectEqualNull()
-        {
-            // our identity should have a netid for comparing
-            identity.NetId = 42;
-
-            // null should return false
-            bool result = component.SyncVarGameObjectEqualExposed(null, identity.NetId);
-            Assert.That(result, Is.False);
-        }
-
-        // NOTE: SyncVarGameObjectEqual should be static later
-        [Test]
-        public void SyncVarGameObjectEqualZeroNetIdAndGOWithoutIdentityComponentIsTrue()
-        {
-            // null and identity.netid==0 returns true (=equal)
-            //
-            // later we should reevaluate if this is so smart or not. might be
-            // better to return false here.
-            // => we possibly return false so that resync doesn't happen when
-            //    GO disappears? or not?
-            var go = new GameObject();
-            bool result = component.SyncVarGameObjectEqualExposed(go, 0);
-            Assert.That(result, Is.True);
-        }
-
-        // NOTE: SyncVarGameObjectEqual should be static later
-        [Test]
-        public void SyncVarGameObjectEqualWithoutIdentityComponent()
-        {
-            // our identity should have a netid for comparing
-            identity.NetId = 42;
-
-            // gameobject without networkidentity component should return false
-            var go = new GameObject();
-            bool result = component.SyncVarGameObjectEqualExposed(go, identity.NetId);
-            Assert.That(result, Is.False);
-
-            // clean up
-            GameObject.Destroy(go);
-        }
-
-        // NOTE: SyncVarGameObjectEqual should be static later
-        [Test]
-        public void SyncVarGameObjectEqualValidGOWithDifferentNetId()
-        {
-            // our identity should have a netid for comparing
-            identity.NetId = 42;
-
-            // gameobject with valid networkidentity and netid that is different
-            var go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            ni.NetId = 43;
-            bool result = component.SyncVarGameObjectEqualExposed(go, identity.NetId);
-            Assert.That(result, Is.False);
-
-            // clean up
-            GameObject.Destroy(go);
-        }
-
-        // NOTE: SyncVarGameObjectEqual should be static later
-        [Test]
-        public void SyncVarGameObjectEqualValidGOWithSameNetId()
-        {
-            // our identity should have a netid for comparing
-            identity.NetId = 42;
-
-            // gameobject with valid networkidentity and netid that is different
-            var go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            ni.NetId = 42;
-            bool result = component.SyncVarGameObjectEqualExposed(go, identity.NetId);
-            Assert.That(result, Is.True);
-
-            // clean up
-            GameObject.Destroy(go);
-        }
-
-        // NOTE: SyncVarGameObjectEqual should be static later
-        [Test]
-        public void SyncVarGameObjectEqualUnspawnedGO()
-        {
-            // our identity should have a netid for comparing
-            identity.NetId = 42;
-
-            // gameobject with valid networkidentity and 0 netid that is unspawned
-            var go = new GameObject();
-            go.AddComponent<NetworkIdentity>();
-            bool result = component.SyncVarGameObjectEqualExposed(go, identity.NetId);
-            Assert.That(result, Is.False);
-
-            // clean up
-            GameObject.Destroy(go);
-        }
-
-        // NOTE: SyncVarGameObjectEqual should be static later
-        [Test]
-        public void SyncVarGameObjectEqualUnspawnedGOZeroNetIdIsTrue()
-        {
-            // unspawned go and identity.netid==0 returns true (=equal)
-            var go = new GameObject();
-            go.AddComponent<NetworkIdentity>();
-            bool result = component.SyncVarGameObjectEqualExposed(go, 0);
-            Assert.That(result, Is.True);
-
-            // clean up
-            GameObject.Destroy(go);
-        }
-
         // NOTE: SyncVarNetworkIdentityEqual should be static later
         [Test]
         public void SyncVarNetworkIdentityEqualZeroNetIdNullIsTrue()
@@ -292,7 +162,7 @@ namespace Mirror.Tests
             // better to return false here.
             // => we possibly return false so that resync doesn't happen when
             //    GO disappears? or not?
-            bool result = component.SyncVarGameObjectEqualExposed(null, 0);
+            bool result = component.SyncVarNetworkIdentityEqualExposed(null, 0);
             Assert.That(result, Is.True);
         }
 
@@ -304,7 +174,7 @@ namespace Mirror.Tests
             identity.NetId = 42;
 
             // null should return false
-            bool result = component.SyncVarGameObjectEqualExposed(null, identity.NetId);
+            bool result = component.SyncVarNetworkIdentityEqualExposed(null, identity.NetId);
             Assert.That(result, Is.False);
         }
 
