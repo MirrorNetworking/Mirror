@@ -56,10 +56,12 @@ namespace Mirror.Weaver
 
             if (md.Body != null && md.Body.Instructions != null)
             {
-                for (int iCount = 0; iCount < md.Body.Instructions.Count;)
+                Instruction instr = md.Body.Instructions[0];
+
+                while (instr != null)
                 {
-                    Instruction instr = md.Body.Instructions[iCount];
-                    iCount += ProcessInstruction(md, instr, iCount);
+                    instr = ProcessInstruction(md, instr);
+                    instr = instr.Next;
                 }
             }
         }
@@ -96,7 +98,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static int ProcessInstruction(MethodDefinition md, Instruction instr, int iCount)
+        static Instruction ProcessInstruction(MethodDefinition md, Instruction instr)
         {
             if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
             {
@@ -114,24 +116,24 @@ namespace Mirror.Weaver
             {
                 // loading a field by reference,  watch out for initobj instruction
                 // see https://github.com/vis2k/Mirror/issues/696
-                return ProcessInstructionLoadAddress(md, instr, opFieldlda, iCount);
+                return ProcessInstructionLoadAddress(md, instr, opFieldlda);
             }
 
-            return 1;
+            return instr;
         }
 
-        static int ProcessInstructionLoadAddress(MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
+        static Instruction ProcessInstructionLoadAddress(MethodDefinition md, Instruction instr, FieldDefinition opField)
         {
             // dont replace property call sites in constructors
             if (md.Name == ".ctor")
-                return 1;
+                return instr;
 
             // does it set a field that we replaced?
             if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 // we have a replacement for this property
                 // is the next instruction a initobj?
-                Instruction nextInstr = md.Body.Instructions[iCount + 1];
+                Instruction nextInstr = instr.Next;
 
                 if (nextInstr.OpCode == OpCodes.Initobj)
                 {
@@ -145,15 +147,17 @@ namespace Mirror.Weaver
                     worker.InsertBefore(instr, worker.Create(OpCodes.Ldloca, tmpVariable));
                     worker.InsertBefore(instr, worker.Create(OpCodes.Initobj, opField.FieldType));
                     worker.InsertBefore(instr, worker.Create(OpCodes.Ldloc, tmpVariable));
-                    worker.InsertBefore(instr, worker.Create(OpCodes.Call, replacement));
+                    Instruction newInstr = worker.Create(OpCodes.Call, replacement);
+                    worker.InsertBefore(instr, newInstr);
 
                     worker.Remove(instr);
                     worker.Remove(nextInstr);
-                    return 4;
+
+                    return newInstr;
                 }
             }
 
-            return 1;
+            return instr;
         }
     }
 }
