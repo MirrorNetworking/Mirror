@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace Mirror
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncSet<T> : ISet<T>, ISyncObject
+    public class SyncSet<T> : ISet<T>, ISyncObject
     {
         protected readonly ISet<T> objects;
 
@@ -59,7 +59,7 @@ namespace Mirror
         // so we need to skip them
         int changesAhead;
 
-        protected SyncSet(ISet<T> objects)
+        public SyncSet(ISet<T> objects)
         {
             this.objects = objects;
         }
@@ -370,7 +370,9 @@ namespace Mirror
 
     public class SyncHashSet<T> : SyncSet<T>
     {
-        protected SyncHashSet(IEqualityComparer<T> comparer = null) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) { }
+        public SyncHashSet() : this(EqualityComparer<T>.Default) { }
+
+        public SyncHashSet(IEqualityComparer<T> comparer) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) { }
 
         // allocation free enumerator
         public new HashSet<T>.Enumerator GetEnumerator() => ((HashSet<T>)objects).GetEnumerator();
@@ -378,7 +380,9 @@ namespace Mirror
 
     public class SyncSortedSet<T> : SyncSet<T>
     {
-        protected SyncSortedSet(IComparer<T> comparer = null) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
+        public SyncSortedSet() : this(Comparer<T>.Default) { }
+
+        public SyncSortedSet(IComparer<T> comparer) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
 
         // allocation free enumerator
         public new SortedSet<T>.Enumerator GetEnumerator() => ((SortedSet<T>)objects).GetEnumerator();

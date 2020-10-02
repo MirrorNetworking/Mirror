@@ -8,8 +8,8 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncListTest
     {
-        SyncList<String> serverSyncList;
-        SyncList<String> clientSyncList;
+        SyncList<string> serverSyncList;
+        SyncList<string> clientSyncList;
 
         public static void SerializeAllTo<T>(T fromList, T toList) where T : ISyncObject
         {
@@ -40,8 +40,8 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUp()
         {
-            serverSyncList = new SyncList<String>();
-            clientSyncList = new SyncList<String>();
+            serverSyncList = new SyncList<string>();
+            clientSyncList = new SyncList<string>();
 
             // add some data to the list
             serverSyncList.Add("Hello");
@@ -224,7 +224,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SyncListUintTest()
+        public void SyncListUIntTest()
         {
             var serverList = new SyncList<uint>();
             var clientList = new SyncList<uint>();
@@ -412,8 +412,8 @@ namespace Mirror.Tests
             clientSyncList.Reset();
 
             // make old client the host
-            SyncList<String> hostList = clientSyncList;
-            var clientList2 = new SyncList<String>();
+            SyncList<string> hostList = clientSyncList;
+            var clientList2 = new SyncList<string>();
 
             Assert.That(hostList.IsReadOnly, Is.False);
 

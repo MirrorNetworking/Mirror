@@ -41,7 +41,7 @@ See [AWS setup](https://mirror-networking.com/docs/Articles/Guides/DevServer/gcl
 
 ### Google Compute Engine
 
-See [Google cloud setup](https://mirror-networking.com/docs/Articles/Guides/DevServer/gcloud/index.html)
+See this guides: [Google cloud setup](https://mirror-networking.com/docs/Articles/Guides/DevServer/gcloud/index.html)
 
 
 ### Microsoft Azure

@@ -3,14 +3,18 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
+    class TestObjectBehaviour : NetworkBehaviour
+    {
+        // note synclists must be a property of a NetworkBehavior so that
+        // the weaver generates the reader and writer for the object
+        public SyncList<TestObject> myList = new SyncList<TestObject>();
+    }
+
     public class SyncListClassTest
     {
         [Test]
         public void RemoveShouldRemoveItem()
         {
-            // this lets the weaver know to generate a reader and writer for TestObject
-            _ = Writer<TestObject>.write;
-
             SyncList<TestObject> serverList = new SyncList<TestObject>();
             SyncList<TestObject> clientList = new SyncList<TestObject>();
 

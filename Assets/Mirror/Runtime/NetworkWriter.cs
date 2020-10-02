@@ -170,8 +170,8 @@ namespace Mirror
         /// Writes any type that mirror supports
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="msg"></param>
-        public void Write<T>(T msg)
+        /// <param name="value"></param>
+        public void Write<T>(T value)
         {
             if (Writer<T>.write == null)
                 Debug.AssertFormat(
@@ -179,7 +179,7 @@ namespace Mirror
                     @"No writer found for {0}. See https://mirrorng.github.io/MirrorNG/Articles/General/Troubleshooting.html for details",
                     typeof(T));
 
-            Writer<T>.write(this, msg);
+            Writer<T>.write(this, value);
         }
     }
 
