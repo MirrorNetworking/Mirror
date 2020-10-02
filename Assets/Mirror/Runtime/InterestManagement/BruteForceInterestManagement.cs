@@ -1,4 +1,6 @@
 ﻿// straight forward brute force interest management from DOTSNET
+
+using System.Collections.Generic;
 using UnityEngine;
 namespace Mirror
 {
@@ -49,10 +51,37 @@ namespace Mirror
             }
         }
 
+        // remove old observers and send unspawn messages
+        void RemoveOldObservers()
+        {
+            // foreach spawned
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            {
+                // foreach observer
+                // TODO rename observars after removing the old code
+                for (int i = 0; i < identity.observars.Count; ++i)
+                {
+                    //Debug.Log($"{identity.name} had {identity.observars.Count} observers and rebuild has {identity.rebuild.Count}");
+
+                    // not in rebuild? then we need to remove and unspawn
+                    NetworkConnectionToClient conn = identity.observars[i];
+                    if (!identity.rebuild.Contains(conn))
+                    {
+                        // TODO send unspawn message
+                        Debug.LogWarning($"TODO Unspawn {identity.name} for connectionId {conn.connectionId}");
+
+                        // remove it from observers
+                        identity.observars.RemoveAt(i);
+                        --i;
+                    }
+                }
+            }
+        }
+
         public override void RebuildAll()
         {
             RebuildObservers();
-            //RemoveOldObservers();
+            RemoveOldObservers();
             //AddNewObservers();
         }
 

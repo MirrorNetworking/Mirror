@@ -167,8 +167,9 @@ namespace Mirror
         /// </summary>
         public Dictionary<int, NetworkConnection> observers;
 
-        // interest management helpers
+        // interest management
         internal HashSet<NetworkConnectionToClient> rebuild = new HashSet<NetworkConnectionToClient>();
+        internal List<NetworkConnectionToClient> observars = new List<NetworkConnectionToClient>(); // TODO rename
 
         /// <summary>
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
