@@ -49,11 +49,6 @@ namespace Mirror
             objects.Clear();
         }
 
-        [Obsolete("Serialize item is ignored,  use custom serializers instead")]
-        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
-        [Obsolete("Serialize item is ignored,  use custom serializers instead")]
-        protected virtual T DeserializeItem(NetworkReader reader) => default;
-
         public bool IsDirty => changes.Count > 0;
 
         // throw away all the changes

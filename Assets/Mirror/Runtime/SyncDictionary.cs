@@ -47,15 +47,6 @@ namespace Mirror
             objects.Clear();
         }
 
-        [Obsolete("Use custom writer instead")]
-        protected virtual void SerializeKey(NetworkWriter writer, TKey item) { }
-        [Obsolete("Use custom writer instead")]
-        protected virtual void SerializeItem(NetworkWriter writer, TValue item) { }
-        [Obsolete("Use custom reader instead")]
-        protected virtual TKey DeserializeKey(NetworkReader reader) => default;
-        [Obsolete("Use custom reader instead")]
-        protected virtual TValue DeserializeItem(NetworkReader reader) => default;
-
         public bool IsDirty => changes.Count > 0;
 
         public ICollection<TKey> Keys => objects.Keys;

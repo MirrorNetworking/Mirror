@@ -65,11 +65,6 @@ namespace Mirror
         // so we need to skip them
         int changesAhead;
 
-        [Obsolete("Use custom writer instead")]
-        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
-        [Obsolete("Use custom reader instead")]
-        protected virtual T DeserializeItem(NetworkReader reader) => default;
-
         public SyncList() : this(EqualityComparer<T>.Default)
         {
         }
