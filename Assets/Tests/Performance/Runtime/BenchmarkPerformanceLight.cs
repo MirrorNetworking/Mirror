@@ -35,7 +35,11 @@ namespace Mirror.Tests.Performance.Runtime
                 Assert.Fail("Could not find Benchmarker");
                 yield break;
             }
-            _ = benchmarker.StartHost();
+
+            System.Threading.Tasks.Task task = benchmarker.StartHost();
+
+            while (!task.IsCompleted)
+                yield return null;
 
         }
 

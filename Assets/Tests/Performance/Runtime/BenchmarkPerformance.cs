@@ -63,9 +63,14 @@ namespace Mirror.Tests.Performance.Runtime
                 yield break;
             }
 
-
             benchmarker.BeforeLateUpdate = BeforeLateUpdate;
             benchmarker.AfterLateUpdate = AfterLateUpdate;
+
+            System.Threading.Tasks.Task task = benchmarker.StartHost();
+
+            while (!task.IsCompleted)
+                yield return null;
+
         }
 
         IEnumerator RunBenchmark()
