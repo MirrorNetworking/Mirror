@@ -49,7 +49,7 @@ namespace Mirror.Weaver
             // Generate readers and writers
             // find all the Send<> and Register<> calls and generate
             // readers and writers for them.
-            CodePass.InstructionPass(assembly.MainModule, (md, instr) => GenerateReadersWriters(CurrentAssembly.MainModule, instr));
+            CodePass.ForEachInstruction(assembly.MainModule, (md, instr) => GenerateReadersWriters(CurrentAssembly.MainModule, instr));
         }
 
         private static Instruction GenerateReadersWriters(ModuleDefinition module, Instruction instruction)

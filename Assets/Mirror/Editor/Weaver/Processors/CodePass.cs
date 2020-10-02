@@ -23,7 +23,7 @@ public static class CodePass
     /// <param name="module">The module to be passed over</param>
     /// <param name="selector">A predicate that indicates if we should pass over a method or not</param>
     /// <param name="processor">The function that processes each instruction</param>
-    public static void InstructionPass(ModuleDefinition module, Predicate<MethodDefinition> selector, InstructionProcessor processor)
+    public static void ForEachInstruction(ModuleDefinition module, Predicate<MethodDefinition> selector, InstructionProcessor processor)
     {
         foreach (TypeDefinition td in module.Types)
         {
@@ -34,8 +34,8 @@ public static class CodePass
         }
     }
 
-    public static void InstructionPass(ModuleDefinition module, InstructionProcessor processor) =>
-        InstructionPass(module, md => true, processor);
+    public static void ForEachInstruction(ModuleDefinition module, InstructionProcessor processor) =>
+        ForEachInstruction(module, md => true, processor);
 
     private static void InstructionPass(TypeDefinition td, Predicate<MethodDefinition> selector, InstructionProcessor processor)
     {

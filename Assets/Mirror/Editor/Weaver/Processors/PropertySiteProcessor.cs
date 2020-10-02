@@ -17,7 +17,7 @@ namespace Mirror.Weaver
                 !md.IsConstructor;
 
             // replace all field access with property access for syncvars
-            CodePass.InstructionPass(moduleDef, weavedMethods, ProcessInstruction);
+            CodePass.ForEachInstruction(moduleDef, weavedMethods, ProcessInstruction);
 
             if (Weaver.WeaveLists.generateContainerClass != null)
             {
