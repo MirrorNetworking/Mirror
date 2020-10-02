@@ -42,18 +42,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void SyncDictionaryStructKeyWithCustomMethods()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncDictionaryStructItemWithCustomMethods()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void SyncDictionaryErrorForGenericStructKey()
         {
             HasError("Cannot generate reader for generic variable MyGenericStruct`1. Use a supported type or provide a custom reader",

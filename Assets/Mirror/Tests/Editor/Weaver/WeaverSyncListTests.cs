@@ -68,7 +68,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListNestedInAbstractClassWithInvalid()
         {
-            // we need this negative test to make sure that SyncList is being processed 
+            // we need this negative test to make sure that SyncList is being processed
             HasError("Cannot generate reader for Object. Use a supported type or provide a custom reader",
                 "UnityEngine.Object");
             HasError("target has an unsupported type",
@@ -86,7 +86,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListNestedInStructWithInvalid()
         {
-            // we need this negative test to make sure that SyncList is being processed 
+            // we need this negative test to make sure that SyncList is being processed
             HasError("Cannot generate reader for Object. Use a supported type or provide a custom reader",
                 "UnityEngine.Object");
             HasError("target has an unsupported type",
@@ -98,18 +98,6 @@ namespace Mirror.Weaver.Tests
 
         [Test]
         public void SyncListStruct()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListStructWithCustomMethods()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListStructWithCustomSerializeOnly()
         {
             IsSuccess();
         }
@@ -135,7 +123,7 @@ namespace Mirror.Weaver.Tests
             HasError("Cannot generate reader for interface MyInterface. Use a supported type or provide a custom reader",
                 "WeaverSyncListTests.SyncListErrorForInterface.MyInterface");
             HasError("Cannot generate writer for interface MyInterface. Use a supported type or provide a custom writer",
-                "WeaverSyncListTests.SyncListErrorForInterface.MyInterface"); 
+                "WeaverSyncListTests.SyncListErrorForInterface.MyInterface");
         }
 
         [Test]
