@@ -7,7 +7,7 @@ namespace WeaverSyncListTests.SyncListInheritance
         readonly SuperSyncListString superSyncListString = new SuperSyncListString();
 
 
-        public class SuperSyncListString : SyncListString
+        public class SuperSyncListString : SyncList<string>
         {
 
         }
