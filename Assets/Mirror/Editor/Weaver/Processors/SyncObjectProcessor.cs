@@ -25,11 +25,38 @@ namespace Mirror.Weaver
                         continue;
                     }
 
+                    GenerateReadersAndWriters(fd.FieldType);
+
                     syncObjects.Add(fd);
                 }
             }
 
             return syncObjects;
+        }
+
+        /// <summary>
+        /// Generates serialization methods for synclists
+        /// </summary>
+        /// <param name="td">The synclist class</param>
+        /// <param name="mirrorBaseType">the base SyncObject td inherits from</param>
+        static void GenerateReadersAndWriters(TypeReference tr)
+        {
+            if (tr is GenericInstanceType genericInstance)
+            {
+                foreach (TypeReference argument in genericInstance.GenericArguments)
+                {
+                    if (!argument.IsGenericParameter)
+                    {
+                        Readers.GetReadFunc(argument);
+                        Writers.GetWriteFunc(argument);
+                    }
+                }
+            }
+
+            if (tr != null)
+            {
+                GenerateReadersAndWriters(tr.Resolve().BaseType);
+            }
         }
     }
 }

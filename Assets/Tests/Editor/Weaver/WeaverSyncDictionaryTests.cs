@@ -44,13 +44,20 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncDictionaryErrorForGenericStructKey()
         {
-            IsSuccess();
+            HasError("Cannot generate reader for generic variable MyGenericStruct`1. Use a supported type or provide a custom reader",
+                "WeaverSyncDictionaryTests.SyncDictionaryErrorForGenericStructKey.SyncDictionaryErrorForGenericStructKey/MyGenericStruct`1<System.Single>");
+            HasError("Cannot generate writer for generic type MyGenericStruct`1. Use a supported type or provide a custom writer",
+                "WeaverSyncDictionaryTests.SyncDictionaryErrorForGenericStructKey.SyncDictionaryErrorForGenericStructKey/MyGenericStruct`1<System.Single>");
+
         }
 
         [Test]
         public void SyncDictionaryErrorForGenericStructItem()
         {
-            IsSuccess();
+            HasError("Cannot generate reader for generic variable MyGenericStruct`1. Use a supported type or provide a custom reader",
+                "WeaverSyncDictionaryTests.SyncDictionaryErrorForGenericStructItem.SyncDictionaryErrorForGenericStructItem/MyGenericStruct`1<System.Single>");
+            HasError("Cannot generate writer for generic type MyGenericStruct`1. Use a supported type or provide a custom writer",
+                "WeaverSyncDictionaryTests.SyncDictionaryErrorForGenericStructItem.SyncDictionaryErrorForGenericStructItem/MyGenericStruct`1<System.Single>");
         }
 
         [Test]

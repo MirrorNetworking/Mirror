@@ -55,7 +55,12 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListNestedInAbstractClassWithInvalid()
         {
-            IsSuccess();
+            HasError("Cannot generate reader for Object. Use a supported type or provide a custom reader",
+                "UnityEngine.Object");
+            HasError("target has an unsupported type",
+                "UnityEngine.Object WeaverSyncListTests.SyncListNestedInAbstractClassWithInvalid.SyncListNestedStructWithInvalid/SomeAbstractClass/MyNestedStruct::target");
+            HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
+                "UnityEngine.Object");
         }
 
         [Test]
@@ -67,7 +72,12 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListNestedInStructWithInvalid()
         {
-            IsSuccess();
+            HasError("Cannot generate reader for Object. Use a supported type or provide a custom reader",
+                "UnityEngine.Object");
+            HasError("target has an unsupported type",
+                "UnityEngine.Object WeaverSyncListTests.SyncListNestedInStructWithInvalid.SyncListNestedInStructWithInvalid/SomeData::target");
+            HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
+                "UnityEngine.Object");
         }
 
         [Test]
@@ -79,13 +89,19 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListErrorForGenericStruct()
         {
-            IsSuccess();
+            HasError("Cannot generate reader for generic variable MyGenericStruct`1. Use a supported type or provide a custom reader",
+                "WeaverSyncListTests.SyncListErrorForGenericStruct.SyncListErrorForGenericStruct/MyGenericStruct`1<System.Single>");
+            HasError("Cannot generate writer for generic type MyGenericStruct`1. Use a supported type or provide a custom writer",
+                "WeaverSyncListTests.SyncListErrorForGenericStruct.SyncListErrorForGenericStruct/MyGenericStruct`1<System.Single>");
         }
 
         [Test]
         public void SyncListErrorForInterface()
         {
-            IsSuccess();
+            HasError("Cannot generate reader for interface MyInterface. Use a supported type or provide a custom reader",
+                "WeaverSyncListTests.SyncListErrorForInterface.MyInterface");
+            HasError("Cannot generate writer for interface MyInterface. Use a supported type or provide a custom writer",
+                "WeaverSyncListTests.SyncListErrorForInterface.MyInterface");
         }
 
         [Test]
