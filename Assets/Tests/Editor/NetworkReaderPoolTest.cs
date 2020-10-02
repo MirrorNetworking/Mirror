@@ -1,23 +1,30 @@
 using System;
 using System.Linq;
+using NSubstitute;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
     public class NetworkReaderPoolTest
     {
         int defaultCapacity;
+        ILogHandler defaultLogHandler;
 
         [SetUp]
         public void SetUp()
         {
             defaultCapacity = NetworkReaderPool.Capacity;
+            defaultLogHandler = Debug.unityLogger.logHandler;
+            Debug.unityLogger.logHandler = Substitute.For<ILogHandler>();
         }
 
         [TearDown]
         public void TearDown()
         {
             NetworkReaderPool.Capacity = defaultCapacity;
+            Debug.unityLogger.logHandler = defaultLogHandler;
         }
 
         [Test]
@@ -75,6 +82,8 @@ namespace Mirror.Tests
             bool dReused = d == a || d == b;
             Assert.That((cReused && !dReused) ||
                         (!cReused && dReused));
+
+            Debug.unityLogger.logHandler.Received().LogFormat(LogType.Warning, null, "{0}", "NetworkReaderPool.Recycle, Pool was full leaving extra reader for GC");
         }
 
         // if we shrink the capacity, the internal 'next' needs to be adjusted
