@@ -10,14 +10,14 @@ namespace Mirror.Weaver
         {
             DateTime startTime = DateTime.Now;
 
-            //Search through the types
-            foreach (TypeDefinition td in moduleDef.Types)
-            {
-                if (td.IsClass)
-                {
-                    ProcessSiteClass(td);
-                }
-            }
+            bool weavedMethods(MethodDefinition md) =>
+                md.Name != ".cctor" &&
+                md.Name != NetworkBehaviourProcessor.ProcessedFunctionName &&
+                !md.Name.StartsWith(Weaver.InvokeRpcPrefix) &&
+                !md.IsConstructor;
+
+            // replace all field access with property access for syncvars
+            CodePass.InstructionPass(moduleDef, weavedMethods, ProcessInstruction);
 
             if (Weaver.WeaveLists.generateContainerClass != null)
             {
@@ -27,52 +27,9 @@ namespace Mirror.Weaver
             Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
         }
 
-        static void ProcessSiteClass(TypeDefinition td)
-        {
-            foreach (MethodDefinition md in td.Methods)
-            {
-                ProcessSiteMethod(md);
-            }
-
-            foreach (TypeDefinition nested in td.NestedTypes)
-            {
-                ProcessSiteClass(nested);
-            }
-        }
-
-        static void ProcessSiteMethod(MethodDefinition md)
-        {
-            // process all references to replaced members with properties
-
-            if (md.Name == ".cctor" ||
-                md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
-                md.Name.StartsWith(Weaver.InvokeRpcPrefix))
-                return;
-
-            if (md.IsAbstract)
-            {
-                return;
-            }
-
-            if (md.Body != null && md.Body.Instructions != null)
-            {
-                Instruction instr = md.Body.Instructions[0];
-
-                while (instr != null)
-                {
-                    instr = ProcessInstruction(md, instr);
-                    instr = instr.Next;
-                }
-            }
-        }
-
         // replaces syncvar write access with the NetworkXYZ.get property calls
-        static void ProcessInstructionSetterField(MethodDefinition md, Instruction i, FieldDefinition opField)
+        static void ProcessInstructionSetterField(Instruction i, FieldDefinition opField)
         {
-            // dont replace property call sites in constructors
-            if (md.Name == ".ctor")
-                return;
-
             // does it set a field that we replaced?
             if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
@@ -83,12 +40,8 @@ namespace Mirror.Weaver
         }
 
         // replaces syncvar read access with the NetworkXYZ.get property calls
-        static void ProcessInstructionGetterField(MethodDefinition md, Instruction i, FieldDefinition opField)
+        static void ProcessInstructionGetterField(Instruction i, FieldDefinition opField)
         {
-            // dont replace property call sites in constructors
-            if (md.Name == ".ctor")
-                return;
-
             // does it set a field that we replaced?
             if (Weaver.WeaveLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
@@ -103,13 +56,13 @@ namespace Mirror.Weaver
             if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
             {
                 // this instruction sets the value of a field. cache the field reference.
-                ProcessInstructionSetterField(md, instr, opFieldst);
+                ProcessInstructionSetterField(instr, opFieldst);
             }
 
             if (instr.OpCode == OpCodes.Ldfld && instr.Operand is FieldDefinition opFieldld)
             {
                 // this instruction gets the value of a field. cache the field reference.
-                ProcessInstructionGetterField(md, instr, opFieldld);
+                ProcessInstructionGetterField(instr, opFieldld);
             }
 
             if (instr.OpCode == OpCodes.Ldflda && instr.Operand is FieldDefinition opFieldlda)
@@ -124,10 +77,6 @@ namespace Mirror.Weaver
 
         static Instruction ProcessInstructionLoadAddress(MethodDefinition md, Instruction instr, FieldDefinition opField)
         {
-            // dont replace property call sites in constructors
-            if (md.Name == ".ctor")
-                return instr;
-
             // does it set a field that we replaced?
             if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
