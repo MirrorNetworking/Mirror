@@ -167,6 +167,9 @@ namespace Mirror
         /// </summary>
         public Dictionary<int, NetworkConnection> observers;
 
+        // interest management helpers
+        internal HashSet<NetworkConnectionToClient> rebuild = new HashSet<NetworkConnectionToClient>();
+
         /// <summary>
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
         /// <para>This is a unique identifier for this particular GameObject instance. Use it to track GameObjects between networked clients and the server.</para>
