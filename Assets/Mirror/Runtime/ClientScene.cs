@@ -715,6 +715,7 @@ namespace Mirror
                 {
                     if (identity != null && identity.gameObject != null)
                     {
+                        identity.OnStopClient();
                         bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
                         if (!wasUnspawned)
                         {
