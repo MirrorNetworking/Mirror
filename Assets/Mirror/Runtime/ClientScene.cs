@@ -327,6 +327,7 @@ namespace Mirror
                 {
                     if (identity != null && identity.gameObject != null)
                     {
+                        identity.OnStopClient();
                         if (identity.sceneId == 0)
                         {
                             Object.Destroy(identity.gameObject);
