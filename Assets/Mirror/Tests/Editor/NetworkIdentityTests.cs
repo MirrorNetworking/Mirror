@@ -867,7 +867,7 @@ namespace Mirror.Tests
             uint netId = identity.netId;
             identity.connectionToClient = new NetworkConnectionToClient(1);
             identity.connectionToServer = new NetworkConnectionToServer();
-            identity.observars.Add(new NetworkConnectionToClient(2));
+            identity.observers.Add(new NetworkConnectionToClient(2));
 
             // mark for reset and reset
             identity.Reset();

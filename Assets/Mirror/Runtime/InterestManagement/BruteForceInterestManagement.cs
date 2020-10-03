@@ -57,12 +57,12 @@ namespace Mirror
             {
                 // foreach observer
                 // TODO rename observars after removing the old code
-                for (int i = 0; i < identity.observars.Count; ++i)
+                for (int i = 0; i < identity.observers.Count; ++i)
                 {
                     //Debug.Log($"{identity.name} had {identity.observars.Count} observers and rebuild has {identity.rebuild.Count}");
 
                     // not in rebuild? then we need to remove and unspawn
-                    NetworkConnectionToClient conn = identity.observars[i];
+                    NetworkConnectionToClient conn = identity.observers[i];
                     if (!identity.rebuild.Contains(conn))
                     {
                         // unspawn identity for this connection
@@ -70,7 +70,7 @@ namespace Mirror
                         NetworkServer.HideForConnection(identity, conn);
 
                         // remove it from observers
-                        identity.observars.RemoveAt(i);
+                        identity.observers.RemoveAt(i);
                         --i;
                     }
                 }
@@ -88,14 +88,14 @@ namespace Mirror
                 {
                     // was it not in old observers?
                     // TODO use set to avoid O(n) contains
-                    if (!identity.observars.Contains(conn))
+                    if (!identity.observers.Contains(conn))
                     {
                         // spawn identity for this connection
                         Debug.LogWarning($"Spawning {identity.name} for connectionId {conn.connectionId}");
                         NetworkServer.ShowForConnection(identity, conn);
 
                         // add it to observers
-                        identity.observars.Add(conn);
+                        identity.observers.Add(conn);
                     }
                 }
             }

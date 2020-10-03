@@ -171,7 +171,7 @@ namespace Mirror
 
         float DrawObservers(NetworkIdentity identity, float initialX, float Y)
         {
-            if (identity.observars.Count > 0)
+            if (identity.observers.Count > 0)
             {
                 Rect observerRect = new Rect(initialX, Y + 10, 200, 20);
 
@@ -180,7 +180,7 @@ namespace Mirror
                 observerRect.x += 20;
                 observerRect.y += observerRect.height;
 
-                foreach (NetworkConnectionToClient conn in identity.observars)
+                foreach (NetworkConnectionToClient conn in identity.observers)
                 {
                     GUI.Label(observerRect, conn.address + ":" + conn, styles.componentName);
                     observerRect.y += observerRect.height;

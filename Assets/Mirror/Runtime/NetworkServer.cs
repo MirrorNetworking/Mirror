@@ -184,7 +184,7 @@ namespace Mirror
         {
             // Debug.Log("Server.SendToObservers id:" + typeof(T));
 
-            if (identity == null || identity.observars.Count == 0)
+            if (identity == null || identity.observers.Count == 0)
                 return;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -194,7 +194,7 @@ namespace Mirror
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 // send
-                foreach (NetworkConnectionToClient conn in identity.observars)
+                foreach (NetworkConnectionToClient conn in identity.observers)
                 {
                     conn.Send(segment, channelId);
                 }
@@ -275,7 +275,7 @@ namespace Mirror
         {
             // Debug.Log("Server.SendToReady msgType:" + typeof(T));
 
-            if (identity == null || identity.observars.Count == 0)
+            if (identity == null || identity.observers.Count == 0)
                 return false;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -286,7 +286,7 @@ namespace Mirror
 
                 // send
                 bool result = true;
-                foreach (NetworkConnectionToClient conn in identity.observars)
+                foreach (NetworkConnectionToClient conn in identity.observers)
                 {
                     bool isOwner = conn == identity.connectionToClient;
                     if ((!isOwner || includeOwner) && conn.isReady)

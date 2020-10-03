@@ -163,7 +163,7 @@ namespace Mirror
 
         // interest management
         internal HashSet<NetworkConnectionToClient> rebuild = new HashSet<NetworkConnectionToClient>();
-        internal List<NetworkConnectionToClient> observars = new List<NetworkConnectionToClient>(); // TODO rename
+        internal List<NetworkConnectionToClient> observers = new List<NetworkConnectionToClient>();
 
         /// <summary>
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
@@ -1114,7 +1114,7 @@ namespace Mirror
             connectionToClient = null;
             networkBehavioursCache = null;
 
-            observars.Clear();
+            observers.Clear();
 
             if (isLocalPlayer)
             {
@@ -1127,7 +1127,7 @@ namespace Mirror
         /// </summary>
         internal void ServerUpdate()
         {
-            if (observars.Count > 0)
+            if (observers.Count > 0)
             {
                 ulong dirtyComponentsMask = GetDirtyComponentsMask();
 
