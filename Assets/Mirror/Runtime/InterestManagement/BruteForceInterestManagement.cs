@@ -56,7 +56,6 @@ namespace Mirror
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
                 // foreach observer
-                // TODO rename observars after removing the old code
                 for (int i = 0; i < identity.observers.Count; ++i)
                 {
                     //Debug.Log($"{identity.name} had {identity.observars.Count} observers and rebuild has {identity.rebuild.Count}");
