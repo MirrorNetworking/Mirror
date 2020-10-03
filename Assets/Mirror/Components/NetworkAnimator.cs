@@ -32,6 +32,14 @@ namespace Mirror
         [Tooltip("Animator that will have parameters synchronized")]
         public Animator animator;
 
+
+        /// <summary>
+        /// Syncs animator.speed
+        /// </summary>
+        [SyncVar(hook = nameof(onAnimatorSpeedChanged))]
+        float animatorSpeed;
+        float previousSpeed;
+
         // Note: not an object[] array because otherwise initialization is real annoying
         int[] lastIntParameters;
         float[] lastFloatParameters;
@@ -107,6 +115,42 @@ namespace Mirror
                     SendAnimationMessage(stateHash, normalizedTime, i, layerWeight[i], writer.ToArray());
                 }
             }
+
+            CheckSpeed();
+        }
+
+        void CheckSpeed()
+        {
+            float newSpeed = animator.speed;
+            if (Mathf.Abs(previousSpeed - newSpeed) > 0.001f)
+            {
+                previousSpeed = newSpeed;
+                if (isServer)
+                {
+                    animatorSpeed = newSpeed;
+                }
+                else if (ClientScene.readyConnection != null)
+                {
+                    CmdSetAnimatorSpeed(newSpeed);
+                }
+            }
+        }
+
+        void CmdSetAnimatorSpeed(float newSpeed)
+        {
+            // set animator
+            animator.speed = newSpeed;
+            animatorSpeed = newSpeed;
+        }
+
+        void onAnimatorSpeedChanged(float _, float value)
+        {
+            // skip if host or client with authoity
+            // they will have already set the speed so dont set again
+            if (isServer || (hasAuthority && clientAuthority))
+                return;
+
+            animator.speed = value;
         }
 
         bool CheckAnimStateChanged(out int stateHash, out float normalizedTime, int layerId)
@@ -336,6 +380,7 @@ namespace Mirror
         /// <returns></returns>
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
+            bool changed = base.OnSerialize(writer, initialState);
             if (initialState)
             {
                 for (int i = 0; i < animator.layerCount; i++)
@@ -357,7 +402,7 @@ namespace Mirror
                 WriteParameters(writer, initialState);
                 return true;
             }
-            return false;
+            return changed;
         }
 
         /// <summary>
@@ -367,6 +412,7 @@ namespace Mirror
         /// <param name="initialState"></param>
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
+            base.OnDeserialize(reader, initialState);
             if (initialState)
             {
                 for (int i = 0; i < animator.layerCount; i++)
