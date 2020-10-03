@@ -1,3 +1,5 @@
+using System;
+
 namespace Mirror
 {
     /// <summary>
@@ -6,6 +8,13 @@ namespace Mirror
     /// </summary>
     public interface ISyncObject
     {
+        /// <summary>
+        /// Raised after the list has been updated
+        /// Note that if there are multiple changes
+        /// this event is only raised once.
+        /// </summary>
+        event Action OnChange;
+
         /// <summary>
         /// true if there are changes since the last flush
         /// </summary>
