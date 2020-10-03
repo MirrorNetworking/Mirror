@@ -38,6 +38,7 @@ namespace Mirror
         /// </summary>
         [SyncVar(hook = nameof(onAnimatorSpeedChanged))]
         float animatorSpeed;
+        float previousSpeed;
 
         // Note: not an object[] array because otherwise initialization is real annoying
         int[] lastIntParameters;
