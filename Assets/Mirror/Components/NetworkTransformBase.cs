@@ -229,7 +229,6 @@ namespace Mirror
 
             transform.position = teleportPosition;
             Vector3 teleportRotation = transform.rotation.eulerAngles;
-            Debug.LogError(teleportRotation);
             lastPosition = teleportPosition;
 
             RpcOverrideTransform(teleportPosition, teleportRotation, netId, initialAuthority);
