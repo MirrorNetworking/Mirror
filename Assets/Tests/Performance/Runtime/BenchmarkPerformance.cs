@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Diagnostics;
 using Mirror.Examples;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
@@ -17,8 +16,6 @@ namespace Mirror.Tests.Performance.Runtime
         const string ScenePath = "Assets/Examples/Benchmarks/10k/Scenes/Scene.unity";
         const int Warmup = 50;
         const int MeasureCount = 120;
-
-        readonly SampleGroup NetworkManagerSample = new SampleGroup("NetworkManagerLateUpdate", SampleUnit.Millisecond);
 
         private NetworkManager benchmarker;
 
@@ -59,12 +56,12 @@ namespace Mirror.Tests.Performance.Runtime
             Scene scene = SceneManager.GetSceneByPath(ScenePath);
             yield return SceneManager.UnloadSceneAsync(scene);
 
-            GameObject.Destroy(benchmarker.gameObject);
+            Object.Destroy(benchmarker.gameObject);
         }
 
         static void EnableHealth(bool value)
         {
-            Health[] all = Health.FindObjectsOfType<Health>();
+            Health[] all = Object.FindObjectsOfType<Health>();
             foreach (Health health in all)
             {
                 health.enabled = value;
