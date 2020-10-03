@@ -262,9 +262,9 @@ namespace Mirror.Weaver
 
                 try
                 {
-                    typeDefinition = typeDefinition.BaseType.Resolve();
+                    typeDefinition = typeDefinition.BaseType?.Resolve();
                 }
-                catch
+                catch (AssemblyResolutionException)
                 {
                     break;
                 }
