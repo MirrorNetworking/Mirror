@@ -133,7 +133,7 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void SyncListErrorWhenUsingGenericListInNetworkBehaviour()
+        public void GenericSyncListCanBeUsed()
         {
             IsSuccess();
         }

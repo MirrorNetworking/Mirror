@@ -72,7 +72,7 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour()
+        public void GenericSyncDictionaryCanBeUsed()
         {
             IsSuccess();
         }
