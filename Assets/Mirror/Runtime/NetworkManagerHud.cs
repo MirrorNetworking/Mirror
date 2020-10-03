@@ -13,11 +13,17 @@ namespace Mirror
         public GameObject OfflineGO;
         public GameObject OnlineGO;
         public Text StatusLabel;
+        string labelText;
 
         private void Start()
         {
             DontDestroyOnLoad(transform.root.gameObject);
             Application.runInBackground = true;
+        }
+
+        private void Update()
+        {
+            if (StatusLabel) StatusLabel.text = labelText;
         }
 
         internal void OnlineSetActive()
@@ -34,29 +40,29 @@ namespace Mirror
 
         public void StartHostButtonHandler()
         {
-            StatusLabel.text = "Host Mode";
-            _ = NetworkManager.StartHost();
+            labelText = "Host Mode";
+            _ = NetworkManager.server.StartHost(NetworkManager.client);
             OnlineSetActive();
         }
 
         public void StartServerOnlyButtonHandler()
         {
-            StatusLabel.text = "Server Mode";
+            labelText = "Server Mode";
             _ = NetworkManager.server.ListenAsync();
             OnlineSetActive();
         }
 
         public void StartClientButtonHandler()
         {
-            StatusLabel.text = "Client Mode";
+            labelText = "Client Mode";
             NetworkManager.client.ConnectAsync(NetworkAddress);
             OnlineSetActive();
         }
 
         public void StopButtonHandler()
         {
-            StatusLabel.text = string.Empty;
-            NetworkManager.StopHost();
+            labelText = string.Empty;
+            NetworkManager.server.StopHost();
             OfflineSetActive();
         }
 
