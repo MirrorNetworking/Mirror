@@ -214,6 +214,24 @@ namespace Mirror
             SetDirtyBit(1UL);
         }
 
+        /// <summary>
+        /// Server side teleportation.
+        /// This method will override the GameObject's current Transform.Position to the Vector3 you have provided
+        /// and send it to all other Clients to override it at their side too.
+        /// </summary>
+        /// <param name="teleportPosition">Where to teleport this GameObject</param>
+        [Server]
+        public void ServerTeleport(Vector3 teleportPosition)
+        {
+            RpcOverridePosition(teleportPosition);
+        }
+
+        [ClientRpc]
+        void RpcOverridePosition(Vector3 overridePos)
+        {
+            transform.position = overridePos;
+        }
+
         // where are we in the timeline between start and goal? [0,1]
         static float CurrentInterpolationFactor(DataPoint start, DataPoint goal)
         {
