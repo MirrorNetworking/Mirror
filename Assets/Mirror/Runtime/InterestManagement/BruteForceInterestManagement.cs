@@ -1,6 +1,4 @@
 ﻿// straight forward brute force interest management from DOTSNET
-
-using System.Collections.Generic;
 using UnityEngine;
 namespace Mirror
 {
