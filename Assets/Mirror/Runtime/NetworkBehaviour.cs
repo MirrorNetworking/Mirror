@@ -202,7 +202,7 @@ namespace Mirror
             // local players can always send ServerRpcs, regardless of authority, other objects must have authority.
             if (requireAuthority && !(IsLocalPlayer || HasAuthority))
             {
-                throw new UnauthorizedAccessException($"Trying to send ServerRpc for object without authority. {invokeClass.ToString()}.{cmdName}");
+                throw new UnauthorizedAccessException($"Trying to send ServerRpc for object without authority. {invokeClass}.{cmdName}");
             }
 
             if (Client.Connection == null)
@@ -464,7 +464,7 @@ namespace Mirror
         /// <returns>True if data was written.</returns>
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            bool objectWritten = false;
+            bool objectWritten;
             // if initialState: write all SyncVars.
             // otherwise write dirtyBits+dirty SyncVars
             if (initialState)
@@ -595,7 +595,7 @@ namespace Mirror
 
         internal void ResetSyncObjects()
         {
-            foreach (var syncObject in syncObjects)
+            foreach (ISyncObject syncObject in syncObjects)
             {
                 syncObject.Reset();
             }
