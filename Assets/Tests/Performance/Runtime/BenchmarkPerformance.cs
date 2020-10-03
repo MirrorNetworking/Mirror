@@ -15,38 +15,16 @@ namespace Mirror.Tests.Performance.Runtime
     public class BenchmarkPerformance
     {
         const string ScenePath = "Assets/Examples/Benchmarks/10k/Scenes/Scene.unity";
-        const float Warmup = 1f;
+        const int Warmup = 50;
         const int MeasureCount = 120;
 
         readonly SampleGroup NetworkManagerSample = new SampleGroup("NetworkManagerLateUpdate", SampleUnit.Millisecond);
-        readonly Stopwatch stopwatch = new Stopwatch();
 
-        bool captureMeasurement;
-        private BenchmarkNetworkManager benchmarker;
-
-        void BeforeLateUpdate()
-        {
-            if (!captureMeasurement)
-                return;
-
-            stopwatch.Start();
-        }
-
-        void AfterLateUpdate()
-        {
-            if (!captureMeasurement)
-                return;
-
-            stopwatch.Stop();
-            double time = stopwatch.Elapsed.TotalMilliseconds;
-            Measure.Custom(NetworkManagerSample, time);
-            stopwatch.Reset();
-        }
+        private NetworkManager benchmarker;
 
         [UnitySetUp]
         public IEnumerator SetUp()
         {
-            captureMeasurement = false;
             // load scene
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive });
             Scene scene = SceneManager.GetSceneByPath(ScenePath);
@@ -55,7 +33,7 @@ namespace Mirror.Tests.Performance.Runtime
             // wait for NetworkManager awake
             yield return null;
             // load host
-            benchmarker = Object.FindObjectOfType<BenchmarkNetworkManager>();
+            benchmarker = Object.FindObjectOfType<NetworkManager>();
 
             if (benchmarker == null)
             {
@@ -63,29 +41,11 @@ namespace Mirror.Tests.Performance.Runtime
                 yield break;
             }
 
-            benchmarker.BeforeLateUpdate = BeforeLateUpdate;
-            benchmarker.AfterLateUpdate = AfterLateUpdate;
-
             System.Threading.Tasks.Task task = benchmarker.StartHost();
 
             while (!task.IsCompleted)
                 yield return null;
 
-        }
-
-        IEnumerator RunBenchmark()
-        {
-            // warmup
-            yield return new WaitForSecondsRealtime(Warmup);
-
-            // run benchmark
-            // capture frames and LateUpdate time
-
-            captureMeasurement = true;
-
-            yield return Measure.Frames().MeasurementCount(MeasureCount).Run();
-
-            captureMeasurement = false;
         }
 
         [UnityTearDown]
@@ -117,7 +77,7 @@ namespace Mirror.Tests.Performance.Runtime
         {
             EnableHealth(true);
 
-            yield return RunBenchmark();
+            yield return Measure.Frames().MeasurementCount(MeasureCount).WarmupCount(Warmup).Run();
         }
 
         [UnityTest]
@@ -126,7 +86,7 @@ namespace Mirror.Tests.Performance.Runtime
         {
             EnableHealth(false);
 
-            yield return RunBenchmark();
+            yield return Measure.Frames().MeasurementCount(MeasureCount).WarmupCount(Warmup).Run();
         }
     }
 }

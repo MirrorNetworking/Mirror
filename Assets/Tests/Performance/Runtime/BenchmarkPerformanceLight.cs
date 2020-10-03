@@ -61,7 +61,7 @@ namespace Mirror.Tests.Performance.Runtime
         [Performance]
         public IEnumerator Benchmark10KLight()
         { 
-            yield return Measure.Frames().MeasurementCount(120).WarmupCount(10).Run();
+            yield return Measure.Frames().MeasurementCount(240).WarmupCount(50).Run();
         }
 
     }
