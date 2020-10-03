@@ -345,7 +345,7 @@ namespace Mirror
 
         public List<T> FindAll(Predicate<T> match)
         {
-            List<T> results = new List<T>();
+            var results = new List<T>();
             for (int i = 0; i < objects.Count; ++i)
                 if (match(objects[i]))
                     results.Add(objects[i]);
@@ -387,7 +387,7 @@ namespace Mirror
 
         public int RemoveAll(Predicate<T> match)
         {
-            List<T> toRemove = new List<T>();
+            var toRemove = new List<T>();
             for (int i = 0; i < objects.Count; ++i)
                 if (match(objects[i]))
                     toRemove.Add(objects[i]);
