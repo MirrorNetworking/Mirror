@@ -58,6 +58,7 @@ namespace Mirror
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
+            identity.OnStopServer();
             Transport.activeTransport.ServerDisconnect(connectionId);
             RemoveObservers();
         }
