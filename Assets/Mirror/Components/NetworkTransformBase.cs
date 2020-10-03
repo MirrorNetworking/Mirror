@@ -216,20 +216,49 @@ namespace Mirror
 
         /// <summary>
         /// Server side teleportation.
-        /// This method will override the GameObject's current Transform.Position to the Vector3 you have provided
+        /// This method will override this GameObject's current Transform.Position to the Vector3 you have provided
         /// and send it to all other Clients to override it at their side too.
         /// </summary>
         /// <param name="teleportPosition">Where to teleport this GameObject</param>
         [Server]
         public void ServerTeleport(Vector3 teleportPosition)
         {
-            RpcOverridePosition(teleportPosition);
+            bool initialAuthority = clientAuthority;
+            //To prevent applying the position updates received from client (if they have ClientAuth) while being teleported.
+            clientAuthority = false;
+
+            transform.position = teleportPosition;
+            lastPosition = teleportPosition;
+
+            RpcOverridePosition(teleportPosition, netId, initialAuthority);
         }
 
         [ClientRpc]
-        void RpcOverridePosition(Vector3 overridePos)
+        void RpcOverridePosition(Vector3 overridePos, uint networkId, bool initialAuthority)
         {
+            //Since we are simply overriding the position we don't need a goal and start.
+            //We can simply set them to null to prevent anything with the teleportation.
+            goal = null;
+            start = null;
+
+            //If we are the client who owns this NetworkBehaviour
+            if (netId == networkId)
+            {
+                //To prevent sending position updates when being teleported.
+                clientAuthority = false;
+            }
+
             transform.position = overridePos;
+            clientAuthority = initialAuthority;
+
+            CmdPositionOverrideFinished(initialAuthority);
+        }
+
+        //This RPC will be invoked on server after client finishes overriding the position.
+        [Command]
+        void CmdPositionOverrideFinished(bool initialAuthority)
+        {
+            clientAuthority = initialAuthority;
         }
 
         // where are we in the timeline between start and goal? [0,1]
