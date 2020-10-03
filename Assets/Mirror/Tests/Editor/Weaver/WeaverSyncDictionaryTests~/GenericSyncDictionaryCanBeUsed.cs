@@ -1,8 +1,8 @@
 using Mirror;
 
-namespace WeaverSyncDictionaryTests.SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour
+namespace WeaverSyncDictionaryTests.GenericSyncDictionaryCanBeUsed
 {
-    class SyncDictionaryErrorWhenUsingGenericInNetworkBehaviour : NetworkBehaviour
+    class GenericSyncDictionaryCanBeUsed : NetworkBehaviour
     {
         readonly SomeSyncDictionary<int, string> someDictionary;
 
