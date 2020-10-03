@@ -228,13 +228,36 @@ namespace Mirror
             clientAuthority = false;
 
             transform.position = teleportPosition;
+            Vector3 teleportRotation = transform.rotation.eulerAngles;
+            Debug.LogError(teleportRotation);
             lastPosition = teleportPosition;
 
-            RpcOverridePosition(teleportPosition, netId, initialAuthority);
+            RpcOverrideTransform(teleportPosition, teleportRotation, netId, initialAuthority);
+        }
+
+        /// <summary>
+        /// Server side teleportation.
+        /// This method will override this GameObject's current Transform.Position and Transform.Rotation
+        /// to the Vector3 you have provided
+        /// and send it to all other Clients to override it at their side too.
+        /// </summary>
+        /// <param name="teleportPosition">>Where to teleport this GameObject</param>
+        /// <param name="teleportRotation">Which rotation to set this GameObject</param>
+        [Server]
+        public void ServerTeleport(Vector3 teleportPosition, Vector3 teleportRotation)
+        {
+            bool initialAuthority = clientAuthority;
+            //To prevent applying the position updates received from client (if they have ClientAuth) while being teleported.
+            clientAuthority = false;
+
+            transform.position = teleportPosition;
+            lastPosition = teleportPosition;
+
+            RpcOverrideTransform(teleportPosition, teleportRotation, netId, initialAuthority);
         }
 
         [ClientRpc]
-        void RpcOverridePosition(Vector3 overridePos, uint networkId, bool initialAuthority)
+        void RpcOverrideTransform(Vector3 overridePos, Vector3 overrideRotation, uint networkId, bool initialAuthority)
         {
             //Since we are simply overriding the position we don't need a goal and start.
             //We can simply set them to null to prevent anything with the teleportation.
@@ -249,6 +272,7 @@ namespace Mirror
             }
 
             transform.position = overridePos;
+            transform.rotation = Quaternion.Euler(overrideRotation);
             clientAuthority = initialAuthority;
 
             CmdPositionOverrideFinished(initialAuthority);
