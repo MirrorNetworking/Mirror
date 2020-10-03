@@ -27,11 +27,12 @@ namespace Mirror
         public bool requireAuthority = true;
     }
 
-    /// <summary>
-    /// The server uses a Remote Procedure Call (RPC) to run this function on specific clients.
-    /// </summary>
     public enum Client { Owner, Observers, Connection }
 
+    /// <summary>
+    /// The server uses a Remote Procedure Call (RPC) to run this function on specific clients.
+    /// <para>Note that if you set the target as Connection, you need to pass a specific connection as a parameter of your method</para>
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class ClientRpcAttribute : Attribute
     {
