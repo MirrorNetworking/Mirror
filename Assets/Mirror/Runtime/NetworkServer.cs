@@ -235,6 +235,7 @@ namespace Mirror
         {
             if (localConnection != null)
             {
+                localConnection.identity.OnStopServer();
                 localConnection.Disconnect();
                 localConnection.Dispose();
                 localConnection = null;
