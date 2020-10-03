@@ -121,8 +121,9 @@ namespace Mirror
         void CheckSpeed()
         {
             float newSpeed = animator.speed;
-            if (animatorSpeed != newSpeed)
+            if (Mathf.Abs(previousSpeed - newSpeed) > 0.001f)
             {
+                previousSpeed = newSpeed;
                 if (isServer)
                 {
                     animatorSpeed = newSpeed;
