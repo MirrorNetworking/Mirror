@@ -65,8 +65,9 @@ namespace Mirror
                     NetworkConnectionToClient conn = identity.observars[i];
                     if (!identity.rebuild.Contains(conn))
                     {
-                        // TODO send unspawn message
-                        Debug.LogWarning($"TODO Unspawn {identity.name} for connectionId {conn.connectionId}");
+                        // unspawn identity for this connection
+                        Debug.LogWarning($"Unspawning {identity.name} for connectionId {conn.connectionId}");
+                        NetworkServer.HideForConnection(identity, conn);
 
                         // remove it from observers
                         identity.observars.RemoveAt(i);
@@ -89,12 +90,9 @@ namespace Mirror
                     // TODO use set to avoid O(n) contains
                     if (!identity.observars.Contains(conn))
                     {
-                        // is the entity owned by the observer connection?
-                        bool owned = identity.connectionToClient != null &&
-                                     identity.connectionToClient.connectionId == conn.connectionId;
-
-                        // TODO send spawn message with owned flag
-                        Debug.LogWarning($"TODO Spawn {identity.name} for connectionId {conn.connectionId}");
+                        // spawn identity for this connection
+                        Debug.LogWarning($"Spawning {identity.name} for connectionId {conn.connectionId}");
+                        NetworkServer.ShowForConnection(identity, conn);
 
                         // add it to observers
                         identity.observars.Add(conn);

@@ -7,6 +7,10 @@ namespace Mirror
     [RequireComponent(typeof(NetworkManager))]
     public abstract class InterestManagement : MonoBehaviour
     {
+        // singleton for access from NetworkServer
+        public static InterestManagement singleton;
+        protected virtual void Awake() { singleton = this; }
+
         // rebuild all areas of interest for everyone once
         //
         // note:

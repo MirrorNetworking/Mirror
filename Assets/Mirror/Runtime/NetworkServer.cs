@@ -184,7 +184,7 @@ namespace Mirror
         {
             // Debug.Log("Server.SendToObservers id:" + typeof(T));
 
-            if (identity == null || identity.observers == null || identity.observers.Count == 0)
+            if (identity == null || identity.observars.Count == 0)
                 return;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -194,7 +194,7 @@ namespace Mirror
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 // send
-                foreach (NetworkConnection conn in identity.observers.Values)
+                foreach (NetworkConnectionToClient conn in identity.observars)
                 {
                     conn.Send(segment, channelId);
                 }
@@ -275,7 +275,7 @@ namespace Mirror
         {
             // Debug.Log("Server.SendToReady msgType:" + typeof(T));
 
-            if (identity == null || identity.observers == null || identity.observers.Count == 0)
+            if (identity == null || identity.observars.Count == 0)
                 return false;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -286,7 +286,7 @@ namespace Mirror
 
                 // send
                 bool result = true;
-                foreach (NetworkConnection conn in identity.observers.Values)
+                foreach (NetworkConnectionToClient conn in identity.observars)
                 {
                     bool isOwner = conn == identity.connectionToClient;
                     if ((!isOwner || includeOwner) && conn.isReady)
@@ -433,6 +433,29 @@ namespace Mirror
                 // Debug.Log("Server lost client:" + connectionId);
 
                 OnDisconnected(conn);
+
+                // interest management rebuild to remove the connection from all
+                // entity's observers. otherwise broadcast systems will still try to
+                // send to this connection, which isn't a big problem, but it does
+                // give an "invalid connectionId" warning message.
+                // and if we have 10k monsters, we get 10k warning messages, which
+                // would actually slow down/freeze the editor for a short time.
+                // => AFTER removing the connection, because RebuildAll will attempt
+                //    to send unspawn messages, which have a connection-still-valid
+                //    check.
+                // NOTE: we could also use a simple removeFromAllObservers function,
+                //       which would be faster, but it's also extra code and extra
+                //       complexity.
+                //       AND it wouldn't even work properly, because by just
+                //       removing the connection, the observers would never get
+                //       the unspawn messages.
+                //       In other words, always do a full rebuild because IT WORKS
+                //       perfectly.
+                if (InterestManagement.singleton != null)
+                {
+                    InterestManagement.singleton.RebuildAll();
+                }
+                else Debug.LogError($"InterestManagement not found. Please add an InterestManagement component like {typeof(BruteForceInterestManagement)} to the NetworkManager!");
             }
         }
 
@@ -573,43 +596,6 @@ namespace Mirror
             return AddPlayerForConnection(conn, player);
         }
 
-        static void SpawnObserversForConnection(NetworkConnection conn)
-        {
-            // Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn);
-
-            if (!conn.isReady)
-            {
-                // client needs to finish initializing before we can spawn objects
-                // otherwise it would not find them.
-                return;
-            }
-
-            // let connection know that we are about to start spawning...
-            conn.Send(new ObjectSpawnStartedMessage());
-
-            // add connection to each nearby NetworkIdentity's observers, which
-            // internally sends a spawn message for each one to the connection.
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
-                // try with far away ones in ummorpg!
-                if (identity.gameObject.activeSelf) //TODO this is different
-                {
-                    // Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId + " sceneId=" + identity.sceneId);
-
-                    bool visible = identity.OnCheckObserver(conn);
-                    if (visible)
-                    {
-                        identity.AddObserver(conn);
-                    }
-                }
-            }
-
-            // let connection know that we finished spawning, so it can call
-            // OnStartClient on each one (only after all were spawned, which
-            // is how Unity's Start() function works too)
-            conn.Send(new ObjectSpawnFinishedMessage());
-        }
-
         /// <summary>
         /// <para>When an AddPlayer message handler has received a request from a player, the server calls this to associate the player object with the connection.</para>
         /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player on this playerControllerId for this connection, this will fail.</para>
@@ -685,10 +671,6 @@ namespace Mirror
 
             // set ready
             conn.isReady = true;
-
-            // client is ready to start spawning objects
-            if (conn.identity != null)
-                SpawnObserversForConnection(conn);
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
@@ -729,8 +711,6 @@ namespace Mirror
             {
                 // Debug.Log("PlayerNotReady " + conn);
                 conn.isReady = false;
-                conn.RemoveObservers();
-
                 conn.Send(new NotReadyMessage());
             }
         }
@@ -826,8 +806,6 @@ namespace Mirror
             identity.OnStartServer();
 
             // Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
-
-            identity.RebuildObservers(true);
         }
 
         internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
@@ -997,7 +975,6 @@ namespace Mirror
             };
             SendToObservers(identity, msg);
 
-            identity.ClearObservers();
             identity.OnStopServer();
 
             // when unspawning, dont destroy the server's object

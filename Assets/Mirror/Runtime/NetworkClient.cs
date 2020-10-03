@@ -183,8 +183,6 @@ namespace Mirror
             RegisterHandler<ObjectHideMessage>(ClientScene.OnObjectHide);
             RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
             RegisterHandler<SpawnMessage>(ClientScene.OnSpawn);
-            RegisterHandler<ObjectSpawnStartedMessage>(ClientScene.OnObjectSpawnStarted);
-            RegisterHandler<ObjectSpawnFinishedMessage>(ClientScene.OnObjectSpawnFinished);
             RegisterHandler<UpdateVarsMessage>(ClientScene.OnUpdateVarsMessage);
             RegisterHandler<RpcMessage>(ClientScene.OnRPCMessage);
         }

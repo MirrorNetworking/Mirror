@@ -206,20 +206,6 @@ namespace Mirror
         }
     }
 
-    public struct ObjectSpawnStartedMessage : NetworkMessage
-    {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
-    }
-
-    public struct ObjectSpawnFinishedMessage : NetworkMessage
-    {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
-    }
-
     public struct ObjectDestroyMessage : NetworkMessage
     {
         public uint netId;

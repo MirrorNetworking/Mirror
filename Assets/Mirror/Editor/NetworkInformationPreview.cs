@@ -73,7 +73,7 @@ namespace Mirror
 
         public override bool HasPreviewGUI()
         {
-            // need to check if target is null to stop MissingReferenceException 
+            // need to check if target is null to stop MissingReferenceException
             return target != null && target is GameObject gameObject && gameObject.GetComponent<NetworkIdentity>() != null;
         }
 
@@ -171,7 +171,7 @@ namespace Mirror
 
         float DrawObservers(NetworkIdentity identity, float initialX, float Y)
         {
-            if (identity.observers != null && identity.observers.Count > 0)
+            if (identity.observars.Count > 0)
             {
                 Rect observerRect = new Rect(initialX, Y + 10, 200, 20);
 
@@ -180,9 +180,9 @@ namespace Mirror
                 observerRect.x += 20;
                 observerRect.y += observerRect.height;
 
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                foreach (NetworkConnectionToClient conn in identity.observars)
                 {
-                    GUI.Label(observerRect, kvp.Value.address + ":" + kvp.Value, styles.componentName);
+                    GUI.Label(observerRect, conn.address + ":" + conn, styles.componentName);
                     observerRect.y += observerRect.height;
                     Y = observerRect.y;
                 }
