@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using NUnit.Framework;
 using UnityEngine.TestTools;
@@ -40,5 +41,21 @@ namespace Mirror.Tests
 
             await WaitFor(() => !client.Active);
         });
+
+        [Test]
+        public void StartHostException()
+        {
+            manager.client = null;
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                manager.StartHost().GetAwaiter().GetResult();
+            });
+
+            manager.server = null;
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                manager.StartHost().GetAwaiter().GetResult();
+            });
+        }
     }
 }

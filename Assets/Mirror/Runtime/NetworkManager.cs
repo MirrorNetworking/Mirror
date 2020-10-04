@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -40,6 +41,11 @@ namespace Mirror
         /// </summary>
         public async Task StartHost()
         {
+            if (!server)
+                throw new InvalidOperationException("NetworkServer not assigned. Unable to StartHost()");
+            if (!client)
+                throw new InvalidOperationException("NetworkClient not assigned. Unable to StartHost()");
+
             // start listening to network connections
             await server.ListenAsync();
 
@@ -59,8 +65,10 @@ namespace Mirror
         public void StopHost()
         {
             OnStopHost.Invoke();
-            client.Disconnect();
-            server.Disconnect();
+            if(client)
+                client.Disconnect();
+            if(server)
+                server.Disconnect();
         }
     }
 }
