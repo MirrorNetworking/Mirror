@@ -57,7 +57,7 @@ namespace Mirror.Discovery
             if (GUILayout.Button("Start Host"))
             {
                 discoveredServers.Clear();
-                _ = networkManager.StartHost();
+                _ = networkManager.server.StartHost(networkManager.client);
                 networkDiscovery.AdvertiseServer();
             }
 

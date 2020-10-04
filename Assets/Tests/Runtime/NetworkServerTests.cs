@@ -295,5 +295,11 @@ namespace Mirror.Tests
         {
             Assert.That(server.GetNewConnection(Substitute.For<IConnection>()), Is.Not.Null);
         }
+
+        [Test]
+        public void VariableTest()
+        {
+            Assert.That(server.MaxConnections, Is.EqualTo(4));
+        }
     }
 }

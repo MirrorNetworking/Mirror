@@ -179,7 +179,6 @@ namespace Mirror
 
         internal void ConnectHost(NetworkServer server)
         {
-
             logger.Log("Client Connect Host to Server");
             connectState = ConnectState.Connected;
 
@@ -192,8 +191,6 @@ namespace Mirror
             hostServer = server;
             Connection = GetNewConnection(c1);
             RegisterHostHandlers();
-
-            server.ActivateHostScene();
 
             _ = OnConnected();
         }

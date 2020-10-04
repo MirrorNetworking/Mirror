@@ -55,6 +55,17 @@ namespace Mirror
 
         public UnityEvent Stopped = new UnityEvent();
 
+        /// <summary>
+        /// This is invoked when a host is started.
+        /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
+        /// </summary>
+        public UnityEvent OnStartHost = new UnityEvent();
+
+        /// <summary>
+        /// This is called when a host is stopped.
+        /// </summary>
+        public UnityEvent OnStopHost = new UnityEvent();
+
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
@@ -210,6 +221,40 @@ namespace Mirror
             {
                 Cleanup();
             }
+        }
+
+        /// <summary>
+        /// This starts a network "host" - a server and client in the same application.
+        /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
+        /// </summary>
+        public async Task StartHost(NetworkClient client)
+        {
+            if (!client)
+                throw new InvalidOperationException("NetworkClient not assigned. Unable to StartHost()");
+
+            // start listening to network connections
+            await ListenAsync();
+
+            client.ConnectHost(this);
+
+            ActivateHostScene();
+
+            // call OnStartHost AFTER SetupServer. this way we can use
+            // NetworkServer.Spawn etc. in there too. just like OnStartServer
+            // is called after the server is actually properly started.
+            OnStartHost.Invoke();
+
+            logger.Log("NetworkManager StartHost");
+        }
+
+        /// <summary>
+        /// This stops both the client and the server that the manager is using.
+        /// </summary>
+        public void StopHost()
+        {
+            OnStopHost.Invoke();
+            LocalClient.Disconnect();
+            Disconnect();
         }
 
         /// <summary>

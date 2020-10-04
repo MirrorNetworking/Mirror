@@ -10,20 +10,13 @@ namespace Mirror.Tests
     public class NetworkManagerTest : HostSetup<MockComponent>
     {
         [Test]
-        public void VariableTest()
-        {
-            Assert.That(manager.server.MaxConnections, Is.EqualTo(4));
-        }
-
-        [Test]
-        public void StartServerTest()
+        public void IsNetworkActiveTest()
         {
             Assert.That(manager.IsNetworkActive, Is.True);
-            Assert.That(manager.server.Active, Is.True);
         }
 
         [UnityTest]
-        public IEnumerator StopServerTest() => RunAsync(async () =>
+        public IEnumerator IsNetworkActiveStopTest() => RunAsync(async () =>
         {
             manager.server.Disconnect();
 
@@ -48,13 +41,7 @@ namespace Mirror.Tests
             manager.client = null;
             Assert.Throws<InvalidOperationException>(() =>
             {
-                manager.StartHost().GetAwaiter().GetResult();
-            });
-
-            manager.server = null;
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                manager.StartHost().GetAwaiter().GetResult();
+                manager.server.StartHost(manager.client).GetAwaiter().GetResult();
             });
         }
     }

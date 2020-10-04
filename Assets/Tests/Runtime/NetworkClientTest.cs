@@ -149,6 +149,7 @@ namespace Mirror.Tests
             client.Disconnect();
 
             await WaitFor(() => client.connectState == ConnectState.Disconnected);
+            await WaitFor(() => !client.Active);
         });
     }
 }

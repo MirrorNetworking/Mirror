@@ -44,7 +44,7 @@ namespace Mirror.Tests
             await Task.Delay(1);
 
             // now start the host
-            await manager.StartHost();
+            await manager.server.StartHost(client);
 
             playerGO = new GameObject("playerGO", typeof(Rigidbody));
             identity = playerGO.AddComponent<NetworkIdentity>();
@@ -61,7 +61,7 @@ namespace Mirror.Tests
         public IEnumerator ShutdownHost() => RunAsync(async () =>
         {
             Object.Destroy(playerGO);
-            manager.StopHost();
+            manager.server.StopHost();
 
             await Task.Delay(1);
             Object.Destroy(networkManagerGo);

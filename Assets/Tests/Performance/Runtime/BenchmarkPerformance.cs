@@ -38,7 +38,7 @@ namespace Mirror.Tests.Performance.Runtime
                 yield break;
             }
 
-            System.Threading.Tasks.Task task = benchmarker.StartHost();
+            System.Threading.Tasks.Task task = benchmarker.server.StartHost(benchmarker.client);
 
             while (!task.IsCompleted)
                 yield return null;
@@ -49,7 +49,7 @@ namespace Mirror.Tests.Performance.Runtime
         public IEnumerator TearDown()
         {
             // shutdown
-            benchmarker.StopHost();
+            benchmarker.server.StopHost();
             yield return null;
 
             // unload scene
