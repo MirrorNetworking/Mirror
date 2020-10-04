@@ -235,7 +235,14 @@ namespace Mirror
         {
             if (localConnection != null)
             {
-                localConnection.identity.OnStopServer();
+                //OnStopServer is not being called when PlayMode exited.
+                //On normal builds it's working just fine.
+                //In order to call OnStopServer on PlayModeExit
+                //and also prevent it being called for twice we have to do the check below.
+                if (localConnection.identity != null)
+                {
+                    localConnection.identity.OnStopServer();
+                }
                 localConnection.Disconnect();
                 localConnection.Dispose();
                 localConnection = null;
