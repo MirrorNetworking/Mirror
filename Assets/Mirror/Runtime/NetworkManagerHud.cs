@@ -41,7 +41,7 @@ namespace Mirror
         public void StartHostButtonHandler()
         {
             labelText = "Host Mode";
-            _ = NetworkManager.server.StartHost(NetworkManager.client);
+            _ = NetworkManager.StartHost();
             OnlineSetActive();
         }
 
@@ -62,7 +62,7 @@ namespace Mirror
         public void StopButtonHandler()
         {
             labelText = string.Empty;
-            NetworkManager.server.StopHost();
+            NetworkManager.StopHost();
             OfflineSetActive();
         }
 
