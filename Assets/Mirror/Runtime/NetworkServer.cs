@@ -20,6 +20,9 @@ namespace Mirror
         static bool initialized;
         static int maxConnections;
 
+        // interest management should be configured before starting.
+        public static InterestManagement interestManagement;
+
         /// <summary>
         /// A list of local connections on the server.
         /// </summary>
@@ -451,9 +454,9 @@ namespace Mirror
                 //       the unspawn messages.
                 //       In other words, always do a full rebuild because IT WORKS
                 //       perfectly.
-                if (InterestManagement.singleton != null)
+                if (interestManagement != null)
                 {
-                    InterestManagement.singleton.RebuildAll();
+                    interestManagement.RebuildAll();
                 }
                 else Debug.LogError($"InterestManagement not found. Please add an InterestManagement component like {typeof(BruteForceInterestManagement)} to the NetworkManager!");
             }
