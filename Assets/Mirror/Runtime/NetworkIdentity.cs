@@ -898,6 +898,21 @@ namespace Mirror
             return dirtyComponentsMask;
         }
 
+        /// <summary>
+        /// Determines if there are changes in any component that have not
+        /// been synchronized yet. Probably due to not meeting the syncInterval
+        /// </summary>
+        /// <returns></returns>
+        internal bool StillDirty()
+        {
+            foreach (NetworkBehaviour behaviour in NetworkBehaviours)
+            {
+                if (behaviour.StillDirty())
+                    return true;
+            }
+            return false;
+        }
+
         private ulong GetIntialComponentsMask()
         {
             // set a bit for every behaviour
@@ -1280,9 +1295,6 @@ namespace Mirror
             ClearObservers();
         }
 
-        /// <summary>
-        /// Invoked by NetworkServer.Update during LateUpdate
-        /// </summary>
         internal void ServerUpdate()
         {
             if (observers.Count > 0)
@@ -1297,6 +1309,10 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// return true if the object is successfully synchronized
+        /// </summary>
+        /// <returns></returns>
         void SendUpdateVarsMessage()
         {
             // one writer for owner, one for observers

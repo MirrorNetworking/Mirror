@@ -111,6 +111,8 @@ namespace Mirror
 
         public readonly Dictionary<uint, NetworkIdentity> Spawned = new Dictionary<uint, NetworkIdentity>();
 
+        public readonly HashSet<NetworkIdentity> DirtyObjects = new HashSet<NetworkIdentity>();
+
         // just a cached memory area where we can collect connections
         // for broadcasting messages
         private static readonly List<INetworkConnection> connectionsCache = new List<INetworkConnection>();
@@ -424,27 +426,31 @@ namespace Mirror
             SendToReady(identity, msg, true, channelId);
         }
 
+        private readonly List<NetworkIdentity> DirtyObjectsTmp = new List<NetworkIdentity>();
+
         // The user should never need to pump the update loop manually
         internal void Update()
         {
             if (!Active)
                 return;
 
-            // update all server objects
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in Spawned)
+            DirtyObjectsTmp.Clear();
+
+            foreach (NetworkIdentity identity in DirtyObjects)
             {
-                NetworkIdentity identity = kvp.Value;
                 if (identity != null)
                 {
                     identity.ServerUpdate();
-                }
-                else
-                {
-                    // spawned list should have no null entries because we
-                    // always call Remove in OnObjectDestroy everywhere.
-                    logger.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
-                }
+
+                    if (identity.StillDirty())
+                        DirtyObjectsTmp.Add(identity);
+                }                
             }
+
+            DirtyObjects.Clear();
+
+            foreach (NetworkIdentity obj in DirtyObjectsTmp)
+                DirtyObjects.Add(obj);
         }
 
         async Task ConnectionAcceptedAsync(INetworkConnection conn)
