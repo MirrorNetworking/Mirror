@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Mono.CecilX;
-using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -18,9 +17,6 @@ namespace Mirror.Weaver
 
         // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
-
-        public HashSet<string> ProcessedMessages = new HashSet<string>();
-
 
         public int GetSyncVarStart(string className)
         {
@@ -137,48 +133,6 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool WeaveMessage(TypeDefinition td)
-        {
-            if (!td.IsClass)
-                return false;
-
-            // already processed
-            if (WeaveLists.ProcessedMessages.Contains(td.FullName))
-                return false;
-
-            bool modified = false;
-
-            if (td.ImplementsInterface<IMessageBase>())
-            {
-                // process this and base classes from parent to child order
-                try
-                {
-                    TypeDefinition parent = td.BaseType.Resolve();
-                    // process parent
-                    WeaveMessage(parent);
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for plugins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                }
-
-                // process this
-                MessageClassProcessor.Process(td);
-                WeaveLists.ProcessedMessages.Add(td.FullName);
-                modified = true;
-            }
-
-            // check for embedded types
-            // inner classes should be processed after outter class to avoid StackOverflowException
-            foreach (TypeDefinition embedded in td.NestedTypes)
-            {
-                modified |= WeaveMessage(embedded);
-            }
-
-            return modified;
-        }
-
         static bool WeaveModule(ModuleDefinition moduleDefinition)
         {
             try
@@ -193,7 +147,6 @@ namespace Mirror.Weaver
                     if (td.IsClass && td.BaseType.CanBeResolved())
                     {
                         modified |= WeaveNetworkBehavior(td);
-                        modified |= WeaveMessage(td);
                         modified |= ServerClientAttributeProcessor.Process(td);
                     }
                 }

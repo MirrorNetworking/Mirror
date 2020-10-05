@@ -5,18 +5,10 @@ namespace Mirror
 {
     public interface IMessageBase
     {
-        void Deserialize(NetworkReader reader);
-
-        void Serialize(NetworkWriter writer);
     }
 
     public abstract class MessageBase : IMessageBase
     {
-        // De-serialize the contents of the reader into this message
-        public virtual void Deserialize(NetworkReader reader) { }
-
-        // Serialize the contents of this message into the writer
-        public virtual void Serialize(NetworkWriter writer) { }
     }
 
     #region Public System Messages
@@ -28,37 +20,18 @@ namespace Mirror
         {
             value = v;
         }
-
-        public void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadByte();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteByte(value);
-        }
     }
 
     public struct ReadyMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
     }
 
     public struct NotReadyMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
     }
 
     public struct AddPlayerMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
     }
 
     // Deprecated 5/2/2020
@@ -68,23 +41,14 @@ namespace Mirror
     [Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, bool keepAuthority = false) instead")]
     public struct RemovePlayerMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
     }
 
     public struct DisconnectMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
     }
 
     public struct ConnectMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
     }
 
     public struct SceneMessage : IMessageBase
@@ -251,46 +215,20 @@ namespace Mirror
 
     public struct ObjectSpawnStartedMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
     }
 
     public struct ObjectSpawnFinishedMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
     }
 
     public struct ObjectDestroyMessage : IMessageBase
     {
         public uint netId;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-        }
     }
 
     public struct ObjectHideMessage : IMessageBase
     {
         public uint netId;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-        }
     }
 
     public struct UpdateVarsMessage : IMessageBase
@@ -299,18 +237,6 @@ namespace Mirror
         // the serialized component data
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            payload = reader.ReadBytesAndSizeSegment();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WriteBytesAndSizeSegment(payload);
-        }
     }
 
     // A client sends this message to the server
@@ -323,16 +249,6 @@ namespace Mirror
         {
             clientTime = value;
         }
-
-        public void Deserialize(NetworkReader reader)
-        {
-            clientTime = reader.ReadDouble();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteDouble(clientTime);
-        }
     }
 
     // The server responds with this message
@@ -341,18 +257,6 @@ namespace Mirror
     {
         public double clientTime;
         public double serverTime;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            clientTime = reader.ReadDouble();
-            serverTime = reader.ReadDouble();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteDouble(clientTime);
-            writer.WriteDouble(serverTime);
-        }
     }
     #endregion
 }

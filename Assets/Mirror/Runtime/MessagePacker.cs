@@ -44,11 +44,11 @@ namespace Mirror
             writer.WriteUInt16((ushort)msgType);
 
             // serialize message into writer
-            message.Serialize(writer);
+            writer.Write(message);
         }
 
         // unpack a message we received
-        public static T Unpack<T>(byte[] data) where T : IMessageBase, new()
+        public static T Unpack<T>(byte[] data) where T : IMessageBase
         {
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(data))
             {
@@ -58,10 +58,7 @@ namespace Mirror
                 if (id != msgType)
                     throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
 
-                T message = new T();
-                message.Deserialize(networkReader);
-
-                return message;
+                return networkReader.Read<T>();
             }
         }
 
@@ -85,7 +82,7 @@ namespace Mirror
         }
 
         internal static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
-            where T : IMessageBase, new()
+            where T : IMessageBase
             where C : NetworkConnection
             => (conn, reader, channelId) =>
         {
@@ -114,8 +111,7 @@ namespace Mirror
 
                 // if it is a value type, just use defult(T)
                 // otherwise allocate a new instance
-                message = default(T) != null ? default(T) : new T();
-                message.Deserialize(reader);
+                message = reader.Read<T>();
             }
             catch (Exception exception)
             {
