@@ -7,10 +7,6 @@ namespace Mirror
     {
     }
 
-    public abstract class MessageBase : IMessageBase
-    {
-    }
-
     #region Public System Messages
     public struct ErrorMessage : IMessageBase
     {

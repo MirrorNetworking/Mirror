@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests.MessageTests
 {
-    class ParentMessage : MessageBase
+    class ParentMessage : IMessageBase
     {
         public int parentValue;
     }
@@ -13,7 +13,7 @@ namespace Mirror.Tests.MessageTests
     }
 
 
-    public abstract class RequestMessageBase : MessageBase
+    public abstract class RequestMessageBase : IMessageBase
     {
         public int responseId = 0;
     }
@@ -31,7 +31,7 @@ namespace Mirror.Tests.MessageTests
         public string message = "";
         public int errorCode = 0; // optional for error codes
     }
-    public abstract class RequestMessageBaseReverse : MessageBase
+    public abstract class RequestMessageBaseReverse : IMessageBase
     {
         public int responseId = 0;
     }

@@ -33,7 +33,7 @@ namespace Mirror.Tests
     public class CustomRWTest
     {
 
-        public class QuestMessage : MessageBase
+        public class QuestMessage : IMessageBase
         {
             public MockQuest quest;
         }

@@ -88,7 +88,7 @@ namespace Mirror.Tests.MessageTests
         public int id = 3;
     }
 
-    class NullableObjectMessage : MessageBase
+    class NullableObjectMessage : IMessageBase
     {
         public string name;
         public NullableObject nullObj;
