@@ -126,6 +126,12 @@ namespace Mirror
         /// </summary>
         public void Disconnect()
         {
+            if (LocalClient != null)
+            {
+                OnStopHost.Invoke();
+                LocalClient.Disconnect();
+            }
+
             foreach (INetworkConnection conn in connections)
             {
                 conn.Disconnect();
@@ -252,8 +258,6 @@ namespace Mirror
         /// </summary>
         public void StopHost()
         {
-            OnStopHost.Invoke();
-            LocalClient.Disconnect();
             Disconnect();
         }
 

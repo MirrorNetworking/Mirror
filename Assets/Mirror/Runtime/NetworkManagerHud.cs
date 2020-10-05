@@ -63,6 +63,7 @@ namespace Mirror
         {
             labelText = string.Empty;
             NetworkManager.server.StopHost();
+            NetworkManager.client.Disconnect();
             OfflineSetActive();
         }
 
