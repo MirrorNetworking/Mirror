@@ -1,5 +1,6 @@
 ﻿// straight forward brute force interest management from DOTSNET
 using UnityEngine;
+
 namespace Mirror
 {
     public class BruteForceInterestManagement : InterestManagement
@@ -49,30 +50,30 @@ namespace Mirror
             }
         }
 
-        // remove old observers and send unspawn messages
         void RemoveOldObservers()
         {
             // foreach spawned
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                // foreach observer
-                for (int i = 0; i < identity.observers.Count; ++i)
+                // unspawn all observers that are NOT in rebuild anymore
+                foreach (NetworkConnectionToClient observer in identity.observers)
                 {
                     //Debug.Log($"{identity.name} had {identity.observars.Count} observers and rebuild has {identity.rebuild.Count}");
-
-                    // not in rebuild? then we need to remove and unspawn
-                    NetworkConnectionToClient conn = identity.observers[i];
-                    if (!identity.rebuild.Contains(conn))
+                    if (!identity.rebuild.Contains(observer))
                     {
                         // unspawn identity for this connection
                         //Debug.LogWarning($"Unspawning {identity.name} for connectionId {conn.connectionId}");
-                        NetworkServer.HideForConnection(identity, conn);
-
-                        // remove it from observers
-                        identity.observers.RemoveAt(i);
-                        --i;
+                        NetworkServer.HideForConnection(identity, observer);
                     }
                 }
+
+                // we can't iterate and remove from HashSet at the same time.
+                // so remove all observers that are NOT in rebuild now.
+                // (in other words, keep observers that are in both hashsets)
+                //
+                // note: IntersectWith version that returns removed values would
+                //       be even faster.
+                identity.observers.IntersectWith(identity.rebuild);
             }
         }
 
@@ -86,7 +87,6 @@ namespace Mirror
                 foreach (NetworkConnectionToClient conn in identity.rebuild)
                 {
                     // was it not in old observers?
-                    // TODO use set to avoid O(n) contains
                     if (!identity.observers.Contains(conn))
                     {
                         // spawn identity for this connection

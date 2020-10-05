@@ -163,7 +163,7 @@ namespace Mirror
 
         // interest management
         internal HashSet<NetworkConnectionToClient> rebuild = new HashSet<NetworkConnectionToClient>();
-        internal List<NetworkConnectionToClient> observers = new List<NetworkConnectionToClient>();
+        internal HashSet<NetworkConnectionToClient> observers = new HashSet<NetworkConnectionToClient>();
 
         /// <summary>
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
