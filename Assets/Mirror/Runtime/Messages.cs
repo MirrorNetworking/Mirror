@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace Mirror
 {
+    [Obsolete("Implement NetworkMessage instead", true)]
+    public interface IMessageBase { }
+
+    [Obsolete("Implement NetworkMessage instead", true)]
+    public class MessageBase : IMessageBase { }
+
     public interface NetworkMessage
     {
     }
