@@ -65,7 +65,7 @@ namespace Mirror
                     if (!identity.rebuild.Contains(conn))
                     {
                         // unspawn identity for this connection
-                        Debug.LogWarning($"Unspawning {identity.name} for connectionId {conn.connectionId}");
+                        //Debug.LogWarning($"Unspawning {identity.name} for connectionId {conn.connectionId}");
                         NetworkServer.HideForConnection(identity, conn);
 
                         // remove it from observers
@@ -90,7 +90,7 @@ namespace Mirror
                     if (!identity.observers.Contains(conn))
                     {
                         // spawn identity for this connection
-                        Debug.LogWarning($"Spawning {identity.name} for connectionId {conn.connectionId}");
+                        //Debug.LogWarning($"Spawning {identity.name} for connectionId {conn.connectionId}");
                         NetworkServer.ShowForConnection(identity, conn);
 
                         // add it to observers
