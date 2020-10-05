@@ -146,7 +146,14 @@ namespace Mirror
                 // instead of calling unity's MonoBehaviour == operator
                 if (((object)netIdentityCache) == null)
                 {
-                    netIdentityCache = GetComponentInParent<NetworkIdentity>();
+                    // GetComponentInParent doesn't works on disabled gameobjecs
+                    // and GetComponentsInParent(false)[0] isn't allocation free, so
+                    // we just drop child support in this specific case
+                    if (gameObject.activeSelf)
+                        netIdentityCache = GetComponentInParent<NetworkIdentity>();
+                    else
+                        netIdentityCache = GetComponent<NetworkIdentity>();
+
                     // do this 2nd check inside first if so that we are not checking == twice on unity Object
                     if (netIdentityCache == null)
                     {
