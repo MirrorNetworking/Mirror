@@ -9,7 +9,7 @@ Mirror creates Serialize and Deserialize functions for types using Weaver. Weave
 There are some rules and limits for what Weaver can do. Some features add complexity and are hard to maintain so have not been implemented. These features are not impossible to implement and could be added if there is a high demand for them.
 
 - You should be able to write Custom Read/Write functions for any type, and Weaver will use.
-    - This means if there is a unsupported type like `int[][]` creating a custom Read/Write function will allow you to sync `int[][]` in SyncVar/ClientRpc/etc
+    - This means if there is a unsupported type such as `int[,]` creating a custom Read/Write function will allow you to sync `int[,]` in SyncVar/ClientRpc/etc
 - If you have a type that has a field that is not able to be Serialize, you can mark that field with `[System.NonSerialized]` and weaver will ignore it
 
 
