@@ -3,18 +3,18 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [Obsolete("Implement NetworkMessage instead", true)]
+    [Obsolete("Implement INetworkMessage instead", true)]
     public interface IMessageBase { }
 
-    [Obsolete("Implement NetworkMessage instead", true)]
+    [Obsolete("Implement INetworkMessage instead", true)]
     public class MessageBase : IMessageBase { }
 
-    public interface NetworkMessage
+    public interface INetworkMessage
     {
     }
 
     #region Public System Messages
-    public struct ErrorMessage : NetworkMessage
+    public struct ErrorMessage : INetworkMessage
     {
         public byte value;
 
@@ -24,15 +24,15 @@ namespace Mirror
         }
     }
 
-    public struct ReadyMessage : NetworkMessage
+    public struct ReadyMessage : INetworkMessage
     {
     }
 
-    public struct NotReadyMessage : NetworkMessage
+    public struct NotReadyMessage : INetworkMessage
     {
     }
 
-    public struct AddPlayerMessage : NetworkMessage
+    public struct AddPlayerMessage : INetworkMessage
     {
     }
 
@@ -41,19 +41,19 @@ namespace Mirror
     /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, bool)">NetworkServer.RemovePlayerForConnection</see> instead.
     /// </summary>
     [Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, bool keepAuthority = false) instead")]
-    public struct RemovePlayerMessage : NetworkMessage
+    public struct RemovePlayerMessage : INetworkMessage
     {
     }
 
-    public struct DisconnectMessage : NetworkMessage
+    public struct DisconnectMessage : INetworkMessage
     {
     }
 
-    public struct ConnectMessage : NetworkMessage
+    public struct ConnectMessage : INetworkMessage
     {
     }
 
-    public struct SceneMessage : NetworkMessage
+    public struct SceneMessage : INetworkMessage
     {
         public string sceneName;
         // Normal = 0, LoadAdditive = 1, UnloadAdditive = 2
@@ -71,7 +71,7 @@ namespace Mirror
     #endregion
 
     #region System Messages requried for code gen path
-    public struct CommandMessage : NetworkMessage
+    public struct CommandMessage : INetworkMessage
     {
         public uint netId;
         public int componentIndex;
@@ -81,7 +81,7 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    public struct RpcMessage : NetworkMessage
+    public struct RpcMessage : INetworkMessage
     {
         public uint netId;
         public int componentIndex;
@@ -93,7 +93,7 @@ namespace Mirror
     #endregion
 
     #region Internal System Messages
-    public struct SpawnMessage : NetworkMessage
+    public struct SpawnMessage : INetworkMessage
     {
         /// <summary>
         /// netId of new or existing object
@@ -135,25 +135,25 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    public struct ObjectSpawnStartedMessage : NetworkMessage
+    public struct ObjectSpawnStartedMessage : INetworkMessage
     {
     }
 
-    public struct ObjectSpawnFinishedMessage : NetworkMessage
+    public struct ObjectSpawnFinishedMessage : INetworkMessage
     {
     }
 
-    public struct ObjectDestroyMessage : NetworkMessage
-    {
-        public uint netId;
-    }
-
-    public struct ObjectHideMessage : NetworkMessage
+    public struct ObjectDestroyMessage : INetworkMessage
     {
         public uint netId;
     }
 
-    public struct UpdateVarsMessage : NetworkMessage
+    public struct ObjectHideMessage : INetworkMessage
+    {
+        public uint netId;
+    }
+
+    public struct UpdateVarsMessage : INetworkMessage
     {
         public uint netId;
         // the serialized component data
@@ -163,7 +163,7 @@ namespace Mirror
 
     // A client sends this message to the server
     // to calculate RTT and synchronize time
-    public struct NetworkPingMessage : NetworkMessage
+    public struct NetworkPingMessage : INetworkMessage
     {
         public double clientTime;
 
@@ -175,7 +175,7 @@ namespace Mirror
 
     // The server responds with this message
     // The client can use this to calculate RTT and sync time
-    public struct NetworkPongMessage : NetworkMessage
+    public struct NetworkPongMessage : INetworkMessage
     {
         public double clientTime;
         public double serverTime;

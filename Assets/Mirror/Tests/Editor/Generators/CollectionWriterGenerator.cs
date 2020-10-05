@@ -121,7 +121,7 @@ namespace {NameSpace}
             return $@"
     public class {collectionType}_{elementType}_Test
     {{
-        public class Message : NetworkMessage
+        public class Message : INetworkMessage
         {{
             public {messageField} collection;
         }}
