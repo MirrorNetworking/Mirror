@@ -31,20 +31,24 @@ namespace Mirror
                 // clear previous rebuild first
                 identity.rebuild.Clear();
 
-                // check distance with each player connection
-                // TODO check with each player connection's owned entities
-                // (a monster is visible to a player, if either the player or
-                //  the player's pet sees it)
-                foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values)
+                // only add observers if not currently hidden from observers
+                if (!identity.forceHidden)
                 {
-                    // only if joined the world (=ready) and selected a player yet
-                    if (conn.isReady && conn.identity != null)
+                    // check distance with each player connection
+                    // TODO check with each player connection's owned entities
+                    // (a monster is visible to a player, if either the player or
+                    //  the player's pet sees it)
+                    foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values)
                     {
-                        float distance = Vector3.Distance(identity.transform.position, conn.identity.transform.position);
-                        if (distance <= visibilityRadius)
+                        // only if joined the world (=ready) and selected a player yet
+                        if (conn.isReady && conn.identity != null)
                         {
-                            // add to rebuild
-                            identity.rebuild.Add(conn);
+                            float distance = Vector3.Distance(identity.transform.position, conn.identity.transform.position);
+                            if (distance <= visibilityRadius)
+                            {
+                                // add to rebuild
+                                identity.rebuild.Add(conn);
+                            }
                         }
                     }
                 }

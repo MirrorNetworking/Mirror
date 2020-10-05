@@ -165,6 +165,13 @@ namespace Mirror
         internal HashSet<NetworkConnectionToClient> rebuild = new HashSet<NetworkConnectionToClient>();
         public HashSet<NetworkConnectionToClient> observers = new HashSet<NetworkConnectionToClient>();
 
+        // Enable to temporarily hide from players. For example, to hide a
+        // monster while it's respawning. This way the monster still exists,
+        // still gets updated, but is hidden from players. This is more
+        // convenient than removing the monster completely and respawning it
+        // with a Spawner.
+        [HideInInspector] public bool forceHidden;
+
         /// <summary>
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
         /// <para>This is a unique identifier for this particular GameObject instance. Use it to track GameObjects between networked clients and the server.</para>
