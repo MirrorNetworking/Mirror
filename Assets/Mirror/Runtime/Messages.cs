@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [Obsolete("Implement NetworkMessage instead", true)]
+    [Obsolete("Implement NetworkMessage instead. Use extension methods instead of Serialize/Deserialize, see https://github.com/vis2k/Mirror/pull/2318", true)]
     public interface IMessageBase { }
 
-    [Obsolete("Implement NetworkMessage instead", true)]
+    [Obsolete("Implement NetworkMessage instead. Use extension methods instead of Serialize/Deserialize, see https://github.com/vis2k/Mirror/pull/2318", true)]
     public class MessageBase : IMessageBase { }
 
     public interface NetworkMessage
