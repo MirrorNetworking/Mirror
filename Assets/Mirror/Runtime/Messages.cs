@@ -77,23 +77,6 @@ namespace Mirror
         // the parameters for the Cmd function
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            componentIndex = (int)reader.ReadPackedUInt32();
-            // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
-            functionHash = reader.ReadInt32();
-            payload = reader.ReadBytesAndSizeSegment();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32((uint)componentIndex);
-            writer.WriteInt32(functionHash);
-            writer.WriteBytesAndSizeSegment(payload);
-        }
     }
 
     public struct RpcMessage : IMessageBase
@@ -104,23 +87,6 @@ namespace Mirror
         // the parameters for the Cmd function
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            componentIndex = (int)reader.ReadPackedUInt32();
-            // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
-            functionHash = reader.ReadInt32();
-            payload = reader.ReadBytesAndSizeSegment();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32((uint)componentIndex);
-            writer.WriteInt32(functionHash);
-            writer.WriteBytesAndSizeSegment(payload);
-        }
     }
     #endregion
 
@@ -165,38 +131,6 @@ namespace Mirror
         /// <remark>ArraySegment to avoid unnecessary allocations</remark>
         /// </summary>
         public ArraySegment<byte> payload;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            isLocalPlayer = reader.ReadBoolean();
-            isOwner = reader.ReadBoolean();
-            sceneId = reader.ReadPackedUInt64();
-            if (sceneId == 0)
-            {
-                assetId = reader.ReadGuid();
-            }
-            position = reader.ReadVector3();
-            rotation = reader.ReadQuaternion();
-            scale = reader.ReadVector3();
-            payload = reader.ReadBytesAndSizeSegment();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WriteBoolean(isLocalPlayer);
-            writer.WriteBoolean(isOwner);
-            writer.WritePackedUInt64(sceneId);
-            if (sceneId == 0)
-            {
-                writer.WriteGuid(assetId);
-            }
-            writer.WriteVector3(position);
-            writer.WriteQuaternion(rotation);
-            writer.WriteVector3(scale);
-            writer.WriteBytesAndSizeSegment(payload);
-        }
     }
 
     public struct ObjectSpawnStartedMessage : IMessageBase
