@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
@@ -21,14 +20,14 @@ namespace Mirror
 
         public static int GetId<T>() where T : IMessageBase
         {
-            // paul: 16 bits is enough to avoid collisions
-            //  - keeps the message size small because it gets varinted
-            //  - in case of collisions,  Mirror will display an error
-            return typeof(T).FullName.GetStableHashCode() & 0xFFFF;
+            return GetId(typeof(T));
         }
 
         public static int GetId(Type type)
         {
+            // paul: 16 bits is enough to avoid collisions
+            //  - keeps the message size small because it gets varinted
+            //  - in case of collisions,  Mirror will display an error
             return type.FullName.GetStableHashCode() & 0xFFFF;
         }
 
@@ -46,21 +45,6 @@ namespace Mirror
 
             // serialize message into writer
             message.Serialize(writer);
-        }
-
-        // helper function to pack message into a simple byte[] (which allocates)
-        // => useful for tests
-        // => useful for local client message enqueue
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static byte[] Pack<T>(T message) where T : IMessageBase
-        {
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                Pack(message, writer);
-                byte[] data = writer.ToArray();
-
-                return data;
-            }
         }
 
         // unpack a message we received

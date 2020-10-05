@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -134,7 +133,7 @@ namespace Mirror.Weaver
         public static void WriteSetupLocals(ILProcessor worker)
         {
             worker.Body.InitLocals = true;
-            worker.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<Mirror.PooledNetworkWriter>()));
+            worker.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<PooledNetworkWriter>()));
         }
 
         public static void WriteCreateWriter(ILProcessor worker)
@@ -160,8 +159,8 @@ namespace Mirror.Weaver
             writer.WriteNetworkIdentity(someTarget);
              */
 
-            bool skipFirst = (callType == RemoteCallType.TargetRpc
-                && TargetRpcProcessor.HasNetworkConnectionParameter(method));
+            bool skipFirst = callType == RemoteCallType.TargetRpc
+                && TargetRpcProcessor.HasNetworkConnectionParameter(method);
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
@@ -371,7 +370,7 @@ namespace Mirror.Weaver
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     WeaverTypes.Import<bool>());
 
-            serialize.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkWriter>()));
+            serialize.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<NetworkWriter>()));
             serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, WeaverTypes.Import<bool>()));
             ILProcessor worker = serialize.Body.GetILProcessor();
 
@@ -443,7 +442,7 @@ namespace Mirror.Weaver
             // generate a writer call for any dirty variable in this class
 
             // start at number of syncvars in parent
-            int dirtyBit = Weaver.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            int dirtyBit = Weaver.WeaveLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
             foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = worker.Create(OpCodes.Nop);
@@ -519,7 +518,7 @@ namespace Mirror.Weaver
         static bool IsNetworkIdentityField(FieldDefinition syncVar)
         {
             return syncVar.FieldType.Is<UnityEngine.GameObject>() ||
-                   syncVar.FieldType.Is<Mirror.NetworkIdentity>();
+                   syncVar.FieldType.Is<NetworkIdentity>();
         }
 
         /// <summary>
@@ -733,7 +732,7 @@ namespace Mirror.Weaver
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
 
-            serialize.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
+            serialize.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
             serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, WeaverTypes.Import<bool>()));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
             // setup local for dirty bits
@@ -776,7 +775,7 @@ namespace Mirror.Weaver
 
             // conditionally read each syncvar
             // start at number of syncvars in parent
-            int dirtyBit = Weaver.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            int dirtyBit = Weaver.WeaveLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
             foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
@@ -811,8 +810,8 @@ namespace Mirror.Weaver
             CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
              */
 
-            bool skipFirst = (callType == RemoteCallType.TargetRpc
-                && TargetRpcProcessor.HasNetworkConnectionParameter(method));
+            bool skipFirst = callType == RemoteCallType.TargetRpc
+                && TargetRpcProcessor.HasNetworkConnectionParameter(method);
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
@@ -859,10 +858,10 @@ namespace Mirror.Weaver
 
         public static void AddInvokeParameters(ICollection<ParameterDefinition> collection)
         {
-            collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkBehaviour>()));
-            collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkReader>()));
+            collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, WeaverTypes.Import<NetworkBehaviour>()));
+            collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
             // senderConnection is only used for commands but NetworkBehaviour.CmdDelegate is used for all remote calls
-            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, WeaverTypes.Import<Mirror.NetworkConnection>()));
+            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, WeaverTypes.Import<NetworkConnectionToClient>()));
         }
 
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
@@ -916,7 +915,7 @@ namespace Mirror.Weaver
         // validate parameters for a remote function call like Rpc/Cmd
         static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
         {
-            bool isNetworkConnection = param.ParameterType.Is<Mirror.NetworkConnection>();
+            bool isNetworkConnection = param.ParameterType.Is<NetworkConnection>();
             bool isSenderConnection = IsSenderConnection(param, callType);
 
             if (param.IsOut)
@@ -959,8 +958,8 @@ namespace Mirror.Weaver
 
             TypeReference type = param.ParameterType;
 
-            return type.Is<Mirror.NetworkConnectionToClient>()
-                || type.Resolve().IsDerivedFrom<Mirror.NetworkConnectionToClient>();
+            return type.Is<NetworkConnectionToClient>()
+                || type.Resolve().IsDerivedFrom<NetworkConnectionToClient>();
         }
 
         void ProcessMethods()
@@ -974,19 +973,19 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.Is<Mirror.CommandAttribute>())
+                    if (ca.AttributeType.Is<CommandAttribute>())
                     {
                         ProcessCommand(names, md, ca);
                         break;
                     }
 
-                    if (ca.AttributeType.Is<Mirror.TargetRpcAttribute>())
+                    if (ca.AttributeType.Is<TargetRpcAttribute>())
                     {
                         ProcessTargetRpc(names, md, ca);
                         break;
                     }
 
-                    if (ca.AttributeType.Is<Mirror.ClientRpcAttribute>())
+                    if (ca.AttributeType.Is<ClientRpcAttribute>())
                     {
                         ProcessClientRpc(names, md, ca);
                         break;

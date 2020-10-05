@@ -14,15 +14,35 @@ namespace Mirror.Weaver
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
 
-        public List<MethodDefinition> generatedReadFunctions = new List<MethodDefinition>();
-        public List<MethodDefinition> generatedWriteFunctions = new List<MethodDefinition>();
-
         public TypeDefinition generateContainerClass;
 
         // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
 
         public HashSet<string> ProcessedMessages = new HashSet<string>();
+
+
+        public int GetSyncVarStart(string className)
+        {
+            return numSyncVars.ContainsKey(className)
+                   ? numSyncVars[className]
+                   : 0;
+        }
+
+        public void SetNumSyncVars(string className, int num)
+        {
+            numSyncVars[className] = num;
+        }
+
+        public void ConfirmGeneratedCodeClass()
+        {
+            if (generateContainerClass == null)
+            {
+                generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
+                        TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
+                        WeaverTypes.Import<object>());
+            }
+        }
     }
 
     internal static class Weaver
@@ -64,40 +84,6 @@ namespace Mirror.Weaver
             Log.Warning($"{message} (at {mr})");
         }
 
-        public static int GetSyncVarStart(string className)
-        {
-            return WeaveLists.numSyncVars.ContainsKey(className)
-                   ? WeaveLists.numSyncVars[className]
-                   : 0;
-        }
-
-        public static void SetNumSyncVars(string className, int num)
-        {
-            WeaveLists.numSyncVars[className] = num;
-        }
-
-        internal static void ConfirmGeneratedCodeClass()
-        {
-            if (WeaveLists.generateContainerClass == null)
-            {
-                WeaveLists.generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
-                        TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass,
-                        WeaverTypes.Import<System.Object>());
-
-                const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-                MethodDefinition method = new MethodDefinition(".ctor", methodAttributes, WeaverTypes.Import(typeof(void)));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(WeaverTypes.Import<System.Object>(), CurrentAssembly, ".ctor")));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
-
-                WeaveLists.generateContainerClass.Methods.Add(method);
-            }
-        }
-
-        public static bool IsNetworkBehaviour(TypeDefinition td)
-        {
-            return td.IsDerivedFrom<Mirror.NetworkBehaviour>();
-        }
 
         static void CheckMonoBehaviour(TypeDefinition td)
         {
@@ -112,7 +98,7 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
-            if (!IsNetworkBehaviour(td))
+            if (!td.IsDerivedFrom<NetworkBehaviour>())
             {
                 CheckMonoBehaviour(td);
                 return false;
@@ -125,7 +111,7 @@ namespace Mirror.Weaver
             TypeDefinition parent = td;
             while (parent != null)
             {
-                if (parent.Is<Mirror.NetworkBehaviour>())
+                if (parent.Is<NetworkBehaviour>())
                 {
                     break;
                 }
@@ -162,7 +148,7 @@ namespace Mirror.Weaver
 
             bool modified = false;
 
-            if (td.ImplementsInterface<Mirror.IMessageBase>())
+            if (td.ImplementsInterface<IMessageBase>())
             {
                 // process this and base classes from parent to child order
                 try
@@ -193,67 +179,13 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool WeaveSyncObject(TypeDefinition td)
-        {
-            bool modified = false;
-
-            // ignore generic classes
-            // we can not process generic classes
-            // we give error if a generic syncObject is used in NetworkBehaviour
-            if (td.HasGenericParameters)
-                return false;
-
-            // ignore abstract classes
-            // we dont need to process abstract classes because classes that
-            // inherit from them will be processed instead
-
-            // We cant early return with non classes or Abstract classes
-            // because we still need to check for embeded types
-            if (td.IsClass || !td.IsAbstract)
-            {
-                if (td.IsDerivedFrom(typeof(SyncList<>)))
-                {
-                    SyncListProcessor.Process(td, WeaverTypes.Import(typeof(SyncList<>)));
-                    modified = true;
-                }
-                else if (td.IsDerivedFrom(typeof(SyncSet<>)))
-                {
-                    SyncListProcessor.Process(td, WeaverTypes.Import(typeof(SyncSet<>)));
-                    modified = true;
-                }
-                else if (td.IsDerivedFrom(typeof(SyncDictionary<,>)))
-                {
-                    SyncDictionaryProcessor.Process(td);
-                    modified = true;
-                }
-            }
-
-            // check for embedded types
-            foreach (TypeDefinition embedded in td.NestedTypes)
-            {
-                modified |= WeaveSyncObject(embedded);
-            }
-
-            return modified;
-        }
-
         static bool WeaveModule(ModuleDefinition moduleDefinition)
         {
             try
             {
                 bool modified = false;
 
-                // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
                 System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
-                foreach (TypeDefinition td in moduleDefinition.Types)
-                {
-                    if (td.IsClass && td.BaseType.CanBeResolved())
-                    {
-                        modified |= WeaveSyncObject(td);
-                    }
-                }
-                watch.Stop();
-                Console.WriteLine("Weave sync objects took " + watch.ElapsedMilliseconds + " milliseconds");
 
                 watch.Start();
                 foreach (TypeDefinition td in moduleDefinition.Types)
@@ -268,6 +200,10 @@ namespace Mirror.Weaver
                 watch.Stop();
                 Console.WriteLine("Weave behaviours and messages took" + watch.ElapsedMilliseconds + " milliseconds");
 
+
+                if (modified)
+                    PropertySiteProcessor.Process(moduleDefinition);
+
                 return modified;
             }
             catch (Exception ex)
@@ -277,15 +213,13 @@ namespace Mirror.Weaver
             }
         }
 
-        static bool Weave(string assName, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
+        static bool Weave(string assName, IEnumerable<string> dependencies)
         {
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
             {
                 asmResolver.AddSearchDirectory(Path.GetDirectoryName(assName));
                 asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
-                asmResolver.AddSearchDirectory(Path.GetDirectoryName(unityEngineDLLPath));
-                asmResolver.AddSearchDirectory(Path.GetDirectoryName(mirrorNetDLLPath));
                 if (dependencies != null)
                 {
                     foreach (string path in dependencies)
@@ -298,10 +232,10 @@ namespace Mirror.Weaver
                 System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 ReaderWriterProcessor.Process(CurrentAssembly);
                 rwstopwatch.Stop();
-                Console.WriteLine("Find all reader and writers took " + rwstopwatch.ElapsedMilliseconds + " milliseconds");
+                Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
 
                 ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
-                Console.WriteLine("Script Module: {0}", moduleDefinition.Name);
+                Console.WriteLine($"Script Module: {moduleDefinition.Name}");
 
                 bool modified = WeaveModule(moduleDefinition);
 
@@ -312,98 +246,32 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    // this must be done for ALL code, not just NetworkBehaviours
-                    try
-                    {
-                        PropertySiteProcessor.Process(moduleDefinition);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error("ProcessPropertySites exception: " + e);
-                        return false;
-                    }
-
-                    if (WeavingFailed)
-                    {
-                        return false;
-                    }
+                    ReaderWriterProcessor.InitializeReaderAndWriters(CurrentAssembly);
 
                     // write to outputDir if specified, otherwise perform in-place write
                     WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
-                    if (!string.IsNullOrEmpty(outputDir))
-                    {
-                        CurrentAssembly.Write(Helpers.DestinationFileFor(outputDir, assName), writeParams);
-                    }
-                    else
-                    {
-                        CurrentAssembly.Write(writeParams);
-                    }
+                    CurrentAssembly.Write(writeParams);
                 }
             }
 
             return true;
         }
 
-        static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
+        public static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies)
         {
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
 
             try
             {
-                foreach (string asm in assemblies)
-                {
-                    if (!Weave(asm, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
-                    {
-                        return false;
-                    }
-                }
+                return Weave(assembly, dependencies);
             }
             catch (Exception e)
             {
                 Log.Error("Exception :" + e);
                 return false;
             }
-            return true;
         }
 
-
-        public static bool Process(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
-        {
-            Validate(unityEngine, netDLL, outputDirectory, assemblies, extraAssemblyPaths);
-            Log.WarningMethod = printWarning;
-            Log.ErrorMethod = printError;
-            return WeaveAssemblies(assemblies, extraAssemblyPaths, outputDirectory, unityEngine, netDLL);
-        }
-
-        static void Validate(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths)
-        {
-            CheckDllPath(unityEngine);
-            CheckDllPath(netDLL);
-            CheckOutputDirectory(outputDirectory);
-            CheckAssemblies(assemblies);
-        }
-        static void CheckDllPath(string path)
-        {
-            if (!File.Exists(path))
-                throw new Exception("dll could not be located at " + path + "!");
-        }
-        static void CheckAssemblies(IEnumerable<string> assemblyPaths)
-        {
-            foreach (string assemblyPath in assemblyPaths)
-                CheckAssemblyPath(assemblyPath);
-        }
-        static void CheckAssemblyPath(string assemblyPath)
-        {
-            if (!File.Exists(assemblyPath))
-                throw new Exception("Assembly " + assemblyPath + " does not exist!");
-        }
-        static void CheckOutputDirectory(string outputDir)
-        {
-            if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
-            {
-                Directory.CreateDirectory(outputDir);
-            }
-        }
     }
 }

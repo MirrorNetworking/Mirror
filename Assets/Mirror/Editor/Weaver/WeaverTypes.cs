@@ -65,7 +65,7 @@ namespace Mirror.Weaver
             // system types
             WeaverTypes.currentAssembly = currentAssembly;
 
-            TypeReference ArraySegmentType = Import(typeof(System.ArraySegment<>));
+            TypeReference ArraySegmentType = Import(typeof(ArraySegment<>));
             ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Array");
             ArraySegmentCountReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Count");
             ArraySegmentOffsetReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Offset");
@@ -77,17 +77,17 @@ namespace Mirror.Weaver
             ListAddReference = Resolvers.ResolveMethod(ListType, currentAssembly, "Add");
             ListConstructorReference = Resolvers.ResolveMethod(ListType, currentAssembly, ".ctor");
 
-            TypeReference NetworkServerType = Import(typeof(Mirror.NetworkServer));
+            TypeReference NetworkServerType = Import(typeof(NetworkServer));
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_localClientActive");
-            TypeReference NetworkClientType = Import(typeof(Mirror.NetworkClient));
+            TypeReference NetworkClientType = Import(typeof(NetworkClient));
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, currentAssembly, "get_active");
 
-            TypeReference cmdDelegateReference = Import<Mirror.RemoteCalls.CmdDelegate>();
+            TypeReference cmdDelegateReference = Import<RemoteCalls.CmdDelegate>();
             CmdDelegateConstructor = Resolvers.ResolveMethod(cmdDelegateReference, currentAssembly, ".ctor");
 
-            TypeReference NetworkBehaviourType = Import<Mirror.NetworkBehaviour>();
-            TypeReference RemoteCallHelperType = Import(typeof(Mirror.RemoteCalls.RemoteCallHelper));
+            TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
+            TypeReference RemoteCallHelperType = Import(typeof(RemoteCalls.RemoteCallHelper));
 
             TypeReference ScriptableObjectType = Import<UnityEngine.ScriptableObject>();
 
@@ -96,11 +96,11 @@ namespace Mirror.Weaver
                 md => md.Name == "CreateInstance" && md.HasGenericParameters);
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "syncVarDirtyBits");
-            TypeReference NetworkWriterPoolType = Import(typeof(Mirror.NetworkWriterPool));
+            TypeReference NetworkWriterPoolType = Import(typeof(NetworkWriterPool));
             GetPooledWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, currentAssembly, "GetWriter");
             RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, currentAssembly, "Recycle");
 
-            TypeReference ClientSceneType = Import(typeof(Mirror.ClientScene));
+            TypeReference ClientSceneType = Import(typeof(ClientScene));
             ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, currentAssembly, "get_readyConnection");
 
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarEqual");

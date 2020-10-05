@@ -6,16 +6,14 @@ A SyncHashSet can contain any [supported mirror type](../DataTypes.md)
 
 ## Usage
 
-Create a class that derives from SyncHashSet for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncHashSet field to your NetworkBehaviour class. For example:
+Add a SyncHashSet field to your NetworkBehaviour class. For example:
 
 ```cs
-[System.Serializable]
-public class SyncSkillSet : SyncHashSet<string> {}
 
 public class Player : NetworkBehaviour {
 
     [SerializeField]
-    readonly SyncSkillSet skills = new SyncSkillSet();
+    readonly SyncHashSet<string> skills = new SyncHashSet<string>();
 
     int skillPoints = 10;
 
@@ -40,13 +38,10 @@ Subscribe to the Callback event typically during `Start`, `OnClientStart` or `On
 >Note SyncSets must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.
 
 ```cs
-[System.Serializable]
-public class SyncSetBuffs : SyncHashSet<string> {};
-
 public class Player : NetworkBehaviour
 {
     [SerializeField]
-    public readonly SyncSetBuffs buffs = new SyncSetBuffs();
+    public readonly SyncHashSet<string> buffs = new SyncHashSet<string>();
 
     // this will add the delegate on the client.
     // Use OnStartServer instead if you want it on the server
@@ -55,17 +50,17 @@ public class Player : NetworkBehaviour
         buffs.Callback += OnBuffsChanged;
     }
 
-    void OnBuffsChanged(SyncSetBuffs.Operation op, string buff)
+    void OnBuffsChanged(SyncHashSet<string>.Operation op, string buff)
     {
         switch (op) 
         {
-            case SyncSetBuffs.Operation.OP_ADD:
+            case SyncHashSet<string>.Operation.OP_ADD:
                 // we added a buff, draw an icon on the character
                 break;
-            case SyncSetBuffs.Operation.OP_CLEAR:
+            case SyncHashSet<string>.Operation.OP_CLEAR:
                 // clear all buffs from the character
                 break;
-            case SyncSetBuffs.Operation.OP_REMOVE:
+            case SyncHashSet<string>.Operation.OP_REMOVE:
                 // We removed a buff from the character
                 break;
         }

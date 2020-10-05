@@ -23,7 +23,7 @@ If you are already familiar with multiplayer game development, you might find it
 
 ## Transports
 
-Mirror's uses a separate component (derived from the Transport class) to connect across the network. By default, it is Telepathy Transport. This design choice of separating the transport into its own component allows game developers to choose the transport that best fits their game needs. Changing transports is as simple as swapping out the component on the Network Manager object and assigning it to the Transport field.
+Mirror uses a separate component (derived from the Transport class) to connect across the network. By default, it is Telepathy Transport. This design choice of separating the transport into its own component allows game developers to choose the transport that best fits their game needs. Changing transports is as simple as swapping out the component on the Network Manager object and assigning it to the Transport field.
 
 Transports are available for TCP, UDP, WebGL, and Steam. Additionally, there's a Multiplex transport that allows for using two transports together on the server, e.g. Telepathy and WebSockets, so that desktop and browser players can play together on the same server seamlessly. See [Transports](../Transports/index.md) for more information.
 
@@ -50,7 +50,7 @@ Use the Network Manager to manage the spawning (networked instantiation) of netw
 
 Most games have a Prefab which represents the player, so the Network Manager has a Player Prefab slot. You should assign this slot with your player Prefab. When you have a player Prefab set, a player game object is automatically spawned from that Prefab for each user in the game. This applies to the local player on a hosted server, and remote players on remote clients. You must attach a Network Identity component to the Player Prefab before assigning it to this field.
 
-Once you have assigned a Player Prefab, you can start the game as a host and see the player game object spawn. Stopping the game destroys the player game object . If you build and run another copy of the game and connect it as a client to *localhost*, the Network Manager makes another player game object appear. When you stop that client, it destroys that player’s game object .
+Once you have assigned a Player Prefab, you can start the game as a host and see the player game object spawn. Stopping the game destroys the player game object . If you build and run another copy of the game and connect it as a client to *localhost*, the Network Manager makes another player game object appear. When you stop that client, it destroys that player’s game object.
 
 In addition to the Player Prefab, you must also register other prefabs that you want to dynamically spawn during game play with the Network Manager.
 
@@ -153,7 +153,7 @@ There are virtual functions on the `NetworkManager` class that you can customize
         Returns the `NetworkClient.singleton`.
 
     -   **isHeadless**  
-        Bool that indicates of the application was started in headless mode.
+        Bool that indicates if the application was started in headless mode.
 
 ## Methods
 

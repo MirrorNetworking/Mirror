@@ -3,11 +3,11 @@ Written by [StephenAllenGames.co.uk](http://stephenallengames.co.uk/) <br />
 Edited by [James Frowen](https://github.com/James-Frowen)
 ***
 This guide currently shows you:
-- [Basic scene setup](##part-1)
-- [Player movement](##part-4)
-- [Names and colours](##part-8)
-- [Scene script with canvas buttons](##part-11)
-- [Weapon switching](##part-12))
+- [Basic scene setup](#part-1)
+- [Player movement](#part-4)
+- [Names and colours](#part-8)
+- [Scene script with canvas buttons](#part-11)
+- [Weapon switching](#part-12)
 
 It is best to first make a mini practice game before converting your single player game, or creating your ideal brand new multiplayer.
 

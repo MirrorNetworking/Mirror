@@ -457,100 +457,49 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Persistent sceneId assignment
-        /// (because scene objects have no persistent unique ID in Unity)
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        ///     Original UNET used OnPostProcessScene to assign an index based on
-        ///     FindObjectOfType{NetworkIdentity} order.
-        ///     <list type="bullet">
-        ///         <item>
-        ///             this didn't work because FindObjectOfType order isn't deterministic.
-        ///         </item>
-        ///         <item>
-        ///             one workaround is to sort them by sibling paths, but it can still
-        ///             get out of sync when we open scene2 in editor and we have
-        ///             DontDestroyOnLoad objects that messed with the sibling index.
-        ///         </item>
-        ///     </list>
-        /// </para>
-        /// <para>
-        ///     We absolutely need a persistent id. challenges:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             It needs to be 0 for prefabs
-        ///         <para>
-        ///             => we set it to 0 in SetupIDs() if prefab!
-        ///         </para>
-        ///         </item>
-        ///         <item>
-        ///             It needs to be only assigned in edit time, not at runtime because
-        ///             only the objects that were in the scene since beginning should have
-        ///             a scene id.
-        ///         <para>
-        ///             => Application.isPlaying check solves that
-        ///         </para>
-        ///         </item>
-        ///         <item>
-        ///             It needs to detect duplicated sceneIds after duplicating scene
-        ///             objects
-        ///         <para>
-        ///             => sceneIds dict takes care of that
-        ///         </para>
-        ///         </item>
-        ///         <item>
-        ///             Duplicating the whole scene file shouldn't result in duplicate
-        ///           scene objects
-        ///         <para>
-        ///             => buildIndex is shifted into sceneId for that.
-        ///         </para>
-        ///         <para>
-        ///             => if we have no scenes in build index then it doesn't matter
-        ///             because by definition a build can't switch to other scenes
-        ///         </para>
-        ///         <para>
-        ///             => if we do have scenes in build index then it will be != -1
-        ///         </para>
-        ///         <para>
-        ///             note: the duplicated scene still needs to be opened once for it to
-        ///             be set properly
-        ///         </para>
-        ///         </item>
-        ///         <item>
-        ///             Scene objects need the correct scene index byte even if the scene's
-        ///             build index was changed or a duplicated scene wasn't opened yet.
-        ///         <para>
-        ///            => OnPostProcessScene is the only function that gets called for
-        ///              each scene before runtime, so this is where we set the scene
-        ///              byte.
-        ///              </para>
-        ///         </item>
-        ///         <item>
-        ///             Disabled scenes in build settings should result in same scene index
-        ///             in editor and in build
-        ///         <para>
-        ///             => .gameObject.scene.buildIndex filters out disabled scenes by default
-        ///         </para>
-        ///         </item>
-        ///         <item>
-        ///             Generated sceneIds absolutely need to set scene dirty and force the
-        ///             user to resave.
-        ///         <para>
-        ///             => Undo.RecordObject does that perfectly.
-        ///         </para>
-        ///         </item>
-        ///         <item>
-        ///             SceneIds should never be generated temporarily for unopened scenes
-        ///             when building, otherwise editor and build get out of sync
-        ///         <para>
-        ///             => BuildPipeline.isBuildingPlayer check solves that
-        ///         </para>
-        ///         </item>
-        ///     </list>
-        /// </para>
-        /// </remarks>
+        // persistent sceneId assignment
+        // (because scene objects have no persistent unique ID in Unity)
+        //
+        // original UNET used OnPostProcessScene to assign an index based on
+        // FindObjectOfType<NetworkIdentity> order.
+        // -> this didn't work because FindObjectOfType order isn't deterministic.
+        // -> one workaround is to sort them by sibling paths, but it can still
+        //    get out of sync when we open scene2 in editor and we have
+        //    DontDestroyOnLoad objects that messed with the sibling index.
+        //
+        // we absolutely need a persistent id. challenges:
+        // * it needs to be 0 for prefabs
+        //   => we set it to 0 in SetupIDs() if prefab!
+        // * it needs to be only assigned in edit time, not at runtime because
+        //   only the objects that were in the scene since beginning should have
+        //   a scene id.
+        //   => Application.isPlaying check solves that
+        // * it needs to detect duplicated sceneIds after duplicating scene
+        //   objects
+        //   => sceneIds dict takes care of that
+        // * duplicating the whole scene file shouldn't result in duplicate
+        //   scene objects
+        //   => buildIndex is shifted into sceneId for that.
+        //   => if we have no scenes in build index then it doesn't matter
+        //      because by definition a build can't switch to other scenes
+        //   => if we do have scenes in build index then it will be != -1
+        //   note: the duplicated scene still needs to be opened once for it to
+        //          be set properly
+        // * scene objects need the correct scene index byte even if the scene's
+        //   build index was changed or a duplicated scene wasn't opened yet.
+        //   => OnPostProcessScene is the only function that gets called for
+        //      each scene before runtime, so this is where we set the scene
+        //      byte.
+        // * disabled scenes in build settings should result in same scene index
+        //   in editor and in build
+        //   => .gameObject.scene.buildIndex filters out disabled scenes by
+        //      default
+        // * generated sceneIds absolutely need to set scene dirty and force the
+        //   user to resave.
+        //   => Undo.RecordObject does that perfectly.
+        // * sceneIds should never be generated temporarily for unopened scenes
+        //   when building, otherwise editor and build get out of sync
+        //   => BuildPipeline.isBuildingPlayer check solves that
         void AssignSceneID()
         {
             // we only ever assign sceneIds at edit time, never at runtime.
@@ -604,33 +553,17 @@ namespace Mirror
             sceneIds[sceneId] = this;
         }
 
-        /// <summary>
-        /// <para>
-        ///     Copy scene path hash into sceneId for scene objects.
-        /// </para>
-        /// <para>
-        /// this is the only way for scene file duplication to not contain
-        /// duplicate sceneIds as it seems.
-        /// </para>
-        /// <list type="bullet">
-        ///     <item>
-        ///         sceneId before: 0x00000000AABBCCDD
-        ///     </item>
-        ///     <item>
-        ///         then we clear the left 4 bytes, so that our 'OR' uses 0x00000000
-        ///     </item>
-        ///     <item>
-        ///         then we OR the hash into the 0x00000000 part
-        ///     </item>
-        ///     <item>
-        ///         buildIndex is not enough, because Editor and Build have different
-        ///         build indices if there are disabled scenes in build settings, and
-        ///         if no scene is in build settings then Editor and Build have
-        ///         different indices too (Editor=0, Build=-1)
-        ///     </item>
-        /// </list>
-        /// <b>ONLY USE THIS FROM POSTPROCESSSCENE!</b>
-        /// </summary>
+        // copy scene path hash into sceneId for scene objects.
+        // this is the only way for scene file duplication to not contain
+        // duplicate sceneIds as it seems.
+        // -> sceneId before: 0x00000000AABBCCDD
+        // -> then we clear the left 4 bytes, so that our 'OR' uses 0x00000000
+        // -> then we OR the hash into the 0x00000000 part
+        // -> buildIndex is not enough, because Editor and Build have different
+        //    build indices if there are disabled scenes in build settings, and
+        //    if no scene is in build settings then Editor and Build have
+        //    different indices too (Editor=0, Build=-1)
+        // => ONLY USE THIS FROM POSTPROCESSSCENE!
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void SetSceneIdSceneHashPartInternal()
         {
@@ -973,31 +906,11 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Serializes component and its lengths
-        /// </summary>
-        /// <param name="comp"></param>
-        /// <param name="writer"></param>
-        /// <param name="initialState"></param>
-        /// <returns></returns>
-        /// <remarks>
-        /// vis2k: readstring bug prevention:
-        /// <see cref="https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients"/>
-        /// <list type="bullet">
-        ///     <item>
-        ///         OnSerialize writes length,componentData,length,componentData,...
-        ///     </item>
-        ///     <item>
-        ///         OnDeserialize carefully extracts each data, then deserializes each component with separate readers
-        ///     </item>
-        ///     <item>
-        ///         It will be impossible to read too many or too few bytes in OnDeserialize
-        ///     </item>
-        ///     <item>
-        ///         We can properly track down errors
-        ///     </item>
-        /// </list>
-        /// </remarks>
+        // vis2k: readstring bug prevention: https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients
+        // -> OnSerialize writes length,componentData,length,componentData,...
+        // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
+        //    -> it will be impossible to read too many or too few bytes in OnDeserialize
+        //    -> we can properly track down errors
         bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
             // write placeholder length bytes

@@ -8,14 +8,11 @@ A SyncSortedSet can contain any [supported mirror type](../DataTypes.md)
 
 ## Usage
 
-Create a class that derives from SyncSortedSet for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncSortedSet field to your NetworkBehaviour class. For example:
+Add a SyncSortedSet field to your NetworkBehaviour class. For example:
 
 ```cs
 class Player : NetworkBehaviour {
-
-    class SyncSkillSet : SyncSortedSet<string> {}
-
-    readonly SyncSkillSet skills = new SyncSkillSet();
+    readonly SyncSortedSet<string> skills = new SyncSortedSet<string>();
 
     int skillPoints = 10;
 
@@ -40,10 +37,7 @@ You can also detect when a SyncSortedSet changes. This is useful for refreshing 
 ```cs
 class Player : NetworkBehaviour
 {
-
-    class SyncSetBuffs : SyncSortedSet<string> {};
-
-    readonly SyncSetBuffs buffs = new SyncSetBuffs();
+    readonly SyncSortedSet<string> buffs = new SyncSortedSet<string>();
 
     // this will add the delegate on the client.
     // Use OnStartServer instead if you want it on the server
@@ -52,17 +46,17 @@ class Player : NetworkBehaviour
         buffs.Callback += OnBuffsChanged;
     }
 
-    void OnBuffsChanged(SyncSetBuffs.Operation op, string buff)
+    void OnBuffsChanged(SyncSortedSet<string>.Operation op, string buff)
     {
         switch (op) 
         {
-            case SyncSetBuffs.Operation.OP_ADD:
+            case SyncSortedSet<string>.Operation.OP_ADD:
                 // we added a buff, draw an icon on the character
                 break;
-            case SyncSetBuffs.Operation.OP_CLEAR:
+            case SyncSortedSet<string>.Operation.OP_CLEAR:
                 // clear all buffs from the character
                 break;
-            case SyncSetBuffs.Operation.OP_REMOVE:
+            case SyncSortedSet<string>.Operation.OP_REMOVE:
                 // We removed a buff from the character
                 break;
         }

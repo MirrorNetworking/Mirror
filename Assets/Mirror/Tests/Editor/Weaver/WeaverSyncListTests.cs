@@ -31,8 +31,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListGenericInheritanceWithMultipleGeneric()
         {
-            HasError("Could not find generic arguments for SyncList`1 in WeaverSyncListTests.SyncListGenericInheritanceWithMultipleGeneric.SyncListGenericInheritanceWithMultipleGeneric/SomeListInt",
-                "WeaverSyncListTests.SyncListGenericInheritanceWithMultipleGeneric.SyncListGenericInheritanceWithMultipleGeneric/SomeListInt");
+            IsSuccess();
         }
 
         [Test]
@@ -69,13 +68,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListNestedInAbstractClassWithInvalid()
         {
-            // we need this negative test to make sure that SyncList is being processed 
+            // we need this negative test to make sure that SyncList is being processed
+            HasError("Cannot generate reader for Object. Use a supported type or provide a custom reader",
+                "UnityEngine.Object");
+            HasError("target has an unsupported type",
+                "UnityEngine.Object WeaverSyncListTests.SyncListNestedInAbstractClassWithInvalid.SyncListNestedStructWithInvalid/SomeAbstractClass/MyNestedStruct::target");
             HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
                 "UnityEngine.Object");
-            HasError("target has unsupported type. Use a type supported by Mirror instead",
-                "UnityEngine.Object WeaverSyncListTests.SyncListNestedInAbstractClassWithInvalid.SyncListNestedStructWithInvalid/SomeAbstractClass/MyNestedStruct::target");
-            HasError("MyNestedStructList has sync object generic type MyNestedStruct.  Use a type supported by mirror instead",
-                "WeaverSyncListTests.SyncListNestedInAbstractClassWithInvalid.SyncListNestedStructWithInvalid/SomeAbstractClass/MyNestedStructList");
         }
 
         [Test]
@@ -87,13 +86,14 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListNestedInStructWithInvalid()
         {
-            // we need this negative test to make sure that SyncList is being processed 
+            // we need this negative test to make sure that SyncList is being processed
+            HasError("Cannot generate reader for Object. Use a supported type or provide a custom reader",
+                "UnityEngine.Object");
+            HasError("target has an unsupported type",
+                "UnityEngine.Object WeaverSyncListTests.SyncListNestedInStructWithInvalid.SyncListNestedInStructWithInvalid/SomeData::target");
             HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
                 "UnityEngine.Object");
-            HasError("target has unsupported type. Use a type supported by Mirror instead",
-                "UnityEngine.Object WeaverSyncListTests.SyncListNestedInStructWithInvalid.SyncListNestedInStructWithInvalid/SomeData::target");
-            HasError("SyncList has sync object generic type SomeData.  Use a type supported by mirror instead",
-                "WeaverSyncListTests.SyncListNestedInStructWithInvalid.SyncListNestedInStructWithInvalid/SomeData/SyncList");
+
         }
 
         [Test]
@@ -103,42 +103,12 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void SyncListStructWithCustomDeserializeOnly()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListStructWithCustomMethods()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListStructWithCustomSerializeOnly()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void SyncListErrorForGenericStruct()
         {
-            HasError("Can not create Serialize or Deserialize for generic element in MyGenericStructList. Override virtual methods with custom Serialize and Deserialize to use WeaverSyncListTests.SyncListErrorForGenericStruct.SyncListErrorForGenericStruct/MyGenericStruct`1<System.Single> in SyncList",
-                "WeaverSyncListTests.SyncListErrorForGenericStruct.SyncListErrorForGenericStruct/MyGenericStructList");
-        }
-
-        [Test]
-        public void SyncListErrorForGenericStructWithCustomDeserializeOnly()
-        {
-            HasError("Can not create Serialize or Deserialize for generic element in MyGenericStructList. Override virtual methods with custom Serialize and Deserialize to use WeaverSyncListTests.SyncListErrorForGenericStructWithCustomDeserializeOnly.SyncListErrorForGenericStructWithCustomDeserializeOnly/MyGenericStruct`1<System.Single> in SyncList",
-                "WeaverSyncListTests.SyncListErrorForGenericStructWithCustomDeserializeOnly.SyncListErrorForGenericStructWithCustomDeserializeOnly/MyGenericStructList");
-        }
-
-        [Test]
-        public void SyncListErrorForGenericStructWithCustomSerializeOnly()
-        {
-            HasError("Can not create Serialize or Deserialize for generic element in MyGenericStructList. Override virtual methods with custom Serialize and Deserialize to use MyGenericStruct`1 in SyncList",
-                "WeaverSyncListTests.SyncListErrorForGenericStructWithCustomSerializeOnly.SyncListErrorForGenericStructWithCustomSerializeOnly/MyGenericStructList");
+            HasError("Cannot generate reader for generic variable MyGenericStruct`1. Use a supported type or provide a custom reader",
+                "WeaverSyncListTests.SyncListErrorForGenericStruct.SyncListErrorForGenericStruct/MyGenericStruct`1<System.Single>");
+            HasError("Cannot generate writer for generic type MyGenericStruct`1. Use a supported type or provide a custom writer",
+                "WeaverSyncListTests.SyncListErrorForGenericStruct.SyncListErrorForGenericStruct/MyGenericStruct`1<System.Single>");
         }
 
         [Test]
@@ -150,10 +120,10 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListErrorForInterface()
         {
+            HasError("Cannot generate reader for interface MyInterface. Use a supported type or provide a custom reader",
+                "WeaverSyncListTests.SyncListErrorForInterface.MyInterface");
             HasError("Cannot generate writer for interface MyInterface. Use a supported type or provide a custom writer",
                 "WeaverSyncListTests.SyncListErrorForInterface.MyInterface");
-            HasError("MyInterfaceList has sync object generic type MyInterface.  Use a type supported by mirror instead",
-                "WeaverSyncListTests.SyncListErrorForInterface.MyInterfaceList");
         }
 
         [Test]
@@ -163,16 +133,9 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void SyncListInheritanceWithOverrides()
+        public void GenericSyncListCanBeUsed()
         {
             IsSuccess();
-        }
-
-        [Test]
-        public void SyncListErrorWhenUsingGenericListInNetworkBehaviour()
-        {
-            HasError("Cannot use generic SyncObject someList directly in NetworkBehaviour. Create a class and inherit from the generic SyncObject instead",
-                "WeaverSyncListTests.SyncListErrorWhenUsingGenericListInNetworkBehaviour.SyncListErrorWhenUsingGenericListInNetworkBehaviour/SomeList`1<System.Int32> WeaverSyncListTests.SyncListErrorWhenUsingGenericListInNetworkBehaviour.SyncListErrorWhenUsingGenericListInNetworkBehaviour::someList");
         }
     }
 }

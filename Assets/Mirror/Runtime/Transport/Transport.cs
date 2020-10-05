@@ -39,10 +39,11 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// </summary>
+        // Note: we provide channelId for NetworkDiagnostics.
         [HideInInspector] public ClientDataReceivedEvent OnClientDataReceived = new ClientDataReceivedEvent();
 
         /// <summary>
-        /// Notify subscribers when this clianet encounters an error communicating with the server
+        /// Notify subscribers when this client encounters an error communicating with the server
         /// </summary>
         [HideInInspector] public UnityEventException OnClientError = new UnityEventException();
 
@@ -109,6 +110,7 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// </summary>
+        // Note: we provide channelId for NetworkDiagnostics.
         [HideInInspector] public ServerDataReceivedEvent OnServerDataReceived = new ServerDataReceivedEvent();
 
         /// <summary>

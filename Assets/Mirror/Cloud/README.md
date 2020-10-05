@@ -2,25 +2,25 @@
 
 ## Mirror List Server
 
-Example has API key that can be used for as a demo.
+Example has an API key which can be used as a demo.
 
 To get an API key to use within your game you can subscribe on the [Mirror Networking Website](https://mirror-networking.com/list-server/)
 
 ### Key features
 
-- The Cloud Service works via https so is secure and can be used from any platform. 
-- It runs on Google Cloud so there is no worry about server down time.
+- The Cloud Service works via https so it is secure and can be used from any platform. 
+- It runs on Google Cloud so there is no worry about server downtime.
 - It scales really well. Default quota is 1000 API requests per minute. If you have high demands, contact us and we can increase that limit. 
 
 ## List Server Examples
 
 An example for this can be found in Mirror/Examples/Cloud/
 
-*Note: you can not connect to your own public ip address, you will need at least people to test this*
+*Note: you cannot connect to your own public IP address, you will need at least one other person to test this*
 
 ## How to use
 
-Add `ApiConnector` component to an object in your game, It is probably best to put this on the same object as your NetworkManager. Once it has been added set the `ApiAddress` and `ApiKey` fields.
+Add `ApiConnector` component to an object in your game. It is probably best to put this on the same object as your NetworkManager. Once it has been added set the `ApiAddress` and `ApiKey` fields.
 
 To use `ApiConnector` either directly reference it in an inspector field or get it when your script awakes
 ```cs
@@ -33,7 +33,7 @@ void Awake()
 ```
 
 
-The Api calls are grouped into objects. `connector.ListServer.ServerApi` has the Server api calls like `AddServer`. `connector.ListServer.ClientApi` has the Client Api calls like `GetServerList`.
+The Api calls are grouped into objects. `connector.ListServer.ServerApi` has the Server Api calls like `AddServer`. `connector.ListServer.ClientApi` has the Client Api calls like `GetServerList`.
 
 ### Server Api Example
 
@@ -88,13 +88,13 @@ void onServerListUpdated()
 
 ## Debug
 
-If someone doesn't seem to be working then here are some tips to help solve the problem
+If something doesn't seem to be working then here are some tips to help solve the problem
 
 ### Check logs
 
-Enable `showDebugMessages` on your NetworkManager or use the log level window so enable logging for the cloud scripts
+Enable `showDebugMessages` on your NetworkManager or use the log level window to enable logging for the cloud scripts
 
-Below are some examples logs to look for to check things are working.
+Below are some example logs to look for to check things are working.
 
 #### Add Server
 
@@ -122,7 +122,7 @@ Response: PATCH 204 /servers/BI6bQQ2TbNiqhdp1D7UB
 
 #### Remove Server
 
-The remove request is sent to remove a server from the list server. This is automatically called whe the ApiConnection is destroyed.
+The remove request is sent to remove a server from the list server. This is automatically called when the ApiConnection is destroyed.
 
 ```
 Request: DELETE servers/BI6bQQ2TbNiqhdp1D7UB
@@ -144,9 +144,9 @@ Request: GET servers
 ```
 Response: GET 200 /servers {"servers":[{"address":"tcp4://xx.xx.xx.xx:7777","displayName":"Tanks Game 521","port":7777,"protocol":"tcp4","playerCount":0,"maxPlayerCount":4,"customAddress":"","customData":[]},{"address":"tcp4://xx.xx.xx.xx:7777","displayName":"Tanks Game 212","port":7777,"protocol":"tcp4","playerCount":0,"maxPlayerCount":4,"customData":[]}]}
 ```
-*xx.xx.xx.xx will be the ip address for the server*
+*xx.xx.xx.xx will be the IP address for the server*
 
 
 ### Use the QuickListServerDebug
 
-The QuickListServerDebug scripts uses `OnGUI` to show the list of servers. This script can be used to check the server list without using Canvas UI.
+The QuickListServerDebug script uses `OnGUI` to show the list of servers. This script can be used to check the server list without using Canvas UI.

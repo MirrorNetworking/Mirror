@@ -2,13 +2,20 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
+    class TestPlayerBehaviour : NetworkBehaviour
+    {
+        // note synclists must be a property of a NetworkBehavior so that
+        // the weaver generates the reader and writer for the object
+        public SyncList<TestPlayer> myList = new SyncList<TestPlayer>();
+    }
+
     public class SyncListStructTest
     {
         [Test]
         public void ListIsDirtyWhenModifingAndSettingStruct()
         {
-            SyncListTestPlayer serverList = new SyncListTestPlayer();
-            SyncListTestPlayer clientList = new SyncListTestPlayer();
+            SyncList<TestPlayer> serverList = new SyncList<TestPlayer>();
+            SyncList<TestPlayer> clientList = new SyncList<TestPlayer>();
             SyncListTest.SerializeAllTo(serverList, clientList);
             serverList.Add(new TestPlayer { item = new TestItem { price = 10 } });
             SyncListTest.SerializeDeltaTo(serverList, clientList);
@@ -25,8 +32,8 @@ namespace Mirror.Tests
         [Test]
         public void OldValueShouldNotBeNewValue()
         {
-            SyncListTestPlayer serverList = new SyncListTestPlayer();
-            SyncListTestPlayer clientList = new SyncListTestPlayer();
+            SyncList<TestPlayer> serverList = new SyncList<TestPlayer>();
+            SyncList<TestPlayer> clientList = new SyncList<TestPlayer>();
             SyncListTest.SerializeAllTo(serverList, clientList);
             serverList.Add(new TestPlayer { item = new TestItem { price = 10 } });
             SyncListTest.SerializeDeltaTo(serverList, clientList);
@@ -50,11 +57,6 @@ namespace Mirror.Tests
         }
     }
 
-
-    public class SyncListTestPlayer : SyncList<TestPlayer>
-    {
-
-    }
     public struct TestPlayer
     {
         public TestItem item;

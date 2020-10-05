@@ -4,25 +4,24 @@ namespace WeaverSyncListTests.SyncListGenericStructWithCustomMethods
 {
     class SyncListGenericStructWithCustomMethods : NetworkBehaviour
     {
-        MyGenericStructList harpseals;
+        SyncList<MyGenericStruct<float>> harpseals;
 
+    }
+    struct MyGenericStruct<T>
+    {
+        public T genericpotato;
+    }
 
-        struct MyGenericStruct<T>
+    static class MyGenericStructList
+    {
+        static void SerializeItem(this NetworkWriter writer, MyGenericStruct<float> item)
         {
-            public T genericpotato;
+            writer.WriteSingle(item.genericpotato);
         }
 
-        class MyGenericStructList : SyncList<MyGenericStruct<float>>
+        static MyGenericStruct<float> DeserializeItem(this NetworkReader reader)
         {
-            protected override void SerializeItem(NetworkWriter writer, MyGenericStruct<float> item)
-            {
-                writer.WriteSingle(item.genericpotato);
-            }
-
-            protected override MyGenericStruct<float> DeserializeItem(NetworkReader reader)
-            {
-                return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
-            }
+            return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
         }
     }
 }
