@@ -7,7 +7,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    struct TestMessage1 : IMessageBase
+    struct TestMessage1 : NetworkMessage
     {
         public int IntValue;
         public string StringValue;
@@ -35,7 +35,7 @@ namespace Mirror.Tests
         }
     }
 
-    struct TestMessage2 : IMessageBase
+    struct TestMessage2 : NetworkMessage
     {
 #pragma warning disable CS0649 // Field is never assigned to
         public int IntValue;

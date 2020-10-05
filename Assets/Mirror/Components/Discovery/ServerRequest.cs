@@ -1,4 +1,4 @@
 namespace Mirror.Discovery
 {
-    public struct ServerRequest : IMessageBase { }
+    public struct ServerRequest : NetworkMessage { }
 }

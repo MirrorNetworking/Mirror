@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace WeaverMessageTests.MessageSelfReferencing
 {
-    class MessageSelfReferencing : IMessageBase
+    class MessageSelfReferencing : NetworkMessage
     {
         public uint netId;
         public Guid assetId;

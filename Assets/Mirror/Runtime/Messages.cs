@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public interface IMessageBase
+    public interface NetworkMessage
     {
     }
 
     #region Public System Messages
-    public struct ErrorMessage : IMessageBase
+    public struct ErrorMessage : NetworkMessage
     {
         public byte value;
 
@@ -18,15 +18,15 @@ namespace Mirror
         }
     }
 
-    public struct ReadyMessage : IMessageBase
+    public struct ReadyMessage : NetworkMessage
     {
     }
 
-    public struct NotReadyMessage : IMessageBase
+    public struct NotReadyMessage : NetworkMessage
     {
     }
 
-    public struct AddPlayerMessage : IMessageBase
+    public struct AddPlayerMessage : NetworkMessage
     {
     }
 
@@ -35,19 +35,19 @@ namespace Mirror
     /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, bool)">NetworkServer.RemovePlayerForConnection</see> instead.
     /// </summary>
     [Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, bool keepAuthority = false) instead")]
-    public struct RemovePlayerMessage : IMessageBase
+    public struct RemovePlayerMessage : NetworkMessage
     {
     }
 
-    public struct DisconnectMessage : IMessageBase
+    public struct DisconnectMessage : NetworkMessage
     {
     }
 
-    public struct ConnectMessage : IMessageBase
+    public struct ConnectMessage : NetworkMessage
     {
     }
 
-    public struct SceneMessage : IMessageBase
+    public struct SceneMessage : NetworkMessage
     {
         public string sceneName;
         // Normal = 0, LoadAdditive = 1, UnloadAdditive = 2
@@ -65,7 +65,7 @@ namespace Mirror
     #endregion
 
     #region System Messages requried for code gen path
-    public struct CommandMessage : IMessageBase
+    public struct CommandMessage : NetworkMessage
     {
         public uint netId;
         public int componentIndex;
@@ -75,7 +75,7 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    public struct RpcMessage : IMessageBase
+    public struct RpcMessage : NetworkMessage
     {
         public uint netId;
         public int componentIndex;
@@ -87,7 +87,7 @@ namespace Mirror
     #endregion
 
     #region Internal System Messages
-    public struct SpawnMessage : IMessageBase
+    public struct SpawnMessage : NetworkMessage
     {
         /// <summary>
         /// netId of new or existing object
@@ -129,25 +129,25 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    public struct ObjectSpawnStartedMessage : IMessageBase
+    public struct ObjectSpawnStartedMessage : NetworkMessage
     {
     }
 
-    public struct ObjectSpawnFinishedMessage : IMessageBase
+    public struct ObjectSpawnFinishedMessage : NetworkMessage
     {
     }
 
-    public struct ObjectDestroyMessage : IMessageBase
-    {
-        public uint netId;
-    }
-
-    public struct ObjectHideMessage : IMessageBase
+    public struct ObjectDestroyMessage : NetworkMessage
     {
         public uint netId;
     }
 
-    public struct UpdateVarsMessage : IMessageBase
+    public struct ObjectHideMessage : NetworkMessage
+    {
+        public uint netId;
+    }
+
+    public struct UpdateVarsMessage : NetworkMessage
     {
         public uint netId;
         // the serialized component data
@@ -157,7 +157,7 @@ namespace Mirror
 
     // A client sends this message to the server
     // to calculate RTT and synchronize time
-    public struct NetworkPingMessage : IMessageBase
+    public struct NetworkPingMessage : NetworkMessage
     {
         public double clientTime;
 
@@ -169,7 +169,7 @@ namespace Mirror
 
     // The server responds with this message
     // The client can use this to calculate RTT and sync time
-    public struct NetworkPongMessage : IMessageBase
+    public struct NetworkPongMessage : NetworkMessage
     {
         public double clientTime;
         public double serverTime;

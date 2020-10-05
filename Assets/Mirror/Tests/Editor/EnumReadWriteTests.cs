@@ -23,19 +23,19 @@ namespace Mirror.Tests
     }
     public class EnumReadWriteTests
     {
-        public class ByteMessage : IMessageBase { public MyByteEnum byteEnum; }
+        public class ByteMessage : NetworkMessage { public MyByteEnum byteEnum; }
         public enum MyByteEnum : byte
         {
             A, B, C, D
         }
 
-        public class ShortMessage : IMessageBase { public MyShortEnum shortEnum; }
+        public class ShortMessage : NetworkMessage { public MyShortEnum shortEnum; }
         public enum MyShortEnum : short
         {
             E, F, G, H
         }
 
-        public class CustomMessage : IMessageBase { public MyCustomEnum customEnum; }
+        public class CustomMessage : NetworkMessage { public MyCustomEnum customEnum; }
 
         public enum MyCustomEnum
         {
@@ -76,7 +76,7 @@ namespace Mirror.Tests
             // custom writer should write N if it sees O
             Assert.That(clientMsg.customEnum, Is.EqualTo(MyCustomEnum.N));
         }
-        T SerializeAndDeserializeMessage<T>(T msg) where T : IMessageBase
+        T SerializeAndDeserializeMessage<T>(T msg) where T : NetworkMessage
         {
             NetworkWriter writer = new NetworkWriter();
 

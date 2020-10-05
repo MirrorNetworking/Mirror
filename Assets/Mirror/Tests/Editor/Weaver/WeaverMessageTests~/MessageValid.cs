@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace WeaverMessageTests.MessageValid
 {
-    class MessageValid : IMessageBase
+    class MessageValid : NetworkMessage
     {
         public uint netId;
         public Guid assetId;

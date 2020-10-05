@@ -5,13 +5,13 @@ namespace Mirror.Tests
     [TestFixture]
     public class BasicAuthenticatorTest
     {
-        public struct AuthRequestMessage : IMessageBase
+        public struct AuthRequestMessage : NetworkMessage
         {
             public string authUsername;
             public string authPassword;
         }
 
-        public struct AuthResponseMessage : IMessageBase
+        public struct AuthResponseMessage : NetworkMessage
         {
             public byte code;
             public string message;

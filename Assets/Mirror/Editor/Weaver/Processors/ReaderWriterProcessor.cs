@@ -52,7 +52,7 @@ namespace Mirror.Weaver
 
         private static void LoadMessageReadWriter(ModuleDefinition module, TypeDefinition klass)
         {
-            if (!klass.IsAbstract && !klass.IsInterface && klass.ImplementsInterface<IMessageBase>())
+            if (!klass.IsAbstract && !klass.IsInterface && klass.ImplementsInterface<NetworkMessage>())
             {
                 Readers.GetReadFunc(module.ImportReference(klass));
                 Writers.GetWriteFunc(module.ImportReference(klass));

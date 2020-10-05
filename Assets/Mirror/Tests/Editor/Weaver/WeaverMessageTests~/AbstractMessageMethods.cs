@@ -2,7 +2,7 @@ using Mirror;
 
 namespace WeaverMessageTests.AbstractMessageMethods
 {
-    abstract class AbstractMessage : IMessageBase
+    abstract class AbstractMessage : NetworkMessage
     {
         public abstract void Deserialize(NetworkReader reader);
         public abstract void Serialize(NetworkWriter writer);
