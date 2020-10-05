@@ -324,7 +324,7 @@ namespace Mirror.Discovery
         /// Override if you wish to include additional data in the discovery message
         /// such as desired game mode, language, difficulty, etc... </remarks>
         /// <returns>An instance of ServerRequest with data to be broadcasted</returns>
-        protected abstract Request GetRequest();
+        protected virtual Request GetRequest() => default;
 
         async Task ReceiveGameBroadcastAsync(UdpClient udpClient)
         {
