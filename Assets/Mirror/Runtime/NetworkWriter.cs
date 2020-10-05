@@ -321,6 +321,7 @@ namespace Mirror
 
         public static void WritePackedUInt64(this NetworkWriter writer, ulong value)
         {
+            // numbers are usually small,  have special encoding for smaller numbers
             if (value <= 240)
             {
                 writer.WriteByte((byte)value);
@@ -339,68 +340,26 @@ namespace Mirror
                 writer.WriteByte((byte)(value - 2288));
                 return;
             }
-            if (value <= 16777215)
-            {
-                writer.WriteByte(250);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                return;
-            }
-            if (value <= 4294967295)
-            {
-                writer.WriteByte(251);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                return;
-            }
-            if (value <= 1099511627775)
-            {
-                writer.WriteByte(252);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                writer.WriteByte((byte)(value >> 32));
-                return;
-            }
-            if (value <= 281474976710655)
-            {
-                writer.WriteByte(253);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                writer.WriteByte((byte)(value >> 32));
-                writer.WriteByte((byte)(value >> 40));
-                return;
-            }
-            if (value <= 72057594037927935)
-            {
-                writer.WriteByte(254);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                writer.WriteByte((byte)(value >> 32));
-                writer.WriteByte((byte)(value >> 40));
-                writer.WriteByte((byte)(value >> 48));
-                return;
-            }
 
-            // all others
+            // first byte determines how many bytes 250 => 3 bytes, 251 => 4 bytes
+            // etc...
+            if (value <= 0xffffff)
+                writer.WriteByte(250);
+            else if (value <= 0xffffffff)
+                writer.WriteByte(251);
+            else if (value <= 0xffffffffff)
+                writer.WriteByte(252);
+            else if (value <= 0xffffffffffff)
+                writer.WriteByte(253);
+            else if (value <= 0xffffffffffffff)
+                writer.WriteByte(254);
+            else writer.WriteByte(255);
+
+            // write the data
+            while (value > 0)
             {
-                writer.WriteByte(255);
                 writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                writer.WriteByte((byte)(value >> 32));
-                writer.WriteByte((byte)(value >> 40));
-                writer.WriteByte((byte)(value >> 48));
-                writer.WriteByte((byte)(value >> 56));
+                value >>= 8;
             }
         }
 
