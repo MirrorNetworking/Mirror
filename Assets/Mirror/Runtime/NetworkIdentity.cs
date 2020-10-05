@@ -161,11 +161,9 @@ namespace Mirror
         /// </summary>
         public bool hasAuthority { get; internal set; }
 
-        /// <summary>
-        /// The set of network connections (players) that can see this object.
-        /// <para>null until OnStartServer was called. this is necessary for SendTo* to work properly in server-only mode.</para>
-        /// </summary>
-        public Dictionary<int, NetworkConnection> observers;
+        // interest management
+        internal HashSet<NetworkConnectionToClient> rebuild = new HashSet<NetworkConnectionToClient>();
+        public HashSet<NetworkConnectionToClient> observers = new HashSet<NetworkConnectionToClient>();
 
         /// <summary>
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
@@ -242,20 +240,6 @@ namespace Mirror
                 Debug.LogError($"Only 64 NetworkBehaviour components are allowed for NetworkIdentity: {name} because of the dirtyComponentMask", this);
                 // Log error once then resize array so that NetworkIdentity does not throw exceptions later
                 Array.Resize(ref networkBehavioursCache, 64);
-            }
-        }
-
-
-        NetworkVisibility visibilityCache;
-        public NetworkVisibility visibility
-        {
-            get
-            {
-                if (visibilityCache == null)
-                {
-                    visibilityCache = GetComponent<NetworkVisibility>();
-                }
-                return visibilityCache;
             }
         }
 
@@ -365,15 +349,6 @@ namespace Mirror
         /// Resets nextNetworkId = 1
         /// </summary>
         public static void ResetNextNetworkId() => nextNetworkId = 1;
-
-        /// <summary>
-        /// this is used when a connection is destroyed, since the "observers" property is read-only
-        /// </summary>
-        /// <param name="conn"></param>
-        internal void RemoveObserverInternal(NetworkConnection conn)
-        {
-            observers?.Remove(conn.connectionId);
-        }
 
         /// <summary>
         /// hasSpawned should always be false before runtime
@@ -667,7 +642,6 @@ namespace Mirror
             }
 
             netId = GetNextNetworkId();
-            observers = new Dictionary<int, NetworkConnection>();
 
             // Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
 
@@ -822,35 +796,6 @@ namespace Mirror
                     Debug.LogError("Exception in OnStopAuthority:" + e.Message + " " + e.StackTrace);
                 }
             }
-        }
-
-        /// <summary>
-        /// check if observer can be seen by connection.
-        /// <list type="bullet">
-        ///     <item>
-        ///         returns visibility.OnCheckObserver
-        ///     </item>
-        ///     <item>
-        ///         returns true if we have no NetworkVisibility, default objects are visible
-        ///     </item>
-        /// </list>
-        /// </summary>
-        /// <param name="conn"></param>
-        /// <returns></returns>
-        internal bool OnCheckObserver(NetworkConnection conn)
-        {
-            if (visibility != null)
-            {
-                try
-                {
-                    return visibility.OnCheckObserver(conn);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Exception in OnCheckObserver:" + e.Message + " " + e.StackTrace);
-                }
-            }
-            return true;
         }
 
         internal void OnStopClient()
@@ -1150,160 +1095,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Called when NetworkIdentity is destroyed
-        /// </summary>
-        internal void ClearObservers()
-        {
-            if (observers != null)
-            {
-                foreach (NetworkConnection conn in observers.Values)
-                {
-                    conn.RemoveFromVisList(this, true);
-                }
-                observers.Clear();
-            }
-        }
-
-        internal void AddObserver(NetworkConnection conn)
-        {
-            if (observers == null)
-            {
-                Debug.LogError("AddObserver for " + gameObject + " observer list is null");
-                return;
-            }
-
-            if (observers.ContainsKey(conn.connectionId))
-            {
-                // if we try to add a connectionId that was already added, then
-                // we may have generated one that was already in use.
-                return;
-            }
-
-            // Debug.Log("Added observer " + conn.address + " added for " + gameObject);
-
-            observers[conn.connectionId] = conn;
-            conn.AddToVisList(this);
-        }
-
-        /// <summary>
-        /// Helper function to call OnRebuildObservers in all components
-        /// <para>HashSet is passed in so we can cache it!</para>
-        /// <para>Returns true if we have a NetworkVisibility, false otherwise</para>
-        /// <para>Initialize is true on first rebuild, false on consecutive rebuilds</para>
-        /// </summary>
-        /// <param name="observersSet"></param>
-        /// <param name="initialize"></param>
-        /// <returns></returns>
-        internal bool GetNewObservers(HashSet<NetworkConnection> observersSet, bool initialize)
-        {
-            observersSet.Clear();
-
-            if (visibility != null)
-            {
-                visibility.OnRebuildObservers(observersSet, initialize);
-                return true;
-            }
-
-            // we have no NetworkVisibility. return false to indicate that we
-            // should use the default implementation.
-            return false;
-        }
-
-        /// <summary>
-        /// Helper function to add all server connections as observers.
-        /// This is used if none of the components provides their own
-        /// OnRebuildObservers function.
-        /// </summary>
-        internal void AddAllReadyServerConnectionsToObservers()
-        {
-            // add all server connections
-            foreach (NetworkConnection conn in NetworkServer.connections.Values)
-            {
-                if (conn.isReady)
-                    AddObserver(conn);
-            }
-        }
-
-        static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
-
-        /// <summary>
-        /// This causes the set of players that can see this object to be rebuild.
-        /// The OnRebuildObservers callback function will be invoked on each NetworkBehaviour.
-        /// </summary>
-        /// <param name="initialize">True if this is the first time.</param>
-        public void RebuildObservers(bool initialize)
-        {
-            // observers are null until OnStartServer creates them
-            if (observers == null)
-                return;
-
-            bool changed = false;
-
-            // call OnRebuildObservers function
-            bool rebuildOverwritten = GetNewObservers(newObservers, initialize);
-
-            // if player connection: ensure player always see himself no matter what.
-            // -> fixes https://github.com/vis2k/Mirror/issues/692 where a
-            //    player might teleport out of the ProximityChecker's cast,
-            //    losing the own connection as observer.
-            if (connectionToClient != null && connectionToClient.isReady)
-            {
-                newObservers.Add(connectionToClient);
-            }
-
-            // if no NetworkVisibility component, then add all server connections.
-            if (!rebuildOverwritten)
-            {
-                // only add all connections when rebuilding the first time.
-                // second time we just keep them without rebuilding anything.
-                if (initialize)
-                {
-                    AddAllReadyServerConnectionsToObservers();
-                }
-                return;
-            }
-
-            // add all newObservers that aren't in .observers yet
-            foreach (NetworkConnection conn in newObservers)
-            {
-                // only add ready connections.
-                // otherwise the player might not be in the world yet or anymore
-                if (conn != null && conn.isReady)
-                {
-                    if (initialize || !observers.ContainsKey(conn.connectionId))
-                    {
-                        // new observer
-                        conn.AddToVisList(this);
-                        // Debug.Log("New Observer for " + gameObject + " " + conn);
-                        changed = true;
-                    }
-                }
-            }
-
-            // remove all old .observers that aren't in newObservers anymore
-            foreach (NetworkConnection conn in observers.Values)
-            {
-                if (!newObservers.Contains(conn))
-                {
-                    // removed observer
-                    conn.RemoveFromVisList(this, false);
-                    // Debug.Log("Removed Observer for " + gameObject + " " + conn);
-                    changed = true;
-                }
-            }
-
-            if (changed)
-            {
-                observers.Clear();
-                foreach (NetworkConnection conn in newObservers)
-                {
-                    if (conn != null && conn.isReady)
-                        observers.Add(conn.connectionId, conn);
-                }
-            }
-        }
-
-        /// <summary>
         /// Marks the identity for future reset, this is because we cant reset the identity during destroy
         /// as people might want to be able to read the members inside OnDestroy(), and we have no way
         /// of invoking reset after OnDestroy is called.
@@ -1323,7 +1114,7 @@ namespace Mirror
             connectionToClient = null;
             networkBehavioursCache = null;
 
-            ClearObservers();
+            observers.Clear();
 
             if (isLocalPlayer)
             {
@@ -1336,7 +1127,7 @@ namespace Mirror
         /// </summary>
         internal void ServerUpdate()
         {
-            if (observers != null && observers.Count > 0)
+            if (observers.Count > 0)
             {
                 ulong dirtyComponentsMask = GetDirtyComponentsMask();
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Guid = System.Guid;
 using Object = UnityEngine.Object;
@@ -17,7 +16,6 @@ namespace Mirror
     /// </summary>
     public static class ClientScene
     {
-        static bool isSpawnFinished;
         static NetworkIdentity _localPlayer;
 
         /// <summary>
@@ -57,7 +55,6 @@ namespace Mirror
             spawnableObjects.Clear();
             readyConnection = null;
             ready = false;
-            isSpawnFinished = false;
             DestroyAllClientObjects();
         }
 
@@ -149,6 +146,10 @@ namespace Mirror
 
             if (conn != null)
             {
+                // find spawnable scene objects before joining the world.
+                // this way we are able to properly react to SpawnMessages.
+                PrepareToSpawnSceneObjects();
+
                 // Set these before sending the ReadyMessage, otherwise host client
                 // will fail in InternalAddPlayer with null readyConnection.
                 ready = true;
@@ -378,13 +379,16 @@ namespace Mirror
 
             NetworkIdentity.spawned[msg.netId] = identity;
 
-            // objects spawned as part of initial state are started on a second pass
-            if (isSpawnFinished)
-            {
-                identity.NotifyAuthority();
-                identity.OnStartClient();
-                CheckForLocalPlayer(identity);
-            }
+            // call OnStartAuthority, OnStartClient, OnStartLocalPlayer
+            // note: unlike UNET/original Mirror, we do NOT call those functions
+            //       after ALL objects were spawned. with the new
+            //       InterestManagementSystem, spawns/unspawns happen when they
+            //       happen. there is no guaranteed order or time.
+            //       in other words, we can't rely on another spawned object in
+            //       OnStartClient/LocalPlayer/Authority anymore!
+            identity.NotifyAuthority();
+            identity.OnStartClient();
+            CheckForLocalPlayer(identity);
         }
 
         internal static void OnSpawn(SpawnMessage msg)
@@ -475,55 +479,6 @@ namespace Mirror
                 return identity;
             }
             return null;
-        }
-
-        internal static void OnObjectSpawnStarted(ObjectSpawnStartedMessage _)
-        {
-            // Debug.Log("SpawnStarted");
-
-            PrepareToSpawnSceneObjects();
-            isSpawnFinished = false;
-        }
-
-        internal static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage _)
-        {
-            Debug.Log("SpawnFinished");
-
-            ClearNullFromSpawned();
-
-            // paul: Initialize the objects in the same order as they were initialized
-            // in the server.   This is important if spawned objects
-            // use data from scene objects
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.OrderBy(uv => uv.netId))
-            {
-                identity.NotifyAuthority();
-                identity.OnStartClient();
-                CheckForLocalPlayer(identity);
-            }
-            isSpawnFinished = true;
-        }
-
-        static readonly List<uint> toRemoveFromSpawned = new List<uint>();
-        static void ClearNullFromSpawned()
-        {
-            // spawned has null objects after changing scenes on client using NetworkManager.ServerChangeScene
-            // remove them here so that 2nd loop below does not get NullReferenceException
-            // see https://github.com/vis2k/Mirror/pull/2240
-            // TODO fix scene logic so that client scene doesn't have null objects
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
-            {
-                if (kvp.Value == null)
-                {
-                    toRemoveFromSpawned.Add(kvp.Key);
-                }
-            }
-
-            // can't modifiy NetworkIdentity.spawned inside foreach so need 2nd loop to remove
-            foreach (uint id in toRemoveFromSpawned)
-            {
-                NetworkIdentity.spawned.Remove(id);
-            }
-            toRemoveFromSpawned.Clear();
         }
 
         internal static void OnObjectHide(ObjectHideMessage msg)

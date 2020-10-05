@@ -590,11 +590,6 @@ namespace Mirror.Tests.ClientSceneTests
             bool hasAuthority = flag.HasFlag(SpawnFinishedState.hasAuthority);
             bool isLocalPlayer = flag.HasFlag(SpawnFinishedState.isLocalPlayer);
 
-            if (isSpawnFinished)
-            {
-                ClientScene.OnObjectSpawnFinished(new ObjectSpawnFinishedMessage { });
-            }
-
             const uint netId = 1000;
             GameObject go = new GameObject();
             _createdObjects.Add(go);
