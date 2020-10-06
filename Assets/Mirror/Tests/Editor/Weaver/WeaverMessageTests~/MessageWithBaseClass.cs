@@ -13,7 +13,7 @@ namespace WeaverMessageTests.MessageWithBaseClass
         public byte[] payload;
     }
 
-    class SomeBaseMessage : NetworkMessage
+    class SomeBaseMessage : INetworkMessage
     {
         public int myExtraType;
     }

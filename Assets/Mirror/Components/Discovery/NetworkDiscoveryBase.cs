@@ -18,8 +18,8 @@ namespace Mirror.Discovery
     [DisallowMultipleComponent]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]
     public abstract class NetworkDiscoveryBase<Request, Response> : MonoBehaviour
-        where Request : NetworkMessage
-        where Response : NetworkMessage
+        where Request : INetworkMessage
+        where Response : INetworkMessage
     {
         public static bool SupportedOnThisPlatform { get { return Application.platform != RuntimePlatform.WebGLPlayer; } }
 

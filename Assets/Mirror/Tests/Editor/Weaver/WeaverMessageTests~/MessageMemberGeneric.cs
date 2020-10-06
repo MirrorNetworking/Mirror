@@ -6,7 +6,7 @@ namespace WeaverMessageTests.MessageMemberGeneric
 {
     class HasGeneric<T> { }
 
-    class MessageMemberGeneric : NetworkMessage
+    class MessageMemberGeneric : INetworkMessage
     {
         public uint netId;
         public Guid assetId;

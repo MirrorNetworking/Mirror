@@ -146,7 +146,7 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : NetworkMessage
+        public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : INetworkMessage
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
@@ -236,7 +236,7 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="msg">The message object to process.</param>
         /// <returns>Returns true if the handler was successfully invoked</returns>
-        public bool InvokeHandler<T>(T msg, int channelId) where T : NetworkMessage
+        public bool InvokeHandler<T>(T msg, int channelId) where T : INetworkMessage
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {

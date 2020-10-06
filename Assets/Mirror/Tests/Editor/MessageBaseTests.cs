@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests.MessageTests
 {
-    struct TestMessage : NetworkMessage
+    struct TestMessage : INetworkMessage
     {
         public int IntValue;
         public string StringValue;
@@ -30,7 +30,7 @@ namespace Mirror.Tests.MessageTests
         }
     }
 
-    struct StructWithEmptyMethodMessage : NetworkMessage
+    struct StructWithEmptyMethodMessage : INetworkMessage
     {
         public int IntValue;
         public string StringValue;
@@ -41,7 +41,7 @@ namespace Mirror.Tests.MessageTests
         public void Serialize(NetworkWriter writer) { }
     }
 
-    class ClassWithoutBaseMessage : NetworkMessage
+    class ClassWithoutBaseMessage : INetworkMessage
     {
         public int[] array;
 
@@ -50,7 +50,7 @@ namespace Mirror.Tests.MessageTests
         public void Serialize(NetworkWriter writer) { }
     }
 
-    abstract class AbstractMessage : NetworkMessage
+    abstract class AbstractMessage : INetworkMessage
     {
         public abstract void Deserialize(NetworkReader reader);
         public abstract void Serialize(NetworkWriter writer);
@@ -65,7 +65,7 @@ namespace Mirror.Tests.MessageTests
         public override void Deserialize(NetworkReader reader) { }
     }
 
-    class Layer1Message : NetworkMessage
+    class Layer1Message : INetworkMessage
     {
         public int value1;
 
@@ -88,7 +88,7 @@ namespace Mirror.Tests.MessageTests
         public int id = 3;
     }
 
-    class NullableObjectMessage : NetworkMessage
+    class NullableObjectMessage : INetworkMessage
     {
         public string name;
         public NullableObject nullObj;
