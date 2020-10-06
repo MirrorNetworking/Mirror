@@ -27,6 +27,11 @@ namespace Mirror
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool clientAuthority;
 
+        /// <summary>
+        /// We need to store this locally on the server so clients can't request Authority when ever they like
+        /// </summary>
+        bool clientAuthorityBeforeTeleport;
+
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
         bool IsClientWithAuthority => hasAuthority && clientAuthority;
@@ -219,19 +224,12 @@ namespace Mirror
         /// This method will override this GameObject's current Transform.Position to the Vector3 you have provided
         /// and send it to all other Clients to override it at their side too.
         /// </summary>
-        /// <param name="teleportPosition">Where to teleport this GameObject</param>
+        /// <param name="position">Where to teleport this GameObject</param>
         [Server]
-        public void ServerTeleport(Vector3 teleportPosition)
+        public void ServerTeleport(Vector3 position)
         {
-            bool initialAuthority = clientAuthority;
-            //To prevent applying the position updates received from client (if they have ClientAuth) while being teleported.
-            clientAuthority = false;
-
-            transform.position = teleportPosition;
-            Vector3 teleportRotation = transform.rotation.eulerAngles;
-            lastPosition = teleportPosition;
-
-            RpcOverrideTransform(teleportPosition, teleportRotation, netId, initialAuthority);
+            Quaternion rotation = transform.rotation;
+            ServerTeleport(position, rotation);
         }
 
         /// <summary>
@@ -240,48 +238,68 @@ namespace Mirror
         /// to the Vector3 you have provided
         /// and send it to all other Clients to override it at their side too.
         /// </summary>
-        /// <param name="teleportPosition">>Where to teleport this GameObject</param>
-        /// <param name="teleportRotation">Which rotation to set this GameObject</param>
+        /// <param name="position">Where to teleport this GameObject</param>
+        /// <param name="rotation">Which rotation to set this GameObject</param>
         [Server]
-        public void ServerTeleport(Vector3 teleportPosition, Vector3 teleportRotation)
+        public void ServerTeleport(Vector3 position, Quaternion rotation)
         {
-            bool initialAuthority = clientAuthority;
-            //To prevent applying the position updates received from client (if they have ClientAuth) while being teleported.
+            // To prevent applying the position updates received from client (if they have ClientAuth) while being teleported.
+
+            // clientAuthorityBeforeTeleport defaults to false when not teleporting, if it is true then it means hat teleport was previously called but not finished
+            // therefore we should keep it as true so that 2nd teleport call doesn't clear authority
+            clientAuthorityBeforeTeleport = clientAuthority || clientAuthorityBeforeTeleport;
             clientAuthority = false;
 
-            transform.position = teleportPosition;
-            lastPosition = teleportPosition;
+            transform.position = position;
+            transform.rotation = rotation;
 
-            RpcOverrideTransform(teleportPosition, teleportRotation, netId, initialAuthority);
+            // Since we are overriding the position we don't need a goal and start.
+            // Reset them to null for fresh start
+            goal = null;
+            start = null;
+            lastPosition = position;
+            lastRotation = rotation;
+
+            // tell all clients about new values
+            RpcTeleport(position, rotation, clientAuthorityBeforeTeleport);
         }
 
         [ClientRpc]
-        void RpcOverrideTransform(Vector3 overridePos, Vector3 overrideRotation, uint networkId, bool initialAuthority)
+        void RpcTeleport(Vector3 newPosition, Quaternion newRotation, bool isClientAuthority)
         {
-            //Since we are simply overriding the position we don't need a goal and start.
-            //We can simply set them to null to prevent anything with the teleportation.
+            transform.position = newPosition;
+            transform.rotation = newRotation;
+
+            // Since we are overriding the position we don't need a goal and start.
+            // Reset them to null for fresh start
             goal = null;
             start = null;
+            lastPosition = newPosition;
+            lastRotation = newRotation;
 
-            //If we are the client who owns this NetworkBehaviour
-            if (netId == networkId)
-            {
-                //To prevent sending position updates when being teleported.
-                clientAuthority = false;
-            }
-
-            transform.position = overridePos;
-            transform.rotation = Quaternion.Euler(overrideRotation);
-            clientAuthority = initialAuthority;
-
-            CmdPositionOverrideFinished(initialAuthority);
+            // only send finished if is owner and is ClientAuthority on server 
+            if (hasAuthority && isClientAuthority)
+                CmdTeleportFinished();
         }
 
-        //This RPC will be invoked on server after client finishes overriding the position.
+        /// <summary>
+        /// This RPC will be invoked on server after client finishes overriding the position.
+        /// </summary>
+        /// <param name="initialAuthority"></param>
         [Command]
-        void CmdPositionOverrideFinished(bool initialAuthority)
+        void CmdTeleportFinished()
         {
-            clientAuthority = initialAuthority;
+            if (clientAuthorityBeforeTeleport)
+            {
+                clientAuthority = true;
+
+                // reset value so doesnt effect future calls, see note in ServerTeleport
+                clientAuthorityBeforeTeleport = false;
+            }
+            else
+            {
+                Debug.LogWarning("Client called TeleportFinished when clientAuthority was false on server", this);
+            }
         }
 
         // where are we in the timeline between start and goal? [0,1]
