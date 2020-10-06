@@ -109,8 +109,7 @@ namespace Mirror.Weaver
                 method.Is<NetworkServer>(nameof(NetworkServer.SendToAll)) ||
                 method.Is<NetworkServer>(nameof(NetworkServer.SendToClientOfPlayer)) ||
                 method.Is<NetworkServer>(nameof(NetworkServer.SendToReady)) ||
-                method.Is<INetworkServer>(nameof(INetworkServer.SendToAll)) ||
-                method.Is<INetworkServer>(nameof(INetworkServer.SendToReady));
+                method.Is<INetworkServer>(nameof(INetworkServer.SendToAll));
 
             if (generate)
             {

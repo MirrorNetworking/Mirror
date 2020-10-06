@@ -22,8 +22,6 @@ namespace Mirror
         public NetworkClient client;
         public NetworkServer server;
 
-        public NetworkConnectionEvent ClientNotReady = new NetworkConnectionEvent();
-
         /// <summary>
         /// Event fires when the Client starts changing scene.
         /// </summary>
@@ -127,6 +125,7 @@ namespace Mirror
         {
             logger.Log("ClientSceneReadyMessage");
 
+            //Server has finished changing scene. Allow the client to finish.
             asyncOperation.allowSceneActivation = true;
         }
 
@@ -134,7 +133,7 @@ namespace Mirror
         {
             logger.Log("NetworkSceneManager.OnClientNotReadyMessageInternal");
 
-            OnClientNotReady(conn);
+            client.Connection.IsReady = false;
         }
 
         /// <summary>
@@ -160,18 +159,6 @@ namespace Mirror
                 SetClientReady();
 
             ClientSceneChanged.Invoke(sceneName, sceneOperation);
-        }
-
-        /// <summary>
-        /// Called on clients when a servers tells the client it is no longer ready.
-        /// <para>This is commonly used when switching scenes.</para>
-        /// </summary>
-        /// <param name="conn">Connection to the server.</param>
-        internal void OnClientNotReady(INetworkConnection conn)
-        {
-            client.Connection.IsReady = false;
-
-            ClientNotReady.Invoke(conn);
         }
 
         /// <summary>

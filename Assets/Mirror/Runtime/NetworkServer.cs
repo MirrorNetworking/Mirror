@@ -373,13 +373,11 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Send a message to all connected clients, both ready and not-ready.
-        /// <para>See <see cref="NetworkConnection.IsReady"/></para>
+        /// Send a message to all connected clients.
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="msg">Message</param>
         /// <param name="channelId">Transport channel to use</param>
-        /// <param name="sendToReadyOnly">Indicates if only ready clients should receive the message</param>
         public void SendToAll<T>(T msg, int channelId = Channels.DefaultReliable)
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToAll id:" + typeof(T));

@@ -142,15 +142,6 @@ namespace Mirror.Tests
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         }
 
-        [Test]
-        public void ClientNotReadyTest()
-        {
-            UnityAction<INetworkConnection> func1 = Substitute.For<UnityAction<INetworkConnection>>();
-            sceneManager.ClientNotReady.AddListener(func1);
-            sceneManager.OnClientNotReady(client.Connection);
-            func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
-        }
-
         [UnityTest]
         public IEnumerator ChangeSceneAdditiveLoadTest() => RunAsync(async () =>
         {
@@ -218,18 +209,6 @@ namespace Mirror.Tests
                 clientSceneManager.ClientSceneMessage(null, new SceneMessage());
             });
         });
-
-        [Test]
-        public void ClientNotReady()
-        {
-            UnityAction<INetworkConnection> func1 = Substitute.For<UnityAction<INetworkConnection>>();
-            clientSceneManager.ClientNotReady.AddListener(func1);
-            clientSceneManager.SetClientReady();
-            clientSceneManager.ClientNotReadyMessage(null, new NotReadyMessage());
-
-            Assert.That(client.Connection.IsReady, Is.False);
-            func1.Received(1).Invoke(Arg.Any<INetworkConnection>());
-        }
 
         [UnityTest]
         public IEnumerator ClientSceneMessageInvokeTest() => RunAsync(async () =>
