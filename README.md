@@ -40,7 +40,7 @@ When migrating a project from Mirror to MirrorNG, these will be the most notable
 | Subscribe to events in `NetworkIdentity`                                                      | Override methods in `NetworkBehaviour` |
 | Methods use PascalCase (C# guidelines)                                                        | No consistency                         |
 | `NetworkTime` available in `NetworkBehaviour`                                                 | `NetworkTime` is global static         |
-| Send any data as messages                                                                     | Messages must implement IMessageBase   |
+| Send any data as messages                                                                     | Messages must implement NetworkMessage |
 | Supports Unity 2019.3 or later                                                                | Supports Unity 2018.4 or later         |
 | Components can be added in child objects                                                      | Components must be added at root level |
 

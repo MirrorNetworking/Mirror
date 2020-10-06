@@ -1,25 +1,15 @@
 # Custom Character Spawning
 
+MirrorNG comes with a PlayerSpawner which will automatically spawn a player object when a client connects.
+
 Many games need character customization. You may want to pick the color of the hair, eyes, skin, height, race, etc.
 
-By default Mirror will instantiate the player for you. While that is convenient, it might prevent you from customizing it. Mirror provides the option of overriding player creation and customize it.
+In this case,  you will need to create your own PlayerSpawner.  Follow these steps:
 
-1) Create a class that extends `NetworkManager` if you have not done so. For example:
-
+1) Create your player prefabs (as many as you need) and add them to the Spawnable Prefabs in your NetworkClient.
+2) Create a message that describes your player. For example:
 ``` cs
-public class MMONetworkManager : NetworkManager
-{
-    ...
-}
-```
-and use it as your Network manager.
-
-2) Open your Network Manager in the inspector and disable the "Auto Create Player" Boolean.
-
-3) Create a message that describes your player. For example:
-
-``` cs
-public class CreateMMOCharacterMessage : MessageBase
+public struct CreateMMOCharacterMessage
 {
     public Race race;
     public string name;
@@ -35,54 +25,55 @@ public enum Race
     Human
 }
 ```
-
-4) Create your player prefabs (as many as you need) and add them to the "Register Spawnable Prefabs" in your Network Manager, or add a single prefab to the player prefab field in the inspector.
-
-5) Send your message and register a player:
-
+3) Create Player Spawner class and add it to some GameObject in your scene
 ``` cs
-public class MMONetworkManager : NetworkManager
+public class PlayerSpawner : MonoBehaviour
 {
-    public override void OnStartServer()
-    {
-        base.OnStartServer();
+    public NetworkSceneManager SceneManager;
+    public NetworkClient Client;
+    public NetworkServer Server;
+}
+```
+4) Drag the NetworkClient and NetworkServer and Scene manager to the fields
+5) Hook into events:
+```cs
+public virtual void Start()
+{
+    Client.Authenticated.AddListener(OnClientAuthenticated);
+    Server.Authenticated.AddListener(OnServerAuthenticated);
+}
+    ```
+6) Send your message with your character data when your client connects, or after the user submits his preferences.
+``` cs
+// you can send the message here if you already know
+// everything about the character at the time of connection
+// or at a later time when the user submits his preferences
+private void OnClientAuthenticated(INetworkConnection connection)
+{
+    sceneManager.SetClientReady();
 
-        NetworkServer.RegisterHandler<CreateMMOCharacterMessage>(OnCreateCharacter);
+    var mmoCharacter = new CreateMMOCharacterMessage {
+        // populare the message with your data
     }
+    connection.Send(mmoCharacter)
+}
+```
+7) Receive your message in the server and spawn the player
+```cs
+private void OnServerAuthenticated(INetworkConnection connection)
+{
+    // wait for client to send us an AddPlayerMessage
+    connection.RegisterHandler<CreateMMOCharacterMessage>(OnCreateCharacter);
+}
 
-    public override void OnClientConnect(NetworkConnection conn)
-    {
-        base.OnClientConnect(conn);
+void OnCreateCharacter(INetworkConnection conn, CreateMMOCharacterMessage msg)
+{
+    // create your player object
+    // use the data in msg to configure it
+    GameObject playerObject = ...;
 
-        // you can send the message here, or wherever else you want
-        CreateMMOCharacterMessage characterMessage = new CreateMMOCharacterMessage
-        {
-            race = Race.Elvish,
-            name = "Joe Gaba Gaba",
-            hairColor = Color.red,
-            eyeColor = Color.green
-        };
-
-        conn.Send(characterMessage);
-    }
-
-    void OnCreateCharacter(NetworkConnection conn, CreateMMOCharacterMessage message)
-    {
-        // playerPrefab is the one assigned in the inspector in Network
-        // Manager but you can use different prefabs per race for example
-        GameObject gameobject = Instantiate(playerPrefab);
-
-        // Apply data from the message however appropriate for your game
-        // Typically Player would be a component you write with syncvars or properties
-        Player player = gameobject.GetComponent<Player>();
-        player.hairColor = message.hairColor;
-        player.eyeColor = message.eyeColor;
-        player.name = message.name;
-        player.race = message.race;
-
-        // call this to use this gameobject as the primary controller
-        NetworkServer.AddPlayerForConnection(conn, gameobject);
-    }
+    // spawn it as the player object
+    server.AddPlayerForConnection(conn, playerObject);
 }
 ```
 
@@ -92,6 +83,8 @@ In addition to players, client connections also have a “ready” state. The ho
 
 Clients can send and receive network messages without being ready, which also means they can do so without having an active player game object. So a client at a menu or selection screen can connect to the game and interact with it, even though they have no player game object. See documentation on [Network Messages](../Communications/NetworkMessages.md) for more details about sending messages without using RPC calls.
 
+Note the ready state may be going away in the future.
+
 ## Switching Players
 
 To replace the player game object for a connection, use `NetworkServer.ReplacePlayerForConnection`. This is useful for restricting the Server RPC Calls that players can issue at certain times, such as in a pregame room screen. This function takes the same arguments as `AddPlayerForConnection`, but allows there to already be a player for that connection. The old player game object does not have to be destroyed. The `NetworkRoomManager` uses this technique to switch from the `NetworkRoomPlayer` game object to a game play player game object when all the players in the room are ready.
@@ -99,18 +92,20 @@ To replace the player game object for a connection, use `NetworkServer.ReplacePl
 You can also use `ReplacePlayerForConnection` to respawn a player or change the object that represents the player. In some cases it is better to just disable a game object and reset its game attributes on respawn. The following code sample demonstrates how to actually replace the player game object with a new game object:
 
 ``` cs
-public class MyNetworkManager : NetworkManager
+public class MyNetworkManager : MonoBehaviour
 {
+    public NetworkServer Server;
+
     public void ReplacePlayer(NetworkConnection conn, GameObject newPrefab)
     {
         // Cache a reference to the current player object
         GameObject oldPlayer = conn.identity.gameObject;
 
         // Instantiate the new player object and broadcast to clients
-        NetworkServer.ReplacePlayerForConnection(conn, Instantiate(newPrefab));
+        kServer.ReplacePlayerForConnection(conn, Instantiate(newPrefab));
 
         // Remove the previous player object that's now been replaced
-        NetworkServer.Destroy(oldPlayer);
+        Server.Destroy(oldPlayer);
     }
 }
 ```

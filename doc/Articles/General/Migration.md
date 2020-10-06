@@ -102,7 +102,7 @@ These have been changed to System.Guid and uint, respectively.
 For example, if you have something like this:
 
 ```cs
-public sealed class SpawnItemMessage : MessageBase
+public sealed class SpawnItemMessage
 {
     public NetworkHash128 assetID;
     public NetworkInstanceId networkInstanceID;
@@ -114,7 +114,7 @@ public sealed class SpawnItemMessage : MessageBase
 replace with:
 
 ```cs
-public sealed class SpawnItemMessage : MessageBase
+public sealed class SpawnItemMessage
 {
     public System.Guid assetID;
     public uint networkInstanceID;
