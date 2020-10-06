@@ -82,19 +82,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ObjectSpawnFinishedMessageTest()
-        {
-            TestSerializeDeserialize(new ObjectSpawnFinishedMessage());
-        }
-
-        [Test]
-        public void ObjectSpawnStartedMessageTest()
-        {
-            // try setting value with constructor
-            TestSerializeDeserialize(new ObjectSpawnStartedMessage());
-        }
-
-        [Test]
         public void ReadyMessageTest()
         {
             TestSerializeDeserialize(new ReadyMessage());

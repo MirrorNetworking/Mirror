@@ -84,8 +84,6 @@ namespace Mirror
 
         public readonly NetworkTime Time = new NetworkTime();
 
-        bool isSpawnFinished;
-
         public Transport Transport;
 
         /// <summary>
@@ -234,6 +232,7 @@ namespace Mirror
             connectState = ConnectState.Connected;
             Connected.Invoke(Connection);
 
+            PrepareToSpawnSceneObjects();
             // start processing messages
             try
             {
@@ -302,8 +301,6 @@ namespace Mirror
             Connection.RegisterHandler<SpawnMessage>(OnHostClientSpawn);
             // host mode reuses objects in the server
             // so we don't need to spawn them
-            Connection.RegisterHandler<ObjectSpawnStartedMessage>(msg => { });
-            Connection.RegisterHandler<ObjectSpawnFinishedMessage>(msg => { });
             Connection.RegisterHandler<UpdateVarsMessage>(msg => { });
             Connection.RegisterHandler<RpcMessage>(OnRpcMessage);
         }
@@ -314,8 +311,6 @@ namespace Mirror
             Connection.RegisterHandler<ObjectHideMessage>(OnObjectHide);
             Connection.RegisterHandler<NetworkPongMessage>(Time.OnClientPong);
             Connection.RegisterHandler<SpawnMessage>(OnSpawn);
-            Connection.RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
-            Connection.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
             Connection.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
             Connection.RegisterHandler<RpcMessage>(OnRpcMessage);
         }
@@ -330,7 +325,6 @@ namespace Mirror
 
             ClearSpawners();
             DestroyAllClientObjects();
-            isSpawnFinished = false;
             hostServer = null;
 
             connectState = ConnectState.Disconnected;
@@ -648,12 +642,9 @@ namespace Mirror
             Spawned[msg.netId] = identity;
 
             // objects spawned as part of initial state are started on a second pass
-            if (isSpawnFinished)
-            {
-                identity.NotifyAuthority();
-                identity.StartClient();
-                CheckForLocalPlayer(identity);
-            }
+            identity.NotifyAuthority();
+            identity.StartClient();
+            CheckForLocalPlayer(identity);
         }
 
         internal void OnSpawn(SpawnMessage msg)
@@ -740,30 +731,6 @@ namespace Mirror
             }
             logger.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
             return null;
-        }
-
-        internal void OnObjectSpawnStarted(ObjectSpawnStartedMessage _)
-        {
-            logger.Log("SpawnStarted");
-
-            PrepareToSpawnSceneObjects();
-            isSpawnFinished = false;
-        }
-
-        internal void OnObjectSpawnFinished(ObjectSpawnFinishedMessage _)
-        {
-            logger.Log("SpawnFinished");
-
-            // paul: Initialize the objects in the same order as they were initialized
-            // in the server.   This is important if spawned objects
-            // use data from scene objects
-            foreach (NetworkIdentity identity in Spawned.Values.OrderBy(uv => uv.NetId))
-            {
-                identity.NotifyAuthority();
-                identity.StartClient();
-                CheckForLocalPlayer(identity);
-            }
-            isSpawnFinished = true;
         }
 
         internal void OnObjectHide(ObjectHideMessage msg)

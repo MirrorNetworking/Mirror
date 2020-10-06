@@ -338,6 +338,8 @@ namespace Mirror
                     client.OnAuthenticated(client.Connection);
                 }
 
+                client.PrepareToSpawnSceneObjects();
+
                 OnClientSceneChanged(sceneName, sceneOperation);
             }
         }
