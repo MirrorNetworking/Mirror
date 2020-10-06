@@ -420,22 +420,13 @@ namespace Mirror
             clientAuthorityBeforeTeleport = clientAuthority || clientAuthorityBeforeTeleport;
             clientAuthority = false;
 
-            transform.position = position;
-            transform.rotation = rotation;
-
-            // Since we are overriding the position we don't need a goal and start.
-            // Reset them to null for fresh start
-            goal = null;
-            start = null;
-            lastPosition = position;
-            lastRotation = rotation;
+            DoTeleport(position, rotation);
 
             // tell all clients about new values
             RpcTeleport(position, rotation, clientAuthorityBeforeTeleport);
         }
 
-        [ClientRpc]
-        void RpcTeleport(Vector3 newPosition, Quaternion newRotation, bool isClientAuthority)
+        void DoTeleport(Vector3 newPosition, Quaternion newRotation)
         {
             transform.position = newPosition;
             transform.rotation = newRotation;
@@ -446,6 +437,12 @@ namespace Mirror
             start = null;
             lastPosition = newPosition;
             lastRotation = newRotation;
+        }
+
+        [ClientRpc]
+        void RpcTeleport(Vector3 newPosition, Quaternion newRotation, bool isClientAuthority)
+        {
+            DoTeleport(newPosition, newRotation);
 
             // only send finished if is owner and is ClientAuthority on server 
             if (hasAuthority && isClientAuthority)
