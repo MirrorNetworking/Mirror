@@ -27,12 +27,12 @@ namespace Mirror
 
             connectionsCache.Clear();
 
-            foreach (INetworkConnection connection in identity.observers)
+            foreach (ObjectReady objectReady in ObjectReadyList)
             {
-                bool isOwner = connection == identity.ConnectionToClient;
-                if ((!isOwner || includeOwner) && connection.IsReady)
+                bool isOwner = objectReady.NetIdentity == identity;
+                if ((!isOwner || includeOwner) && objectReady.IsReady)
                 {
-                    connectionsCache.Add(connection);
+                    connectionsCache.Add(objectReady.NetIdentity.ConnectionToClient);
                 }
             }
 
