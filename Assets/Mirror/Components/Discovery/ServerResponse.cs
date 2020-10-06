@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Mirror.Discovery
 {
-    public class ServerResponse : MessageBase
+    public struct ServerResponse : NetworkMessage
     {
         // The server that sent this
         // this is a property so that it is not serialized,  but the

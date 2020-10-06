@@ -43,6 +43,25 @@ namespace Mirror.Weaver
                     LoadDeclaredReaders(CurrentAssembly, klass);
                 }
             }
+
+            foreach (TypeDefinition klass in assembly.MainModule.Types)
+            {
+                LoadMessageReadWriter(CurrentAssembly.MainModule, klass);
+            }
+        }
+
+        private static void LoadMessageReadWriter(ModuleDefinition module, TypeDefinition klass)
+        {
+            if (!klass.IsAbstract && !klass.IsInterface && klass.ImplementsInterface<NetworkMessage>())
+            {
+                Readers.GetReadFunc(module.ImportReference(klass));
+                Writers.GetWriteFunc(module.ImportReference(klass));
+            }
+
+            foreach (TypeDefinition td in klass.NestedTypes)
+            {
+                LoadMessageReadWriter(module, td);
+            }
         }
 
         static void LoadDeclaredWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)

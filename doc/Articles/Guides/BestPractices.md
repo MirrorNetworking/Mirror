@@ -8,7 +8,7 @@
 If you send custom message regularly then the message should be a struct so that there is no GC/allocations
 
 ```cs
-struct CreateVisualEffect : IMessageBase
+struct CreateVisualEffect : NetworkMessage
 {
     public Vector3 position;
     public Guid prefabId;

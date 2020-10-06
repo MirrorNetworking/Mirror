@@ -14,7 +14,7 @@ namespace Mirror.Examples.Chat
 
         public ChatWindow chatWindow;
 
-        public class CreatePlayerMessage : MessageBase
+        public struct CreatePlayerMessage : NetworkMessage
         {
             public string name;
         }

@@ -18,8 +18,8 @@ namespace Mirror.Discovery
     [DisallowMultipleComponent]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]
     public abstract class NetworkDiscoveryBase<Request, Response> : MonoBehaviour
-        where Request : IMessageBase, new()
-        where Response : IMessageBase, new()
+        where Request : NetworkMessage
+        where Response : NetworkMessage
     {
         public static bool SupportedOnThisPlatform { get { return Application.platform != RuntimePlatform.WebGLPlayer; } }
 
@@ -165,8 +165,7 @@ namespace Mirror.Discovery
                     throw new ProtocolViolationException("Invalid handshake");
                 }
 
-                Request request = new Request();
-                request.Deserialize(networkReader);
+                Request request = networkReader.Read<Request>();
 
                 ProcessClientRequest(request, udpReceiveResult.RemoteEndPoint);
             }
@@ -194,7 +193,7 @@ namespace Mirror.Discovery
                 {
                     writer.WriteInt64(secretHandshake);
 
-                    info.Serialize(writer);
+                    writer.Write(info);
 
                     ArraySegment<byte> data = writer.ToArraySegment();
                     // signature matches
@@ -305,7 +304,7 @@ namespace Mirror.Discovery
                 {
                     Request request = GetRequest();
 
-                    request.Serialize(writer);
+                    writer.Write(request);
 
                     ArraySegment<byte> data = writer.ToArraySegment();
 
@@ -325,7 +324,7 @@ namespace Mirror.Discovery
         /// Override if you wish to include additional data in the discovery message
         /// such as desired game mode, language, difficulty, etc... </remarks>
         /// <returns>An instance of ServerRequest with data to be broadcasted</returns>
-        protected virtual Request GetRequest() => new Request();
+        protected virtual Request GetRequest() => default;
 
         async Task ReceiveGameBroadcastAsync(UdpClient udpClient)
         {
@@ -339,8 +338,7 @@ namespace Mirror.Discovery
                 if (networkReader.ReadInt64() != secretHandshake)
                     return;
 
-                Response response = new Response();
-                response.Deserialize(networkReader);
+                Response response = networkReader.Read<Response>();
 
                 ProcessResponse(response, udpReceiveResult.RemoteEndPoint);
             }

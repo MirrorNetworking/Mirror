@@ -190,14 +190,6 @@ namespace Mirror.Weaver
             return td.Methods.FirstOrDefault(method => method.Name == methodName);
         }
 
-        public static MethodDefinition GetMethodWith1Arg(this TypeDefinition tr, string methodName, TypeReference argType)
-        {
-            return tr.GetMethods(methodName).Where(m =>
-                m.Parameters.Count == 1
-             && m.Parameters[0].ParameterType.FullName == argType.FullName
-            ).FirstOrDefault();
-        }
-
         public static List<MethodDefinition> GetMethods(this TypeDefinition td, string methodName)
         {
             // Linq allocations don't matter in weaver

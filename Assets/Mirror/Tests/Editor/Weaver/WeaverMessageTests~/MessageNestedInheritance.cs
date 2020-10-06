@@ -2,7 +2,7 @@ using Mirror;
 
 namespace WeaverMessageTests.MessageNestedInheritance
 {
-    public class Message : MessageBase
+    public class Message : NetworkMessage
     {
         public class Request : Message
         {

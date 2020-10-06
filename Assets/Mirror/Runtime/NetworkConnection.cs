@@ -146,7 +146,7 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : NetworkMessage
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
@@ -236,13 +236,13 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="msg">The message object to process.</param>
         /// <returns>Returns true if the handler was successfully invoked</returns>
-        public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
+        public bool InvokeHandler<T>(T msg, int channelId) where T : NetworkMessage
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // if it is a value type,  just use typeof(T) to avoid boxing
                 // this works because value types cannot be derived
-                // if it is a reference type (for example IMessageBase),
+                // if it is a reference type (for example NetworkMessage),
                 // ask the message for the real type
                 int msgType = MessagePacker.GetId(default(T) != null ? typeof(T) : msg.GetType());
 

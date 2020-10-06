@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests.MessageTests
 {
-    class ParentMessage : MessageBase
+    class ParentMessage : NetworkMessage
     {
         public int parentValue;
     }
@@ -13,7 +13,7 @@ namespace Mirror.Tests.MessageTests
     }
 
 
-    public abstract class RequestMessageBase : MessageBase
+    public abstract class RequestMessageBase : NetworkMessage
     {
         public int responseId = 0;
     }
@@ -31,7 +31,7 @@ namespace Mirror.Tests.MessageTests
         public string message = "";
         public int errorCode = 0; // optional for error codes
     }
-    public abstract class RequestMessageBaseReverse : MessageBase
+    public abstract class RequestMessageBaseReverse : NetworkMessage
     {
         public int responseId = 0;
     }
@@ -44,7 +44,7 @@ namespace Mirror.Tests.MessageTests
         {
             NetworkWriter writer = new NetworkWriter();
 
-            writer.WriteMessage(new ChildMessage
+            writer.Write(new ChildMessage
             {
                 parentValue = 3,
                 childValue = 4
@@ -53,8 +53,7 @@ namespace Mirror.Tests.MessageTests
             byte[] arr = writer.ToArray();
 
             NetworkReader reader = new NetworkReader(arr);
-            ChildMessage received = new ChildMessage();
-            received.Deserialize(reader);
+            ChildMessage received = reader.Read<ChildMessage>();
 
             Assert.AreEqual(3, received.parentValue);
             Assert.AreEqual(4, received.childValue);
@@ -72,7 +71,7 @@ namespace Mirror.Tests.MessageTests
             const int state = 2;
             const string message = "hello world";
             const int responseId = 5;
-            writer.WriteMessage(new ResponseMessage
+            writer.Write(new ResponseMessage
             {
                 state = state,
                 message = message,
@@ -82,8 +81,7 @@ namespace Mirror.Tests.MessageTests
             byte[] arr = writer.ToArray();
 
             NetworkReader reader = new NetworkReader(arr);
-            ResponseMessage received = new ResponseMessage();
-            received.Deserialize(reader);
+            ResponseMessage received = reader.Read<ResponseMessage>();
 
             Assert.AreEqual(state, received.state);
             Assert.AreEqual(message, received.message);
@@ -102,7 +100,7 @@ namespace Mirror.Tests.MessageTests
             const int state = 2;
             const string message = "hello world";
             const int responseId = 5;
-            writer.WriteMessage(new ResponseMessageReverse
+            writer.Write(new ResponseMessageReverse
             {
                 state = state,
                 message = message,
@@ -112,8 +110,7 @@ namespace Mirror.Tests.MessageTests
             byte[] arr = writer.ToArray();
 
             NetworkReader reader = new NetworkReader(arr);
-            ResponseMessageReverse received = new ResponseMessageReverse();
-            received.Deserialize(reader);
+            ResponseMessageReverse received = reader.Read<ResponseMessageReverse>();
 
             Assert.AreEqual(state, received.state);
             Assert.AreEqual(message, received.message);
