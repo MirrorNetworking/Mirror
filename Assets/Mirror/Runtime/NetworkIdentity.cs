@@ -1344,7 +1344,7 @@ namespace Mirror
                     if (observersWritten > 0)
                     {
                         varsMessage.payload = observersWriter.ToArraySegment();
-                        Server.SendToReady(this, varsMessage, false);
+                        Server.SendToObservers(this, varsMessage, false);
                     }
 
                     // clear dirty bits only for the components that we serialized
