@@ -568,66 +568,6 @@ namespace Mirror.Tests.ClientSceneTests
             Assert.That(ClientScene.localPlayer, Is.EqualTo(identity));
         }
 
-        [Flags]
-        public enum SpawnFinishedState
-        {
-            isSpawnFinished = 1,
-            hasAuthority = 2,
-            isLocalPlayer = 4
-        }
-        [Test]
-        [TestCase(0)]
-        [TestCase(1)]
-        [TestCase(2)]
-        [TestCase(3)]
-        [TestCase(4)]
-        [TestCase(5)]
-        [TestCase(6)]
-        [TestCase(7)]
-        public void ApplyPayload_isSpawnFinished(SpawnFinishedState flag)
-        {
-            bool isSpawnFinished = flag.HasFlag(SpawnFinishedState.isSpawnFinished);
-            bool hasAuthority = flag.HasFlag(SpawnFinishedState.hasAuthority);
-            bool isLocalPlayer = flag.HasFlag(SpawnFinishedState.isLocalPlayer);
-
-            const uint netId = 1000;
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
-            BehaviourWithEvents events = go.AddComponent<BehaviourWithEvents>();
-
-            int onStartAuthorityCalled = 0;
-            int onStartClientCalled = 0;
-            int onStartLocalPlayerCalled = 0;
-            events.OnStartAuthorityCalled += () => { onStartAuthorityCalled++; };
-            events.OnStartClientCalled += () => { onStartClientCalled++; };
-            events.OnStartLocalPlayerCalled += () => { onStartLocalPlayerCalled++; };
-
-            SpawnMessage msg = new SpawnMessage
-            {
-                netId = netId,
-                isLocalPlayer = isLocalPlayer,
-                isOwner = hasAuthority,
-            };
-
-            ClientScene.ApplySpawnPayload(identity, msg);
-
-            if (isSpawnFinished)
-            {
-                Assert.That(onStartClientCalled, Is.EqualTo(1));
-                Assert.That(onStartAuthorityCalled, Is.EqualTo(hasAuthority ? 1 : 0));
-                Assert.That(onStartLocalPlayerCalled, Is.EqualTo(isLocalPlayer ? 1 : 0));
-            }
-            else
-            {
-                Assert.That(onStartAuthorityCalled, Is.Zero);
-                Assert.That(onStartClientCalled, Is.Zero);
-                Assert.That(onStartLocalPlayerCalled, Is.Zero);
-            }
-        }
-
-
         [Test]
         public void OnSpawn_SpawnsAndAppliesPayload()
         {
