@@ -8,12 +8,8 @@ namespace Mirror
         // visibility radius
         public float visibilityRadius = float.MaxValue;
 
-        // don't update every tick. update every so often.
-        public float updateInterval = 1;
-        double lastUpdateTime;
-
         // rebuild observers and store the result in rebuild buffer
-        void RebuildObservers()
+        protected override void RebuildObservers()
         {
             // for each NetworkIdentity, we need to check if it's visible from
             // ANY of the player's entities. not just the main player.
@@ -55,77 +51,6 @@ namespace Mirror
 
                 //if (identity.rebuild.Count > 0)
                 //    Debug.Log($"{identity.name} is observed by {identity.rebuild.Count} connections");
-            }
-        }
-
-        void RemoveOldObservers()
-        {
-            // foreach spawned
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
-                // unspawn all observers that are NOT in rebuild anymore
-                foreach (NetworkConnectionToClient observer in identity.observers)
-                {
-                    //Debug.Log($"{identity.name} had {identity.observars.Count} observers and rebuild has {identity.rebuild.Count}");
-                    if (!identity.rebuild.Contains(observer))
-                    {
-                        // unspawn identity for this connection
-                        //Debug.LogWarning($"Unspawning {identity.name} for connectionId {conn.connectionId}");
-                        NetworkServer.HideForConnection(identity, observer);
-                    }
-                }
-
-                // we can't iterate and remove from HashSet at the same time.
-                // so remove all observers that are NOT in rebuild now.
-                // (in other words, keep observers that are in both hashsets)
-                //
-                // note: IntersectWith version that returns removed values would
-                //       be even faster.
-                identity.observers.IntersectWith(identity.rebuild);
-            }
-        }
-
-        // add new observers and send spawn messages
-        void AddNewObservers()
-        {
-            // foreach spawned
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
-                // foreach rebuild
-                foreach (NetworkConnectionToClient conn in identity.rebuild)
-                {
-                    // was it not in old observers?
-                    if (!identity.observers.Contains(conn))
-                    {
-                        // spawn identity for this connection
-                        //Debug.LogWarning($"Spawning {identity.name} for connectionId {conn.connectionId}");
-                        NetworkServer.ShowForConnection(identity, conn);
-
-                        // add it to observers
-                        identity.observers.Add(conn);
-                    }
-                }
-            }
-        }
-
-        public override void RebuildAll()
-        {
-            RebuildObservers();
-            RemoveOldObservers();
-            AddNewObservers();
-        }
-
-        // update rebuilds every couple of seconds
-        void Update()
-        {
-            // only while server is running
-            if (NetworkServer.active)
-            {
-                if (Time.time >= lastUpdateTime + updateInterval)
-                {
-                    RebuildAll();
-                    lastUpdateTime = Time.time;
-                }
             }
         }
     }
