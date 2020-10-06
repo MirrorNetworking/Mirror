@@ -121,7 +121,11 @@ namespace {NameSpace}
             return $@"
     public class {collectionType}_{elementType}_Test
     {{
-        public class Message : NetworkMessage
+<<<<<<< HEAD
+        public class Message : INetworkMessage
+=======
+        public class Message : INetworkMessage
+>>>>>>> breaking: no need to override Serialize/Deserialize in messages
         {{
             public {messageField} collection;
         }}

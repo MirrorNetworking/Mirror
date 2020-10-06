@@ -242,7 +242,7 @@ namespace Mirror
             {
                 // if it is a value type,  just use typeof(T) to avoid boxing
                 // this works because value types cannot be derived
-                // if it is a reference type (for example NetworkMessage),
+                // if it is a reference type (for example INetworkMessage),
                 // ask the message for the real type
                 int msgType = MessagePacker.GetId(default(T) != null ? typeof(T) : msg.GetType());
 
