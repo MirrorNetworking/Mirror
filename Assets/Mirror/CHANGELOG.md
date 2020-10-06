@@ -28,6 +28,55 @@
 ### Performance Improvements
 
 * Only synchronize dirty objects ([#381](https://github.com/MirrorNG/MirrorNG/issues/381)) ([64fd6ed](https://github.com/MirrorNG/MirrorNG/commit/64fd6ed862a15074c980c4fb81b4c99fe9698cda))
+* Remove 2 messages when player connects ([#384](https://github.com/MirrorNG/MirrorNG/issues/384)) ([c40e0fd](https://github.com/MirrorNG/MirrorNG/commit/c40e0fd083ea80685dc6898828767f784ec147a3))
+
+
+### BREAKING CHANGES
+
+* It is no longer guaranteed that all objects are spawned before we start calling events
+
+* fix object spawning on scene change
+
+* remove unused variable
+
+Co-authored-by: uwee <uweenukr@gmail.com>
+* You can no longer use gameobjects in syncvars
+* Serialize and Deserialize methods in synclists don't do anything anymore
+
+* Remove old comment
+
+* Fix compilatio error
+
+# [47.0.0](https://github.com/MirrorNG/MirrorNG/compare/v46.2.0...v47.0.0) (2020-10-06)
+
+
+### breaking
+
+* Remove GameObject sync ([#370](https://github.com/MirrorNG/MirrorNG/issues/370)) ([5b223fa](https://github.com/MirrorNG/MirrorNG/commit/5b223fa31985bd07e658eb43122a4f3cd426511d))
+* Use SyncLists directly (delete overrides) ([#2307](https://github.com/MirrorNG/MirrorNG/issues/2307)) ([fb49d19](https://github.com/MirrorNG/MirrorNG/commit/fb49d197939e41816310694e33325c75a8fa986b)), closes [#2305](https://github.com/MirrorNG/MirrorNG/issues/2305)
+
+
+### Bug Fixes
+
+* access NI on disabled objects ([#383](https://github.com/MirrorNG/MirrorNG/issues/383)) ([0ab4c60](https://github.com/MirrorNG/MirrorNG/commit/0ab4c6065bcd5e584e311a5558e614ffd250a5d1))
+* adding namespace for sonar bug ([2ed0859](https://github.com/MirrorNG/MirrorNG/commit/2ed08596489f02f3e8ff177a4f6983add4ce7774))
+* bug Client ConnectionState not set properly in Disconnect ([#369](https://github.com/MirrorNG/MirrorNG/issues/369)) ([74298c5](https://github.com/MirrorNG/MirrorNG/commit/74298c50b330216edbd19cf087eece910a05f656))
+* Bug with  NI destroy order ([#374](https://github.com/MirrorNG/MirrorNG/issues/374)) ([485f78b](https://github.com/MirrorNG/MirrorNG/commit/485f78b0d011950bb98ebf5ed0bd12673773224b))
+* Examples can exit property in client mode ([35faaf3](https://github.com/MirrorNG/MirrorNG/commit/35faaf38eb5816f49e0c4d3d3aebff94e01f9101))
+* examples no longer use prefabs or common files ([#378](https://github.com/MirrorNG/MirrorNG/issues/378)) ([718ec9e](https://github.com/MirrorNG/MirrorNG/commit/718ec9e6ec8928e19e29e619a2194ef2eb206eff))
+* networkmenu should add NSM to playerSpawner too ([c7bd0be](https://github.com/MirrorNG/MirrorNG/commit/c7bd0be18870d4c4e4baa3f751426d159404b01a))
+* nre modifying syncvars that have not been spawned ([69883c5](https://github.com/MirrorNG/MirrorNG/commit/69883c5df0671da43bb9610b37d9535e61d95675))
+
+
+### Features
+
+* new generic Read and Write methods for all types ([#2301](https://github.com/MirrorNG/MirrorNG/issues/2301)) ([85252c3](https://github.com/MirrorNG/MirrorNG/commit/85252c3d840353014f003eaa1d565eeb8635c673))
+* support Jagged arrays ([0267dbe](https://github.com/MirrorNG/MirrorNG/commit/0267dbe1f22efd9452371e5a29c2b85958ddf7e5))
+
+
+### Performance Improvements
+
+* Only synchronize dirty objects ([#381](https://github.com/MirrorNG/MirrorNG/issues/381)) ([64fd6ed](https://github.com/MirrorNG/MirrorNG/commit/64fd6ed862a15074c980c4fb81b4c99fe9698cda))
 
 
 ### BREAKING CHANGES
