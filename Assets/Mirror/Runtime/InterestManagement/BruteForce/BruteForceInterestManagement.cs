@@ -28,7 +28,7 @@ namespace Mirror
             // foreach spawned
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                // clear previous rebuild first
+                // clear previous rebuild in any case
                 identity.rebuild.Clear();
 
                 // only add observers if not currently hidden from observers
