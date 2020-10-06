@@ -422,7 +422,8 @@ namespace Mirror
         public void SetDirtyBit(ulong dirtyBit)
         {
             SyncVarDirtyBits |= dirtyBit;
-            Server.DirtyObjects.Add(NetIdentity);
+            if (IsServer)
+                Server.DirtyObjects.Add(NetIdentity);
         }
 
         /// <summary>
