@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    internal class MyScriptableObject : ScriptableObject
+    public class MyScriptableObject : ScriptableObject
     {
         public int someData;
     }
@@ -19,10 +19,6 @@ namespace Mirror.Tests
         struct ScriptableObjectMessage : NetworkMessage
         {
             public MyScriptableObject scriptableObject;
-
-            // Weaver auto generates serialization
-            public void Deserialize(NetworkReader reader) {}
-            public void Serialize(NetworkWriter writer) {}
         }
 
         [Test]

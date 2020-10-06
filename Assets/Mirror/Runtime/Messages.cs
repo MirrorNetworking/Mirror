@@ -3,12 +3,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public interface NetworkMessage
-    {
-        void Deserialize(NetworkReader reader);
-
-        void Serialize(NetworkWriter writer);
-    }
+    public interface NetworkMessage {}
 
     #region Public System Messages
     public struct ErrorMessage : NetworkMessage
@@ -19,52 +14,17 @@ namespace Mirror
         {
             value = v;
         }
-
-        public void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadByte();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteByte(value);
-        }
     }
 
-    public struct ReadyMessage : NetworkMessage
-    {
-        public void Deserialize(NetworkReader reader) { }
+    public struct ReadyMessage : NetworkMessage {}
 
-        public void Serialize(NetworkWriter writer) { }
-    }
+    public struct NotReadyMessage : NetworkMessage {}
 
-    public struct NotReadyMessage : NetworkMessage
-    {
-        public void Deserialize(NetworkReader reader) { }
+    public struct AddPlayerMessage : NetworkMessage {}
 
-        public void Serialize(NetworkWriter writer) { }
-    }
+    public struct DisconnectMessage : NetworkMessage {}
 
-    public struct AddPlayerMessage : NetworkMessage
-    {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
-    }
-
-    public struct DisconnectMessage : NetworkMessage
-    {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
-    }
-
-    public struct ConnectMessage : NetworkMessage
-    {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
-    }
+    public struct ConnectMessage : NetworkMessage {}
 
     public enum SceneOperation : byte
     {
@@ -84,23 +44,6 @@ namespace Mirror
         // the parameters for the Cmd function
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadUInt32();
-            componentIndex = (int)reader.ReadUInt32();
-            // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
-            functionHash = reader.ReadInt32();
-            payload = reader.ReadBytesAndSizeSegment();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteUInt32(netId);
-            writer.WriteUInt32((uint)componentIndex);
-            writer.WriteInt32(functionHash);
-            writer.WriteBytesAndSizeSegment(payload);
-        }
     }
 
     public struct RpcMessage : NetworkMessage
@@ -111,23 +54,6 @@ namespace Mirror
         // the parameters for the Cmd function
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadUInt32();
-            componentIndex = (int)reader.ReadUInt32();
-            // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
-            functionHash = reader.ReadInt32();
-            payload = reader.ReadBytesAndSizeSegment();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteUInt32(netId);
-            writer.WriteUInt32((uint)componentIndex);
-            writer.WriteInt32(functionHash);
-            writer.WriteBytesAndSizeSegment(payload);
-        }
     }
     #endregion
 
@@ -172,68 +98,16 @@ namespace Mirror
         /// <remark>ArraySegment to avoid unnecessary allocations</remark>
         /// </summary>
         public ArraySegment<byte> payload;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadUInt32();
-            isLocalPlayer = reader.ReadBoolean();
-            isOwner = reader.ReadBoolean();
-            sceneId = reader.ReadUInt64();
-            if (sceneId == 0)
-            {
-                assetId = reader.ReadGuid();
-            }
-            position = reader.ReadVector3();
-            rotation = reader.ReadQuaternion();
-            scale = reader.ReadVector3();
-            payload = reader.ReadBytesAndSizeSegment();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteUInt32(netId);
-            writer.WriteBoolean(isLocalPlayer);
-            writer.WriteBoolean(isOwner);
-            writer.WriteUInt64(sceneId);
-            if (sceneId == 0)
-            {
-                writer.WriteGuid(assetId);
-            }
-            writer.WriteVector3(position);
-            writer.WriteQuaternion(rotation);
-            writer.WriteVector3(scale);
-            writer.WriteBytesAndSizeSegment(payload);
-        }
     }
 
     public struct ObjectDestroyMessage : NetworkMessage
     {
         public uint netId;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadUInt32();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteUInt32(netId);
-        }
     }
 
     public struct ObjectHideMessage : NetworkMessage
     {
         public uint netId;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadUInt32();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteUInt32(netId);
-        }
     }
 
     public struct UpdateVarsMessage : NetworkMessage
@@ -242,18 +116,6 @@ namespace Mirror
         // the serialized component data
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadUInt32();
-            payload = reader.ReadBytesAndSizeSegment();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteUInt32(netId);
-            writer.WriteBytesAndSizeSegment(payload);
-        }
     }
 
     // A client sends this message to the server
@@ -266,16 +128,6 @@ namespace Mirror
         {
             clientTime = value;
         }
-
-        public void Deserialize(NetworkReader reader)
-        {
-            clientTime = reader.ReadDouble();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteDouble(clientTime);
-        }
     }
 
     // The server responds with this message
@@ -284,18 +136,6 @@ namespace Mirror
     {
         public double clientTime;
         public double serverTime;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            clientTime = reader.ReadDouble();
-            serverTime = reader.ReadDouble();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteDouble(clientTime);
-            writer.WriteDouble(serverTime);
-        }
     }
     #endregion
 }

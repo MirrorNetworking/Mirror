@@ -26,10 +26,6 @@ namespace Mirror.Tests
         public struct ByteMessage : NetworkMessage
         {
             public MyByteEnum byteEnum;
-
-            // Weaver auto generates serialization
-            public void Deserialize(NetworkReader reader) {}
-            public void Serialize(NetworkWriter writer) {}
         }
         public enum MyByteEnum : byte
         {
@@ -39,10 +35,6 @@ namespace Mirror.Tests
         public struct ShortMessage : NetworkMessage
         {
             public MyShortEnum shortEnum;
-
-            // Weaver auto generates serialization
-            public void Deserialize(NetworkReader reader) {}
-            public void Serialize(NetworkWriter writer) {}
         }
         public enum MyShortEnum : short
         {
@@ -52,10 +44,6 @@ namespace Mirror.Tests
         public struct CustomMessage : NetworkMessage
         {
             public MyCustomEnum customEnum;
-
-            // Weaver auto generates serialization
-            public void Deserialize(NetworkReader reader) {}
-            public void Serialize(NetworkWriter writer) {}
         }
 
         public enum MyCustomEnum
@@ -70,7 +58,7 @@ namespace Mirror.Tests
             ByteMessage msg = new ByteMessage() { byteEnum = MyByteEnum.B };
 
             NetworkWriter writer = new NetworkWriter();
-            msg.Serialize(writer);
+            writer.Write(msg);
 
             // should only be 1 byte
             Assert.That(writer.Length, Is.EqualTo(1));
@@ -82,7 +70,7 @@ namespace Mirror.Tests
             ShortMessage msg = new ShortMessage() { shortEnum = MyShortEnum.G };
 
             NetworkWriter writer = new NetworkWriter();
-            msg.Serialize(writer);
+            writer.Write(msg);
 
             // should only be 1 byte
             Assert.That(writer.Length, Is.EqualTo(2));
@@ -101,12 +89,11 @@ namespace Mirror.Tests
         {
             NetworkWriter writer = new NetworkWriter();
 
-            msg.Serialize(writer);
+            writer.Write(msg);
 
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
-            T msg2 = new T();
-            msg2.Deserialize(reader);
+            T msg2 = reader.Read<T>();
             return msg2;
         }
     }

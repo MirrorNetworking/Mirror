@@ -17,20 +17,6 @@ namespace Mirror.Tests
             StringValue = s;
             DoubleValue = d;
         }
-
-        public void Deserialize(NetworkReader reader)
-        {
-            IntValue = reader.ReadInt32();
-            StringValue = reader.ReadString();
-            DoubleValue = reader.ReadDouble();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteInt32(IntValue);
-            writer.WriteString(StringValue);
-            writer.WriteDouble(DoubleValue);
-        }
     }
 
     struct TestMessage2 : NetworkMessage
@@ -40,10 +26,6 @@ namespace Mirror.Tests
         public string StringValue;
         public double DoubleValue;
 #pragma warning restore CS0649 // Field is never assigned to
-
-        // Mirror will fill out these empty methods
-        public void Deserialize(NetworkReader reader) { }
-        public void Serialize(NetworkWriter writer) { }
     }
 
     public class CommandTestNetworkBehaviour : NetworkBehaviour

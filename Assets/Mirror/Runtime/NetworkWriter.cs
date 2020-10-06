@@ -293,10 +293,5 @@ namespace Mirror
             }
             writer.WriteUInt32(value.netId);
         }
-
-        public static void WriteMessage<T>(this NetworkWriter writer, T msg) where T : NetworkMessage
-        {
-            msg.Serialize(writer);
-        }
     }
 }

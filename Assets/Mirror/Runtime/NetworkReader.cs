@@ -235,10 +235,5 @@ namespace Mirror
             // logger.LogFormat(LogType.Warning, "ReadNetworkIdentity netId:{0} not found in spawned", netId);
             return null;
         }
-
-        public static void ReadMessage<T>(this NetworkReader reader, T msg) where T : NetworkMessage
-        {
-            msg.Deserialize(reader);
-        }
     }
 }

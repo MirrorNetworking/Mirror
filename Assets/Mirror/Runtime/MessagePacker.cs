@@ -38,13 +38,13 @@ namespace Mirror
         {
             // if it is a value type,  just use typeof(T) to avoid boxing
             // this works because value types cannot be derived
-            // if it is a reference type (for example IMessageBase),
+            // if it is a reference type (for example NetworkMessage),
             // ask the message for the real type
             int msgType = GetId(typeof(T));
             writer.WriteUInt16((ushort)msgType);
 
             // serialize message into writer
-            message.Serialize(writer);
+            writer.Write(message);
         }
 
         // unpack a message we received
@@ -59,10 +59,7 @@ namespace Mirror
                 if (id != msgType)
                     throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
 
-                T message = new T();
-                message.Deserialize(networkReader);
-
-                return message;
+                return networkReader.Read<T>();
             }
         }
 
@@ -110,8 +107,7 @@ namespace Mirror
                 if (!requireAuthenication || conn.isAuthenticated)
                 {
                     // deserialize
-                    T message = default;
-                    message.Deserialize(reader);
+                    T message = reader.Read<T>();
 
                     // call it
                     handler((C)conn, message);

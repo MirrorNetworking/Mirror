@@ -17,10 +17,6 @@ namespace Mirror.Examples.Chat
         public struct CreatePlayerMessage : NetworkMessage
         {
             public string name;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         public override void OnStartServer()

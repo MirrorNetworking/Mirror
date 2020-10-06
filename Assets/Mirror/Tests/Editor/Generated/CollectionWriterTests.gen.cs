@@ -13,10 +13,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public int[] collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -81,10 +77,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public string[] collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -149,10 +141,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public Vector3[] collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -217,10 +205,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public FloatStringStruct[] collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -285,10 +269,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public ClassWithNoConstructor[] collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -353,10 +333,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public ArraySegment<int> collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -435,10 +411,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public ArraySegment<string> collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -517,10 +489,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public ArraySegment<Vector3> collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -599,10 +567,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public ArraySegment<FloatStringStruct> collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -681,10 +645,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public ArraySegment<ClassWithNoConstructor> collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -763,10 +723,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public List<int> collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -831,10 +787,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public List<string> collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -899,10 +851,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public List<Vector3> collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -967,10 +915,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public List<FloatStringStruct> collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]
@@ -1035,10 +979,6 @@ namespace Mirror.Tests.Generated.CollectionWriters
         struct Message : NetworkMessage
         {
             public List<ClassWithNoConstructor> collection;
-
-            // Weaver will generate serialization
-            public void Serialize(NetworkWriter writer) {}
-            public void Deserialize(NetworkReader reader) {}
         }
 
         [Test]

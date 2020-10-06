@@ -14,9 +14,5 @@ namespace WeaverMessageTests.MessageMemberGeneric
         public Quaternion rotation;
         public HasGeneric<int> invalidField;
         public byte[] payload;
-
-        // Weaver will generate serialization
-        public void Serialize(NetworkWriter writer) {}
-        public void Deserialize(NetworkReader reader) {}
     }
 }
