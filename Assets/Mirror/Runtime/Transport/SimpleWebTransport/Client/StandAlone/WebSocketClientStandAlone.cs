@@ -154,11 +154,8 @@ namespace Mirror.SimpleWeb
             // todo remove allocation
             // msg
             byte[] buffer = new byte[HeaderLength + header.readLength];
-            for (int i = 0; i < HeaderLength; i++)
-            {
-                // copy header as it might contain mask
-                buffer[i] = headerBuffer[i];
-            }
+            // copy header as it might contain mask
+            Buffer.BlockCopy(headerBuffer, 0, buffer, 0, HeaderLength);
 
             ReadHelper.SafeRead(stream, buffer, HeaderLength, header.readLength);
 
