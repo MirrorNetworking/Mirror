@@ -47,7 +47,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework.performance": {
-      "version": "2.2.0-preview",
+      "version": "2.3.1-preview",
       "depth": 0,
       "source": "registry",
       "dependencies": {
