@@ -1,0 +1,8 @@
+{
+    "_readme_1": "Make a copy of this file and update the fields below. (readme fields should be deleted)",
+    "_readme_2": "Include the json file and cert with your server build ONLY (put them outside of asset folder)",
+    "_readme_path": "path is relative from cwd not this json file",
+    "_readme_password": "password can be empty or left out",
+    "path": "./certs/MirrorLocal.pfx",
+    "password": ""
+}
