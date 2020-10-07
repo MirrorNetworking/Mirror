@@ -51,6 +51,17 @@ namespace Mirror
             // foreach spawned
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
+                // before we start, ensure that player always sees himself and
+                // all his owned entities (e.g. pets)
+                // note that we add it to rebuild, not to observers.
+                // this way the actual add & spawn code will only spawn it once.
+                if (identity.connectionToClient != null &&
+                    identity.connectionToClient.isReady)
+                {
+                    // add it to observers
+                    identity.rebuild.Add(identity.connectionToClient);
+                }
+
                 // foreach rebuild
                 foreach (NetworkConnectionToClient conn in identity.rebuild)
                 {
