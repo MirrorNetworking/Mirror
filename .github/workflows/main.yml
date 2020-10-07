@@ -100,10 +100,11 @@ jobs:
               /d:sonar.cs.nunit.reportsPaths=Tests/editmode-results.xml,Tests/playimode-results.xml 
               /d:sonar.cs.opencover.reportsPaths=Tests/workspace-opencov/EditMode/TestCoverageResults_0000.xml,Tests/workspace-opencov/PlayMode/TestCoverageResults_0000.xml
               /d:sonar.coverage.exclusions=Assets/Mirror/Runtime/Transport/Telepathy/**/*.cs,Assets/Mirror/Runtime/Transport/Websocket/**/*.cs,Assets/Mirror/Runtime/Transport/SimpleWebTransport/**,Assets/Mirror/Cloud/**/*.cs,Assets/Mirror/Examples/**/*.cs,Assets/Mirror/Tests/**/*.cs
+              /d:sonar.exclusions=Assets/Mirror/Runtime/Transport/SimpleWebTransport/**
           # files ignored in code coverage:
           # Assets/Mirror/Runtime/Transport/Telepathy/** - has its own test in the Telepathy repo
           # Assets/Mirror/Runtime/Transport/Websocket/** - needs tests but should be done in its own repo
-          # Assets/Mirror/Runtime/Transport/SimpleWebTransport/** - has its own test in the SimpleWebTransport repo
+          # Assets/Mirror/Runtime/Transport/SimpleWebTransport/** - fully exclude this because it has sonar running on its repo
           # Assets/Mirror/Cloud/** - has its own tests in private cloud repo
           # Assets/Mirror/Examples/** - examples dont need test coverage
           # Assets/Mirror/Tests/** - tests dont need test coverage
