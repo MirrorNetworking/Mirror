@@ -505,9 +505,9 @@ namespace Mirror
                 {
                     Object.Destroy(localObject.gameObject);
                 }
+                // scene object.. disable it in scene instead of destroying
                 else
                 {
-                    // scene object.. disable it in scene instead of destroying
                     localObject.gameObject.SetActive(false);
                     spawnableObjects[localObject.sceneId] = localObject;
                 }
