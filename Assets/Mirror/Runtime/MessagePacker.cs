@@ -64,7 +64,7 @@ namespace Mirror
         // -> NetworkReader will point at content afterwards!
         public static bool UnpackMessage(NetworkReader messageReader, out int msgType)
         {
-            // read message type (varint)
+            // read message type
             try
             {
                 msgType = messageReader.ReadUInt16();
