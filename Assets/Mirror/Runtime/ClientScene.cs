@@ -64,7 +64,7 @@ namespace Mirror
         /// <param name="identity"></param>
         internal static void InternalAddPlayer(NetworkIdentity identity)
         {
-            Debug.Log("ClientScene.InternalAddPlayer");
+            //Debug.Log("ClientScene.InternalAddPlayer");
 
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
@@ -90,7 +90,7 @@ namespace Mirror
         /// </summary>
         internal static void ClearLocalPlayer()
         {
-            Debug.Log("ClientScene.ClearLocalPlayer");
+            //Debug.Log("ClientScene.ClearLocalPlayer");
 
             localPlayer = null;
         }
