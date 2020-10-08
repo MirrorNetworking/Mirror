@@ -363,15 +363,22 @@ namespace Mirror
             // update all server objects
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
-                NetworkIdentity identity = kvp.Value;
-                if (identity != null)
+                // try to update.
+                // spawned might have null entries if the user made a mistake.
+                //
+                // IMPORTANT: do not check kvp.Value != null. this is way too
+                //            costly due to Unity's custom null check
+                //            instead, catch the exception if it happens.
+                //            (see 4k benchmark).
+                try
                 {
-                    identity.ServerUpdate();
+                    kvp.Value.ServerUpdate();
                 }
-                else
+                // spawned list should have no null entries because we
+                // always call Remove in OnObjectDestroy everywhere.
+                // but if it does, we should let the user know how it happens
+                catch (NullReferenceException)
                 {
-                    // spawned list should have no null entries because we
-                    // always call Remove in OnObjectDestroy everywhere.
                     Debug.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                 }
             }
