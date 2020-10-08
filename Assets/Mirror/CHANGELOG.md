@@ -1,3 +1,10 @@
+## [47.0.1](https://github.com/MirrorNG/MirrorNG/compare/v47.0.0...v47.0.1) (2020-10-08)
+
+
+### Bug Fixes
+
+* warning about tests.meta file ([148b5a9](https://github.com/MirrorNG/MirrorNG/commit/148b5a9f567f5a3f54905ed4d6b3bf1687120707))
+
 # [47.0.0](https://github.com/MirrorNG/MirrorNG/compare/v46.2.0...v47.0.0) (2020-10-07)
 
 
