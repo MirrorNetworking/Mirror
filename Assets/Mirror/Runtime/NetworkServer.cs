@@ -401,46 +401,6 @@ namespace Mirror
             NetworkConnection.Send(connections, msg, channelId);
         }
 
-        /// <summary>
-        /// Send a message to only clients which are ready with option to include the owner of the object identity.
-        /// <para>See <see cref="NetworkConnection.IsReady"/></para>
-        /// </summary>
-        /// <typeparam name="T">Message type.</typeparam>
-        /// <param name="identity">Identity of the owner</param>
-        /// <param name="msg">Message</param>
-        /// <param name="includeOwner">Should the owner of the object be included</param>
-        /// <param name="channelId">Transport channel to use</param>
-        public void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable)
-        {
-            if (logger.LogEnabled()) logger.Log("Server.SendToReady msgType:" + typeof(T));
-
-            connectionsCache.Clear();
-
-            foreach (INetworkConnection connection in identity.observers)
-            {
-                bool isOwner = connection == identity.ConnectionToClient;
-                if ((!isOwner || includeOwner) && connection.IsReady)
-                {
-                    connectionsCache.Add(connection);
-                }
-            }
-
-            NetworkConnection.Send(connectionsCache, msg, channelId);
-        }
-
-        /// <summary>
-        /// Send a message to only clients which are ready including the owner of the object identity.
-        /// <para>See <see cref="NetworkConnection.IsReady"/></para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="identity">identity of the object</param>
-        /// <param name="msg">Message</param>
-        /// <param name="channelId">Transport channel to use</param>
-        public void SendToReady<T>(NetworkIdentity identity, T msg, int channelId)
-        {
-            SendToReady(identity, msg, true, channelId);
-        }
-
         private readonly List<NetworkIdentity> DirtyObjectsTmp = new List<NetworkIdentity>();
 
         // The user should never need to pump the update loop manually
