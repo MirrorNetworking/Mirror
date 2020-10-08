@@ -903,25 +903,6 @@ namespace Mirror
             Spawn(obj, identity.connectionToClient);
         }
 
-        /// <summary>
-        /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
-        /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
-        /// </summary>
-        /// <param name="obj">The object to spawn.</param>
-        /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
-        /// <param name="ownerConnection">The connection that has authority over the object</param>
-        public static void Spawn(GameObject obj, Guid assetId, NetworkConnection ownerConnection = null)
-        {
-            if (VerifyCanSpawn(obj))
-            {
-                if (GetNetworkIdentity(obj, out NetworkIdentity identity))
-                {
-                    identity.assetId = assetId;
-                }
-                SpawnObject(obj, ownerConnection);
-            }
-        }
-
         static bool CheckForPrefab(GameObject obj)
         {
 #if UNITY_EDITOR
