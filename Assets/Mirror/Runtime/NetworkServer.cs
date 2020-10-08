@@ -588,23 +588,6 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
-        /// <param name="assetId"></param>
-        /// <returns>True if connection was sucessfully added for a connection.</returns>
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
-        {
-            if (GetNetworkIdentity(player, out NetworkIdentity identity))
-            {
-                identity.assetId = assetId;
-            }
-            return AddPlayerForConnection(conn, player);
-        }
-
-        /// <summary>
-        /// <para>When an AddPlayer message handler has received a request from a player, the server calls this to associate the player object with the connection.</para>
-        /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player on this playerControllerId for this connection, this will fail.</para>
-        /// </summary>
-        /// <param name="conn">Connection which is adding the player.</param>
-        /// <param name="player">Player object spawned for the player.</param>
         /// <returns>True if connection was successfully added for a connection.</returns>
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
         {
