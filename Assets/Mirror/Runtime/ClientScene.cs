@@ -515,10 +515,7 @@ namespace Mirror
                 NetworkIdentity.spawned.Remove(netId);
                 localObject.Reset();
             }
-            else
-            {
-                // Debug.LogWarning("Did not find target for destroy message for " + netId);
-            }
+            //else Debug.LogWarning("Did not find target for destroy message for " + netId);
         }
 
         internal static void OnUpdateVarsMessage(UpdateVarsMessage msg)
