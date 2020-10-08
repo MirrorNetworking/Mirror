@@ -98,26 +98,31 @@ namespace Mirror
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
 
         /// <summary>
-        /// NetworkIdentity component caching for easier access
-        /// </summary>
-        NetworkIdentity netIdentityCache;
-
-        /// <summary>
         /// Returns the NetworkIdentity of this object
         /// </summary>
+        //
+        // -> cached to avoid GetComponent call each time we use isServer etc.
+        // -> with a bool to avoid 'netIdentityCache == null' check which is
+        //    extremely costly due to Unity's custom null check.
+        //    (see 4k benchmark)
+        bool netIdentityCached;
+        NetworkIdentity netIdentityCache;
         public NetworkIdentity netIdentity
         {
             get
             {
-                if (netIdentityCache == null)
+                // cache if not cached yet
+                if (!netIdentityCached)
                 {
                     netIdentityCache = GetComponent<NetworkIdentity>();
+                    netIdentityCached = true;
                     // do this 2nd check inside first if so that we are not checking == twice on unity Object
                     if (netIdentityCache == null)
                     {
                         Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                     }
                 }
+                // return cache
                 return netIdentityCache;
             }
         }
