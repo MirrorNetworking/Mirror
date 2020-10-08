@@ -7,7 +7,6 @@ namespace Mirror.Tests
         public string sceneName;
         // Normal = 0, LoadAdditive = 1, UnloadAdditive = 2
         public SceneOperation sceneOperation;
-        public bool customHandling;
     }
 
     [TestFixture]
