@@ -111,19 +111,22 @@ namespace Mirror
             RebuildObservers();
             RemoveOldObservers();
             AddNewObservers();
+
+            // RebuildAll can be called from the outside, so we should set the
+            // lastUpdateTime in here instead of in Update.
+            // this way we avoid updating if someone from the outside recently
+            // did a rebuild anyway (e.g. in OnServerDisconnect).
+            lastUpdateTime = Time.time;
         }
 
         // update rebuilds every couple of seconds
         void Update()
         {
             // only while server is running
-            if (NetworkServer.active)
+            if (NetworkServer.active &&
+                Time.time >= lastUpdateTime + updateInterval)
             {
-                if (Time.time >= lastUpdateTime + updateInterval)
-                {
-                    RebuildAll();
-                    lastUpdateTime = Time.time;
-                }
+                RebuildAll();
             }
         }
     }
