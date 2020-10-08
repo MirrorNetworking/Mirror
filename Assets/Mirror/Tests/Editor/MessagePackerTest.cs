@@ -23,6 +23,22 @@ namespace Mirror.Tests
             }
         }
 
+        // this was previously in MessagePacker, but we only need it for tests
+        public static T Unpack<T>(byte[] data)
+            where T : struct, NetworkMessage
+        {
+            using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(data))
+            {
+                int msgType = MessagePacker.GetId<T>();
+
+                int id = networkReader.ReadUInt16();
+                if (id != msgType)
+                    throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
+
+                return networkReader.Read<T>();
+            }
+        }
+
         [Test]
         public void TestPacking()
         {
@@ -34,7 +50,7 @@ namespace Mirror.Tests
 
             byte[] data = PackToByteArray(message);
 
-            TestMessage unpacked = MessagePacker.Unpack<TestMessage>(data);
+            TestMessage unpacked = Unpack<TestMessage>(data);
 
             Assert.That(unpacked.sceneName, Is.EqualTo("Hello world"));
             Assert.That(unpacked.sceneOperation, Is.EqualTo(SceneOperation.LoadAdditive));
@@ -49,7 +65,7 @@ namespace Mirror.Tests
 
             Assert.Throws<FormatException>(() =>
             {
-                DisconnectMessage unpacked = MessagePacker.Unpack<DisconnectMessage>(data);
+                DisconnectMessage unpacked = Unpack<DisconnectMessage>(data);
             });
         }
 
@@ -73,7 +89,7 @@ namespace Mirror.Tests
 
             Assert.Throws<FormatException>(() =>
             {
-                TestMessage unpacked = MessagePacker.Unpack<TestMessage>(data);
+                TestMessage unpacked = Unpack<TestMessage>(data);
             });
         }
 

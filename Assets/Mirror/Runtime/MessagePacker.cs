@@ -42,22 +42,6 @@ namespace Mirror
             writer.Write(message);
         }
 
-        // unpack a message we received
-        public static T Unpack<T>(byte[] data)
-            where T : struct, NetworkMessage
-        {
-            using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(data))
-            {
-                int msgType = GetId<T>();
-
-                int id = networkReader.ReadUInt16();
-                if (id != msgType)
-                    throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
-
-                return networkReader.Read<T>();
-            }
-        }
-
         // unpack message after receiving
         // -> pass NetworkReader so it's less strange if we create it in here
         //    and pass it upwards.
