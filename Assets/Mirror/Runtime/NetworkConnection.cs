@@ -214,18 +214,24 @@ namespace Mirror
             // unpack message
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(buffer))
             {
-                if (MessagePacker.UnpackMessage(networkReader, out int msgType))
+                // the other end might batch multiple messages into one packet.
+                // we need to try to unpack multiple times.
+                while (networkReader.Remaining > 0)
                 {
-                    // logging
-                    // Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+                    if (MessagePacker.UnpackMessage(networkReader, out int msgType))
+                    {
+                        // logging
+                        // Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
-                    // try to invoke the handler for that message
-                    InvokeHandler(msgType, networkReader);
-                }
-                else
-                {
-                    Debug.LogError("Closed connection: " + this + ". Invalid message header.");
-                    Disconnect();
+                        // try to invoke the handler for that message
+                        InvokeHandler(msgType, networkReader);
+                    }
+                    else
+                    {
+                        Debug.LogError("Closed connection: " + this + ". Invalid message header.");
+                        Disconnect();
+                        break;
+                    }
                 }
             }
         }

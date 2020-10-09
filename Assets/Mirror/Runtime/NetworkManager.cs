@@ -62,6 +62,13 @@ namespace Mirror
         [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         public int serverTickRate = 30;
 
+        // batching from server to client.
+        // fewer transport calls give us significantly better performance/scale.
+        // batch interval is 0 by default, meaning that we send immediately.
+        // (useful to run tests without waiting for intervals too)
+        [Tooltip("Server can batch messages up to Transport.GetMaxPacketSize to significantly reduce transport calls and improve performance/scale./nNote that this increases latency./n0 means send immediately.")]
+        public float serverBatchInterval = 0.010f;
+
         // transport layer
         [Header("Network Info")]
         [Tooltip("Transport component attached to this object that server and client will use to connect")]
@@ -260,6 +267,8 @@ namespace Mirror
                 authenticator.OnStartServer();
                 authenticator.OnServerAuthenticated.AddListener(OnServerAuthenticated);
             }
+
+            NetworkServer.batchInterval = serverBatchInterval;
 
             ConfigureServerFrameRate();
 

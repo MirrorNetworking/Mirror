@@ -865,9 +865,9 @@ namespace Mirror.Tests
             // creates .observers and generates a netId
             identity.OnStartServer();
             uint netId = identity.netId;
-            identity.connectionToClient = new NetworkConnectionToClient(1);
+            identity.connectionToClient = new NetworkConnectionToClient(1, 0);
             identity.connectionToServer = new NetworkConnectionToServer();
-            identity.observers.Add(new NetworkConnectionToClient(2));
+            identity.observers.Add(new NetworkConnectionToClient(2, 0));
 
             // mark for reset and reset
             identity.Reset();
@@ -882,7 +882,7 @@ namespace Mirror.Tests
         {
             // add component
             CommandTestNetworkBehaviour comp0 = gameObject.AddComponent<CommandTestNetworkBehaviour>();
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(1);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(1, 0);
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp0.senderConnectionInCall, Is.Null);
 

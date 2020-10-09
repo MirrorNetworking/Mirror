@@ -46,6 +46,12 @@ namespace Mirror
         /// </summary>
         public static bool active { get; internal set; }
 
+        // batching from server to client.
+        // fewer transport calls give us significantly better performance/scale.
+        // batch interval is 0 by default, meaning that we send immediately.
+        // (useful to run tests without waiting for intervals too)
+        public static float batchInterval = 0;
+
         /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
@@ -382,6 +388,12 @@ namespace Mirror
                     Debug.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                 }
             }
+
+            // update all connections to send out batched messages in interval
+            foreach (NetworkConnectionToClient conn in connections.Values)
+            {
+                conn.Update();
+            }
         }
 
         static void OnConnected(int connectionId)
@@ -412,7 +424,7 @@ namespace Mirror
             if (connections.Count < maxConnections)
             {
                 // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, batchInterval);
                 OnConnected(conn);
             }
             else
