@@ -1,3 +1,10 @@
+## [47.0.2](https://github.com/MirrorNG/MirrorNG/compare/v47.0.1...v47.0.2) (2020-10-09)
+
+
+### Bug Fixes
+
+* inconsistent case in meta file ([4c50834](https://github.com/MirrorNG/MirrorNG/commit/4c5083455c3ab3dc3b747818b4b92493b2c586a2))
+
 ## [47.0.1](https://github.com/MirrorNG/MirrorNG/compare/v47.0.0...v47.0.1) (2020-10-08)
 
 
