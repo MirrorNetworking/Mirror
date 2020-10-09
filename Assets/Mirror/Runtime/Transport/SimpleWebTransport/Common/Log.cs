@@ -22,7 +22,7 @@ namespace Mirror.SimpleWeb
             if (level < Levels.verbose)
                 return;
 
-            Debug.Log($"Verbose: <color=blue>{msg}</color>");
+            Debug.Log($"VERBOSE: <color=blue>{msg}</color>");
         }
 
         [Conditional("DEBUG")]
@@ -34,7 +34,7 @@ namespace Mirror.SimpleWeb
             if (showColor)
                 Verbose(msg);
             else
-                Debug.Log($"Verbose: {msg}");
+                Debug.Log($"VERBOSE: {msg}");
         }
 
         [Conditional("DEBUG")]
@@ -78,6 +78,26 @@ namespace Mirror.SimpleWeb
                 Debug.Log($"INFO: {msg}");
         }
 
+        [Conditional("DEBUG")]
+        public static void Warn(string msg)
+        {
+            if (level < Levels.error)
+                return;
+
+            Debug.LogWarning($"WARN: <color=orange>{msg}</color>");
+        }
+
+        [Conditional("DEBUG")]
+        public static void Warn(string msg, bool showColor)
+        {
+            if (level < Levels.error)
+                return;
+
+            if (showColor)
+                Error(msg);
+            else
+                Debug.LogWarning($"WARN: {msg}");
+        }
 
         [Conditional("DEBUG")]
         public static void Error(string msg)
@@ -85,7 +105,7 @@ namespace Mirror.SimpleWeb
             if (level < Levels.error)
                 return;
 
-            Debug.Log($"ERROR: <color=red>{msg}</color>");
+            Debug.LogError($"ERROR: <color=red>{msg}</color>");
         }
 
         [Conditional("DEBUG")]
@@ -97,7 +117,7 @@ namespace Mirror.SimpleWeb
             if (showColor)
                 Error(msg);
             else
-                Debug.Log($"ERROR: {msg}");
+                Debug.LogError($"ERROR: {msg}");
         }
     }
 }

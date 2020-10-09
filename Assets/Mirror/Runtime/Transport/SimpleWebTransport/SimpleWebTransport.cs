@@ -164,6 +164,12 @@ namespace Mirror.SimpleWeb
                 return false;
             }
 
+            if (segment.Count == 0)
+            {
+                Debug.LogError("Message count was zero");
+                return false;
+            }
+
             client.Send(segment);
             return true;
         }
@@ -226,6 +232,12 @@ namespace Mirror.SimpleWeb
             if (segment.Count > maxMessageSize)
             {
                 Debug.LogError("Message greater than max size");
+                return false;
+            }
+
+            if (segment.Count == 0)
+            {
+                Debug.LogError("Message count was zero");
                 return false;
             }
 

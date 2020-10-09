@@ -13,8 +13,6 @@ namespace Mirror.SimpleWeb
         object lockObject = new object();
         bool hasClosed;
 
-        const int HeaderLength = 4;
-
         readonly ClientSslHelper sslHelper;
         readonly ClientHandshake handshake;
         readonly RNGCryptoServiceProvider random;
@@ -45,11 +43,15 @@ namespace Mirror.SimpleWeb
             receiveThread.IsBackground = true;
             receiveThread.Start();
         }
+
         void ConnectAndReceiveLoop(string address)
         {
             try
             {
                 TcpClient client = new TcpClient();
+                client.NoDelay = true;
+                client.ReceiveTimeout = 20000;
+                client.SendTimeout = 5000;
                 Uri uri = new Uri(address);
                 try
                 {
@@ -84,7 +86,11 @@ namespace Mirror.SimpleWeb
 
                 receiveQueue.Enqueue(new Message(EventType.Connected));
 
-                Thread sendThread = new Thread(() => SendLoop(conn));
+                Thread sendThread = new Thread(() =>
+                {
+                    int bufferSize = Constants.HeaderSize + Constants.MaskSize + maxMessageSize;
+                    SendLoop.Loop(conn, bufferSize, true, _ => CloseConnection());
+                });
 
                 conn.sendThread = sendThread;
                 sendThread.IsBackground = true;
@@ -110,7 +116,7 @@ namespace Mirror.SimpleWeb
                 TcpClient client = conn.client;
                 Stream stream = conn.stream;
                 //byte[] buffer = conn.receiveBuffer;
-                byte[] headerBuffer = new byte[HeaderLength];
+                byte[] headerBuffer = new byte[Constants.HeaderSize];
 
                 while (client.Connected)
                 {
@@ -139,8 +145,10 @@ namespace Mirror.SimpleWeb
             // header is at most 4 bytes + mask
             // 1 for bit fields
             // 1+ for length (length can be be 1, 3, or 9 and we refuse 9)
-            // 4 for mask (we can read this later
-            ReadHelper.ReadResult readResult = ReadHelper.SafeRead(stream, headerBuffer, 0, HeaderLength, checkLength: true);
+
+            // client header could only be 2 bytes, and message might be 1 byte, so min is 3 bytes not the default 4 for the server
+            // todo: clean up read header logic
+            ReadHelper.ReadResult readResult = ReadHelper.SafeRead(stream, headerBuffer, 0, Constants.HeaderSize - 2, checkLength: true);
             if ((readResult & ReadHelper.ReadResult.Fail) > 0)
             {
                 Log.Info($"ReceiveLoop read failed: {readResult}");
@@ -148,20 +156,65 @@ namespace Mirror.SimpleWeb
                 // will go to finally block below
                 return false;
             }
+            byte payloadLength = MessageProcessor.GetBytePayloadLength(headerBuffer);
+
+            // payloadLength 1 or 2 is a specail case because it mean message is less than 4 bytes
+            // todo clean up this logic
+            if (payloadLength > 2)
+            {
+                // read rest of header
+                readResult = ReadHelper.SafeRead(stream, headerBuffer, 2, 2, checkLength: true);
+                if ((readResult & ReadHelper.ReadResult.Fail) > 0)
+                {
+                    Log.Info($"ReceiveLoop read failed: {readResult}");
+                    CheckForInterupt();
+                    // will go to finally block below
+                    return false;
+                }
+            }
 
             MessageProcessor.Result header = MessageProcessor.ProcessHeader(headerBuffer, maxMessageSize, false);
 
             // todo remove allocation
             // msg
-            byte[] buffer = new byte[HeaderLength + header.readLength];
-            // copy header as it might contain mask
-            Buffer.BlockCopy(headerBuffer, 0, buffer, 0, HeaderLength);
+            byte[] buffer = new byte[Constants.HeaderSize + header.readLength];
 
-            ReadHelper.SafeRead(stream, buffer, HeaderLength, header.readLength);
+
+            if (payloadLength == 0)
+            {
+                Log.Info($"ReceiveLoop Receive a message with no length");
+                return false;
+            }
+            else if (payloadLength <= 2)
+            {
+                // payloadLength 1 or 2 is a specail case because it mean message is less than 4 bytes
+                // todo clean up this logic
+
+                // read message
+                readResult = ReadHelper.SafeRead(stream, headerBuffer, 2, payloadLength, checkLength: true);
+                if ((readResult & ReadHelper.ReadResult.Fail) > 0)
+                {
+                    Log.Info($"ReceiveLoop read failed: {readResult}");
+                    CheckForInterupt();
+                    // will go to finally block below
+                    return false;
+                }
+
+                // copy header as it might contain mask
+                Buffer.BlockCopy(headerBuffer, 0, buffer, 0, 2 + payloadLength);
+            }
+            else
+            {
+                // copy header as it might contain mask
+                Buffer.BlockCopy(headerBuffer, 0, buffer, 0, Constants.HeaderSize);
+
+                ReadHelper.SafeRead(stream, buffer, Constants.HeaderSize, header.readLength);
+            }
 
             Log.DumpBuffer("Message From Server", buffer, 0, buffer.Length);
             HandleMessage(header.opcode, conn, buffer, header.msgOffset, header.msgLength);
             return true;
+
         }
 
         static void CheckForInterupt()
@@ -185,44 +238,6 @@ namespace Mirror.SimpleWeb
             }
         }
 
-
-        void SendLoop(Connection conn)
-        {
-            // todo remove duplicate code (this and WebSocketServer)
-            try
-            {
-                TcpClient client = conn.client;
-                Stream stream = conn.stream;
-
-                // null check incase disconnect while send thread is starting
-                if (client == null)
-                    return;
-
-                while (client.Connected)
-                {
-                    // wait for message
-                    conn.sendPending.WaitOne();
-                    conn.sendPending.Reset();
-
-                    while (conn.sendQueue.TryDequeue(out ArraySegment<byte> msg))
-                    {
-                        // check if connected before sending message
-                        if (!client.Connected) { Log.Info($"SendLoop {conn} not connected"); return; }
-
-                        SendMessageToServer(stream, msg);
-                    }
-                }
-            }
-            catch (ThreadInterruptedException) { Log.Info($"SendLoop {conn} ThreadInterrupted"); return; }
-            catch (ThreadAbortException) { Log.Info($"SendLoop {conn} ThreadAbort"); return; }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-
-                CloseConnection();
-            }
-        }
-
         void CloseConnection()
         {
             conn?.Close();
@@ -238,55 +253,6 @@ namespace Mirror.SimpleWeb
                 // make sure Disconnected event is only called once
                 receiveQueue.Enqueue(new Message(EventType.Disconnected));
             }
-        }
-
-        byte[] maskBuffer = new byte[4];
-        void SendMessageToServer(Stream stream, ArraySegment<byte> msg)
-        {
-            int msgLength = msg.Count;
-            // todo remove allocation
-            // header 2/4 + mask + msg
-            byte[] buffer = new byte[4 + 4 + msgLength];
-            int sendLength = 0;
-
-            byte finished = 128;
-            byte byteOpCode = 2;
-
-            buffer[0] = (byte)(finished | byteOpCode);
-            sendLength++;
-
-            if (msgLength < 125)
-            {
-                buffer[1] = (byte)msgLength;
-                sendLength++;
-            }
-            else if (msgLength < ushort.MaxValue)
-            {
-                buffer[1] = 126;
-                buffer[2] = (byte)(msgLength >> 8);
-                buffer[3] = (byte)msgLength;
-                sendLength += 3;
-            }
-            else
-            {
-                throw new InvalidDataException($"Trying to send a message larger than {ushort.MaxValue} bytes");
-            }
-
-            // mask
-            buffer[1] |= 0b1000_0000;
-            random.GetBytes(maskBuffer);
-            Array.Copy(maskBuffer, 0, buffer, sendLength, 4);
-            sendLength += 4;
-
-            Array.Copy(msg.Array, msg.Offset, buffer, sendLength, msgLength);
-
-            // dump before mask on
-            Log.DumpBuffer("Send To Server", buffer, 0, sendLength + msgLength);
-
-            MessageProcessor.ToggleMask(buffer, sendLength, msgLength, buffer, sendLength - 4);
-            sendLength += msgLength;
-
-            stream.Write(buffer, 0, sendLength);
         }
 
         public override void Disconnect()

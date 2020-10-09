@@ -1,4 +1,3 @@
-#define SIMPLE_WEB_INFO_LOG
 using System;
 using System.IO;
 using System.Linq;
@@ -18,20 +17,18 @@ namespace Mirror.SimpleWeb
         private const int ResponseLength = 129;
         private const int KeyLength = 24;
         const string KeyHeaderString = "Sec-WebSocket-Key: ";
-        const string HandshakeGUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
         readonly object lockObj = new object();
         readonly byte[] readBuffer = new byte[3000];
         readonly byte[] keyBuffer = new byte[60];
         readonly byte[] response = new byte[ResponseLength];
-        readonly byte[] endOfHeader;
+
         readonly SHA1 sha1 = SHA1.Create();
 
         public ServerHandshake()
         {
-            Encoding.UTF8.GetBytes(HandshakeGUID, 0, HandshakeGUID.Length, keyBuffer, KeyLength);
-            // header should always end with \r\n\r\n
-            endOfHeader = new byte[4] { (byte)'\r', (byte)'\n', (byte)'\r', (byte)'\n' };
+            // write string to buffer once here so we dont need to repeat it was each handshake
+            Encoding.UTF8.GetBytes(Constants.HandshakeGUID, 0, Constants.HandshakeGUIDLength, keyBuffer, KeyLength);
         }
         ~ServerHandshake()
         {
@@ -62,7 +59,7 @@ namespace Mirror.SimpleWeb
 
                 if (!IsGet(getHeader))
                 {
-                    Log.Error($"First bytes from client was not 'GET' for handshake, instead was {string.Join("-", getHeader.Select(x => x.ToString()))}");
+                    Log.Warn($"First bytes from client was not 'GET' for handshake, instead was {string.Join("-", getHeader.Select(x => x.ToString()))}");
                     return false;
                 }
             }
@@ -90,7 +87,7 @@ namespace Mirror.SimpleWeb
 
         private bool ReadToEndForHandshake(Stream stream)
         {
-            int? readCountOrFail = ReadHelper.SafeReadTillMatch(stream, readBuffer, 0, endOfHeader);
+            int? readCountOrFail = ReadHelper.SafeReadTillMatch(stream, readBuffer, 0, Constants.endOfHandshake);
             if (!readCountOrFail.HasValue)
                 return false;
 

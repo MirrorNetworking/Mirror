@@ -1,4 +1,3 @@
-#define SIMPLE_WEB_INFO_LOG
 using System.IO;
 
 namespace Mirror.SimpleWeb
@@ -22,7 +21,7 @@ namespace Mirror.SimpleWeb
             /// 4 bytes have already been read for header.
             /// header could be 2 or 4 bytes long so add (offset - 4) at account for part of mask/msg already being read
             /// </remarks>
-            public int readLength => /*header*/(offset - 4) + /*mask*/(hasMask ? 4 : 0) + /*msg*/msgLength;
+            public int readLength => (offset - Constants.HeaderSize) + (hasMask ? Constants.MaskSize : 0) + msgLength;
 
             /// <summary>
             /// when message starts
@@ -32,9 +31,15 @@ namespace Mirror.SimpleWeb
             /// <summary>
             /// when message starts
             /// </summary>
-            public int msgOffset => hasMask ? offset + 4 : offset;
+            public int msgOffset => hasMask ? offset + Constants.MaskSize : offset;
         }
 
+        public static byte GetBytePayloadLength(byte[] buffer)
+        {
+            byte lenByte = (byte)(buffer[1] & 0b0111_1111); // first length byte
+
+            return lenByte;
+        }
 
         /// <exception cref="InvalidDataException"></exception>
         public static Result ProcessHeader(byte[] buffer, int maxLength, bool expectMask)
@@ -68,7 +73,7 @@ namespace Mirror.SimpleWeb
         {
             for (int i = 0; i < messageLength; i++)
             {
-                byte maskByte = maskBuffer[maskOffset + i % 4];
+                byte maskByte = maskBuffer[maskOffset + i % Constants.MaskSize];
                 messageBuffer[messageOffset + i] = (byte)(messageBuffer[messageOffset + i] ^ maskByte);
             }
         }
@@ -76,20 +81,22 @@ namespace Mirror.SimpleWeb
         /// <exception cref="InvalidDataException"></exception>
         static (int length, int offsetAfterLength) GetMessageLength(byte[] buffer, int offset, byte lenByte)
         {
-            if (lenByte == 126)
+            if (lenByte == Constants.UshortPayloadLength)
             {
+                // header is 4 bytes long
                 ushort value = 0;
                 value |= (ushort)(buffer[offset + 2] << 8);
                 value |= buffer[offset + 3];
 
                 return (value, offset + 4);
             }
-            else if (lenByte == 127)
+            else if (lenByte == Constants.UlongPayloadLength)
             {
                 throw new InvalidDataException("Max length is longer than allowed in a single message");
             }
             else // is less than 126
             {
+                // header is 2 bytes long
                 return (lenByte, offset + 2);
             }
         }

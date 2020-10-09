@@ -1,5 +1,3 @@
-#define SIMPLE_WEB_INFO_LOG
-
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -24,7 +22,7 @@ namespace Mirror.SimpleWeb
                 new System.Random().NextBytes(keyBuffer);
 
                 string key = Convert.ToBase64String(keyBuffer);
-                string keySum = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+                string keySum = key + Constants.HandshakeGUID;
                 byte[] keySumBytes = Encoding.UTF8.GetBytes(keySum);
                 byte[] keySumHash = SHA1.Create().ComputeHash(keySumBytes);
 
@@ -42,7 +40,7 @@ namespace Mirror.SimpleWeb
 
                 byte[] responseBuffer = new byte[1000];
 
-                int? lengthOrNull = ReadHelper.SafeReadTillMatch(stream, responseBuffer, 0, new byte[4] { (byte)'\r', (byte)'\n', (byte)'\r', (byte)'\n' });
+                int? lengthOrNull = ReadHelper.SafeReadTillMatch(stream, responseBuffer, 0, Constants.endOfHandshake);
 
                 if (!lengthOrNull.HasValue)
                 {
