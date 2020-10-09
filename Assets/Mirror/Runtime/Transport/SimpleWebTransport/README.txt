@@ -11,6 +11,7 @@ Requirements:
 
 Documentation:
   https://mirror-networking.com/docs/
+  https://github.com/MirrorNetworking/SimpleWebTransport/blob/master/README.md
 
 Support:
   Discord: https://discordapp.com/invite/N9QVxbM
