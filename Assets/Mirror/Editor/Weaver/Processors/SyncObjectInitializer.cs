@@ -46,6 +46,13 @@ namespace Mirror.Weaver
             }
             MethodReference objectConstructor = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);
 
+            // if is SyncList<int> instead of SyncListInt then we need to make the ctor generic 
+            if (fd.FieldType.IsGenericInstance)
+            {
+                GenericInstanceType genericInstance = (GenericInstanceType)fd.FieldType;
+                objectConstructor = objectConstructor.MakeHostInstanceGeneric(genericInstance);
+            }
+
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Newobj, objectConstructor));
             worker.Append(worker.Create(OpCodes.Stfld, fd));
