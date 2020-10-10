@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Mirror
 {
@@ -11,12 +12,29 @@ namespace Mirror
         // reduce transport calls by a factor of 1000.
         //
         // depending on the transport, this can give 10x performance.
-        NetworkWriter batch = new NetworkWriter();
+        //
+        // Dictionary<channelId, batch> because we have multiple channels.
+        class Batch
+        {
+            // each batch needs a writer for batching
+            public NetworkWriter writer = new NetworkWriter();
+
+            // each channel's batch has its own lastSendTime.
+            // (use NetworkTime for maximum precision over days)
+            //
+            // channel batches are full and flushed at different times. using
+            // one global time wouldn't make sense.
+            // -> we want to be able to reset a channels send time after Send()
+            //    flushed it because full. global time wouldn't allow that, so
+            //    we would often flush in Send() and then flush again in Update
+            //    even though we just flushed in Send().
+            public double lastSendTime;
+        }
+        Dictionary<int, Batch> batches = new Dictionary<int, Batch>();
 
         // batch interval is 0 by default, meaning that we send immediately.
         // (useful to run tests without waiting for intervals too)
         float batchInterval;
-        double batchSendTime;
 
         public NetworkConnectionToClient(int networkConnectionId, float batchInterval) : base(networkConnectionId)
         {
@@ -25,17 +43,28 @@ namespace Mirror
 
         public override string address => Transport.activeTransport.ServerGetClientAddress(connectionId);
 
-        void SendBatch(int channelId)
+        Batch GetBatchForChannelId(int channelId)
+        {
+            // get existing or create new writer for the channelId
+            Batch batch;
+            if (!batches.TryGetValue(channelId, out batch))
+            {
+                batch = new Batch();
+                batches[channelId] = batch;
+            }
+            return batch;
+        }
+
+        void SendBatch(int channelId, Batch batch)
         {
             // send batch
-            Transport.activeTransport.ServerSend(connectionId, channelId, batch.ToArraySegment());
+            Transport.activeTransport.ServerSend(connectionId, channelId, batch.writer.ToArraySegment());
 
             // clear batch
-            batch.Position = 0;
+            batch.writer.Position = 0;
 
-            // reset send time
-            // (use NetworkTime for maximum precision over days)
-            batchSendTime = NetworkTime.time;
+            // reset send time for this channel's batch
+            batch.lastSendTime = NetworkTime.time;
         }
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
@@ -50,17 +79,16 @@ namespace Mirror
                 {
                     // if batch would become bigger than MaxPacketSize then send
                     // out the previous batch first
-                    // TODO respect channelId
-                    int max = Transport.activeTransport.GetMaxPacketSize(Channels.DefaultReliable);
-                    if (batch.Position + segment.Count > max)
+                    Batch batch = GetBatchForChannelId(channelId);
+                    int max = Transport.activeTransport.GetMaxPacketSize(channelId);
+                    if (batch.writer.Position + segment.Count > max)
                     {
-                        // TODO respect channelId
-                        //Debug.LogWarning($"sending batch {batch.Position} / {max} after full for segment={segment.Count} for connectionId={connectionId}");
-                        SendBatch(Channels.DefaultReliable);
+                        //UnityEngine.Debug.LogWarning($"sending batch {batch.writer.Position} / {max} after full for segment={segment.Count} for connectionId={connectionId}");
+                        SendBatch(channelId, batch);
                     }
 
                     // now add segment to batch
-                    batch.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                    batch.writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
                     return true;
                 }
                 // otherwise send directly (for tests etc.)
@@ -74,13 +102,18 @@ namespace Mirror
         // (avoids 30s latency if batches would only get full every 30s)
         internal void Update()
         {
-            // enough time elapsed and anything batched?
-            if (NetworkTime.time > batchSendTime + batchInterval &&
-                batch.Position > 0)
+            // go through batches for all channels
+            foreach (KeyValuePair<int, Batch> kvp in batches)
             {
-                // TODO respect channelId
-                //Debug.LogWarning($"sending batch of {batch.Position} bytes after time for connId= {connectionId}");
-                SendBatch(Channels.DefaultReliable);
+                // enough time elapsed to flush this channel's batch?
+                // and not empty?
+                if (NetworkTime.time >= kvp.Value.lastSendTime + batchInterval &&
+                    kvp.Value.writer.Position > 0)
+                {
+                    // send the batch. time will be reset internally.
+                    //UnityEngine.Debug.LogWarning($"sending batch of {kvp.Value.writer.Position} bytes after time for channel={kvp.Key} connId={connectionId}");
+                    SendBatch(kvp.Key, kvp.Value);
+                }
             }
         }
 
