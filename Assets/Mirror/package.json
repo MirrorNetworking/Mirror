@@ -14,9 +14,24 @@
     },
     "samples": [
         {
+            "displayName": "AdditiveScenes",
+            "description": "Adding and removing scenes in multiplayer games",
+            "path": "Samples~/AdditiveScenes"
+        },
+        {
             "displayName": "Basic",
             "description": "Demonstrate simple setup and synchronizing data",
             "path": "Samples~/Basic"
+        },
+        {
+            "displayName": "ChangeScene",
+            "description": "Demo for normal or additive scene switching",
+            "path": "Samples~/ListServer"
+        },
+        {
+            "displayName": "Chat",
+            "description": "Simple chat and custom UI demo",
+            "path": "Samples~/Chat"
         },
         {
             "displayName": "Pong",
@@ -27,21 +42,6 @@
             "displayName": "Tanks",
             "description": "Shoot each other with tanks",
             "path": "Samples~/Tanks"
-        },
-        {
-            "displayName": "Chat",
-            "description": "Simple chat and custom UI demo",
-            "path": "Samples~/Chat"
-        },
-        {
-            "displayName": "ListServer",
-            "description": "Demo that connects to your list server",
-            "path": "Samples~/ListServer"
-        },
-        {
-            "displayName": "AdditiveScenes",
-            "description": "Adding and removing scenes in multiplayer games",
-            "path": "Samples~/AdditiveScenes"
         }
     ]
 }
