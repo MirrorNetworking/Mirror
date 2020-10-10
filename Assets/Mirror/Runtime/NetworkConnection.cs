@@ -61,6 +61,7 @@ namespace Mirror
         /// <summary>
         /// The last time that a message was received on this connection.
         /// <para>This includes internal system messages (such as Commands and ClientRpc calls) and user messages.</para>
+        /// <para>NOTE: this is only used on the server</para>
         /// </summary>
         public float lastMessageTime;
 
