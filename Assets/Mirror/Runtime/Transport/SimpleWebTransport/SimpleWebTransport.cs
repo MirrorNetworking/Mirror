@@ -56,7 +56,7 @@ namespace Mirror.SimpleWeb
             Log.level = logLevels;
         }
 
-        IWebSocketClient client;
+        SimpleWebClient client;
         SimpleWebServer server;
 
         public override bool Available()
@@ -76,7 +76,6 @@ namespace Mirror.SimpleWeb
         {
             client?.Disconnect();
             server?.Stop();
-            SimpleWebClient.CloseExisting();
         }
 
         private void LateUpdate()
@@ -145,9 +144,6 @@ namespace Mirror.SimpleWeb
         {
             // dont set client null here of messages wont be processed
             client?.Disconnect();
-
-            // CloseExisting makes sure to clear the JS instance since there can only be one
-            SimpleWebClient.CloseExisting();
         }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)

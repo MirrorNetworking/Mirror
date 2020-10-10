@@ -10,8 +10,9 @@ namespace Mirror.SimpleWeb
         {
             none = 0,
             error = 1,
-            info = 2,
-            verbose = 3,
+            warn = 2,
+            info = 3,
+            verbose = 4,
         }
 
         public static Levels level = Levels.none;

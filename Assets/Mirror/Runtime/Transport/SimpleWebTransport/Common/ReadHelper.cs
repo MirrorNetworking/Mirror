@@ -46,7 +46,8 @@ namespace Mirror.SimpleWeb
                 {
                     if (e is IOException io)
                     {
-                        Log.Error($"SafeRead IOException\n{io.Message}", false);
+                        // this is only info as SafeRead is allowed to fail
+                        Log.Info($"SafeRead IOException\n{io.Message}", false);
                         return true;
                     }
 
@@ -59,7 +60,8 @@ namespace Mirror.SimpleWeb
                 // if interupt is called we dont care about Exceptions
                 CheckForInterupt();
 
-                Log.Error($"SafeRead IOException\n{e.Message}", false);
+                // this is only info as SafeRead is allowed to fail
+                Log.Info($"SafeRead IOException\n{e.Message}", false);
                 return ReadResult.Error;
             }
         }

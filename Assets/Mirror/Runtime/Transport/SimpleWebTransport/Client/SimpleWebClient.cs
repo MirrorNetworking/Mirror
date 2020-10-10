@@ -4,20 +4,6 @@ using UnityEngine;
 
 namespace Mirror.SimpleWeb
 {
-    public interface IWebSocketClient
-    {
-        event Action onConnect;
-        event Action onDisconnect;
-        event Action<ArraySegment<byte>> onData;
-        event Action<Exception> onError;
-
-        ClientState ConnectionState { get; }
-        void Connect(string address);
-        void Disconnect();
-        void Send(ArraySegment<byte> segment);
-        void ProcessMessageQueue(MonoBehaviour behaviour);
-    }
-
     public enum ClientState
     {
         NotConnected = 0,
@@ -25,13 +11,27 @@ namespace Mirror.SimpleWeb
         Connected = 2,
         Disconnecting = 3,
     }
-    public abstract class WebSocketClientBase : IWebSocketClient
+    /// <summary>
+    /// Client used to control websockets
+    /// <para>Base class used by WebSocketClientWebGl and WebSocketClientStandAlone</para>
+    /// </summary>
+    public abstract class SimpleWebClient
     {
+        public static SimpleWebClient Create(int maxMessageSize, int maxMessagesPerTick)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return new WebSocketClientWebGl(maxMessageSize, maxMessagesPerTick);
+#else
+            return new WebSocketClientStandAlone(maxMessageSize, maxMessagesPerTick);
+#endif
+        }
+
+
         readonly int maxMessagesPerTick;
         protected readonly ConcurrentQueue<Message> receiveQueue = new ConcurrentQueue<Message>();
         protected ClientState state;
 
-        protected WebSocketClientBase(int maxMessagesPerTick)
+        protected SimpleWebClient(int maxMessagesPerTick)
         {
             this.maxMessagesPerTick = maxMessagesPerTick;
         }
@@ -76,40 +76,5 @@ namespace Mirror.SimpleWeb
         public abstract void Connect(string address);
         public abstract void Disconnect();
         public abstract void Send(ArraySegment<byte> segment);
-    }
-
-    public static class SimpleWebClient
-    {
-        static IWebSocketClient instance;
-
-        public static IWebSocketClient Create(int maxMessageSize, int clientMaxMessagesPerTick)
-        {
-            if (instance != null)
-            {
-                Debug.LogError("Cant create SimpleWebClient while one already exists");
-                return null;
-            }
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-            instance = new WebSocketClientWebGl(maxMessageSize, clientMaxMessagesPerTick);
-#else
-            instance = new WebSocketClientStandAlone(maxMessageSize, clientMaxMessagesPerTick);
-#endif
-            return instance;
-        }
-
-        public static void CloseExisting()
-        {
-            instance?.Disconnect();
-            instance = null;
-        }
-
-        /// <summary>
-        /// Called by IWebSocketClient on disconnect
-        /// </summary>
-        internal static void RemoveInstance()
-        {
-            instance = null;
-        }
     }
 }

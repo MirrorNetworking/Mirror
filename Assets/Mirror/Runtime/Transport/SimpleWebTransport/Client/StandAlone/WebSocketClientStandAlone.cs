@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Mirror.SimpleWeb
 {
-    internal class WebSocketClientStandAlone : WebSocketClientBase, IWebSocketClient
+    internal class WebSocketClientStandAlone : SimpleWebClient
     {
         object lockObject = new object();
         bool hasClosed;
