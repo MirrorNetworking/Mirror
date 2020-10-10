@@ -1482,7 +1482,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1282001518}
-  - component: {fileID: 1282001519}
   - component: {fileID: 1282001520}
   - component: {fileID: 1282001522}
   - component: {fileID: 1282001523}
@@ -1510,24 +1509,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1282001519
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282001517}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  NetworkManager: {fileID: 0}
-  NetworkAddress: localhost
-  NetworkAddressInput: {fileID: 0}
-  OfflineGO: {fileID: 0}
-  OnlineGO: {fileID: 0}
-  StatusLabel: {fileID: 0}
 --- !u!114 &1282001520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1542,12 +1523,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 1282001523}
   client: {fileID: 1282001525}
-  OnStartHost:
-    m_PersistentCalls:
-      m_Calls: []
-  OnStopHost:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &1282001521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1612,6 +1587,12 @@ MonoBehaviour:
   Stopped:
     m_PersistentCalls:
       m_Calls: []
+  OnStartHost:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopHost:
+    m_PersistentCalls:
+      m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
   transport: {fileID: 1282001522}
@@ -1637,7 +1618,9 @@ MonoBehaviour:
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
-  spawnPrefabs: []
+  spawnPrefabs:
+  - {fileID: 5890560936853567077, guid: b7dd46dbf38c643f09e206f9fa4be008, type: 3}
+  - {fileID: 1916082411674582, guid: 6f43bf5488a7443d19ab2a83c6b91f35, type: 3}
   Transport: {fileID: 1282001522}
 --- !u!114 &1282001526
 MonoBehaviour:
@@ -1653,9 +1636,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   client: {fileID: 1282001525}
   server: {fileID: 1282001523}
-  ClientNotReady:
-    m_PersistentCalls:
-      m_Calls: []
   ClientChangeScene:
     m_PersistentCalls:
       m_Calls: []

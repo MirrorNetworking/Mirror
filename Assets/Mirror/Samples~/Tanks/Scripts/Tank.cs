@@ -35,7 +35,7 @@ namespace Mirror.Examples.Tanks
 
         void Update()
         {
-            if (!Camera.main)
+            if (Camera.main)
             {
                 nameText.text = playerName;
                 nameText.transform.rotation = Camera.main.transform.rotation;
