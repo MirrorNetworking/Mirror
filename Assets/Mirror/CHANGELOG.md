@@ -1,3 +1,10 @@
+## [47.0.3](https://github.com/MirrorNG/MirrorNG/compare/v47.0.2...v47.0.3) (2020-10-10)
+
+
+### Bug Fixes
+
+* NRE in headless server mode ([6dc8406](https://github.com/MirrorNG/MirrorNG/commit/6dc840671ec1a43d0cd8f85f9b4aff7e36366204))
+
 ## [47.0.2](https://github.com/MirrorNG/MirrorNG/compare/v47.0.1...v47.0.2) (2020-10-09)
 
 
