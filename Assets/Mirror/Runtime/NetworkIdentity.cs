@@ -239,7 +239,7 @@ namespace Mirror
         void CreateNetworkBehavioursCache()
         {
             networkBehavioursCache = GetComponents<NetworkBehaviour>();
-            if (NetworkBehaviours.Length > 64)
+            if (networkBehavioursCache.Length > 64)
             {
                 logger.LogError($"Only 64 NetworkBehaviour components are allowed for NetworkIdentity: {name} because of the dirtyComponentMask", this);
                 // Log error once then resize array so that NetworkIdentity does not throw exceptions later
