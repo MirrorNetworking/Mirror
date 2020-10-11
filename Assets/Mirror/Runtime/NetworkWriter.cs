@@ -33,7 +33,7 @@ namespace Mirror
         public int Position;
 
         // helper field to calculate space in bytes remaining to write
-        public int Space => buffer != null ? buffer.Length - Position : 0;
+        public int Space => buffer.Length - Position;
 
         // totol capacity independent of position
         public int Capacity => buffer.Length;
@@ -67,7 +67,7 @@ namespace Mirror
             int size = sizeof(T);
 
             // enough space in buffer?
-            if (buffer != null && Space >= size)
+            if (Space >= size)
             {
                 fixed (byte* ptr = &buffer[Position])
                 {
@@ -87,7 +87,7 @@ namespace Mirror
         {
             // enough space in buffer?
             // and anything to write?
-            if (buffer != null && Space >= count &&
+            if (Space >= count &&
                 bytes != null && count > 0)
             {
                 // write 'count' bytes at position
