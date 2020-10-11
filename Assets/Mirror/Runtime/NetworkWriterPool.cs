@@ -48,12 +48,6 @@ namespace Mirror
             // grab from from pool & reset position
             PooledNetworkWriter writer = pool.Take();
             writer.Position = 0;
-
-            // make sure that size didn't change at runtime.
-            // we need to guarantee that all writers have same internal byte[].
-            if (writer.Capacity != SizeParameter)
-                throw new Exception($"NetworkWriterPool size parameter should not change at runtime. SizeParameter={SizeParameter} writer Capacity={writer.Capacity}");
-
             return writer;
         }
 
