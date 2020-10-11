@@ -1,3 +1,13 @@
+# [48.0.0](https://github.com/MirrorNG/MirrorNG/compare/v47.0.3...v48.0.0) (2020-10-11)
+
+
+* Users must initialize syncobjects (#391) ([c0e2632](https://github.com/MirrorNG/MirrorNG/commit/c0e2632e928d8f303dd8f0324cf108a756809782)), closes [#391](https://github.com/MirrorNG/MirrorNG/issues/391)
+
+
+### BREAKING CHANGES
+
+* You must initialize all your SyncLists
+
 ## [47.0.3](https://github.com/MirrorNG/MirrorNG/compare/v47.0.2...v47.0.3) (2020-10-10)
 
 
