@@ -80,7 +80,7 @@ namespace Mirror
                     // if batch would become bigger than MaxPacketSize then send
                     // out the previous batch first
                     Batch batch = GetBatchForChannelId(channelId);
-                    int max = Transport.activeTransport.GetMaxPacketSize(channelId);
+                    int max = Transport.activeTransport.GetMaxPacketSize();
                     if (batch.writer.Position + segment.Count > max)
                     {
                         //UnityEngine.Debug.LogWarning($"sending batch {batch.writer.Position} / {max} after full for segment={segment.Count} for connectionId={connectionId}");

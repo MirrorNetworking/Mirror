@@ -29,7 +29,7 @@ namespace Mirror.Tests
         Queue<Message> serverIncoming = new Queue<Message>();
 
         public override bool Available() => true;
-        public override int GetMaxPacketSize(int channelId) => int.MaxValue;
+        public override int GetMaxPacketSize() => int.MaxValue;
         public override void Shutdown() { }
         public override bool ClientConnected() => clientConnected;
         public override void ClientConnect(string address)

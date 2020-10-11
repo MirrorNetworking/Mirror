@@ -219,7 +219,7 @@ namespace Mirror
             server.Stop();
         }
 
-        public override int GetMaxPacketSize(int channelId)
+        public override int GetMaxPacketSize()
         {
             return serverMaxMessageSize;
         }
