@@ -31,7 +31,7 @@ namespace Mirror.Tests
         // SendCommandInternal is protected. let's expose it so we can test it.
         public void CallSendCommandInternal()
         {
-            SendCommandInternal(GetType(), nameof(CommandGenerated), new NetworkWriter(), 0);
+            SendCommandInternal(GetType(), nameof(CommandGenerated), new NetworkWriter(1024), 0);
         }
     }
 
@@ -51,7 +51,7 @@ namespace Mirror.Tests
         // SendCommandInternal is protected. let's expose it so we can test it.
         public void CallSendRPCInternal()
         {
-            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(), 0, false);
+            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(1024), 0, false);
         }
     }
 
@@ -71,7 +71,7 @@ namespace Mirror.Tests
         // SendCommandInternal is protected. let's expose it so we can test it.
         public void CallSendTargetRPCInternal(NetworkConnection conn)
         {
-            SendTargetRPCInternal(conn, GetType(), nameof(TargetRPCGenerated), new NetworkWriter(), 0);
+            SendTargetRPCInternal(conn, GetType(), nameof(TargetRPCGenerated), new NetworkWriter(1024), 0);
         }
     }
 
@@ -674,7 +674,7 @@ namespace Mirror.Tests
             comp.InitSyncObjectExposed(list);
 
             // serialize it
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             comp.SerializeObjectsAll(writer);
 
             // clear original list
@@ -682,7 +682,7 @@ namespace Mirror.Tests
             Assert.That(list.Count, Is.EqualTo(0));
 
             // deserialize it
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             comp.DeSerializeObjectsAll(reader);
             Assert.That(list.Count, Is.EqualTo(2));
             Assert.That(list[0], Is.EqualTo(42));
@@ -703,7 +703,7 @@ namespace Mirror.Tests
             comp.InitSyncObjectExposed(list);
 
             // serialize it
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             comp.SerializeObjectsDelta(writer);
 
             // clear original list
@@ -711,7 +711,7 @@ namespace Mirror.Tests
             Assert.That(list.Count, Is.EqualTo(0));
 
             // deserialize it
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             comp.DeSerializeObjectsDelta(reader);
             Assert.That(list.Count, Is.EqualTo(2));
             Assert.That(list[0], Is.EqualTo(42));

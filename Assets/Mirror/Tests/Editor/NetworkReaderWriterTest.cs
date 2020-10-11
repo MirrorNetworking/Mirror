@@ -20,9 +20,9 @@ namespace Mirror.Tests
         [Test]
         public void TestAccessingCustomWriterAndReader()
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.Write<int>(3);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             int copy = reader.Read<int>();
 
             Assert.That(copy, Is.EqualTo(3));

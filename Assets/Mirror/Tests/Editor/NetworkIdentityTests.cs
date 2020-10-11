@@ -582,8 +582,8 @@ namespace Mirror.Tests
             comp2.syncMode = SyncMode.Owner;
 
             // serialize all - should work even if compExc throws an exception
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
+            NetworkWriter ownerWriter = new NetworkWriter(1024);
+            NetworkWriter observersWriter = new NetworkWriter(1024);
             ulong mask = identity.GetInitialComponentsMask();
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
@@ -601,7 +601,7 @@ namespace Mirror.Tests
             comp2.value = null;
 
             // deserialize all for owner - should work even if compExc throws an exception
-            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            NetworkReader reader = new NetworkReader(ownerWriter.ToArraySegment());
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
             identity.OnDeserializeAllSafely(reader, true);
@@ -614,7 +614,7 @@ namespace Mirror.Tests
             comp2.value = null;
 
             // deserialize all for observers - should work even if compExc throws an exception
-            reader = new NetworkReader(observersWriter.ToArray());
+            reader = new NetworkReader(observersWriter.ToArraySegment());
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
             identity.OnDeserializeAllSafely(reader, true);
@@ -642,8 +642,8 @@ namespace Mirror.Tests
 
 
             // try to serialize
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
+            NetworkWriter ownerWriter = new NetworkWriter(1024);
+            NetworkWriter observersWriter = new NetworkWriter(1024);
 
             ulong mask = identity.GetInitialComponentsMask();
             identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
@@ -687,8 +687,8 @@ namespace Mirror.Tests
             comp2.value = "67890";
 
             // serialize
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
+            NetworkWriter ownerWriter = new NetworkWriter(1024);
+            NetworkWriter observersWriter = new NetworkWriter(1024);
             ulong mask = identity.GetInitialComponentsMask();
             identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
@@ -697,7 +697,7 @@ namespace Mirror.Tests
             comp2.value = null;
 
             // deserialize all
-            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            NetworkReader reader = new NetworkReader(ownerWriter.ToArraySegment());
             // warning log because of serialization mismatch
             LogAssert.ignoreFailingMessages = true;
             identity.OnDeserializeAllSafely(reader, true);

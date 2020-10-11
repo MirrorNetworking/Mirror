@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -26,107 +25,29 @@ namespace Mirror
     {
         public const int MaxStringLength = 1024 * 32;
 
-        // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
-        // note: BinaryWriter allocates too much, so we only use a MemoryStream
-        // => 1500 bytes by default because on average, most packets will be <= MTU
-        byte[] buffer = new byte[1500];
+        // fixed size buffer so we can pool it and don't need runtime resizing.
+        readonly byte[] buffer;
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
-        int position;
-        int length;
-
-        public int Length => length;
-
-        public int Position
-        {
-            get => position;
-            set
-            {
-                position = value;
-                EnsureLength(value);
-            }
-        }
+        public int Position;
 
         // helper field to calculate space in bytes remaining to write
-        public int Space => buffer != null ? length - Position : 0;
+        public int Space => buffer != null ? buffer.Length - Position : 0;
 
-        /// <summary>
-        /// Reset both the position and length of the stream
-        /// </summary>
-        /// <remarks>
-        /// Leaves the capacity the same so that we can reuse this writer without extra allocations
-        /// </remarks>
-        public void Reset()
+        // totol capacity independent of position
+        public int Capacity => buffer.Length;
+
+        // create new writer with size
+        public NetworkWriter(int size)
         {
-            position = 0;
-            length = 0;
+            buffer = new byte[size];
         }
 
-        /// <summary>
-        /// Sets length, moves position if it is greater than new length
-        /// </summary>
-        /// <param name="newLength"></param>
-        /// <remarks>
-        /// Zeros out any extra length created by setlength
-        /// </remarks>
-        public void SetLength(int newLength)
-        {
-            int oldLength = length;
-
-            // ensure length & capacity
-            EnsureLength(newLength);
-
-            // zero out new length
-            if (oldLength < newLength)
-            {
-                Array.Clear(buffer, oldLength, newLength - oldLength);
-            }
-
-            length = newLength;
-            position = Mathf.Min(position, length);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void EnsureLength(int value)
-        {
-            if (length < value)
-            {
-                length = value;
-                EnsureCapacity(value);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void EnsureCapacity(int value)
-        {
-            if (buffer.Length < value)
-            {
-                int capacity = Math.Max(value, buffer.Length * 2);
-                Array.Resize(ref buffer, capacity);
-            }
-        }
-
-        // MemoryStream has 3 values: Position, Length and Capacity.
-        // Position is used to indicate where we are writing
-        // Length is how much data we have written
-        // capacity is how much memory we have allocated
-        // ToArray returns all the data we have written,  regardless of the current position
-        public byte[] ToArray()
-        {
-            byte[] data = new byte[length];
-            Array.ConstrainedCopy(buffer, 0, data, 0, length);
-            return data;
-        }
-
-        // Gets the serialized data in an ArraySegment<byte>
-        // this is similar to ToArray(),  but it gets the data in O(1)
-        // and without allocations.
-        // Do not write anything else or modify the NetworkWriter
-        // while you are using the ArraySegment
+        // ArraySegment pointing to internal data, considering position
         public ArraySegment<byte> ToArraySegment()
         {
-            return new ArraySegment<byte>(buffer, 0, length);
+            return new ArraySegment<byte>(buffer, 0, Position);
         }
 
         // WriteBlittable<T> from DOTSNET.
@@ -145,18 +66,15 @@ namespace Mirror
             // calculate size
             int size = sizeof(T);
 
-            // for Mirror writer, we always need to ensure length
-            EnsureLength(position + size);
-
             // enough space in buffer?
             if (buffer != null && Space >= size)
             {
-                fixed (byte* ptr = &buffer[position])
+                fixed (byte* ptr = &buffer[Position])
                 {
                     // cast buffer to T* pointer, then assign value to the area
                     *(T*)ptr = value;
                 }
-                position += size;
+                Position += size;
                 return true;
             }
 
@@ -164,13 +82,32 @@ namespace Mirror
             return false;
         }
 
-        // for byte arrays with consistent size, where the reader knows how many to read
-        // (like a packet opcode that's always the same)
-        public void WriteBytes(byte[] buffer, int offset, int count)
+        // WriteBytes from DOTSNET
+        public unsafe void WriteBytes(byte[] bytes, int offset, int count)
         {
-            EnsureLength(position + count);
-            Array.ConstrainedCopy(buffer, offset, this.buffer, position, count);
-            position += count;
+            // enough space in buffer?
+            // and anything to write?
+            if (buffer != null && Space >= count &&
+                bytes != null && count > 0)
+            {
+                // write 'count' bytes at position
+
+                // 10 mio writes: 868ms
+                //Array.Copy(value.Array, value.Offset, buffer, Position, value.Count);
+
+                // 10 mio writes: 775ms
+                //Buffer.BlockCopy(value.Array, value.Offset, buffer, Position, value.Count);
+
+                fixed (byte* dst = &buffer[Position],
+                             src = &bytes[offset])
+                {
+                    // 10 mio writes: 637ms
+                    UnsafeUtility.MemCpy(dst, src, count);
+                }
+
+                // update position
+                Position += count;
+            }
         }
 
         /// <summary>

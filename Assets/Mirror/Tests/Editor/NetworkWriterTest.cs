@@ -13,7 +13,7 @@ namespace Mirror.Tests
         {
             // 10 million reads, Unity 2019.3, code coverage disabled
             //    4014ms ms
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             for (int i = 0; i < 10000000; ++i)
             {
                 writer.SetLength(0);
@@ -22,47 +22,63 @@ namespace Mirror.Tests
         }
         */
 
+        // helper function to compare writer content to byte[]
+        public bool CompareWriterContent(NetworkWriter writer, byte[] bytes)
+        {
+            ArraySegment<byte> segment = writer.ToArraySegment();
+            if (segment.Count == bytes.Length)
+            {
+                for (int i = 0; i < segment.Count; ++i)
+                    if (segment.Array[segment.Offset + i] != bytes[i])
+                        return false;
+                return true;
+            }
+            return false;
+        }
+
         [Test]
         public void TestWritingSmallMessage()
         {
             // try serializing less than 32kb and see what happens
-            NetworkWriter writer = new NetworkWriter();
-            for (int i = 0; i < 30000 / 4; ++i)
+            const int size = 30000;
+            NetworkWriter writer = new NetworkWriter(size);
+            for (int i = 0; i < size / 4; ++i)
                 writer.WriteInt32(i);
-            Assert.That(writer.Position, Is.EqualTo(30000));
+            Assert.That(writer.Position, Is.EqualTo(size));
         }
 
         [Test]
         public void TestWritingLargeMessage()
         {
             // try serializing more than 32kb and see what happens
-            NetworkWriter writer = new NetworkWriter();
-            for (int i = 0; i < 40000 / 4; ++i)
+            const int size = 40000;
+            NetworkWriter writer = new NetworkWriter(size);
+            for (int i = 0; i < size / 4; ++i)
                 writer.WriteInt32(i);
-            Assert.That(writer.Position, Is.EqualTo(40000));
+            Assert.That(writer.Position, Is.EqualTo(size));
         }
 
         [Test]
         public void TestWritingHugeArray()
         {
             // try serializing array more than 64KB large and see what happens
-            NetworkWriter writer = new NetworkWriter();
-            writer.WriteBytesAndSize(new byte[100000]);
-            byte[] data = writer.ToArray();
+            const int size = 100000;
+            NetworkWriter writer = new NetworkWriter(size);
+            writer.WriteBytes(new byte[size], 0, size);
 
-            NetworkReader reader = new NetworkReader(data);
-            byte[] deserialized = reader.ReadBytesAndSize();
-            Assert.That(deserialized.Length, Is.EqualTo(100000));
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+            byte[] deserialized = reader.ReadBytes(size);
+            Assert.That(deserialized.Length, Is.EqualTo(size));
         }
 
         [Test]
         public void TestWritingBytesSegment()
         {
             byte[] data = { 1, 2, 3 };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.WriteBytes(data, 0, data.Length);
 
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             ArraySegment<byte> deserialized = reader.ReadBytesSegment(data.Length);
             Assert.That(deserialized.Count, Is.EqualTo(data.Length));
             for (int i = 0; i < data.Length; ++i)
@@ -74,10 +90,10 @@ namespace Mirror.Tests
         public void TestWritingBytesAndReadingSegment()
         {
             byte[] data = { 1, 2, 3 };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.WriteBytesAndSize(data);
 
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             ArraySegment<byte> deserialized = reader.ReadBytesAndSizeSegment();
             Assert.That(deserialized.Count, Is.EqualTo(data.Length));
             for (int i = 0; i < data.Length; ++i)
@@ -91,10 +107,10 @@ namespace Mirror.Tests
             byte[] data = { 1, 2, 3, 4 };
             // [2, 3]
             ArraySegment<byte> segment = new ArraySegment<byte>(data, 1, 1);
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.WriteBytesAndSizeSegment(segment);
 
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             ArraySegment<byte> deserialized = reader.ReadBytesAndSizeSegment();
             Assert.That(deserialized.Count, Is.EqualTo(segment.Count));
             for (int i = 0; i < segment.Count; ++i)
@@ -102,73 +118,27 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void TestSetLengthZeroes()
-        {
-            NetworkWriter writer = new NetworkWriter();
-            writer.WriteString("I saw");
-            writer.WriteInt64(0xA_FADED_DEAD_EEL);
-            writer.WriteString("and ate it");
-            int position = writer.Position;
-
-            writer.SetLength(10);
-            Assert.That(writer.Position, Is.EqualTo(10), "Decreasing length should move position");
-
-            // lets grow it back and check there's zeroes now.
-            writer.SetLength(position);
-            byte[] data = writer.ToArray();
-            for (int i = 10; i < data.Length; i++)
-            {
-                Assert.That(data[i], Is.EqualTo(0), $"index {i} should have value 0");
-            }
-        }
-
-        [Test]
-        public void TestSetLengthInitialization()
-        {
-            NetworkWriter writer = new NetworkWriter();
-
-            writer.SetLength(10);
-            Assert.That(writer.Position, Is.EqualTo(0), "Increasing length should not move position");
-        }
-
-        [Test]
-        public void TestResetSetsPotionAndLength()
-        {
-            NetworkWriter writer = new NetworkWriter();
-            writer.WriteString("I saw");
-            writer.WriteInt64(0xA_FADED_DEAD_EEL);
-            writer.WriteString("and ate it");
-            writer.Reset();
-
-            Assert.That(writer.Position, Is.EqualTo(0));
-            Assert.That(writer.Length, Is.EqualTo(0));
-
-            byte[] data = writer.ToArray();
-            Assert.That(data, Is.Empty);
-        }
-
-        [Test]
         public void TestReading0LengthBytesAndSize()
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.WriteBytesAndSize(new byte[] { });
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             Assert.That(reader.ReadBytesAndSize().Length, Is.EqualTo(0));
         }
 
         [Test]
         public void TestReading0LengthBytes()
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.WriteBytes(new byte[] { }, 0, 0);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             Assert.That(reader.ReadBytes(0).Length, Is.EqualTo(0));
         }
 
         [Test]
         public void TestWritingNegativeBytesAndSizeFailure()
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             Assert.Throws<OverflowException>(() => writer.WriteBytesAndSize(new byte[0], 0, -1));
             Assert.That(writer.Position, Is.EqualTo(0));
         }
@@ -241,9 +211,9 @@ namespace Mirror.Tests
             };
             foreach (Vector2 input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteVector2(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Vector2 output = reader.ReadVector2();
                 Assert.That(output, Is.EqualTo(input));
             }
@@ -263,9 +233,9 @@ namespace Mirror.Tests
             };
             foreach (Vector3 input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteVector3(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Vector3 output = reader.ReadVector3();
                 Assert.That(output, Is.EqualTo(input));
             }
@@ -284,9 +254,9 @@ namespace Mirror.Tests
             };
             foreach (Vector4 input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteVector4(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Vector4 output = reader.ReadVector4();
                 Assert.That(output, Is.EqualTo(input));
             }
@@ -306,9 +276,9 @@ namespace Mirror.Tests
             };
             foreach (Vector2Int input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteVector2Int(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Vector2Int output = reader.ReadVector2Int();
                 Assert.That(output, Is.EqualTo(input));
             }
@@ -329,9 +299,9 @@ namespace Mirror.Tests
             };
             foreach (Vector3Int input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteVector3Int(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Vector3Int output = reader.ReadVector3Int();
                 Assert.That(output, Is.EqualTo(input));
             }
@@ -351,9 +321,9 @@ namespace Mirror.Tests
             };
             foreach (Color input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteColor(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Color output = reader.ReadColor();
                 Assert.That(output, Is.EqualTo(input));
             }
@@ -374,9 +344,9 @@ namespace Mirror.Tests
             };
             foreach (Color32 input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteColor32(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Color32 output = reader.ReadColor32();
                 Assert.That(output, Is.EqualTo(input));
             }
@@ -393,9 +363,9 @@ namespace Mirror.Tests
             };
             foreach (Quaternion input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteQuaternion(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Quaternion output = reader.ReadQuaternion();
                 Assert.That(output, Is.EqualTo(input));
             }
@@ -413,9 +383,9 @@ namespace Mirror.Tests
             };
             foreach (Rect input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteRect(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Rect output = reader.ReadRect();
                 Assert.That(output, Is.EqualTo(input));
             }
@@ -432,9 +402,9 @@ namespace Mirror.Tests
             };
             foreach (Plane input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WritePlane(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Plane output = reader.ReadPlane();
                 // note: Plane constructor does math internally, resulting in
                 // floating point precision loss that causes exact comparison
@@ -454,9 +424,9 @@ namespace Mirror.Tests
             };
             foreach (Ray input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteRay(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Ray output = reader.ReadRay();
                 Assert.That((output.direction - input.direction).magnitude, Is.LessThan(1e-6f));
                 Assert.That(output.origin, Is.EqualTo(input.origin));
@@ -475,9 +445,9 @@ namespace Mirror.Tests
             };
             foreach (Matrix4x4 input in inputs)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteMatrix4x4(input);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Matrix4x4 output = reader.ReadMatrix4x4();
                 Assert.That(output, Is.EqualTo(input));
             }
@@ -496,11 +466,15 @@ namespace Mirror.Tests
             };
             foreach (byte invalid in invalidUTF8bytes)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteString("an uncorrupted string");
-                byte[] data = writer.ToArray();
-                data[10] = invalid;
-                NetworkReader reader = new NetworkReader(data);
+
+                int backup = writer.Position;
+                writer.Position = 10;
+                writer.Write(invalid);
+                writer.Position = backup;
+
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 Assert.Throws<System.Text.DecoderFallbackException>(() => reader.ReadString());
             }
         }
@@ -508,35 +482,17 @@ namespace Mirror.Tests
         [Test]
         public void TestReadingTruncatedString()
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.WriteString("a string longer than 10 bytes");
-            writer.Reset();
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            writer.Position = 0;
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             Assert.Throws<System.IO.EndOfStreamException>(() => reader.ReadString());
-        }
-
-        [Test]
-        public void TestToArray()
-        {
-            // write 2 bytes
-            NetworkWriter writer = new NetworkWriter();
-            writer.WriteByte(1);
-            writer.WriteByte(2);
-
-            // .ToArray() length is 2?
-            Assert.That(writer.ToArray().Length, Is.EqualTo(2));
-
-            // set position back by one
-            writer.Position = 1;
-
-            // Changing the position should not alter the size of the data
-            Assert.That(writer.ToArray().Length, Is.EqualTo(2));
         }
 
         [Test]
         public void TestToArraySegment()
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.WriteString("hello");
             writer.WriteString("world");
 
@@ -551,10 +507,10 @@ namespace Mirror.Tests
             char a = 'a';
             char u = 'ⓤ';
 
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.WriteChar(a);
             writer.WriteChar(u);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             char a2 = reader.ReadChar();
             Assert.That(a2, Is.EqualTo(a));
             char u2 = reader.ReadChar();
@@ -603,10 +559,9 @@ namespace Mirror.Tests
             };
             foreach (string weird in weirdUnicode)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteString(weird);
-                byte[] data = writer.ToArray();
-                NetworkReader reader = new NetworkReader(data);
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 string str = reader.ReadString();
                 Assert.That(str, Is.EqualTo(weird));
             }
@@ -616,10 +571,10 @@ namespace Mirror.Tests
         public void TestGuid()
         {
             Guid originalGuid = new Guid("0123456789abcdef9876543210fedcba");
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.WriteGuid(originalGuid);
 
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             Guid readGuid = reader.ReadGuid();
             Assert.That(readGuid, Is.EqualTo(originalGuid));
         }
@@ -647,9 +602,9 @@ namespace Mirror.Tests
             };
             foreach (float weird in weirdFloats)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteSingle(weird);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 float readFloat = reader.ReadSingle();
                 Assert.That(readFloat, Is.EqualTo(weird));
             }
@@ -678,9 +633,9 @@ namespace Mirror.Tests
             };
             foreach (double weird in weirdDoubles)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteDouble(weird);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 double readDouble = reader.ReadDouble();
                 Assert.That(readDouble, Is.EqualTo(weird));
             }
@@ -699,9 +654,9 @@ namespace Mirror.Tests
             };
             foreach (decimal weird in weirdDecimals)
             {
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter(1024);
                 writer.WriteDecimal(weird);
-                NetworkReader reader = new NetworkReader(writer.ToArray());
+                NetworkReader reader = new NetworkReader(writer.ToArraySegment());
                 decimal readDecimal = reader.ReadDecimal();
                 Assert.That(readDecimal, Is.EqualTo(weird));
             }
@@ -718,12 +673,12 @@ namespace Mirror.Tests
                 146, 10,134, 63,
                 197,245,103, 63,
             };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (float weird in weirdFloats)
             {
                 writer.WriteSingle(weird);
             }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
@@ -737,12 +692,12 @@ namespace Mirror.Tests
                 101,115, 45, 56, 82,193,240, 63,
                 140,116,112,185,184,254,236, 63,
             };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (double weird in weirdDoubles)
             {
                 writer.WriteDouble(weird);
             }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
@@ -758,13 +713,13 @@ namespace Mirror.Tests
                 0x00, 0x00, 0x00, 0x00, 0xF0, 0x6D, 0xC2, 0xA4, 0x68, 0x52,
                 0x00, 0x00
             };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (decimal weird in weirdDecimals)
             {
                 writer.WriteDecimal(weird);
             }
-            //Debug.Log(BitConverter.ToString(writer.ToArray()));
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            //Debug.Log(BitConverter.ToString(writer.ToArray()))
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
@@ -772,12 +727,12 @@ namespace Mirror.Tests
         {
             byte[] values = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
             byte[] expected = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (byte value in values)
             {
                 writer.WriteByte(value);
             }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
@@ -785,12 +740,12 @@ namespace Mirror.Tests
         {
             ushort[] values = { 0x0000, 0x1234, 0xabcd, 0xF00F, 0x0FF0, 0xbeef };
             byte[] expected = { 0x00, 0x00, 0x34, 0x12, 0xcd, 0xab, 0x0F, 0xF0, 0xF0, 0x0F, 0xef, 0xbe };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (ushort value in values)
             {
                 writer.WriteUInt16(value);
             }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
@@ -798,12 +753,12 @@ namespace Mirror.Tests
         {
             uint[] values = { 0x12345678, 0xabcdef09, 0xdeadbeef };
             byte[] expected = { 0x78, 0x56, 0x34, 0x12, 0x09, 0xef, 0xcd, 0xab, 0xef, 0xbe, 0xad, 0xde };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (uint value in values)
             {
                 writer.WriteUInt32(value);
             }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
@@ -811,12 +766,12 @@ namespace Mirror.Tests
         {
             ulong[] values = { 0x0123456789abcdef, 0xdeaded_beef_c0ffee };
             byte[] expected = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0xee, 0xff, 0xc0, 0xef, 0xbe, 0xed, 0xad, 0xde };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (ulong value in values)
             {
                 writer.WriteUInt64(value);
             }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
@@ -824,12 +779,12 @@ namespace Mirror.Tests
         {
             byte[] values = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
             byte[] expected = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (byte value in values)
             {
                 writer.WriteSByte((sbyte)value);
             }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
@@ -837,12 +792,12 @@ namespace Mirror.Tests
         {
             ushort[] values = { 0x0000, 0x1234, 0xabcd, 0xF00F, 0x0FF0, 0xbeef };
             byte[] expected = { 0x00, 0x00, 0x34, 0x12, 0xcd, 0xab, 0x0F, 0xF0, 0xF0, 0x0F, 0xef, 0xbe };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (ushort value in values)
             {
                 writer.WriteInt16((short)value);
             }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
@@ -850,12 +805,12 @@ namespace Mirror.Tests
         {
             uint[] values = { 0x12345678, 0xabcdef09, 0xdeadbeef };
             byte[] expected = { 0x78, 0x56, 0x34, 0x12, 0x09, 0xef, 0xcd, 0xab, 0xef, 0xbe, 0xad, 0xde };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (uint value in values)
             {
                 writer.WriteInt32((int)value);
             }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
@@ -863,19 +818,19 @@ namespace Mirror.Tests
         {
             ulong[] values = { 0x0123456789abcdef, 0xdeaded_beef_c0ffee };
             byte[] expected = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0xee, 0xff, 0xc0, 0xef, 0xbe, 0xed, 0xad, 0xde };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             foreach (ulong value in values)
             {
                 writer.WriteInt64((long)value);
             }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            Assert.That(CompareWriterContent(writer, expected), Is.True);
         }
 
         [Test]
         public void TestWritingAndReading()
         {
             // write all simple types once
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             writer.WriteChar((char)1);
             writer.WriteByte(2);
             writer.WriteSByte(3);
@@ -904,7 +859,7 @@ namespace Mirror.Tests
             writer.WriteBytesAndSize(new byte[] { 22, 23 }, 0, 2);
 
             // read them
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             Assert.That(reader.ReadChar(), Is.EqualTo(1));
             Assert.That(reader.ReadByte(), Is.EqualTo(2));

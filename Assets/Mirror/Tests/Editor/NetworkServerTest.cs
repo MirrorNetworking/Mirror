@@ -362,7 +362,7 @@ namespace Mirror.Tests
 
             // serialize a test message into an arraysegment
             TestMessage1 testMessage = new TestMessage1 { IntValue = 13, DoubleValue = 14, StringValue = "15" };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             MessagePacker.Pack(testMessage, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
 
@@ -403,7 +403,7 @@ namespace Mirror.Tests
 
             // serialize a test message into an arraysegment
             TestMessage1 testMessage = new TestMessage1 { IntValue = 13, DoubleValue = 14, StringValue = "15" };
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             MessagePacker.Pack(testMessage, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
 
@@ -445,20 +445,20 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // serialize first message, send it to server, check if it was handled
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             MessagePacker.Pack(new TestMessage1(), writer);
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment());
             Assert.That(variant1Called, Is.EqualTo(1));
 
             // serialize second message, send it to server, check if it was handled
-            writer = new NetworkWriter();
+            writer = new NetworkWriter(1024);
             MessagePacker.Pack(new TestMessage2(), writer);
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment());
             Assert.That(variant2Called, Is.EqualTo(1));
 
             // unregister first handler, send, should fail
             NetworkServer.UnregisterHandler<TestMessage1>();
-            writer = new NetworkWriter();
+            writer = new NetworkWriter(1024);
             MessagePacker.Pack(new TestMessage1(), writer);
             // log error messages are expected
             LogAssert.ignoreFailingMessages = true;
@@ -471,7 +471,7 @@ namespace Mirror.Tests
             NetworkServer.ClearHandlers();
             // (only add this one to avoid disconnect error)
             NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
-            writer = new NetworkWriter();
+            writer = new NetworkWriter(1024);
             MessagePacker.Pack(new TestMessage1(), writer);
             // log error messages are expected
             LogAssert.ignoreFailingMessages = true;

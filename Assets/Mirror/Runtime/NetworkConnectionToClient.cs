@@ -17,7 +17,7 @@ namespace Mirror
         class Batch
         {
             // each batch needs a writer for batching
-            public NetworkWriter writer = new NetworkWriter();
+            public NetworkWriter writer = new NetworkWriter(Transport.activeTransport.GetMaxPacketSize());
 
             // each channel's batch has its own lastSendTime.
             // (use NetworkTime for maximum precision over days)

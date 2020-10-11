@@ -18,7 +18,10 @@ namespace Mirror.Tests
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 MessagePacker.Pack(message, writer);
-                return writer.ToArray();
+                ArraySegment<byte> segment = writer.ToArraySegment();
+                byte[] array = new byte[segment.Count];
+                Buffer.BlockCopy(segment.Array, segment.Offset, array, 0, segment.Count);
+                return array;
             }
         }
 

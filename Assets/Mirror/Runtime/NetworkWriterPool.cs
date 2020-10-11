@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 namespace Mirror
 {
@@ -8,6 +7,7 @@ namespace Mirror
     /// </summary>
     public class PooledNetworkWriter : NetworkWriter, IDisposable
     {
+        public PooledNetworkWriter(int size) : base(size) {}
         public void Dispose()
         {
             NetworkWriterPool.Recycle(this);
@@ -17,44 +17,27 @@ namespace Mirror
     /// <summary>
     /// Pool of NetworkWriters
     /// <para>Use this pool instead of <see cref="NetworkWriter">NetworkWriter</see> to reduce memory allocation</para>
-    /// <para>Use <see cref="Capacity">Capacity</see> to change size of pool</para>
     /// </summary>
     public static class NetworkWriterPool
     {
-        /// <summary>
-        /// Size of the pool
-        /// <para>If pool is too small getting writers will causes memory allocation</para>
-        /// <para>Default value: 100 </para>
-        /// </summary>
-        public static int Capacity
-        {
-            get => pool.Length;
-            set
-            {
-                // resize the array
-                Array.Resize(ref pool, value);
+        // size parameter to create Writers.
+        // to guarantee that all pooled writers are of same size, this can never
+        // change at runtime.
+        // for now let's use a size big enough for all transports.
+        // TODO maybe set it to active Transport size later. but this varies
+        //      between tests, so all tests would have to remember to clear the
+        //      pool in Teardown.
+        public const int SizeParameter = 64 * 1024;
 
-                // if capacity is smaller than before, then we need to adjust
-                // 'next' so it doesn't point to an index out of range
-                // -> if we set '0' then next = min(_, 0-1) => -1
-                // -> if we set '2' then next = min(_, 2-1) =>  1
-                next = Mathf.Min(next, pool.Length - 1);
-            }
-        }
-
-        /// <summary>
-        /// Mirror usually only uses up to 4 writes in nested usings,
-        /// 100 is a good margin for edge cases when users need a lot writers at
-        /// the same time.
-        ///
-        /// <para>keep in mind, most entries of the pool will be null in most cases</para>
-        /// </summary>
-        ///
-        /// Note: we use an Array instead of a Stack because it's significantly
-        ///       faster: https://github.com/vis2k/Mirror/issues/1614
-        static PooledNetworkWriter[] pool = new PooledNetworkWriter[100];
-
-        static int next = -1;
+        // reuse Pool<T>
+        // we still wrap it in NetworkWriterPool.Get/Recyle so we can reset the
+        // position before reusing.
+        // this is also more consistent with NetworkReaderPool where we need to
+        // assign the internal buffer before reusing.
+        static readonly Pool<PooledNetworkWriter> pool
+            = new Pool<PooledNetworkWriter>(
+                () => new PooledNetworkWriter(SizeParameter)
+            );
 
         /// <summary>
         /// Get the next writer in the pool
@@ -62,17 +45,15 @@ namespace Mirror
         /// </summary>
         public static PooledNetworkWriter GetWriter()
         {
-            if (next == -1)
-            {
-                return new PooledNetworkWriter();
-            }
+            // grab from from pool & reset position
+            PooledNetworkWriter writer = pool.Take();
+            writer.Position = 0;
 
-            PooledNetworkWriter writer = pool[next];
-            pool[next] = null;
-            next--;
+            // make sure that size didn't change at runtime.
+            // we need to guarantee that all writers have same internal byte[].
+            if (writer.Capacity != SizeParameter)
+                throw new Exception($"NetworkWriterPool size parameter should not change at runtime. SizeParameter={SizeParameter} writer Capacity={writer.Capacity}");
 
-            // reset cached writer length and position
-            writer.Reset();
             return writer;
         }
 
@@ -82,15 +63,7 @@ namespace Mirror
         /// </summary>
         public static void Recycle(PooledNetworkWriter writer)
         {
-            if (next < pool.Length - 1)
-            {
-                next++;
-                pool[next] = writer;
-            }
-            else
-            {
-                Debug.LogWarning("NetworkWriterPool.Recycle, Pool was full leaving extra writer for GC");
-            }
+            pool.Return(writer);
         }
     }
 }

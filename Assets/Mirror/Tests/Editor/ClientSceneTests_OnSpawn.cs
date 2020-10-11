@@ -473,8 +473,8 @@ namespace Mirror.Tests.ClientSceneTests
 
 
             ulong dirtyMask = 1UL;
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
+            NetworkWriter ownerWriter = new NetworkWriter(1024);
+            NetworkWriter observersWriter = new NetworkWriter(1024);
             serverIdentity.OnSerializeAllSafely(true, dirtyMask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // check that Serialize was called

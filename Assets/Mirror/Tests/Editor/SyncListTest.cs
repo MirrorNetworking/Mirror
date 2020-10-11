@@ -12,28 +12,24 @@ namespace Mirror.Tests
 
         public static void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             fromList.OnSerializeAll(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             toList.OnDeserializeAll(reader);
 
-            int writeLength = writer.Length;
-            int readLength = reader.Position;
-            Assert.That(writeLength == readLength, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
+            Assert.That(writer.Position == reader.Position, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writer.Position={writer.Position}\n    reader.Position={reader.Position}");
 
         }
 
         public static void SerializeDeltaTo<T>(T fromList, T toList) where T : SyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             fromList.OnSerializeDelta(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             toList.OnDeserializeDelta(reader);
             fromList.Flush();
 
-            int writeLength = writer.Length;
-            int readLength = reader.Position;
-            Assert.That(writeLength == readLength, $"OnSerializeDelta and OnDeserializeDelta calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
+            Assert.That(writer.Position == reader.Position, $"OnSerializeDelta and OnDeserializeDelta calls write the same amount of data\n    writer.Position={writer.Position}\n    reader.Position={reader.Position}");
         }
 
         [SetUp]

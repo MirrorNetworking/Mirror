@@ -14,17 +14,17 @@ namespace Mirror.Tests
 
         void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             fromList.OnSerializeAll(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             toList.OnDeserializeAll(reader);
         }
 
         void SerializeDeltaTo<T>(T fromList, T toList) where T : SyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(1024);
             fromList.OnSerializeDelta(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             toList.OnDeserializeDelta(reader);
             fromList.Flush();
         }
