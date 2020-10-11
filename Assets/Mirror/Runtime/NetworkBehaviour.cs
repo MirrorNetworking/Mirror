@@ -166,7 +166,7 @@ namespace Mirror
         protected void InitSyncObject(SyncObject syncObject)
         {
             if (syncObject == null)
-                logger.LogError("Uninitialized SyncObject. Assign a valid SyncList, SyncSet or SyncDictionary", this);
+                logger.LogError("Uninitialized SyncObject. Manually call the constructor on your SyncList, SyncSet or SyncDictionary", this);
             else
                 syncObjects.Add(syncObject);
         }
