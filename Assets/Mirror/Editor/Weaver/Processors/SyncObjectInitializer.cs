@@ -1,4 +1,3 @@
-using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
