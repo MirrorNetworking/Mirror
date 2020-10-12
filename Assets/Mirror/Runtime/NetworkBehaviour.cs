@@ -165,7 +165,10 @@ namespace Mirror
         // We collect all of them and we synchronize them with OnSerialize/OnDeserialize
         protected void InitSyncObject(SyncObject syncObject)
         {
-            syncObjects.Add(syncObject);
+            if (syncObject == null)
+                logger.LogError("Uninitialized SyncObject. Manually call the constructor on your SyncList, SyncSet or SyncDictionary", this);
+            else
+                syncObjects.Add(syncObject);
         }
 
         #region Commands
