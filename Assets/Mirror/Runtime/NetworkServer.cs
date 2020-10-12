@@ -134,7 +134,11 @@ namespace Mirror
                 LocalClient.Disconnect();
             }
 
-            foreach (INetworkConnection conn in connections)
+            // make a copy,  during disconnect, it is possible that connections
+            // are modified, so it throws
+            // System.InvalidOperationException : Collection was modified; enumeration operation may not execute.
+            var connectionscopy = new HashSet<INetworkConnection>(connections);
+            foreach (INetworkConnection conn in connectionscopy)
             {
                 conn.Disconnect();
             }
