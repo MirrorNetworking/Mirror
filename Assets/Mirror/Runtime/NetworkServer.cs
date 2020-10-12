@@ -381,7 +381,7 @@ namespace Mirror
             }
             else
             {
-                HashSet<INetworkConnection> connectionsExcludeSelf = new HashSet<INetworkConnection>();
+                var connectionsExcludeSelf = new HashSet<INetworkConnection>();
                 foreach(INetworkConnection conn in identity.observers)
                 {
                     if(identity.ConnectionToClient != conn)
