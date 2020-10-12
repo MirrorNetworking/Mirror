@@ -20,14 +20,14 @@ namespace Mirror
 
         [Header("Server")]
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
-        [FormerlySerializedAs("MaxMessageSize")] public int serverMaxMessageSize = 16 * 1024;
+        [FormerlySerializedAs("MaxMessageSize")] public ushort serverMaxMessageSize = 16 * 1024;
 
         [Tooltip("Server processes a limit amount of messages per tick to avoid a deadlock where it might end up processing forever if messages come in faster than we can process them.")]
         public int serverMaxReceivesPerTick = 10000;
 
         [Header("Client")]
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker host might send multiple fake packets with 2GB headers, causing the connected clients to run out of memory after allocating multiple large packets.")]
-        [FormerlySerializedAs("MaxMessageSize")] public int clientMaxMessageSize = 16 * 1024;
+        [FormerlySerializedAs("MaxMessageSize")] public ushort clientMaxMessageSize = 16 * 1024;
 
         [Tooltip("Client processes a limit amount of messages per tick to avoid a deadlock where it might end up processing forever if messages come in faster than we can process them.")]
         public int clientMaxReceivesPerTick = 1000;
@@ -210,7 +210,7 @@ namespace Mirror
             server.Stop();
         }
 
-        public override int GetMaxPacketSize()
+        public override ushort GetMaxPacketSize()
         {
             return serverMaxMessageSize;
         }

@@ -20,23 +20,17 @@ namespace Mirror
     /// </summary>
     public static class NetworkWriterPool
     {
-        // size parameter to create Writers.
-        // to guarantee that all pooled writers are of same size, this can never
-        // change at runtime.
-        // for now let's use a size big enough for all transports.
-        // TODO maybe set it to active Transport size later. but this varies
-        //      between tests, so all tests would have to remember to clear the
-        //      pool in Teardown.
-        public const int SizeParameter = 64 * 1024;
-
         // reuse Pool<T>
         // we still wrap it in NetworkWriterPool.Get/Recyle so we can reset the
         // position before reusing.
         // this is also more consistent with NetworkReaderPool where we need to
         // assign the internal buffer before reusing.
+        //
+        // ushort.max to support all Transport.GetMaxMessageSizes!
+        // this way we don't depend & check on any transport size. it's const.
         static readonly Pool<PooledNetworkWriter> pool
             = new Pool<PooledNetworkWriter>(
-                () => new PooledNetworkWriter(SizeParameter)
+                () => new PooledNetworkWriter(ushort.MaxValue)
             );
 
         /// <summary>

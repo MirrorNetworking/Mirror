@@ -155,9 +155,16 @@ namespace Mirror
         /// </summary>
         /// <returns>the size in bytes that can be sent.</returns>
         //
+        // 'ushort' to enforce a reasonable limit of 64KB per allocation at max.
+        // -> protects against slowdowns if someone tries to allocate 2GB etc.
+        // -> Mirror can easily buffer 64KB byte[] that work with any transport!
+        //    this is a huge benefit, e.g. in NetworkWriterPool which can simply
+        //    alloc 64KB and be guaranteed to work with any transport, without
+        //    checking transport sizes each time!
+        //
         // Note: different sizes for different channels would greatly
         //       overcomplicate MaxMessageSize byte[] caching everywhere.
-        public abstract int GetMaxPacketSize();
+        public abstract ushort GetMaxPacketSize();
 
         /// <summary>
         /// Shut down the transport, both as client and server

@@ -17,7 +17,9 @@ namespace Mirror
         class Batch
         {
             // each batch needs a writer for batching
-            public NetworkWriter writer = new NetworkWriter(Transport.activeTransport.GetMaxPacketSize());
+            // ushort.max to work with all Transport.GetMaxMessageSizes!
+            // this way we don't depend & check on any transport size. it's const.
+            public NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
 
             // each channel's batch has its own lastSendTime.
             // (use NetworkTime for maximum precision over days)
