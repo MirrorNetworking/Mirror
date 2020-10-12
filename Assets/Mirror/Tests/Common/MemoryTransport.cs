@@ -31,7 +31,7 @@ namespace Mirror.Tests
         public override bool Available() => true;
         // use a large enough max size for easy tests.
         // don't use int.Max to avoid giant allocations when running tests.
-        public override int GetMaxPacketSize() => 64 * 1024;
+        public override ushort GetMaxPacketSize() => ushort.MaxValue;
         public override void Shutdown() { }
         public override bool ClientConnected() => clientConnected;
         public override void ClientConnect(string address)
