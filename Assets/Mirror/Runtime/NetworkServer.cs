@@ -113,10 +113,6 @@ namespace Mirror
 
         public readonly HashSet<NetworkIdentity> DirtyObjects = new HashSet<NetworkIdentity>();
 
-        // just a cached memory area where we can collect connections
-        // for broadcasting messages
-        private static readonly List<INetworkConnection> connectionsCache = new List<INetworkConnection>();
-
         // Time kept in this server
         public readonly NetworkTime Time = new NetworkTime();
 
