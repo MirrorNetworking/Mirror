@@ -43,8 +43,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncListMissingParamlessCtor()
         {
-            HasError("Can not initialize field Foo because no default constructor was found. Manually initialize the field (call the constructor) or add constructor without Parameter",
-                "WeaverSyncListTests.SyncListMissingParamlessCtor.SyncListMissingParamlessCtor/SyncListString2 WeaverSyncListTests.SyncListMissingParamlessCtor.SyncListMissingParamlessCtor::Foo");
+            IsSuccess();
         }
 
         [Test]
