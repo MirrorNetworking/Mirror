@@ -7,7 +7,7 @@ namespace Mirror.Tests
     {
         // note synclists must be a property of a NetworkBehavior so that
         // the weaver generates the reader and writer for the object
-        public SyncList<TestObject> myList = new SyncList<TestObject>();
+        public readonly SyncList<TestObject> myList = new SyncList<TestObject>();
     }
 
     public class SyncListClassTest
