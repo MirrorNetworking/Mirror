@@ -472,10 +472,9 @@ namespace Mirror.Tests.ClientSceneTests
             serverPayloadBehaviour.direction = direction;
 
 
-            ulong dirtyMask = 1UL;
             NetworkWriter ownerWriter = new NetworkWriter(1024);
             NetworkWriter observersWriter = new NetworkWriter(1024);
-            serverIdentity.OnSerializeAllSafely(true, dirtyMask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            serverIdentity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // check that Serialize was called
             Assert.That(onSerializeCalled, Is.EqualTo(1));
