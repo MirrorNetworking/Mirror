@@ -16,8 +16,8 @@ namespace Mirror.Tests.Performance.Runtime
     [Category("Benchmark")]
     public class MultipleClients
     {
-        const string ScenePath = "Assets/Tests/Performance/Runtime/MultipleClients/Scene.unity";
-        const string MonsterPath = "Assets/Tests/Performance/Runtime/MultipleClients/Monster.prefab";
+        const string ScenePath = "Assets/Tests/Performance/Runtime/MultipleClients/Scenes/Scene.unity";
+        const string MonsterPath = "Assets/Tests/Performance/Runtime/MultipleClients/Prefabs/Monster.prefab";
         const int Warmup = 50;
         const int MeasureCount = 256;
 
