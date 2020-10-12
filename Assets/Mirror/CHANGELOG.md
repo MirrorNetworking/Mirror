@@ -1,3 +1,10 @@
+## [48.0.1](https://github.com/MirrorNG/MirrorNG/compare/v48.0.0...v48.0.1) (2020-10-12)
+
+
+### Bug Fixes
+
+* InvalidOperationException when disconnecting ([b131eb7](https://github.com/MirrorNG/MirrorNG/commit/b131eb7512892896c624f360fcbd104549d63aa9))
+
 # [48.0.0](https://github.com/MirrorNG/MirrorNG/compare/v47.0.3...v48.0.0) (2020-10-11)
 
 
