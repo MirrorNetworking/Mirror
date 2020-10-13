@@ -193,7 +193,12 @@ namespace Mirror.KCP
         }
         public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
-            throw new NotImplementedException();
+            if (connections.TryGetValue(connectionId, out KcpServerConnection connection))
+            {
+                connection.Send(segment);
+                return true;
+            }
+            return false;
         }
         public override bool ServerDisconnect(int connectionId) => throw new NotImplementedException();
         public override string ServerGetClientAddress(int connectionId)
