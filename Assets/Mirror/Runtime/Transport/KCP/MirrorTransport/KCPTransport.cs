@@ -80,7 +80,7 @@ namespace Mirror.KCP
                 int msgLength = serverSocket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref serverNewClientEP);
 
                 // is this a new connection?
-                Debug.LogWarning($"KCP: server raw recv {msgLength}");
+                Debug.LogWarning($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
                 /*if (!connectedClients.TryGetValue(endpoint, out KcpServerConnection connection))
                 {
                     // add it to a queue
