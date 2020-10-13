@@ -158,7 +158,7 @@ namespace Mirror.KCP
             {
                 try
                 {
-                    // TODO_ = SendAsync(Goodby);
+                    Send(Goodby);
                     kcp.Flush(false);
                 }
                 catch (SocketException)
