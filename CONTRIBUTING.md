@@ -123,7 +123,7 @@ Macro-optimizations tend to change the **scalability** of mirror,  by changing a
 
 Micro-optimizations tend to change the performance of mirror in a linear way. There are some micro optimizations that make a huge impact on performance such as eliminating allocations in the hot path.
 
-We prefer readable code over optimal code. We do not like any kind of optimization if it makes the code less readable (they generally do).  For that reason,  we require that both micro and macro optimization pull requests come with screenshots profiling a real game or at least a synthetic **representative** test. It is not enough to show that one operation is faster than the other,  you must prove that this makes a significant difference in Mirror or in a real game using Mirror.
+We prefer readable code over optimal code. We do not like any kind of optimization if it makes the code less readable (they generally do).  For that reason,  we require that both micro and macro optimization pull requests come with screenshots profiling a real game or at least a synthetic **representative** test. It is not enough to show that one operation is faster than the other,  you must prove that this makes a significant difference in a realistic Mirror workload.
 
 If your optimization pull request does not come with profiling data showing real gains in a meaningful test is has no hope of getting merged.
 
