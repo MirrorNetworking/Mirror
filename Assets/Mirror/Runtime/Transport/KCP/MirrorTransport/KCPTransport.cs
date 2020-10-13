@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
@@ -223,6 +224,44 @@ namespace Mirror.KCP
         public override string ToString()
         {
             return "KCP";
+        }
+
+        int GetTotalSendQueue() =>
+            connections.Values.Sum(conn => conn.kcp.sendQueue.Count);
+        int GetTotalReceiveQueue() =>
+            connections.Values.Sum(conn => conn.kcp.receiveQueue.Count);
+        int GetTotalSendBuffer() =>
+            connections.Values.Sum(conn => conn.kcp.sendBuffer.Count);
+        int GetTotalReceiveBuffer() =>
+            connections.Values.Sum(conn => conn.kcp.sendBuffer.Count);
+
+        void OnGUI()
+        {
+            GUILayout.BeginArea(new Rect(5, 100, 300, 300));
+
+            if (ServerActive())
+            {
+                GUILayout.BeginVertical("Box");
+                GUILayout.Label("SERVER");
+                GUILayout.Label("  SendQueue: " + GetTotalSendQueue());
+                GUILayout.Label("  ReceiveQueue: " + GetTotalReceiveQueue());
+                GUILayout.Label("  SendQBuffer: " + GetTotalSendBuffer());
+                GUILayout.Label("  ReceiveQBuffer: " + GetTotalReceiveBuffer());
+                GUILayout.EndVertical();
+            }
+
+            if (ClientConnected())
+            {
+                GUILayout.BeginVertical("Box");
+                GUILayout.Label("CLIENT");
+                GUILayout.Label("  SendQueue: " + clientConnection.kcp.sendQueue.Count);
+                GUILayout.Label("  ReceiveQueue: " + clientConnection.kcp.receiveQueue.Count);
+                GUILayout.Label("  SendQBuffer: " + clientConnection.kcp.sendBuffer.Count);
+                GUILayout.Label("  ReceiveQBuffer: " + clientConnection.kcp.receiveBuffer.Count);
+                GUILayout.EndVertical();
+            }
+
+            GUILayout.EndArea();
         }
     }
 }

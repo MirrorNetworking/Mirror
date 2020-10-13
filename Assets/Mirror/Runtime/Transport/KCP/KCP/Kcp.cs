@@ -60,11 +60,11 @@ namespace Mirror.KCP
 
         int fastresend;
         bool nocwnd;
-        readonly List<Segment> sendQueue = new List<Segment>(16);
-        readonly List<Segment> receiveQueue = new List<Segment>(16);
-        readonly List<Segment> sendBuffer = new List<Segment>(16);
-        readonly List<Segment> receiveBuffer = new List<Segment>(16);
-        readonly List<AckItem> ackList = new List<AckItem>(16);
+        internal readonly List<Segment> sendQueue = new List<Segment>(16);
+        internal readonly List<Segment> receiveQueue = new List<Segment>(16);
+        internal readonly List<Segment> sendBuffer = new List<Segment>(16);
+        internal readonly List<Segment> receiveBuffer = new List<Segment>(16);
+        internal readonly List<AckItem> ackList = new List<AckItem>(16);
 
         byte[] buffer;
         uint reserved = 0;

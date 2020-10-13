@@ -10,7 +10,7 @@ namespace Mirror.KCP
     {
         protected Socket socket;
         protected EndPoint remoteEndpoint;
-        protected Kcp kcp;
+        internal Kcp kcp;
         volatile bool open;
 
         internal event Action OnConnected;
