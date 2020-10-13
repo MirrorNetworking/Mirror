@@ -67,7 +67,21 @@ namespace Mirror.KCP
                 int msgLength = serverSocket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref serverNewClientEP);
                 Debug.LogWarning($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
 
-                // TODO add connection or feed into it
+                // is this a new connection?
+                if (!connections.TryGetValue(serverNewClientEP, out KcpServerConnection connection))
+                {
+                    // add it to a queue
+                    connection = new KcpServerConnection(serverSocket, serverNewClientEP);
+                    //acceptedConnections.Writer.TryWrite(connection);
+                    connections.Add(serverNewClientEP, connection);
+                    Debug.LogWarning($"KCP: server added connection {serverNewClientEP}");
+                    connection.Disconnected += () =>
+                    {
+                        connections.Remove(serverNewClientEP);
+                    };
+                }
+
+                connection.RawInput(buffer, msgLength);
             }
 
             // TODO tick all server connections
