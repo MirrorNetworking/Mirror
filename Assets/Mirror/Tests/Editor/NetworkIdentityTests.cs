@@ -932,10 +932,9 @@ namespace Mirror.Tests
             // serialize all - should work even if compExc throws an exception
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            ulong mask = identity.GetInitialComponentsMask();
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
-            identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
             LogAssert.ignoreFailingMessages = false;
 
             // owner should have written all components
@@ -993,8 +992,7 @@ namespace Mirror.Tests
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
 
-            ulong mask = identity.GetInitialComponentsMask();
-            identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // Should still write with too mnay Components because NetworkBehavioursCache should handle the error
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
@@ -1006,14 +1004,14 @@ namespace Mirror.Tests
         [Test]
         public void CreatingNetworkBehavioursCacheShouldLogErrorForTooComponents()
         {
-            // add 65 components
-            for (int i = 0; i < 65; ++i)
+            // add byte.MaxValue+1 components
+            for (int i = 0; i < byte.MaxValue+1; ++i)
             {
                 gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             }
 
             // call NetworkBehaviours property to create the cache
-            LogAssert.Expect(LogType.Error, new Regex("Only 64 NetworkBehaviour components are allowed for NetworkIdentity.+"));
+            LogAssert.Expect(LogType.Error, new Regex($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity.+"));
             _ = identity.NetworkBehaviours;
         }
 
@@ -1037,8 +1035,7 @@ namespace Mirror.Tests
             // serialize
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            ulong mask = identity.GetInitialComponentsMask();
-            identity.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // reset component values
             comp1.value = 0;
@@ -1366,6 +1363,7 @@ namespace Mirror.Tests
             NetworkIdentity.spawned.Clear();
             RemoteCallHelper.RemoveDelegate(registeredHash);
         }
+
 
         [Test]
         public void ServerUpdate()
@@ -1712,67 +1710,6 @@ namespace Mirror.Tests
             // .observers will be null and it should simply return early.
             identity.RebuildObservers(true);
             Assert.That(identity.observers, Is.Null);
-        }
-
-        [Test]
-        public void GetInitialComponentsMaskShouldReturn1BitPerNetworkBehaviour()
-        {
-            gameObject.AddComponent<MyTestComponent>();
-            gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
-
-            ulong mask = identity.GetInitialComponentsMask();
-
-            // 1 + 2 + 4 = 7
-            Assert.That(mask, Is.EqualTo(7UL));
-        }
-
-        [Test]
-        public void GetInitialComponentsMaskShouldReturnZeroWhenNoNetworkBehaviours()
-        {
-            ulong mask = identity.GetInitialComponentsMask();
-
-            Assert.That(mask, Is.EqualTo(0UL));
-        }
-
-        [Test]
-        public void GetDirtyComponentsMaskShouldReturn1BitOnlyForDirtyComponents()
-        {
-            MyTestComponent comp1 = gameObject.AddComponent<MyTestComponent>();
-            SerializeTest1NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            SerializeTest2NetworkBehaviour comp3 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
-
-
-            // mark comps 1 and 3 as dirty
-
-            comp1.syncInterval = 0;
-            comp3.syncInterval = 0;
-
-            comp1.SetDirtyBit(1UL);
-            comp2.ClearAllDirtyBits();
-            comp3.SetDirtyBit(1UL);
-
-
-            ulong mask = identity.GetDirtyComponentsMask();
-
-            // 1 + 4 = 5
-            Assert.That(mask, Is.EqualTo(5UL));
-        }
-
-        [Test]
-        public void GetDirtyComponentsMaskShouldReturnZeroWhenNoDirtyComponents()
-        {
-            MyTestComponent comp1 = gameObject.AddComponent<MyTestComponent>();
-            SerializeTest1NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            SerializeTest2NetworkBehaviour comp3 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
-
-            comp1.ClearAllDirtyBits();
-            comp2.ClearAllDirtyBits();
-            comp3.ClearAllDirtyBits();
-
-            ulong mask = identity.GetDirtyComponentsMask();
-
-            Assert.That(mask, Is.EqualTo(0UL));
         }
 
         [Test]

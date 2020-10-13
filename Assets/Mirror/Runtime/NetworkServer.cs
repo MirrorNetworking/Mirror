@@ -1121,8 +1121,7 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            ulong dirtyComponentsMask = identity.GetInitialComponentsMask();
-            identity.OnSerializeAllSafely(true, dirtyComponentsMask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // convert to ArraySegment to avoid reader allocations
             // (need to handle null case too)

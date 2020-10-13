@@ -123,8 +123,7 @@ namespace Mirror.Tests
             NetworkWriter ownerWriter = new NetworkWriter();
             // not really used in this Test
             NetworkWriter observersWriter = new NetworkWriter();
-            ulong mask = identity1.GetInitialComponentsMask();
-            identity1.OnSerializeAllSafely(true, mask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity1.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // set up a "client" object
             GameObject gameObject2 = new GameObject();
@@ -137,26 +136,6 @@ namespace Mirror.Tests
 
             // check that the syncvars got updated
             Assert.That(player2.guild.name, Is.EqualTo("Back street boys"), "Data should be synchronized");
-        }
-
-        [Test]
-        public void TestSyncModeObserversMask()
-        {
-            GameObject gameObject1 = new GameObject();
-            NetworkIdentity identity = gameObject1.AddComponent<NetworkIdentity>();
-            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
-            player1.syncInterval = 0;
-            MockPlayer player2 = gameObject1.AddComponent<MockPlayer>();
-            player2.syncInterval = 0;
-            MockPlayer player3 = gameObject1.AddComponent<MockPlayer>();
-            player3.syncInterval = 0;
-
-            // sync mode
-            player1.syncMode = SyncMode.Observers;
-            player2.syncMode = SyncMode.Owner;
-            player3.syncMode = SyncMode.Observers;
-
-            Assert.That(identity.GetSyncModeObserversMask(), Is.EqualTo(0b101));
         }
     }
 }

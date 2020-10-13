@@ -239,11 +239,11 @@ namespace Mirror
         void CreateNetworkBehavioursCache()
         {
             networkBehavioursCache = GetComponents<NetworkBehaviour>();
-            if (networkBehavioursCache.Length > 64)
+            if (networkBehavioursCache.Length > byte.MaxValue)
             {
-                logger.LogError($"Only 64 NetworkBehaviour components are allowed for NetworkIdentity: {name} because of the dirtyComponentMask", this);
+                logger.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte.", this);
                 // Log error once then resize array so that NetworkIdentity does not throw exceptions later
-                Array.Resize(ref networkBehavioursCache, 64);
+                Array.Resize(ref networkBehavioursCache, byte.MaxValue);
             }
         }
 
@@ -949,48 +949,41 @@ namespace Mirror
         /// <para>We pass dirtyComponentsMask into this function so that we can check if any Components are dirty before creating writers</para>
         /// </summary>
         /// <param name="initialState"></param>
-        /// <param name="dirtyComponentsMask"></param>
         /// <param name="ownerWriter"></param>
         /// <param name="ownerWritten"></param>
         /// <param name="observersWriter"></param>
         /// <param name="observersWritten"></param>
-        internal void OnSerializeAllSafely(bool initialState, ulong dirtyComponentsMask, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
+        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
         {
             // clear 'written' variables
             ownerWritten = observersWritten = 0;
 
-            // dirtyComponentsMask should be changed before tyhis function is called
-            Debug.Assert(dirtyComponentsMask != 0UL, "OnSerializeAllSafely Should not be given a zero dirtyComponentsMask", this);
+            // check if components are in byte.MaxRange just to be 100% sure
+            // that we avoid overflows
+            NetworkBehaviour[] components = NetworkBehaviours;
+            if (components.Length > byte.MaxValue)
+                throw new IndexOutOfRangeException($"{name} has more than {byte.MaxValue} components. This is not supported.");
 
-            // calculate syncMode mask at runtime. this allows users to change
-            // component.syncMode while the game is running, which can be a huge
-            // advantage over syncvar-based sync modes. e.g. if a player decides
-            // to share or not share his inventory, or to go invisible, etc.
-            //
-            // (this also lets the TestSynchronizingObjects test pass because
-            //  otherwise if we were to cache it in Awake, then we would call
-            //  GetComponents<NetworkBehaviour> before all the test behaviours
-            //  were added)
-            ulong syncModeObserversMask = GetSyncModeObserversMask();
-
-            // write regular dirty mask for owner,
-            // writer 'dirty mask & syncMode==Everyone' for everyone else
-            // (WritePacked64 so we don't write full 8 bytes if we don't have to)
-            ownerWriter.WritePackedUInt64(dirtyComponentsMask);
-            observersWriter.WritePackedUInt64(dirtyComponentsMask & syncModeObserversMask);
-
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            // serialize all components
+            for (int i = 0; i < components.Length; ++i)
             {
                 // is this component dirty?
                 // -> always serialize if initialState so all components are included in spawn packet
                 // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
+                NetworkBehaviour comp = components[i];
                 if (initialState || comp.IsDirty())
                 {
                     if (logger.LogEnabled()) logger.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
 
+                    // remember start position in case we need to copy it into
+                    // observers writer too
+                    int startPosition = ownerWriter.Position;
+
+                    // write index as byte [0..255]
+                    ownerWriter.WriteByte((byte)i);
+
                     // serialize into ownerWriter first
                     // (owner always gets everything!)
-                    int startPosition = ownerWriter.Position;
                     OnSerializeSafely(comp, ownerWriter, initialState);
                     ++ownerWritten;
 
@@ -1014,55 +1007,6 @@ namespace Mirror
             }
         }
 
-        internal ulong GetDirtyComponentsMask()
-        {
-            // loop through all components only once and then write dirty+payload into the writer afterwards
-            ulong dirtyComponentsMask = 0L;
-            NetworkBehaviour[] components = NetworkBehaviours;
-            for (int i = 0; i < components.Length; ++i)
-            {
-                NetworkBehaviour comp = components[i];
-                if (comp.IsDirty())
-                {
-                    dirtyComponentsMask |= 1UL << i;
-                }
-            }
-
-            return dirtyComponentsMask;
-        }
-        internal ulong GetInitialComponentsMask()
-        {
-            // loop through all components only once and then write dirty+payload into the writer afterwards
-            ulong dirtyComponentsMask = 0UL;
-            for (int i = 0; i < NetworkBehaviours.Length; ++i)
-            {
-                dirtyComponentsMask |= 1UL << i;
-            }
-
-            return dirtyComponentsMask;
-        }
-
-
-        /// <summary>
-        /// a mask that contains all the components with SyncMode.Observers
-        /// </summary>
-        /// <returns></returns>
-        internal ulong GetSyncModeObserversMask()
-        {
-            // loop through all components
-            ulong mask = 0UL;
-            NetworkBehaviour[] components = NetworkBehaviours;
-            for (int i = 0; i < NetworkBehaviours.Length; ++i)
-            {
-                NetworkBehaviour comp = components[i];
-                if (comp.syncMode == SyncMode.Observers)
-                {
-                    mask |= 1UL << i;
-                }
-            }
-
-            return mask;
-        }
 
         void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
@@ -1104,18 +1048,16 @@ namespace Mirror
 
         internal void OnDeserializeAllSafely(NetworkReader reader, bool initialState)
         {
-            // read component dirty mask
-            ulong dirtyComponentsMask = reader.ReadPackedUInt64();
-
+            // deserialize all components that were received
             NetworkBehaviour[] components = NetworkBehaviours;
-            // loop through all components and deserialize the dirty ones
-            for (int i = 0; i < components.Length; ++i)
+            while (reader.Position < reader.Length)
             {
-                // is the dirty bit at position 'i' set to 1?
-                ulong dirtyBit = 1UL << i;
-                if ((dirtyComponentsMask & dirtyBit) != 0L)
+                // read & check index [0..255]
+                byte index = reader.ReadByte();
+                if (index < components.Length)
                 {
-                    OnDeserializeSafely(components[i], reader, initialState);
+                    // deserialize this component
+                    OnDeserializeSafely(components[index], reader, initialState);
                 }
             }
         }
@@ -1481,13 +1423,7 @@ namespace Mirror
         {
             if (observers != null && observers.Count > 0)
             {
-                ulong dirtyComponentsMask = GetDirtyComponentsMask();
-
-                // AnyComponentsDirty
-                if (dirtyComponentsMask != 0UL)
-                {
-                    SendUpdateVarsMessage(dirtyComponentsMask);
-                }
+                SendUpdateVarsMessage();
             }
             else
             {
@@ -1497,13 +1433,13 @@ namespace Mirror
             }
         }
 
-        void SendUpdateVarsMessage(ulong dirtyComponentsMask)
+        void SendUpdateVarsMessage()
         {
             // one writer for owner, one for observers
             using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
             {
                 // serialize all the dirty components and send
-                OnSerializeAllSafely(false, dirtyComponentsMask, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                OnSerializeAllSafely(false, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
                 if (ownerWritten > 0 || observersWritten > 0)
                 {
                     UpdateVarsMessage varsMessage = new UpdateVarsMessage
