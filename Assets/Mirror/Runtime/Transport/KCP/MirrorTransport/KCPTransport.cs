@@ -78,6 +78,13 @@ namespace Mirror.KCP
                     //acceptedConnections.Writer.TryWrite(connection);
                     connections.Add(serverNewClientEP, connection);
                     Debug.LogWarning($"KCP: server added connection {serverNewClientEP}");
+                    // setup data event
+                    connection.OnData += (message) =>
+                    {
+                        // call mirror event
+                        OnServerDataReceived.Invoke(connectionId, message);
+                    };
+                    // setup disconnected event
                     connection.OnDisconnected += () =>
                     {
                         // remove from connections

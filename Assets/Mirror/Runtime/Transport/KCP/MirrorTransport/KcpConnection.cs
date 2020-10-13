@@ -13,6 +13,7 @@ namespace Mirror.KCP
         protected Kcp kcp;
         volatile bool open;
 
+        internal event Action<ArraySegment<byte>> OnData;
         internal event Action OnDisconnected;
 
         // If we don't receive anything these many milliseconds
@@ -115,7 +116,6 @@ namespace Mirror.KCP
                 Debug.LogWarning($"Kcp recv msg: {BitConverter.ToString(buffer, 0, msgSize)}");
 
                 // if we receive a disconnect message,  then close everything
-
                 // TODO don't Linq
                 ArraySegment<byte> dataSegment = new ArraySegment<byte>(buffer, 0, msgSize);
                 if (dataSegment.SequenceEqual(Goodby))
@@ -123,6 +123,11 @@ namespace Mirror.KCP
                     open = false;
                     OnDisconnected?.Invoke();
                     Debug.LogWarning("DISCO b");
+                }
+                // otherwise regular message
+                else
+                {
+                    OnData?.Invoke(dataSegment);
                 }
             }
         }
