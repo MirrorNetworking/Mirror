@@ -107,32 +107,25 @@ public class Player : NetworkBehaviour
 
 When running a game as a host with a local client, ClientRpc calls will be invoked on the local client even though it is in the same process as the server. So the behaviours of local and remote clients are the same for ClientRpc calls.
 
-## TargetRpc Calls
+You can also specify which client gets the call with the `target` parameter. 
 
-TargetRpc functions are called by user code on the server, and then invoked on the corresponding client object on the client of the specified NetworkConnection. The arguments to the RPC call are serialized across the network, so that the client function is invoked with the same values as the function on the server. These functions must begin with the prefix "Target" and cannot be static.
-
-**Context Matters:**
-
--   If the first parameter of your TargetRpc method is a `NetworkConnection` then that's the connection that will receive the message regardless of context.
--   If the first parameter is any other type, then the owner client of the object with the script containing your TargetRpc will receive the message.
-
-This example shows how a client can use a Server RPC Call to make a request from the server (`CmdMagic`) by including its own `connectionToClient` as one of the parameters of the TargetRpc invoked directly from that Server RPC Call:
+If you only want the client that owns the object to be called,  use `[ClientRpc(target = Client.Owner)]` or you can specify which client gets the message by using `[ClientRpc(target = Client.Connection)]` and passing the connection as a parameter.  For example:
 
 ``` cs
 public class Player : NetworkBehaviour
 {
     int health;
 
-    [ServerRpc]
+    [ClientRpc]
     void CmdMagic(GameObject target, int damage)
     {
         target.GetComponent<Player>().health -= damage;
 
         NetworkIdentity opponentIdentity = target.GetComponent<NetworkIdentity>();
-        TargetDoMagic(opponentIdentity .connectionToClient, damage);
+        TargetDoMagic(opponentIdentity.connectionToClient, damage);
     }
 
-    [TargetRpc]
+    [ClientRpc(target = Client.Connection)]
     public void TargetDoMagic(NetworkConnection target, int damage)
     {
         // This will appear on the opponent's client, not the attacking player's
@@ -146,7 +139,7 @@ public class Player : NetworkBehaviour
         TargetHealed(10);
     }
 
-    [TargetRpc]
+    [ClientRpc(target = client.Owner)]
     public void TargetHealed(int amount)
     {
         // No NetworkConnection parameter, so it goes to owner
