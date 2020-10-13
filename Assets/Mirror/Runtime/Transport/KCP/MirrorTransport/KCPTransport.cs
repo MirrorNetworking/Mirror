@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
 
 namespace Mirror.KCP
 {
-    public class KcpTransport : Transport
+    public class KCPTransport : Transport
     {
         // common
         [Header("Transport Configuration")]
@@ -15,6 +16,7 @@ namespace Mirror.KCP
         // server
         Socket serverSocket;
         EndPoint serverNewClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
+        Dictionary<EndPoint, KcpServerConnection> connections = new Dictionary<EndPoint, KcpServerConnection>();
 
         // client
         KcpClientConnection clientConnection;
