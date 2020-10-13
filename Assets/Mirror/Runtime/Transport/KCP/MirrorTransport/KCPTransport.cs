@@ -38,7 +38,10 @@ namespace Mirror.KCP
             // NoDelay=false doesn't scale past ~1000 monsters. let's force enable it.
             connection.kcp.SetNoDelay(true, 10, 2, true);
             // PUMP those numbers up.
-            connection.kcp.SetWindowSize(128, 128);
+            // this works for 4k:
+            //connection.kcp.SetWindowSize(128, 128);
+            // this works for 10k:
+            connection.kcp.SetWindowSize(512, 512);
         }
 
         // client
