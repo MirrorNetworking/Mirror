@@ -32,6 +32,15 @@ namespace Mirror.KCP
         public override bool Available() =>
             Application.platform != RuntimePlatform.WebGLPlayer;
 
+        // use same Kcp configuration on server and client
+        void ConfigureKcpConnection(KcpConnection connection)
+        {
+            // NoDelay=false doesn't scale past ~1000 monsters. let's force enable it.
+            connection.kcp.SetNoDelay(true, 10, 2, true);
+            // PUMP those numbers up.
+            connection.kcp.SetWindowSize(128, 128);
+        }
+
         // client
         // TODO connected only after OnConnected was called
         public override bool ClientConnected() => clientConnection != null;
@@ -64,8 +73,8 @@ namespace Mirror.KCP
             // connect
             clientConnection.Connect(address, Port);
 
-            // NoDelay=false doesn't scale past ~1000 monsters. let's force enable it.
-            clientConnection.kcp.SetNoDelay(true, 10, 2, true);
+            // configure connection for max scale
+            ConfigureKcpConnection(clientConnection);
         }
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
@@ -100,8 +109,8 @@ namespace Mirror.KCP
                     // add it to a queue
                     connection = new KcpServerConnection(serverSocket, serverNewClientEP);
 
-                    // NoDelay=false doesn't scale past ~1000 monsters. let's force enable it.
-                    connection.kcp.SetNoDelay(true, 10, 2, true);
+                    // configure connection for max scale
+                    ConfigureKcpConnection(connection);
 
                     //acceptedConnections.Writer.TryWrite(connection);
                     connections.Add(connectionId, connection);
