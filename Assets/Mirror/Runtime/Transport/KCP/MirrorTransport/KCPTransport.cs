@@ -75,7 +75,7 @@ namespace Mirror.KCP
                 int msgLength = serverSocket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref serverNewClientEP);
 
                 // is this a new connection?
-                Debug.LogWarning($"KCP: server recv {msgLength}");
+                Debug.LogWarning($"KCP: server raw recv {msgLength}");
                 /*if (!connectedClients.TryGetValue(endpoint, out KcpServerConnection connection))
                 {
                     // add it to a queue
@@ -95,7 +95,7 @@ namespace Mirror.KCP
             while (clientSocket != null && clientSocket.Poll(0, SelectMode.SelectRead))
             {
                 int msgLength = clientSocket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref clientNewClientEP);
-                Debug.LogWarning($"KCP: client recv {msgLength}");
+                Debug.LogWarning($"KCP: client raw recv {msgLength}");
 
                 // is this a new connection?
                 /*if (!connectedClients.TryGetValue(endpoint, out KcpServerConnection connection))
