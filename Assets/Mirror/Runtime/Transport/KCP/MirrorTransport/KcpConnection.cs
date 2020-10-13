@@ -13,6 +13,7 @@ namespace Mirror.KCP
         protected Kcp kcp;
         volatile bool open;
 
+        internal event Action OnConnected;
         internal event Action<ArraySegment<byte>> OnData;
         internal event Action OnDisconnected;
 
@@ -119,7 +120,10 @@ namespace Mirror.KCP
                 // TODO don't Linq
                 if (dataSegment.SequenceEqual(Hello))
                 {
+                    // we are only connected if we received the handshake.
+                    // not just after receiving any first data.
                     Debug.LogWarning("Kcp recv handshake");
+                    OnConnected?.Invoke();
                 }
                 // disconnect message?
                 // TODO don't Linq

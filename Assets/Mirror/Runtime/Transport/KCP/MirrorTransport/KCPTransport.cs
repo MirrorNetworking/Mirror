@@ -20,7 +20,6 @@ namespace Mirror.KCP
 
         // client
         KcpClientConnection clientConnection;
-        bool clientReceivedAnything;
 
         void Awake()
         {
@@ -32,8 +31,8 @@ namespace Mirror.KCP
             Application.platform != RuntimePlatform.WebGLPlayer;
 
         // client
-        public override bool ClientConnected() =>
-            clientConnection != null && clientReceivedAnything;
+        // TODO connected only after OnConnected was called
+        public override bool ClientConnected() => clientConnection != null;
         public override void ClientConnect(string address)
         {
             if (clientConnection != null)
@@ -42,22 +41,15 @@ namespace Mirror.KCP
                 return;
             }
 
-            // reset
-            clientReceivedAnything = false;
-
             clientConnection = new KcpClientConnection();
             // setup events
+            clientConnection.OnConnected += () =>
+            {
+                Debug.LogWarning($"KCP->Mirror OnClientConnected");
+                OnClientConnected.Invoke();
+            };
             clientConnection.OnData += (message) =>
             {
-                // first ever message?
-                if (!clientReceivedAnything)
-                {
-                    clientReceivedAnything = true;
-                    Debug.LogWarning($"KCP->Mirror OnClientConnected");
-                    OnClientConnected.Invoke();
-                }
-
-                // message!
                 Debug.LogWarning($"KCP->Mirror OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
                 OnClientDataReceived.Invoke(message);
             };
@@ -66,6 +58,8 @@ namespace Mirror.KCP
                 Debug.LogWarning($"KCP->Mirror OnClientDisconnected");
                 OnClientDisconnected.Invoke();
             };
+
+            // connect
             clientConnection.Connect(address, Port);
         }
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
@@ -103,6 +97,15 @@ namespace Mirror.KCP
                     //acceptedConnections.Writer.TryWrite(connection);
                     connections.Add(serverNewClientEP, connection);
                     Debug.LogWarning($"KCP: server added connection {serverNewClientEP}");
+
+                    // setup connected event
+                    connection.OnConnected += () =>
+                    {
+                        // call mirror event
+                        Debug.LogWarning($"KCP->Mirror OnServerConnected({connectionId})");
+                        OnServerConnected.Invoke(connectionId);
+                    };
+
                     // setup data event
                     connection.OnData += (message) =>
                     {
@@ -110,6 +113,7 @@ namespace Mirror.KCP
                         Debug.LogWarning($"KCP->Mirror OnServerDataReceived({connectionId}, {BitConverter.ToString(message.Array, message.Offset, message.Count)})");
                         OnServerDataReceived.Invoke(connectionId, message);
                     };
+
                     // setup disconnected event
                     connection.OnDisconnected += () =>
                     {
@@ -120,12 +124,9 @@ namespace Mirror.KCP
                         Debug.LogWarning($"KCP->Mirror OnServerDisconnected({connectionId})");
                         OnServerDisconnected.Invoke(connectionId);
                     };
+
                     // send handshake
                     connection.Handshake();
-
-                    // call mirror event
-                    Debug.LogWarning($"KCP->Mirror OnServerConnected({connectionId})");
-                    OnServerConnected.Invoke(connectionId);
                 }
 
                 connection.RawInput(buffer, msgLength);
