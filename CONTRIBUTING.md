@@ -112,6 +112,7 @@ Micro-optimizations try to improve the performance of an application by replacin
 * eliminate an allocation.
 * replace `Vector3.Distance(a,b) < K` with `Vector3.SqrMagnitude(b - a) < K * K`
 * convert a class to struct
+* manually inlining small functions
 
 Macro-optimizations try to improve the performance of an application by changing the algorithm.  Some examples include:
 * Serialize a message once O(1),  instead of for every single client O(n)
