@@ -67,6 +67,9 @@ namespace Mirror.KCP
                 int msgLength = serverSocket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref serverNewClientEP);
                 Debug.Log($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
 
+                // calculate connectionId from endpoint
+                int connectionId = serverNewClientEP.GetHashCode();
+
                 // is this a new connection?
                 if (!connections.TryGetValue(serverNewClientEP, out KcpServerConnection connection))
                 {
@@ -75,14 +78,19 @@ namespace Mirror.KCP
                     //acceptedConnections.Writer.TryWrite(connection);
                     connections.Add(serverNewClientEP, connection);
                     Debug.LogWarning($"KCP: server added connection {serverNewClientEP}");
-                    connection.Disconnected += () =>
+                    connection.OnDisconnected += () =>
                     {
+                        // remove from connections
                         connections.Remove(serverNewClientEP);
+
+                        // call mirror event
+                        OnServerDisconnected.Invoke(connectionId);
                     };
                     // send handshake
                     connection.Handshake();
 
-                    // TODO call mirror event!!!
+                    // call mirror event
+                    OnServerConnected.Invoke(connectionId);
                 }
 
                 connection.RawInput(buffer, msgLength);
