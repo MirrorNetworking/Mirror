@@ -117,22 +117,20 @@ namespace Mirror.KCP
             int msgSize = kcp.PeekSize();
             if (msgSize > 0)
             {
+                // TODO don't allocate
+                byte[] buffer = new byte[msgSize];
+                kcp.Receive(buffer, 0, msgSize);
 
-            }
+                // if we receive a disconnect message,  then close everything
 
-            // TODO don't allocate
-            byte[] buffer = new byte[msgSize];
-            kcp.Receive(buffer, 0, msgSize);
-
-            // if we receive a disconnect message,  then close everything
-
-            // TODO don't Linq
-            ArraySegment<byte> dataSegment = new ArraySegment<byte>(buffer, 0, msgSize);
-            if (dataSegment.SequenceEqual(Goodby))
-            {
-                open = false;
-                Disconnected?.Invoke();
-                Debug.LogWarning("DISCO b");
+                // TODO don't Linq
+                ArraySegment<byte> dataSegment = new ArraySegment<byte>(buffer, 0, msgSize);
+                if (dataSegment.SequenceEqual(Goodby))
+                {
+                    open = false;
+                    Disconnected?.Invoke();
+                    Debug.LogWarning("DISCO b");
+                }
             }
         }
 
