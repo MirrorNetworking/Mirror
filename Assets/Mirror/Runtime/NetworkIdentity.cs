@@ -241,7 +241,7 @@ namespace Mirror
             networkBehavioursCache = GetComponents<NetworkBehaviour>();
             if (networkBehavioursCache.Length > byte.MaxValue)
             {
-                logger.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte in order to save bandwidth.", this);
+                logger.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte.", this);
                 // Log error once then resize array so that NetworkIdentity does not throw exceptions later
                 Array.Resize(ref networkBehavioursCache, byte.MaxValue);
             }
