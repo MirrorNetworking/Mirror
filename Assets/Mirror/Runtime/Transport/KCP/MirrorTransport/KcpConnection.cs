@@ -112,6 +112,8 @@ namespace Mirror.KCP
                 byte[] buffer = new byte[msgSize];
                 kcp.Receive(buffer, 0, msgSize);
 
+                Debug.LogWarning($"Kcp recv msg: {BitConverter.ToString(buffer, 0, msgSize)}");
+
                 // if we receive a disconnect message,  then close everything
 
                 // TODO don't Linq
