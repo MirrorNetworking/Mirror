@@ -5,6 +5,8 @@ State synchronization refers to the synchronization of values such as integers, 
 State synchronization is done from the Server to remote clients. The local client does not have data serialized to it. It does not need it, because it shares the Scene with the server. However, SyncVar hooks are called on local clients.
 
 Data is not synchronized in the opposite direction - from remote clients to the server. To do this, you need to use Commands.
+
+Changed values are synced in the next LateUpdate as long as it has been atleast `syncInterval` since the last sync.
 -   [SyncVars](SyncVars.md)  
     SyncVars are variables of scripts that inherit from NetworkBehaviour, which are synchronized from the server to clients. 
 -   [SyncEvents (Obsolete)](SyncEvent.md)  
