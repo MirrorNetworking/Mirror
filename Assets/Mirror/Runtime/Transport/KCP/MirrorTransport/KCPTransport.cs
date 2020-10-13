@@ -45,7 +45,13 @@ namespace Mirror.KCP
         }
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
-            throw new NotImplementedException();
+            if (clientConnection != null)
+            {
+                clientConnection.Send(segment);
+                return true;
+            }
+            Debug.LogWarning("KCP: can't send because client not connected!");
+            return false;
         }
 
         public override void ClientDisconnect()
