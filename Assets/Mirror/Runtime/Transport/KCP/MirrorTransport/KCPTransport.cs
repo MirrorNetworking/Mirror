@@ -98,9 +98,9 @@ namespace Mirror.KCP
             if (clientConnection != null)
             {
                 clientConnection.Tick();
-                // TODO is this necessary?
-                clientConnection.ReceiveTick();
-                // TODO what is this
+                // recv on socket
+                clientConnection.RawReceive();
+                // recv on kcp
                 clientConnection.Receive();
             }
         }

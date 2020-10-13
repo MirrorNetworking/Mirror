@@ -30,13 +30,13 @@ namespace Mirror.KCP
             socket.Connect(remoteEndpoint);
             SetupKcp();
 
-            ReceiveTick();
+            RawReceive();
 
             Handshake();
         }
 
         // TODO call from transport update
-        public void ReceiveTick()
+        public void RawReceive()
         {
             try
             {
