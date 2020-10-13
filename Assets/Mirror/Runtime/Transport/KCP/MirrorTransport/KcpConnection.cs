@@ -78,15 +78,6 @@ namespace Mirror.KCP
             kcp.Input(buffer, 0, msgLength, true, false);
 
             lastReceived = kcp.CurrentMS;
-
-            // Receive will realize that PeekSize > 0 and read
-            /*if (kcp.PeekSize() > 0)
-            {
-                // we just got a full message
-                // Let the receivers know
-                //dataAvailable?.TrySetResult();
-                //Debug.LogWarning("KcpConnection: TODO received message!");
-            }*/
         }
 
         protected abstract void RawSend(byte[] data, int length);
@@ -136,16 +127,9 @@ namespace Mirror.KCP
 
         protected void Handshake()
         {
-            Debug.LogWarning("KcpConnection: sending Handshake to server!");
-
             // send a greeting and see if the server replies
+            Debug.LogWarning("KcpConnection: sending Handshake to server!");
             Send(Hello);
-            Debug.LogWarning("KcpConnection: TODO ReceiveAsync!");
-            /*MemoryStream stream = new MemoryStream();
-            if (!await ReceiveAsync(stream))
-            {
-                throw new OperationCanceledException("Unable to establish connection, no Handshake message received.");
-            }*/
         }
 
         /// <summary>
