@@ -53,14 +53,17 @@ namespace Mirror.KCP
                 if (!clientReceivedAnything)
                 {
                     clientReceivedAnything = true;
+                    Debug.LogWarning($"KCP->Mirror OnClientConnected");
                     OnClientConnected.Invoke();
                 }
 
                 // message!
+                Debug.LogWarning($"KCP->Mirror OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
                 OnClientDataReceived.Invoke(message);
             };
             clientConnection.OnDisconnected += () =>
             {
+                Debug.LogWarning($"KCP->Mirror OnClientDisconnected");
                 OnClientDisconnected.Invoke();
             };
             clientConnection.Connect(address, Port);
@@ -104,6 +107,7 @@ namespace Mirror.KCP
                     connection.OnData += (message) =>
                     {
                         // call mirror event
+                        Debug.LogWarning($"KCP->Mirror OnServerDataReceived({connectionId}, {BitConverter.ToString(message.Array, message.Offset, message.Count)})");
                         OnServerDataReceived.Invoke(connectionId, message);
                     };
                     // setup disconnected event
@@ -113,12 +117,14 @@ namespace Mirror.KCP
                         connections.Remove(serverNewClientEP);
 
                         // call mirror event
+                        Debug.LogWarning($"KCP->Mirror OnServerDisconnected({connectionId})");
                         OnServerDisconnected.Invoke(connectionId);
                     };
                     // send handshake
                     connection.Handshake();
 
                     // call mirror event
+                    Debug.LogWarning($"KCP->Mirror OnServerConnected({connectionId})");
                     OnServerConnected.Invoke(connectionId);
                 }
 
