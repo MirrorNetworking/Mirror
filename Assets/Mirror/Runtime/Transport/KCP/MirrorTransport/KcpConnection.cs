@@ -124,8 +124,9 @@ namespace Mirror.KCP
                 return;
             }
 
-            int msgSize = kcp.PeekSize();
-            if (msgSize > 0)
+            // read as long as we have things to read
+            int msgSize;
+            while ((msgSize = kcp.PeekSize()) > 0)
             {
                 kcp.Receive(buffer, 0, msgSize);
 
