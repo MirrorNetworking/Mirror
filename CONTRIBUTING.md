@@ -116,7 +116,7 @@ Micro-optimizations try to improve the performance of an application by replacin
 
 Macro-optimizations try to improve the performance of an application by changing the algorithm.  Some examples include:
 * Serialize a message once O(1),  instead of for every single client O(n)
-* Change interest management algorithm,  as of this writing every object checks every other object O(n^2),  it could be replaced by a sweep and prune algorithm O(n log n)
+* Change interest management algorithm,  as of this writing every object checks every other object O(n^2),  it could be replaced by spatial hashing, which is O(n)
 * When synchronizing movement,  instead of synchronizing every position change,  you could synchronize the velocity and let the other side predict the position.
 
 Macro-optimizations tend to change the **scalability** of mirror,  by changing an algorithm, you may now support 10x more customers on the same hardware, it is even possible for a macro optimization to make performance worse for small numbers. Macro optimization usually make a really big difference, but are much harder to make. 
