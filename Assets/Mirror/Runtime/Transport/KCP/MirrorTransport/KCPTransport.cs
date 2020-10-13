@@ -40,7 +40,19 @@ namespace Mirror.KCP
                 return;
             }
 
+            // reset
+            clientHandshakeReceived = false;
+
             clientConnection = new KcpClientConnection();
+            // setup events
+            clientConnection.OnData += (message) =>
+            {
+                OnClientDataReceived.Invoke(message);
+            };
+            clientConnection.OnDisconnected += () =>
+            {
+                OnClientDisconnected.Invoke();
+            };
             clientConnection.Connect(address, Port);
         }
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
