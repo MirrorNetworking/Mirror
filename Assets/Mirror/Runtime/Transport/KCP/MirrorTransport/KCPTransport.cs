@@ -62,26 +62,12 @@ namespace Mirror.KCP
 
         void UpdateServer()
         {
-            // update server
             while (serverSocket != null && serverSocket.Poll(0, SelectMode.SelectRead))
             {
                 int msgLength = serverSocket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref serverNewClientEP);
-
-                // is this a new connection?
                 Debug.LogWarning($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
-                /*if (!connectedClients.TryGetValue(endpoint, out KcpServerConnection connection))
-                {
-                    // add it to a queue
-                    connection = new KcpServerConnection(socket, endpoint);
-                    acceptedConnections.Writer.TryWrite(connection);
-                    connectedClients.Add(endpoint, connection);
-                    connection.Disconnected += () =>
-                    {
-                        connectedClients.Remove(endpoint);
-                    };
-                }
 
-                connection.RawInput(data, msgLength);*/
+                // TODO add connection or feed into it
             }
 
             // TODO tick all server connections
