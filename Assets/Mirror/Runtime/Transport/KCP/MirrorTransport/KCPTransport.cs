@@ -63,6 +63,9 @@ namespace Mirror.KCP
 
             // connect
             clientConnection.Connect(address, Port);
+
+            // NoDelay=false doesn't scale past ~1000 monsters. let's force enable it.
+            clientConnection.kcp.SetNoDelay(true, 10, 2, true);
         }
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
@@ -96,6 +99,10 @@ namespace Mirror.KCP
                 {
                     // add it to a queue
                     connection = new KcpServerConnection(serverSocket, serverNewClientEP);
+
+                    // NoDelay=false doesn't scale past ~1000 monsters. let's force enable it.
+                    connection.kcp.SetNoDelay(true, 10, 2, true);
+
                     //acceptedConnections.Writer.TryWrite(connection);
                     connections.Add(connectionId, connection);
                     Debug.LogWarning($"KCP: server added connection {serverNewClientEP}");
