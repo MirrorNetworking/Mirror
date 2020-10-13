@@ -90,6 +90,8 @@ namespace Mirror.KCP
                 connection.RawInput(data, msgLength);*/
             }
 
+            // TODO tick all server connections
+
             // update client
             while (clientSocket != null && clientSocket.Poll(0, SelectMode.SelectRead))
             {
@@ -111,6 +113,8 @@ namespace Mirror.KCP
 
                 connection.RawInput(data, msgLength);*/
             }
+
+            // TODO tick client connection
         }
 
         // server
