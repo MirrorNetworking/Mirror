@@ -20,6 +20,7 @@ namespace Mirror.KCP
 
         // client
         KcpClientConnection clientConnection;
+        bool clientReceivedAnything;
 
         void Awake()
         {
@@ -31,7 +32,8 @@ namespace Mirror.KCP
             Application.platform != RuntimePlatform.WebGLPlayer;
 
         // client
-        public override bool ClientConnected() => clientConnection != null; // TODO
+        public override bool ClientConnected() =>
+            clientConnection != null && clientReceivedAnything;
         public override void ClientConnect(string address)
         {
             if (clientConnection != null)
@@ -41,12 +43,20 @@ namespace Mirror.KCP
             }
 
             // reset
-            clientHandshakeReceived = false;
+            clientReceivedAnything = false;
 
             clientConnection = new KcpClientConnection();
             // setup events
             clientConnection.OnData += (message) =>
             {
+                // first ever message?
+                if (!clientReceivedAnything)
+                {
+                    clientReceivedAnything = true;
+                    OnClientConnected.Invoke();
+                }
+
+                // message!
                 OnClientDataReceived.Invoke(message);
             };
             clientConnection.OnDisconnected += () =>
