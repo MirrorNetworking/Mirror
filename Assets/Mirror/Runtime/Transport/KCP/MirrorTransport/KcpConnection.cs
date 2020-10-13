@@ -143,11 +143,12 @@ namespace Mirror.KCP
 
         protected void Handshake()
         {
-            Debug.LogWarning("KcpConnection: TODO Handshake!");
+            Debug.LogWarning("KcpConnection: sending Handshake to server!");
 
             // send a greeting and see if the server replies
-            /*await SendAsync(Hello);
-            var stream = new MemoryStream();
+            Send(Hello);
+            Debug.LogWarning("KcpConnection: TODO ReceiveAsync!");
+            /*MemoryStream stream = new MemoryStream();
             if (!await ReceiveAsync(stream))
             {
                 throw new OperationCanceledException("Unable to establish connection, no Handshake message received.");
