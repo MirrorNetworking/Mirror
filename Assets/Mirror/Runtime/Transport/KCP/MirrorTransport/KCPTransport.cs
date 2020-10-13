@@ -79,6 +79,10 @@ namespace Mirror.KCP
                     {
                         connections.Remove(serverNewClientEP);
                     };
+                    // send handshake
+                    connection.Handshake();
+
+                    // TODO call mirror event!!!
                 }
 
                 connection.RawInput(buffer, msgLength);

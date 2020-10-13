@@ -125,10 +125,10 @@ namespace Mirror.KCP
             }
         }
 
-        protected void Handshake()
+        public void Handshake()
         {
             // send a greeting and see if the server replies
-            Debug.LogWarning("KcpConnection: sending Handshake to server!");
+            Debug.LogWarning("KcpConnection: sending Handshake to other end!");
             Send(Hello);
         }
 
