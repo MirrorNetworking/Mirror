@@ -11,7 +11,7 @@ namespace Mirror.KCP
         // common
         [Header("Transport Configuration")]
         public ushort Port = 7777;
-        readonly byte[] buffer = new byte[1500];
+        readonly byte[] buffer = new byte[Kcp.MTU_DEF];
 
         // server
         Socket serverSocket;
