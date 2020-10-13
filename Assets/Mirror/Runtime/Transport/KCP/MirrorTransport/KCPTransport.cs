@@ -13,7 +13,6 @@ namespace Mirror.KCP
         readonly byte[] buffer = new byte[1500];
 
         // server
-        [SerializeField] string bindAddress = "localhost";
         Socket serverSocket;
         EndPoint serverNewClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
 
