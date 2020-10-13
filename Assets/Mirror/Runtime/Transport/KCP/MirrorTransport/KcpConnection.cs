@@ -21,6 +21,9 @@ namespace Mirror.KCP
         // then consider us disconnected
         public const int TIMEOUT = 3000;
 
+        // recv buffer to avoid allocations
+        byte[] buffer = new byte[Kcp.MTU_DEF];
+
         volatile uint lastReceived;
 
         internal static readonly ArraySegment<byte> Hello = new ArraySegment<byte>(new byte[] { 0 });
@@ -124,8 +127,6 @@ namespace Mirror.KCP
             int msgSize = kcp.PeekSize();
             if (msgSize > 0)
             {
-                // TODO don't allocate
-                byte[] buffer = new byte[msgSize];
                 kcp.Receive(buffer, 0, msgSize);
 
                 ArraySegment<byte> dataSegment = new ArraySegment<byte>(buffer, 0, msgSize);
