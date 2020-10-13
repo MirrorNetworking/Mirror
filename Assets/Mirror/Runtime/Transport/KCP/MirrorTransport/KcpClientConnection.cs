@@ -1,3 +1,4 @@
+using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
 
@@ -19,6 +20,7 @@ namespace Mirror.KCP
 
         internal void Connect(string host, ushort port)
         {
+            Debug.Log($"KcpClient: connect to {host}:{port}");
             IPAddress[] ipAddress = Dns.GetHostAddresses(host);
             if (ipAddress.Length < 1)
                 throw new SocketException((int)SocketError.HostNotFound);

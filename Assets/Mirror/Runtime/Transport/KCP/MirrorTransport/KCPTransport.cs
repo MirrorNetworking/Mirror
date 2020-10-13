@@ -20,10 +20,11 @@ namespace Mirror.KCP
         // client
         Socket clientSocket;
         EndPoint clientNewClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
+        KcpClientConnection clientConnection;
 
         void Awake()
         {
-            Debug.Log("KCPTransport initialized!");
+            Debug.Log("KcpTransport initialized!");
         }
 
         // all except WebGL
@@ -34,9 +35,14 @@ namespace Mirror.KCP
         public override bool ClientConnected() => clientSocket != null; // TODO
         public override void ClientConnect(string address)
         {
-            // TODO connect
-            //var client = new KcpClientConnection();
-            //await client.ConnectAsync(address, Port);
+            if (clientConnection != null)
+            {
+                Debug.LogWarning("KCP: client already connected!");
+                return;
+            }
+
+            clientConnection = new KcpClientConnection();
+            clientConnection.Connect(address, Port);
         }
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
