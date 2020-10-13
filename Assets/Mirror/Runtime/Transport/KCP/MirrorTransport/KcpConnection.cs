@@ -137,7 +137,7 @@ namespace Mirror.KCP
                 // otherwise regular message
                 else
                 {
-                    Debug.LogWarning($"Kcp recv msg: {BitConverter.ToString(buffer, 0, msgSize)}");
+                    //Debug.LogWarning($"Kcp recv msg: {BitConverter.ToString(buffer, 0, msgSize)}");
                     OnData?.Invoke(dataSegment);
                 }
             }

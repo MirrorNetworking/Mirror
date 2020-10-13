@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
@@ -46,7 +45,7 @@ namespace Mirror.KCP
                     while (socket.Poll(0, SelectMode.SelectRead))
                     {
                         int msgLength = socket.ReceiveFrom(buffer, ref remoteEndpoint);
-                        Debug.Log($"KCP: client raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
+                        //Debug.Log($"KCP: client raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
                         RawInput(buffer, msgLength);
                     }
 

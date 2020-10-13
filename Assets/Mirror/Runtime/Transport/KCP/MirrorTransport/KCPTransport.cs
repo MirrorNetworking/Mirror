@@ -51,7 +51,7 @@ namespace Mirror.KCP
             };
             clientConnection.OnData += (message) =>
             {
-                Debug.LogWarning($"KCP->Mirror OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
+                //Debug.LogWarning($"KCP->Mirror OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
                 OnClientDataReceived.Invoke(message);
             };
             clientConnection.OnDisconnected += () =>
@@ -85,7 +85,7 @@ namespace Mirror.KCP
             while (serverSocket != null && serverSocket.Poll(0, SelectMode.SelectRead))
             {
                 int msgLength = serverSocket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref serverNewClientEP);
-                Debug.Log($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
+                //Debug.Log($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
 
                 // calculate connectionId from endpoint
                 int connectionId = serverNewClientEP.GetHashCode();
@@ -111,7 +111,7 @@ namespace Mirror.KCP
                     connection.OnData += (message) =>
                     {
                         // call mirror event
-                        Debug.LogWarning($"KCP->Mirror OnServerDataReceived({connectionId}, {BitConverter.ToString(message.Array, message.Offset, message.Count)})");
+                        //Debug.LogWarning($"KCP->Mirror OnServerDataReceived({connectionId}, {BitConverter.ToString(message.Array, message.Offset, message.Count)})");
                         OnServerDataReceived.Invoke(connectionId, message);
                     };
 
