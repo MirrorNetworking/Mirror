@@ -65,7 +65,7 @@ namespace Mirror.KCP
             while (serverSocket != null && serverSocket.Poll(0, SelectMode.SelectRead))
             {
                 int msgLength = serverSocket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref serverNewClientEP);
-                Debug.LogWarning($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
+                Debug.Log($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
 
                 // is this a new connection?
                 if (!connections.TryGetValue(serverNewClientEP, out KcpServerConnection connection))
