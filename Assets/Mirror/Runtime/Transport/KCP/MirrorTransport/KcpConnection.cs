@@ -75,15 +75,13 @@ namespace Mirror.KCP
             }
         }
 
-        volatile bool isWaiting = false;
-
         internal void RawInput(byte[] buffer, int msgLength)
         {
             kcp.Input(buffer, 0, msgLength, true, false);
 
             lastReceived = kcp.CurrentMS;
 
-            if (isWaiting && kcp.PeekSize() > 0)
+            if (kcp.PeekSize() > 0)
             {
                 // we just got a full message
                 // Let the receivers know
