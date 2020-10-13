@@ -17,8 +17,6 @@ namespace Mirror.KCP
         EndPoint serverNewClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
 
         // client
-        Socket clientSocket;
-        EndPoint clientNewClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
         KcpClientConnection clientConnection;
 
         void Awake()
@@ -31,7 +29,7 @@ namespace Mirror.KCP
             Application.platform != RuntimePlatform.WebGLPlayer;
 
         // client
-        public override bool ClientConnected() => clientSocket != null; // TODO
+        public override bool ClientConnected() => clientConnection != null; // TODO
         public override void ClientConnect(string address)
         {
             if (clientConnection != null)
@@ -56,8 +54,8 @@ namespace Mirror.KCP
 
         public override void ClientDisconnect()
         {
-            clientSocket?.Close();
-            clientSocket = null;
+            clientConnection?.Disconnect();
+            clientConnection = null;
         }
 
 
@@ -99,28 +97,14 @@ namespace Mirror.KCP
             // TODO tick all server connections
 
             // update client
-            while (clientSocket != null && clientSocket.Poll(0, SelectMode.SelectRead))
+
+            // tick client connection
+            if (clientConnection != null)
             {
-                int msgLength = clientSocket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref clientNewClientEP);
-                Debug.LogWarning($"KCP: client raw recv {msgLength}");
-
-                // is this a new connection?
-                /*if (!connectedClients.TryGetValue(endpoint, out KcpServerConnection connection))
-                {
-                    // add it to a queue
-                    connection = new KcpServerConnection(socket, endpoint);
-                    acceptedConnections.Writer.TryWrite(connection);
-                    connectedClients.Add(endpoint, connection);
-                    connection.Disconnected += () =>
-                    {
-                        connectedClients.Remove(endpoint);
-                    };
-                }
-
-                connection.RawInput(data, msgLength);*/
+                clientConnection.Tick();
+                // TODO is this necessary?
+                clientConnection.ReceiveTick();
             }
-
-            // TODO tick client connection
         }
 
         // server
