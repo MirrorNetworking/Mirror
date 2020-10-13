@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
@@ -78,13 +79,14 @@ namespace Mirror.KCP
 
             lastReceived = kcp.CurrentMS;
 
-            if (kcp.PeekSize() > 0)
+            // Receive will realize that PeekSize > 0 and read
+            /*if (kcp.PeekSize() > 0)
             {
                 // we just got a full message
                 // Let the receivers know
                 //dataAvailable?.TrySetResult();
-                Debug.LogWarning("KcpConnection: TODO received message!");
-            }
+                //Debug.LogWarning("KcpConnection: TODO received message!");
+            }*/
         }
 
         protected abstract void RawSend(byte[] data, int length);
@@ -103,43 +105,36 @@ namespace Mirror.KCP
         /// </summary>
         /// <param name="buffer">buffer where the message will be written</param>
         /// <returns>true if we got a message, false if we got disconnected</returns>
-        /*public bool Receive(MemoryStream buffer)
+        public void Receive()
         {
-            int msgSize = kcp.PeekSize();
-
-            while (msgSize < 0 && open)
-            {
-                isWaiting = true;
-                dataAvailable = new UniTaskCompletionSource();
-                await dataAvailable.Task;
-                isWaiting = false;
-                msgSize = kcp.PeekSize();
-            }
-
             if (!open)
             {
                 Disconnected?.Invoke();
-                return false;
+                Debug.LogWarning("DISCO a");
+                return;
             }
 
-            // we have some data,  return it
-            buffer.SetLength(msgSize);
-            buffer.Position = 0;
-            buffer.TryGetBuffer(out ArraySegment<byte> data);
-            kcp.Receive(data.Array, data.Offset, data.Count);
+            int msgSize = kcp.PeekSize();
+            if (msgSize > 0)
+            {
+
+            }
+
+            // TODO don't allocate
+            byte[] buffer = new byte[msgSize];
+            kcp.Receive(buffer, 0, msgSize);
 
             // if we receive a disconnect message,  then close everything
 
-            var dataSegment = new ArraySegment<byte>(buffer.GetBuffer(), 0, msgSize);
+            // TODO don't Linq
+            ArraySegment<byte> dataSegment = new ArraySegment<byte>(buffer, 0, msgSize);
             if (dataSegment.SequenceEqual(Goodby))
             {
                 open = false;
                 Disconnected?.Invoke();
-                return false;
+                Debug.LogWarning("DISCO b");
             }
-
-            return true;
-        }*/
+        }
 
         protected void Handshake()
         {

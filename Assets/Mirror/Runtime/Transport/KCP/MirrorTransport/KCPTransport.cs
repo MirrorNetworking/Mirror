@@ -84,7 +84,12 @@ namespace Mirror.KCP
                 connection.RawInput(buffer, msgLength);
             }
 
-            // TODO tick all server connections
+            // tick all server connections
+            foreach (KeyValuePair<EndPoint, KcpServerConnection> kvp in connections)
+            {
+                kvp.Value.Tick();
+                kvp.Value.Receive();
+            }
         }
 
         void UpdateClient()
@@ -95,6 +100,8 @@ namespace Mirror.KCP
                 clientConnection.Tick();
                 // TODO is this necessary?
                 clientConnection.ReceiveTick();
+                // TODO what is this
+                clientConnection.Receive();
             }
         }
 
