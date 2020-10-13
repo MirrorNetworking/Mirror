@@ -58,20 +58,17 @@ namespace Mirror.KCP
             catch (SocketException)
             {
                 // this is ok, the connection was closed
+                open = false;
             }
             catch (ObjectDisposedException)
             {
                 // fine,  socket was closed,  no more ticking needed
+                open = false;
             }
             catch (Exception ex)
             {
-                Debug.LogException(ex);
-            }
-            finally
-            {
                 open = false;
-                //dataAvailable?.TrySetResult();
-                Dispose();
+                Debug.LogException(ex);
             }
         }
 
