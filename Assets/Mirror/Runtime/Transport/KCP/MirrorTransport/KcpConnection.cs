@@ -113,20 +113,27 @@ namespace Mirror.KCP
                 byte[] buffer = new byte[msgSize];
                 kcp.Receive(buffer, 0, msgSize);
 
-                Debug.LogWarning($"Kcp recv msg: {BitConverter.ToString(buffer, 0, msgSize)}");
-
-                // if we receive a disconnect message,  then close everything
-                // TODO don't Linq
                 ArraySegment<byte> dataSegment = new ArraySegment<byte>(buffer, 0, msgSize);
-                if (dataSegment.SequenceEqual(Goodby))
+
+                // handshake message?
+                // TODO don't Linq
+                if (dataSegment.SequenceEqual(Hello))
                 {
+                    Debug.LogWarning("Kcp recv handshake");
+                }
+                // disconnect message?
+                // TODO don't Linq
+                else if (dataSegment.SequenceEqual(Goodby))
+                {
+                    // if we receive a disconnect message,  then close everything
+                    Debug.LogWarning("Kcp recv disconnected");
                     open = false;
                     OnDisconnected?.Invoke();
-                    Debug.LogWarning("DISCO b");
                 }
                 // otherwise regular message
                 else
                 {
+                    Debug.LogWarning($"Kcp recv msg: {BitConverter.ToString(buffer, 0, msgSize)}");
                     OnData?.Invoke(dataSegment);
                 }
             }
