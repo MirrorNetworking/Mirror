@@ -16,7 +16,8 @@ namespace Mirror.KCP
         // server
         Socket serverSocket;
         EndPoint serverNewClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
-        Dictionary<EndPoint, KcpServerConnection> connections = new Dictionary<EndPoint, KcpServerConnection>();
+        // connections <connectionId, connection> where connectionId is EndPoint.GetHashCode
+        Dictionary<int, KcpServerConnection> connections = new Dictionary<int, KcpServerConnection>();
 
         // client
         KcpClientConnection clientConnection;
@@ -90,12 +91,12 @@ namespace Mirror.KCP
                 int connectionId = serverNewClientEP.GetHashCode();
 
                 // is this a new connection?
-                if (!connections.TryGetValue(serverNewClientEP, out KcpServerConnection connection))
+                if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
                 {
                     // add it to a queue
                     connection = new KcpServerConnection(serverSocket, serverNewClientEP);
                     //acceptedConnections.Writer.TryWrite(connection);
-                    connections.Add(serverNewClientEP, connection);
+                    connections.Add(connectionId, connection);
                     Debug.LogWarning($"KCP: server added connection {serverNewClientEP}");
 
                     // setup connected event
@@ -118,7 +119,7 @@ namespace Mirror.KCP
                     connection.OnDisconnected += () =>
                     {
                         // remove from connections
-                        connections.Remove(serverNewClientEP);
+                        connections.Remove(connectionId);
 
                         // call mirror event
                         Debug.LogWarning($"KCP->Mirror OnServerDisconnected({connectionId})");
@@ -133,10 +134,10 @@ namespace Mirror.KCP
             }
 
             // tick all server connections
-            foreach (KeyValuePair<EndPoint, KcpServerConnection> kvp in connections)
+            foreach (KcpServerConnection connection in connections.Values)
             {
-                kvp.Value.Tick();
-                kvp.Value.Receive();
+                connection.Tick();
+                connection.Receive();
             }
         }
 
