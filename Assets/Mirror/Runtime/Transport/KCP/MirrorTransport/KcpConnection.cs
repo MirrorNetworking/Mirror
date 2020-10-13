@@ -1,7 +1,7 @@
 using System;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace Mirror.KCP
@@ -93,6 +93,20 @@ namespace Mirror.KCP
         {
         }
 
+        // ArraySegment content comparison without Linq
+        public static unsafe bool SegmentsEqual(ArraySegment<byte> a, ArraySegment<byte> b)
+        {
+            if (a.Count == b.Count)
+            {
+                fixed (byte* aPtr = &a.Array[a.Offset],
+                             bPtr = &b.Array[b.Offset])
+                {
+                    return UnsafeUtility.MemCmp(aPtr, bPtr, a.Count) == 0;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         ///     reads a message from connection
         /// </summary>
@@ -117,8 +131,7 @@ namespace Mirror.KCP
                 ArraySegment<byte> dataSegment = new ArraySegment<byte>(buffer, 0, msgSize);
 
                 // handshake message?
-                // TODO don't Linq
-                if (dataSegment.SequenceEqual(Hello))
+                if (SegmentsEqual(dataSegment, Hello))
                 {
                     // we are only connected if we received the handshake.
                     // not just after receiving any first data.
@@ -126,8 +139,7 @@ namespace Mirror.KCP
                     OnConnected?.Invoke();
                 }
                 // disconnect message?
-                // TODO don't Linq
-                else if (dataSegment.SequenceEqual(Goodby))
+                else if (SegmentsEqual(dataSegment, Goodby))
                 {
                     // if we receive a disconnect message,  then close everything
                     Debug.LogWarning("Kcp recv disconnected");
