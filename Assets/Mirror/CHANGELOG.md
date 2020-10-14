@@ -1,3 +1,10 @@
+# [49.1.0](https://github.com/MirrorNG/MirrorNG/compare/v49.0.0...v49.1.0) (2020-10-14)
+
+
+### Features
+
+* new KCP transport ([#393](https://github.com/MirrorNG/MirrorNG/issues/393)) ([5de53e1](https://github.com/MirrorNG/MirrorNG/commit/5de53e1fd4d3395f5c489ba248fdf4c2e8a7cafc))
+
 # [49.0.0](https://github.com/MirrorNG/MirrorNG/compare/v48.0.1...v49.0.0) (2020-10-14)
 
 
