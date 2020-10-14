@@ -1,3 +1,10 @@
+## [49.1.1](https://github.com/MirrorNG/MirrorNG/compare/v49.1.0...v49.1.1) (2020-10-14)
+
+
+### Bug Fixes
+
+* bug in kcp that caused invalid smoothing of rtt values ([eacfefe](https://github.com/MirrorNG/MirrorNG/commit/eacfefe19769f2ed46bf7e0c0492a542dff43f42))
+
 # [49.1.0](https://github.com/MirrorNG/MirrorNG/compare/v49.0.0...v49.1.0) (2020-10-14)
 
 
