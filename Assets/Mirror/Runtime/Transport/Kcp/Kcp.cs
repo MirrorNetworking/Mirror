@@ -32,10 +32,10 @@ namespace Mirror.KCP
         uint snd_nxt;
         uint rcv_nxt;
         uint ssthresh = 2;
-        uint rx_rttval;
-        uint rx_SmoothedRoundTripTime; //Used by UpdateAck
-        uint rx_rto = 200; //Default RTO
-        uint rx_MinimumRto = 100; // normal min rto
+        int rx_rttval;
+        int rx_SmoothedRoundTripTime; //Used by UpdateAck
+        int rx_rto = 200; //Default RTO
+        int rx_MinimumRto = 100; // normal min rto
         uint cwnd;
         uint probe;
         uint interval = 100;
@@ -225,28 +225,21 @@ namespace Mirror.KCP
             // https://tools.ietf.org/html/rfc6298
             if (rx_SmoothedRoundTripTime == 0)
             {
-                rx_SmoothedRoundTripTime = (uint)roundTripTime;
-                rx_rttval = (uint)roundTripTime >> 1;
+                rx_SmoothedRoundTripTime = roundTripTime;
+                rx_rttval = roundTripTime >> 1;
             }
             else
             {
-                uint delta = (uint)Math.Abs(roundTripTime - rx_SmoothedRoundTripTime);
-                rx_SmoothedRoundTripTime += delta >> 3;
+                int delta = Math.Abs(roundTripTime - rx_SmoothedRoundTripTime);
 
-                if (roundTripTime < rx_SmoothedRoundTripTime - rx_rttval)
-                {
-                    // if the new RTT sample is below the bottom of the range of
-                    // what an RTT measurement is expected to be.
-                    // give an 8x reduced weight versus its normal weighting
-                    rx_rttval += (delta - rx_rttval) >> 5;
-                }
-                else
-                {
-                    rx_rttval += (delta - rx_rttval) >> 2;
-                }
+                rx_rttval = (3 * rx_rttval + delta) >> 2;
+                rx_SmoothedRoundTripTime = (7 * rx_SmoothedRoundTripTime + roundTripTime) >> 3;
+
+                if (rx_SmoothedRoundTripTime < 1)
+                    rx_SmoothedRoundTripTime = 1;
             }
 
-            uint rto = rx_SmoothedRoundTripTime + Math.Max(interval, rx_rttval << 2);
+            int rto = rx_SmoothedRoundTripTime + Math.Max((int)interval, rx_rttval << 2);
             rx_rto = Utils.Clamp(rto, rx_MinimumRto, RTO_MAX);
         }
 
@@ -695,14 +688,14 @@ namespace Mirror.KCP
                 if (segment.xmit == 0)  // initial transmit
                 {
                     needSend = true;
-                    segment.rto = rx_rto;
+                    segment.rto = (uint)rx_rto;
                     segment.resendts = current + segment.rto;
                 }
                 else if (segment.fastack >= resent || segment.fastack > 0 && newSegsCount == 0 ) // fast retransmit
                 {
                     needSend = true;
                     segment.fastack = 0;
-                    segment.rto = rx_rto;
+                    segment.rto = (uint)rx_rto;
                     segment.resendts = current + segment.rto;
                     change++;
                 }
@@ -710,9 +703,9 @@ namespace Mirror.KCP
                 {
                     needSend = true;
                     if (!noDelay)
-                        segment.rto += rx_rto;
+                        segment.rto += (uint)rx_rto;
                     else
-                        segment.rto += rx_rto / 2;
+                        segment.rto += (uint)rx_rto >> 1;
                     segment.fastack = 0;
                     segment.resendts = current + segment.rto;
                     lostSegs++;
@@ -896,7 +889,7 @@ namespace Mirror.KCP
             if (nodelay)
             {
                 noDelay = nodelay;
-                rx_MinimumRto = minimumRto;
+                rx_MinimumRto = (int)minimumRto;
             }
 
             if (interval >= 0)

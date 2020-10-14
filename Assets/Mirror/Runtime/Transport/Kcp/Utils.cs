@@ -58,7 +58,7 @@ namespace Mirror.KCP
             return 4;
         }
 
-        public static uint Clamp(uint value, uint lower, uint upper)
+        public static int Clamp(int value, int lower, int upper)
         {
             return Math.Min(Math.Max(lower, value), upper);
         }
