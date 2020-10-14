@@ -88,11 +88,20 @@ If you want to contribute to  MirrorNG, follow these steps:
 ## Transports
 MirrorNG currently supports the following low level networking transports:
 
-* (built in) Tcp
-* https://github.com/MirrorNG/MirrorNG_Websocket (Websockets)
-* https://github.com/dragonslaya84/FizzySteamyMirror (Steam)
-* https://github.com/uweenukr/LiteNetLibTransportNG (LiteNetLib)
-* https://github.com/dragonslaya84/IgnoranceNG (ENet)
+* Tcp (built in)
+  Minimalistic and trouble free.  Not very fast though.  It does not support unreliable messaging or any other fancy feature.
+  Suitable for development.
+* Kcp (built in,  experimental)
+  A UDP based transport based on the KCP protocol.  It is very fast, low oeverhead and low latency.  
+  It may become the default transport in the near future.  Try it out and let us know.
+* [Websockets](https://github.com/MirrorNG/MirrorNG_Websocket)
+  A transport suitable for webgl builds. Your client will use the browser's websocket.
+* [Steam](https://github.com/dragonslaya84/FizzySteamyMirror)
+  A UDP based transport based on Steam's library.  Suitable for PC games.
+* [LiteNetLib](https://github.com/uweenukr/LiteNetLibTransportNG)
+  Another UDP based transport based on the well known [LiteNetLib](https://github.com/RevenantX/LiteNetLib) library.
+* https://github.com/dragonslaya84/IgnoranceNG
+  A UDP based transport based on native code. Based on the well known [ENet](http://enet.bespin.org/)
 
 ## Contributing
 
