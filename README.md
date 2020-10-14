@@ -86,7 +86,7 @@ If you want to contribute to  MirrorNG, follow these steps:
 3) Open in unity 2019.4.x or later
 
 ## Transports
-Here is a list of some transports supported by NG as how they compare to each other
+Here is a list of some transports supported by NG and how they compare to each other
 
 |            | Tcp                | Kcp                | [WebsocketNG](https://github.com/MirrorNG/WebsocketNG) | [FizzySteamyMirror](https://github.com/dragonslaya84/FizzySteamyMirror) | [LiteNetLibNG](https://github.com/uweenukr/LiteNetLibNG) | [IgnoranceNG](https://github.com/dragonslaya84/IgnoranceNG) |
 | ---------- | ------------------ | ------------------ | ------------------------------------------------------ | ----------------------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- |
