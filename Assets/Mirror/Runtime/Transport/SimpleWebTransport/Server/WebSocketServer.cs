@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using Debug = UnityEngine.Debug;
 
 namespace Mirror.SimpleWeb
 {
@@ -13,16 +10,14 @@ namespace Mirror.SimpleWeb
     {
         public readonly ConcurrentQueue<Message> receiveQueue = new ConcurrentQueue<Message>();
 
-        readonly bool noDelay;
-        readonly int sendTimeout;
-        readonly int receiveTimeout;
+        readonly TcpConfig tcpConfig;
         readonly int maxMessageSize;
-        readonly SslConfig sslConfig;
 
         TcpListener listener;
         Thread acceptThread;
         readonly ServerHandshake handShake = new ServerHandshake();
         readonly ServerSslHelper sslHelper;
+        readonly BufferPool bufferPool;
         readonly ConcurrentDictionary<int, Connection> connections = new ConcurrentDictionary<int, Connection>();
 
         int _previousId = 0;
@@ -33,24 +28,20 @@ namespace Mirror.SimpleWeb
             return _previousId;
         }
 
-        public WebSocketServer(bool noDelay, int sendTimeout, int receiveTimeout, int maxMessageSize, SslConfig sslConfig)
+        public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, SslConfig sslConfig, BufferPool bufferPool)
         {
-            this.noDelay = noDelay;
-            this.sendTimeout = sendTimeout;
-            this.receiveTimeout = receiveTimeout;
+            this.tcpConfig = tcpConfig;
             this.maxMessageSize = maxMessageSize;
-            this.sslConfig = sslConfig;
-            sslHelper = new ServerSslHelper(this.sslConfig);
+            sslHelper = new ServerSslHelper(sslConfig);
+            this.bufferPool = bufferPool;
         }
 
         public void Listen(int port)
         {
             listener = TcpListener.Create(port);
-            listener.Server.NoDelay = noDelay;
-            listener.Server.SendTimeout = sendTimeout;
             listener.Start();
 
-            Debug.Log($"Server has started on port {port}.\nWaiting for a connection...");
+            Log.Info($"Server has started on port {port}");
 
             acceptThread = new Thread(acceptLoop);
             acceptThread.IsBackground = true;
@@ -64,13 +55,14 @@ namespace Mirror.SimpleWeb
             listener?.Stop();
             acceptThread = null;
 
-            Connection[] connections = this.connections.Values.ToArray();
-            foreach (Connection conn in connections)
+            // make copy so that foreach doesn't break if values are removed
+            Connection[] connectionsCopy = connections.Values.ToArray();
+            foreach (Connection conn in connectionsCopy)
             {
                 conn.Close();
             }
 
-            this.connections.Clear();
+            connections.Clear();
         }
 
         void acceptLoop()
@@ -81,12 +73,10 @@ namespace Mirror.SimpleWeb
                 {
                     while (true)
                     {
-                        // TODO check this is blocking?
                         TcpClient client = listener.AcceptTcpClient();
-                        client.SendTimeout = sendTimeout;
-                        client.ReceiveTimeout = receiveTimeout;
-                        client.NoDelay = noDelay;
+                        tcpConfig.ApplyTo(client);
 
+                        // TODO keep track of connections before they are in connections dictionary
                         Connection conn = new Connection(client);
                         Log.Info($"A client connected {conn}");
 
@@ -102,13 +92,13 @@ namespace Mirror.SimpleWeb
                 catch (SocketException)
                 {
                     // check for Interrupted/Abort
-                    CheckForInterupt();
+                    Utils.CheckForInterupt();
                     throw;
                 }
             }
-            catch (ThreadInterruptedException) { Log.Info("acceptLoop ThreadInterrupted"); return; }
-            catch (ThreadAbortException) { Log.Info("acceptLoop ThreadAbort"); return; }
-            catch (Exception e) { Debug.LogException(e); }
+            catch (ThreadInterruptedException) { Log.Info("acceptLoop ThreadInterrupted"); }
+            catch (ThreadAbortException) { Log.Info("acceptLoop ThreadAbort"); }
+            catch (Exception e) { Log.Exception(e); }
         }
 
         void HandshakeAndReceiveLoop(Connection conn)
@@ -137,104 +127,29 @@ namespace Mirror.SimpleWeb
 
             Thread sendThread = new Thread(() =>
             {
-                int bufferSize = Constants.HeaderSize + maxMessageSize;
-                SendLoop.Loop(conn, bufferSize, false, CloseConnection);
+                SendLoop.Config sendConfig = new SendLoop.Config(
+                    conn,
+                    bufferSize: Constants.HeaderSize + maxMessageSize,
+                    setMask: false,
+                    CloseConnection);
+
+                SendLoop.Loop(sendConfig);
             });
 
             conn.sendThread = sendThread;
             sendThread.IsBackground = true;
+            sendThread.Name = $"SendLoop {conn.connId}";
             sendThread.Start();
 
-            ReceiveLoop(conn);
-        }
+            ReceiveLoop.Config receiveConfig = new ReceiveLoop.Config(
+                conn,
+                maxMessageSize,
+                expectMask: true,
+                receiveQueue,
+                CloseConnection,
+                bufferPool);
 
-        void ReceiveLoop(Connection conn)
-        {
-            try
-            {
-                TcpClient client = conn.client;
-                Stream stream = conn.stream;
-                //byte[] buffer = conn.receiveBuffer;
-                byte[] headerBuffer = new byte[Constants.HeaderSize];
-
-                while (client.Connected)
-                {
-                    bool success = ReadOneMessage(conn, stream, headerBuffer);
-                    if (!success)
-                        break;
-                }
-            }
-            catch (ObjectDisposedException) { Log.Info($"ReceiveLoop {conn} Stream closed"); return; }
-            catch (ThreadInterruptedException) { Log.Info($"ReceiveLoop {conn} ThreadInterrupted"); return; }
-            catch (ThreadAbortException) { Log.Info($"ReceiveLoop {conn} ThreadAbort"); return; }
-            catch (InvalidDataException e)
-            {
-                Log.Error($"Invalid data from {conn}: {e.Message}");
-                receiveQueue.Enqueue(new Message(conn.connId, e));
-            }
-            catch (Exception e) { Debug.LogException(e); }
-            finally
-            {
-                CloseConnection(conn);
-            }
-        }
-
-        private bool ReadOneMessage(Connection conn, Stream stream, byte[] headerBuffer)
-        {
-            // header is at most 4 bytes + mask
-            // 1 for bit fields
-            // 1+ for length (length can be be 1, 3, or 9 and we refuse 9)
-            // 4 for mask (we can read this later
-            ReadHelper.ReadResult readResult = ReadHelper.SafeRead(stream, headerBuffer, 0, Constants.HeaderSize, checkLength: true);
-            if ((readResult & ReadHelper.ReadResult.Fail) > 0)
-            {
-                Log.Info($"ReceiveLoop {conn.connId} read failed: {readResult}");
-                CheckForInterupt();
-                // will go to finally block below
-                return false;
-            }
-
-            MessageProcessor.Result header = MessageProcessor.ProcessHeader(headerBuffer, maxMessageSize, true);
-
-            // todo remove allocation
-            // mask + msg
-            byte[] buffer = new byte[Constants.HeaderSize + header.readLength];
-            for (int i = 0; i < Constants.HeaderSize; i++)
-            {
-                // copy header as it might contain mask
-                buffer[i] = headerBuffer[i];
-            }
-
-            ReadHelper.SafeRead(stream, buffer, Constants.HeaderSize, header.readLength);
-
-            MessageProcessor.ToggleMask(buffer, header.offset + Constants.MaskSize, header.msgLength, buffer, header.offset);
-
-            // dump after mask off
-            Log.DumpBuffer($"Message From Client {conn}", buffer, 0, buffer.Length);
-
-            HandleMessage(header.opcode, conn, buffer, header.msgOffset, header.msgLength);
-            return true;
-        }
-
-        static void CheckForInterupt()
-        {
-            // sleep in order to check for ThreadInterruptedException
-            Thread.Sleep(1);
-        }
-
-        void HandleMessage(int opcode, Connection conn, byte[] buffer, int offset, int length)
-        {
-            if (opcode == 2)
-            {
-                ArraySegment<byte> data = new ArraySegment<byte>(buffer, offset, length);
-
-                receiveQueue.Enqueue(new Message(conn.connId, data));
-            }
-            else if (opcode == 8)
-            {
-                Log.Info($"Close: {buffer[offset + 0] << 8 | buffer[offset + 1]} message:{Encoding.UTF8.GetString(buffer, offset + 2, length - 2)}");
-                CloseConnection(conn);
-            }
+            ReceiveLoop.Loop(receiveConfig);
         }
 
         void CloseConnection(Connection conn)
@@ -248,16 +163,16 @@ namespace Mirror.SimpleWeb
             }
         }
 
-        public void Send(int id, ArraySegment<byte> segment)
+        public void Send(int id, ArrayBuffer buffer)
         {
             if (connections.TryGetValue(id, out Connection conn))
             {
-                conn.sendQueue.Enqueue(segment);
+                conn.sendQueue.Enqueue(buffer);
                 conn.sendPending.Set();
             }
             else
             {
-                Debug.LogError($"Cant send message to {id} because connection was not found in dictionary");
+                Log.Warn($"Cant send message to {id} because connection was not found in dictionary. Maybe it disconnected.");
             }
         }
 
@@ -282,7 +197,7 @@ namespace Mirror.SimpleWeb
             }
             else
             {
-                Debug.LogError($"Cant close connection to {id} because connection was not found in dictionary");
+                Log.Error($"Cant close connection to {id} because connection was not found in dictionary");
                 return null;
             }
         }

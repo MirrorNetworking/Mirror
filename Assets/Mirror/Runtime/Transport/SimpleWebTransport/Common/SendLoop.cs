@@ -3,14 +3,45 @@ using System.IO;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading;
-using UnityEngine;
 
 namespace Mirror.SimpleWeb
 {
-    internal class SendLoop
+    internal static class SendLoop
     {
-        public static void Loop(Connection conn, int bufferSize, bool setMask, Action<Connection> closeCallback)
+        public struct Config
         {
+            public readonly Connection conn;
+            public readonly int bufferSize;
+            public readonly bool setMask;
+            public readonly Action<Connection> closeCallback;
+
+            public Config(Connection conn, int bufferSize, bool setMask, Action<Connection> closeCallback)
+            {
+                this.conn = conn ?? throw new ArgumentNullException(nameof(conn));
+                this.bufferSize = bufferSize;
+                this.setMask = setMask;
+                this.closeCallback = closeCallback ?? throw new ArgumentNullException(nameof(closeCallback));
+            }
+
+            public void Deconstruct(out Connection conn, out int bufferSize, out bool setMask, out Action<Connection> closeCallback)
+            {
+                conn = this.conn;
+                bufferSize = this.bufferSize;
+                setMask = this.setMask;
+                closeCallback = this.closeCallback;
+            }
+
+            internal void Deconstruct(out Connection conn, out bool setMask)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
+        public static void Loop(Config config)
+        {
+            (Connection conn, int bufferSize, bool setMask, Action<Connection> closeCallback) = config;
+
             // create write buffer for this thread
             byte[] writeBuffer = new byte[bufferSize];
             MaskHelper maskHelper = setMask ? new MaskHelper() : null;
@@ -26,31 +57,36 @@ namespace Mirror.SimpleWeb
                 while (client.Connected)
                 {
                     // wait for message
-                    conn.sendPending.WaitOne();
+                    conn.sendPending.Wait();
                     conn.sendPending.Reset();
 
-                    while (conn.sendQueue.TryDequeue(out ArraySegment<byte> msg))
+                    while (conn.sendQueue.TryDequeue(out ArrayBuffer msg))
                     {
                         // check if connected before sending message
                         if (!client.Connected) { Log.Info($"SendLoop {conn} not connected"); return; }
 
                         SendMessage(stream, writeBuffer, msg, setMask, maskHelper);
+                        msg.Release();
                     }
                 }
             }
-            catch (ThreadInterruptedException) { Log.Info($"SendLoop {conn} ThreadInterrupted"); return; }
-            catch (ThreadAbortException) { Log.Info($"SendLoop {conn} ThreadAbort"); return; }
+            catch (ThreadInterruptedException) { Log.Info($"SendLoop {conn} ThreadInterrupted"); }
+            catch (ThreadAbortException) { Log.Info($"SendLoop {conn} ThreadAbort"); }
             catch (Exception e)
             {
-                Debug.LogException(e);
+                Log.Exception(e);
 
                 closeCallback.Invoke(conn);
             }
+            finally
+            {
+                maskHelper?.Dispose();
+            }
         }
 
-        static void SendMessage(Stream stream, byte[] buffer, ArraySegment<byte> msg, bool setMask, MaskHelper maskHelper)
+        static void SendMessage(Stream stream, byte[] buffer, ArrayBuffer msg, bool setMask, MaskHelper maskHelper)
         {
-            int msgLength = msg.Count;
+            int msgLength = msg.Length;
             int sendLength = WriteHeader(buffer, msgLength, setMask);
 
             if (setMask)
@@ -58,8 +94,7 @@ namespace Mirror.SimpleWeb
                 sendLength = maskHelper.WriteMask(buffer, sendLength);
             }
 
-            //todo check if Buffer.BlockCopy is faster
-            Array.Copy(msg.Array, msg.Offset, buffer, sendLength, msgLength);
+            msg.CopyTo(buffer, sendLength);
             sendLength += msgLength;
 
             // dump before mask on
@@ -69,7 +104,7 @@ namespace Mirror.SimpleWeb
             {
                 //todo make toggleMask write to buffer to skip Array.Copy
                 int messageOffset = sendLength - msgLength;
-                MessageProcessor.ToggleMask(buffer, messageOffset, msgLength, buffer, messageOffset - 4);
+                MessageProcessor.ToggleMask(buffer, messageOffset, msgLength, buffer, messageOffset - Constants.MaskSize);
             }
 
             stream.Write(buffer, 0, sendLength);
@@ -109,22 +144,22 @@ namespace Mirror.SimpleWeb
             return sendLength;
         }
 
-        class MaskHelper
+        sealed class MaskHelper : IDisposable
         {
-            byte[] maskBuffer;
-            RNGCryptoServiceProvider random;
+            readonly byte[] maskBuffer;
+            readonly RNGCryptoServiceProvider random;
 
             public MaskHelper()
             {
                 maskBuffer = new byte[4];
                 random = new RNGCryptoServiceProvider();
             }
-            ~MaskHelper()
+            public void Dispose()
             {
-                random?.Dispose();
+                random.Dispose();
             }
 
-            internal int WriteMask(byte[] buffer, int offset)
+            public int WriteMask(byte[] buffer, int offset)
             {
                 random.GetBytes(maskBuffer);
                 Buffer.BlockCopy(maskBuffer, 0, buffer, offset, 4);

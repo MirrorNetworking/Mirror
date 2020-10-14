@@ -20,20 +20,18 @@ namespace Mirror.SimpleWeb
 
             Cert cert = LoadCertJson(certJsonPath);
 
-            return new SslConfig
-            {
-                enabled = transport.sslEnabled,
-                sslProtocols = transport.sslProtocols,
-                certPath = cert.path,
-                certPassword = cert.password,
-            };
+            return new SslConfig(
+                enabled: transport.sslEnabled,
+                sslProtocols: transport.sslProtocols,
+                certPath: cert.path,
+                certPassword: cert.password
+            );
         }
 
         internal static Cert LoadCertJson(string certJsonPath)
         {
-            Cert cert = default;
             string json = File.ReadAllText(certJsonPath);
-            cert = JsonUtility.FromJson<Cert>(json);
+            Cert cert = JsonUtility.FromJson<Cert>(json);
 
             if (string.IsNullOrEmpty(cert.path))
             {

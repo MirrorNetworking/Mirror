@@ -1,21 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using AOT;
-using UnityEngine;
 
 namespace Mirror.SimpleWeb
 {
-    internal class WebSocketClientWebGl : SimpleWebClient
+    public class WebSocketClientWebGl : SimpleWebClient
     {
         static readonly Dictionary<int, WebSocketClientWebGl> instances = new Dictionary<int, WebSocketClientWebGl>();
 
-        readonly int maxMessageSize;
-        public int index;
+        /// <summary>
+        /// key for instances sent between c# and js
+        /// </summary>
+        int index;
 
-        internal WebSocketClientWebGl(int maxMessageSize, int maxMessagesPerTick) : base(maxMessagesPerTick)
+        internal WebSocketClientWebGl(int maxMessageSize, int maxMessagesPerTick) : base(maxMessageSize, maxMessagesPerTick)
         {
-            this.maxMessageSize = maxMessageSize;
 #if !UNITY_WEBGL || UNITY_EDITOR
             throw new NotSupportedException();
 #endif
@@ -41,7 +40,7 @@ namespace Mirror.SimpleWeb
         {
             if (segment.Count > maxMessageSize)
             {
-                Debug.LogError($"Cant send message with length {segment.Count} because it is over the max size of {maxMessageSize}");
+                Log.Error($"Cant send message with length {segment.Count} because it is over the max size of {maxMessageSize}");
                 return;
             }
 
@@ -67,11 +66,10 @@ namespace Mirror.SimpleWeb
         {
             try
             {
-                byte[] buffer = new byte[count];
-                Marshal.Copy(bufferPtr, buffer, 0, count);
+                ArrayBuffer buffer = bufferPool.Take(count);
+                buffer.CopyFrom(bufferPtr, count);
 
-                ArraySegment<byte> segment = new ArraySegment<byte>(buffer, 0, count);
-                receiveQueue.Enqueue(new Message(segment));
+                receiveQueue.Enqueue(new Message(buffer));
             }
             catch (Exception e)
             {

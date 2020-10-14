@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using UnityEngine;
 
 namespace Mirror.SimpleWeb
 {
@@ -19,7 +18,10 @@ namespace Mirror.SimpleWeb
                 Stream stream = conn.stream;
 
                 byte[] keyBuffer = new byte[16];
-                new System.Random().NextBytes(keyBuffer);
+                using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+                {
+                    rng.GetBytes(keyBuffer);
+                }
 
                 string key = Convert.ToBase64String(keyBuffer);
                 string keySum = key + Constants.HandshakeGUID;
@@ -40,11 +42,11 @@ namespace Mirror.SimpleWeb
 
                 byte[] responseBuffer = new byte[1000];
 
-                int? lengthOrNull = ReadHelper.SafeReadTillMatch(stream, responseBuffer, 0, Constants.endOfHandshake);
+                int? lengthOrNull = ReadHelper.SafeReadTillMatch(stream, responseBuffer, 0, responseBuffer.Length, Constants.endOfHandshake);
 
                 if (!lengthOrNull.HasValue)
                 {
-                    Debug.LogError("Connected closed before handshake");
+                    Log.Error("Connected closed before handshake");
                     return false;
                 }
 
@@ -57,7 +59,7 @@ namespace Mirror.SimpleWeb
 
                 if (responseKey != expectedResponse)
                 {
-                    Debug.LogError("Reponse key incorrect");
+                    Log.Error("Response key incorrect");
                     return false;
                 }
 
@@ -65,7 +67,7 @@ namespace Mirror.SimpleWeb
             }
             catch (Exception e)
             {
-                Debug.LogException(e);
+                Log.Exception(e);
                 return false;
             }
         }

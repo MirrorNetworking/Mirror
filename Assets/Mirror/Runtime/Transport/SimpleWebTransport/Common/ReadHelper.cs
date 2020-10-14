@@ -1,78 +1,77 @@
 using System;
 using System.IO;
-using System.Threading;
 
 namespace Mirror.SimpleWeb
 {
+    internal class ReadHelperException : Exception
+    {
+        public ReadHelperException(string message) : base(message) { }
+    }
+
     public static class ReadHelper
     {
-        public enum ReadResult
+        /// <returns>outOffset + length</returns>
+        /// <exception cref="ReadHelperException"></exception>
+        /// <exception cref="IOException"></exception>
+        public static int Read(Stream stream, byte[] outBuffer, int outOffset, int length)
         {
-            Success = 1,
-            ReadMinusOne = 2,
-            ReadZero = 4,
-            ReadLessThanLength = 8,
-            Error = 16,
-            Fail = ReadMinusOne | ReadZero | ReadLessThanLength | Error
-        }
-        public static ReadResult SafeRead(Stream stream, byte[] outBuffer, int outOffset, int length, bool checkLength = false)
-        {
+            int received = 0;
             try
             {
-                int received = stream.Read(outBuffer, outOffset, length);
-
-                if (received == -1)
-                {
-                    return ReadResult.ReadMinusOne;
-                }
-
-                if (received == 0)
-                {
-                    return ReadResult.ReadZero;
-                }
-                if (checkLength && received != length)
-                {
-                    return ReadResult.ReadLessThanLength;
-                }
-
-                return ReadResult.Success;
+                received = stream.Read(outBuffer, outOffset, length);
             }
             catch (AggregateException ae)
             {
                 // if interupt is called we dont care about Exceptions
-                CheckForInterupt();
+                Utils.CheckForInterupt();
 
-                ae.Handle(e =>
-                {
-                    if (e is IOException io)
-                    {
-                        // this is only info as SafeRead is allowed to fail
-                        Log.Info($"SafeRead IOException\n{io.Message}", false);
-                        return true;
-                    }
-
-                    return false;
-                });
-                return ReadResult.Error;
+                // rethrow
+                ae.Handle(e => false);
             }
-            catch (IOException e)
+
+            if (received == -1)
             {
-                // if interupt is called we dont care about Exceptions
-                CheckForInterupt();
+                throw new ReadHelperException("returned -1");
+            }
 
-                // this is only info as SafeRead is allowed to fail
-                Log.Info($"SafeRead IOException\n{e.Message}", false);
-                return ReadResult.Error;
+            if (received == 0)
+            {
+                throw new ReadHelperException("returned 0");
+            }
+            if (received != length)
+            {
+                throw new ReadHelperException("returned not equal to length");
+            }
+
+            return outOffset + received;
+        }
+
+        /// <summary>
+        /// Reads and returns results. This should never throw an exception
+        /// </summary>
+        public static bool TryRead(Stream stream, byte[] outBuffer, int outOffset, int length)
+        {
+            try
+            {
+                int count = Read(stream, outBuffer, outOffset, length);
+                return count == length;
+            }
+            catch (ReadHelperException)
+            {
+                return false;
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            catch (Exception e)
+            {
+                Log.Exception(e);
+                return false;
             }
         }
 
-        static void CheckForInterupt()
-        {
-            // sleep in order to check for ThreadInterruptedException
-            Thread.Sleep(1);
-        }
-
-        public static int? SafeReadTillMatch(Stream stream, byte[] outBuffer, int outOffset, byte[] endOfHeader)
+        public static int? SafeReadTillMatch(Stream stream, byte[] outBuffer, int outOffset, int maxLength, byte[] endOfHeader)
         {
             try
             {
@@ -84,6 +83,12 @@ namespace Mirror.SimpleWeb
                     int next = stream.ReadByte();
                     if (next == -1) // closed
                         return null;
+
+                    if (read >= maxLength)
+                    {
+                        Log.Error("SafeReadTillMatch exceeded maxLength");
+                        return null;
+                    }
 
                     outBuffer[outOffset + read] = (byte)next;
                     read++;
@@ -108,6 +113,11 @@ namespace Mirror.SimpleWeb
             catch (IOException e)
             {
                 Log.Info($"SafeRead IOException\n{e.Message}", false);
+                return null;
+            }
+            catch (Exception e)
+            {
+                Log.Exception(e);
                 return null;
             }
         }

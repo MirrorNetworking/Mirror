@@ -1,10 +1,7 @@
 using System;
 using System.IO;
-using System.Linq;
-using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
-using UnityEngine;
 
 namespace Mirror.SimpleWeb
 {
@@ -40,44 +37,38 @@ namespace Mirror.SimpleWeb
         /// </summary>
         void ClearBuffers()
         {
-            Array.Clear(readBuffer, 0, 300);
-            Array.Clear(readBuffer, 0, 24);
+            Array.Clear(readBuffer, 0, readBuffer.Length);
+            Array.Clear(keyBuffer, 0, KeyLength);
             Array.Clear(response, 0, ResponseLength);
         }
 
         public bool TryHandshake(Connection conn)
         {
-            TcpClient client = conn.client;
             Stream stream = conn.stream;
 
-            try
-            {
-                byte[] getHeader = new byte[3];
-                ReadHelper.ReadResult result = ReadHelper.SafeRead(stream, getHeader, 0, 3);
-                if ((result & ReadHelper.ReadResult.Fail) > 0)
-                    return false;
+            // TOOD remove alloc
+            byte[] getHeader = new byte[3];
+            if (!ReadHelper.TryRead(stream, getHeader, 0, 3))
+                return false;
 
-                if (!IsGet(getHeader))
-                {
-                    Log.Warn($"First bytes from client was not 'GET' for handshake, instead was {string.Join("-", getHeader.Select(x => x.ToString()))}");
-                    return false;
-                }
+            if (!IsGet(getHeader))
+            {
+                Log.Warn($"First bytes from client was not 'GET' for handshake, instead was {Log.BufferToString(getHeader)}");
+                return false;
             }
-            catch (Exception e) { Debug.LogException(e); return false; }
+
 
             // lock so that buffers can only be used by this thread
+            // TODO dont used shared buffers as this will block new clients from connecting
             lock (lockObj)
             {
                 try
                 {
-                    //return BatchReadsForHandshake(stream);
                     bool success = ReadToEndForHandshake(stream);
                     if (success)
                         Log.Info($"Sent Handshake {conn}");
                     return success;
-                    //return ReadAvailableForHandsake(client, stream);
                 }
-                catch (Exception e) { Debug.LogException(e); return false; }
                 finally
                 {
                     ClearBuffers();
@@ -87,7 +78,7 @@ namespace Mirror.SimpleWeb
 
         private bool ReadToEndForHandshake(Stream stream)
         {
-            int? readCountOrFail = ReadHelper.SafeReadTillMatch(stream, readBuffer, 0, Constants.endOfHandshake);
+            int? readCountOrFail = ReadHelper.SafeReadTillMatch(stream, readBuffer, 0, readBuffer.Length, Constants.endOfHandshake);
             if (!readCountOrFail.HasValue)
                 return false;
 

@@ -6,17 +6,17 @@ namespace Mirror.SimpleWeb
 {
     public class SimpleWebServer
     {
-        readonly ushort port;
         readonly int maxMessagesPerTick;
 
         readonly WebSocketServer server;
+        readonly BufferPool bufferPool;
 
-        public SimpleWebServer(ushort port, int maxMessagesPerTick, bool noDelay, int sendTimeout, int receiveTimeout, int maxMessageSize, SslConfig sslConfig)
+        public SimpleWebServer(int maxMessagesPerTick, TcpConfig tcpConfig, int maxMessageSize, SslConfig sslConfig)
         {
-            this.port = port;
             this.maxMessagesPerTick = maxMessagesPerTick;
+            bufferPool = new BufferPool(5, 20, maxMessageSize);
 
-            server = new WebSocketServer(noDelay, sendTimeout, receiveTimeout, maxMessageSize, sslConfig);
+            server = new WebSocketServer(tcpConfig, maxMessageSize, sslConfig, bufferPool);
         }
 
         public bool Active { get; private set; }
@@ -26,7 +26,7 @@ namespace Mirror.SimpleWeb
         public event Action<int, ArraySegment<byte>> onData;
         public event Action<int, Exception> onError;
 
-        public void Start()
+        public void Start(ushort port)
         {
             server.Listen(port);
             Active = true;
@@ -40,16 +40,14 @@ namespace Mirror.SimpleWeb
 
         public void SendAll(List<int> connectionIds, ArraySegment<byte> source)
         {
+            ArrayBuffer buffer = bufferPool.Take(source.Count);
+            buffer.CopyFrom(source);
+            buffer.SetReleasesRequired(connectionIds.Count);
+
             // make copy of array before for each, data sent to each client is the same
-
-            // todo remove allocation
-            byte[] buffer = new byte[source.Count];
-            Array.Copy(source.Array, source.Offset, buffer, 0, source.Count);
-            ArraySegment<byte> copy = new ArraySegment<byte>(buffer);
-
             foreach (int id in connectionIds)
             {
-                server.Send(id, copy);
+                server.Send(id, buffer);
             }
         }
 
@@ -82,7 +80,8 @@ namespace Mirror.SimpleWeb
                         onConnect?.Invoke(next.connId);
                         break;
                     case EventType.Data:
-                        onData?.Invoke(next.connId, next.data);
+                        onData?.Invoke(next.connId, next.data.ToSegment());
+                        next.data.Release();
                         break;
                     case EventType.Disconnected:
                         onDisconnect?.Invoke(next.connId);

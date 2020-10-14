@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Authentication;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Mirror.SimpleWeb
 {
@@ -20,8 +21,6 @@ namespace Mirror.SimpleWeb
 
         [Tooltip("disables nagle algorithm. lowers CPU% and latency but increases bandwidth")]
         public bool noDelay = true;
-
-        [Header("Server Settings")]
 
         [Tooltip("Send would stall forever if the network is cut off during a send, so we need a timeout (in milliseconds)")]
         public int sendTimeout = 5000;
@@ -42,8 +41,23 @@ namespace Mirror.SimpleWeb
         public SslProtocols sslProtocols = SslProtocols.Ssl3 | SslProtocols.Tls12;
 
         [Header("Debug")]
-        [Tooltip("Log functions uses Conditional(\"DEBUG\") so are only included in Editor and Development builds")]
-        public Log.Levels logLevels = Log.Levels.none;
+        [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed. DEBUG allows warn/error, SIMPLEWEB_LOG_ENABLED allows all")]
+        [FormerlySerializedAs("logLevels")]
+        [SerializeField] Log.Levels _logLevels = Log.Levels.none;
+
+        /// <summary>
+        /// <para>Gets _logLevels field</para>
+        /// <para>Sets _logLevels and Log.level fields</para>
+        /// </summary>
+        public Log.Levels LogLevels
+        {
+            get => _logLevels;
+            set
+            {
+                _logLevels = value;
+                Log.level = _logLevels;
+            }
+        }
 
         private void OnValidate()
         {
@@ -53,11 +67,13 @@ namespace Mirror.SimpleWeb
                 maxMessageSize = ushort.MaxValue;
             }
 
-            Log.level = logLevels;
+            Log.level = _logLevels;
         }
 
         SimpleWebClient client;
         SimpleWebServer server;
+
+        TcpConfig TcpConfig => new TcpConfig(noDelay, sendTimeout, receiveTimeout);
 
         public override bool Available()
         {
@@ -70,7 +86,7 @@ namespace Mirror.SimpleWeb
 
         private void Awake()
         {
-            Log.level = logLevels;
+            Log.level = _logLevels;
         }
         public override void Shutdown()
         {
@@ -118,7 +134,8 @@ namespace Mirror.SimpleWeb
                 Port = port
             };
 
-            client = SimpleWebClient.Create(maxMessageSize, clientMaxMessagesPerTick);
+
+            client = SimpleWebClient.Create(maxMessageSize, clientMaxMessagesPerTick, TcpConfig);
             if (client == null) { return; }
 
             client.onConnect += OnClientConnected.Invoke;
@@ -136,8 +153,7 @@ namespace Mirror.SimpleWeb
                 OnClientError.Invoke(e);
             };
 
-            // TODO can this just be builder.ToString()
-            client.Connect(builder.Uri.ToString());
+            client.Connect(builder.ToString());
         }
 
         public override void ClientDisconnect()
@@ -156,13 +172,13 @@ namespace Mirror.SimpleWeb
 
             if (segment.Count > maxMessageSize)
             {
-                Debug.LogError("Message greater than max size");
+                Log.Error("Message greater than max size");
                 return false;
             }
 
             if (segment.Count == 0)
             {
-                Debug.LogError("Message count was zero");
+                Log.Error("Message count was zero");
                 return false;
             }
 
@@ -185,14 +201,14 @@ namespace Mirror.SimpleWeb
             }
 
             SslConfig config = SslConfigLoader.Load(this);
-            server = new SimpleWebServer(port, serverMaxMessagesPerTick, noDelay, sendTimeout, receiveTimeout, maxMessageSize, config);
+            server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, config);
 
             server.onConnect += OnServerConnected.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;
             server.onData += (int connId, ArraySegment<byte> data) => OnServerDataReceived.Invoke(connId, data, Channels.DefaultReliable);
             server.onError += OnServerError.Invoke;
 
-            server.Start();
+            server.Start(port);
         }
 
         public override void ServerStop()
@@ -210,7 +226,7 @@ namespace Mirror.SimpleWeb
         {
             if (!ServerActive())
             {
-                Debug.LogError(" SimpleWebServer Not Active");
+                Debug.LogError("SimpleWebServer Not Active");
                 return false;
             }
 
@@ -227,13 +243,13 @@ namespace Mirror.SimpleWeb
 
             if (segment.Count > maxMessageSize)
             {
-                Debug.LogError("Message greater than max size");
+                Log.Error("Message greater than max size");
                 return false;
             }
 
             if (segment.Count == 0)
             {
-                Debug.LogError("Message count was zero");
+                Log.Error("Message count was zero");
                 return false;
             }
 

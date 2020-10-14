@@ -9,10 +9,18 @@ namespace Mirror.SimpleWeb
 {
     public struct SslConfig
     {
-        public bool enabled;
-        public string certPath;
-        public string certPassword;
-        public SslProtocols sslProtocols;
+        public readonly bool enabled;
+        public readonly string certPath;
+        public readonly string certPassword;
+        public readonly SslProtocols sslProtocols;
+
+        public SslConfig(bool enabled, string certPath, string certPassword, SslProtocols sslProtocols)
+        {
+            this.enabled = enabled;
+            this.certPath = certPath;
+            this.certPassword = certPassword;
+            this.sslProtocols = sslProtocols;
+        }
     }
     internal class ServerSslHelper
     {

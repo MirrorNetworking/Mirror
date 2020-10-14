@@ -17,23 +17,27 @@ namespace Mirror.SimpleWeb
     /// </summary>
     public abstract class SimpleWebClient
     {
-        public static SimpleWebClient Create(int maxMessageSize, int maxMessagesPerTick)
+        public static SimpleWebClient Create(int maxMessageSize, int maxMessagesPerTick, TcpConfig tcpConfig)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             return new WebSocketClientWebGl(maxMessageSize, maxMessagesPerTick);
 #else
-            return new WebSocketClientStandAlone(maxMessageSize, maxMessagesPerTick);
+            return new WebSocketClientStandAlone(maxMessageSize, maxMessagesPerTick, tcpConfig);
 #endif
         }
 
-
         readonly int maxMessagesPerTick;
+        protected readonly int maxMessageSize;
         protected readonly ConcurrentQueue<Message> receiveQueue = new ConcurrentQueue<Message>();
+        protected readonly BufferPool bufferPool;
+
         protected ClientState state;
 
-        protected SimpleWebClient(int maxMessagesPerTick)
+        protected SimpleWebClient(int maxMessageSize, int maxMessagesPerTick)
         {
+            this.maxMessageSize = maxMessageSize;
             this.maxMessagesPerTick = maxMessagesPerTick;
+            bufferPool = new BufferPool(5, 20, maxMessageSize);
         }
         public ClientState ConnectionState => state;
 
@@ -61,7 +65,8 @@ namespace Mirror.SimpleWeb
                         onConnect?.Invoke();
                         break;
                     case EventType.Data:
-                        onData?.Invoke(next.data);
+                        onData?.Invoke(next.data.ToSegment());
+                        next.data.Release();
                         break;
                     case EventType.Disconnected:
                         onDisconnect?.Invoke();

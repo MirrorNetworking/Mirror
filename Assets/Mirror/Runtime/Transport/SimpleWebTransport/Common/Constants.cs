@@ -6,7 +6,7 @@ namespace Mirror.SimpleWeb
     /// Some values are from https://tools.ietf.org/html/rfc6455
     /// </para>
     /// </summary>
-    static class Constants
+    internal static class Constants
     {
         /// <summary>
         /// Header is at most 4 bytes
@@ -15,6 +15,19 @@ namespace Mirror.SimpleWeb
         /// </para>
         /// </summary>
         public const int HeaderSize = 4;
+
+        /// <summary>
+        /// Smallest size of header
+        /// <para>
+        /// If message is less than 125 then header is 2 bytes, else header is 4 bytes
+        /// </para>
+        /// </summary>
+        public const int HeaderMinSize = 2;
+
+        /// <summary>
+        /// bytes for short length
+        /// </summary>
+        public const int ShortLength = 2;
 
         /// <summary>
         /// Message mask is always 4 bytes

@@ -1,11 +1,15 @@
 using System;
+using UnityEngine;
 using Conditional = System.Diagnostics.ConditionalAttribute;
-using Debug = UnityEngine.Debug;
 
 namespace Mirror.SimpleWeb
 {
     public static class Log
     {
+        // used for Conditional
+        const string SIMPLEWEB_LOG_ENABLED = nameof(SIMPLEWEB_LOG_ENABLED);
+        const string DEBUG = nameof(DEBUG);
+
         public enum Levels
         {
             none = 0,
@@ -15,110 +19,84 @@ namespace Mirror.SimpleWeb
             verbose = 4,
         }
 
+        public static ILogger logger = Debug.unityLogger;
         public static Levels level = Levels.none;
 
-        [Conditional("DEBUG")]
-        public static void Verbose(string msg)
+        public static string BufferToString(byte[] buffer, int offset = 0, int? length = null)
         {
-            if (level < Levels.verbose)
-                return;
-
-            Debug.Log($"VERBOSE: <color=blue>{msg}</color>");
+            return BitConverter.ToString(buffer, offset, length ?? buffer.Length);
         }
 
-        [Conditional("DEBUG")]
-        public static void Verbose(string msg, bool showColor)
-        {
-            if (level < Levels.verbose)
-                return;
-
-            if (showColor)
-                Verbose(msg);
-            else
-                Debug.Log($"VERBOSE: {msg}");
-        }
-
-        [Conditional("DEBUG")]
+        [Conditional(SIMPLEWEB_LOG_ENABLED)]
         public static void DumpBuffer(byte[] buffer, int offset, int length)
         {
             if (level < Levels.verbose)
                 return;
 
-            string text = BitConverter.ToString(buffer, offset, length);
-            Verbose(text);
+            logger.Log(LogType.Log, $"VERBOSE: <color=blue>{BufferToString(buffer, offset, length)}</color>");
         }
 
-        [Conditional("DEBUG")]
+        [Conditional(SIMPLEWEB_LOG_ENABLED)]
         public static void DumpBuffer(string label, byte[] buffer, int offset, int length)
         {
             if (level < Levels.verbose)
                 return;
 
-            string text = BitConverter.ToString(buffer, offset, length);
-            Verbose($"{label}: {text}");
+            logger.Log(LogType.Log, $"VERBOSE: <color=blue>{label}: {BufferToString(buffer, offset, length)}</color>");
         }
 
-        [Conditional("DEBUG")]
-        public static void Info(string msg)
+        [Conditional(SIMPLEWEB_LOG_ENABLED)]
+        public static void Verbose(string msg, bool showColor = true)
+        {
+            if (level < Levels.verbose)
+                return;
+
+            if (showColor)
+                logger.Log(LogType.Log, $"VERBOSE: <color=blue>{msg}</color>");
+            else
+                logger.Log(LogType.Log, $"VERBOSE: {msg}");
+        }
+
+        [Conditional(SIMPLEWEB_LOG_ENABLED)]
+        public static void Info(string msg, bool showColor = true)
         {
             if (level < Levels.info)
                 return;
 
-            Debug.Log($"INFO: <color=blue>{msg}</color>");
+            if (showColor)
+                logger.Log(LogType.Log, $"INFO: <color=blue>{msg}</color>");
+            else
+                logger.Log(LogType.Log, $"INFO: {msg}");
         }
 
-        [Conditional("DEBUG")]
-        public static void Info(string msg, bool showColor)
+        [Conditional(SIMPLEWEB_LOG_ENABLED), Conditional(DEBUG)]
+        public static void Warn(string msg, bool showColor = true)
         {
-            if (level < Levels.info)
+            if (level < Levels.warn)
                 return;
 
             if (showColor)
-                Info(msg);
+                logger.Log(LogType.Warning, $"WARN: <color=orange>{msg}</color>");
             else
-                Debug.Log($"INFO: {msg}");
+                logger.Log(LogType.Warning, $"WARN: {msg}");
         }
 
-        [Conditional("DEBUG")]
-        public static void Warn(string msg)
-        {
-            if (level < Levels.error)
-                return;
-
-            Debug.LogWarning($"WARN: <color=orange>{msg}</color>");
-        }
-
-        [Conditional("DEBUG")]
-        public static void Warn(string msg, bool showColor)
+        [Conditional(SIMPLEWEB_LOG_ENABLED), Conditional(DEBUG)]
+        public static void Error(string msg, bool showColor = true)
         {
             if (level < Levels.error)
                 return;
 
             if (showColor)
-                Error(msg);
+                logger.Log(LogType.Error, $"ERROR: <color=red>{msg}</color>");
             else
-                Debug.LogWarning($"WARN: {msg}");
+                logger.Log(LogType.Error, $"ERROR: {msg}");
         }
 
-        [Conditional("DEBUG")]
-        public static void Error(string msg)
+        public static void Exception(Exception e)
         {
-            if (level < Levels.error)
-                return;
-
-            Debug.LogError($"ERROR: <color=red>{msg}</color>");
-        }
-
-        [Conditional("DEBUG")]
-        public static void Error(string msg, bool showColor)
-        {
-            if (level < Levels.error)
-                return;
-
-            if (showColor)
-                Error(msg);
-            else
-                Debug.LogError($"ERROR: {msg}");
+            // always log Exceptions
+            logger.Log(LogType.Error, $"EXCEPTION: <color=red>{e.GetType().Name}</color> Message: {e.Message}");
         }
     }
 }
