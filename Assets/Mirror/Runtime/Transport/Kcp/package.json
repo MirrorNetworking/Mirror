@@ -1,0 +1,15 @@
+{
+    "name": "com.mirrorng.kcptransport",
+    "displayName": "MirrorNG KCPTransport",
+    "version": "1.0.3",
+    "unity": "2019.1",
+    "description": "UDP transport for MirrorNG",
+    "author": "Paul Pacheco",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/MirrorNG/KCPTransport.git"
+    },
+    "dependencies": {
+        "com.mirrorng.mirrorng": "43.3.2"
+    }
+}

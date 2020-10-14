@@ -9,7 +9,8 @@
         "Mirror.Weaver",
         "Mirror.Experimental",
         "MirrorNG",
-        "UniTask"
+        "UniTask",
+        "KCP"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
