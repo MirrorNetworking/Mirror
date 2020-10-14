@@ -1,3 +1,13 @@
+# [49.0.0](https://github.com/MirrorNG/MirrorNG/compare/v48.0.1...v49.0.0) (2020-10-14)
+
+
+* Reduce allocations by using Unitask (#392) ([a45413a](https://github.com/MirrorNG/MirrorNG/commit/a45413a3512e7fe5f365ddad3ae42795cb688984)), closes [#392](https://github.com/MirrorNG/MirrorNG/issues/392)
+
+
+### BREAKING CHANGES
+
+* MirrorNG now uses UniTask
+
 ## [48.0.1](https://github.com/MirrorNG/MirrorNG/compare/v48.0.0...v48.0.1) (2020-10-12)
 
 
