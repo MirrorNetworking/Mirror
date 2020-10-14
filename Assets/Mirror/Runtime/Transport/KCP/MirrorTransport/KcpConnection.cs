@@ -9,7 +9,7 @@ namespace Mirror.KCP
     public abstract class KcpConnection
     {
         protected Socket socket;
-        protected EndPoint remoteEndpoint;
+        public EndPoint remoteEndpoint;
         internal Kcp kcp;
         volatile bool open;
 
@@ -53,12 +53,6 @@ namespace Mirror.KCP
                 if (open && kcp.CurrentMS < lastReceived + TIMEOUT)
                 {
                     kcp.Update();
-
-                    int check = kcp.Check();
-
-                    // call every 10 ms unless check says we can wait longer
-                    if (check < 10)
-                        check = 10;
                 }
             }
             catch (SocketException)
@@ -76,6 +70,11 @@ namespace Mirror.KCP
                 open = false;
                 Debug.LogException(ex);
             }
+        }
+
+        public int NextTick()
+        {
+            return Math.Max(kcp.Check(), 10);
         }
 
         internal void RawInput(byte[] buffer, int msgLength)

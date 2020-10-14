@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Mirror.KCP
 {
@@ -20,12 +22,18 @@ namespace Mirror.KCP
         // connections <connectionId, connection> where connectionId is EndPoint.GetHashCode
         Dictionary<int, KcpServerConnection> connections = new Dictionary<int, KcpServerConnection>();
 
+        // a queue of all the connections that need to be ticked
+        // sorted by the time to check
+        readonly PriorityQueue<long, KcpServerConnection> tickQueue = new PriorityQueue<long, KcpServerConnection>();
+        readonly Stopwatch timer = new Stopwatch();
+
         // client
         KcpClientConnection clientConnection;
 
         void Awake()
         {
             Debug.Log("KcpTransport initialized!");
+            timer.Start();
         }
 
         // all except WebGL
@@ -148,18 +156,41 @@ namespace Mirror.KCP
                         OnServerDisconnected.Invoke(connectionId);
                     };
 
+                    // queue up the connection for ticking
+                    tickQueue.Enqueue(timer.ElapsedMilliseconds, connection);
+
                     // send handshake
                     connection.Handshake();
                 }
 
                 connection.RawInput(buffer, msgLength);
+                connection.Receive();
             }
 
-            // tick all server connections
-            foreach (KcpServerConnection connection in connections.Values)
+            TickConnections();
+        }
+
+        private void TickConnections()
+        {
+            if (tickQueue.Count <= 0)
+                return;
+
+            long now = timer.ElapsedMilliseconds;
+
+            (long timecheck, KcpServerConnection connection) = tickQueue.Peek();
+
+            while (timecheck <= now)
             {
-                connection.Tick();
-                connection.Receive();
+                tickQueue.Dequeue();
+
+                int connectionId = connection.remoteEndpoint.GetHashCode();
+                if (connections.ContainsKey(connectionId)) {
+                    connection.Tick();
+                    connection.Receive();
+                    tickQueue.Enqueue(now + connection.NextTick(), connection);
+                }
+
+                (timecheck, connection) = tickQueue.Peek();
             }
         }
 
