@@ -57,6 +57,11 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
             }
+            if (variableReference.Is<UnityEngine.GameObject>())
+            {
+                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                return null;
+            }
             if (variableReference.IsByReference)
             {
                 // error??

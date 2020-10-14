@@ -106,6 +106,10 @@ namespace Mirror.Weaver
             {
                 throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
             }
+            if (variableReference.Is<UnityEngine.GameObject>())
+            {
+                throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+            }
             if (variableDefinition.HasGenericParameters)
             {
                 throw new GenerateWriterException($"Cannot generate writer for generic type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
