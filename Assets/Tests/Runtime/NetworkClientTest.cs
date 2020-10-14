@@ -4,10 +4,8 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
-
-using static Mirror.Tests.AsyncUtil;
-using System.Threading.Tasks;
 using NSubstitute;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror.Tests
 {
@@ -82,14 +80,14 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator GetPrefabTest() => RunAsync(async () =>
+        public IEnumerator GetPrefabTest() => UniTask.ToCoroutine(async () =>
         {
             var guid = Guid.NewGuid();
             var prefabObject = new GameObject("prefab", typeof(NetworkIdentity));
 
             client.RegisterPrefab(prefabObject, guid);
 
-            await Task.Delay(1);
+            await UniTask.Delay(1);
 
             client.GetPrefab(guid, out GameObject result);
 
@@ -112,27 +110,27 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator ObjectHideTest() => RunAsync(async () =>
+        public IEnumerator ObjectHideTest() => UniTask.ToCoroutine(async () =>
         {
             client.OnObjectHide(new ObjectHideMessage
             {
                 netId = identity.NetId
             });
 
-            await WaitFor(() => identity == null);
+            await UniTask.WaitUntil(() => identity == null);
 
             Assert.That(identity == null);
         });
 
         [UnityTest]
-        public IEnumerator ObjectDestroyTest() => RunAsync(async () =>
+        public IEnumerator ObjectDestroyTest() => UniTask.ToCoroutine(async () =>
         {
             client.OnObjectDestroy(new ObjectDestroyMessage
             {
                 netId = identity.NetId
             });
 
-            await WaitFor(() => identity == null);
+            await UniTask.WaitUntil(() => identity == null);
 
             Assert.That(identity == null);
         });
@@ -144,12 +142,12 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator ClientDisconnectTest() => RunAsync(async () =>
+        public IEnumerator ClientDisconnectTest() => UniTask.ToCoroutine(async () =>
         {
             client.Disconnect();
 
-            await WaitFor(() => client.connectState == ConnectState.Disconnected);
-            await WaitFor(() => !client.Active);
+            await UniTask.WaitUntil(() => client.connectState == ConnectState.Disconnected);
+            await UniTask.WaitUntil(() => !client.Active);
         });
     }
 }

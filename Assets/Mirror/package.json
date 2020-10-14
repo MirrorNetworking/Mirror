@@ -10,7 +10,8 @@
         "url": "https://github.com/MirrorNG/MirrorNG.git#upm"
     },
     "dependencies": {
-        "nuget.mono-cecil": "0.1.6-preview"
+        "nuget.mono-cecil": "0.1.6-preview",
+        "com.cysharp.unitask": "2.0.36"
     },
     "samples": [
         {

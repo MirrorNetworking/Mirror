@@ -3,7 +3,8 @@
     "references": [
         "Mirror",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

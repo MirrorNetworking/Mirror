@@ -1,11 +1,9 @@
 using System;
 using System.Collections;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine.TestTools;
-
-using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
@@ -82,12 +80,12 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator NetworkClientCallsAuthenticator() => RunAsync(async () =>
+        public IEnumerator NetworkClientCallsAuthenticator() => UniTask.ToCoroutine(async () =>
         {
             Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
             clientAuthenticator.OnClientAuthenticated += mockMethod;
 
-            await Task.Delay(1);
+            await UniTask.Delay(1);
 
             client.ConnectHost(server);
 
@@ -97,16 +95,16 @@ namespace Mirror.Tests
         });
 
         [UnityTest]
-        public IEnumerator NetworkServerCallsAuthenticator() => RunAsync(async () =>
+        public IEnumerator NetworkServerCallsAuthenticator() => UniTask.ToCoroutine(async () =>
         {
             Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
             serverAuthenticator.OnServerAuthenticated += mockMethod;
 
-            await Task.Delay(1);
+            await UniTask.Delay(1);
 
             client.ConnectHost(server);
 
-            await Task.Delay(1);
+            await UniTask.Delay(1);
 
             mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
 

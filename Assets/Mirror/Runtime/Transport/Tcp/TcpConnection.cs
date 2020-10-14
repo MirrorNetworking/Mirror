@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror.Tcp
 {
@@ -18,7 +18,7 @@ namespace Mirror.Tcp
         }
 
         #region Receiving
-        public async Task<bool> ReceiveAsync(MemoryStream buffer)
+        public async UniTask<bool> ReceiveAsync(MemoryStream buffer)
         {
             buffer.SetLength(0);
             long position = buffer.Position;
@@ -44,7 +44,7 @@ namespace Mirror.Tcp
             }
         }
 
-        private static async Task<bool> ReadExactlyAsync(NetworkStream stream, MemoryStream buffer, int count)
+        private static async UniTask<bool> ReadExactlyAsync(NetworkStream stream, MemoryStream buffer, int count)
         {
             int offset = 0;
 
@@ -96,13 +96,20 @@ namespace Mirror.Tcp
         #endregion
 
         #region Sending
-        public async Task SendAsync(ArraySegment<byte> data)
+        public async UniTask SendAsync(ArraySegment<byte> data)
         {
-            var prefixed = new MemoryStream(data.Count + 4);
-            WritePrefixedData(prefixed, data);
+            try
+            {
+                var prefixed = new MemoryStream(data.Count + 4);
+                WritePrefixedData(prefixed, data);
 
-            prefixed.TryGetBuffer(out ArraySegment<byte> prefixedData);
-            await stream.WriteAsync(prefixedData.Array, prefixedData.Offset, prefixedData.Count);
+                prefixed.TryGetBuffer(out ArraySegment<byte> prefixedData);
+                await stream.WriteAsync(prefixedData.Array, prefixedData.Offset, prefixedData.Count);
+            }
+            catch (ObjectDisposedException)
+            {
+                // this is fine, connection was closed
+            }
         }
 
         private static void WriteInt(Stream stream, int length)

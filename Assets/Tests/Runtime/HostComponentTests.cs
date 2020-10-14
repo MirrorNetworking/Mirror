@@ -1,10 +1,9 @@
 using System;
 using System.Collections;
+using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-
-using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
@@ -31,43 +30,43 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator ServerRpc() => RunAsync(async () =>
+        public IEnumerator ServerRpc() => UniTask.ToCoroutine(async () =>
         {
             component.Test(1, "hello");
 
-            await WaitFor(() => component.cmdArg1 != 0);
+            await UniTask.WaitUntil(() => component.cmdArg1 != 0);
 
             Assert.That(component.cmdArg1, Is.EqualTo(1));
             Assert.That(component.cmdArg2, Is.EqualTo("hello"));
         });
 
         [UnityTest]
-        public IEnumerator ServerRpcWithNetworkIdentity() => RunAsync(async () =>
+        public IEnumerator ServerRpcWithNetworkIdentity() => UniTask.ToCoroutine(async () =>
         {
             component.CmdNetworkIdentity(identity);
 
-            await WaitFor(() => component.cmdNi != null);
+            await UniTask.WaitUntil(() => component.cmdNi != null);
 
             Assert.That(component.cmdNi, Is.SameAs(identity));
         });
 
         [UnityTest]
-        public IEnumerator ClientRpc() => RunAsync(async () =>
+        public IEnumerator ClientRpc() => UniTask.ToCoroutine(async () =>
         {
             component.RpcTest(1, "hello");
             // process spawn message from server
-            await WaitFor(() => component.rpcArg1 != 0);
+            await UniTask.WaitUntil(() => component.rpcArg1 != 0);
 
             Assert.That(component.rpcArg1, Is.EqualTo(1));
             Assert.That(component.rpcArg2, Is.EqualTo("hello"));
         });
 
         [UnityTest]
-        public IEnumerator ClientConnRpc() => RunAsync(async () =>
+        public IEnumerator ClientConnRpc() => UniTask.ToCoroutine(async () =>
         {
             component.ClientConnRpcTest(manager.server.LocalConnection, 1, "hello");
             // process spawn message from server
-            await WaitFor(() => component.targetRpcArg1 != 0);
+            await UniTask.WaitUntil(() => component.targetRpcArg1 != 0);
 
             Assert.That(component.targetRpcConn, Is.SameAs(manager.client.Connection));
             Assert.That(component.targetRpcArg1, Is.EqualTo(1));
@@ -75,18 +74,18 @@ namespace Mirror.Tests
         });
 
         [UnityTest]
-        public IEnumerator ClientOwnerRpc() => RunAsync(async () =>
+        public IEnumerator ClientOwnerRpc() => UniTask.ToCoroutine(async () =>
         {
             component.RpcOwnerTest(1, "hello");
             // process spawn message from server
-            await WaitFor(() => component.rpcOwnerArg1 != 0);
+            await UniTask.WaitUntil(() => component.rpcOwnerArg1 != 0);
 
             Assert.That(component.rpcOwnerArg1, Is.EqualTo(1));
             Assert.That(component.rpcOwnerArg2, Is.EqualTo("hello"));
         });
 
         [UnityTest]
-        public IEnumerator DisconnectHostTest() => RunAsync(async () =>
+        public IEnumerator DisconnectHostTest() => UniTask.ToCoroutine(async () =>
         {
             // set local connection
             Assert.That(server.LocalClientActive, Is.True);
@@ -95,7 +94,7 @@ namespace Mirror.Tests
             server.Disconnect();
 
             // wait for messages to get dispatched
-            await WaitFor(() => !server.LocalClientActive);
+            await UniTask.WaitUntil(() => !server.LocalClientActive);
 
             // state cleared?
             Assert.That(server.connections, Is.Empty);

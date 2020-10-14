@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-
+using Cysharp.Threading.Tasks;
 
 namespace Mirror
 {
@@ -11,7 +10,7 @@ namespace Mirror
 
         public Transport[] transports;
 
-        private Dictionary<Task<IConnection>, Transport> Accepters;
+        private Dictionary<UniTask<IConnection>, Transport> Accepters;
 
         public override IEnumerable<string> Scheme =>
             transports
@@ -30,15 +29,15 @@ namespace Mirror
 
         public override bool Supported => GetTransport() != null;
 
-        public override async Task<IConnection> AcceptAsync()
+        public override async UniTask<IConnection> AcceptAsync()
         {
             if (Accepters == null)
             {
-                Accepters = new Dictionary<Task<IConnection>,  Transport>();
+                Accepters = new Dictionary<UniTask<IConnection>, Transport>();
 
                 foreach (Transport transport in transports)
                 {
-                    Task<IConnection> transportAccepter = transport.AcceptAsync();
+                    UniTask<IConnection> transportAccepter = transport.AcceptAsync();
                     Accepters[transportAccepter] = transport;
                 }
             }
@@ -47,15 +46,17 @@ namespace Mirror
             if (Accepters.Count == 0)
                 return null;
 
+            var tasks = Accepters.Keys;
+
             // wait for any one of them to accept
-            var task = await Task.WhenAny(Accepters.Keys);
+            var (index, connection) = await UniTask.WhenAny(tasks);
+
+            var task = tasks.ElementAt(index);
 
             Transport acceptedTransport = Accepters[task];
             Accepters.Remove(task);
 
-            IConnection value = await task;
-
-            if (value == null)
+            if (connection == null)
             {
                 // this transport closed. Get the next one
                 return await AcceptAsync();
@@ -66,11 +67,11 @@ namespace Mirror
                 task = acceptedTransport.AcceptAsync();
                 Accepters[task] = acceptedTransport;
 
-                return value;
+                return connection;
             }
         }
 
-        public override  Task<IConnection> ConnectAsync(Uri uri)
+        public override UniTask<IConnection> ConnectAsync(Uri uri)
         {
             foreach (Transport transport in transports)
             {
@@ -86,10 +87,10 @@ namespace Mirror
                 transport.Disconnect();
         }
 
-        public override async Task ListenAsync()
+        public override async UniTask ListenAsync()
         {
-            IEnumerable<Task> tasks = from t in transports select t.ListenAsync();
-            await Task.WhenAll(tasks);
+            IEnumerable<UniTask> tasks = from t in transports select t.ListenAsync();
+            await UniTask.WhenAll(tasks);
             Accepters = null;
         }
 

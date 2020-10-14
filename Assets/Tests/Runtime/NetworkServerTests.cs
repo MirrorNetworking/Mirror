@@ -1,14 +1,11 @@
 using System;
 using System.Collections;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.TestTools;
-
-using static Mirror.Tests.AsyncUtil;
-
 
 namespace Mirror.Tests
 {
@@ -97,18 +94,18 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator ReadyMessageSetsClientReadyTest() => RunAsync(async () =>
+        public IEnumerator ReadyMessageSetsClientReadyTest() => UniTask.ToCoroutine(async () =>
         {
             connectionToServer.Send(new ReadyMessage());
 
-            await WaitFor(() => connectionToClient.IsReady);
+            await UniTask.WaitUntil(() => connectionToClient.IsReady);
 
             // ready?
             Assert.That(connectionToClient.IsReady, Is.True);
         });
 
         [UnityTest]
-        public IEnumerator SendToAll() => RunAsync(async () =>
+        public IEnumerator SendToAll() => UniTask.ToCoroutine(async () =>
         {
             bool invoked = false;
 
@@ -118,11 +115,11 @@ namespace Mirror.Tests
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            await WaitFor(() => invoked);
+            await UniTask.WaitUntil(() => invoked);
         });
 
         [UnityTest]
-        public IEnumerator SendToClientOfPlayer() => RunAsync(async () =>
+        public IEnumerator SendToClientOfPlayer() => UniTask.ToCoroutine(async () =>
         {
             bool invoked = false;
 
@@ -132,11 +129,11 @@ namespace Mirror.Tests
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            await WaitFor(() => invoked);
+            await UniTask.WaitUntil(() => invoked);
         });
 
         [UnityTest]
-        public IEnumerator ShowForConnection() => RunAsync(async () =>
+        public IEnumerator ShowForConnection() => UniTask.ToCoroutine(async () =>
         {
             bool invoked = false;
 
@@ -149,7 +146,7 @@ namespace Mirror.Tests
 
             _ = connectionToServer.ProcessMessagesAsync();
 
-            await WaitFor(() => invoked);
+            await UniTask.WaitUntil(() => invoked);
         });
 
         [Test]
@@ -173,19 +170,19 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator RegisterMessage1() => RunAsync(async () =>
+        public IEnumerator RegisterMessage1() => UniTask.ToCoroutine(async () =>
         {
             bool invoked = false;
 
             connectionToClient.RegisterHandler< WovenTestMessage>(msg => invoked = true);
             connectionToServer.Send(message);
 
-            await WaitFor(() => invoked);
+            await UniTask.WaitUntil(() => invoked);
 
         });
 
         [UnityTest]
-        public IEnumerator RegisterMessage2() => RunAsync(async () =>
+        public IEnumerator RegisterMessage2() => UniTask.ToCoroutine(async () =>
         {
             bool invoked = false;
 
@@ -193,11 +190,11 @@ namespace Mirror.Tests
 
             connectionToServer.Send(message);
 
-            await WaitFor(() => invoked);
+            await UniTask.WaitUntil(() => invoked);
         });
 
         [UnityTest]
-        public IEnumerator UnRegisterMessage1() => RunAsync(async () =>
+        public IEnumerator UnRegisterMessage1() => UniTask.ToCoroutine(async () =>
         {
             Action<WovenTestMessage> func = Substitute.For<Action<WovenTestMessage>>();
 
@@ -206,7 +203,7 @@ namespace Mirror.Tests
 
             connectionToServer.Send(message);
 
-            await Task.Delay(1);
+            await UniTask.Delay(1);
 
             func.Received(0).Invoke(
                 Arg.Any<WovenTestMessage>());

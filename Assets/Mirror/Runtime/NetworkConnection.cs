@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -189,7 +189,7 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual Task SendAsync<T>(T msg, int channelId = Channels.DefaultReliable)
+        public virtual UniTask SendAsync<T>(T msg, int channelId = Channels.DefaultReliable)
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
@@ -229,7 +229,7 @@ namespace Mirror
         
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal virtual Task SendAsync(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal virtual UniTask SendAsync(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             return connection.SendAsync(segment);
         }
@@ -327,7 +327,7 @@ namespace Mirror
             clientOwnedObjects.Clear();
         }
 
-        public async Task ProcessMessagesAsync()
+        public async UniTask ProcessMessagesAsync()
         {
             var buffer = new MemoryStream();
 

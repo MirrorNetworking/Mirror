@@ -1,42 +1,40 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror.Tests
 {
 
     public class LoopbackTransport : Transport
     {
-        public readonly AsyncQueue<IConnection> AcceptConnections = new AsyncQueue<IConnection>();
+        public readonly Channel<IConnection> AcceptConnections = Channel.CreateSingleConsumerUnbounded<IConnection>();
 
-        public override async Task<IConnection> AcceptAsync()
+        public override async UniTask<IConnection> AcceptAsync()
         {
-            return await AcceptConnections.DequeueAsync();
+            return await AcceptConnections.Reader.ReadAsync();
         }
-
-        public readonly AsyncQueue<IConnection> CoonnectedConnections = new AsyncQueue<IConnection>();
 
         public override IEnumerable<string> Scheme => new [] { "local" };
 
         public override bool Supported => true;
 
-        public override Task<IConnection> ConnectAsync(Uri uri)
+        public override UniTask<IConnection> ConnectAsync(Uri uri)
         {
             (IConnection c1, IConnection c2) = PipeConnection.CreatePipe();
-            AcceptConnections.Enqueue(c2);
+            AcceptConnections.Writer.TryWrite(c2);
 
-            return Task.FromResult(c1);
+            return UniTask.FromResult(c1);
         }
 
         public override void Disconnect()
         {
-            AcceptConnections.Enqueue(null);
+            AcceptConnections.Writer.TryWrite(null);
         }
 
-        public override Task ListenAsync()
+        public override UniTask ListenAsync()
         {
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
 
         public override IEnumerable<Uri> ServerUri()

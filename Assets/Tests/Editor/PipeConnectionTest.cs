@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
@@ -22,7 +23,7 @@ namespace Mirror.Tests
             (c1, c2) = PipeConnection.CreatePipe();
         }
 
-        private static Task SendData(IConnection c, byte[] data)
+        private static UniTask SendData(IConnection c, byte[] data)
         {
             return c.SendAsync(new ArraySegment<byte>(data));
         }

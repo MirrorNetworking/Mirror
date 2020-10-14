@@ -1,9 +1,7 @@
 using System.Collections;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.TestTools;
-
-using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
@@ -25,7 +23,7 @@ namespace Mirror.Tests
         public virtual void ExtraSetup() { }
 
         [UnitySetUp]
-        public IEnumerator SetupHost() => RunAsync(async () =>
+        public IEnumerator SetupHost() => UniTask.ToCoroutine(async () =>
         {
             networkManagerGo = new GameObject();
             networkManagerGo.AddComponent<MockTransport>();
@@ -41,7 +39,7 @@ namespace Mirror.Tests
             ExtraSetup();
 
             // wait for client and server to initialize themselves
-            await Task.Delay(1);
+            await UniTask.Delay(1);
 
             // now start the host
             await manager.server.StartHost(client);
@@ -58,12 +56,12 @@ namespace Mirror.Tests
         public virtual void ExtraTearDown() { }
 
         [UnityTearDown]
-        public IEnumerator ShutdownHost() => RunAsync(async () =>
+        public IEnumerator ShutdownHost() => UniTask.ToCoroutine(async () =>
         {
             Object.Destroy(playerGO);
             manager.server.StopHost();
 
-            await Task.Delay(1);
+            await UniTask.Delay(1);
             Object.Destroy(networkManagerGo);
 
             ExtraTearDown();

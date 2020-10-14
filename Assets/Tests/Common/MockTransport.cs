@@ -1,38 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror.Tests
 {
 
     public class MockTransport : Transport
     {
-        public readonly AsyncQueue<IConnection> AcceptConnections = new AsyncQueue<IConnection>();
+        public readonly Channel<IConnection> AcceptConnections = Channel.CreateSingleConsumerUnbounded<IConnection>();
 
-        public override async Task<IConnection> AcceptAsync()
+        public override UniTask<IConnection> AcceptAsync()
         {
-            return await AcceptConnections.DequeueAsync();
+            return AcceptConnections.Reader.ReadAsync();
         }
 
-        public readonly AsyncQueue<IConnection> ConnectConnections = new AsyncQueue<IConnection>();
+        public readonly Channel<IConnection> ConnectConnections = Channel.CreateSingleConsumerUnbounded<IConnection>();
 
         public override IEnumerable<string> Scheme => new []{"tcp4"};
 
         public override bool Supported => true;
 
-        public override async Task<IConnection> ConnectAsync(Uri uri)
+        public override UniTask<IConnection> ConnectAsync(Uri uri)
         {
-            return await ConnectConnections.DequeueAsync();
+            return ConnectConnections.Reader.ReadAsync();
         }
 
         public override void Disconnect()
         {
-            AcceptConnections.Enqueue(null);
+            AcceptConnections.Writer.TryWrite(null);
         }
 
-        public override Task ListenAsync()
+        public override UniTask ListenAsync()
         {
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
 
         public override IEnumerable<Uri> ServerUri()

@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-using static Mirror.Tests.AsyncUtil;
 using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
@@ -38,13 +37,13 @@ namespace Mirror.Tests
         public virtual void ExtraSetup() { }
 
         [UnitySetUp]
-        public IEnumerator Setup() => RunAsync(async () =>
+        public IEnumerator Setup() => UniTask.ToCoroutine(async () =>
         {
             serverGo = new GameObject("server", typeof(NetworkSceneManager), typeof(NetworkServer));
             clientGo = new GameObject("client", typeof(NetworkSceneManager), typeof(NetworkClient));
             testTransport = serverGo.AddComponent<LoopbackTransport>();
 
-            await Task.Delay(1);
+            await UniTask.Delay(1);
 
             server = serverGo.GetComponent<NetworkServer>();
             client = clientGo.GetComponent<NetworkClient>();
@@ -66,12 +65,12 @@ namespace Mirror.Tests
             client.RegisterPrefab(playerPrefab);
 
             // wait for client and server to initialize themselves
-            await Task.Delay(1);
+            await UniTask.Delay(1);
 
             // start the server
             await server.ListenAsync();
 
-            await Task.Delay(1);
+            await UniTask.Delay(1);
 
             var builder = new UriBuilder
             {
@@ -82,7 +81,7 @@ namespace Mirror.Tests
             // now start the client
             await client.ConnectAsync(builder.Uri);
 
-            await WaitFor(() => server.connections.Count > 0);
+            await UniTask.WaitUntil(() => server.connections.Count > 0);
 
             // get the connections so that we can spawn players
             connectionToClient = server.connections.First();
@@ -95,7 +94,7 @@ namespace Mirror.Tests
             server.AddPlayerForConnection(connectionToClient, serverPlayerGO);
 
             // wait for client to spawn it
-            await WaitFor(() => connectionToServer.Identity != null);
+            await UniTask.WaitUntil(() => connectionToServer.Identity != null);
 
             clientIdentity = connectionToServer.Identity;
             clientPlayerGO = clientIdentity.gameObject;
@@ -105,13 +104,13 @@ namespace Mirror.Tests
         public virtual void ExtraTearDown() { }
 
         [UnityTearDown]
-        public IEnumerator ShutdownHost() => RunAsync(async () =>
+        public IEnumerator ShutdownHost() => UniTask.ToCoroutine(async () =>
         {
             client.Disconnect();
             server.Disconnect();
 
-            await WaitFor(() => !client.Active);
-            await WaitFor(() => !server.Active);
+            await UniTask.WaitUntil(() => !client.Active);
+            await UniTask.WaitUntil(() => !server.Active);
 
             Object.DestroyImmediate(playerPrefab);
             Object.DestroyImmediate(serverGo);

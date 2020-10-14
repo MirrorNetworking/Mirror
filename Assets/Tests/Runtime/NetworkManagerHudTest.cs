@@ -1,9 +1,8 @@
 using System.Collections;
+using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-
-using static Mirror.Tests.AsyncUtil;
 using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
@@ -71,13 +70,13 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator StopButtonTest() => RunAsync(async () =>
+        public IEnumerator StopButtonTest() => UniTask.ToCoroutine(async () =>
         {
             networkManagerHud.StopButtonHandler();
             Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.True);
             Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.False);
 
-            await WaitFor(() => !manager.IsNetworkActive);
+            await UniTask.WaitUntil(() => !manager.IsNetworkActive);
 
             Assert.That(manager.IsNetworkActive, Is.False);
         });

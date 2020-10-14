@@ -8,7 +8,8 @@
         "Mirror.Authenticators",
         "Mirror.Weaver",
         "Mirror.Experimental",
-        "MirrorNG"
+        "MirrorNG",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

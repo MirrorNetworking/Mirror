@@ -3,12 +3,11 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using InvalidOperationException = System.InvalidOperationException;
 using Object = UnityEngine.Object;
-using static Mirror.Tests.AsyncUtil;
 using System.Collections;
 using UnityEngine.Events;
 using NSubstitute;
 using System;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror.Tests
 {
@@ -191,7 +190,7 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator OnStopServer() => RunAsync(async () =>
+        public IEnumerator OnStopServer() => UniTask.ToCoroutine(async () =>
         {
             server.Spawn(gameObject);
 
@@ -200,7 +199,7 @@ namespace Mirror.Tests
 
             server.UnSpawn(gameObject);
 
-            await Task.Delay(1);
+            await UniTask.Delay(1);
             mockHandler.Received().Invoke();
         });
 
@@ -217,7 +216,7 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator DestroyOwnedObjectsTest() => RunAsync(async () =>
+        public IEnumerator DestroyOwnedObjectsTest() => UniTask.ToCoroutine(async () =>
         {
             GameObject testObj1 = new GameObject();
             GameObject testObj2 = new GameObject();
@@ -228,9 +227,9 @@ namespace Mirror.Tests
             server.LocalConnection.AddOwnedObject(testObj3.AddComponent<NetworkIdentity>());
             server.LocalConnection.DestroyOwnedObjects();
 
-            await WaitFor(() => !testObj1);
-            await WaitFor(() => !testObj2);
-            await WaitFor(() => !testObj3);
+            await UniTask.WaitUntil(() => !testObj1);
+            await UniTask.WaitUntil(() => !testObj2);
+            await UniTask.WaitUntil(() => !testObj3);
         });
     }
 }

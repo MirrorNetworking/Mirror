@@ -5,8 +5,8 @@ using UnityEngine.TestTools;
 
 using Guid = System.Guid;
 using Object = UnityEngine.Object;
-using static Mirror.Tests.AsyncUtil;
 using NSubstitute;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror.Tests
 {
@@ -23,11 +23,11 @@ namespace Mirror.Tests
 
 
         [UnityTest]
-        public IEnumerator ServerRpc() => RunAsync(async () =>
+        public IEnumerator ServerRpc() => UniTask.ToCoroutine(async () =>
         {
             clientComponent.Test(1, "hello");
 
-            await WaitFor(() => serverComponent.cmdArg1 != 0);
+            await UniTask.WaitUntil(() => serverComponent.cmdArg1 != 0);
 
             Assert.That(serverComponent.cmdArg1, Is.EqualTo(1));
             Assert.That(serverComponent.cmdArg2, Is.EqualTo("hello"));
@@ -35,32 +35,32 @@ namespace Mirror.Tests
 
 
         [UnityTest]
-        public IEnumerator ServerRpcWithNetworkIdentity() => RunAsync(async () =>
+        public IEnumerator ServerRpcWithNetworkIdentity() => UniTask.ToCoroutine(async () =>
         {
             clientComponent.CmdNetworkIdentity(clientIdentity);
 
-            await WaitFor(() => serverComponent.cmdNi != null);
+            await UniTask.WaitUntil(() => serverComponent.cmdNi != null);
 
             Assert.That(serverComponent.cmdNi, Is.SameAs(serverIdentity));
         });
 
         [UnityTest]
-        public IEnumerator ClientRpc() => RunAsync(async () =>
+        public IEnumerator ClientRpc() => UniTask.ToCoroutine(async () =>
         {
             serverComponent.RpcTest(1, "hello");
             // process spawn message from server
-            await WaitFor(() => clientComponent.rpcArg1 != 0);
+            await UniTask.WaitUntil(() => clientComponent.rpcArg1 != 0);
 
             Assert.That(clientComponent.rpcArg1, Is.EqualTo(1));
             Assert.That(clientComponent.rpcArg2, Is.EqualTo("hello"));
         });
 
         [UnityTest]
-        public IEnumerator ClientConnRpc() => RunAsync(async () =>
+        public IEnumerator ClientConnRpc() => UniTask.ToCoroutine(async () =>
         {
             serverComponent.ClientConnRpcTest(connectionToClient, 1, "hello");
             // process spawn message from server
-            await WaitFor(() => clientComponent.targetRpcArg1 != 0);
+            await UniTask.WaitUntil(() => clientComponent.targetRpcArg1 != 0);
 
             Assert.That(clientComponent.targetRpcConn, Is.SameAs(connectionToServer));
             Assert.That(clientComponent.targetRpcArg1, Is.EqualTo(1));
@@ -68,19 +68,20 @@ namespace Mirror.Tests
         });
 
         [UnityTest]
-        public IEnumerator ClientOwnerRpc() => RunAsync(async () =>
+        public IEnumerator ClientOwnerRpc() => UniTask.ToCoroutine(async () =>
         {
             serverComponent.RpcOwnerTest(1, "hello");
             // process spawn message from server
-            await WaitFor(() => clientComponent.rpcOwnerArg1 != 0);
+            await UniTask.WaitUntil(() => clientComponent.rpcOwnerArg1 != 0);
 
             Assert.That(clientComponent.rpcOwnerArg1, Is.EqualTo(1));
             Assert.That(clientComponent.rpcOwnerArg2, Is.EqualTo("hello"));
         });
 
         [UnityTest]
-        public IEnumerator OnSpawnSpawnHandlerTest() => RunAsync(async () =>
+        public IEnumerator OnSpawnSpawnHandlerTest() => UniTask.ToCoroutine(async () =>
         {
+            spawnDelegateTestCalled = 0;
             var guid = Guid.NewGuid();
             var gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
@@ -90,14 +91,15 @@ namespace Mirror.Tests
             client.RegisterPrefab(gameObject, guid);
             server.SendSpawnMessage(identity, connectionToClient);
 
-            await WaitFor(() => spawnDelegateTestCalled != 0);
+            await UniTask.WaitUntil(() => spawnDelegateTestCalled != 0);
 
             Assert.That(spawnDelegateTestCalled, Is.EqualTo(1));
         });
 
         [UnityTest]
-        public IEnumerator OnDestroySpawnHandlerTest() => RunAsync(async () =>
+        public IEnumerator OnDestroySpawnHandlerTest() => UniTask.ToCoroutine(async () =>
         {
+            spawnDelegateTestCalled = 0;
             var guid = Guid.NewGuid();
             var gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
@@ -109,7 +111,7 @@ namespace Mirror.Tests
             client.RegisterPrefab(gameObject, guid);
             server.SendSpawnMessage(identity, connectionToClient);
 
-            await WaitFor(() => spawnDelegateTestCalled != 0);
+            await UniTask.WaitUntil(() => spawnDelegateTestCalled != 0);
 
             client.OnObjectDestroy(new ObjectDestroyMessage
             {
@@ -131,11 +133,11 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator ClientDisconnectTest() => RunAsync(async () =>
+        public IEnumerator ClientDisconnectTest() => UniTask.ToCoroutine(async () =>
         {
             client.Disconnect();
 
-            await WaitFor(() => client.connectState == ConnectState.Disconnected);
+            await UniTask.WaitUntil(() => client.connectState == ConnectState.Disconnected);
         });
     }
 }

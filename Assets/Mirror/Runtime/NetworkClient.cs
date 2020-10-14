@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using Guid = System.Guid;
@@ -143,7 +143,7 @@ namespace Mirror
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="uri">Address of the server to connect to</param>
-        public async Task ConnectAsync(Uri uri)
+        public async UniTask ConnectAsync(Uri uri)
         {
             if (logger.LogEnabled()) logger.Log("Client Connect: " + uri);
 
@@ -223,7 +223,7 @@ namespace Mirror
         /// gameobjects when processing the message</remarks>
         internal static NetworkClient Current { get; set; }
 
-        async Task OnConnected()
+        async UniTask OnConnected()
         {
             // reset network time stats
 
@@ -273,7 +273,7 @@ namespace Mirror
         /// <param name="message"></param>
         /// <param name="channelId"></param>
         /// <returns>True if message was sent.</returns>
-        public Task SendAsync<T>(T message, int channelId = Channels.DefaultReliable)
+        public UniTask SendAsync<T>(T message, int channelId = Channels.DefaultReliable)
         {
             return Connection.SendAsync(message, channelId);
         }

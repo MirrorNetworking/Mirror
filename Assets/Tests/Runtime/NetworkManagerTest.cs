@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
+using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine.TestTools;
-using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
@@ -16,11 +16,11 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator IsNetworkActiveStopTest() => RunAsync(async () =>
+        public IEnumerator IsNetworkActiveStopTest() => UniTask.ToCoroutine(async () =>
         {
             manager.server.Disconnect();
 
-            await WaitFor(() => !client.Active);
+            await UniTask.WaitUntil(() => !client.Active);
 
             Assert.That(server.Active, Is.False);
             Assert.That(client.Active, Is.False);
@@ -28,11 +28,11 @@ namespace Mirror.Tests
         });
 
         [UnityTest]
-        public IEnumerator StopClientTest() => RunAsync(async () =>
+        public IEnumerator StopClientTest() => UniTask.ToCoroutine(async () =>
         {
             manager.client.Disconnect();
 
-            await WaitFor(() => !client.Active);
+            await UniTask.WaitUntil(() => !client.Active);
         });
 
         [Test]

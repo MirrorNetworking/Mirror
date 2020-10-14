@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Mirror.Tcp
@@ -17,12 +17,12 @@ namespace Mirror.Tcp
 
         public override bool Supported => Application.platform != RuntimePlatform.WebGLPlayer;
 
-        public override Task ListenAsync()
+        public override UniTask ListenAsync()
         {
             listener = TcpListener.Create(Port);
             listener.Server.NoDelay = true;
             listener.Start();
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
 
         public override void Disconnect()
@@ -30,7 +30,7 @@ namespace Mirror.Tcp
             listener?.Stop();
         }
 
-        public override async Task<IConnection> ConnectAsync(Uri uri)
+        public override async UniTask<IConnection> ConnectAsync(Uri uri)
         {
             string host = uri.Host;
             int port = uri.IsDefaultPort ? Port : uri.Port;
@@ -49,7 +49,7 @@ namespace Mirror.Tcp
             return new TcpConnection(client);
         }
 
-        public override async Task<IConnection> AcceptAsync()
+        public override async UniTask<IConnection> AcceptAsync()
         {
             try
             {

@@ -1,5 +1,5 @@
 using System;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Mirror
@@ -37,6 +37,6 @@ namespace Mirror
 
         void Send<T>(T message, int channelId = Channels.DefaultReliable);
 
-        Task SendAsync<T>(T message, int channelId = Channels.DefaultReliable);
+        UniTask SendAsync<T>(T message, int channelId = Channels.DefaultReliable);
     }
 }

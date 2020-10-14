@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror
 {
@@ -19,7 +19,7 @@ namespace Mirror
         /// </summary>
         /// <exception>If we cannot start the transport</exception>
         /// <returns></returns>
-        public abstract Task ListenAsync();
+        public abstract UniTask ListenAsync();
 
         /// <summary>
         /// Stop listening to the port
@@ -38,7 +38,7 @@ namespace Mirror
         /// <param name="uri">address of the server to connect to</param>
         /// <returns>The connection to the server</returns>
         /// <exception>If connection cannot be established</exception>
-        public abstract Task<IConnection> ConnectAsync(Uri uri);
+        public abstract UniTask<IConnection> ConnectAsync(Uri uri);
 
         /// <summary>
         /// Accepts a connection from a client. 
@@ -46,7 +46,7 @@ namespace Mirror
         /// then you get the connection to the client
         /// </summary>
         /// <returns>The connection to a client</returns>
-        public abstract Task<IConnection> AcceptAsync();
+        public abstract UniTask<IConnection> AcceptAsync();
 
         /// <summary>
         /// Retrieves the address of this server.

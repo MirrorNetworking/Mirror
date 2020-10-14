@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror
 {
@@ -53,7 +53,7 @@ namespace Mirror
         // technically not an IPEndpoint,  will fix later
         public EndPoint GetEndPointAddress() => new IPEndPoint(IPAddress.Loopback, 0);
 
-        public async Task<bool> ReceiveAsync(MemoryStream buffer)
+        public async UniTask<bool> ReceiveAsync(MemoryStream buffer)
         {
             // wait for a message
             await MessageCount.WaitAsync();
@@ -79,13 +79,13 @@ namespace Mirror
             return true;
         }
 
-        public Task SendAsync(ArraySegment<byte> data)
+        public UniTask SendAsync(ArraySegment<byte> data)
         {
             // add some data to the writer in the connected connection
             // and increase the message count
             connected.writer.WriteBytesAndSizeSegment(data);
             connected.MessageCount.Release();
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
     }
 }

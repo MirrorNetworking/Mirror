@@ -1,9 +1,8 @@
 using System.Collections;
+using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-
-using static Mirror.Tests.AsyncUtil;
 
 namespace Mirror.Tests
 {
@@ -37,7 +36,7 @@ namespace Mirror.Tests
         }
 
         [UnityTest]
-        public IEnumerator SendToReadyTest() => RunAsync(async () =>
+        public IEnumerator SendToReadyTest() => UniTask.ToCoroutine(async () =>
         {
             readyComp = identity.gameObject.AddComponent<ObjectReady>();
             lobby.ObjectReadyList.Add(readyComp);
@@ -47,7 +46,7 @@ namespace Mirror.Tests
             client.Connection.RegisterHandler<SceneMessage>(msg => invokeWovenTestMessage = true);
             lobby.SendToReady(identity, new SceneMessage(), true, Channels.DefaultReliable);
 
-            await WaitFor(() => invokeWovenTestMessage);
+            await UniTask.WaitUntil(() => invokeWovenTestMessage);
         });
 
         [Test]
