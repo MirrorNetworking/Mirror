@@ -88,7 +88,7 @@ If you want to contribute to  MirrorNG, follow these steps:
 ## Transports
 Here is a list of some transports supported by NG and how they compare to each other
 
-|            | Tcp                | Kcp                | [WebsocketNG](https://github.com/MirrorNG/WebsocketNG) | [Steam](https://github.com/dragonslaya84/FizzySteamyMirror) | [LiteNetLibNG](https://github.com/uweenukr/LiteNetLibNG) | [IgnoranceNG](https://github.com/dragonslaya84/IgnoranceNG) |
+|            | Tcp                | Kcp                | [Websocket](https://github.com/MirrorNG/WebsocketNG) | [Steam](https://github.com/dragonslaya84/FizzySteamyMirror) | [LiteNetLibNG](https://github.com/uweenukr/LiteNetLibNG) | [IgnoranceNG](https://github.com/dragonslaya84/IgnoranceNG) |
 | ---------- | ------------------ | ------------------ | ------------------------------------------------------ | ----------------------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- |
 | CCU        | 100                | ?                  | ?                                                      | ?                                                                       | ?                                                        | ?                                                           |
 | Protocol   | TCP                | UDP                | TCP                                                    | UDP                                                                     | UDP                                                      | UDP                                                         |
