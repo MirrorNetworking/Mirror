@@ -23,7 +23,7 @@ namespace Mirror.Tests
         private readonly int maxLat;
         Kcp client;
         Kcp server;
-        readonly CancellationTokenSource cts = new CancellationTokenSource();
+        CancellationTokenSource cts;
 
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Mirror.Tests
         /// <param name="data"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        private async UniTask SendAsync(Kcp target, byte[] data, int length)
+        private async UniTaskVoid SendAsync(Kcp target, byte[] data, int length, CancellationToken token)
         {
             // drop some packets
             if (Random.value < pdrop)
@@ -55,7 +55,9 @@ namespace Mirror.Tests
 
             int latency = Random.Range(0, maxLat);
 
-            await UniTask.Delay(latency);
+            if (latency > 0)
+                await UniTask.Delay(latency, false, PlayerLoopTiming.Update, token);
+
             target.Input(data, 0, length, true, false);
 
             // duplicate some packets (udp can duplicate packets)
@@ -63,11 +65,12 @@ namespace Mirror.Tests
                 target.Input(data, 0, length, true, false);
         }
 
-        async UniTask Tick(Kcp kcp, CancellationToken token)
+        async UniTask Tick(Kcp kcp, string name, CancellationToken token)
         {
             while (true)
             {
                 await UniTask.Delay(10, false, PlayerLoopTiming.Update, token);
+
                 kcp.Update();
             }
         }
@@ -76,20 +79,28 @@ namespace Mirror.Tests
         [SetUp]
         public void SetupKcp()
         {
+            cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
+
             client = new Kcp(0, (data, length) => {
-                _ = SendAsync(server, data, length);
+                SendAsync(server, data, length, token).Forget();
             });
             // fast mode so that we finish quicker
             client.SetNoDelay(true, 10, 2, true);
+            client.SetMtu(1000);
+            client.SetWindowSize(16, 16);
 
             server = new Kcp(0, (data, length) => {
-                _ = SendAsync(client, data, length);
+                SendAsync(client, data, length, token).Forget();
             });
             // fast mode so that we finish quicker
             server.SetNoDelay(true, 10, 2, true);
+            client.SetMtu(1000);
+            client.SetWindowSize(16, 16);
 
-            _ = Tick(server, cts.Token);
-            _ = Tick(client, cts.Token);
+
+            _ = Tick(server, "server", token);
+            _ = Tick(client, "client", token);
         }
 
         [TearDown]
@@ -120,6 +131,37 @@ namespace Mirror.Tests
 
                 Assert.That(buffer[0], Is.EqualTo(i));
             }
+        });
+
+        [UnityTest]
+        [Timeout(30000)]
+        public IEnumerator TestFragmentation() => UniTask.ToCoroutine(async () =>
+        {
+            // Can't send arbitrarily large
+            // messages,  they have to fit in the window
+            // so send something larger than window but smaller than MTU * window
+            byte[] data = new byte[10000];
+
+            // fill up with some data
+            for (int i = 0; i< data.Length; i++)
+            {
+                data[i] = (byte)(i & 0xFF);
+            }
+
+            client.Send(data, 0, data.Length);
+
+            // receive the packet, it should be reassembled as a single packet
+            byte[] buffer = new byte[data.Length];
+
+            int size = server.Receive(buffer, 0, buffer.Length);
+            while (size < 0)
+            {
+                await UniTask.Delay(10);
+                size = server.Receive(buffer, 0, buffer.Length);
+            }
+
+            Assert.That(data, Is.EqualTo(buffer));
+
         });
     }
 }
