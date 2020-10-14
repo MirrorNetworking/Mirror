@@ -96,11 +96,12 @@ MirrorNG currently supports the following low level networking transports:
   It may become the default transport in the near future.  Try it out and let us know.
 * [Websockets](https://github.com/MirrorNG/MirrorNG_Websocket)
   A transport suitable for webgl builds. Your client will use the browser's websocket.
-* [Steam](https://github.com/dragonslaya84/FizzySteamyMirror)
-  A UDP based transport based on Steam's library.  Suitable for PC games.
-* [LiteNetLib](https://github.com/uweenukr/LiteNetLibTransportNG)
+* [FizzySteamyMirror](https://github.com/dragonslaya84/FizzySteamyMirror)
+  A UDP based transport based on Steam networking library.  Suitable for PC games. It has some very sophisticated features
+  such as NAT punch through. It is not available in mobile or consoles.
+* [LiteNetLibTransportNG](https://github.com/uweenukr/LiteNetLibTransportNG)
   Another UDP based transport based on the well known [LiteNetLib](https://github.com/RevenantX/LiteNetLib) library.
-* https://github.com/dragonslaya84/IgnoranceNG
+* [IgnoranceNG](https://github.com/dragonslaya84/IgnoranceNG)
   A UDP based transport based on native code. Based on the well known [ENet](http://enet.bespin.org/)
 
 ## Contributing
