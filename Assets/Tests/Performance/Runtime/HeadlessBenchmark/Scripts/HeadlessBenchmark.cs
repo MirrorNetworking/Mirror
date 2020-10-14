@@ -25,6 +25,25 @@ namespace Mirror.HeadlessBenchmark
 #endif
 
             HeadlessStart();
+
+            StartCoroutine(DisplayFramesPerSecons());
+        }
+
+        private IEnumerator DisplayFramesPerSecons()
+        {
+            int previousFrameCount = Time.frameCount;
+
+            while (true)
+            {
+                yield return new WaitForSeconds(1);
+
+                int frameCount = Time.frameCount;
+
+                int frames = frameCount - previousFrameCount;
+
+                Debug.LogFormat("{0} FPS", frames);
+                previousFrameCount = frameCount;
+            }
         }
 
         void HeadlessStart()
