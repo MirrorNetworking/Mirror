@@ -86,23 +86,21 @@ If you want to contribute to  MirrorNG, follow these steps:
 3) Open in unity 2019.4.x or later
 
 ## Transports
-MirrorNG currently supports the following low level networking transports:
+Here is a list of some transports supported by NG as how they compare to each other
 
-* Tcp (built in)
-  Minimalistic and trouble free.  Not very fast though.  It does not support unreliable messaging or any other fancy feature.
-  Suitable for development.
-* Kcp (built in,  experimental)
-  A UDP based transport based on the KCP protocol.  It is very fast, low oeverhead and low latency.  
-  It may become the default transport in the near future.  Try it out and let us know.
-* [Websockets](https://github.com/MirrorNG/MirrorNG_Websocket)
-  A transport suitable for webgl builds. Your client will use the browser's websocket.
-* [FizzySteamyMirror](https://github.com/dragonslaya84/FizzySteamyMirror)
-  A UDP based transport based on Steam networking library.  Suitable for PC games. It has some very sophisticated features
-  such as NAT punch through. It is not available in mobile or consoles.
-* [LiteNetLibTransportNG](https://github.com/uweenukr/LiteNetLibTransportNG)
-  Another UDP based transport based on the well known [LiteNetLib](https://github.com/RevenantX/LiteNetLib) library.
-* [IgnoranceNG](https://github.com/dragonslaya84/IgnoranceNG)
-  A UDP based transport based on native code. Based on the well known [ENet](http://enet.bespin.org/)
+|            | Tcp           | Kcp     | [WebsocketNG](https://github.com/MirrorNG/WebsocketNG) | [FizzySteamyMirror](https://github.com/dragonslaya84/FizzySteamyMirror) | [LiteNetLibTransportNG](https://github.com/uweenukr/LiteNetLibTransportNG) | [IgnoranceNG](https://github.com/dragonslaya84/IgnoranceNG) |
+| ---------- | ------------- | ------- | ------------------------------------------------------ | ----------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| CCU        | 100           |         |                                                        |                                                                         |                                                                            |                                                             |
+| Protocol   | TCP           | UDP     | UDP                                                    | UDP                                                                     | UDP                                                                        | UDP                                                         |
+| Unreliable | NO            | NO      | NO                                                     | YES                                                                     | YES                                                                        | YES                                                         |
+| WebGL      | NO            | NO      | YES                                                    | NO                                                                      | NO                                                                         | NO                                                          |
+| Mobile     | YES           | YES     | NO                                                     | NO                                                                      |                                                                            |                                                             |
+| CPU        | HIGH          | LOW     | HIGH                                                   |                                                                         |                                                                            |                                                             |
+| NAT Punch  | NO            | NO      | NO                                                     | YES                                                                     | NO                                                                         | NO                                                          |
+| Encryption | NO            | NO      | YES                                                    | YES                                                                     | NO                                                                         | NO                                                          |
+| IPV6       | YES           | YES     | YES                                                    |                                                                         |                                                                            |                                                             |
+| Managed    | YES           | YES     | YES                                                    | NO                                                                      | YES                                                                        | NO                                                          |
+| Based on   | Async Sockets | KCP/UDP | Ninja Websockets                                       | Steam Game Networking Sockets                                           | LiteNetLib                                                                 | ENet                                                        |
 
 ## Contributing
 
