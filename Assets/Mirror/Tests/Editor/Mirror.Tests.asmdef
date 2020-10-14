@@ -5,7 +5,8 @@
         "Mirror.Weaver",
         "Mirror.Components",
         "Mirror.Tests.Common",
-        "Telepathy"
+        "Telepathy",
+        "KCP"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
