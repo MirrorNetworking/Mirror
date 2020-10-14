@@ -58,7 +58,7 @@ namespace Mirror.KCP
             return 4;
         }
 
-        public static uint Clamp(uint value, uint lower, uint upper)
+        public static int Clamp(int value, int lower, int upper)
         {
             return Math.Min(Math.Max(lower, value), upper);
         }
@@ -66,6 +66,19 @@ namespace Mirror.KCP
         public static int TimeDiff(uint later, uint earlier)
         {
             return ((int)(later - earlier));
+        }
+
+        public static bool Equal(ArraySegment<byte> seg1, ArraySegment<byte> seg2)
+        {
+            if (seg1.Count != seg2.Count)
+                return false;
+
+            for (int i=0; i< seg1.Count; i++)
+            {
+                if (seg1.Array[i + seg1.Offset] != seg2.Array[i+seg2.Offset])                
+                    return false;
+            }
+            return true;
         }
     }
 }
