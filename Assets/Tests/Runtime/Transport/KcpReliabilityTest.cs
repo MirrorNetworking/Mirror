@@ -11,11 +11,11 @@ namespace Mirror.Tests
 {
 
     [TestFixture(0f, 0f, 0)]
-    [TestFixture(0.2f, 0f, 0)]
-    [TestFixture(0f, 0.2f, 0)]
-    [TestFixture(0.2f, 0.2f, 0)]
-    [TestFixture(0f, 0f, 20)]
-    [TestFixture(0.2f, 0.2f, 20)]
+    [TestFixture(0.5f, 0f, 0)]
+    [TestFixture(0f, 0.5f, 0)]
+    [TestFixture(0.5f, 0.5f, 0)]
+    [TestFixture(0f, 0f, 40)]
+    [TestFixture(0.5f, 0.5f, 40)]
     public class KcpReliabilityTest
     {
         private readonly float pdrop;
