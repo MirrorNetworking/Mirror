@@ -1,10 +1,12 @@
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Mirror.SimpleWeb
 {
     public static class MessageProcessor
     {
-        private static byte FirstLengthByte(byte[] buffer) => (byte)(buffer[1] & 0b0111_1111);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static byte FirstLengthByte(byte[] buffer) => (byte)(buffer[1] & 0b0111_1111);
 
         public static bool NeedToReadShortLength(byte[] buffer)
         {
@@ -42,12 +44,23 @@ namespace Mirror.SimpleWeb
             ThrowIfMsgLengthTooLong(msglen, maxLength);
         }
 
-        public static void ToggleMask(byte[] messageBuffer, int messageOffset, int messageLength, byte[] maskBuffer, int maskOffset)
+        public static void ToggleMask(byte[] src, int sourceOffset, int messageLength, byte[] maskBuffer, int maskOffset)
+        {
+            ToggleMask(src, sourceOffset, src, sourceOffset, messageLength, maskBuffer, maskOffset);
+        }
+
+        public static void ToggleMask(byte[] src, int sourceOffset, ArrayBuffer dst, int messageLength, byte[] maskBuffer, int maskOffset)
+        {
+            ToggleMask(src, sourceOffset, dst.array, 0, messageLength, maskBuffer, maskOffset);
+            dst.count = messageLength;
+        }
+
+        public static void ToggleMask(byte[] src, int srcOffset, byte[] dst, int dstOffset, int messageLength, byte[] maskBuffer, int maskOffset)
         {
             for (int i = 0; i < messageLength; i++)
             {
                 byte maskByte = maskBuffer[maskOffset + i % Constants.MaskSize];
-                messageBuffer[messageOffset + i] = (byte)(messageBuffer[messageOffset + i] ^ maskByte);
+                dst[dstOffset + i] = (byte)(src[srcOffset + i] ^ maskByte);
             }
         }
 
@@ -79,7 +92,6 @@ namespace Mirror.SimpleWeb
         {
             if (!finished)
             {
-                // TODO check if we need to deal with this
                 throw new InvalidDataException("Full message should have been sent, if the full message wasn't sent it wasn't sent from this trasnport");
             }
         }

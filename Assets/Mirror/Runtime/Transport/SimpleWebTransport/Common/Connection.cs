@@ -6,16 +6,17 @@ using System.Threading;
 
 namespace Mirror.SimpleWeb
 {
-    internal class Connection
+    internal sealed class Connection : IDisposable
     {
-        public object lockObj = new object();
+        public const int IdNotSet = -1;
+
+        readonly object disposedLock = new object();
 
         public TcpClient client;
         // used for ToString
-        private readonly string endpoint;
+        readonly string endpoint;
 
-        public bool hasClosed;
-        public int connId = -1;
+        public int connId = IdNotSet;
         public Stream stream;
         public Thread receiveThread;
         public Thread sendThread;
@@ -23,48 +24,63 @@ namespace Mirror.SimpleWeb
         public ManualResetEventSlim sendPending = new ManualResetEventSlim(false);
         public ConcurrentQueue<ArrayBuffer> sendQueue = new ConcurrentQueue<ArrayBuffer>();
 
-        public Connection(TcpClient client)
+        public Action<Connection> onDispose;
+
+        volatile bool hasDisposed;
+
+        public Connection(TcpClient client, Action<Connection> onDispose)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
             endpoint = client.Client.RemoteEndPoint.ToString();
+            this.onDispose = onDispose;
         }
+
 
         /// <summary>
         /// disposes client and stops threads
         /// </summary>
-        /// <returns>return true if closed by this call, false if was already closed</returns>
-        public bool Close()
+        public void Dispose()
         {
-            // check hasClosed first to stop ThreadInterruptedException on lock
-            if (hasClosed) { return false; }
+            Log.Verbose($"Dispose {ToString()}");
+
+            // check hasDisposed first to stop ThreadInterruptedException on lock
+            if (hasDisposed) { return; }
 
             Log.Info($"Connection Close: {ToString()}");
 
-            lock (lockObj)
+
+            lock (disposedLock)
             {
-                // check hasClosed again inside lock to make sure no other object has called this
-                if (hasClosed) { return false; }
-                hasClosed = true;
+                // check hasDisposed again inside lock to make sure no other object has called this
+                if (hasDisposed) { return; }
+                hasDisposed = true;
 
                 // stop threads first so they dont try to use disposed objects
                 receiveThread.Interrupt();
                 sendThread?.Interrupt();
 
-                stream?.Dispose();
-                stream = null;
-                client.Dispose();
-                client = null;
+                try
+                {
+                    // stream 
+                    stream?.Dispose();
+                    stream = null;
+                    client.Dispose();
+                    client = null;
+                }
+                catch (Exception e)
+                {
+                    Log.Exception(e);
+                }
 
                 sendPending.Dispose();
 
-                // Todo is this ok to run on the main thread?? will it have negative performance if queue is large
                 // release all buffers in send queue
                 while (sendQueue.TryDequeue(out ArrayBuffer buffer))
                 {
                     buffer.Release();
                 }
 
-                return true;
+                onDispose.Invoke(this);
             }
         }
 

@@ -29,7 +29,7 @@ namespace Mirror.SimpleWeb
             }
         }
 
-        private Stream CreateStream(NetworkStream stream, Uri uri)
+        Stream CreateStream(NetworkStream stream, Uri uri)
         {
             SslStream sslStream = new SslStream(stream, true, ValidateServerCertificate);
             sslStream.AuthenticateAsClient(uri.Host);

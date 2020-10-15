@@ -28,21 +28,21 @@ namespace Mirror.SimpleWeb
         }
 
         [Conditional(SIMPLEWEB_LOG_ENABLED)]
-        public static void DumpBuffer(byte[] buffer, int offset, int length)
-        {
-            if (level < Levels.verbose)
-                return;
-
-            logger.Log(LogType.Log, $"VERBOSE: <color=blue>{BufferToString(buffer, offset, length)}</color>");
-        }
-
-        [Conditional(SIMPLEWEB_LOG_ENABLED)]
         public static void DumpBuffer(string label, byte[] buffer, int offset, int length)
         {
             if (level < Levels.verbose)
                 return;
 
             logger.Log(LogType.Log, $"VERBOSE: <color=blue>{label}: {BufferToString(buffer, offset, length)}</color>");
+        }
+
+        [Conditional(SIMPLEWEB_LOG_ENABLED)]
+        public static void DumpBuffer(string label, ArrayBuffer arrayBuffer)
+        {
+            if (level < Levels.verbose)
+                return;
+
+            logger.Log(LogType.Log, $"VERBOSE: <color=blue>{label}: {BufferToString(arrayBuffer.array, 0, arrayBuffer.count)}</color>");
         }
 
         [Conditional(SIMPLEWEB_LOG_ENABLED)]
@@ -67,6 +67,20 @@ namespace Mirror.SimpleWeb
                 logger.Log(LogType.Log, $"INFO: <color=blue>{msg}</color>");
             else
                 logger.Log(LogType.Log, $"INFO: {msg}");
+        }
+
+        /// <summary>
+        /// An expected Exception was caught, useful for debugging but not important
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="showColor"></param>
+        [Conditional(SIMPLEWEB_LOG_ENABLED)]
+        public static void InfoException(Exception e)
+        {
+            if (level < Levels.info)
+                return;
+
+            logger.Log(LogType.Log, $"INFO_EXCEPTION: <color=blue>{e.GetType().Name}</color> Message: {e.Message}");
         }
 
         [Conditional(SIMPLEWEB_LOG_ENABLED), Conditional(DEBUG)]

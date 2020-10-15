@@ -26,6 +26,8 @@ namespace Mirror.SimpleWeb
                 string key = Convert.ToBase64String(keyBuffer);
                 string keySum = key + Constants.HandshakeGUID;
                 byte[] keySumBytes = Encoding.UTF8.GetBytes(keySum);
+                Log.Verbose($"Handshake Hashing {Encoding.UTF8.GetString(keySumBytes)}");
+
                 byte[] keySumHash = SHA1.Create().ComputeHash(keySumBytes);
 
                 string expectedResponse = Convert.ToBase64String(keySumHash);
@@ -59,7 +61,7 @@ namespace Mirror.SimpleWeb
 
                 if (responseKey != expectedResponse)
                 {
-                    Log.Error("Response key incorrect");
+                    Log.Error($"Response key incorrect, Response:{responseKey} Expected:{expectedResponse}");
                     return false;
                 }
 

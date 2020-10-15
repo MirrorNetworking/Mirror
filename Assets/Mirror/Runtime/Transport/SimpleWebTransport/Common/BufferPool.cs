@@ -11,12 +11,16 @@ namespace Mirror.SimpleWeb
         void Return(ArrayBuffer buffer);
     }
 
-    public class ArrayBuffer
+    public sealed class ArrayBuffer : IDisposable
     {
         readonly IBufferOwner owner;
 
-        readonly byte[] array;
-        public int Length { get; private set; }
+        public readonly byte[] array;
+
+        /// <summary>
+        /// number of bytes writen to buffer
+        /// </summary>
+        internal int count;
 
         /// <summary>
         /// How many times release needs to be called before buffer is returned to pool
@@ -47,18 +51,21 @@ namespace Mirror.SimpleWeb
             int newValue = Interlocked.Decrement(ref releasesRequired);
             if (newValue <= 0)
             {
-                Length = 0;
+                count = 0;
                 owner.Return(this);
             }
+        }
+        public void Dispose()
+        {
+            Release();
         }
 
 
         public void CopyTo(byte[] target, int offset)
         {
-            if (Length > (target.Length + offset)) throw new ArgumentException($"{nameof(Length)} was greater than {nameof(target)}.length", nameof(target));
+            if (count > (target.Length + offset)) throw new ArgumentException($"{nameof(count)} was greater than {nameof(target)}.length", nameof(target));
 
-            //todo check if Buffer.BlockCopy is faster
-            Array.Copy(array, 0, target, offset, Length);
+            Buffer.BlockCopy(array, 0, target, offset, count);
         }
 
         public void CopyFrom(ArraySegment<byte> segment)
@@ -70,22 +77,21 @@ namespace Mirror.SimpleWeb
         {
             if (length > array.Length) throw new ArgumentException($"{nameof(length)} was greater than {nameof(array)}.length", nameof(length));
 
-            Length = length;
-            //todo check if Buffer.BlockCopy is faster
-            Array.Copy(source, offset, array, 0, length);
+            count = length;
+            Buffer.BlockCopy(source, offset, array, 0, length);
         }
 
         public void CopyFrom(IntPtr bufferPtr, int length)
         {
             if (length > array.Length) throw new ArgumentException($"{nameof(length)} was greater than {nameof(array)}.length", nameof(length));
 
-            Length = length;
+            count = length;
             Marshal.Copy(bufferPtr, array, 0, length);
         }
 
         public ArraySegment<byte> ToSegment()
         {
-            return new ArraySegment<byte>(array, 0, Length);
+            return new ArraySegment<byte>(array, 0, count);
         }
 
         [Conditional("UNITY_ASSERTIONS")]
@@ -136,13 +142,13 @@ namespace Mirror.SimpleWeb
         }
 
         [Conditional("DEBUG")]
-        private void IncrementCreated()
+        void IncrementCreated()
         {
             int next = Interlocked.Increment(ref _current);
             Log.Verbose($"BufferBucket({arraySize}) count:{next}");
         }
         [Conditional("DEBUG")]
-        private void DecrementCreated()
+        void DecrementCreated()
         {
             int next = Interlocked.Decrement(ref _current);
             Log.Verbose($"BufferBucket({arraySize}) count:{next}");

@@ -11,86 +11,81 @@ namespace Mirror.SimpleWeb
     /// </summary>
     internal class ServerHandshake
     {
-        private const int ResponseLength = 129;
-        private const int KeyLength = 24;
+        const int GetSize = 3;
+        const int ResponseLength = 129;
+        const int KeyLength = 24;
+        const int MergedKeyLength = 60;
         const string KeyHeaderString = "Sec-WebSocket-Key: ";
-
-        readonly object lockObj = new object();
-        readonly byte[] readBuffer = new byte[3000];
-        readonly byte[] keyBuffer = new byte[60];
-        readonly byte[] response = new byte[ResponseLength];
+        // this isnt an offical max, just a reasonable size for a websocket handshake
+        const int maxHttpHeaderSize = 3000;
 
         readonly SHA1 sha1 = SHA1.Create();
+        readonly BufferPool bufferPool;
 
-        public ServerHandshake()
+        public ServerHandshake(BufferPool bufferPool)
         {
-            // write string to buffer once here so we dont need to repeat it was each handshake
-            Encoding.UTF8.GetBytes(Constants.HandshakeGUID, 0, Constants.HandshakeGUIDLength, keyBuffer, KeyLength);
+            this.bufferPool = bufferPool;
         }
+
         ~ServerHandshake()
         {
             sha1.Dispose();
-        }
-
-        /// <summary>
-        /// Clears buffers so that data can't be used by next request
-        /// </summary>
-        void ClearBuffers()
-        {
-            Array.Clear(readBuffer, 0, readBuffer.Length);
-            Array.Clear(keyBuffer, 0, KeyLength);
-            Array.Clear(response, 0, ResponseLength);
         }
 
         public bool TryHandshake(Connection conn)
         {
             Stream stream = conn.stream;
 
-            // TOOD remove alloc
-            byte[] getHeader = new byte[3];
-            if (!ReadHelper.TryRead(stream, getHeader, 0, 3))
-                return false;
-
-            if (!IsGet(getHeader))
+            using (ArrayBuffer getHeader = bufferPool.Take(GetSize))
             {
-                Log.Warn($"First bytes from client was not 'GET' for handshake, instead was {Log.BufferToString(getHeader)}");
-                return false;
+                if (!ReadHelper.TryRead(stream, getHeader.array, 0, GetSize))
+                    return false;
+                getHeader.count = GetSize;
+
+
+                if (!IsGet(getHeader.array))
+                {
+                    Log.Warn($"First bytes from client was not 'GET' for handshake, instead was {Log.BufferToString(getHeader.array, 0, GetSize)}");
+                    return false;
+                }
             }
 
 
-            // lock so that buffers can only be used by this thread
-            // TODO dont used shared buffers as this will block new clients from connecting
-            lock (lockObj)
+            string msg = ReadToEndForHandshake(stream);
+
+            if (string.IsNullOrEmpty(msg))
+                return false;
+
+            try
             {
-                try
-                {
-                    bool success = ReadToEndForHandshake(stream);
-                    if (success)
-                        Log.Info($"Sent Handshake {conn}");
-                    return success;
-                }
-                finally
-                {
-                    ClearBuffers();
-                }
+                AcceptHandshake(stream, msg);
+                return true;
+            }
+            catch (ArgumentException e)
+            {
+                Log.InfoException(e);
+                return false;
             }
         }
 
-        private bool ReadToEndForHandshake(Stream stream)
+        string ReadToEndForHandshake(Stream stream)
         {
-            int? readCountOrFail = ReadHelper.SafeReadTillMatch(stream, readBuffer, 0, readBuffer.Length, Constants.endOfHandshake);
-            if (!readCountOrFail.HasValue)
-                return false;
+            using (ArrayBuffer readBuffer = bufferPool.Take(maxHttpHeaderSize))
+            {
+                int? readCountOrFail = ReadHelper.SafeReadTillMatch(stream, readBuffer.array, 0, maxHttpHeaderSize, Constants.endOfHandshake);
+                if (!readCountOrFail.HasValue)
+                    return null;
 
-            int readCount = readCountOrFail.Value;
+                int readCount = readCountOrFail.Value;
 
-            string msg = Encoding.UTF8.GetString(readBuffer, 0, readCount);
+                string msg = Encoding.UTF8.GetString(readBuffer.array, 0, readCount);
+                Log.Verbose(msg);
 
-            AcceptHandshake(stream, msg);
-            return true;
+                return msg;
+            }
         }
 
-        bool IsGet(byte[] getHeader)
+        static bool IsGet(byte[] getHeader)
         {
             // just check bytes here instead of using Encoding.UTF8
             return getHeader[0] == 71 && // G
@@ -100,17 +95,44 @@ namespace Mirror.SimpleWeb
 
         void AcceptHandshake(Stream stream, string msg)
         {
-            GetKey(msg, keyBuffer);
-            CreateResponse();
+            using (
+                ArrayBuffer keyBuffer = bufferPool.Take(KeyLength),
+                            responseBuffer = bufferPool.Take(ResponseLength))
+            {
+                GetKey(msg, keyBuffer.array);
+                AppendGuid(keyBuffer.array);
+                byte[] keyHash = CreateHash(keyBuffer.array);
+                CreateResponse(keyHash, responseBuffer.array);
 
-            stream.Write(response, 0, ResponseLength);
+                stream.Write(responseBuffer.array, 0, ResponseLength);
+            }
         }
 
-        void CreateResponse()
-        {
-            byte[] keyHash = sha1.ComputeHash(keyBuffer);
 
+        static void GetKey(string msg, byte[] keyBuffer)
+        {
+            int start = msg.IndexOf(KeyHeaderString) + KeyHeaderString.Length;
+
+            Log.Verbose($"Handshake Key: {msg.Substring(start, KeyLength)}");
+            Encoding.UTF8.GetBytes(msg, start, KeyLength, keyBuffer, 0);
+        }
+
+        static void AppendGuid(byte[] keyBuffer)
+        {
+            Buffer.BlockCopy(Constants.HandshakeGUIDBytes, 0, keyBuffer, KeyLength, Constants.HandshakeGUID.Length);
+        }
+
+        byte[] CreateHash(byte[] keyBuffer)
+        {
+            Log.Verbose($"Handshake Hashing {Encoding.UTF8.GetString(keyBuffer, 0, MergedKeyLength)}");
+
+            return sha1.ComputeHash(keyBuffer, 0, MergedKeyLength);
+        }
+
+        static void CreateResponse(byte[] keyHash, byte[] responseBuffer)
+        {
             string keyHashString = Convert.ToBase64String(keyHash);
+
             // compiler should merge these strings into 1 string before format
             string message = string.Format(
                 "HTTP/1.1 101 Switching Protocols\r\n" +
@@ -119,14 +141,8 @@ namespace Mirror.SimpleWeb
                 "Sec-WebSocket-Accept: {0}\r\n\r\n",
                 keyHashString);
 
-            Encoding.UTF8.GetBytes(message, 0, ResponseLength, response, 0);
-        }
-
-        static void GetKey(string msg, byte[] keyBuffer)
-        {
-            int start = msg.IndexOf(KeyHeaderString) + KeyHeaderString.Length;
-
-            Encoding.UTF8.GetBytes(msg, start, KeyLength, keyBuffer, 0);
+            Log.Verbose($"Handshake Response length {message.Length}, IsExpected {message.Length == ResponseLength}");
+            Encoding.UTF8.GetBytes(message, 0, ResponseLength, responseBuffer, 0);
         }
     }
 }

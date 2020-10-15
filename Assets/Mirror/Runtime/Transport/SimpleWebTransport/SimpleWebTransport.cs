@@ -59,7 +59,7 @@ namespace Mirror.SimpleWeb
             }
         }
 
-        private void OnValidate()
+        void OnValidate()
         {
             if (maxMessageSize > ushort.MaxValue)
             {
@@ -84,17 +84,19 @@ namespace Mirror.SimpleWeb
             return maxMessageSize;
         }
 
-        private void Awake()
+        void Awake()
         {
             Log.level = _logLevels;
         }
         public override void Shutdown()
         {
             client?.Disconnect();
+            client = null;
             server?.Stop();
+            server = null;
         }
 
-        private void LateUpdate()
+        void LateUpdate()
         {
             ProcessMessages();
         }

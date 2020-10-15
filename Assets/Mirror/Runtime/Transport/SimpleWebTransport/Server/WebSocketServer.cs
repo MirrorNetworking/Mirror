@@ -15,18 +15,13 @@ namespace Mirror.SimpleWeb
 
         TcpListener listener;
         Thread acceptThread;
-        readonly ServerHandshake handShake = new ServerHandshake();
+        readonly ServerHandshake handShake;
         readonly ServerSslHelper sslHelper;
         readonly BufferPool bufferPool;
         readonly ConcurrentDictionary<int, Connection> connections = new ConcurrentDictionary<int, Connection>();
 
-        int _previousId = 0;
 
-        int GetNextId()
-        {
-            _previousId++;
-            return _previousId;
-        }
+        int _idCounter = 0;
 
         public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, SslConfig sslConfig, BufferPool bufferPool)
         {
@@ -34,6 +29,7 @@ namespace Mirror.SimpleWeb
             this.maxMessageSize = maxMessageSize;
             sslHelper = new ServerSslHelper(sslConfig);
             this.bufferPool = bufferPool;
+            handShake = new ServerHandshake(this.bufferPool);
         }
 
         public void Listen(int port)
@@ -55,11 +51,12 @@ namespace Mirror.SimpleWeb
             listener?.Stop();
             acceptThread = null;
 
+            Log.Info("Server stoped, Closing all connections...");
             // make copy so that foreach doesn't break if values are removed
             Connection[] connectionsCopy = connections.Values.ToArray();
             foreach (Connection conn in connectionsCopy)
             {
-                conn.Close();
+                conn.Dispose();
             }
 
             connections.Clear();
@@ -76,8 +73,9 @@ namespace Mirror.SimpleWeb
                         TcpClient client = listener.AcceptTcpClient();
                         tcpConfig.ApplyTo(client);
 
+
                         // TODO keep track of connections before they are in connections dictionary
-                        Connection conn = new Connection(client);
+                        Connection conn = new Connection(client, AfterConnectionDisposed);
                         Log.Info($"A client connected {conn}");
 
                         // handshake needs its own thread as it needs to wait for message from client
@@ -96,67 +94,78 @@ namespace Mirror.SimpleWeb
                     throw;
                 }
             }
-            catch (ThreadInterruptedException) { Log.Info("acceptLoop ThreadInterrupted"); }
-            catch (ThreadAbortException) { Log.Info("acceptLoop ThreadAbort"); }
+            catch (ThreadInterruptedException e) { Log.InfoException(e); }
+            catch (ThreadAbortException e) { Log.InfoException(e); }
             catch (Exception e) { Log.Exception(e); }
         }
 
         void HandshakeAndReceiveLoop(Connection conn)
         {
-            bool success = sslHelper.TryCreateStream(conn);
-            if (!success)
+            try
             {
-                Log.Error($"Failed to create SSL Stream {conn}");
-                conn.client.Dispose();
-                return;
-            }
+                bool success = sslHelper.TryCreateStream(conn);
+                if (!success)
+                {
+                    Log.Error($"Failed to create SSL Stream {conn}");
+                    conn.Dispose();
+                    return;
+                }
 
-            success = handShake.TryHandshake(conn);
+                success = handShake.TryHandshake(conn);
 
-            if (!success)
-            {
-                Log.Error($"Handshake Failed {conn}");
-                conn.client.Dispose();
-                return;
-            }
+                if (success)
+                {
+                    Log.Info($"Sent Handshake {conn}");
+                }
+                else
+                {
+                    Log.Error($"Handshake Failed {conn}");
+                    conn.Dispose();
+                    return;
+                }
 
-            conn.connId = GetNextId();
-            connections.TryAdd(conn.connId, conn);
+                conn.connId = Interlocked.Increment(ref _idCounter);
+                connections.TryAdd(conn.connId, conn);
 
-            receiveQueue.Enqueue(new Message(conn.connId, EventType.Connected));
+                receiveQueue.Enqueue(new Message(conn.connId, EventType.Connected));
 
-            Thread sendThread = new Thread(() =>
-            {
-                SendLoop.Config sendConfig = new SendLoop.Config(
+                Thread sendThread = new Thread(() =>
+                {
+                    SendLoop.Config sendConfig = new SendLoop.Config(
+                        conn,
+                        bufferSize: Constants.HeaderSize + maxMessageSize,
+                        setMask: false);
+
+                    SendLoop.Loop(sendConfig);
+                });
+
+                conn.sendThread = sendThread;
+                sendThread.IsBackground = true;
+                sendThread.Name = $"SendLoop {conn.connId}";
+                sendThread.Start();
+
+                ReceiveLoop.Config receiveConfig = new ReceiveLoop.Config(
                     conn,
-                    bufferSize: Constants.HeaderSize + maxMessageSize,
-                    setMask: false,
-                    CloseConnection);
+                    maxMessageSize,
+                    expectMask: true,
+                    receiveQueue,
+                    bufferPool);
 
-                SendLoop.Loop(sendConfig);
-            });
-
-            conn.sendThread = sendThread;
-            sendThread.IsBackground = true;
-            sendThread.Name = $"SendLoop {conn.connId}";
-            sendThread.Start();
-
-            ReceiveLoop.Config receiveConfig = new ReceiveLoop.Config(
-                conn,
-                maxMessageSize,
-                expectMask: true,
-                receiveQueue,
-                CloseConnection,
-                bufferPool);
-
-            ReceiveLoop.Loop(receiveConfig);
+                ReceiveLoop.Loop(receiveConfig);
+            }
+            catch (ThreadInterruptedException e) { Log.InfoException(e); }
+            catch (ThreadAbortException e) { Log.InfoException(e); }
+            catch (Exception e) { Log.Exception(e); }
+            finally
+            {
+                // close here incase connect fails
+                conn.Dispose();
+            }
         }
 
-        void CloseConnection(Connection conn)
+        void AfterConnectionDisposed(Connection conn)
         {
-            bool closed = conn.Close();
-            // only send disconnect message if closed by the call
-            if (closed)
+            if (conn.connId != Connection.IdNotSet)
             {
                 receiveQueue.Enqueue(new Message(conn.connId, EventType.Disconnected));
                 connections.TryRemove(conn.connId, out Connection _);
@@ -180,11 +189,14 @@ namespace Mirror.SimpleWeb
         {
             if (connections.TryGetValue(id, out Connection conn))
             {
-                CloseConnection(conn);
+                Log.Info($"Kicking connection {id}");
+                conn.Dispose();
                 return true;
             }
             else
             {
+                Log.Warn($"Failed to kick {id} because id not found");
+
                 return false;
             }
         }

@@ -13,34 +13,26 @@ namespace Mirror.SimpleWeb
             public readonly Connection conn;
             public readonly int bufferSize;
             public readonly bool setMask;
-            public readonly Action<Connection> closeCallback;
 
-            public Config(Connection conn, int bufferSize, bool setMask, Action<Connection> closeCallback)
+            public Config(Connection conn, int bufferSize, bool setMask)
             {
                 this.conn = conn ?? throw new ArgumentNullException(nameof(conn));
                 this.bufferSize = bufferSize;
                 this.setMask = setMask;
-                this.closeCallback = closeCallback ?? throw new ArgumentNullException(nameof(closeCallback));
             }
 
-            public void Deconstruct(out Connection conn, out int bufferSize, out bool setMask, out Action<Connection> closeCallback)
+            public void Deconstruct(out Connection conn, out int bufferSize, out bool setMask)
             {
                 conn = this.conn;
                 bufferSize = this.bufferSize;
                 setMask = this.setMask;
-                closeCallback = this.closeCallback;
-            }
-
-            internal void Deconstruct(out Connection conn, out bool setMask)
-            {
-                throw new NotImplementedException();
             }
         }
 
 
         public static void Loop(Config config)
         {
-            (Connection conn, int bufferSize, bool setMask, Action<Connection> closeCallback) = config;
+            (Connection conn, int bufferSize, bool setMask) = config;
 
             // create write buffer for this thread
             byte[] writeBuffer = new byte[bufferSize];
@@ -69,24 +61,25 @@ namespace Mirror.SimpleWeb
                         msg.Release();
                     }
                 }
+
+                Log.Info($"{conn} Not Connected");
             }
-            catch (ThreadInterruptedException) { Log.Info($"SendLoop {conn} ThreadInterrupted"); }
-            catch (ThreadAbortException) { Log.Info($"SendLoop {conn} ThreadAbort"); }
+            catch (ThreadInterruptedException e) { Log.InfoException(e); }
+            catch (ThreadAbortException e) { Log.InfoException(e); }
             catch (Exception e)
             {
                 Log.Exception(e);
-
-                closeCallback.Invoke(conn);
             }
             finally
             {
+                conn.Dispose();
                 maskHelper?.Dispose();
             }
         }
 
         static void SendMessage(Stream stream, byte[] buffer, ArrayBuffer msg, bool setMask, MaskHelper maskHelper)
         {
-            int msgLength = msg.Length;
+            int msgLength = msg.count;
             int sendLength = WriteHeader(buffer, msgLength, setMask);
 
             if (setMask)
@@ -102,7 +95,6 @@ namespace Mirror.SimpleWeb
 
             if (setMask)
             {
-                //todo make toggleMask write to buffer to skip Array.Copy
                 int messageOffset = sendLength - msgLength;
                 MessageProcessor.ToggleMask(buffer, messageOffset, msgLength, buffer, messageOffset - Constants.MaskSize);
             }
