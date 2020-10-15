@@ -560,7 +560,7 @@ namespace Mirror.KCP
             ackList.Clear();
         }
 
-        int SetSendBuffer(uint cwnd_)
+        int FillSendBuffer(uint cwnd_)
         {
             // sliding window, controlled by snd_nxt && sna_una+cwnd
             int newSegsCount = 0;
@@ -656,7 +656,7 @@ namespace Mirror.KCP
                 cwnd_ = Math.Min(cwnd, cwnd_);
 
             // sliding window, controlled by snd_nxt && sna_una+cwnd
-            int newSegsCount = SetSendBuffer(cwnd_);
+            int newSegsCount = FillSendBuffer(cwnd_);
 
             // calculate resent
             uint resent = (uint)fastresend;
