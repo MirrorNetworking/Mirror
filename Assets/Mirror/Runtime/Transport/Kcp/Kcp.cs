@@ -307,14 +307,13 @@ namespace Mirror.KCP
             uint sn = newseg.sn;
             int n = receiveBuffer.Count - 1;
             int insert_idx = 0;
-            bool repeat = false;
             for (int i = n; i >= 0; i--)
             {
                 Segment seg = receiveBuffer[i];
                 if (seg.sn == sn)
                 {
-                    repeat = true;
-                    break;
+                    Segment.Put(newseg);
+                    return;
                 }
 
                 if (sn > seg.sn)
@@ -324,18 +323,10 @@ namespace Mirror.KCP
                 }
             }
 
-            if (repeat)
-            {
-                // we already got this segment,  put it back in the pool
-                Segment.Put(newseg);
-            }
+            if (insert_idx == n + 1)
+                receiveBuffer.Add(newseg);
             else
-            {
-                if (insert_idx == n + 1)
-                    receiveBuffer.Add(newseg);
-                else
-                    receiveBuffer.Insert(insert_idx, newseg);
-            }
+                receiveBuffer.Insert(insert_idx, newseg);
         }
 
         // move available data from rcv_buf -> rcv_queue
