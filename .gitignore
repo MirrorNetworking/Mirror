@@ -76,3 +76,5 @@ Assets/Mirror/Samples
 Assets/Mirror/Samples.meta
 
 Builds/
+InitTestScene*.unity.*
+InitTestScene*.unity
