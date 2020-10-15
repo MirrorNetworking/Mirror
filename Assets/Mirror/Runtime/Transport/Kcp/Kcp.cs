@@ -311,6 +311,9 @@ namespace Mirror.KCP
             uint sn = newseg.sn;
             int n = receiveBuffer.Count - 1;
             int insert_idx = 0;
+
+            // note this works better in this case than binary search
+            // because segments tend to go near the end of the buffer
             for (int i = n; i >= 0; i--)
             {
                 Segment seg = receiveBuffer[i];
