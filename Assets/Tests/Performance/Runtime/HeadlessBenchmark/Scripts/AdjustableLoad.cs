@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Mirror.HeadlessBenchmark
@@ -10,21 +11,19 @@ namespace Mirror.HeadlessBenchmark
         [SyncVar]
         public float Floaty;
 
-        // Update is called once per frame
-        void Update()
+        public void Start()
         {
-            if(HasAuthority)
+            NetIdentity.OnStartAuthority.AddListener(() => StartCoroutine(Move()));
+        }
+
+        private IEnumerator Move()
+        {
+            while (true)
             {
                 transform.position += transform.up * MovementSpeed * Time.deltaTime;
                 transform.Rotate(0, 0, Time.deltaTime * RotateSpeed);
-            }
 
-            if(IsServer)
-            {
-                transform.position += transform.up * MovementSpeed * Time.deltaTime;
-                transform.Rotate(0, 0, Time.deltaTime * RotateSpeed);
-
-                Floaty = Random.value;
+                yield return new WaitForSeconds(Random.Range(0f, 5f));
             }
         }
     }
