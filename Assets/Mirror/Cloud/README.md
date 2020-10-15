@@ -14,7 +14,7 @@ To get an API key to use within your game you can subscribe on the [Mirror Netwo
 
 ## List Server Examples
 
-An example for this can be found in Mirror/Examples/Cloud/
+An example for this can be found in [Mirror/Examples/Cloud/](https://github.com/vis2k/Mirror/tree/master/Assets/Mirror/Examples/Cloud)
 
 *Note: you cannot connect to your own public IP address, you will need at least one other person to test this*
 
