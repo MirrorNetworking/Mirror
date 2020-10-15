@@ -1,3 +1,16 @@
+# [49.2.0](https://github.com/MirrorNG/MirrorNG/compare/v49.1.1...v49.2.0) (2020-10-14)
+
+
+### Bug Fixes
+
+* throw weaver error when trying to use GameObject param ([#395](https://github.com/MirrorNG/MirrorNG/issues/395)) ([2726b9e](https://github.com/MirrorNG/MirrorNG/commit/2726b9efbd4dd44d1a6b55ea53371a74682e84f1))
+
+
+### Features
+
+* display FPS every second ([ae62e35](https://github.com/MirrorNG/MirrorNG/commit/ae62e35987676727a7e90dc29446aa1c015d0bdf))
+* Headless Benchmark ([#394](https://github.com/MirrorNG/MirrorNG/issues/394)) ([0546de9](https://github.com/MirrorNG/MirrorNG/commit/0546de9c285c0280ff6deb307fc99f9522ebf01f))
+
 ## [49.1.1](https://github.com/MirrorNG/MirrorNG/compare/v49.1.0...v49.1.1) (2020-10-14)
 
 
