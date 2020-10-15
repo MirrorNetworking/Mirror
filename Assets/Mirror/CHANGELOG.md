@@ -1,3 +1,29 @@
+# [49.3.0](https://github.com/MirrorNG/MirrorNG/compare/v49.2.0...v49.3.0) (2020-10-15)
+
+
+### Bug Fixes
+
+* double counting packets on kcp receive ([89cb937](https://github.com/MirrorNG/MirrorNG/commit/89cb937ebcfbbad75f299d7dd95b4cd6746a5e04))
+* NRE when disconnecting with no owned objects ([4e7983e](https://github.com/MirrorNG/MirrorNG/commit/4e7983e621dfdaf89ba39b313701e9b8c7a75411))
+
+
+### Features
+
+* KCP transport now has CRC64 validation ([#397](https://github.com/MirrorNG/MirrorNG/issues/397)) ([21c8649](https://github.com/MirrorNG/MirrorNG/commit/21c8649aa34b6bbdca11dbffb1b81d52e331baee))
+
+
+### Performance Improvements
+
+* recycle segments ([13a3c3d](https://github.com/MirrorNG/MirrorNG/commit/13a3c3d233b121322be177f414ac00ac373e0f6f))
+* reduce allocation sending to observers ([f5f7f6c](https://github.com/MirrorNG/MirrorNG/commit/f5f7f6c9b5b33f1f432d7bf6016b8e63f4699e7d))
+* reduce allocations per client ([8d37f8c](https://github.com/MirrorNG/MirrorNG/commit/8d37f8c987addfd99a2078d29e1456ce715239c7))
+* Refactore move to receive queue ([173735c](https://github.com/MirrorNG/MirrorNG/commit/173735c7212410fbcbe942a87882b5ee412c8080))
+* remove allocation ([9311fbd](https://github.com/MirrorNG/MirrorNG/commit/9311fbdd2ef02ce617377a11286a585e358d7c24))
+* reuse segment if it is a repeat ([4879010](https://github.com/MirrorNG/MirrorNG/commit/4879010a2056f972dc4737e9f1e9fae4ef7486d9))
+* Use allocation free completion source ([20227a7](https://github.com/MirrorNG/MirrorNG/commit/20227a7a05bd5919507bcfae6d74a84168a56b4f))
+* use Unitask ([384d02b](https://github.com/MirrorNG/MirrorNG/commit/384d02bbc298f63cfd08bdd8fb8771d60d5b6ec4))
+* Use UniTask instead of task ([70c9cfb](https://github.com/MirrorNG/MirrorNG/commit/70c9cfbd80c489f0c6d6fb78cec486856574c1f5))
+
 ## [49.2.1](https://github.com/MirrorNG/MirrorNG/compare/v49.2.0...v49.2.1) (2020-10-15)
 
 
