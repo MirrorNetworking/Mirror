@@ -6,11 +6,11 @@ namespace Mirror.KCP
 {
     public class Kcp
     {
-        public const int RTO_MAX = 60000; //Maximum RTO
+        public const int RTO_MAX = 60000; // Maximum RTO
         public const int ASK_SEND = 1;  // need to send CMD_WASK
         public const int ASK_TELL = 2;  // need to send CMD_WINS
         public const int WND_SND = 32; // defualt Send Window
-        public const int WND_RCV = 32; //default Receive Window
+        public const int WND_RCV = 128; // default Receive Window, must be >= max fragment size
         public const int OVERHEAD = 24; //related to MTU
         public const int PROBE_INIT = 7000;   // 7 secs to probe window size
         public const int PROBE_LIMIT = 120000; // up to 120 secs to probe window
@@ -25,14 +25,14 @@ namespace Mirror.KCP
 
         // kcp members.
         readonly uint conv;
-        uint mtu = 1200; //MTU Default.
+        uint mtu = 1200; // MTU Default.
         uint snd_una;
         uint snd_nxt;
         uint rcv_nxt;
         uint ssthresh = 2;
         int rx_rttval;
-        int rx_SmoothedRoundTripTime; //Used by UpdateAck
-        int rx_rto = 200; //Default RTO
+        int rx_SmoothedRoundTripTime; // Used by UpdateAck
+        int rx_rto = 200; // Default RTO
         int rx_MinimumRto = 100; // normal min rto
         uint cwnd;
         uint probe;
