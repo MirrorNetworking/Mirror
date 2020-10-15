@@ -356,6 +356,9 @@ namespace Mirror
             }
         }
 
+
+        List<INetworkConnection> connectionsExcludeSelf = new List<INetworkConnection>(100);
+
         /// <summary>
         /// this is like SendToReady - but it doesn't check the ready flag on the connection.
         /// this is used for ObjectDestroy messages.
@@ -377,7 +380,7 @@ namespace Mirror
             }
             else
             {
-                var connectionsExcludeSelf = new HashSet<INetworkConnection>();
+                connectionsExcludeSelf.Clear();
                 foreach(INetworkConnection conn in identity.observers)
                 {
                     if(identity.ConnectionToClient != conn)
