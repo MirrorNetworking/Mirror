@@ -36,7 +36,7 @@ namespace Mirror.HeadlessBenchmark
                 yield return new WaitForSeconds(1);
                 int frameCount = Time.frameCount;
                 int frames = frameCount - previousFrameCount;
-                Debug.LogFormat("{0} FPS {1} clients", frames, networkManager.server.NumPlayers );
+                Console.WriteLine("{0} FPS {1} clients", frames, networkManager.server.NumPlayers );
                 previousFrameCount = frameCount;
             }
         }
