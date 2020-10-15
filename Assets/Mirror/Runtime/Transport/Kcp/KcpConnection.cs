@@ -127,6 +127,11 @@ namespace Mirror.KCP
             ulong crc = Crc64.Compute(data, RESERVED, length - RESERVED);
             Utils.Encode64U(data, 0, crc);
             RawSend(data, length);
+
+            if (kcp.WaitSnd > 1000)
+            {
+                Debug.LogWarningFormat("Too many packets waiting in the send queue {0}, you are sending too much data,  the transport can't keep up", kcp.WaitSnd);
+            }
         }
 
         public UniTask SendAsync(ArraySegment<byte> data)
