@@ -18,7 +18,7 @@ namespace Mirror.KCP
 
         // If we don't receive anything these many milliseconds
         // then consider us disconnected
-        public const int TIMEOUT = 3000;
+        public const int TIMEOUT = 15000;
 
         volatile uint lastReceived;
 
