@@ -49,7 +49,7 @@ namespace Mirror.HeadlessBenchmark
                 Console.WriteLine("{0} FPS {1} messages {2} clients", frames, messageCount, networkManager.server.NumPlayers);
 #endif
                 previousFrameCount = frameCount;
-                previousMessageCount = messageCount
+                previousMessageCount = messageCount;
             }
         }
 
