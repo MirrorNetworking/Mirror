@@ -16,7 +16,7 @@ namespace Mirror.KCP
 
         [SerializeField] private string _bindAddress = "localhost";
 
-        internal readonly Dictionary<EndPoint, KcpServerConnection> connectedClients = new Dictionary<EndPoint, KcpServerConnection>();
+        internal readonly Dictionary<IPEndPoint, KcpServerConnection> connectedClients = new Dictionary<IPEndPoint, KcpServerConnection>(new IPEndpointComparer());
         readonly Channel<KcpServerConnection> acceptedConnections = Channel.CreateSingleConsumerUnbounded<KcpServerConnection>();
 
         public override IEnumerable<string> Scheme => new[] { "kcp" };
@@ -48,15 +48,15 @@ namespace Mirror.KCP
         void RawInput(EndPoint endpoint, byte[] data, int msgLength)
         {
             // is this a new connection?                    
-            if (!connectedClients.TryGetValue(endpoint, out KcpServerConnection connection))
+            if (!connectedClients.TryGetValue(endpoint as IPEndPoint, out KcpServerConnection connection))
             {
                 // add it to a queue
                 connection = new KcpServerConnection(socket, endpoint);
                 acceptedConnections.Writer.TryWrite(connection);
-                connectedClients.Add(endpoint, connection);
+                connectedClients.Add(endpoint as IPEndPoint, connection);
                 connection.Disconnected += () =>
                 {
-                    connectedClients.Remove(endpoint);
+                    connectedClients.Remove(endpoint as IPEndPoint);
                 };
             }
 

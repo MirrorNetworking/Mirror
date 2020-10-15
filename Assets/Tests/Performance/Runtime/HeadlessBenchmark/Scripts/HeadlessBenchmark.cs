@@ -3,6 +3,7 @@ using System.Collections;
 using Mirror.Tcp;
 using Mirror.KCP;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror.HeadlessBenchmark
 {
@@ -26,22 +27,16 @@ namespace Mirror.HeadlessBenchmark
 
             HeadlessStart();
 
-            StartCoroutine(DisplayFramesPerSecons());
         }
-
         private IEnumerator DisplayFramesPerSecons()
         {
             int previousFrameCount = Time.frameCount;
-
             while (true)
             {
                 yield return new WaitForSeconds(1);
-
                 int frameCount = Time.frameCount;
-
                 int frames = frameCount - previousFrameCount;
-
-                Debug.LogFormat("{0} FPS", frames);
+                Debug.LogFormat("{0} FPS {1} clients", frames, networkManager.server.NumPlayers );
                 previousFrameCount = frameCount;
             }
         }
@@ -58,13 +53,15 @@ namespace Mirror.HeadlessBenchmark
             ParseForServerMode();
 
             //Or client mode?
-            StartCoroutine(ParseForClientMode());
+            ParseForClientMode();
 
             ParseForHelp();
         }
 
         void OnServerStarted()
         {
+            StartCoroutine(DisplayFramesPerSecons());
+
             string monster = GetArgValue("-monster");
             if (!string.IsNullOrEmpty(monster))
             {
@@ -80,7 +77,7 @@ namespace Mirror.HeadlessBenchmark
             networkManager.server.Spawn(monster.gameObject);
         }
 
-        IEnumerator StartClient(int i, Transport transport, string networkAddress)
+        async UniTask StartClient(int i, Transport transport, string networkAddress)
         {
             var clientGo = new GameObject($"Client {i}", typeof(NetworkClient));
             NetworkClient client = clientGo.GetComponent<NetworkClient>();
@@ -88,11 +85,18 @@ namespace Mirror.HeadlessBenchmark
 
             client.RegisterPrefab(MonsterPrefab);
             client.RegisterPrefab(PlayerPrefab);
-            client.ConnectAsync(networkAddress);
-            while (!client.IsConnected)
-                yield return null;
 
-            client.Send(new AddPlayerMessage());
+            try
+            {
+                await client.ConnectAsync(networkAddress);
+                client.Send(new AddPlayerMessage());
+
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+
         }
 
         void ParseForServerMode()
@@ -102,11 +106,11 @@ namespace Mirror.HeadlessBenchmark
                 networkManager.server.Started.AddListener(OnServerStarted);
                 networkManager.server.Authenticated.AddListener(conn => networkManager.server.SetClientReady(conn));
                 _ = networkManager.server.ListenAsync();
-                Debug.Log("Starting Server Only Mode");
+                Console.WriteLine("Starting Server Only Mode");
             }
         }
 
-        IEnumerator ParseForClientMode()
+        void ParseForClientMode()
         {
             string client = GetArg("-client");
             if (!string.IsNullOrEmpty(client))
@@ -126,11 +130,11 @@ namespace Mirror.HeadlessBenchmark
                     clonesCount = int.Parse(clonesString);
                 }
 
-                Debug.Log("Starting " + clonesCount + " Clients");
+                Console.WriteLine("Starting {0} clients", clonesCount);
 
                 // connect from a bunch of clients
                 for (int i = 0; i < clonesCount; i++)
-                    yield return StartClient(i, networkManager.client.Transport, address);
+                    StartClient(i, networkManager.client.Transport, address).Forget();
             }
         }
 
@@ -138,15 +142,17 @@ namespace Mirror.HeadlessBenchmark
         {
             if (!string.IsNullOrEmpty(GetArg("-help")))
             {
-                Debug.Log("--==MirrorNG HeadlessClients Benchmark==--");
-                Debug.Log("Please start your standalone application with the -nographics and -batchmode options");
-                Debug.Log("Also provide these arguments to control the autostart process:");
-                Debug.Log("-server (will run in server only mode)");
-                Debug.Log("-client 1234 (will run the specified number of clients)");
-                Debug.Log("-transport tcp (transport to be used in test. add more by editing HeadlessBenchmark.cs)");
-                Debug.Log("-address example.com (will run the specified number of clients)");
-                Debug.Log("-port 1234 (port used by transport)");
-                Debug.Log("-monster 100 (number of monsters to spawn on the server)");
+                Console.WriteLine("--==MirrorNG HeadlessClients Benchmark==--");
+                Console.WriteLine("Please start your standalone application with the -nographics and -batchmode options");
+                Console.WriteLine("Also provide these arguments to control the autostart process:");
+                Console.WriteLine("-server (will run in server only mode)");
+                Console.WriteLine("-client 1234 (will run the specified number of clients)");
+                Console.WriteLine("-transport tcp (transport to be used in test. add more by editing HeadlessBenchmark.cs)");
+                Console.WriteLine("-address example.com (will run the specified number of clients)");
+                Console.WriteLine("-port 1234 (port used by transport)");
+                Console.WriteLine("-monster 100 (number of monsters to spawn on the server)");
+
+                Application.Quit();
             }
         }
 
