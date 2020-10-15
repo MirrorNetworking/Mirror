@@ -133,6 +133,24 @@ namespace Mirror.KCP
             bool fastRecover = receiveQueue.Count >= ReceiveWindowMax;
 
             // merge fragment.
+            int size = DequeueMessage(buffer, index);
+
+            // move available data from rcv_buf -> rcv_queue
+            FillReceiveQueue();
+
+            // fast recover
+            if (receiveQueue.Count < ReceiveWindowMax && fastRecover)
+            {
+                // ready to send back CMD_WINS in flush
+                // tell remote my window size
+                probe |= ASK_TELL;
+            }
+
+            return size;
+        }
+
+        private int DequeueMessage(byte[] buffer, int index)
+        {
             int count = 0;
             int n = index;
 
@@ -150,18 +168,6 @@ namespace Mirror.KCP
             }
 
             receiveQueue.RemoveRange(0, count);
-
-            // move available data from rcv_buf -> rcv_queue
-            MoveToReceiveQueue();
-
-            // fast recover
-            if (receiveQueue.Count < ReceiveWindowMax && fastRecover)
-            {
-                // ready to send back CMD_WINS in flush
-                // tell remote my window size
-                probe |= ASK_TELL;
-            }
-
             return n - index;
         }
 
@@ -297,7 +303,7 @@ namespace Mirror.KCP
             }
 
             InsertSegmentInReceiveBuffer(newseg);
-            MoveToReceiveQueue();
+            FillReceiveQueue();
         }
 
         void InsertSegmentInReceiveBuffer(Segment newseg)
@@ -328,7 +334,7 @@ namespace Mirror.KCP
         }
 
         // move available data from rcv_buf -> rcv_queue
-        void MoveToReceiveQueue()
+        void FillReceiveQueue()
         {
             int count = 0;
             foreach (Segment seg in receiveBuffer)
