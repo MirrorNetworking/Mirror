@@ -293,7 +293,10 @@ namespace Mirror.KCP
         {
             uint sn = newseg.sn;
             if (sn >= rcv_nxt + ReceiveWindowMax || sn < rcv_nxt)
+            {
+                Segment.Put(newseg);
                 return;
+            }
 
             InsertSegmentInReceiveBuffer(newseg);
             MoveToReceiveQueue();
