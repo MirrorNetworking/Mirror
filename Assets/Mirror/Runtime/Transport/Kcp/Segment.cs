@@ -8,7 +8,7 @@ namespace Mirror.KCP
     internal class Segment
     {
         internal uint conv;
-        internal uint cmd;
+        internal CommandType cmd;
         internal uint frg;
         internal uint wnd;
         internal uint ts;

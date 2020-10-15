@@ -374,8 +374,9 @@ namespace Mirror.KCP
                 if (conv != conv_)
                     return -1;
 
-                byte cmd;
-                (offset, cmd) = Utils.Decode8u(data, offset);
+                byte cmdbyte;
+                (offset, cmdbyte) = Utils.Decode8u(data, offset);
+                var cmd = (CommandType)cmdbyte;
                 byte frg;
                 (offset, frg) = Utils.Decode8u(data, offset);
                 ushort wnd;
@@ -394,10 +395,10 @@ namespace Mirror.KCP
 
                 switch (cmd)
                 {
-                    case (byte)CommandType.Push:
-                    case (byte)CommandType.Ack:
-                    case (byte)CommandType.WindowAsk:
-                    case (byte)CommandType.WindowTell:
+                    case CommandType.Push:
+                    case CommandType.Ack:
+                    case CommandType.WindowAsk:
+                    case CommandType.WindowTell:
                         break;
                     default:
                         return -3;
@@ -414,13 +415,13 @@ namespace Mirror.KCP
 
                 switch (cmd)
                 {
-                    case (byte)CommandType.Ack:
+                    case CommandType.Ack:
                         ParseAck(sn);
                         ParseFastrack(sn, ts);
                         flag |= 1;
                         latest = ts;
                         break;
-                    case (byte)CommandType.Push:
+                    case CommandType.Push:
                         if (sn < rcv_nxt + ReceiveWindowMax)
                         {
                             AckPush(sn, ts);
@@ -439,12 +440,12 @@ namespace Mirror.KCP
                             }
                         }
                         break;
-                    case (byte)CommandType.WindowAsk:
+                    case CommandType.WindowAsk:
                         // ready to send back CMD_WINS in flush
                         // tell remote my window size
                         probe |= ASK_TELL;
                         break;
-                    case (byte)CommandType.WindowTell:
+                    case CommandType.WindowTell:
                         // do nothing
                         break;
                     default:
@@ -560,7 +561,7 @@ namespace Mirror.KCP
                     break;
 
                 newseg.conv = conv;
-                newseg.cmd = (uint)CommandType.Push;
+                newseg.cmd = CommandType.Push;
                 newseg.sn = snd_nxt;
                 sendBuffer.Add(newseg);
                 snd_nxt++;
@@ -579,7 +580,7 @@ namespace Mirror.KCP
         {
             var seg = Segment.Get(32);
             seg.conv = conv;
-            seg.cmd = (uint)CommandType.Ack;
+            seg.cmd = CommandType.Ack;
             seg.wnd = WndUnused();
             seg.una = rcv_nxt;
 
@@ -626,14 +627,14 @@ namespace Mirror.KCP
             // flush window probing commands
             if ((probe & ASK_SEND) != 0)
             {
-                seg.cmd = (uint)CommandType.WindowAsk;
+                seg.cmd = CommandType.WindowAsk;
                 makeSpace(OVERHEAD);
                 writeIndex += seg.Encode(buffer, writeIndex);
             }
 
             if ((probe & ASK_TELL) != 0)
             {
-                seg.cmd = (uint)CommandType.WindowTell;
+                seg.cmd = CommandType.WindowTell;
                 makeSpace(OVERHEAD);
                 writeIndex += seg.Encode(buffer, writeIndex);
             }
