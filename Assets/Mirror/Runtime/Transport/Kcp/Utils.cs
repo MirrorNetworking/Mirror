@@ -55,6 +55,35 @@ namespace Mirror.KCP
             return (offset + 4, result);
         }
 
+        /* encode 32 bits unsigned int (lsb) */
+        public static int Encode64U(byte[] p, int offset, ulong l)
+        {
+            p[0 + offset] = (byte)(l >> 0);
+            p[1 + offset] = (byte)(l >> 8);
+            p[2 + offset] = (byte)(l >> 16);
+            p[3 + offset] = (byte)(l >> 24);
+            p[4 + offset] = (byte)(l >> 32);
+            p[5 + offset] = (byte)(l >> 40);
+            p[6 + offset] = (byte)(l >> 48);
+            p[7 + offset] = (byte)(l >> 56);
+            return 8;
+        }
+
+        /* decode 32 bits unsigned int (lsb) */
+        public static (int offset, ulong value) Decode64U(byte[] p, int offset)
+        {
+            ulong result = 0;
+            result |= p[0 + offset];
+            result |= (ulong)p[1 + offset] << 8;
+            result |= (ulong)p[2 + offset] << 16;
+            result |= (ulong)p[3 + offset] << 24;
+            result |= (ulong)p[4 + offset] << 32;
+            result |= (ulong)p[5 + offset] << 40;
+            result |= (ulong)p[6 + offset] << 48;
+            result |= (ulong)p[7 + offset] << 56;
+            return (offset + 8, result);
+        }
+
         public static int Clamp(int value, int lower, int upper)
         {
             return Math.Min(Math.Max(lower, value), upper);

@@ -14,7 +14,6 @@ namespace Mirror.KCP
         protected Kcp kcp;
         volatile bool open;
 
-
         internal event Action Disconnected;
 
         // If we don't receive anything these many milliseconds
@@ -22,6 +21,11 @@ namespace Mirror.KCP
         public const int TIMEOUT = 3000;
 
         volatile uint lastReceived;
+
+        /// <summary>
+        /// Space for CRC64
+        /// </summary>
+        public const int RESERVED = sizeof(ulong);
 
         internal static readonly ArraySegment<byte> Hello = new ArraySegment<byte>(new byte[] { 0 });
         private static readonly ArraySegment<byte> Goodby = new ArraySegment<byte>(new byte[] { 1 });
@@ -32,8 +36,11 @@ namespace Mirror.KCP
 
         protected void SetupKcp()
         {
-            kcp = new Kcp(0, RawSend);
+            kcp = new Kcp(0, SendWithChecksum);
             kcp.SetNoDelay();
+
+            // reserve some space for CRC64
+            kcp.ReserveBytes(RESERVED);
             open = true;
 
             Tick().Forget();
@@ -88,7 +95,11 @@ namespace Mirror.KCP
 
         internal void RawInput(byte[] buffer, int msgLength)
         {
-            kcp.Input(buffer, 0, msgLength, true, false);
+            // check packet integrity
+            if (!Validate(buffer, msgLength))
+                return;
+
+            kcp.Input(buffer, RESERVED, msgLength - RESERVED, true, false);
 
             lastReceived = kcp.CurrentMS;
 
@@ -100,7 +111,23 @@ namespace Mirror.KCP
             }
         }
 
+        private bool Validate(byte[] buffer, int msgLength)
+        {
+            // Recalculate CRC64 and check against checksum in the head
+            (int offset, ulong receivedCrc) = Utils.Decode64U(buffer, 0);
+            ulong calculatedCrc = Crc64.Compute(buffer, offset, msgLength - offset);
+            return receivedCrc == calculatedCrc;
+        }
+
         protected abstract void RawSend(byte[] data, int length);
+
+        private void SendWithChecksum(byte [] data, int length)
+        {
+            // add a CRC64 checksum in the reserved space
+            ulong crc = Crc64.Compute(data, RESERVED, length - RESERVED);
+            Utils.Encode64U(data, 0, crc);
+            RawSend(data, length);
+        }
 
         public UniTask SendAsync(ArraySegment<byte> data)
         {
