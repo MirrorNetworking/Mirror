@@ -152,24 +152,9 @@ namespace Mirror.KCP
             }
 
             receiveQueue.RemoveRange(0, count);
-            
-            // move available data from rcv_buf -> rcv_queue
-            count = 0;
-            foreach (Segment seg in receiveBuffer)
-            {
-                if (seg.sn == rcv_nxt && receiveQueue.Count < ReceiveWindowMax)
-                {
-                    receiveQueue.Add(seg);
-                    rcv_nxt++;
-                    count++;
-                }
-                else
-                {
-                    break;
-                }
-            }
 
-            receiveBuffer.RemoveRange(0, count);
+            // move available data from rcv_buf -> rcv_queue
+            MoveToReceiveQueue();
 
             // fast recover
             if (receiveQueue.Count < ReceiveWindowMax && fastRecover)
@@ -356,8 +341,9 @@ namespace Mirror.KCP
             int count = 0;
             foreach (Segment seg in receiveBuffer)
             {
-                if (seg.sn == rcv_nxt && receiveQueue.Count + count < ReceiveWindowMax)
+                if (seg.sn == rcv_nxt && receiveQueue.Count < ReceiveWindowMax)
                 {
+                    receiveQueue.Add(seg);
                     rcv_nxt++;
                     count++;
                 }
@@ -367,8 +353,6 @@ namespace Mirror.KCP
                 }
             }
 
-            for (int i = 0; i < count; i++)
-                receiveQueue.Add(receiveBuffer[i]);
             receiveBuffer.RemoveRange(0, count);
         }
 
