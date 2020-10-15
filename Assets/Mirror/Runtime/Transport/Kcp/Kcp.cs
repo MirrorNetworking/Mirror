@@ -157,7 +157,7 @@ namespace Mirror.KCP
             count = 0;
             foreach (Segment seg in receiveBuffer)
             {
-                if (seg.sn == rcv_nxt && receiveQueue.Count + count < ReceiveWindowMax)
+                if (seg.sn == rcv_nxt && receiveQueue.Count < ReceiveWindowMax)
                 {
                     receiveQueue.Add(seg);
                     rcv_nxt++;
