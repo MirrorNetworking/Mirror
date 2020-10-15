@@ -366,29 +366,27 @@ namespace Mirror.KCP
 
             while (true)
             {
-                uint ts = 0;
-                uint sn = 0;
-                uint length = 0;
-                uint una = 0;
-                uint conv_ = 0;
-
-                ushort wnd = 0;
-                byte cmd = 0;
-                byte frg = 0;
-
                 if (size - (offset - index) < OVERHEAD) break;
 
+                uint conv_;
                 (offset, conv_) = Utils.Decode32U(data, offset);
 
                 if (conv != conv_)
                     return -1;
 
+                byte cmd;
                 (offset, cmd) = Utils.Decode8u(data, offset);
+                byte frg;
                 (offset, frg) = Utils.Decode8u(data, offset);
+                ushort wnd;
                 (offset, wnd) = Utils.Decode16U(data, offset);
+                uint ts;
                 (offset, ts) = Utils.Decode32U(data, offset);
+                uint sn;
                 (offset, sn) = Utils.Decode32U(data, offset);
+                uint una;
                 (offset, una) = Utils.Decode32U(data, offset);
+                uint length;
                 (offset, length) = Utils.Decode32U(data, offset);
 
                 if (size - (offset - index) < length)
