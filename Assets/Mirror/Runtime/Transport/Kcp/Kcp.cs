@@ -618,6 +618,7 @@ namespace Mirror.KCP
             if (ackOnly)
             {
                 flushBuffer();
+                Segment.Put(seg);
                 return interval;
             }
 
@@ -748,6 +749,7 @@ namespace Mirror.KCP
                 CwndUpdate(resent, change, lostSegs);
             }
 
+            Segment.Put(seg);
             return (uint)minrto;
         }
 
