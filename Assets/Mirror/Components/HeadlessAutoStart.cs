@@ -21,7 +21,7 @@ namespace Mirror
             // some transports might not be ready until Start.
             if (server && SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
             {
-                _ = server.ListenAsync();
+                server.ListenAsync().Forget();
             }
         }
     }

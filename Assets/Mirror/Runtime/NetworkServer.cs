@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Mirror.RemoteCalls;
 using UnityEngine;
 using UnityEngine.Events;
@@ -180,7 +181,7 @@ namespace Mirror
         /// </summary>
         /// <param name="maxConns">Maximum number of allowed connections</param>
         /// <returns></returns>
-        public async Task ListenAsync()
+        public async UniTask ListenAsync()
         {
             Initialize();
 
