@@ -396,7 +396,7 @@ namespace Mirror.KCP
                 {
                     case (byte)CommandType.Push:
                     case (byte)CommandType.Ack:
-                    case (byte) CommandType.WindowAsk:
+                    case (byte)CommandType.WindowAsk:
                     case (byte)CommandType.WindowTell:
                         break;
                     default:
