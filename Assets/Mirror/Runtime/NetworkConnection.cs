@@ -320,8 +320,9 @@ namespace Mirror
                 }
             }
 
-            // Destroy the connections own identity.
-            Identity.Server.Destroy(Identity.gameObject);
+            if (Identity != null && Identity.Server != null)
+                // Destroy the connections own identity.
+                Identity.Server.Destroy(Identity.gameObject);
 
             // clear the hashset because we destroyed them all
             clientOwnedObjects.Clear();
