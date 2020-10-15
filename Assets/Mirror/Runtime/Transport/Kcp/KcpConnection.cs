@@ -84,7 +84,7 @@ namespace Mirror.KCP
 
         volatile bool isWaiting = false;
 
-        UniTaskCompletionSource dataAvailable;
+        AutoResetUniTaskCompletionSource dataAvailable;
 
         internal void RawInput(byte[] buffer, int msgLength)
         {
@@ -119,7 +119,7 @@ namespace Mirror.KCP
 
             while (msgSize < 0 && open) { 
                 isWaiting = true;
-                dataAvailable = new UniTaskCompletionSource();
+                dataAvailable = AutoResetUniTaskCompletionSource.Create();
                 await dataAvailable.Task;
                 isWaiting = false;
                 msgSize = kcp.PeekSize();
