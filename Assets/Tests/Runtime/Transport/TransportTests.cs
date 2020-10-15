@@ -10,10 +10,12 @@ using System;
 using Object = UnityEngine.Object;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using Mirror.KCP;
 
 namespace Mirror.Tests
 {
     [TestFixture(typeof(TcpTransport), new[] { "tcp4" }, "tcp4://localhost", 7777)]
+    [TestFixture(typeof(KcpTransport), new[] { "kcp" }, "kcp://localhost", 7777)]
     public class AsyncTransportTests<T> where T : Transport
     {
         #region SetUp

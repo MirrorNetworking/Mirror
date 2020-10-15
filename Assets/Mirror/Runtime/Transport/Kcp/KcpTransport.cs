@@ -14,8 +14,6 @@ namespace Mirror.KCP
         [Header("Transport Configuration")]
         public ushort Port = 7777;
 
-        [SerializeField] private string _bindAddress = "localhost";
-
         internal readonly Dictionary<IPEndPoint, KcpServerConnection> connectedClients = new Dictionary<IPEndPoint, KcpServerConnection>(new IPEndpointComparer());
         readonly Channel<KcpServerConnection> acceptedConnections = Channel.CreateSingleConsumerUnbounded<KcpServerConnection>();
 
@@ -97,7 +95,7 @@ namespace Mirror.KCP
             var builder = new UriBuilder
             {
                 Scheme = "kcp",
-                Host = _bindAddress,
+                Host = Dns.GetHostName(),
                 Port = Port
             };
             return new[] { builder.Uri };
