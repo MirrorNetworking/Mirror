@@ -336,7 +336,12 @@ namespace Mirror.KCP
                 }
             }
 
-            if (!repeat)
+            if (repeat)
+            {
+                // we already got this segment,  put it back in the pool
+                Segment.Put(newseg);
+            }
+            else
             {
                 if (insert_idx == n + 1)
                     receiveBuffer.Add(newseg);
