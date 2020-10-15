@@ -1,3 +1,10 @@
+## [49.3.1](https://github.com/MirrorNG/MirrorNG/compare/v49.3.0...v49.3.1) (2020-10-15)
+
+
+### Bug Fixes
+
+* use hostname for serverUri ([4b38fbe](https://github.com/MirrorNG/MirrorNG/commit/4b38fbe91c7aebd291bb6b78d08f1e9526b9e598))
+
 # [49.3.0](https://github.com/MirrorNG/MirrorNG/compare/v49.2.0...v49.3.0) (2020-10-15)
 
 
