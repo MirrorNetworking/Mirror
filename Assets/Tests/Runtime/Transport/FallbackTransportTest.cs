@@ -111,8 +111,8 @@ namespace Mirror.Tests
             transport2.ListenAsync().Returns(UniTask.CompletedTask);
             await transport.ListenAsync();
 
-            _ = transport1.Received().ListenAsync();
-            _ = transport2.Received(0).ListenAsync();
+            transport1.Received().ListenAsync().Forget();
+            transport2.Received(0).ListenAsync().Forget();
 
         });
 
@@ -123,8 +123,8 @@ namespace Mirror.Tests
             transport2.ListenAsync().Returns(UniTask.CompletedTask);
             await transport.ListenAsync();
 
-            _ = transport1.Received(0).ListenAsync();
-            _ = transport2.Received().ListenAsync();
+            transport1.Received(0).ListenAsync().Forget();
+            transport2.Received().ListenAsync().Forget();
 
         });
 

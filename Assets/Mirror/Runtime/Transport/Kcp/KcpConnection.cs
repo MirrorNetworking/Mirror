@@ -36,10 +36,10 @@ namespace Mirror.KCP
             kcp.SetNoDelay();
             open = true;
 
-            _ = Tick();
+            Tick().Forget();
         }
 
-        async UniTask Tick()
+        async UniTaskVoid Tick()
         {
             try
             {
@@ -171,7 +171,7 @@ namespace Mirror.KCP
             {
                 try
                 {
-                    _ = SendAsync(Goodby);
+                    SendAsync(Goodby).Forget();
                     kcp.Flush(false);
                 }
                 catch (SocketException)

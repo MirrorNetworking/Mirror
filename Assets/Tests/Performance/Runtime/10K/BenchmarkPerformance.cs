@@ -1,4 +1,5 @@
 using System.Collections;
+using Cysharp.Threading.Tasks;
 using Mirror.Examples;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
@@ -20,30 +21,19 @@ namespace Mirror.Tests.Performance.Runtime
         private NetworkManager benchmarker;
 
         [UnitySetUp]
-        public IEnumerator SetUp()
+        public IEnumerator SetUp() => UniTask.ToCoroutine(async () =>
         {
             // load scene
-            yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive });
+            await EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive });
             Scene scene = SceneManager.GetSceneByPath(ScenePath);
             SceneManager.SetActiveScene(scene);
 
-            // wait for NetworkManager awake
-            yield return null;
             // load host
             benchmarker = Object.FindObjectOfType<NetworkManager>();
 
-            if (benchmarker == null)
-            {
-                Assert.Fail("Could not find Benchmarker");
-                yield break;
-            }
+            await benchmarker.server.StartHost(benchmarker.client);
 
-            System.Threading.Tasks.Task task = benchmarker.server.StartHost(benchmarker.client);
-
-            while (!task.IsCompleted)
-                yield return null;
-
-        }
+        });
 
         [UnityTearDown]
         public IEnumerator TearDown()

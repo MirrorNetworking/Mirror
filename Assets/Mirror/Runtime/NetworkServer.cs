@@ -205,11 +205,11 @@ namespace Mirror
             Started.Invoke();
             SpawnObjects();
 
-            _ = AcceptAsync();
+            AcceptAsync().Forget();
         }
 
         // accept connections from clients
-        private async Task AcceptAsync()
+        async UniTaskVoid AcceptAsync()
         {
             try
             {
@@ -219,7 +219,7 @@ namespace Mirror
                 {
                     INetworkConnection networkConnectionToClient = GetNewConnection(connection);
 
-                    _ = ConnectionAcceptedAsync(networkConnectionToClient);
+                    ConnectionAcceptedAsync(networkConnectionToClient).Forget();
                 }
             }
             catch (Exception ex)
@@ -236,7 +236,7 @@ namespace Mirror
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
         /// </summary>
-        public async Task StartHost(NetworkClient client)
+        public async UniTask StartHost(NetworkClient client)
         {
             if (!client)
                 throw new InvalidOperationException("NetworkClient not assigned. Unable to StartHost()");
@@ -335,7 +335,7 @@ namespace Mirror
             LocalConnection = conn;
             LocalClient = client;
 
-            _ = ConnectionAcceptedAsync(conn);
+            ConnectionAcceptedAsync(conn).Forget();
 
         }
 
@@ -432,7 +432,7 @@ namespace Mirror
                 DirtyObjects.Add(obj);
         }
 
-        async Task ConnectionAcceptedAsync(INetworkConnection conn)
+        async UniTaskVoid ConnectionAcceptedAsync(INetworkConnection conn)
         {
             if (logger.LogEnabled()) logger.Log("Server accepted client:" + conn);
 

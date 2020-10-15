@@ -166,7 +166,7 @@ namespace Mirror
 
                 RegisterMessageHandlers();
                 Time.UpdateClient(this);
-                _ = OnConnected();
+                OnConnected().Forget();
             }
             catch (Exception)
             {
@@ -190,7 +190,7 @@ namespace Mirror
             Connection = GetNewConnection(c1);
             RegisterHostHandlers();
 
-            _ = OnConnected();
+            OnConnected().Forget();
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace Mirror
         /// gameobjects when processing the message</remarks>
         internal static NetworkClient Current { get; set; }
 
-        async UniTask OnConnected()
+        async UniTaskVoid OnConnected()
         {
             // reset network time stats
 
@@ -280,7 +280,7 @@ namespace Mirror
 
         public void Send<T>(T message, int channelId = Channels.DefaultReliable)
         {
-            _ = Connection.SendAsync(message, channelId);
+            Connection.SendAsync(message, channelId).Forget();
         }
 
         internal void Update()

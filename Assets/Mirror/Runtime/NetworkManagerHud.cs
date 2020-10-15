@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,21 +42,21 @@ namespace Mirror
         public void StartHostButtonHandler()
         {
             labelText = "Host Mode";
-            _ = NetworkManager.server.StartHost(NetworkManager.client);
+            NetworkManager.server.StartHost(NetworkManager.client).Forget();
             OnlineSetActive();
         }
 
         public void StartServerOnlyButtonHandler()
         {
             labelText = "Server Mode";
-            _ = NetworkManager.server.ListenAsync();
+            NetworkManager.server.ListenAsync().Forget();
             OnlineSetActive();
         }
 
         public void StartClientButtonHandler()
         {
             labelText = "Client Mode";
-            NetworkManager.client.ConnectAsync(NetworkAddress);
+            NetworkManager.client.ConnectAsync(NetworkAddress).Forget();
             OnlineSetActive();
         }
 

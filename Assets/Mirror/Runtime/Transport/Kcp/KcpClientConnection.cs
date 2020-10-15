@@ -30,12 +30,12 @@ namespace Mirror.KCP
             socket.Connect(remoteEndpoint);
             SetupKcp();
 
-            _ = ReceiveLoop();
+            ReceiveLoop().Forget();
 
             await Handshake();
         }
 
-        async UniTask ReceiveLoop()
+        async UniTaskVoid ReceiveLoop()
         {
             try
             {

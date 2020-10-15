@@ -113,7 +113,7 @@ namespace Mirror.Tests
 
             server.SendToAll(message);
 
-            _ = connectionToServer.ProcessMessagesAsync();
+            connectionToServer.ProcessMessagesAsync().Forget();
 
             await UniTask.WaitUntil(() => invoked);
         });
@@ -127,7 +127,7 @@ namespace Mirror.Tests
 
             server.SendToClientOfPlayer(serverIdentity, message);
 
-            _ = connectionToServer.ProcessMessagesAsync();
+            connectionToServer.ProcessMessagesAsync().Forget();
 
             await UniTask.WaitUntil(() => invoked);
         });
@@ -144,7 +144,7 @@ namespace Mirror.Tests
             // call ShowForConnection
             server.ShowForConnection(serverIdentity, connectionToClient);
 
-            _ = connectionToServer.ProcessMessagesAsync();
+            connectionToServer.ProcessMessagesAsync().Forget();
 
             await UniTask.WaitUntil(() => invoked);
         });

@@ -179,7 +179,7 @@ namespace Mirror
         /// <returns></returns>
         public virtual void Send<T>(T msg, int channelId = Channels.DefaultReliable)
         {
-            _ = SendAsync(msg, channelId);
+            SendAsync(msg, channelId).Forget();
         }
 
         /// <summary>
@@ -214,11 +214,11 @@ namespace Mirror
                     if (conn is NetworkConnection networkConnection)
                     {
                         // send to all connections, but don't wait for them
-                        _ = networkConnection.SendAsync(segment, channelId);
+                        networkConnection.SendAsync(segment, channelId).Forget();
                     }
                     else
                     {
-                        _ = conn.SendAsync(msg, channelId);
+                        conn.SendAsync(msg, channelId).Forget();
                     }
                     count++;
                 }

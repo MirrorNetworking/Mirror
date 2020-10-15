@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Mirror.Examples.Chat
@@ -16,7 +17,7 @@ namespace Mirror.Examples.Chat
 
         public void StartHost()
         {
-            _ = NetworkManager.server.StartHost(NetworkManager.client);
+            NetworkManager.server.StartHost(NetworkManager.client).Forget();
         }
 
         public void SetServerIp(string serverIp)

@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -129,10 +130,10 @@ namespace Mirror.Discovery
             };
 
             // listen for client pings
-            _ = ServerListenAsync();
+            ServerListenAsync().Forget();
         }
 
-        public async Task ServerListenAsync()
+        public async UniTask ServerListenAsync()
         {
             while (true)
             {
@@ -251,7 +252,7 @@ namespace Mirror.Discovery
                 throw;
             }
 
-            _ = ClientListenAsync();
+            ClientListenAsync().Forget();
 
             InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
         }
@@ -268,7 +269,7 @@ namespace Mirror.Discovery
         /// Awaits for server response
         /// </summary>
         /// <returns>ClientListenAsync Task</returns>
-        public async Task ClientListenAsync()
+        public async UniTask ClientListenAsync()
         {
             while (true)
             {

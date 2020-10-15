@@ -6,6 +6,7 @@ using static Mirror.Tests.LocalConnections;
 using Object = UnityEngine.Object;
 
 using System.Linq;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror.Tests
 {
@@ -35,7 +36,7 @@ namespace Mirror.Tests
                 Scheme = secondClient.Transport.Scheme.First(),
             };
 
-            _ = secondClient.ConnectAsync(builder.Uri);
+            secondClient.ConnectAsync(builder.Uri).Forget();
 
             Assert.That(server.connections, Has.Count.EqualTo(1));
 

@@ -65,7 +65,7 @@ namespace Mirror.Tests
                 target.Input(data, 0, length, true, false);
         }
 
-        async UniTask Tick(Kcp kcp, string name, CancellationToken token)
+        async UniTaskVoid Tick(Kcp kcp, CancellationToken token)
         {
             while (true)
             {
@@ -99,8 +99,8 @@ namespace Mirror.Tests
             client.SetWindowSize(16, 16);
 
 
-            _ = Tick(server, "server", token);
-            _ = Tick(client, "client", token);
+            Tick(server, token).Forget();
+            Tick(client, token).Forget();
         }
 
         [TearDown]

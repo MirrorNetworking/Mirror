@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Mirror.Discovery
@@ -57,7 +58,7 @@ namespace Mirror.Discovery
             if (GUILayout.Button("Start Host"))
             {
                 discoveredServers.Clear();
-                _ = networkManager.server.StartHost(networkManager.client);
+                networkManager.server.StartHost(networkManager.client).Forget();
                 networkDiscovery.AdvertiseServer();
             }
 
@@ -65,7 +66,7 @@ namespace Mirror.Discovery
             if (GUILayout.Button("Start Server"))
             {
                 discoveredServers.Clear();
-                _ = networkManager.server.ListenAsync();
+                networkManager.server.ListenAsync().Forget();
 
                 networkDiscovery.AdvertiseServer();
             }
@@ -88,7 +89,7 @@ namespace Mirror.Discovery
 
         void Connect(ServerResponse info)
         {
-            _ = networkManager.client.ConnectAsync(info.uri.First());
+            networkManager.client.ConnectAsync(info.uri.First()).Forget();
         }
 
         public void OnDiscoveredServer(ServerResponse info)

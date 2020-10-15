@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Cysharp.Threading.Tasks;
 using Mirror.RemoteCalls;
 using UnityEngine;
 
@@ -237,7 +238,7 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            _ = Client.SendAsync(message, channelId);
+            Client.SendAsync(message, channelId).Forget();
         }
 
         /// <summary>

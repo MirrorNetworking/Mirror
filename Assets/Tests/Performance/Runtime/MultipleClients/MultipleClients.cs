@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Mirror.Examples;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
@@ -31,10 +32,10 @@ namespace Mirror.Tests.Performance.Runtime
 
 
         [UnitySetUp]
-        public IEnumerator SetUp()
+        public IEnumerator SetUp() => UniTask.ToCoroutine(async () =>
         {
             // load scene
-            yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive });
+            await EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive });
             Scene scene = SceneManager.GetSceneByPath(ScenePath);
             SceneManager.SetActiveScene(scene);
 
@@ -44,33 +45,21 @@ namespace Mirror.Tests.Performance.Runtime
 
             server.Authenticated.AddListener(conn => server.SetClientReady(conn));
 
-            if (server == null)
-            {
-                Assert.Fail("Could not find Benchmarker");
-                yield break;
-            }
-
-            System.Threading.Tasks.Task task = server.ListenAsync();
-
-            while (!task.IsCompleted)
-                yield return null;
+            await server.ListenAsync();
 
             transport = Object.FindObjectOfType<Transport>();
 
             // connect from a bunch of clients
-            for (int i = 0; i< ClientCount; i++)
-                yield return StartClient(i, transport);
+            for (int i = 0; i < ClientCount; i++)
+                await StartClient(i, transport);
 
             // spawn a bunch of monsters
             for (int i = 0; i < MonsterCount; i++)
                 SpawnMonster(i);
 
             // wait until all monsters are spawned
-            while (Object.FindObjectsOfType<MonsterBehavior>().Count() < MonsterCount * (ClientCount + 1))
-            {
-                yield return new WaitForSeconds(0.1f);
-            }
-        }
+            await UniTask.WaitWhile(() => Object.FindObjectsOfType<MonsterBehavior>().Count() < MonsterCount * (ClientCount + 1));
+        });
 
         private IEnumerator StartClient(int i, Transport transport)
         {
