@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 
 namespace Mirror.KCP
@@ -20,7 +19,7 @@ namespace Mirror.KCP
         {
         }
 
-        internal async Task ConnectAsync(string host, ushort port)
+        internal async UniTask ConnectAsync(string host, ushort port)
         {
             IPAddress[] ipAddress = await Dns.GetHostAddressesAsync(host);
             if (ipAddress.Length < 1)
