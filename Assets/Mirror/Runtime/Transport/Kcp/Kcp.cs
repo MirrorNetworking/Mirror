@@ -599,11 +599,11 @@ namespace Mirror.KCP
                 return interval;
             }
 
-            uint current = 0;
+            uint current = CurrentMS;
+
             // probe window size (if remote window size equals zero)
             if (RmtWnd == 0)
             {
-                current = CurrentMS;
                 if (probe_wait == 0)
                 {
                     probe_wait = PROBE_INIT;
@@ -657,7 +657,6 @@ namespace Mirror.KCP
             if (fastresend <= 0) resent = 0xffffffff;
 
             // check for retransmissions
-            current = CurrentMS;
             ulong change = 0;
             ulong lostSegs = 0;
             int minrto = (int)interval;
