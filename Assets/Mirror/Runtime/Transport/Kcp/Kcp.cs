@@ -564,12 +564,11 @@ namespace Mirror.KCP
         {
             // sliding window, controlled by snd_nxt && sna_una+cwnd
             int newSegsCount = 0;
-            for (int k = 0; k < sendQueue.Count; k++)
+            foreach (Segment newseg in sendQueue)
             {
                 if (snd_nxt >= snd_una + cwnd_)
                     break;
 
-                Segment newseg = sendQueue[k];
                 newseg.conv = conv;
                 newseg.cmd = (uint)CommandType.Push;
                 newseg.sn = snd_nxt;
