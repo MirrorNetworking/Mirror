@@ -44,9 +44,9 @@ namespace Mirror.HeadlessBenchmark
                 long messages = messageCount - previousMessageCount;
 
 #if UNITY_EDITOR
-                Debug.LogFormat("{0} FPS {1} messages {2} clients", frames, messageCount, networkManager.server.NumPlayers);
+                Debug.LogFormat("{0} FPS {1} messages {2} clients", frames, messages, networkManager.server.NumPlayers);
 #else
-                Console.WriteLine("{0} FPS {1} messages {2} clients", frames, messageCount, networkManager.server.NumPlayers);
+                Console.WriteLine("{0} FPS {1} messages {2} clients", frames, messages, networkManager.server.NumPlayers);
 #endif
                 previousFrameCount = frameCount;
                 previousMessageCount = messageCount;
