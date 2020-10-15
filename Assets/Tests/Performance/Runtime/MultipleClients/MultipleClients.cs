@@ -22,7 +22,7 @@ namespace Mirror.Tests.Performance.Runtime
         const int Warmup = 50;
         const int MeasureCount = 256;
 
-        const int ClientCount = 100;
+        const int ClientCount = 10;
         const int MonsterCount = 10;
 
         public NetworkServer server;
@@ -57,8 +57,8 @@ namespace Mirror.Tests.Performance.Runtime
             for (int i = 0; i < MonsterCount; i++)
                 SpawnMonster(i);
 
-            // wait until all monsters are spawned
-            await UniTask.WaitWhile(() => Object.FindObjectsOfType<MonsterBehavior>().Count() < MonsterCount * (ClientCount + 1));
+            while (Object.FindObjectsOfType<MonsterBehavior>().Count() < MonsterCount * (ClientCount + 1))
+                await UniTask.Delay(10);
         });
 
         private IEnumerator StartClient(int i, Transport transport)

@@ -224,9 +224,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1193428351}
-  - component: {fileID: 1193428350}
   - component: {fileID: 1193428349}
   - component: {fileID: 1193428348}
+  - component: {fileID: 1193428350}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -306,10 +306,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1193428347}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
+  m_Script: {fileID: 11500000, guid: b3fbf0a5cb914b1c9bbb8a42e081f4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Port: 7777
+  _bindAddress: localhost
 --- !u!4 &1193428351
 Transform:
   m_ObjectHideFlags: 0
