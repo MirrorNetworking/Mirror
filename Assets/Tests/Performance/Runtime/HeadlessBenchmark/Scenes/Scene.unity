@@ -201,7 +201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5f5ec068f5604c32b160bc49ee97b75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxConnections: 4
+  MaxConnections: 100000
   Started:
     m_PersistentCalls:
       m_Calls: []
@@ -386,7 +386,7 @@ MonoBehaviour:
   networkManager: {fileID: 493337956}
   MonsterPrefab: {fileID: 6374416922608025457, guid: 28d1af38d0173324ea03798dd86eac8f, type: 3}
   PlayerPrefab: {fileID: 7039704267495960125, guid: bebeb0dfd33f4074894ef25112ab4a8d, type: 3}
-  editorArgs: -transport kcp -server -client 1 -monster 1
+  editorArgs: -transport kcp -server -port 3333
 --- !u!4 &2043118187
 Transform:
   m_ObjectHideFlags: 0
