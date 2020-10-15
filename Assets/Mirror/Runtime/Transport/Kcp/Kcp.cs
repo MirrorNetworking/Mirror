@@ -518,7 +518,7 @@ namespace Mirror.KCP
 
 
         int writeIndex;
-        void makeSpace(int space)
+        void MakeSpace(int space)
         {
             if (writeIndex + space > mtu)
             {
@@ -527,7 +527,7 @@ namespace Mirror.KCP
             }
         }
 
-        void flushBuffer()
+        void FlushBuffer()
         {
             if (writeIndex > reserved)
             {
@@ -539,7 +539,7 @@ namespace Mirror.KCP
         {
             for (int i = 0; i < ackList.Count; i++)
             {
-                makeSpace(OVERHEAD);
+                MakeSpace(OVERHEAD);
                 AckItem ack = ackList[i];
                 if (ack.serialNumber >= rcv_nxt || ackList.Count - 1 == i)
                 {
@@ -591,7 +591,7 @@ namespace Mirror.KCP
             // flush remain ack segments
             if (ackOnly)
             {
-                flushBuffer();
+                FlushBuffer();
                 Segment.Put(seg);
                 return interval;
             }
@@ -628,14 +628,14 @@ namespace Mirror.KCP
             if ((probe & ASK_SEND) != 0)
             {
                 seg.cmd = CommandType.WindowAsk;
-                makeSpace(OVERHEAD);
+                MakeSpace(OVERHEAD);
                 writeIndex += seg.Encode(buffer, writeIndex);
             }
 
             if ((probe & ASK_TELL) != 0)
             {
                 seg.cmd = CommandType.WindowTell;
-                makeSpace(OVERHEAD);
+                MakeSpace(OVERHEAD);
                 writeIndex += seg.Encode(buffer, writeIndex);
             }
 
@@ -698,7 +698,7 @@ namespace Mirror.KCP
                     segment.una = seg.una;
 
                     int need = OVERHEAD + segment.data.ReadableBytes;
-                    makeSpace(need);
+                    MakeSpace(need);
                     writeIndex += segment.Encode(buffer, writeIndex);
                     Buffer.BlockCopy(segment.data.RawBuffer, segment.data.ReaderIndex, buffer, writeIndex, segment.data.ReadableBytes);
                     writeIndex += segment.data.ReadableBytes;
@@ -713,7 +713,7 @@ namespace Mirror.KCP
             }
 
             // flash remain segments
-            flushBuffer();
+            FlushBuffer();
 
             // cwnd update
             if (!nocwnd)
