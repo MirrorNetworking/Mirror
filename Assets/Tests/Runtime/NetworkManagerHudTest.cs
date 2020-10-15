@@ -49,17 +49,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void StartHostButtonTest()
-        {
-            networkManagerHud.StartHostButtonHandler();
-            Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.False);
-            Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.True);
-
-            Assert.That(manager.server.Active, Is.True);
-            Assert.That(manager.client.Active, Is.True);
-        }
-
-        [Test]
         public void StartServerOnlyButtonTest()
         {
             networkManagerHud.StartServerOnlyButtonHandler();
