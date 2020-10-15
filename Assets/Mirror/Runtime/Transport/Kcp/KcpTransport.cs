@@ -20,6 +20,9 @@ namespace Mirror.KCP
         public override IEnumerable<string> Scheme => new[] { "kcp" };
 
         readonly byte[] buffer = new byte[1500];
+
+        public long ReceivedMessageCount { get; private set; }
+
         /// <summary>
         ///     Open up the port and listen for connections
         ///     Use in servers.
@@ -39,6 +42,8 @@ namespace Mirror.KCP
         {
             while (socket != null && socket.Poll(0, SelectMode.SelectRead)) {
                 int msgLength = socket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref newClientEP);
+
+                ReceivedMessageCount++;
                 RawInput(newClientEP, buffer, msgLength);
             }
         }
