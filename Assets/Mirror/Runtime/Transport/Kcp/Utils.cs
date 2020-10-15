@@ -12,10 +12,9 @@ namespace Mirror.KCP
         }
 
         // decode 8 bits unsigned int
-        public static int Decode8u(byte[] p, int offset, ref byte c)
+        public static (int offset, byte value) Decode8u(byte[] p, int offset)
         {
-            c = p[0 + offset];
-            return 1;
+            return (offset + 1, p[0 + offset]);
         }
 
         /* encode 16 bits unsigned int (lsb) */
@@ -27,13 +26,12 @@ namespace Mirror.KCP
         }
 
         /* decode 16 bits unsigned int (lsb) */
-        public static int Decode16U(byte[] p, int offset, ref ushort c)
+        public static (int offset, ushort value) Decode16U(byte[] p, int offset)
         {
             ushort result = 0;
             result |= p[0 + offset];
             result |= (ushort)(p[1 + offset] << 8);
-            c = result;
-            return 2;
+            return (offset + 2, result);
         }
 
         /* encode 32 bits unsigned int (lsb) */
@@ -47,15 +45,14 @@ namespace Mirror.KCP
         }
 
         /* decode 32 bits unsigned int (lsb) */
-        public static int Decode32U(byte[] p, int offset, ref uint c)
+        public static (int offset, uint value) Decode32U(byte[] p, int offset)
         {
             uint result = 0;
             result |= p[0 + offset];
             result |= (uint)(p[1 + offset] << 8);
             result |= (uint)(p[2 + offset] << 16);
             result |= (uint)(p[3 + offset] << 24);
-            c = result;
-            return 4;
+            return (offset + 4, result);
         }
 
         public static int Clamp(int value, int lower, int upper)

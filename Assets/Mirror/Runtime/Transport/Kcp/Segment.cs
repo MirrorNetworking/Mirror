@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 namespace Mirror.KCP
 {
+    public enum CommandType : byte { Push = 81, Ack = 82, WindowAsk = 83, WindowTell = 84 };
 
     // KCP Segment Definition
     internal class Segment

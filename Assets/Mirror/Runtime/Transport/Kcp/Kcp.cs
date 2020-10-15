@@ -6,8 +6,6 @@ namespace Mirror.KCP
 {
     public class Kcp
     {
-        public enum CommandType : byte {  Push = 81, Ack = 82, WindowAsk = 83, WindowTell = 84};
-
         public const int RTO_MAX = 60000; //Maximum RTO
         public const int ASK_SEND = 1;  // need to send CMD_WASK
         public const int ASK_TELL = 2;  // need to send CMD_WINS
@@ -380,18 +378,18 @@ namespace Mirror.KCP
 
                 if (size - (offset - index) < OVERHEAD) break;
 
-                offset += Utils.Decode32U(data, offset, ref conv_);
+                (offset, conv_) = Utils.Decode32U(data, offset);
 
                 if (conv != conv_)
                     return -1;
 
-                offset += Utils.Decode8u(data, offset, ref cmd);
-                offset += Utils.Decode8u(data, offset, ref frg);
-                offset += Utils.Decode16U(data, offset, ref wnd);
-                offset += Utils.Decode32U(data, offset, ref ts);
-                offset += Utils.Decode32U(data, offset, ref sn);
-                offset += Utils.Decode32U(data, offset, ref una);
-                offset += Utils.Decode32U(data, offset, ref length);
+                (offset, cmd) = Utils.Decode8u(data, offset);
+                (offset, frg) = Utils.Decode8u(data, offset);
+                (offset, wnd) = Utils.Decode16U(data, offset);
+                (offset, ts) = Utils.Decode32U(data, offset);
+                (offset, sn) = Utils.Decode32U(data, offset);
+                (offset, una) = Utils.Decode32U(data, offset);
+                (offset, length) = Utils.Decode32U(data, offset);
 
                 if (size - (offset - index) < length)
                     return -2;
@@ -695,7 +693,6 @@ namespace Mirror.KCP
 
                 if (needSend)
                 {
-                    current = CurrentMS;
                     segment.xmit++;
                     segment.ts = current;
                     segment.wnd = seg.wnd;
