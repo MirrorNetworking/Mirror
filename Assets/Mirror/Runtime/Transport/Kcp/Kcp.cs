@@ -53,7 +53,7 @@ namespace Mirror.KCP
         readonly List<AckItem> ackList = new List<AckItem>(16);
 
         byte[] buffer;
-        uint reserved = 0;
+        uint reserved;
         readonly Action<byte[], int> output; // buffer, size
 
         public uint SendWindowMax { get; private set; }
@@ -179,7 +179,7 @@ namespace Mirror.KCP
         public void Send(byte[] buffer, int index, int length)
         {
             if (length == 0)
-                throw new ArgumentException("You cannot send a packet with a length of 0.");
+                throw new ArgumentException("You cannot send a packet with a " + nameof(length) + " of 0.");
 
             int count;
             if (length <= Mss)
@@ -188,7 +188,7 @@ namespace Mirror.KCP
                 count = (int)((length + Mss - 1) / Mss);
 
             if (count > 255)
-                throw new ArgumentException("Your packet is too big, please reduce its length or increase the MTU with SetMtu().");
+                throw new ArgumentException("Your packet is too big, please reduce its " + nameof(length) + " or increase the MTU with SetMtu().");
 
             if (count == 0)
                 count = 1;
@@ -913,7 +913,7 @@ namespace Mirror.KCP
         public void ReserveBytes(uint reservedSize)
         {
             if (reservedSize >= (mtu - OVERHEAD))
-                throw new ArgumentException("reservedSize must be lower than MTU.");
+                throw new ArgumentException(nameof(reservedSize) + " must be lower than MTU.");
 
             reserved = reservedSize;
         }
