@@ -350,7 +350,9 @@ namespace Mirror
                 newNetId = newIdentity.NetId;
                 if (newNetId == 0)
                 {
-                    logger.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
+                    // it has not been spawned yet,  so just consider them different
+                    // so that we call the setter
+                    return false;
                 }
             }
 
@@ -393,9 +395,12 @@ namespace Mirror
                 return identityField;
             }
 
-            // client always looks up based on netId because objects might get in and out of range
-            // over and over again, which shouldn't null them forever
-            Client.Spawned.TryGetValue(netId, out identityField);
+            if (IsClient)
+            {
+                // client always looks up based on netId because objects might get in and out of range
+                // over and over again, which shouldn't null them forever
+                Client.Spawned.TryGetValue(netId, out identityField);
+            }
             return identityField;
         }
 

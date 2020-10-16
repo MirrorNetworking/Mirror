@@ -13,6 +13,9 @@ namespace Mirror.Tests
 
         [SyncVar]
         public Guild guild;
+
+        [SyncVar]
+        public NetworkIdentity target;
     }
 
     public class SyncVarTest
@@ -154,6 +157,17 @@ namespace Mirror.Tests
             player3.syncMode = SyncMode.Observers;
 
             Assert.That(identity.GetSyncModeObserversMask(), Is.EqualTo(0b101));
+        }
+
+        [Test]
+        public void SetNetworkIdentitySyncvar()
+        {
+            var gameObject = new GameObject("player", typeof(NetworkIdentity), typeof(MockPlayer));
+            MockPlayer player = gameObject.GetComponent<MockPlayer>();
+
+            player.target = gameObject.GetComponent<NetworkIdentity>();
+
+            Assert.That(player.target, Is.EqualTo(player.GetComponent<NetworkIdentity>()));
         }
     }
 }

@@ -239,7 +239,7 @@ namespace Mirror.Tests
             var go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
             bool result = component.SyncVarNetworkIdentityEqualExposed(ni, 0);
-            Assert.That(result, Is.True);
+            Assert.That(result, Is.False);
 
             // clean up
             GameObject.Destroy(go);
