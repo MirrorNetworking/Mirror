@@ -265,6 +265,12 @@ namespace Mirror
         /// <param name="buffer">The data received.</param>
         internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
+            if (buffer.Count == 0)
+            {
+                logger.LogError($"ConnectionRecv {this} Message was empty");
+                return;
+            }
+
             // unpack message
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(buffer))
             {
