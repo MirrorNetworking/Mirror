@@ -1,6 +1,6 @@
 using UnityEngine;
-using Mirror.Tcp;
 using UnityEditor;
+using Mirror.KCP;
 
 namespace Mirror
 {
@@ -11,9 +11,9 @@ namespace Mirror
         [MenuItem("GameObject/Network/NetworkManager", priority = 7)]
         public static GameObject CreateNetworkManager()
         {
-            var go = new GameObject("NetworkManager", typeof(TcpTransport), typeof(NetworkSceneManager), typeof(NetworkClient), typeof(NetworkServer), typeof(NetworkManager), typeof(PlayerSpawner), typeof(NetworkManagerHud));
+            var go = new GameObject("NetworkManager", typeof(KcpTransport), typeof(NetworkSceneManager), typeof(NetworkClient), typeof(NetworkServer), typeof(NetworkManager), typeof(PlayerSpawner), typeof(NetworkManagerHud));
 
-            TcpTransport transport = go.GetComponent<TcpTransport>();
+            KcpTransport transport = go.GetComponent<KcpTransport>();
             NetworkSceneManager nsm = go.GetComponent<NetworkSceneManager>();
 
             NetworkClient networkClient = go.GetComponent<NetworkClient>();
