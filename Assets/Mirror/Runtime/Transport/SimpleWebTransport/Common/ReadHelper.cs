@@ -8,7 +8,6 @@ namespace Mirror.SimpleWeb
     {
         /// <returns>outOffset + length</returns>
         /// <exception cref="ReadHelperException"></exception>
-        /// <exception cref="IOException"></exception>
         public static int Read(Stream stream, byte[] outBuffer, int outOffset, int length)
         {
             int received = 0;
