@@ -8,7 +8,7 @@ Mirror is a high level Networking Library that can use several different low lev
 
 -   [TCP - Booster](https://mirror-networking.com/booster/) The Mirror Booster uncorks your multiplayer game by moving the Networking load out of Unity!
 
--   [WebGL - WebSockets](WebSockets.md) WebSockets transport layer for Mirror that target WebGL clients, without relying on Unity's stodgy old LLAPI.
+-   [WebSockets - SimpleWebTransport](SimpleWebTransport.md) WebSockets transport layer for Mirror that target WebGL clients.
 
 -   [Multiplexer](Multiplexer.md) Multiplexer is a bridging transport to allow a server to handle clients on different transports concurrently, for example desktop clients using Telepathy together with WebGL clients using Websockets.
 
@@ -16,7 +16,7 @@ Mirror is a high level Networking Library that can use several different low lev
 
 -   [UDP - Ignorance](Ignorance.md) Ignorance implements a reliable and unreliable sequenced UDP transport based on ENet.
 
--   [UDP - LiteNetLib4Mirror](LiteNetLib4Mirror.md) LiteNetLib4Mirror implements a UDP transport based on LiteNetLib with Network Discovery and uPnP included.
+-   [UDP - LiteNetLibTransport](LiteNetLibTransport.md) LiteNetLibTransport implements a UDP transport based on [LiteNetLib](https://github.com/RevenantX/LiteNetLib).
 
 -   [Steam - FizzySteamworks](FizzySteamworks.md) Transport utilising Steam P2P network, building on Steamworks.NET.
 
