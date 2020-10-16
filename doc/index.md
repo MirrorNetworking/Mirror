@@ -15,8 +15,8 @@ uMMORPG was possible with \<6000 lines of code. We needed a networking library t
 
 **Multiple Transports Available:**
 -   **TCP** ([Telepathy](Articles/Transports/Telepathy.md) and [Apathy](https://mirror-networking.com/apathy/) and [Booster](https://mirror-networking.com/booster/))
--   **UDP** ([ENet](Articles/Transports/Ignorance.md) and [LiteNetLib](Articles/Transports/LiteNetLib4Mirror.md))
--   **WebGL** ([Secure Web Sockets](Articles/Transports/WebSockets.md))
+-   **UDP** ([ENet](Articles/Transports/Ignorance.md) and [LiteNetLib](Articles/Transports/LiteNetLibTransport.md))
+-   **WebGL** ([Secure Web Sockets](Articles/Transports/SimpleWebTransport.md))
 -   **Steam** ([Steamworks.Net](Articles/Transports/FizzySteamworks.md)) and ([FacePunch](Articles/Transports/FizzyFacepunch.md))
 -   **Multiplexer** ([Multiplexer](Articles/Transports/Multiplexer.md))
 -   **Fallback** ([Fallback](Articles/Transports/Fallback.md))
