@@ -582,6 +582,41 @@ namespace Mirror.KCP
             return newSegsCount;
         }
 
+        uint CalculateWindowSize()
+        {
+            uint cwnd_ = Math.Min(SendWindowMax, RmtWnd);
+            if (!nocwnd)
+                cwnd_ = Math.Min(cwnd, cwnd_);
+            return cwnd_;
+        }
+
+        uint CalculateResent()
+        {
+            // calculate resent
+            uint resent = (uint)fastresend;
+            if (fastresend <= 0) resent = 0xffffffff;
+            return resent;
+        }
+
+        void FlushWindowProbingCommands(Segment seg)
+        {
+            if ((probe & ASK_SEND) != 0)
+            {
+                seg.cmd = CommandType.WindowAsk;
+                MakeSpace(OVERHEAD);
+                writeIndex += seg.Encode(buffer, writeIndex);
+            }
+
+            if ((probe & ASK_TELL) != 0)
+            {
+                seg.cmd = CommandType.WindowTell;
+                MakeSpace(OVERHEAD);
+                writeIndex += seg.Encode(buffer, writeIndex);
+            }
+
+            probe = 0;
+        }
+
         /// <summary><para>Flush</para>
         /// <return>Returns uint (interval or mintro)</return></summary>
         /// <param name="ackOnly">flush remain ack segments</param>
@@ -607,60 +642,17 @@ namespace Mirror.KCP
 
             uint current = CurrentMS;
 
-            // probe window size (if remote window size equals zero)
-            if (RmtWnd == 0)
-            {
-                if (probe_wait == 0)
-                {
-                    probe_wait = PROBE_INIT;
-                    ts_probe = current + probe_wait;
-                }
-                else
-                {
-                    if (current >= ts_probe)
-                    {
-                        probe_wait = Math.Max(probe_wait, PROBE_INIT);
-                        probe_wait += probe_wait / 2;
-                        probe_wait = Math.Min(probe_wait, PROBE_LIMIT);
-                        ts_probe = current + probe_wait;
-                        probe |= ASK_SEND;
-                    }
-                }
-            }
-            else
-            {
-                ts_probe = 0;
-                probe_wait = 0;
-            }
+            ProbeWindowSize(current);
 
-            // flush window probing commands
-            if ((probe & ASK_SEND) != 0)
-            {
-                seg.cmd = CommandType.WindowAsk;
-                MakeSpace(OVERHEAD);
-                writeIndex += seg.Encode(buffer, writeIndex);
-            }
+            FlushWindowProbingCommands(seg);
 
-            if ((probe & ASK_TELL) != 0)
-            {
-                seg.cmd = CommandType.WindowTell;
-                MakeSpace(OVERHEAD);
-                writeIndex += seg.Encode(buffer, writeIndex);
-            }
+            return CheckForRetransmission(seg, current);
+        }
 
-            probe = 0;
-
-            // calculate window size
-            uint cwnd_ = Math.Min(SendWindowMax, RmtWnd);
-            if (!nocwnd)
-                cwnd_ = Math.Min(cwnd, cwnd_);
-
+        uint CheckForRetransmission(Segment seg, uint current)
+        {
             // sliding window, controlled by snd_nxt && sna_una+cwnd
-            int newSegsCount = FillSendBuffer(cwnd_);
-
-            // calculate resent
-            uint resent = (uint)fastresend;
-            if (fastresend <= 0) resent = 0xffffffff;
+            int newSegsCount = FillSendBuffer(CalculateWindowSize());
 
             // check for retransmissions
             ulong change = 0;
@@ -679,7 +671,7 @@ namespace Mirror.KCP
                     segment.rto = (uint)rx_rto;
                     segment.resendts = current + segment.rto;
                 }
-                else if (segment.fastack >= resent || segment.fastack > 0 && newSegsCount == 0 ) // fast retransmit
+                else if (segment.fastack >= CalculateResent() || segment.fastack > 0 && newSegsCount == 0) // fast retransmit
                 {
                     needSend = true;
                     segment.fastack = 0;
@@ -727,11 +719,40 @@ namespace Mirror.KCP
             // cwnd update
             if (!nocwnd)
             {
-                CwndUpdate(resent, change, lostSegs);
+                CwndUpdate(CalculateResent(), change, lostSegs);
             }
 
             Segment.Put(seg);
             return (uint)minrto;
+        }
+
+        void ProbeWindowSize(uint current)
+        {
+            // probe window size (if remote window size equals zero)
+            if (RmtWnd == 0)
+            {
+                if (probe_wait == 0)
+                {
+                    probe_wait = PROBE_INIT;
+                    ts_probe = current + probe_wait;
+                }
+                else
+                {
+                    if (current >= ts_probe)
+                    {
+                        probe_wait = Math.Max(probe_wait, PROBE_INIT);
+                        probe_wait += probe_wait / 2;
+                        probe_wait = Math.Min(probe_wait, PROBE_LIMIT);
+                        ts_probe = current + probe_wait;
+                        probe |= ASK_SEND;
+                    }
+                }
+            }
+            else
+            {
+                ts_probe = 0;
+                probe_wait = 0;
+            }
         }
 
         void SetThresh(uint value)
