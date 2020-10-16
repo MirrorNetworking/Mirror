@@ -25,9 +25,9 @@ TCP is better for slower paced games where latency isn't important.
 
 #### Transports
 
-* [Telepathy](https://mirror-networking.com/docs/Articles/Transports/Telepathy.html)
+* [Telepathy](../Transports/Telepathy.md)
 * [Apathy](https://mirror-networking.com/apathy/)
-* [WebGL](https://mirror-networking.com/docs/Articles/Transports/WebSockets.html)
+* [WebGL](../Transports/SimpleWebTransport.md)
 
 ## [UDP (User Datagram Protocol)](https://en.wikipedia.org/wiki/User_Datagram_Protocol)
 
@@ -45,8 +45,8 @@ UDP is better for fast paced games where latency is important and if a few packe
 
 #### Transports
 
-* [Ignorance](https://mirror-networking.com/docs/Articles/Transports/Ignorance.html)
-* [LiteNetLib](https://mirror-networking.com/docs/Articles/Transports/LiteNetLib4Mirror.html)
+* [Ignorance](../Transports/Ignorance.md)
+* [LiteNetLib](../Transports/LiteNetLibTransport.md)
 
 ## The choice is yours
 

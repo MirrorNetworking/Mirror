@@ -1,4 +1,4 @@
-# LiteNetLib4Mirror Transport
+# LiteNetLib Transport
 
 **[LiteNetLib](https://github.com/RevenantX/LiteNetLib) based transport for Mirror.**
 
