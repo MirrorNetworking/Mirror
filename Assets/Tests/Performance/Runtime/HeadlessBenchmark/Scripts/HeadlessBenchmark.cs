@@ -65,7 +65,7 @@ namespace Mirror.HeadlessBenchmark
             ParseForServerMode();
 
             //Or client mode?
-            ParseForClientMode();
+            StartClients().Forget();
 
             ParseForHelp();
         }
@@ -122,7 +122,7 @@ namespace Mirror.HeadlessBenchmark
             }
         }
 
-        void ParseForClientMode()
+        async UniTaskVoid StartClients()
         {
             string client = GetArg("-client");
             if (!string.IsNullOrEmpty(client))
@@ -146,7 +146,12 @@ namespace Mirror.HeadlessBenchmark
 
                 // connect from a bunch of clients
                 for (int i = 0; i < clonesCount; i++)
-                    StartClient(i, networkManager.client.Transport, address).Forget();
+                {
+                    await StartClient(i, networkManager.client.Transport, address);
+                    await UniTask.Delay(500);
+
+                    Debug.LogFormat("Started {0} clients", i + 1);
+                }
             }
         }
 
