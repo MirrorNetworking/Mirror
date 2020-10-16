@@ -26,21 +26,21 @@ namespace Mirror.KCP
         // kcp members.
         readonly uint conv;
         uint mtu = 1200; // MTU Default.
-        uint snd_una;
+        uint snd_unacknowledged;
         uint snd_nxt;
         uint rcv_nxt;
-        uint ssthresh = 2;
+        uint slowStartThreshhold = 2;
         int rx_rttval;
         int rx_SmoothedRoundTripTime; // Used by UpdateAck
         int rx_rto = 200; // Default RTO
         int rx_MinimumRto = 100; // normal min rto
-        uint cwnd;
+        uint CongestionWindow;
         uint probe;
         uint interval = 100;
         uint ts_flush = 100;
         bool noDelay;
         bool updated;
-        uint ts_probe;
+        uint timeStamp_probe;
         uint probe_wait;
         uint incr;
 
@@ -59,7 +59,7 @@ namespace Mirror.KCP
         public uint SendWindowMax { get; private set; }
         public uint ReceiveWindowMax { get; private set; }
         public uint RmtWnd { get; private set; }
-        public uint Mss => mtu - OVERHEAD - reserved;
+        public uint MaximumSegmentSize => mtu - OVERHEAD - reserved;
 
         /// <summary>
         /// Returns int count of current packets waiting to be sent
@@ -95,10 +95,10 @@ namespace Mirror.KCP
 
             Segment seq = receiveQueue[0];
 
-            if (seq.frg == 0)
+            if (seq.fragment == 0)
                 return seq.data.ReadableBytes;
 
-            if (receiveQueue.Count < seq.frg + 1)
+            if (receiveQueue.Count < seq.fragment + 1)
                 return -1;
 
             int length = 0;
@@ -106,7 +106,7 @@ namespace Mirror.KCP
             foreach (Segment item in receiveQueue)
             {
                 length += item.data.ReadableBytes;
-                if (item.frg == 0)
+                if (item.fragment == 0)
                     break;
             }
 
@@ -161,7 +161,7 @@ namespace Mirror.KCP
                 n += seg.data.ReadableBytes;
 
                 count++;
-                uint fragment = seg.frg;
+                uint fragment = seg.fragment;
                 Segment.Put(seg);
                 if (fragment == 0)
                     break;
@@ -182,10 +182,10 @@ namespace Mirror.KCP
                 throw new ArgumentException("You cannot send a packet with a " + nameof(length) + " of 0.");
 
             int count;
-            if (length <= Mss)
+            if (length <= MaximumSegmentSize)
                 count = 1;
             else
-                count = (int)((length + Mss - 1) / Mss);
+                count = (int)((length + MaximumSegmentSize - 1) / MaximumSegmentSize);
 
             if (count > 255)
                 throw new ArgumentException("Your packet is too big, please reduce its " + nameof(length) + " or increase the MTU with SetMtu().");
@@ -196,14 +196,14 @@ namespace Mirror.KCP
             // fragment
             for (int i = 0; i < count; i++)
             {
-                int size = Math.Min(length, (int)Mss);
+                int size = Math.Min(length, (int)MaximumSegmentSize);
 
                 var seg = Segment.Get(size);
                 seg.data.WriteBytes(buffer, index, size);
                 index += size;
                 length -= size;
 
-                seg.frg = (byte)(count - i - 1);
+                seg.fragment = (byte)(count - i - 1);
                 sendQueue.Add(seg);
             }
         }
@@ -234,16 +234,16 @@ namespace Mirror.KCP
 
         void ShrinkBuf()
         {
-            snd_una = sendBuffer.Count > 0 ? sendBuffer[0].sn : snd_nxt;
+            snd_unacknowledged = sendBuffer.Count > 0 ? sendBuffer[0].serialNumber : snd_nxt;
         }
 
-        void ParseAck(uint sn)
+        void ParseAck(uint serialNumber)
         {
-            if (sn < snd_una || sn >= snd_nxt) return;
+            if (serialNumber < snd_unacknowledged || serialNumber >= snd_nxt) return;
 
             foreach (Segment seg in sendBuffer)
             {
-                if (sn == seg.sn)
+                if (serialNumber == seg.serialNumber)
                 {
                     // mark and free space, but leave the segment here,
                     // and wait until `una` to delete this, then we don't
@@ -252,31 +252,31 @@ namespace Mirror.KCP
                     seg.acked = true;
                     break;
                 }
-                if (sn < seg.sn)
+                if (serialNumber < seg.serialNumber)
                     break;
             }
         }
 
-        void ParseFastrack(uint sn, uint ts)
+        void ParseFastrack(uint serialNumber, uint timeStamp)
         {
-            if (sn < snd_una || sn >= snd_nxt)
+            if (serialNumber < snd_unacknowledged || serialNumber >= snd_nxt)
                 return;
 
             foreach (Segment seg in sendBuffer)
             {
-                if (sn < seg.sn)
+                if (serialNumber < seg.serialNumber)
                     break;
-                else if (sn != seg.sn && seg.ts <= ts)
+                else if (serialNumber != seg.serialNumber && seg.timeStamp <= timeStamp)
                     seg.fastack++;
             }
         }
 
-        void ParseUna(uint una)
+        void ParseUna(uint unacknowledged)
         {
             int count = 0;
             foreach (Segment seg in sendBuffer)
             {
-                if (una >seg.sn)
+                if (unacknowledged >seg.serialNumber)
                 {
                     count++;
                     Segment.Put(seg);
@@ -288,15 +288,15 @@ namespace Mirror.KCP
             sendBuffer.RemoveRange(0, count);
         }
 
-        void AckPush(uint sn, uint ts)
+        void AckPush(uint serialnumber, uint timestamp)
         {
-            ackList.Add(new AckItem { serialNumber = sn, timestamp = ts });
+            ackList.Add(new AckItem { serialNumber = serialnumber, timestamp = timestamp });
         }
 
         void ParseData(Segment newseg)
         {
-            uint sn = newseg.sn;
-            if (sn >= rcv_nxt + ReceiveWindowMax || sn < rcv_nxt)
+            uint serialNumber = newseg.serialNumber;
+            if (serialNumber >= rcv_nxt + ReceiveWindowMax || serialNumber < rcv_nxt)
             {
                 Segment.Put(newseg);
                 return;
@@ -308,7 +308,7 @@ namespace Mirror.KCP
 
         void InsertSegmentInReceiveBuffer(Segment newseg)
         {
-            uint sn = newseg.sn;
+            uint serialNumber = newseg.serialNumber;
             int n = receiveBuffer.Count - 1;
             int insert_idx = 0;
 
@@ -317,13 +317,13 @@ namespace Mirror.KCP
             for (int i = n; i >= 0; i--)
             {
                 Segment seg = receiveBuffer[i];
-                if (seg.sn == sn)
+                if (seg.serialNumber == serialNumber)
                 {
                     Segment.Put(newseg);
                     return;
                 }
 
-                if (sn > seg.sn)
+                if (serialNumber > seg.serialNumber)
                 {
                     insert_idx = i + 1;
                     break;
@@ -342,7 +342,7 @@ namespace Mirror.KCP
             int count = 0;
             foreach (Segment seg in receiveBuffer)
             {
-                if (seg.sn == rcv_nxt && receiveQueue.Count < ReceiveWindowMax)
+                if (seg.serialNumber == rcv_nxt && receiveQueue.Count < ReceiveWindowMax)
                 {
                     receiveQueue.Add(seg);
                     rcv_nxt++;
@@ -437,13 +437,13 @@ namespace Mirror.KCP
                             if (sn >= rcv_nxt)
                             {
                                 var seg = Segment.Get((int)length);
-                                seg.conv = conv_;
+                                seg.conversation = conv_;
                                 seg.cmd = cmd;
-                                seg.frg = frg;
-                                seg.wnd = wnd;
-                                seg.ts = ts;
-                                seg.sn = sn;
-                                seg.una = una;
+                                seg.fragment = frg;
+                                seg.window = wnd;
+                                seg.timeStamp = ts;
+                                seg.serialNumber = sn;
+                                seg.unacknowledged = una;
                                 seg.data.WriteBytes(data, offset, (int)length);
                                 ParseData(seg);
                             }
@@ -476,7 +476,7 @@ namespace Mirror.KCP
             }
 
             // cwnd update when packet arrived
-            UpdateCwnd(snd_una);
+            UpdateCwnd(snd_unacknowledged);
 
             // ack immediately
             if (ackNoDelay && ackList.Count > 0)
@@ -489,31 +489,31 @@ namespace Mirror.KCP
 
         void UpdateCwnd(uint s_una)
         {
-            if (!nocwnd && snd_una > s_una && cwnd < RmtWnd)
+            if (!nocwnd && snd_unacknowledged > s_una && CongestionWindow < RmtWnd)
             {                
-                if (cwnd < ssthresh)
+                if (CongestionWindow < slowStartThreshhold)
                 {
-                    cwnd++;
-                    incr += Mss;
+                    CongestionWindow++;
+                    incr += MaximumSegmentSize;
                 }
                 else
                 {
-                    incr = Math.Max(incr, Mss);
+                    incr = Math.Max(incr, MaximumSegmentSize);
 
-                    incr += Mss * Mss / incr + Mss / 16;
+                    incr += MaximumSegmentSize * MaximumSegmentSize / incr + MaximumSegmentSize / 16;
 
-                    if ((cwnd + 1) * Mss <= incr)
+                    if ((CongestionWindow + 1) * MaximumSegmentSize <= incr)
                     {
-                        cwnd = incr + Mss - 1;
+                        CongestionWindow = incr + MaximumSegmentSize - 1;
 
-                        if (Mss > 0)
-                            cwnd /= Mss;                            
+                        if (MaximumSegmentSize > 0)
+                            CongestionWindow /= MaximumSegmentSize;                            
                     }
                 }
-                if (cwnd > RmtWnd)
+                if (CongestionWindow > RmtWnd)
                 {
-                    cwnd = RmtWnd;
-                    incr = RmtWnd * Mss;
+                    CongestionWindow = RmtWnd;
+                    incr = RmtWnd * MaximumSegmentSize;
                 }                
             }
         }
@@ -552,8 +552,8 @@ namespace Mirror.KCP
                 AckItem ack = ackList[i];
                 if (ack.serialNumber >= rcv_nxt || ackList.Count - 1 == i)
                 {
-                    seg.sn = ack.serialNumber;
-                    seg.ts = ack.timestamp;
+                    seg.serialNumber = ack.serialNumber;
+                    seg.timeStamp = ack.timestamp;
                     writeIndex += seg.Encode(buffer, writeIndex);
                 }
             }
@@ -566,12 +566,12 @@ namespace Mirror.KCP
             int newSegsCount = 0;
             foreach (Segment newseg in sendQueue)
             {
-                if (snd_nxt >= snd_una + cwnd_)
+                if (snd_nxt >= snd_unacknowledged + cwnd_)
                     break;
 
-                newseg.conv = conv;
+                newseg.conversation = conv;
                 newseg.cmd = CommandType.Push;
-                newseg.sn = snd_nxt;
+                newseg.serialNumber = snd_nxt;
                 sendBuffer.Add(newseg);
                 snd_nxt++;
                 newSegsCount++;
@@ -586,7 +586,7 @@ namespace Mirror.KCP
         {
             uint cwnd_ = Math.Min(SendWindowMax, RmtWnd);
             if (!nocwnd)
-                cwnd_ = Math.Min(cwnd, cwnd_);
+                cwnd_ = Math.Min(CongestionWindow, cwnd_);
             return cwnd_;
         }
 
@@ -623,10 +623,10 @@ namespace Mirror.KCP
         public uint Flush(bool ackOnly)
         {
             var seg = Segment.Get(32);
-            seg.conv = conv;
+            seg.conversation = conv;
             seg.cmd = CommandType.Ack;
-            seg.wnd = WndUnused();
-            seg.una = rcv_nxt;
+            seg.window = WndUnused();
+            seg.unacknowledged = rcv_nxt;
 
             writeIndex = (int)reserved;
 
@@ -665,21 +665,21 @@ namespace Mirror.KCP
                 bool needSend = false;
                 if (segment.acked)
                     continue;
-                if (segment.xmit == 0)  // initial transmit
+                if (segment.transmit == 0)  // initial transmit
                 {
                     needSend = true;
                     segment.rto = (uint)rx_rto;
-                    segment.resendts = current + segment.rto;
+                    segment.resendTimeStamp = current + segment.rto;
                 }
                 else if (segment.fastack >= CalculateResent() || segment.fastack > 0 && newSegsCount == 0) // fast retransmit
                 {
                     needSend = true;
                     segment.fastack = 0;
                     segment.rto = (uint)rx_rto;
-                    segment.resendts = current + segment.rto;
+                    segment.resendTimeStamp = current + segment.rto;
                     change++;
                 }
-                else if (current >= segment.resendts) // RTO
+                else if (current >= segment.resendTimeStamp) // RTO
                 {
                     needSend = true;
                     if (!noDelay)
@@ -687,16 +687,16 @@ namespace Mirror.KCP
                     else
                         segment.rto += (uint)rx_rto >> 1;
                     segment.fastack = 0;
-                    segment.resendts = current + segment.rto;
+                    segment.resendTimeStamp = current + segment.rto;
                     lostSegs++;
                 }
 
                 if (needSend)
                 {
-                    segment.xmit++;
-                    segment.ts = current;
-                    segment.wnd = seg.wnd;
-                    segment.una = seg.una;
+                    segment.transmit++;
+                    segment.timeStamp = current;
+                    segment.window = seg.window;
+                    segment.unacknowledged = seg.unacknowledged;
 
                     int need = OVERHEAD + segment.data.ReadableBytes;
                     MakeSpace(need);
@@ -706,7 +706,7 @@ namespace Mirror.KCP
                 }
 
                 // get the nearest rto
-                int _rto = Utils.TimeDiff(segment.resendts, current);
+                int _rto = Utils.TimeDiff(segment.resendTimeStamp, current);
                 if (_rto > 0 && _rto < minrto)
                 {
                     minrto = _rto;
@@ -734,32 +734,32 @@ namespace Mirror.KCP
                 if (probe_wait == 0)
                 {
                     probe_wait = PROBE_INIT;
-                    ts_probe = current + probe_wait;
+                    timeStamp_probe = current + probe_wait;
                 }
                 else
                 {
-                    if (current >= ts_probe)
+                    if (current >= timeStamp_probe)
                     {
                         probe_wait = Math.Max(probe_wait, PROBE_INIT);
                         probe_wait += probe_wait / 2;
                         probe_wait = Math.Min(probe_wait, PROBE_LIMIT);
-                        ts_probe = current + probe_wait;
+                        timeStamp_probe = current + probe_wait;
                         probe |= ASK_SEND;
                     }
                 }
             }
             else
             {
-                ts_probe = 0;
+                timeStamp_probe = 0;
                 probe_wait = 0;
             }
         }
 
         void SetThresh(uint value)
         {
-            ssthresh = value;
-            if (ssthresh < 2)
-                ssthresh = 2;
+            slowStartThreshhold = value;
+            if (slowStartThreshhold < 2)
+                slowStartThreshhold = 2;
         }
 
         void CwndUpdate(uint resent, ulong change, ulong lostSegs)
@@ -768,23 +768,23 @@ namespace Mirror.KCP
             // rate halving, https://tools.ietf.org/html/rfc6937
             if (change > 0)
             {
-                SetThresh((snd_nxt - snd_una) / 2);
-                cwnd = ssthresh + resent;
-                incr = cwnd * Mss;
+                SetThresh((snd_nxt - snd_unacknowledged) / 2);
+                CongestionWindow = slowStartThreshhold + resent;
+                incr = CongestionWindow * MaximumSegmentSize;
             }
 
             // congestion control, https://tools.ietf.org/html/rfc5681
             if (lostSegs > 0)
             {
-                SetThresh(cwnd / 2);
-                cwnd = 1;
-                incr = Mss;
+                SetThresh(CongestionWindow / 2);
+                CongestionWindow = 1;
+                incr = MaximumSegmentSize;
             }
 
-            if (cwnd < 1)
+            if (CongestionWindow < 1)
             {
-                cwnd = 1;
-                incr = Mss;
+                CongestionWindow = 1;
+                incr = MaximumSegmentSize;
             }
         }
 
@@ -834,23 +834,23 @@ namespace Mirror.KCP
         {
             uint current = CurrentMS;
 
-            uint ts_flush_ = ts_flush;
+            uint timeStamp_flush_ = ts_flush;
             int tm_packet = 0x7fffffff;
 
             if (!updated)
                 return 0;
 
-            if (current >= ts_flush_ + 10000 || current < ts_flush_ - 10000)
-                ts_flush_ = current;
+            if (current >= timeStamp_flush_ + 10000 || current < timeStamp_flush_ - 10000)
+                timeStamp_flush_ = current;
 
-            if (current >= ts_flush_)
+            if (current >= timeStamp_flush_)
                 return 0;
 
-            int tm_flush_ = Utils.TimeDiff(ts_flush_, current);
+            int tm_flush_ = Utils.TimeDiff(timeStamp_flush_, current);
 
             foreach (Segment seg in sendBuffer)
             {
-                int diff = Utils.TimeDiff(seg.resendts, current);
+                int diff = Utils.TimeDiff(seg.resendTimeStamp, current);
                 if (diff <= 0)
                     return 0;
                 if (diff < tm_packet)
