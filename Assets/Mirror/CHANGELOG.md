@@ -1,3 +1,10 @@
+## [49.3.2](https://github.com/MirrorNG/MirrorNG/compare/v49.3.1...v49.3.2) (2020-10-16)
+
+
+### Performance Improvements
+
+* Make KCP the default transport ([#398](https://github.com/MirrorNG/MirrorNG/issues/398)) ([dc6cc4f](https://github.com/MirrorNG/MirrorNG/commit/dc6cc4f944cef3e0185f9d4ee3765309a965f051))
+
 ## [49.3.1](https://github.com/MirrorNG/MirrorNG/compare/v49.3.0...v49.3.1) (2020-10-15)
 
 
