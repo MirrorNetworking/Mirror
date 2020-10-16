@@ -371,7 +371,7 @@ namespace Mirror.KCP
 
             int offset = index;
             uint latest = 0;
-            int flag = 0;
+            bool flag = false;
 
             while (true)
             {
@@ -427,7 +427,7 @@ namespace Mirror.KCP
                     case CommandType.Ack:
                         ParseAck(sn);
                         ParseFastrack(sn, ts);
-                        flag |= 1;
+                        flag = true;
                         latest = ts;
                         break;
                     case CommandType.Push:
@@ -466,7 +466,7 @@ namespace Mirror.KCP
 
             // update rtt with the latest ts
             // ignore the FEC packet
-            if (flag != 0 && regular)
+            if (flag && regular)
             {
                 uint current = CurrentMS;
                 if (current >= latest)
