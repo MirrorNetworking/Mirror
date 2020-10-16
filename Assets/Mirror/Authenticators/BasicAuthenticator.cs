@@ -35,12 +35,12 @@ namespace Mirror.Authenticators
         ///     in mirror is not encrypted so sending secure information directly is not adviced
         /// </para>
         /// </summary>
-        class AuthRequestMessage : MessageBase
+        class AuthRequestMessage : NetworkMessage
         {
             public string serverCode;
         }
 
-        class AuthResponseMessage : MessageBase
+        class AuthResponseMessage : NetworkMessage
         {
             public bool success;
             public string message;
