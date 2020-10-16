@@ -15,6 +15,7 @@ namespace Mirror.SimpleWeb
 
         TcpListener listener;
         Thread acceptThread;
+        bool serverStopped;
         readonly ServerHandshake handShake;
         readonly ServerSslHelper sslHelper;
         readonly BufferPool bufferPool;
@@ -46,10 +47,13 @@ namespace Mirror.SimpleWeb
 
         public void Stop()
         {
+            serverStopped = true;
+
             // Interrupt then stop so that Exception is handled correctly
             acceptThread?.Interrupt();
             listener?.Stop();
             acceptThread = null;
+
 
             Log.Info("Server stoped, Closing all connections...");
             // make copy so that foreach doesn't break if values are removed
@@ -75,6 +79,8 @@ namespace Mirror.SimpleWeb
 
 
                         // TODO keep track of connections before they are in connections dictionary
+                        //      this might not be a problem as HandshakeAndReceiveLoop checks for stop
+                        //      and returns/disposes before sending message to queue
                         Connection conn = new Connection(client, AfterConnectionDisposed);
                         Log.Info($"A client connected {conn}");
 
@@ -121,6 +127,13 @@ namespace Mirror.SimpleWeb
                 {
                     Log.Error($"Handshake Failed {conn}");
                     conn.Dispose();
+                    return;
+                }
+
+                // check if Stop has been called since accepting this client
+                if (serverStopped)
+                {
+                    Log.Info("Server stops after successful handshake");
                     return;
                 }
 
