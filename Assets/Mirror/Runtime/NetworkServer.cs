@@ -515,7 +515,7 @@ namespace Mirror
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
                 NetworkIdentity identity = kvp.Value;
-                if ((object)identity != null)
+                if (!(identity is null))
                 {
                     identity.ServerUpdate();
                 }
