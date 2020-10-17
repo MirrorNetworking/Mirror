@@ -115,7 +115,7 @@ namespace Mirror.Tests
             // send 100 packets
             for (byte i=0; i< 50; i ++)
             {
-                byte[] data = new [] { i };
+                byte[] data = { i };
                 client.Send(data, 0, data.Length);
             }
 

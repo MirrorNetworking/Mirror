@@ -41,7 +41,7 @@ namespace Mirror.Tests
             await transport.ListenAsync();
 
             UniTask<IConnection> acceptTask = transport.AcceptAsync();
-            var uriBuilder = new UriBuilder()
+            var uriBuilder = new UriBuilder
             {
                 Host = "localhost",
                 Scheme = "kcp",
@@ -80,7 +80,7 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator SendDataFromClient() => UniTask.ToCoroutine(async () =>
         {
-            byte[] data = new byte[] { (byte)Random.Range(1, 255) };
+            byte[] data = { (byte)Random.Range(1, 255) };
             await clientConnection.SendAsync(new ArraySegment<byte>(data));
 
             var buffer = new MemoryStream();
@@ -91,7 +91,7 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator SendDataFromServer() => UniTask.ToCoroutine(async () =>
         {
-            byte[] data = new byte[] { (byte)Random.Range(1, 255) };
+            byte[] data = { (byte)Random.Range(1, 255) };
             await serverConnection.SendAsync(new ArraySegment<byte>(data));
 
             var buffer = new MemoryStream();
@@ -162,7 +162,10 @@ namespace Mirror.Tests
             serverConnection.Disconnect();
 
             var buffer = new MemoryStream();
-            while (await serverConnection.ReceiveAsync(buffer));
+            while (await serverConnection.ReceiveAsync(buffer))
+            {
+                // just keep waiting until no more messages are received
+            }
 
             Assert.That(transport.connectedClients, Is.Empty);
         });
