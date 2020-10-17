@@ -125,7 +125,7 @@ namespace Mirror
         {
             get
             {
-                if ((object)netIdentityCache == null)
+                if (netIdentityCache is null)
                 {
                     netIdentityCache = GetComponent<NetworkIdentity>();
                     // do this 2nd check inside first if so that we are not checking == twice on unity Object
