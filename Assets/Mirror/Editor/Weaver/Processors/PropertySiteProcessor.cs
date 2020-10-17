@@ -10,14 +10,8 @@ namespace Mirror.Weaver
         {
             DateTime startTime = DateTime.Now;
 
-            bool weavedMethods(MethodDefinition md) =>
-                md.Name != ".cctor" &&
-                md.Name != NetworkBehaviourProcessor.ProcessedFunctionName &&
-                !md.Name.StartsWith(Weaver.InvokeRpcPrefix) &&
-                !md.IsConstructor;
-
             // replace all field access with property access for syncvars
-            CodePass.ForEachInstruction(moduleDef, weavedMethods, ProcessInstruction);
+            CodePass.ForEachInstruction(moduleDef, WeavedMethods, ProcessInstruction);
 
             if (Weaver.WeaveLists.generateContainerClass != null)
             {
@@ -26,6 +20,12 @@ namespace Mirror.Weaver
 
             Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
         }
+
+        private static bool WeavedMethods(MethodDefinition md) =>
+                        md.Name != ".cctor" &&
+                        md.Name != NetworkBehaviourProcessor.ProcessedFunctionName &&
+                        !md.Name.StartsWith(Weaver.InvokeRpcPrefix) &&
+                        !md.IsConstructor;
 
         // replaces syncvar write access with the NetworkXYZ.get property calls
         static void ProcessInstructionSetterField(Instruction i, FieldDefinition opField)
