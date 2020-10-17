@@ -35,6 +35,8 @@ namespace Mirror.Tests
             transport = transportGo.GetComponent<KcpTransport>();
 
             transport.Port = port;
+            // speed this up
+            transport.HashCashBits = 3;
 
             await transport.ListenAsync();
 
