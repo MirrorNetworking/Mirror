@@ -1483,11 +1483,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1282001518}
   - component: {fileID: 1282001520}
-  - component: {fileID: 1282001522}
   - component: {fileID: 1282001523}
   - component: {fileID: 1282001521}
   - component: {fileID: 1282001525}
   - component: {fileID: 1282001526}
+  - component: {fileID: 1282001519}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -1509,6 +1509,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1282001519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282001517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3fbf0a5cb914b1c9bbb8a42e081f4bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Port: 7777
+  HashCashBits: 18
 --- !u!114 &1282001520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1546,19 +1560,6 @@ MonoBehaviour:
   - {fileID: 251893065}
   - {fileID: 1458789073}
   playerSpawnMethod: 0
---- !u!114 &1282001522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1282001517}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Port: 7777
 --- !u!114 &1282001523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1595,7 +1596,7 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  transport: {fileID: 1282001522}
+  transport: {fileID: 1282001519}
 --- !u!114 &1282001525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1621,7 +1622,7 @@ MonoBehaviour:
   spawnPrefabs:
   - {fileID: 5890560936853567077, guid: b7dd46dbf38c643f09e206f9fa4be008, type: 3}
   - {fileID: 1916082411674582, guid: 6f43bf5488a7443d19ab2a83c6b91f35, type: 3}
-  Transport: {fileID: 1282001522}
+  Transport: {fileID: 1282001519}
 --- !u!114 &1282001526
 MonoBehaviour:
   m_ObjectHideFlags: 0

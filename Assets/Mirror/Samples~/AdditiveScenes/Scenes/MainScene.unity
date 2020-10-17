@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4366757, g: 0.48427194, b: 0.5645252, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1841,8 +1841,8 @@ GameObject:
   - component: {fileID: 1661834283}
   - component: {fileID: 1661834282}
   - component: {fileID: 1661834280}
-  - component: {fileID: 1661834285}
   - component: {fileID: 1661834284}
+  - component: {fileID: 1661834285}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -1864,12 +1864,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 1661834283}
   client: {fileID: 1661834282}
-  OnStartHost:
-    m_PersistentCalls:
-      m_Calls: []
-  OnStopHost:
-    m_PersistentCalls:
-      m_Calls: []
   subScenes:
   - Assets/Mirror/Examples/AdditiveScenes/Scenes/SubScene.unity
 --- !u!4 &1661834279
@@ -1921,7 +1915,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkManager: {fileID: 0}
+  NetworkManager: {fileID: 1661834278}
   NetworkAddress: localhost
   NetworkAddressInput: {fileID: 0}
   OfflineGO: {fileID: 0}
@@ -1985,6 +1979,12 @@ MonoBehaviour:
   Stopped:
     m_PersistentCalls:
       m_Calls: []
+  OnStartHost:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopHost:
+    m_PersistentCalls:
+      m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
   transport: {fileID: 1661834285}
@@ -2002,9 +2002,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   client: {fileID: 1661834282}
   server: {fileID: 1661834283}
-  ClientNotReady:
-    m_PersistentCalls:
-      m_Calls: []
   ClientChangeScene:
     m_PersistentCalls:
       m_Calls: []
@@ -2026,10 +2023,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1661834277}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
+  m_Script: {fileID: 11500000, guid: b3fbf0a5cb914b1c9bbb8a42e081f4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Port: 7777
+  HashCashBits: 18
 --- !u!1 &1727677796
 GameObject:
   m_ObjectHideFlags: 0

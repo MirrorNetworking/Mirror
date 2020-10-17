@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2972,8 +2972,8 @@ GameObject:
   - component: {fileID: 1783103025}
   - component: {fileID: 1783103028}
   - component: {fileID: 1783103027}
-  - component: {fileID: 1783103024}
   - component: {fileID: 1783103023}
+  - component: {fileID: 1783103024}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -2995,9 +2995,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   client: {fileID: 1783103027}
   server: {fileID: 1783103028}
-  ClientNotReady:
-    m_PersistentCalls:
-      m_Calls: []
   ClientChangeScene:
     m_PersistentCalls:
       m_Calls: []
@@ -3019,10 +3016,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1783103022}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
+  m_Script: {fileID: 11500000, guid: b3fbf0a5cb914b1c9bbb8a42e081f4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Port: 7777
+  HashCashBits: 18
 --- !u!114 &1783103025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3037,12 +3035,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 1783103028}
   client: {fileID: 1783103027}
-  OnStartHost:
-    m_PersistentCalls:
-      m_Calls: []
-  OnStopHost:
-    m_PersistentCalls:
-      m_Calls: []
   chatWindow: {fileID: 75861000}
   playerPrefab: {fileID: 718303009120396421, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
 --- !u!4 &1783103026
@@ -3110,6 +3102,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   Stopped:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStartHost:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopHost:
     m_PersistentCalls:
       m_Calls: []
   authenticator: {fileID: 0}

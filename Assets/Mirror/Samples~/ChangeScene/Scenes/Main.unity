@@ -214,10 +214,10 @@ GameObject:
   - component: {fileID: 450078217}
   - component: {fileID: 450078216}
   - component: {fileID: 450078215}
-  - component: {fileID: 450078214}
   - component: {fileID: 450078213}
   - component: {fileID: 450078219}
   - component: {fileID: 450078212}
+  - component: {fileID: 450078214}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -239,9 +239,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   client: {fileID: 450078216}
   server: {fileID: 450078217}
-  ClientNotReady:
-    m_PersistentCalls:
-      m_Calls: []
   ClientChangeScene:
     m_PersistentCalls:
       m_Calls: []
@@ -266,7 +263,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkManager: {fileID: 0}
+  NetworkManager: {fileID: 450078215}
   NetworkAddress: localhost
   NetworkAddressInput: {fileID: 0}
   OfflineGO: {fileID: 0}
@@ -281,10 +278,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 450078211}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
+  m_Script: {fileID: 11500000, guid: b3fbf0a5cb914b1c9bbb8a42e081f4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Port: 7777
+  HashCashBits: 18
 --- !u!114 &450078215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299,12 +297,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 450078217}
   client: {fileID: 450078216}
-  OnStartHost:
-    m_PersistentCalls:
-      m_Calls: []
-  OnStopHost:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &450078216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,6 +347,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   Stopped:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStartHost:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopHost:
     m_PersistentCalls:
       m_Calls: []
   authenticator: {fileID: 0}

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 690741348}
-  m_IndirectSpecularColor: {r: 0.4366757, g: 0.48427194, b: 0.5645252, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -217,11 +217,11 @@ GameObject:
   - component: {fileID: 69965670}
   - component: {fileID: 69965669}
   - component: {fileID: 69965667}
-  - component: {fileID: 69965673}
   - component: {fileID: 69965672}
   - component: {fileID: 69965671}
   - component: {fileID: 69965668}
   - component: {fileID: 69965674}
+  - component: {fileID: 69965673}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -241,7 +241,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkManager: {fileID: 0}
+  NetworkManager: {fileID: 69965669}
   NetworkAddress: localhost
   NetworkAddressInput: {fileID: 0}
   OfflineGO: {fileID: 0}
@@ -288,14 +288,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 69965672}
   client: {fileID: 69965671}
-  OnStartHost:
-    m_PersistentCalls:
-      m_Calls: []
-  OnStopHost:
-    m_PersistentCalls:
-      m_Calls: []
   instances: 3
-  gameScene: Assets/Mirror/Examples/MultipleAdditiveScenes/Scenes/Game.unity
+  gameScene: 
 --- !u!4 &69965670
 Transform:
   m_ObjectHideFlags: 0
@@ -362,6 +356,12 @@ MonoBehaviour:
   Stopped:
     m_PersistentCalls:
       m_Calls: []
+  OnStartHost:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStopHost:
+    m_PersistentCalls:
+      m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
   transport: {fileID: 69965673}
@@ -374,10 +374,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 69965666}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ce81336eed77486e8ed5e3721e54c47, type: 3}
+  m_Script: {fileID: 11500000, guid: b3fbf0a5cb914b1c9bbb8a42e081f4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Port: 7777
+  HashCashBits: 18
 --- !u!114 &69965674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,9 +393,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   client: {fileID: 69965671}
   server: {fileID: 69965672}
-  ClientNotReady:
-    m_PersistentCalls:
-      m_Calls: []
   ClientChangeScene:
     m_PersistentCalls:
       m_Calls: []
