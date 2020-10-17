@@ -125,7 +125,8 @@ namespace Mirror.Tests
         {
             spawnDelegateTestCalled++;
 
-            if (client.GetPrefab(assetId, out GameObject prefab))
+            GameObject prefab = client.GetPrefab(assetId);
+            if (!(prefab is null))
             {
                 return Object.Instantiate(prefab);
             }

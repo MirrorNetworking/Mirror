@@ -145,7 +145,7 @@ namespace Mirror
                 // in this specific case,  we want to know if we have set it before
                 // so we can compare if the reference is null
                 // instead of calling unity's MonoBehaviour == operator
-                if (((object)netIdentityCache) == null)
+                if (netIdentityCache is null)
                 {
                     // GetComponentInParent doesn't works on disabled gameobjecs
                     // and GetComponentsInParent(false)[0] isn't allocation free, so
@@ -156,7 +156,7 @@ namespace Mirror
                         netIdentityCache = GetComponent<NetworkIdentity>();
 
                     // do this 2nd check inside first if so that we are not checking == twice on unity Object
-                    if (netIdentityCache == null)
+                    if (netIdentityCache is null)
                     {
                         logger.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                     }

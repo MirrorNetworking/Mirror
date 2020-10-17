@@ -402,11 +402,16 @@ namespace Mirror
         /// <param name="assetId">asset id of the prefab</param>
         /// <param name="prefab">the prefab gameobject</param>
         /// <returns>true if prefab was registered</returns>
-        public bool GetPrefab(Guid assetId, out GameObject prefab)
+        public GameObject GetPrefab(Guid assetId)
         {
-            prefab = null;
-            return assetId != Guid.Empty &&
-                   prefabs.TryGetValue(assetId, out prefab) && prefab != null;
+            if (assetId == Guid.Empty)
+                return null;
+
+            if (prefabs.TryGetValue(assetId, out GameObject prefab))
+            {
+                return prefab;
+            }
+            return null;
         }
 
         /// <summary>
@@ -689,7 +694,8 @@ namespace Mirror
                 }
                 return obj.GetComponent<NetworkIdentity>();
             }
-            if (GetPrefab(msg.assetId, out GameObject prefab))
+            GameObject prefab = GetPrefab(msg.assetId);
+            if ((object)prefab != null)
             {
                 GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
                 if (logger.LogEnabled())

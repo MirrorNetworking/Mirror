@@ -221,7 +221,7 @@ namespace Mirror
         {
             get
             {
-                if (visibilityCache == null)
+                if (visibilityCache is null)
                 {
                     visibilityCache = GetComponent<NetworkVisibility>();
                 }
@@ -445,7 +445,7 @@ namespace Mirror
             }
             prefab = PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 
-            if (prefab == null)
+            if (prefab is null)
             {
                 logger.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
                 return false;

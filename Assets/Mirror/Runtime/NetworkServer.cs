@@ -153,7 +153,7 @@ namespace Mirror
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
 
-            if (transport == null)
+            if (transport is null)
                 transport = GetComponent<Transport>();
 
             if (authenticator != null)
@@ -608,7 +608,7 @@ namespace Mirror
         public bool AddPlayerForConnection(INetworkConnection conn, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.Log("AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + player);
                 return false;
@@ -666,7 +666,7 @@ namespace Mirror
         internal bool InternalReplacePlayerForConnection(INetworkConnection conn, NetworkClient client, GameObject player, bool keepAuthority)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 logger.LogError("ReplacePlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + player);
                 return false;
@@ -716,7 +716,7 @@ namespace Mirror
         internal NetworkIdentity GetNetworkIdentity(GameObject go)
         {
             NetworkIdentity identity = go.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 throw new InvalidOperationException($"Gameobject {go.name} doesn't have NetworkIdentity.");
             }
@@ -820,7 +820,7 @@ namespace Mirror
         /// <param name="msg"></param>
         void OnServerRpcMessage(INetworkConnection conn, ServerRpcMessage msg)
         {
-            if (!Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) || identity == null)
+            if (!Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) || identity is null)
             {
                 logger.LogWarning("Spawned object not found when handling ServerRpc message [netId=" + msg.netId + "]");
                 return;
@@ -851,7 +851,7 @@ namespace Mirror
             }
 
             NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 throw new InvalidOperationException("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
             }
@@ -954,7 +954,7 @@ namespace Mirror
         public void Spawn(GameObject obj, GameObject ownerPlayer)
         {
             NetworkIdentity identity = ownerPlayer.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (identity is null)
             {
                 throw new InvalidOperationException("Player object has no NetworkIdentity");
             }

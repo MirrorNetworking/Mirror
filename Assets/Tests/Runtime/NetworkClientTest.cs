@@ -89,7 +89,7 @@ namespace Mirror.Tests
 
             await UniTask.Delay(1);
 
-            client.GetPrefab(guid, out GameObject result);
+            GameObject result = client.GetPrefab(guid);
 
             Assert.That(result, Is.SameAs(prefabObject));
 

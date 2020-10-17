@@ -6,7 +6,7 @@ namespace Mirror
 {
     public interface IClientObjectManager
     {
-        bool GetPrefab(Guid assetId, out GameObject prefab);
+        GameObject GetPrefab(Guid assetId);
 
         void RegisterPrefab(GameObject prefab);
 
