@@ -7,16 +7,16 @@ namespace Mirror.KCP
     // KCP Segment Definition
     internal class Segment
     {
-        internal uint conv;
+        internal uint conversation;
         internal CommandType cmd;
-        internal uint frg;
-        internal uint wnd;
-        internal uint ts;
-        internal uint sn;
-        internal uint una;
+        internal uint fragment;
+        internal uint window;
+        internal uint timeStamp;
+        internal uint serialNumber;
+        internal uint unacknowledged;
         internal uint rto;
-        internal uint xmit;
-        internal uint resendts;
+        internal uint transmit;
+        internal uint resendTimeStamp;
         internal uint fastack;
         internal bool acked;
         internal ByteBuffer data;
@@ -49,13 +49,13 @@ namespace Mirror.KCP
         internal int Encode(byte[] ptr, int offset)
         {
             int offset_ = offset;
-            offset += Utils.Encode32U(ptr, offset, conv);
+            offset += Utils.Encode32U(ptr, offset, conversation);
             offset += Utils.Encode8u(ptr, offset, (byte)cmd);
-            offset += Utils.Encode8u(ptr, offset, (byte)frg);
-            offset += Utils.Encode16U(ptr, offset, (ushort)wnd);
-            offset += Utils.Encode32U(ptr, offset, ts);
-            offset += Utils.Encode32U(ptr, offset, sn);
-            offset += Utils.Encode32U(ptr, offset, una);
+            offset += Utils.Encode8u(ptr, offset, (byte)fragment);
+            offset += Utils.Encode16U(ptr, offset, (ushort)window);
+            offset += Utils.Encode32U(ptr, offset, timeStamp);
+            offset += Utils.Encode32U(ptr, offset, serialNumber);
+            offset += Utils.Encode32U(ptr, offset, unacknowledged);
             offset += Utils.Encode32U(ptr, offset, (uint)data.ReadableBytes);
 
             return offset - offset_;
@@ -63,16 +63,16 @@ namespace Mirror.KCP
 
         internal void Reset()
         {
-            conv = 0;
+            conversation = 0;
             cmd = 0;
-            frg = 0;
-            wnd = 0;
-            ts = 0;
-            sn = 0;
-            una = 0;
+            fragment = 0;
+            window = 0;
+            timeStamp = 0;
+            serialNumber = 0;
+            unacknowledged = 0;
             rto = 0;
-            xmit = 0;
-            resendts = 0;
+            transmit = 0;
+            resendTimeStamp = 0;
             fastack = 0;
             acked = false;
 
