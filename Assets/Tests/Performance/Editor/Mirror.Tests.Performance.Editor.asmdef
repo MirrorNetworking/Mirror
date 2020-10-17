@@ -14,7 +14,8 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll"
+        "nunit.framework.dll",
+        "NSubstitute.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [
@@ -27,5 +28,6 @@
             "expression": "(,2.0)",
             "define": "UNITY_PERFORMANCE_TESTS_1_OR_OLDER"
         }
-    ]
+    ],
+    "noEngineReferences": false
 }
