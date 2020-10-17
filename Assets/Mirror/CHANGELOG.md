@@ -1,3 +1,13 @@
+# [50.0.0](https://github.com/MirrorNG/MirrorNG/compare/v49.4.0...v50.0.0) (2020-10-17)
+
+
+* Remove out parameter (#404) ([43dc156](https://github.com/MirrorNG/MirrorNG/commit/43dc1562d9b60a1820585e71e06a8d8db88d37c7)), closes [#404](https://github.com/MirrorNG/MirrorNG/issues/404)
+
+
+### BREAKING CHANGES
+
+* GetPrefab now just returns the prefab or null
+
 # [49.4.0](https://github.com/MirrorNG/MirrorNG/compare/v49.3.3...v49.4.0) (2020-10-17)
 
 
