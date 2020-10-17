@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Linq;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
-using Mirror.Examples;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
 using UnityEditor;
@@ -75,7 +73,7 @@ namespace Mirror.Tests.Performance.Runtime
 
         private void SpawnMonster(int i)
         {
-            NetworkIdentity monster = GameObject.Instantiate(monsterPrefab);
+            NetworkIdentity monster = Object.Instantiate(monsterPrefab);
 
             monster.GetComponent<MonsterBehavior>().MonsterId = i;
             monster.gameObject.name = $"Monster {i}";

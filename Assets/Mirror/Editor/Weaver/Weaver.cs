@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
 using UnityEditor.Compilation;
 
 namespace Mirror.Weaver

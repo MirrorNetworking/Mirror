@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Mirror.KCP;
@@ -116,7 +115,7 @@ namespace Mirror.Tests
             // send 100 packets
             for (byte i=0; i< 50; i ++)
             {
-                byte[] data = new byte[] { i };
+                byte[] data = new [] { i };
                 client.Send(data, 0, data.Length);
             }
 
