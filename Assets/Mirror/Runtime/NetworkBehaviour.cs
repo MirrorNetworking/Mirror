@@ -125,11 +125,11 @@ namespace Mirror
         {
             get
             {
-                if (netIdentityCache == null)
+                if ((object)netIdentityCache == null)
                 {
                     netIdentityCache = GetComponent<NetworkIdentity>();
                     // do this 2nd check inside first if so that we are not checking == twice on unity Object
-                    if (netIdentityCache == null)
+                    if ((object)netIdentityCache == null)
                     {
                         logger.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                     }
