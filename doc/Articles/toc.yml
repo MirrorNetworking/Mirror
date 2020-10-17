@@ -13,3 +13,10 @@
 - name: Examples
   href: Examples/toc.yml
   topicHref: Examples/
+- name: Community Guides
+  href: CommunityGuides/toc.yml
+  topicHref: CommunityGuides/index.md
+- name: Resources
+  href: Resources.md
+- name: FAQ
+  href: FAQ.md

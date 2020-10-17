@@ -30,12 +30,5 @@
 - name: GameObjects
   href: GameObjects/toc.yml
   topicHref: GameObjects/index.md
-- name: Community Guides
-  href: CommunityGuides/toc.yml
-  topicHref: CommunityGuides/index.md
 - name: Best Practices
   href: BestPractices.md
-- name: Resources
-  href: Resources.md
-- name: FAQ
-  href: FAQ.md

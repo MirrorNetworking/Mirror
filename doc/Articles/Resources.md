@@ -1,7 +1,13 @@
 # Resources
 
-> work in progress
+This page has a collection of links for learning and using mirror. 
 
+Some things this page includes
+- Video tutorials
+- Other guides
+- Example scripts
+
+Anything to add to this list? Please make a PR or ask in the discord.
 
 ## Video Tutorials Playlists
 
