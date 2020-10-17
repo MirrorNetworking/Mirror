@@ -105,24 +105,21 @@ namespace Mirror
         // -> with a bool to avoid 'netIdentityCache == null' check which is
         //    extremely costly due to Unity's custom null check.
         //    (see 4k benchmark)
-        bool netIdentityCached;
         NetworkIdentity netIdentityCache;
         public NetworkIdentity netIdentity
         {
             get
             {
-                // cache if not cached yet
-                if (!netIdentityCached)
+                // note: 'is null' is faster than Unity's ==
+                if (netIdentityCache is null)
                 {
                     netIdentityCache = GetComponent<NetworkIdentity>();
-                    netIdentityCached = true;
                     // do this 2nd check inside first if so that we are not checking == twice on unity Object
-                    if (netIdentityCache == null)
+                    if (netIdentityCache is null)
                     {
-                        Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
+                        logger.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                     }
                 }
-                // return cache
                 return netIdentityCache;
             }
         }
