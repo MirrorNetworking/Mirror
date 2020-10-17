@@ -40,7 +40,7 @@ namespace Mirror.Cloud.ListServerService
         public void StopGetServerListRepeat()
         {
             // if runner is null it has been destroyed and will already be null
-            if (runner.IsNotNull() && getServerListRepeatCoroutine != null)
+            if (runner is Object && getServerListRepeatCoroutine != null)
             {
                 runner.StopCoroutine(getServerListRepeatCoroutine);
             }

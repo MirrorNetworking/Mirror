@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror.Cloud
 {
-    public interface ICoroutineRunner : IUnityEqualCheck
+    public interface ICoroutineRunner
     {
         Coroutine StartCoroutine(IEnumerator routine);
         void StopCoroutine(IEnumerator routine);
