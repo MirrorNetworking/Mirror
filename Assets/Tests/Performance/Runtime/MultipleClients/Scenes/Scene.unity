@@ -310,7 +310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Port: 7777
-  _bindAddress: localhost
+  HashCashBits: 15
 --- !u!4 &1193428351
 Transform:
   m_ObjectHideFlags: 0

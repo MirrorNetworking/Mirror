@@ -1,6 +1,9 @@
+using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace Mirror.KCP
 {
@@ -19,7 +22,7 @@ namespace Mirror.KCP
         {
         }
 
-        internal async UniTask ConnectAsync(string host, ushort port)
+        internal async UniTask ConnectAsync(string host, ushort port, int bits)
         {
             IPAddress[] ipAddress = await Dns.GetHostAddressesAsync(host);
             if (ipAddress.Length < 1)
@@ -32,7 +35,7 @@ namespace Mirror.KCP
 
             ReceiveLoop().Forget();
 
-            await Handshake();
+            await HandshakeAsync(bits);
         }
 
         async UniTaskVoid ReceiveLoop()
@@ -66,6 +69,28 @@ namespace Mirror.KCP
         protected override void RawSend(byte[] data, int length)
         {
             socket.Send(data, length, SocketFlags.None);
+        }
+
+        protected async UniTask HandshakeAsync(int bits)
+        {
+            // in the very first message we must mine a hashcash token
+            // and send that as a hello
+            // the server won't accept connections otherwise
+            string applicationName = Application.productName;
+
+            HashCash token = await UniTask.RunOnThreadPool( () => HashCash.Mine(applicationName, bits));
+            byte[] hello = new byte[1000];
+            int length = HashCashEncoding.Encode(hello, 0, token);
+
+            var data = new ArraySegment<byte>(hello, 0, length);
+            // send a greeting and see if the server replies
+            await SendAsync(data);
+
+            var stream = new MemoryStream();
+            if (!await ReceiveAsync(stream))
+            {
+                throw new OperationCanceledException("Unable to establish connection, no Handshake message received.");
+            }
         }
     }
 }

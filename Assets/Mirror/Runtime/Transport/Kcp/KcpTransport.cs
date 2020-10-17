@@ -14,6 +14,10 @@ namespace Mirror.KCP
         [Header("Transport Configuration")]
         public ushort Port = 7777;
 
+        [Range(15, 20)]
+        [Tooltip("Used for DoS prevention,  clients must mine a HashCash with these many bits in order to connect, higher means more secure, but slower for the clients")]
+        public int HashCashBits = 18;
+
         internal readonly Dictionary<IPEndPoint, KcpServerConnection> connectedClients = new Dictionary<IPEndPoint, KcpServerConnection>(new IPEndpointComparer());
         readonly Channel<KcpServerConnection> acceptedConnections = Channel.CreateSingleConsumerUnbounded<KcpServerConnection>();
 
@@ -53,6 +57,11 @@ namespace Mirror.KCP
             // is this a new connection?                    
             if (!connectedClients.TryGetValue(endpoint as IPEndPoint, out KcpServerConnection connection))
             {
+                // very first message from this endpoint.
+                // lets validate it before we start KCP
+                if (!Validate(data, msgLength))
+                    return;
+
                 // add it to a queue
                 connection = new KcpServerConnection(socket, endpoint);
                 acceptedConnections.Writer.TryWrite(connection);
@@ -64,6 +73,52 @@ namespace Mirror.KCP
             }
 
             connection.RawInput(data, msgLength);
+        }
+
+        private readonly HashSet<HashCash> used = new HashSet<HashCash>();
+        private readonly Queue<HashCash> expireQueue = new Queue<HashCash>();
+
+        private bool Validate(byte[] data, int msgLength)
+        {
+            // do we have enough data in the buffer for a HashCash token?
+            if (msgLength < Kcp.OVERHEAD + KcpConnection.RESERVED + HashCashEncoding.SIZE)
+                return false;
+
+            // read the token
+            (_, HashCash token) = HashCashEncoding.Decode(data, Kcp.OVERHEAD + KcpConnection.RESERVED);
+
+            RemoveExpiredTokens();
+
+            // have this token been used?
+            if (used.Contains(token))
+                return false;
+
+
+            // does the token validate?
+            if (!token.Validate(Application.productName, HashCashBits))
+                return false;
+
+            used.Add(token);
+            expireQueue.Enqueue(token);
+
+            // brand new token, and it is for this app,  go on
+            return true;
+        }
+
+        // remove all the tokens that expired
+        private void RemoveExpiredTokens()
+        {
+            DateTime threshold = DateTime.UtcNow.AddMinutes(-10);
+
+            while (expireQueue.Count > 0)
+            {
+                HashCash token = expireQueue.Peek();
+                if (token.dt > threshold)
+                    return;
+
+                expireQueue.Dequeue();
+                used.Remove(token);
+            }
         }
 
         /// <summary>
@@ -85,7 +140,7 @@ namespace Mirror.KCP
         {
             KcpServerConnection connection = await acceptedConnections.Reader.ReadAsync();
 
-            await connection.Handshake();
+            await connection.HandshakeAsync();
 
             return connection;
         }
@@ -124,7 +179,7 @@ namespace Mirror.KCP
 
             ushort port = (ushort)(uri.IsDefaultPort? Port : uri.Port);
 
-            await client.ConnectAsync(uri.Host, port);
+            await client.ConnectAsync(uri.Host, port, HashCashBits);
             return client;
         }
     }

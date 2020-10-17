@@ -182,17 +182,6 @@ namespace Mirror.KCP
             return true;
         }
 
-        internal async UniTask Handshake()
-        {
-            // send a greeting and see if the server replies
-            await SendAsync(Hello);
-            var stream = new MemoryStream();
-            if (!await ReceiveAsync(stream))
-            {
-                throw new OperationCanceledException("Unable to establish connection, no Handshake message received.");
-            }
-        }
-
         /// <summary>
         ///     Disconnect this connection
         /// </summary>
