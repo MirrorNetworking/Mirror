@@ -1,3 +1,10 @@
+# [49.4.0](https://github.com/MirrorNG/MirrorNG/compare/v49.3.3...v49.4.0) (2020-10-17)
+
+
+### Features
+
+* DoS prevention ([#401](https://github.com/MirrorNG/MirrorNG/issues/401)) ([4016259](https://github.com/MirrorNG/MirrorNG/commit/4016259719931f51c1f93dcd3f7302abe0af98fd))
+
 ## [49.3.3](https://github.com/MirrorNG/MirrorNG/compare/v49.3.2...v49.3.3) (2020-10-16)
 
 
