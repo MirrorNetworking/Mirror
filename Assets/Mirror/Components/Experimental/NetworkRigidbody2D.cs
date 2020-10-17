@@ -1,4 +1,3 @@
-﻿using Mirror;
 using UnityEngine;
 
 namespace Mirror.Experimental
@@ -53,7 +52,7 @@ namespace Mirror.Experimental
 
         #region Sync vars
         [SyncVar(hook = nameof(OnVelocityChanged))]
-        Vector3 velocity;
+        Vector2 velocity;
 
         [SyncVar(hook = nameof(OnAngularVelocityChanged))]
         float angularVelocity;
@@ -78,7 +77,7 @@ namespace Mirror.Experimental
 
         bool ClientWithAuthority => clientAuthority && hasAuthority;
 
-        void OnVelocityChanged(Vector3 _, Vector3 newValue)
+        void OnVelocityChanged(Vector2 _, Vector2 newValue)
         {
             if (IgnoreSync)
                 return;
@@ -150,7 +149,7 @@ namespace Mirror.Experimental
 
             if (clearVelocity && !syncVelocity)
             {
-                target.velocity = Vector3.zero;
+                target.velocity = Vector2.zero;
             }
         }
 
@@ -162,11 +161,11 @@ namespace Mirror.Experimental
         {
             // only update if they have changed more than Sensitivity
 
-            Vector3 currentVelocity = syncVelocity ? target.velocity : default;
+            Vector2 currentVelocity = syncVelocity ? target.velocity : default;
             float currentAngularVelocity = syncAngularVelocity ? target.angularVelocity : default;
 
             bool velocityChanged = syncVelocity && ((previousValue.velocity - currentVelocity).sqrMagnitude > velocitySensitivity * velocitySensitivity);
-            bool angularVelocityChanged = syncAngularVelocity && previousValue.angularVelocity != currentAngularVelocity;//((previousValue.angularVelocity - currentAngularVelocity) > angularVelocitySensitivity * angularVelocitySensitivity);
+            bool angularVelocityChanged = syncAngularVelocity && ((previousValue.angularVelocity - currentAngularVelocity) > angularVelocitySensitivity);
 
             if (velocityChanged)
             {
@@ -210,7 +209,7 @@ namespace Mirror.Experimental
             if (now < previousValue.nextSyncTime)
                 return;
 
-            Vector3 currentVelocity = syncVelocity ? target.velocity : default;
+            Vector2 currentVelocity = syncVelocity ? target.velocity : default;
             float currentAngularVelocity = syncAngularVelocity ? target.angularVelocity : default;
 
             bool velocityChanged = syncVelocity && ((previousValue.velocity - currentVelocity).sqrMagnitude > velocitySensitivity * velocitySensitivity);
@@ -268,7 +267,7 @@ namespace Mirror.Experimental
         /// Called when only Velocity has changed on the client
         /// </summary>
         [Command]
-        void CmdSendVelocity(Vector3 velocity)
+        void CmdSendVelocity(Vector2 velocity)
         {
             // Ignore messages from client if not in client authority mode
             if (!clientAuthority)
@@ -282,7 +281,7 @@ namespace Mirror.Experimental
         /// Called when angularVelocity has changed on the client
         /// </summary>
         [Command]
-        void CmdSendVelocityAndAngular(Vector3 velocity, float angularVelocity)
+        void CmdSendVelocityAndAngular(Vector2 velocity, float angularVelocity)
         {
             // Ignore messages from client if not in client authority mode
             if (!clientAuthority)
@@ -352,7 +351,7 @@ namespace Mirror.Experimental
             /// Next sync time that velocity will be synced, based on syncInterval.
             /// </summary>
             public float nextSyncTime;
-            public Vector3 velocity;
+            public Vector2 velocity;
             public float angularVelocity;
             public bool isKinematic;
             public float gravityScale;
