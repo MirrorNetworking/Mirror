@@ -35,8 +35,10 @@ namespace Mirror.KCP
         /// <returns></returns>
         public override UniTask ListenAsync()
         {
-            socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
-            socket.DualMode = true;
+            socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp)
+            {
+                DualMode = true
+            };
             socket.Bind(new IPEndPoint(IPAddress.IPv6Any, Port));
             return UniTask.CompletedTask;
         }
