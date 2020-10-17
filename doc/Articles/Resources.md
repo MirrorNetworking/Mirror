@@ -7,7 +7,7 @@ Some things this page includes
 - Other guides
 - Example scripts
 
-Please make a PR or ask in the discord if you think anything else should be added to this list
+Anything to add to this list? Please make a PR or ask in the discord.
 
 ## Video Tutorials Playlists
 

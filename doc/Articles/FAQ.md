@@ -1,6 +1,6 @@
 # FAQ
 
-> work in progress
+Anything to add to this list? Please make a PR or ask in the discord.
 
 ### How do I use this feature?
 
