@@ -12,6 +12,7 @@ namespace Mirror.KCP
 
         readonly byte[] buffer = new byte[1500];
 
+        public int HashCashBits {get; set;}
         /// <summary>
         /// Client connection,  does not share the UDP client with anyone
         /// so we can set up our own read loop
@@ -22,7 +23,7 @@ namespace Mirror.KCP
         {
         }
 
-        internal async UniTask ConnectAsync(string host, ushort port, int bits)
+        internal async UniTask ConnectAsync(string host, ushort port)
         {
             IPAddress[] ipAddress = await Dns.GetHostAddressesAsync(host);
             if (ipAddress.Length < 1)
@@ -35,7 +36,7 @@ namespace Mirror.KCP
 
             ReceiveLoop().Forget();
 
-            await HandshakeAsync(bits);
+            await HandshakeAsync(HashCashBits);
         }
 
         async UniTaskVoid ReceiveLoop()

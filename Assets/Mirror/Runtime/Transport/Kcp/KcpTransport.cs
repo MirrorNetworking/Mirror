@@ -177,11 +177,14 @@ namespace Mirror.KCP
         /// <exception>If connection cannot be established</exception>
         public override async UniTask<IConnection> ConnectAsync(Uri uri)
         {
-            var client = new KcpClientConnection();
+            var client = new KcpClientConnection()
+            {
+                HashCashBits = HashCashBits
+            };
 
             ushort port = (ushort)(uri.IsDefaultPort? Port : uri.Port);
 
-            await client.ConnectAsync(uri.Host, port, HashCashBits);
+            await client.ConnectAsync(uri.Host, port);
             return client;
         }
     }
