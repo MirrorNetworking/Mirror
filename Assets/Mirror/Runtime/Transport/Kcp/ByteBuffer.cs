@@ -4,13 +4,11 @@ namespace Mirror.KCP
 {
     class ByteBuffer
     {
-        int writeIndex;
-
         public ByteBuffer(int capacity)
         {
             RawBuffer = new byte[capacity];
             Capacity = capacity;
-            writeIndex = 0;
+            ReadableBytes = 0;
         }
 
         /// <summary>
@@ -67,11 +65,11 @@ namespace Mirror.KCP
         {
             if (length <= 0 || startIndex < 0) return;
 
-            int total = length + writeIndex;
+            int total = length + ReadableBytes;
             int len = RawBuffer.Length;
             FixSizeAndReset(len, total);
-            Array.Copy(bytes, startIndex, RawBuffer, writeIndex, length);
-            writeIndex = total;
+            Array.Copy(bytes, startIndex, RawBuffer, ReadableBytes, length);
+            ReadableBytes = total;
         }
 
         public void Resize(int length)
@@ -79,7 +77,7 @@ namespace Mirror.KCP
             FixSizeAndReset(RawBuffer.Length, length);
         }
 
-        public int ReadableBytes => writeIndex;
+        public int ReadableBytes { get; private set; }
 
         public int Capacity { get; private set; }
 
@@ -87,7 +85,7 @@ namespace Mirror.KCP
 
         public void Clear()
         {
-            writeIndex = 0;
+            ReadableBytes = 0;
             Capacity = RawBuffer.Length;
         }
     }
