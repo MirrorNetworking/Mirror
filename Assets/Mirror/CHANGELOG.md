@@ -1,3 +1,10 @@
+## [50.0.1](https://github.com/MirrorNG/MirrorNG/compare/v50.0.0...v50.0.1) (2020-10-18)
+
+
+### Bug Fixes
+
+* bug setting the rto,  it should be 100 in normal mode ([091bde6](https://github.com/MirrorNG/MirrorNG/commit/091bde6e2c95efb2ee54a34ad8b7f03fde259c5a))
+
 # [50.0.0](https://github.com/MirrorNG/MirrorNG/compare/v49.4.0...v50.0.0) (2020-10-17)
 
 
