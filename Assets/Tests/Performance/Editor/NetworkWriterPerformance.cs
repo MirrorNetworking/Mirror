@@ -48,7 +48,26 @@ namespace Mirror.Tests.Performance
             }
         }
 
-       
+
+        [Test]
+        [Performance]
+        public void WriteGenericInt32()
+        {
+            Measure.Method(WGenericInt32)
+                .WarmupCount(10)
+                .MeasurementCount(100)
+                .Run();
+        }
+        static void WGenericInt32()
+        {
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                for (int i = 0; i < 1000; i++)
+                {
+                    writer.Write<int>(i * 1000);
+                }
+            }
+        }
     }
 }
 
