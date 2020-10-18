@@ -384,10 +384,10 @@ namespace Mirror.KCP
                     return -1;
 
                 byte cmdbyte;
-                (offset, cmdbyte) = Utils.Decode8u(data, offset);
+                (offset, cmdbyte) = Utils.Decode8U(data, offset);
                 var cmd = (CommandType)cmdbyte;
                 byte frg;
-                (offset, frg) = Utils.Decode8u(data, offset);
+                (offset, frg) = Utils.Decode8U(data, offset);
                 ushort wnd;
                 (offset, wnd) = Utils.Decode16U(data, offset);
                 uint ts;

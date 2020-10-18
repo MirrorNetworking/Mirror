@@ -5,14 +5,14 @@ namespace Mirror.KCP
     public static class Utils
     {
         // encode 8 bits unsigned int
-        public static int Encode8u(byte[] p, int offset, byte c)
+        public static int Encode8U(byte[] p, int offset, byte c)
         {
             p[0 + offset] = c;
             return 1;
         }
 
         // decode 8 bits unsigned int
-        public static (int offset, byte value) Decode8u(byte[] p, int offset)
+        public static (int offset, byte value) Decode8U(byte[] p, int offset)
         {
             return (offset + 1, p[0 + offset]);
         }

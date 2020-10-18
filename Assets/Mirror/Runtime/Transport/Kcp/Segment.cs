@@ -50,8 +50,8 @@ namespace Mirror.KCP
         {
             int offset_ = offset;
             offset += Utils.Encode32U(ptr, offset, conversation);
-            offset += Utils.Encode8u(ptr, offset, (byte)cmd);
-            offset += Utils.Encode8u(ptr, offset, (byte)fragment);
+            offset += Utils.Encode8U(ptr, offset, (byte)cmd);
+            offset += Utils.Encode8U(ptr, offset, (byte)fragment);
             offset += Utils.Encode16U(ptr, offset, (ushort)window);
             offset += Utils.Encode32U(ptr, offset, timeStamp);
             offset += Utils.Encode32U(ptr, offset, serialNumber);
