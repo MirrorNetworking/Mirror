@@ -159,7 +159,7 @@ namespace Mirror.KCP
             foreach (Segment seg in receiveQueue)
             {
                 // copy fragment data into buffer.
-                Buffer.BlockCopy(seg.data.RawBuffer, seg.data.ReaderIndex, buffer, n, seg.data.ReadableBytes);
+                Buffer.BlockCopy(seg.data.RawBuffer, 0, buffer, n, seg.data.ReadableBytes);
                 n += seg.data.ReadableBytes;
 
                 count++;
@@ -701,7 +701,7 @@ namespace Mirror.KCP
                     int need = OVERHEAD + segment.data.ReadableBytes;
                     MakeSpace(need);
                     writeIndex += segment.Encode(buffer, writeIndex);
-                    Buffer.BlockCopy(segment.data.RawBuffer, segment.data.ReaderIndex, buffer, writeIndex, segment.data.ReadableBytes);
+                    Buffer.BlockCopy(segment.data.RawBuffer, 0, buffer, writeIndex, segment.data.ReadableBytes);
                     writeIndex += segment.data.ReadableBytes;
                 }
 

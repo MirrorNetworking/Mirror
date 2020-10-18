@@ -10,7 +10,6 @@ namespace Mirror.KCP
         {
             RawBuffer = new byte[capacity];
             Capacity = capacity;
-            ReaderIndex = 0;
             writeIndex = 0;
         }
 
@@ -80,9 +79,7 @@ namespace Mirror.KCP
             FixSizeAndReset(RawBuffer.Length, length);
         }
 
-        public int ReaderIndex { get; private set; }
-
-        public int ReadableBytes => writeIndex - ReaderIndex;
+        public int ReadableBytes => writeIndex;
 
         public int Capacity { get; private set; }
 
@@ -90,7 +87,6 @@ namespace Mirror.KCP
 
         public void Clear()
         {
-            ReaderIndex = 0;
             writeIndex = 0;
             Capacity = RawBuffer.Length;
         }
