@@ -230,7 +230,7 @@ namespace Mirror.KCP
                     rx_SmoothedRoundTripTime = 1;
             }
 
-            int rto = rx_SmoothedRoundTripTime + Math.Max((int)interval, rx_rttval << 2);
+            int rto = rx_SmoothedRoundTripTime + Math.Max(interval, rx_rttval << 2);
             rx_rto = Utils.Clamp(rto, rx_MinimumRto, RTO_MAX);
         }
 
@@ -861,7 +861,7 @@ namespace Mirror.KCP
             if (tm_packet >= tm_flush_)
                 minimal = tm_flush_;
             if (minimal >= interval)
-                minimal = (int)interval;
+                minimal = interval;
 
             // NOTE: Original KCP returns current time + delta
             // I changed it to only return delta
