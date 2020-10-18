@@ -1146,7 +1146,7 @@ namespace Mirror
         }
 
         // called after successful authentication
-        void OnServerAuthenticated(NetworkConnection conn)
+        protected virtual void OnServerAuthenticated(NetworkConnection conn)
         {
             logger.Log("NetworkManager.OnServerAuthenticated");
 
