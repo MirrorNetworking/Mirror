@@ -38,7 +38,7 @@ namespace Mirror.KCP
         int rx_MinimumRto = 100; // normal min rto
         uint CongestionWindow;
         uint probe;
-        uint interval = 100;
+        int interval = 100;
         uint ts_flush = 100;
         bool noDelay;
         bool updated;
@@ -620,9 +620,9 @@ namespace Mirror.KCP
         }
 
         /// <summary><para>Flush</para>
-        /// <return>Returns uint (interval or mintro)</return></summary>
+        /// <return>Returns int (interval or mintro)</return></summary>
         /// <param name="ackOnly">flush remain ack segments</param>
-        public uint Flush(bool ackOnly)
+        public int Flush(bool ackOnly)
         {
             var seg = Segment.Get(32);
             seg.conversation = conv;
@@ -651,7 +651,7 @@ namespace Mirror.KCP
             return CheckForRetransmission(seg, current);
         }
 
-        uint CheckForRetransmission(Segment seg, uint current)
+        int CheckForRetransmission(Segment seg, uint current)
         {
             // sliding window, controlled by snd_nxt && sna_una+cwnd
             int newSegsCount = FillSendBuffer(CalculateWindowSize());
@@ -725,7 +725,7 @@ namespace Mirror.KCP
             }
 
             Segment.Put(seg);
-            return (uint)minrto;
+            return minrto;
         }
 
         void ProbeWindowSize(uint current)
@@ -814,9 +814,9 @@ namespace Mirror.KCP
 
             if (slap >= 0)
             {
-                ts_flush += interval;
+                ts_flush += (uint)interval;
                 if (current >= ts_flush)
-                    ts_flush = current + interval;
+                    ts_flush = current + (uint)interval;
                 Flush(false);
             }
         }
@@ -894,20 +894,13 @@ namespace Mirror.KCP
         /// <param name="interval">Interval of the internal working of the protocol, in milliseconds, such as 10ms or 20ms.</param>
         /// <param name="resend">fast retransmission mode, default 0 is off, 1 fast resend, 2 can be set (2 ACK crossings will directly retransmit).</param>
         /// <param name="nc">Whether to close the flow control (congestion), the default is 0 means not to close, 1 means to close.</param>
-        public void SetNoDelay(bool nodelay = false, uint interval = 40, int resend = 0, bool nc = false)
+        public void SetNoDelay(bool nodelay = false, int interval = 40, int resend = 0, bool nc = false)
         {
-            this.noDelay = nodelay;
+            noDelay = nodelay;
 
             rx_MinimumRto = nodelay ? RTO_NDL : RTO_MIN;
 
-            if (interval >= 0)
-            {
-                if (interval > 5000)
-                    interval = 5000;
-                else if (interval < 10)
-                    interval = 10;
-                this.interval = interval;
-            }
+            this.interval = Utils.Clamp(interval, 10, 5000);
 
             if (resend >= 0)
                 fastresend = resend;
