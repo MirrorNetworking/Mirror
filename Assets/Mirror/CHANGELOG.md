@@ -1,3 +1,11 @@
+## [50.0.2](https://github.com/MirrorNG/MirrorNG/compare/v50.0.1...v50.0.2) (2020-10-18)
+
+
+### Bug Fixes
+
+* recycling segments ([9d12658](https://github.com/MirrorNG/MirrorNG/commit/9d12658616b822f846f88184fde0875bb3154b38))
+* use buffer same size as C version ([20e1324](https://github.com/MirrorNG/MirrorNG/commit/20e13245e813f9a06571d826cc2a0d3926d93e4b))
+
 ## [50.0.1](https://github.com/MirrorNG/MirrorNG/compare/v50.0.0...v50.0.1) (2020-10-18)
 
 
