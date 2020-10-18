@@ -857,11 +857,8 @@ namespace Mirror.KCP
                     tm_packet = diff;
             }
 
-            int minimal = tm_packet;
-            if (tm_packet >= tm_flush_)
-                minimal = tm_flush_;
-            if (minimal >= interval)
-                minimal = interval;
+            int minimal = Math.Min(tm_packet, tm_flush_);
+            minimal = Math.Min(minimal, interval);
 
             // NOTE: Original KCP returns current time + delta
             // I changed it to only return delta
