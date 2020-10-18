@@ -659,7 +659,7 @@ namespace Mirror.KCP
             // check for retransmissions
             ulong change = 0;
             ulong lostSegs = 0;
-            int minrto = (int)interval;
+            int minrto = interval;
 
             for (int k = 0; k < sendBuffer.Count; k++)
             {
@@ -684,10 +684,8 @@ namespace Mirror.KCP
                 else if (current >= segment.resendTimeStamp) // RTO
                 {
                     needSend = true;
-                    if (!noDelay)
-                        segment.rto += (uint)rx_rto;
-                    else
-                        segment.rto += (uint)rx_rto >> 1;
+
+                    segment.rto += noDelay ? (uint)rx_rto >> 1 : (uint)rx_rto;
                     segment.fastack = 0;
                     segment.resendTimeStamp = current + segment.rto;
                     lostSegs++;
