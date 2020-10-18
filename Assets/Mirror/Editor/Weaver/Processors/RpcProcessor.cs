@@ -90,7 +90,7 @@ namespace Mirror.Weaver
         /// {
         ///     NetworkWriter writer = new NetworkWriter();
         ///     writer.WritePackedUInt32((uint) param);
-        ///     base.SendRPCInternal(typeof(class),"RpcTest", writer, 0);
+        ///     base.SendRpcInternal(typeof(class),"RpcTest", writer, 0);
         /// }
         /// public void UserCode_Test(int param)
         /// {
@@ -104,7 +104,7 @@ namespace Mirror.Weaver
         /// {
         ///     NetworkWriter writer = new NetworkWriter();
         ///     writer.WritePackedUInt32((uint)param);
-        ///     base.SendTargetRPCInternal(conn, typeof(class), "TargetTest", val);
+        ///     base.SendTargetRpcInternal(conn, typeof(class), "TargetTest", val);
         /// }
         /// 
         /// public void UserCode_TargetTest(NetworkConnection conn, int param)
@@ -119,7 +119,7 @@ namespace Mirror.Weaver
         /// {
         ///     NetworkWriter writer = new NetworkWriter();
         ///     writer.WritePackedUInt32((uint) param);
-        ///     base.SendTargetRPCInternal(null, typeof(class), "TargetTest", val);
+        ///     base.SendTargetRpcInternal(null, typeof(class), "TargetTest", val);
         /// }
         /// 
         /// public void UserCode_TargetTest(int param)

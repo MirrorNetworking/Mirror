@@ -256,7 +256,7 @@ namespace Mirror
 
         #region Client RPCs
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId, bool excludeOwner)
+        internal void SendRpcInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId, bool excludeOwner)
         {
             // this was in Weaver before
             if (!Server || !Server.Active)
@@ -288,7 +288,7 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(INetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
+        internal void SendTargetRpcInternal(INetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
             if (!Server || !Server.Active)
