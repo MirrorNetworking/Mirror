@@ -12,7 +12,7 @@ using Mirror.KCP;
 
 namespace Mirror.Tests
 {
-    public class KcpTest
+    public class KcpTransportTest
     {
         public ushort port = 7896;
 

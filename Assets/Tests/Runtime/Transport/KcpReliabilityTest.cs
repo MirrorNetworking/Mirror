@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Mirror.KCP;
 using NUnit.Framework;
-using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace Mirror.Tests
@@ -15,16 +13,8 @@ namespace Mirror.Tests
     [TestFixture(0.2f, 0.2f, 0)]
     [TestFixture(0f, 0f, 20)]
     [TestFixture(0.2f, 0.2f, 20)]
-    public class KcpReliabilityTest
+    public class KcpReliabilityTest : KcpSetup
     {
-        private readonly float pdrop;
-        private readonly float pdup;
-        private readonly int maxLat;
-        Kcp client;
-        Kcp server;
-        CancellationTokenSource cts;
-
-
         /// <summary>
         /// 
         /// </summary>
@@ -32,80 +22,8 @@ namespace Mirror.Tests
         /// <param name="pdup"> probability of duplicating a packet</param>
         /// <param name="minLat">minimum latency of a packet</param>
         /// <param name="maxLat">maximum latency of a packet</param>
-        public KcpReliabilityTest(float pdrop, float pdup, int maxLat)
+        public KcpReliabilityTest(float pdrop, float pdup, int maxLat) : base(pdrop, pdup, maxLat)
         {
-            this.pdrop = pdrop;
-            this.pdup = pdup;
-            this.maxLat = maxLat;
-        }
-
-        /// <summary>
-        /// sends a packet to a kcp, simulating unreliable network
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="data"></param>
-        /// <param name="length"></param>
-        /// <returns></returns>
-        private async UniTaskVoid SendAsync(Kcp target, byte[] data, int length, CancellationToken token)
-        {
-            // drop some packets
-            if (Random.value < pdrop)
-                return;
-
-            int latency = Random.Range(0, maxLat);
-
-            if (latency > 0)
-                await UniTask.Delay(latency, false, PlayerLoopTiming.Update, token);
-
-            target.Input(data, 0, length, true, false);
-
-            // duplicate some packets (udp can duplicate packets)
-            if (Random.value < pdup)
-                target.Input(data, 0, length, true, false);
-        }
-
-        async UniTaskVoid Tick(Kcp kcp, CancellationToken token)
-        {
-            while (true)
-            {
-                await UniTask.Delay(10, false, PlayerLoopTiming.Update, token);
-
-                kcp.Update();
-            }
-        }
-
-        // A Test behaves as an ordinary method
-        [SetUp]
-        public void SetupKcp()
-        {
-            cts = new CancellationTokenSource();
-            CancellationToken token = cts.Token;
-
-            client = new Kcp(0, (data, length) => {
-                SendAsync(server, data, length, token).Forget();
-            });
-            // fast mode so that we finish quicker
-            client.SetNoDelay(KcpDelayMode.Fast3);
-            client.SetMtu(1000);
-            client.SetWindowSize(16, 16);
-
-            server = new Kcp(0, (data, length) => {
-                SendAsync(client, data, length, token).Forget();
-            });
-            // fast mode so that we finish quicker
-            server.SetNoDelay(KcpDelayMode.Fast3);
-            client.SetMtu(1000);
-            client.SetWindowSize(16, 16);
-
-
-            Tick(server, token).Forget();
-            Tick(client, token).Forget();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            cts.Cancel();
         }
 
         [UnityTest]
