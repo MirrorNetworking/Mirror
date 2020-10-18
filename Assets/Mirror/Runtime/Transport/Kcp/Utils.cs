@@ -91,7 +91,7 @@ namespace Mirror.KCP
 
         public static int TimeDiff(uint later, uint earlier)
         {
-            return ((int)(later - earlier));
+            return (int)(later - earlier);
         }
 
         public static bool Equal(ArraySegment<byte> seg1, ArraySegment<byte> seg2)
