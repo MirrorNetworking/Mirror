@@ -356,8 +356,7 @@ namespace Mirror
             }
         }
 
-
-        List<INetworkConnection> connectionsExcludeSelf = new List<INetworkConnection>(100);
+        readonly List<INetworkConnection> connectionsExcludeSelf = new List<INetworkConnection>(100);
 
         /// <summary>
         /// this is like SendToReady - but it doesn't check the ready flag on the connection.
