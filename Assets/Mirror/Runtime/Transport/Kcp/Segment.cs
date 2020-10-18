@@ -27,7 +27,9 @@ namespace Mirror.KCP
         {
             if (msSegmentPool.Count > 0)
             {
-                return msSegmentPool.Pop();
+                Segment buffer =  msSegmentPool.Pop();
+                buffer.data.Resize(size);
+                return buffer;
             }
             return new Segment(size);
         }

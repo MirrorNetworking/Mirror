@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace Mirror.KCP
 {
@@ -74,6 +73,11 @@ namespace Mirror.KCP
             FixSizeAndReset(len, total);
             Array.Copy(bytes, startIndex, RawBuffer, writeIndex, length);
             writeIndex = total;
+        }
+
+        public void Resize(int length)
+        {
+            FixSizeAndReset(RawBuffer.Length, length);
         }
 
         public int ReaderIndex { get; private set; }
