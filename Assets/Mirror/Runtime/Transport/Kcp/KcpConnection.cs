@@ -12,6 +12,7 @@ namespace Mirror.KCP
         protected Socket socket;
         protected EndPoint remoteEndpoint;
         protected Kcp kcp;
+        readonly KcpDelayMode delayMode;
         volatile bool open;
 
         internal event Action Disconnected;
@@ -30,14 +31,15 @@ namespace Mirror.KCP
         internal static readonly ArraySegment<byte> Hello = new ArraySegment<byte>(new byte[] { 0 });
         private static readonly ArraySegment<byte> Goodby = new ArraySegment<byte>(new byte[] { 1 });
 
-        protected KcpConnection()
+        protected KcpConnection(KcpDelayMode delayMode)
         {
+            this.delayMode = delayMode;
         }
 
         protected void SetupKcp()
         {
             kcp = new Kcp(0, SendWithChecksum);
-            kcp.SetNoDelay();
+            kcp.SetNoDelay(delayMode);
 
             // reserve some space for CRC64
             kcp.ReserveBytes(RESERVED);

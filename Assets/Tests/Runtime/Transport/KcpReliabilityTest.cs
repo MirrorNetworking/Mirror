@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Mirror.KCP;
@@ -85,7 +85,7 @@ namespace Mirror.Tests
                 SendAsync(server, data, length, token).Forget();
             });
             // fast mode so that we finish quicker
-            client.SetNoDelay(true, 10, 2, true);
+            client.SetNoDelay(KcpDelayMode.Fast3);
             client.SetMtu(1000);
             client.SetWindowSize(16, 16);
 
@@ -93,7 +93,7 @@ namespace Mirror.Tests
                 SendAsync(client, data, length, token).Forget();
             });
             // fast mode so that we finish quicker
-            server.SetNoDelay(true, 10, 2, true);
+            server.SetNoDelay(KcpDelayMode.Fast3);
             client.SetMtu(1000);
             client.SetWindowSize(16, 16);
 
