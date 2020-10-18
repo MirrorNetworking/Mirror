@@ -82,7 +82,7 @@ namespace Mirror.KCP
             SendWindowMax = WND_SND;
             ReceiveWindowMax = WND_RCV;
             RmtWnd = WND_RCV;
-            buffer = new byte[mtu];
+            buffer = new byte[(mtu + OVERHEAD) * 3];
             output = output_;
             refTime.Start();
         }
@@ -874,7 +874,7 @@ namespace Mirror.KCP
             if (reserved >= (int)(mtu - OVERHEAD))
                 throw new ArgumentException("Please increase the MTU value so it is higher than reserved bytes.");
 
-            buffer = new byte[mtu];
+            buffer = new byte[(mtu + OVERHEAD) * 3];
 
             this.mtu = mtu;
         }
