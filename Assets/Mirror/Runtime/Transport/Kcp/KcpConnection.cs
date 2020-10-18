@@ -89,7 +89,7 @@ namespace Mirror.KCP
         {
         }
 
-        volatile bool isWaiting = false;
+        volatile bool isWaiting;
 
         AutoResetUniTaskCompletionSource dataAvailable;
 
