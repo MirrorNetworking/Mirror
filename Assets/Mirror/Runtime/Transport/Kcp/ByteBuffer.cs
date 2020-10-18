@@ -3,42 +3,16 @@ using System.Collections.Generic;
 
 namespace Mirror.KCP
 {
-    class ByteBuffer : IDisposable
+    class ByteBuffer
     {
         int writeIndex;
-        static readonly List<ByteBuffer> pool = new List<ByteBuffer>();
-        const int PoolMaxCount = 200;
 
-        ByteBuffer(int capacity)
+        public ByteBuffer(int capacity)
         {
             RawBuffer = new byte[capacity];
             Capacity = capacity;
             ReaderIndex = 0;
             writeIndex = 0;
-        }
-
-        /// <summary>
-        /// Construct a capacity length byte buffer ByteBuffer object
-        /// </summary>
-        /// <param name="capacity">Initial capacity</param>
-        /// <param name="fromPool">
-        /// true means to obtain a pooled ByteBuffer object, the pooled object must be pushed into the pool after calling Dispose, this method is thread-safe.
-        /// When true, the actual capacity value of the object obtained from the pool
-        /// </param>
-        /// <returns>ByteBuffer object</returns>
-        public static ByteBuffer Allocate(int capacity)
-        {
-            ByteBuffer bbuf;
-            if (pool.Count == 0)
-            {
-                bbuf = new ByteBuffer(capacity);
-                return bbuf;
-            }
-            int lastIndex = pool.Count - 1;
-            bbuf = pool[lastIndex];
-            pool.RemoveAt(lastIndex);
-            return bbuf;
-            
         }
 
         /// <summary>
@@ -115,20 +89,6 @@ namespace Mirror.KCP
             ReaderIndex = 0;
             writeIndex = 0;
             Capacity = RawBuffer.Length;
-        }
-
-        public void Dispose()
-        {
-            if (pool.Count < PoolMaxCount)
-            {
-                Clear();
-                pool.Add(this);
-                return;
-            }
-            ReaderIndex = 0;
-            writeIndex = 0;
-            Capacity = 0;
-            RawBuffer = null;
         }
     }
 }

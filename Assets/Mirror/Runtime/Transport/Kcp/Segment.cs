@@ -27,9 +27,7 @@ namespace Mirror.KCP
         {
             if (msSegmentPool.Count > 0)
             {
-                Segment seg = msSegmentPool.Pop();
-                seg.data = ByteBuffer.Allocate(size);
-                return seg;
+                return msSegmentPool.Pop();
             }
             return new Segment(size);
         }
@@ -42,7 +40,7 @@ namespace Mirror.KCP
 
         Segment(int size)
         {
-            data = ByteBuffer.Allocate(size);
+            data = new ByteBuffer(size);
         }
 
         // encode a segment into buffer
@@ -77,8 +75,6 @@ namespace Mirror.KCP
             acked = false;
 
             data.Clear();
-            data.Dispose();
-            data = null;
         }
     }
 }
