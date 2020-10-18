@@ -1,3 +1,10 @@
+# [50.1.0](https://github.com/MirrorNG/MirrorNG/compare/v50.0.2...v50.1.0) (2020-10-18)
+
+
+### Features
+
+* User can set KcpDelayMode via KcpTransport([#403](https://github.com/MirrorNG/MirrorNG/issues/403)) ([bdd0d9c](https://github.com/MirrorNG/MirrorNG/commit/bdd0d9cc207f1b1b878acb93ec8e7fdff0b43b7e))
+
 ## [50.0.2](https://github.com/MirrorNG/MirrorNG/compare/v50.0.1...v50.0.2) (2020-10-18)
 
 
