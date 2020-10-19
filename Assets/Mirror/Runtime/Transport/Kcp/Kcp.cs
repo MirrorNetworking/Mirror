@@ -532,10 +532,10 @@ namespace Mirror.KCP
 
         void FlushAcknowledges(Segment seg)
         {
-            for (int i = 0; i < ackList.Count; i++)
+            foreach (AckItem ack in ackList)
             {
                 MakeSpace(OVERHEAD);
-                AckItem ack = ackList[i];
+
                 seg.serialNumber = ack.serialNumber;
                 seg.timeStamp = ack.timestamp;
                 writeIndex += seg.Encode(buffer, writeIndex);
