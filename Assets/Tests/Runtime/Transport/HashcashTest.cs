@@ -26,12 +26,10 @@ namespace Mirror.Tests
         public void EncodingDecoding()
         {
             byte[] buffer = new byte[1000];
+            _ = HashCashEncoding.Encode(buffer, 0, hashCash);
 
-            int encodeLength = HashCashEncoding.Encode(buffer, 0, hashCash);
+            HashCash decoded = HashCashEncoding.Decode(buffer, 0);
 
-            (int offset, HashCash decoded) = HashCashEncoding.Decode(buffer, 0);
-
-            Assert.That(offset, Is.EqualTo(encodeLength));
             Assert.That(decoded, Is.EqualTo(hashCash));
         }
 

@@ -88,7 +88,7 @@ namespace Mirror.KCP
                 return false;
 
             // read the token
-            (_, HashCash token) = HashCashEncoding.Decode(data, Kcp.OVERHEAD + KcpConnection.RESERVED);
+            HashCash token = HashCashEncoding.Decode(data, Kcp.OVERHEAD + KcpConnection.RESERVED);
 
             RemoveExpiredTokens();
 

@@ -116,8 +116,9 @@ namespace Mirror.KCP
         private bool Validate(byte[] buffer, int msgLength)
         {
             // Recalculate CRC64 and check against checksum in the head
-            (int offset, ulong receivedCrc) = Utils.Decode64U(buffer, 0);
-            ulong calculatedCrc = Crc64.Compute(buffer, offset, msgLength - offset);
+            var decoder = new Decoder(buffer, 0);
+            ulong receivedCrc = decoder.Decode64U();
+            ulong calculatedCrc = Crc64.Compute(buffer, decoder.Position, msgLength - decoder.Position);
             return receivedCrc == calculatedCrc;
         }
 

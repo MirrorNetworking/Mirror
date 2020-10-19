@@ -220,23 +220,22 @@ namespace Mirror.KCP
         /// <param name="index">the index in the buffer where to put it</param>
         /// <param name="hashCash">the token to be encoded</param>
         /// <returns>the length of the written data</returns>
-        public static (int offset, HashCash decoded) Decode(byte[] buffer, int index)
+        public static HashCash Decode(byte[] buffer, int index)
         {
-            (int offset, ulong ticks) = Utils.Decode64U(buffer, index);
-            uint resource;
-            (offset, resource) = Utils.Decode32U(buffer, offset);
-            ulong salt;
-            (offset, salt) = Utils.Decode64U(buffer, offset);
-            ulong counter;
-            (offset, counter) = Utils.Decode64U(buffer, offset);
+            var decoder = new Decoder(buffer, index);
+            long ticks = (long)decoder.Decode64U();
+            int resource = (int)decoder.Decode32U();
+            ulong salt = decoder.Decode64U();
+            ulong counter = decoder.Decode64U();
 
-            var token = new HashCash (new DateTime((long)ticks),
-                (int)resource,
+            var token = new HashCash (
+                new DateTime(ticks),
+                resource,
                 salt,
                 counter
             );
 
-            return (offset, token);
+            return token;
         }
     }
 }

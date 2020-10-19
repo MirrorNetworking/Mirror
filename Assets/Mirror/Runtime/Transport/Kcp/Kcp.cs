@@ -382,28 +382,21 @@ namespace Mirror.KCP
             {
                 if (size - (offset - index) < OVERHEAD) break;
 
-                uint conv_;
-                (offset, conv_) = Utils.Decode32U(data, offset);
+                var decoder = new Decoder(data, offset);
+                uint conv_ = decoder.Decode32U();
 
                 if (conv != conv_)
                     return -1;
 
-                byte cmdbyte;
-                (offset, cmdbyte) = Utils.Decode8U(data, offset);
-                var cmd = (CommandType)cmdbyte;
-                byte frg;
-                (offset, frg) = Utils.Decode8U(data, offset);
-                ushort wnd;
-                (offset, wnd) = Utils.Decode16U(data, offset);
-                uint ts;
-                (offset, ts) = Utils.Decode32U(data, offset);
-                uint sn;
-                (offset, sn) = Utils.Decode32U(data, offset);
-                uint una;
-                (offset, una) = Utils.Decode32U(data, offset);
-                uint length;
-                (offset, length) = Utils.Decode32U(data, offset);
+                var cmd = (CommandType)decoder.Decode8U();
+                byte frg = decoder.Decode8U();
+                ushort wnd = decoder.Decode16U();
+                uint ts = decoder.Decode32U();
+                uint sn = decoder.Decode32U();
+                uint una = decoder.Decode32U();
+                uint length = decoder.Decode32U();
 
+                offset = decoder.Position;
                 if (size - (offset - index) < length)
                     return -2;
 
