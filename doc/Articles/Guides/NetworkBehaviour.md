@@ -9,10 +9,11 @@ With the server-authoritative system of MirrorNG, the server must use the `Netwo
 **Note:** This is not a component that you can add to a game object directly. Instead, you must create a script which inherits from `NetworkBehaviour` (instead of the default `MonoBehaviour`), then you can add your script as a component to a game object.
 
 NetworkBehaviour scripts have the following features:
--   Synchronized variables
--   Server and client functions
--   Server RPC calls
--   Client RPC calls
+- [NetworkBehaviour](#networkbehaviour)
+  - [Synchronized variables](#synchronized-variables)
+  - [Server and Client functions](#server-and-client-functions)
+  - [Server RPC Calls](#server-rpc-calls)
+  - [Client RPC Calls](#client-rpc-calls)
 
 ![Data Flow Graph](UNetDirections.jpg)
 
