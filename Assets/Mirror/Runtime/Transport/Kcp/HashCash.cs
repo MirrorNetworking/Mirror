@@ -64,6 +64,11 @@ namespace Mirror.KCP
                 counter == other.counter;
         }
 
+        public override bool Equals(object obj)
+        {
+            return (obj is HashCash hashCash) && Equals(hashCash);
+        }
+
         public override int GetHashCode()
         {
             int hashCode = -858276690;
