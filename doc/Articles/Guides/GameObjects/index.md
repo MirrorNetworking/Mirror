@@ -11,6 +11,6 @@ What exactly should be synchronized on each networked game object depends on the
 -   The animation state of an animated game object
 -   The value of a variable, for example how much time is left in the current round of a game, or how much energy a player has.
 
-As a convenience,  the initial position, rotation and scale of the object is automatically synchronized by the NetworkIdentity. Any other state you wish to synchronize accross the network needs to go in a [NetworkBehaviour](../NetworkBehaviour.md) inside your GameObject.  
+As a convenience,  the initial position, rotation and scale of the object is automatically synchronized by the NetworkIdentity. Any other state you wish to synchronize accross the network needs to go in a [NetworkBehaviour](NetworkBehaviour.md) inside your GameObject.  
 
 When an object is created in the server, you must tell MirrorNG to create it in the clients and keep track of it.  This is known as Spawning.  

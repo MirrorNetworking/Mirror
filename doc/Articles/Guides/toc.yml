@@ -8,8 +8,6 @@
   href: Profiler.md
 - name: Attributes
   href: Attributes.md
-- name: Network Behaviour
-  href: NetworkBehaviour.md
 - name: Clock Synchronization
   href: ClockSync.md
 - name: Data Types
