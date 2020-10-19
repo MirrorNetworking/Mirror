@@ -124,9 +124,9 @@ namespace Mirror.KCP
         /// Return -1 when there is no readable data.
         /// Return -2 if len(buffer) is smaller than kcp.PeekSize().</return></summary>
         /// <param name="buffer"></param>
-        /// <param name="index"></param>
+        /// <param name="offset"></param>
         /// <param name="length"></param>
-        public int Receive(byte[] buffer, int index, int length)
+        public int Receive(byte[] buffer, int offset, int length)
         {
             int peekSize = PeekSize();
             if (peekSize < 0)
@@ -138,7 +138,7 @@ namespace Mirror.KCP
             bool fastRecover = receiveQueue.Count >= ReceiveWindowMax;
 
             // merge fragment.
-            int size = DequeueMessage(buffer, index);
+            int size = DequeueMessage(buffer, offset);
 
             // move available data from rcv_buf -> rcv_queue
             FillReceiveQueue();
@@ -154,10 +154,10 @@ namespace Mirror.KCP
             return size;
         }
 
-        private int DequeueMessage(byte[] buffer, int index)
+        private int DequeueMessage(byte[] buffer, int offset)
         {
             int count = 0;
-            int n = index;
+            int n = offset;
 
             foreach (Segment seg in receiveQueue)
             {
@@ -173,15 +173,15 @@ namespace Mirror.KCP
             }
 
             receiveQueue.RemoveRange(0, count);
-            return n - index;
+            return n - offset;
         }
 
         /// <summary>Send
         /// <para>user/upper level send</para></summary>
         /// <param name="buffer"></param>
-        /// <param name="index"></param>
+        /// <param name="offset"></param>
         /// <param name="length"></param>
-        public void Send(byte[] buffer, int index, int length)
+        public void Send(byte[] buffer, int offset, int length)
         {
             if (length == 0)
                 throw new ArgumentException("You cannot send a packet with a " + nameof(length) + " of 0.");
@@ -204,8 +204,8 @@ namespace Mirror.KCP
                 int size = Math.Min(length, (int)MaximumSegmentSize);
 
                 var seg = Segment.Get(size);
-                seg.data.WriteBytes(buffer, index, size);
-                index += size;
+                seg.data.WriteBytes(buffer, offset, size);
+                offset += size;
                 length -= size;
 
                 seg.fragment = (byte)(count - i - 1);
