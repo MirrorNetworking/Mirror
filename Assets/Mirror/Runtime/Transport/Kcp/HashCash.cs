@@ -64,11 +64,6 @@ namespace Mirror.KCP
                 counter == other.counter;
         }
 
-        public override bool Equals(object obj)
-        {
-            return Equals((HashCash)obj);
-        }
-
         public override int GetHashCode()
         {
             int hashCode = -858276690;
@@ -77,11 +72,6 @@ namespace Mirror.KCP
             hashCode = hashCode * -1521134295 + salt.GetHashCode();
             hashCode = hashCode * -1521134295 + counter.GetHashCode();
             return hashCode;
-        }
-
-        internal static HashCash Mine()
-        {
-            throw new NotImplementedException();
         }
 
         #region mining
