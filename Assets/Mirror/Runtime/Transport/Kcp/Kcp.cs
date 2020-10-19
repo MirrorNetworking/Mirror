@@ -536,12 +536,9 @@ namespace Mirror.KCP
             {
                 MakeSpace(OVERHEAD);
                 AckItem ack = ackList[i];
-                if (ack.serialNumber >= rcv_nxt || ackList.Count - 1 == i)
-                {
-                    seg.serialNumber = ack.serialNumber;
-                    seg.timeStamp = ack.timestamp;
-                    writeIndex += seg.Encode(buffer, writeIndex);
-                }
+                seg.serialNumber = ack.serialNumber;
+                seg.timeStamp = ack.timestamp;
+                writeIndex += seg.Encode(buffer, writeIndex);
             }
             ackList.Clear();
         }
