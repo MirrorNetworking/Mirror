@@ -20,8 +20,9 @@ namespace Mirror
             return true;
         }
 
-        // override for host client: always return true.
-        internal override bool IsClientAlive() => true;
+        // true because local connections never timeout
+        /// <inheritdoc/>
+        internal override bool IsAlive(float timeout) => true;
 
         internal void DisconnectInternal()
         {
@@ -135,5 +136,9 @@ namespace Mirror
             connectionToClient.DisconnectInternal();
             DisconnectInternal();
         }
+
+        // true because local connections never timeout
+        /// <inheritdoc/>
+        internal override bool IsAlive(float timeout) => true;
     }
 }

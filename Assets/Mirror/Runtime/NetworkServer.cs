@@ -499,17 +499,7 @@ namespace Mirror
 
             // Check for dead clients but exclude the host client because it
             // doesn't ping itself and therefore may appear inactive.
-            if (disconnectInactiveConnections)
-            {
-                foreach (NetworkConnectionToClient conn in connections.Values)
-                {
-                    if (!conn.IsClientAlive())
-                    {
-                        logger.LogWarning($"Disconnecting {conn} for inactivity!");
-                        conn.Disconnect();
-                    }
-                }
-            }
+            CheckForInavtiveConnections();
 
             // update all server objects
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
@@ -524,6 +514,21 @@ namespace Mirror
                     // spawned list should have no null entries because we
                     // always call Remove in OnObjectDestroy everywhere.
                     logger.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                }
+            }
+        }
+
+        static void CheckForInavtiveConnections()
+        {
+            if (!disconnectInactiveConnections)
+                return;
+
+            foreach (NetworkConnectionToClient conn in connections.Values)
+            {
+                if (!conn.IsAlive(disconnectInactiveTimeout))
+                {
+                    logger.LogWarning($"Disconnecting {conn} for inactivity!");
+                    conn.Disconnect();
                 }
             }
         }
