@@ -17,8 +17,8 @@ namespace Mirror.Tests
         public ushort port = 7896;
 
         KcpTransport transport;
-        IConnection clientConnection;
-        IConnection serverConnection;
+        KcpConnection clientConnection;
+        KcpConnection serverConnection;
 
         Uri testUri;
 
@@ -52,8 +52,13 @@ namespace Mirror.Tests
 
             UniTask<IConnection> connectTask = transport.ConnectAsync(uriBuilder.Uri);
 
-            serverConnection = await acceptTask;
-            clientConnection = await connectTask;
+            serverConnection = (KcpConnection)await acceptTask;
+            clientConnection = (KcpConnection)await connectTask;
+
+            // for our tests,  lower the timeout to just 0.1s
+            // so that the tests run quickly.
+            serverConnection.Timeout = 100;
+            clientConnection.Timeout = 100;
         });
 
         [UnityTearDown]

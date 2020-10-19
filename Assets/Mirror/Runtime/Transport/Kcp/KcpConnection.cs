@@ -19,7 +19,7 @@ namespace Mirror.KCP
 
         // If we don't receive anything these many milliseconds
         // then consider us disconnected
-        public const int TIMEOUT = 15000;
+        public int Timeout { get; set; } = 15000;
 
         volatile uint lastReceived;
 
@@ -54,7 +54,7 @@ namespace Mirror.KCP
             {
                 lastReceived = kcp.CurrentMS;
 
-                while (open && kcp.CurrentMS < lastReceived + TIMEOUT)
+                while (open && kcp.CurrentMS < lastReceived + Timeout)
                 {
                     kcp.Update();
 
