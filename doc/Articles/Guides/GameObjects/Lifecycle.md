@@ -34,7 +34,7 @@ Basically this is outside MirrorNG's control.
 To start a server object,  [spawn it](SpawnObject.md). 
 If you wish to perform some logic when the object starts in the server, add a 
 component in your gameobject with your own method and subscribe to 
-<xref:Mirror.StartServer.OnStartServer>
+<xref:Mirror.NetworkIdentity.OnStartServer>
 
 For example:
 
