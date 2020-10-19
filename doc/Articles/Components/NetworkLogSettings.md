@@ -1,6 +1,6 @@
 # Network Log Settings
 
-**See also <xref:MirrorNG.LogFactory> in the API Reference.**
+**See also <xref:Mirror.LogFactory> in the API Reference.**
 
 ## Network Log Settings component
 
@@ -22,7 +22,7 @@ Log settings can also be changed using the "MirrorNG Log Level" window, which ca
 
 ![Window](LogLevelWindow.png)
 
-To change settings at runtime please see <xref:MirrorNG.LogFactory>.
+To change settings at runtime please see <xref:Mirror.LogFactory>.
 
 ## Issues
 

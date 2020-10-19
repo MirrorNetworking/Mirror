@@ -8,9 +8,9 @@ These attributes can be used for Unity game loop methods like Start or Update, a
 
 -   **NetworkSettings**  
     This attribute has been deprecated because `channels` were moved to transports (where applicable) and `interval` was moved to an inspector property
--   **<xref:MirrorNG.ServerAttribute>**  
+-   **<xref:Mirror.ServerAttribute>**  
     Only a server can call the method (throws an error when called on a client unless you specify error = false).
--   **<xref:MirrorNG.ClientAttribute>**  
+-   **<xref:Mirror.ClientAttribute>**  
     Only a Client can call the method (throws an error when called on the server unless you specify error = false).
 -   **ClientRpc**  
     The server uses a Remote Procedure Call (RPC) to run that function on clients. See also: [Remote Actions](Communications/RemoteActions.md)
