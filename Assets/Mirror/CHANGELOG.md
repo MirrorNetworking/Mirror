@@ -1,3 +1,10 @@
+## [50.1.1](https://github.com/MirrorNG/MirrorNG/compare/v50.1.0...v50.1.1) (2020-10-19)
+
+
+### Performance Improvements
+
+* don't drop acks,  follow original C algorithm ([c0b5a12](https://github.com/MirrorNG/MirrorNG/commit/c0b5a123ea6fd203676b987ab91cb49651d9ad9a))
+
 # [50.1.0](https://github.com/MirrorNG/MirrorNG/compare/v50.0.2...v50.1.0) (2020-10-18)
 
 
