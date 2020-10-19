@@ -1,9 +1,9 @@
 # LiteNetLib4Mirror Transport
 
-**LiteNetLib based transport for Mirror.**
+**LiteNetLib based transport for MirrorNG.**
 
 ## Usage
-1. Download the unity package from [Releases](https://github.com/MrGadget1024/LiteNetLib4Mirror/releases) and import it to your project (it does not contain Mirror)
+1. Download the unity package from [Releases](https://github.com/MrGadget1024/LiteNetLib4Mirror/releases) and import it to your project (it does not contain MirrorNG)
 2. Put LiteNetLib4MirrorTransport component on gameobject with NetworkManager and assign it there
 3. (Optional) Make your NetworkManager derrive from LiteNetLib4MirrorNetworkManager and use optional overloads from it
 
@@ -38,7 +38,7 @@ Also, socket Reuse Address option isn't available in IL2CPP.
 
 ## Credits
 RevenantX - for [LiteNetLib](https://github.com/RevenantX/LiteNetLib/releases)  
-vis2k & Paul - for [Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321)  
+vis2k & Paul - for [MirrorNG](https://assetstore.unity.com/packages/tools/network/mirror-129321)  
 Coburn - for [Ignorance](https://github.com/SoftwareGuy/Ignorance) which i've used as an example  
 Dankrushen - for helping me find one small mistake which i couldn't find for two days  
 Lucas Ontivero - for [Open.Nat](https://github.com/lontivero/Open.NAT/releases), used for UPnP  

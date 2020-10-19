@@ -1,12 +1,12 @@
 # Deprecations
 
-Certain features of Unity Networking (UNet) were removed from Mirror or modified for various reasons. This page will identify all changed and removed features, properties, and methods, the reason for change or removal, and possible alternatives.
+Certain features of Unity Networking (UNet) were removed from MirrorNG or modified for various reasons. This page will identify all changed and removed features, properties, and methods, the reason for change or removal, and possible alternatives.
 
 >   Note: Some changes in this document may apply to an upcoming release to the Asset Store.
 
 ## Match Namespace & Host Migration
 
-As part of the Unity Services, this entire namespace was removed. It didn't work well to begin with, and was incredibly complex to be part of the core networking package. We expect this, along with other back-end services, will be provided through standalone apps that have integration to Mirror.
+As part of the Unity Services, this entire namespace was removed. It didn't work well to begin with, and was incredibly complex to be part of the core networking package. We expect this, along with other back-end services, will be provided through standalone apps that have integration to MirrorNG.
 
 ## Network Server Simple
 
@@ -49,7 +49,7 @@ Use `SyncList<YourSpecialStruct>` instead.
 
 In classic UNet, QoS Flags were used to determine how packets got to the remote end. For example, if you needed a packet to be prioritized in the queue, you would specify a high priority flag which the Unity LLAPI would then receive and deal with appropriately. Unfortunately, this caused a lot of extra work for the transport layer and some of the QoS flags did not work as intended due to buggy code that relied on too much magic.
 
-In Mirror, QoS flags were replaced with a "Channels" system. While the default transport, [Telepathy](../Transports/Telepathy.md), does not use channels at all because it's TCP-based, other transports, such as [Ignorance](../Transports/Ignorance.md) and [LiteNetLib4Mirror](../Transports/LiteNetLib4Mirror.md), do support them.
+In MirrorNG, QoS flags were replaced with a "Channels" system. While the default transport, [Telepathy](../Transports/Telepathy.md), does not use channels at all because it's TCP-based, other transports, such as [Ignorance](../Transports/Ignorance.md) and [LiteNetLib4Mirror](../Transports/LiteNetLib4Mirror.md), do support them.
 
 The currently defined channels are:
 -   `Channels.DefaultReliable = 0`
@@ -109,7 +109,7 @@ The currently defined channels are:
     NetworkConnection parameter is no longer needed and nothing is returned
 
 -   Local Player Authority checkbox  
-    This checkbox is no longer needed, and we simplified how [Authority](../Guides/Authority.md) works in Mirror.
+    This checkbox is no longer needed, and we simplified how [Authority](../Guides/Authority.md) works in MirrorNG.
 
 ### NetworkBehaviour
 

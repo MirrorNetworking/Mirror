@@ -1,6 +1,6 @@
 # Scene Game Objects
 
-There are two types of networked game objects in Mirror’s multiplayer system:
+There are two types of networked game objects in MirrorNG’s multiplayer system:
 -   Those that are created dynamically at runtime
 -   Those that are saved as part of a Scene
 
@@ -15,7 +15,7 @@ Saving networked game objects in your Scene (rather than dynamically spawning th
 -   They can have specific modifications that differ from prefabs
 -   Other game object instances in the Scene can reference them, which can avoid you having to use code to finding the game objects and make references to them up at runtime.
 
-When the Network Manager spawns the networked Scene game objects, those game objects behave like dynamically spawned game objects. Mirror sends them updates and ClientRPC calls.
+When the Network Manager spawns the networked Scene game objects, those game objects behave like dynamically spawned game objects. MirrorNG sends them updates and ClientRPC calls.
 
 If a Scene game object is destroyed on the server before a client joins the game, then it is never enabled on new clients that join.
 

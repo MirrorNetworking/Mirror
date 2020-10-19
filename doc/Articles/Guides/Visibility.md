@@ -10,21 +10,21 @@ This can benefit your game in two ways:
 
 The idea of “visibility” in the context of networking doesn’t necessarily relate to whether game objects are directly visible on-screen. Instead, it relates to whether data should or shouldn’t be sent about the game object in question to a particular client. Put simply, if a client can’t ‘see’ an game object, it does not need to be sent information about that game object across the network. Ideally you want to limit the amount of data you are sending across the network to only what is necessary, because sending large amounts of unnecessary data across the network can cause network performance problems.
 
-However, it can be also be resource intensive or complex to determine accurately whether a game object truly visible to a given player, so it’s often a good idea to use a more simple calculation for the purposes of determining whether a player should be sent networked data about it - i.e. whether it is ‘Network Visible’. The balance you want to achieve when considering this is between the cost of the complexity of the calculation for determining the visibility, and the cost of sending more information than necessary over the network. A very simple way to calculate this is a distance (proximity) check, and Mirror provides a built-in component for this purpose.
+However, it can be also be resource intensive or complex to determine accurately whether a game object truly visible to a given player, so it’s often a good idea to use a more simple calculation for the purposes of determining whether a player should be sent networked data about it - i.e. whether it is ‘Network Visible’. The balance you want to achieve when considering this is between the cost of the complexity of the calculation for determining the visibility, and the cost of sending more information than necessary over the network. A very simple way to calculate this is a distance (proximity) check, and MirrorNG provides a built-in component for this purpose.
 
 ## Network Proximity Checker Component
 
-Mirror’s [Network Proximity Checker](../Components/NetworkProximityChecker.md) component is simplest way to implement network visibility for players. It works in conjunction with the physics system to determine whether game objects are close enough (that is, “visible” for the purposes of sending network messages in your multiplayer game).
+MirrorNG’s [Network Proximity Checker](../Components/NetworkProximityChecker.md) component is simplest way to implement network visibility for players. It works in conjunction with the physics system to determine whether game objects are close enough (that is, “visible” for the purposes of sending network messages in your multiplayer game).
 
 ## Network Scene Checker Component
 
-Mirror's [Network Scene Checker](../Components/NetworkSceneChecker.md) component can be used to isolate players and networked objects on the server in additive scene instances.
+MirrorNG's [Network Scene Checker](../Components/NetworkSceneChecker.md) component can be used to isolate players and networked objects on the server in additive scene instances.
 
 ## Network Visibility on Remote Clients
 
 When a player on a remote client joins a networked game, only game objects that are network-visible to the player will be spawned on that remote client. This means that even if the player enters a large world with many networked game objects, the game can start quickly because it does not need to spawn every game object that exists in the world. Note that this applies to networked game objects in your Scene, but does not affect the loading of Assets. Unity still takes time to load the Assets for registered Prefabs and Scene game objects.
 
-When a player moves within the world, the set of network-visible game objects changes. The player’s client is told about these changes as they happen. The `ObjectHide` message is sent to clients when a game object becomes no longer network-visible. By default, Mirror destroys the game object when it receives this message. When a game object becomes visible, the client receives an `ObjectSpawn` message, as if Mirror has spawned the game object for the first time. By default, the game object is instantiated like any other spawned game object.
+When a player moves within the world, the set of network-visible game objects changes. The player’s client is told about these changes as they happen. The `ObjectHide` message is sent to clients when a game object becomes no longer network-visible. By default, MirrorNG destroys the game object when it receives this message. When a game object becomes visible, the client receives an `ObjectSpawn` message, as if MirrorNG has spawned the game object for the first time. By default, the game object is instantiated like any other spawned game object.
 
 ## Network Visibility on the Host
 
@@ -38,11 +38,11 @@ The default implementation of `OnSetLocalVisibility` disables or enables all ren
 
 Sometimes you might want to use other kinds of visibility check, such as grid-based rules, line-of-sight tests, navigation path tests, or any other type of test that suits your game.
 
-To do this, you can create your own custom Network Observer from a [script template](../General/ScriptTemplates.md) via the Assets menu by clicking Create -> Mirror -> Network Observer.
+To do this, you can create your own custom Network Observer from a [script template](../General/ScriptTemplates.md) via the Assets menu by clicking Create -> MirrorNG -> Network Observer.
 
 It may be helpful to understand how the Network Proximity Checker works.
 
-The Network Proximity Checker is implemented using the public visibility interface of Mirror’s HLAPI. Using this same interface, you can implement any kind of visibility rules you desire. Each `NetworkIdentity` keeps track of the set of players that it is visible to. The players that a NetworkIdentity game object is visible to are called the “observers” of the NetworkIdentity.
+The Network Proximity Checker is implemented using the public visibility interface of MirrorNG’s HLAPI. Using this same interface, you can implement any kind of visibility rules you desire. Each `NetworkIdentity` keeps track of the set of players that it is visible to. The players that a NetworkIdentity game object is visible to are called the “observers” of the NetworkIdentity.
 
 The Network Proximity Checker calls the `RebuildObservers` method on the Network Identity component at a fixed interval (set using the “Vis Update Interval” value in the inspector), so that the set of network-visible game objects for each player is updated as they move around.
 

@@ -2,7 +2,7 @@
 
 ## Migrating a project from UNet (HLAPI)
 
-This guide gives you a step by step instruction for migrating your project from HLAP to Mirror. Mirror is a fork of UNet. As such the migration is straight forward for most projects.
+This guide gives you a step by step instruction for migrating your project from HLAP to MirrorNG. MirrorNG is a fork of UNet. As such the migration is straight forward for most projects.
 
 You should review the information on the [Deprecations](Deprecations.md) page to see if your project will be impacted.
 
@@ -13,17 +13,17 @@ There's also a Migration Tool you can try:
 
 You have been warned.
 
-### 2. Install Mirror and Restart Unity
+### 2. Install MirrorNG and Restart Unity
 
-Get Mirror from the [asset store](https://assetstore.unity.com/packages/tools/network/mirror-129321) and import it in your project.  
+Get MirrorNG from the [asset store](https://assetstore.unity.com/packages/tools/network/mirror-129321) and import it in your project.  
 
-Alternatively you can grab the latest [release](https://github.com/vis2k/Mirror/releases) from GitHub if you're feeling adventurous, but be aware that bleeding edge dev releases are not necessarily stable.  
+Alternatively you can grab the latest [release](https://github.com/vis2k/MirrorNG/releases) from GitHub if you're feeling adventurous, but be aware that bleeding edge dev releases are not necessarily stable.  
 
-**NOTE:** You must restart Unity after adding Mirror to the project for the components menu to update correctly.
+**NOTE:** You must restart Unity after adding MirrorNG to the project for the components menu to update correctly.
 
 ### 3. Replace namespace
 
-Replace `UnityEngine.Networking` for `Mirror` everywhere in your project. For example, if you have this:
+Replace `UnityEngine.Networking` for `MirrorNG` everywhere in your project. For example, if you have this:
 
 ```cs
 using UnityEngine.Networking;
@@ -37,7 +37,7 @@ public class Player : NetworkBehaviour
 replace it with:
 
 ```cs
-using Mirror;
+using MirrorNG;
 
 public class Player : NetworkBehaviour
 {
@@ -81,7 +81,7 @@ Please note that the default transport [Telpathy](../Transports/Telepathy.md), c
 
 ### 6. Change SyncListStruct to SyncList
 
-There is a bug in the original UNet Weaver that makes it mess with our `Mirror.SyncListStruct` without checking the namespace. In Mirror, we fixed SyncLists so that they work with structs by default.
+There is a bug in the original UNet Weaver that makes it mess with our `MirrorNG.SyncListStruct` without checking the namespace. In MirrorNG, we fixed SyncLists so that they work with structs by default.
 
 For example, if you have definitions like:
 
@@ -153,7 +153,7 @@ replace it with:
 
 ```cs
 using UnityEngine;
-using Mirror;
+using MirrorNG;
 
 public  class MyBehaviour : NetworkBehaviour
 {
@@ -171,17 +171,17 @@ public  class MyBehaviour : NetworkBehaviour
 }
 ```
 
-Notice the callback will also work in the server in Mirror.
+Notice the callback will also work in the server in MirrorNG.
 
 ### 9. Replace Components
 
-Every networked prefab and scene object needs to be adjusted. They will be using `NetworkIdentity` from Unet, and you need to replace that component with `NetworkIdentity` from Mirror. You may be using other network components, such as `NetworkAnimator` or `NetworkTransform`. All components from Unet should be replaced with their corresponding component from Mirror.
+Every networked prefab and scene object needs to be adjusted. They will be using `NetworkIdentity` from Unet, and you need to replace that component with `NetworkIdentity` from MirrorNG. You may be using other network components, such as `NetworkAnimator` or `NetworkTransform`. All components from Unet should be replaced with their corresponding component from MirrorNG.
 
 Note that if you remove and add a NetworkIdentity, you will need to reassign it in any component that was referencing it.
 
 ### 10. Update Extended Components
 
-Some commonly extended components, such as NetworkManager, have changed method parameters in Mirror. A commonly used override is OnServerAddPlayer. Using the original HLAPI, your override may have looked like this:
+Some commonly extended components, such as NetworkManager, have changed method parameters in MirrorNG. A commonly used override is OnServerAddPlayer. Using the original HLAPI, your override may have looked like this:
 
 ```cs
 public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId, NetworkReader extraMessageReader)
@@ -191,7 +191,7 @@ public override void OnServerAddPlayer(NetworkConnection conn, short playerContr
 }
 ```
 
-In your newly Mirror-capable NetworkManager, if you are using the `OnServerAddPlayer` override, remove the "playerControllerId" and "extraMessageReader" parameters from your override and the base call:
+In your newly MirrorNG-capable NetworkManager, if you are using the `OnServerAddPlayer` override, remove the "playerControllerId" and "extraMessageReader" parameters from your override and the base call:
 
 ```cs
 public override void OnServerAddPlayer(NetworkConnection conn)
@@ -205,21 +205,21 @@ See [Custom Player Spawn Guide](../Guides/GameObjects/SpawnPlayerCustom.md) for 
 
 ### 11. Pick your transport
 
-You can choose one of several transports in Mirror.  Open your NetworkManager gameobject,   in the inspector you will see a `TelepathyTransport` component by default.  Drag in one of the available transports and remove `TelepathyTransport` if you wish to use a UDP based transport instead.
+You can choose one of several transports in MirrorNG.  Open your NetworkManager gameobject,   in the inspector you will see a `TelepathyTransport` component by default.  Drag in one of the available transports and remove `TelepathyTransport` if you wish to use a UDP based transport instead.
 
 ### 12. Configure address and port
 
-In HLAPI, you configure the port and local address in the NetworkManager. One of our goals is to make Mirror transport independent. Not all transports need address and port.  Some transports might even use more than one port at the same time, so these settings were inadequate. We removed the port and address and all other Network Info properties from NetworkManager,  and we moved them to the transport components instead.
+In HLAPI, you configure the port and local address in the NetworkManager. One of our goals is to make MirrorNG transport independent. Not all transports need address and port.  Some transports might even use more than one port at the same time, so these settings were inadequate. We removed the port and address and all other Network Info properties from NetworkManager,  and we moved them to the transport components instead.
 
 ### 13. Update your firewall and router
 
-LLAPI uses UDP. Mirror uses TCP by default. This means you may need to change your router port forwarding and firewall rules in your machine to expose the TCP port instead of UDP. This highly depends on your router and operating system.
+LLAPI uses UDP. MirrorNG uses TCP by default. This means you may need to change your router port forwarding and firewall rules in your machine to expose the TCP port instead of UDP. This highly depends on your router and operating system.
 
 ## Video version
 
-See for yourself how uMMORPG was migrated to Mirror
+See for yourself how uMMORPG was migrated to MirrorNG
 
-[![Manually upgrading uMMORPG V1.130 to V1.131 (Mirror)](MigrationVideo.jpg)](http://www.youtube.com/watch?v=LF9rTSS3rlI)
+[![Manually upgrading uMMORPG V1.130 to V1.131 (MirrorNG)](MigrationVideo.jpg)](http://www.youtube.com/watch?v=LF9rTSS3rlI)
 
 ## Possible Error Messages
 -   TypeLoadException: A type load exception has occurred. - happens if you still have SyncListStruct instead of SyncListSTRUCT in your project.
@@ -231,4 +231,4 @@ See for yourself how uMMORPG was migrated to Mirror
         using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
     ```
     
-    `UnityWebRequest` is not part of UNet or Mirror, but it is in the same namespace as UNet. Changing the namespace to Mirror caused your script not to find UnityWebRequest. The same applies for `WWW` and all `UnityWebRequest` related classes.
+    `UnityWebRequest` is not part of UNet or MirrorNG, but it is in the same namespace as UNet. Changing the namespace to MirrorNG caused your script not to find UnityWebRequest. The same applies for `WWW` and all `UnityWebRequest` related classes.

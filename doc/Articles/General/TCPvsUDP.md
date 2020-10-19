@@ -50,6 +50,6 @@ UDP is better for fast paced games where latency is important and if a few packe
 
 ## The choice is yours
 
-Mirror is transport independent, they can simply by added to your NetworkManager GameObject. Mirror comes with 2 built in transports to pick from, [Telepathy](../Transports/Telepathy.md) and [Ninja WebSockets](../Transports/WebSockets.md). See the [transports](../Transports/index.md) page for more about transports.
+MirrorNG is transport independent, they can simply by added to your NetworkManager GameObject. MirrorNG comes with 2 built in transports to pick from, [Telepathy](../Transports/Telepathy.md) and [Ninja WebSockets](../Transports/WebSockets.md). See the [transports](../Transports/index.md) page for more about transports.
 
 Pick whatever works best for you. We recommend you profile your game and collect real world numbers before you make a final decision.

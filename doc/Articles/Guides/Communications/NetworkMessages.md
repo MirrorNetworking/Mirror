@@ -8,7 +8,7 @@ To declare a custom network message class and use it:
 
 ``` cs
 using UnityEngine;
-using Mirror;
+using MirrorNG;
 
 public class Scores : MonoBehaviour
 {
@@ -51,4 +51,4 @@ public class Scores : MonoBehaviour
 }
 ```
 
-Note that there is no serialization code for the `ScoreMessage` class in this source code example. Mirror will generate a reader and writer for ScoreMessage when it sees that it is being sent.
+Note that there is no serialization code for the `ScoreMessage` class in this source code example. MirrorNG will generate a reader and writer for ScoreMessage when it sees that it is being sent.

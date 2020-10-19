@@ -1,6 +1,6 @@
 # Getting Started
 
-This document describes steps to creating a multiplayer game with Mirror. The process described here is a simplified, higher level version of the actual process for a real game; it doesn’t always work exactly like this, but it provides a basic recipe for the process.
+This document describes steps to creating a multiplayer game with MirrorNG. The process described here is a simplified, higher level version of the actual process for a real game; it doesn’t always work exactly like this, but it provides a basic recipe for the process.
 
 ## Video tutorials
 
@@ -36,7 +36,7 @@ For example, this script only processes input for the local player:
 
 ``` cs
 using UnityEngine;
-using Mirror;
+using MirrorNG;
 
 public class Controls : NetworkBehaviour
 {

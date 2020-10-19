@@ -4,7 +4,7 @@ Suppose your are next to a friend. He starts a game in host mode and you want to
 
 To solve this problem you can use Network Discovery. When your game starts, it sends a message in your current network asking "Is there any server available?". Any server within the same network will reply and provide information about how to connect to it.
 
-Mirror comes with a simple implementation of Network Discovery you can simply use in your game. It also provides a way for you to extend it so that you can pass additional data during the discovery phase.
+MirrorNG comes with a simple implementation of Network Discovery you can simply use in your game. It also provides a way for you to extend it so that you can pass additional data during the discovery phase.
 
 ![Inspector](NetworkDiscovery.png)
 
@@ -49,11 +49,11 @@ Sometimes you want to provide more information in the discovery messages. Some u
 -   The client can show the language
 -   The client can show if the server is password protected
 
-To do this, we've provided a [Template](../General/ScriptTemplates.md), so from the Assets menu, click Create > Mirror > Network Discovery.
+To do this, we've provided a [Template](../General/ScriptTemplates.md), so from the Assets menu, click Create > MirrorNG > Network Discovery.
 
 This will create a script in your project with 2 empty message classes and a custom NetworkDiscovery class that inherits from NetworkDiscoveryBase and has all the override methods included and documented for you.
 
-The message classes define what is sent between the client and server. As long as you keep your messages simple using the [data types](../Guides/DataTypes.md) that Mirror can serialize, you won't need to write custom serializers for them.
+The message classes define what is sent between the client and server. As long as you keep your messages simple using the [data types](../Guides/DataTypes.md) that MirrorNG can serialize, you won't need to write custom serializers for them.
 
 ```cs
 public class DiscoveryRequest

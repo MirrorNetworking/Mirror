@@ -1,6 +1,6 @@
 # Network Log Settings
 
-**See also <xref:Mirror.LogFactory> in the API Reference.**
+**See also <xref:MirrorNG.LogFactory> in the API Reference.**
 
 ## Network Log Settings component
 
@@ -14,16 +14,16 @@ When you first add NetworkLogSettings you will have to Create a new LogSettings 
 
 ## Log Settings 
 
-When you first set up LogSettings the list of components may be empty or incomplete. Running the game will cause Mirror scripts to add their respective loggers to the list so their logging levels can be changed.
+When you first set up LogSettings the list of components may be empty or incomplete. Running the game will cause MirrorNG scripts to add their respective loggers to the list so their logging levels can be changed.
 
 ![Inspector](NetworkLogSettings.png)
 
-Log settings can also be changed using the "Mirror Log Level" window, which can be opened from the editor menu: Window > Analysis > Mirror Log Levels.
+Log settings can also be changed using the "MirrorNG Log Level" window, which can be opened from the editor menu: Window > Analysis > MirrorNG Log Levels.
 
 ![Window](LogLevelWindow.png)
 
-To change settings at runtime please see <xref:Mirror.LogFactory>.
+To change settings at runtime please see <xref:MirrorNG.LogFactory>.
 
 ## Issues
 
-Mirrors Logging api is currently work in progress. If there is a bug or a feature you want added please make an issue [here](https://github.com/vis2k/Mirror/issues).
+Mirrors Logging api is currently work in progress. If there is a bug or a feature you want added please make an issue [here](https://github.com/vis2k/MirrorNG/issues).

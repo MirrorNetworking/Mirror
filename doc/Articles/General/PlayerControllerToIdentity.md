@@ -2,7 +2,7 @@
 
 If you need to fix up a project after `NetworkConnection.playerController` was changed to `identity` these instructions should be helpful.
 
-1. Open your Unity project and look for Assets/Mirror/Runtime/**NetworkConnection**:
+1. Open your Unity project and look for Assets/MirrorNG/Runtime/**NetworkConnection**:
 
 ![Project window in Unity](pc2i-1.png)
  

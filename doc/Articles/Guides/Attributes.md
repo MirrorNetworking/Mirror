@@ -8,9 +8,9 @@ These attributes can be used for Unity game loop methods like Start or Update, a
 
 -   **NetworkSettings**  
     This attribute has been deprecated because `channels` were moved to transports (where applicable) and `interval` was moved to an inspector property
--   **<xref:Mirror.ServerAttribute>**  
+-   **<xref:MirrorNG.ServerAttribute>**  
     Only a server can call the method (throws an error when called on a client unless you specify error = false).
--   **<xref:Mirror.ClientAttribute>**  
+-   **<xref:MirrorNG.ClientAttribute>**  
     Only a Client can call the method (throws an error when called on the server unless you specify error = false).
 -   **ClientRpc**  
     The server uses a Remote Procedure Call (RPC) to run that function on clients. See also: [Remote Actions](Communications/RemoteActions.md)
@@ -35,4 +35,4 @@ These attributes can be used for Unity game loop methods like Start or Update, a
     [SyncVars](Sync/SyncVars.md) are used to synchronize a variable from the server to all clients automatically. Don't assign them from a client, it's pointless. Don't let them be null, you will get errors. You can use int, long, float, string, Vector3 etc. (all simple types) and NetworkIdentity and game object if the game object has a NetworkIdentity attached to it. You can use [hooks](Sync/SyncVarHook.md).
 -   **SyncEvent  (Obsolete)**  
     [SyncEvent](Sync/SyncEvent.md) are networked events like ClientRpc's, but instead of calling a function on the game object, they trigger Events instead.
-    **IMPORTANT:** removed in version 18.0.0, see this [Issue](https://github.com/vis2k/Mirror/pull/2178) for more information.
+    **IMPORTANT:** removed in version 18.0.0, see this [Issue](https://github.com/vis2k/MirrorNG/pull/2178) for more information.

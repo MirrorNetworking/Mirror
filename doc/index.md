@@ -1,10 +1,10 @@
-# Mirror Networking for Unity
+# MirrorNG Networking for Unity
 
-**Mirror is the most compatible direct replacement for the deprecated Unity Networking API.**
+**MirrorNG is the most compatible direct replacement for the deprecated Unity Networking API.**
 
-Mirror has nearly all of the components and features from UNet, making networking easy, concise and maintainable, whether you're starting from scratch or converting an existing project. We even have a [Migration Tool](Articles/General/Migration.md) to do most of the work for you!
+MirrorNG has nearly all of the components and features from UNet, making networking easy, concise and maintainable, whether you're starting from scratch or converting an existing project. We even have a [Migration Tool](Articles/General/Migration.md) to do most of the work for you!
 
-Built to support games of any scale, from LAN party games to dedicated high-volume authoritative servers running hundreds of players, Mirror is the core networking solution for [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212), [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015), [Cubica](https://www.cubica.net/), and [more](https://mirror-networking.com/showcase/)!
+Built to support games of any scale, from LAN party games to dedicated high-volume authoritative servers running hundreds of players, MirrorNG is the core networking solution for [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212), [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015), [Cubica](https://www.cubica.net/), and [more](https://mirror-networking.com/showcase/)!
 
 uMMORPG was possible with \<6000 lines of code. We needed a networking library that allows us to launch our games, period!
 -   **Full Source included** for debugging convenience

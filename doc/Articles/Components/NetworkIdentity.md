@@ -1,6 +1,6 @@
 # Network Identity
 
-**See also <xref:Mirror.NetworkIdentity> in the API Reference.**
+**See also <xref:MirrorNG.NetworkIdentity> in the API Reference.**
  
 The Network Identity component is at the heart of the Unity networking high-level API. It controls a game object’s unique identity on the network, and it uses that identity to make the networking system aware of the game object. It offers two different options for configuration and they are mutually exclusive, which means either one of the options or none can be checked.
 -   **Server Only**  
@@ -10,7 +10,7 @@ The Network Identity component is at the heart of the Unity networking high-leve
 
 ## Instantiated Network Game Objects
 
-With the Mirror’s server-authoritative networking system, the server must spawn networked game objects with network identities, using `NetworkServer.Spawn`. This automatically creates them on clients that are connected to the server, and assigns them a `netId`.
+With the MirrorNG’s server-authoritative networking system, the server must spawn networked game objects with network identities, using `NetworkServer.Spawn`. This automatically creates them on clients that are connected to the server, and assigns them a `netId`.
 
 You must put a Network Identity component on any Prefabs that spawn at runtime for the network system to use them. See [Object Spawning](../Guides/GameObjects/SpawnObject.md) for more information.
 

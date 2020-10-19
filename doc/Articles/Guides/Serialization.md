@@ -2,7 +2,7 @@
 
 This page goes into depth about Serialization, for the basics see [DataTypes](DataTypes.md).
 
-Mirror creates Serialize and Deserialize functions for types using Weaver. Weaver edits dll after unity compiles them using Mono.Cecil. This allows mirror to have a lot of complex features like SyncVar, ClientRpc and Message  Serialization without the user needed to manually set everything up.
+MirrorNG creates Serialize and Deserialize functions for types using Weaver. Weaver edits dll after unity compiles them using Mono.Cecil. This allows mirror to have a lot of complex features like SyncVar, ClientRpc and Message  Serialization without the user needed to manually set everything up.
 
 ## Rules and tips
 
@@ -30,7 +30,7 @@ Some of these types are unsupported due to the complexity they would add, as men
 
 ### Built-in Read Write Functions
 
-Mirror provides some built-in Read/Write Functions. They can be found in `NetworkReaderExtensions` and `NetworkWriterExtensions`.
+MirrorNG provides some built-in Read/Write Functions. They can be found in `NetworkReaderExtensions` and `NetworkWriterExtensions`.
 
 This is a Non-compete list of types that have built-in functions, check the classes above to see the full list.
 
@@ -87,7 +87,7 @@ public enum Switch : byte
 Weaver will Generate writes for the collections listed above. Weaver will use the elements Read/Write function. The element must have a Read/Write function so must be a supported type, or have a custom Read/Write function.
 
 For example:
-- `float[]` is a supported type because Mirror has a built-in Read/Write function for `float`.
+- `float[]` is a supported type because MirrorNG has a built-in Read/Write function for `float`.
 - `MyData[]` is a supported type as Weaver is able to generate a Read/Write function for `MyData` 
 ```cs
 public struct MyData
@@ -214,4 +214,4 @@ public static class CustomReadWriteFunctions
 
 ## Debugging
 
-You can use tools like [dnSpy](https://github.com/0xd4d/dnSpy) to view the complied code after Weaver has altered it. This can help to understand and debug what Mirror and Weaver does.
+You can use tools like [dnSpy](https://github.com/0xd4d/dnSpy) to view the complied code after Weaver has altered it. This can help to understand and debug what MirrorNG and Weaver does.

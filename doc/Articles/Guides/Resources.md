@@ -5,8 +5,8 @@
 
 ## Video Tutorials Playlists
 
-- [Unity - Mirror Networking by First Gear Games](https://www.youtube.com/playlist?list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP)
-- [Mirror Multiplayer by Dapper Dino](https://www.youtube.com/playlist?list=PLS6sInD7ThM1aUDj8lZrF4b4lpvejB2uB)
+- [Unity - MirrorNG Networking by First Gear Games](https://www.youtube.com/playlist?list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP)
+- [MirrorNG Multiplayer by Dapper Dino](https://www.youtube.com/playlist?list=PLS6sInD7ThM1aUDj8lZrF4b4lpvejB2uB)
 
 ## Object Pooling
 

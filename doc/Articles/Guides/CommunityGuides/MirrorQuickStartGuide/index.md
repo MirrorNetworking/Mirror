@@ -1,4 +1,4 @@
-# Mirror Quick Start Guide 
+# MirrorNG Quick Start Guide 
 Written by [StephenAllenGames.co.uk](http://stephenallengames.co.uk/) <br />
 Edited by [James Frowen](https://github.com/James-Frowen)
 ***
@@ -11,13 +11,13 @@ This guide currently shows you:
 
 It is best to first make a mini practice game before converting your single player game, or creating your ideal brand new multiplayer.
 
-The Pre-made Mirror examples are great for using as reference, it is recommend to use them regarding connection setup, with ports and firewalls. This can be a huge topic that changes from person to person, and is not covered in this guide, here we will use localHost (multiple games on same PC).
+The Pre-made MirrorNG examples are great for using as reference, it is recommend to use them regarding connection setup, with ports and firewalls. This can be a huge topic that changes from person to person, and is not covered in this guide, here we will use localHost (multiple games on same PC).
 
 
 
 ## Part 1
 
-Blank Project, import Mirror from [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321).
+Blank Project, import MirrorNG from [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321).
 
 
 
@@ -79,7 +79,7 @@ Creating the player
 
 Add the following to your PlayerScript.
 ```cs
-using Mirror;
+using MirrorNG;
 using UnityEngine;
 
 namespace QuickStart
@@ -141,7 +141,7 @@ Player name above heads
 
 Update your PlayerScript.cs with this:
 ```cs
-using Mirror;
+using MirrorNG;
 using UnityEngine;
 
 namespace QuickStart
@@ -273,7 +273,7 @@ public override void OnStartLocalPlayer()
 Add this code to SceneScript.cs
 
 ```cs
-using Mirror;
+using MirrorNG;
 using UnityEngine;
 using UnityEngine.UI;
 

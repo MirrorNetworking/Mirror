@@ -3,15 +3,15 @@
 ## What is Ignorance?
 Ignorance is a reliable UDP transport layer that utilizes the native ENET C Networking library via a [custom fork of ENet-CSharp](https://github.com/SoftwareGuy/ENet-CSharp) providing an reliable and unreliable sequenced UDP transport for both 64Bit desktop operating systems (Windows, Mac OS and Linux) and Mobile OSes (Apple iOS and Android). It also supports up to 255 channels and 4096 clients connected at one time.
 
-ENET is a solid reliable UDP C++ network library that is mature and stable. Unity's LLAPI needs a replacement. Ignorance was designed with that goal in mind - fill the gap and provide a solid, performant RUDP transport for Mirror.
+ENET is a solid reliable UDP C++ network library that is mature and stable. Unity's LLAPI needs a replacement. Ignorance was designed with that goal in mind - fill the gap and provide a solid, performant RUDP transport for MirrorNG.
 
 ## Why Ignorance over the Unity LLAPI?
 Unity's old LLAPI was horridly inefficient, and lots of testing has shown that you will get reduced performance using Unity LLAPI in your project. This is due to the design of the old networking code - Unity Tech made "by design" decisions and poor bug fixes that were seen to other developers as band-aids over a gaping wound. They did not care about performance or bug fixes.
 
-Unity LLAPI was also closed source, meaning the Mirror developers could not take a knife to it and make it better. This is where the concept of Ignorance took shape.
+Unity LLAPI was also closed source, meaning the MirrorNG developers could not take a knife to it and make it better. This is where the concept of Ignorance took shape.
 
 ## Who develops Ignorance?
-[Coburn](http://github.com/softwareguy) is the lead developer of the transport. Oiran Studio actively uses this transport for networked game projects. It is currently also being utilized by some game projects, where you can find on the Mirror Discord server.
+[Coburn](http://github.com/softwareguy) is the lead developer of the transport. Oiran Studio actively uses this transport for networked game projects. It is currently also being utilized by some game projects, where you can find on the MirrorNG Discord server.
 
 ## Why would I want to use reliable UDP over TCP?
 - if you have realtime communications that you need speed over reliability (VoIP...)
@@ -50,13 +50,13 @@ For example, say you lost a packet and that contained a player's health update. 
 Ignorance comes with two channels in both Reliable and Unreliable mode by default. There are other channel modes that developers can test as different ones might suit different loads, but the average person does not need to worry about this. Ignorance comes with sane defaults out of the box.
 
 ## Does Ignorance support Websockets?
-No, it does not. Mirror comes with built-in websockets support.
+No, it does not. MirrorNG comes with built-in websockets support.
 
 ## Where can I get Ignorance?
 [Grab the latest build from the releases page on the Ignorance repository](https://github.com/SoftwareGuy/Ignorance). Simply import the Unity Package from the release you downloaded.
 
 ## Where can I get support?
-You can get support by opening a issue ticket on the [Ignorance repository issue tracker](https://github.com/SoftwareGuy/Ignorance/issues) or the #ignorance channel in the Mirror Discord server.
+You can get support by opening a issue ticket on the [Ignorance repository issue tracker](https://github.com/SoftwareGuy/Ignorance/issues) or the #ignorance channel in the MirrorNG Discord server.
 
 ## I still don't understand what this transport is, my head is spinning, help!
 Come by the Discord and we'll do our best to explain it in plain English.

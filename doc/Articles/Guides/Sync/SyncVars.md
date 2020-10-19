@@ -4,7 +4,7 @@ SyncVars are properties of classes that inherit from NetworkBehaviour, which are
 
 The state of SyncVars is applied to game objects on clients before `OnStartClient()` is called, so the state of the object is always up-to-date inside `OnStartClient()`.
 
-SyncVars can use any [type supported by Mirror](../DataTypes.md). You can have up to 64 SyncVars on a single NetworkBehaviour script, including SyncLists (see next section, below).
+SyncVars can use any [type supported by MirrorNG](../DataTypes.md). You can have up to 64 SyncVars on a single NetworkBehaviour script, including SyncLists (see next section, below).
 
 The server automatically sends SyncVar updates when the value of a SyncVar changes, so you do not need to track when they change or send information about the changes yourself. Changing a value in the inspector will not trigger an update.
 

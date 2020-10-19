@@ -11,13 +11,13 @@ With the Network Scene Checker, a game running on a client doesn’t have inform
 
 This component would typically be used when the server has several subscenes loaded and needs to isolate networked objects to the subscene they're in.
 
-A game object with a Network Scene Checker component must also have a Network Identity component. When you create a Network Scene Checker component on a game object, Mirror also creates a Network Identity component on that game object if it does not already have one.
+A game object with a Network Scene Checker component must also have a Network Identity component. When you create a Network Scene Checker component on a game object, MirrorNG also creates a Network Identity component on that game object if it does not already have one.
 
 Scene objects with a Network Scene Checker component are disabled when they're not in the same scene, and spawned objects are destroyed when they're not in the same scene.
 
 ## Use with Additive Scenes
 
-In Mirror, the Server and connected Clients are always on the same main scene, however the server and clients can have various combinations of smaller subscenes loaded additively. The server may load all subscenes at start, or it may dynamically load and unload subscenes where players or other activity is going on as needed.
+In MirrorNG, the Server and connected Clients are always on the same main scene, however the server and clients can have various combinations of smaller subscenes loaded additively. The server may load all subscenes at start, or it may dynamically load and unload subscenes where players or other activity is going on as needed.
 
 All player objects are always first spawned in the main scene, which may or may not have visual content, networked objects, etc. With this component attached to all networked objects, whenever the player object is moved to a subscene (from the main or from another subscene), the observers lists for objects in both the new scene and the prior scene are updated accordingly.
 

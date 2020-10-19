@@ -8,7 +8,7 @@ A SyncSortedSet can contain any [supported mirror type](../DataTypes.md)
 
 ## Usage
 
-Create a class that derives from SyncSortedSet for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncSortedSet field to your NetworkBehaviour class. For example:
+Create a class that derives from SyncSortedSet for your specific type. This is necessary because MirrorNG will add methods to that class with the weaver. Then add a SyncSortedSet field to your NetworkBehaviour class. For example:
 
 ```cs
 class Player : NetworkBehaviour {

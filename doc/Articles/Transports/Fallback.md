@@ -2,7 +2,7 @@
 
 The FallbackTransport can be used to work around transport platform limits.
 
-For example, our Apathy transport is currently only available on Windows, Mac and Linux where as Telepathy is available on all Platforms. Apathy has significant performance improvements, and ideally we would want Mirror to use Apathy if on Windows/Mac/Linux and fall back to Telepathy otherwise.
+For example, our Apathy transport is currently only available on Windows, Mac and Linux where as Telepathy is available on all Platforms. Apathy has significant performance improvements, and ideally we would want MirrorNG to use Apathy if on Windows/Mac/Linux and fall back to Telepathy otherwise.
 
 This is what the FallbackTransport allows us to do.
 

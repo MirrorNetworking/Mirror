@@ -16,6 +16,6 @@ With the Network Proximity Checker, a game running on a client doesn’t have in
 
 This component relies on physics to calculate visibility, so observer game objects must also have a collider component on it.
 
-A game object with a Network Proximity Checker component must also have a Network Identity component. When you create a Network Proximity Checker component on a game object, Mirror also creates a Network Identity component on that game object if it does not already have one.
+A game object with a Network Proximity Checker component must also have a Network Identity component. When you create a Network Proximity Checker component on a game object, MirrorNG also creates a Network Identity component on that game object if it does not already have one.
 
 Scene objects with a Network Proximity Checker component are disabled when they're out of range, and spawned objects are destroyed when they're out of range.

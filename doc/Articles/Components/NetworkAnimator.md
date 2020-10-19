@@ -2,7 +2,7 @@
 
 The Network Animator component allows you to synchronize animation states for networked objects. It synchronizes state and parameters from an Animator Controller.
 
-Note that if you create a Network Animator component on an empty game object, Mirror also creates a Network Identity component and an Animator component on that game object.
+Note that if you create a Network Animator component on an empty game object, MirrorNG also creates a Network Identity component and an Animator component on that game object.
 
 ![The Network Animator component in the Inspector window](NetworkAnimatorComponent.png)
 

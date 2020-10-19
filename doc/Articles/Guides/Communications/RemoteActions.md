@@ -51,7 +51,7 @@ It is possible to invoke ServerRpcs on non-player objects if any of the followin
 - The object was spawned with client authority
 - The object has client authority set with `NetworkIdentity.AssignClientAuthority`
 - the Server RPC Call has the `requireAuthority` option set false.  
-    - You can include an optional `NetworkConnectionToClient sender = null` parameter in the Server RPC Call method signature and Mirror will fill in the sending client for you.
+    - You can include an optional `NetworkConnectionToClient sender = null` parameter in the Server RPC Call method signature and MirrorNG will fill in the sending client for you.
     - Do not try to set a value for this optional parameter...it will be ignored.
 
 Server RPC Calls sent from these object are run on the server instance of the object, not on the associated player object for the client.

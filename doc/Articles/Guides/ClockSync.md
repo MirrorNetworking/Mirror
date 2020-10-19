@@ -1,7 +1,7 @@
 # Clock Synchronization
 
 For many algorithms you need the clock to be synchronized between the client and
-the server. Mirror does that automatically for you.
+the server. MirrorNG does that automatically for you.
 
 To get the current time use this code:
 
@@ -18,7 +18,7 @@ some time:
 -   after 30 days , accuracy is 250 ms
 -   after 60 days, accuracy is 500 ms
 
-Mirror will also calculate the RTT time as seen by the application:
+MirrorNG will also calculate the RTT time as seen by the application:
 
 ```cs
 double rtt = NetworkTime.rtt;

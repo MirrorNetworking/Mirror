@@ -1,6 +1,6 @@
 # Network Room Manager
 
-\*\*Please see the Room example in the Examples folder in your Mirror folder
+\*\*Please see the Room example in the Examples folder in your MirrorNG folder
 
 The Network Room Manager is a specialized type of [Network Manager](NetworkManager.md) that provides a multiplayer room before entering the main play scene of the game. It allows you to set up a network with:
 -   A maximum player limit

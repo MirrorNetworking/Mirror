@@ -1,6 +1,6 @@
 # NetworkBehaviour
 
-**See also <xref:Mirror.NetworkBehaviour> in the API Reference.**
+**See also <xref:MirrorNG.NetworkBehaviour> in the API Reference.**
 
 Network Behaviour scripts work with game objects that have a NetworkIdentity component. These scripts can perform high-level API functions such as ServerRpcs, ClientRpcs and SyncVars.
 
@@ -24,7 +24,7 @@ Your component can have data which is automatically synchronized from the server
 
 ## Server and Client functions
 
-You can tag member functions in NetworkBehaviour scripts with custom attributes to designate them as server-only or client-only functions. <xref:Mirror.ServerAttribute> will check that the function is called in the server. Likewise, <xref:Mirror.ClientAttribute> will check if the function is called in the client.
+You can tag member functions in NetworkBehaviour scripts with custom attributes to designate them as server-only or client-only functions. <xref:MirrorNG.ServerAttribute> will check that the function is called in the server. Likewise, <xref:MirrorNG.ClientAttribute> will check if the function is called in the client.
 
 For more information, see [Attributes](Attributes.md).
 

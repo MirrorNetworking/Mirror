@@ -1,6 +1,6 @@
 # NetworkBehaviour Callbacks
 
-**See also <xref:Mirror.NetworkBehaviour> in the API Reference.**
+**See also <xref:MirrorNG.NetworkBehaviour> in the API Reference.**
 
 There are a number of events relating to network behaviours that can occur over the course of a normal multiplayer game. These include events such as the host starting up, a player joining, or a player leaving. Each of these possible events has an associated callback that you can implement in your own code to take action when the event occurs.
 
@@ -37,7 +37,7 @@ This is a full list of virtual methods (callbacks) that you can implement on `Ne
 
 Below is some example call order for different modes
 
-> NOTE: `Start` is called by unity before the first frame, while normally this happens after Mirror's callbacks. But if you dont call ` NetworkServer.Spawn` the same frame as `instantiate` then start may be called first
+> NOTE: `Start` is called by unity before the first frame, while normally this happens after MirrorNG's callbacks. But if you dont call ` NetworkServer.Spawn` the same frame as `instantiate` then start may be called first
 
 > Note: `OnRebuildObservers` and `OnSetHostVisibility` is now on `NetworkVisibility` instead of `NetworkBehaviour`
 

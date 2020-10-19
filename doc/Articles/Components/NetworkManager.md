@@ -17,13 +17,13 @@ The Network Manager is the core controlling component of a multiplayer game. To 
 
 The Inspector for the Network Manager in the Editor allows you to configure and control many things related to networking.
 
-**Note**: You can only ever have one active Network Manager in each scene because it's a singleton. Do not place the Network Manager component on a networked game object (one which has a Network Identity component), because Mirror disables these when the Scene loads.
+**Note**: You can only ever have one active Network Manager in each scene because it's a singleton. Do not place the Network Manager component on a networked game object (one which has a Network Identity component), because MirrorNG disables these when the Scene loads.
 
 If you are already familiar with multiplayer game development, you might find it useful to know that the Network Manager component is implemented entirely using the API, so everything it does is also available to you through scripting. For advanced users, if you find that you need to expand on the Network Manager component’s features, you can use scripting to derive your own class from Network Manager and customize its behavior by overriding any of the virtual function hooks that it provides. However, the Network Manager component wraps up a lot of useful functionality into a single place, and makes creating, running and debugging multiplayer games as simple as possible.
 
 ## Transports
 
-Mirror uses a separate component (derived from the Transport class) to connect across the network. By default, it is Telepathy Transport. This design choice of separating the transport into its own component allows game developers to choose the transport that best fits their game needs. Changing transports is as simple as swapping out the component on the Network Manager object and assigning it to the Transport field.
+MirrorNG uses a separate component (derived from the Transport class) to connect across the network. By default, it is Telepathy Transport. This design choice of separating the transport into its own component allows game developers to choose the transport that best fits their game needs. Changing transports is as simple as swapping out the component on the Network Manager object and assigning it to the Transport field.
 
 Transports are available for TCP, UDP, WebGL, and Steam. Additionally, there's a Multiplex transport that allows for using two transports together on the server, e.g. Telepathy and WebSockets, so that desktop and browser players can play together on the same server seamlessly. See [Transports](../Transports/index.md) for more information.
 
@@ -90,7 +90,7 @@ There are virtual functions on the `NetworkManager` class that you can customize
 
 ## Properties
 -   **dontDestroyOnLoad**  
-    Use this property to control whether or not Mirror should destroy the game object with the Network Manager when the Scene changes. Tick this checkbox to ensure Mirror does not destroy your Network Manager game object when the Scene changes in your game. Untick the checkbox if you want Mirror to destroy the game object when the Scene it exists in is no longer the active Scene. This is useful if you want to manage multiple, separate Network Manager game objects in each of your Scenes. This checkbox is ticked by default.
+    Use this property to control whether or not MirrorNG should destroy the game object with the Network Manager when the Scene changes. Tick this checkbox to ensure MirrorNG does not destroy your Network Manager game object when the Scene changes in your game. Untick the checkbox if you want MirrorNG to destroy the game object when the Scene it exists in is no longer the active Scene. This is useful if you want to manage multiple, separate Network Manager game objects in each of your Scenes. This checkbox is ticked by default.
 -   **runInBackground**  
     Use this property to control whether the networked game runs when the window it is running in is not focused. Tick the checkbox if you want it to run; untick it if you want the game to stop running when the window is not focused. This checkbox is ticked by default. You need to enable this property if you want to run multiple instances of a program on the same machine, such as when testing using localhost. You should disable it when deploying to mobile platforms. When enabled, it sets Application.runInBackground to true when the Network Manager starts up. You can also set this property from the Unity menu: Edit \> Project Settings, then select the Player category, and navigate to the Resolution and Presentation panel.
 -   **startOnHeadless**  
@@ -98,7 +98,7 @@ There are virtual functions on the `NetworkManager` class that you can customize
 -   **serverTickRate**  
     Sets the target frame rate for the server. Default is 30.
 -   **showDebugMessages**  
-    Use this property to control the amount of information Mirror outputs to the console window.
+    Use this property to control the amount of information MirrorNG outputs to the console window.
 -   **offlineScene**  
     If you assign a Scene to this field, the Network Manager automatically switches to the specified Scene when a network session stops - for example, when the client disconnects, or when the server shuts down.
 -   **onlineScene**  
@@ -112,18 +112,18 @@ There are virtual functions on the `NetworkManager` class that you can customize
         The network address currently in use. For clients, this is the address of the server that is connected to. For servers, this is the local address. This is set to ‘localhost’ by default. A Fully Qualified Domain Name (FQDN) can be used by clients in this field.
 
     -   **maxConnections**  
-        Maximum number of clients connected to a server. Note that host is a server and one client. Transports may also have their own setting for this, otherwise they either copy this value or leave it to Mirror to manage the limit.
+        Maximum number of clients connected to a server. Note that host is a server and one client. Transports may also have their own setting for this, otherwise they either copy this value or leave it to MirrorNG to manage the limit.
 -   **SpawnInfo**  
     You can expand this section of the inspector to access spawn-related settings, listed below
 
     -   **playerPrefab**  
-        Define the default prefab Mirror should use to create player game objects on the server. Mirror creates Player game objects in the default handler for AddPlayer on the server. Implement OnServerAddPlayer to override this behavior.
+        Define the default prefab MirrorNG should use to create player game objects on the server. MirrorNG creates Player game objects in the default handler for AddPlayer on the server. Implement OnServerAddPlayer to override this behavior.
 
     -   **autoCreatePlayer**  
-        Tick this checkbox if you want Mirror to automatically create player game objects on connect, and when the Scene changes. This checkbox is ticked by default.
+        Tick this checkbox if you want MirrorNG to automatically create player game objects on connect, and when the Scene changes. This checkbox is ticked by default.
 
     -   **playerSpawnMethod**  
-        Define how Mirror should decide where to spawn new player game objects. This is set to Random by default.
+        Define how MirrorNG should decide where to spawn new player game objects. This is set to Random by default.
 
         -   **random**  
             Choose Random to spawn players at randomly chosen `startPositions`.

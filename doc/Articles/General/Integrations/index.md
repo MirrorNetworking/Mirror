@@ -1,6 +1,6 @@
 # Integrations
 
-Here we will maintain a list of assets known to be compatible with Mirror.  If you know of others, please have the publisher contact us directly in our [Discord](https://discord.gg/2BvnM4R).
+Here we will maintain a list of assets known to be compatible with MirrorNG.  If you know of others, please have the publisher contact us directly in our [Discord](https://discord.gg/2BvnM4R).
 
 ## [SmoothSync](https://assetstore.unity.com/packages/tools/network/smooth-sync-96925)
 

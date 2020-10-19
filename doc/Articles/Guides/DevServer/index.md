@@ -9,14 +9,14 @@ During this guide we will set up a dedicated server and place the server build o
 3. Always read the providers free trial limitations.
 4. Some providers require a payment method for using a Windows instance, however as long as you do not go over the limitations the provider should not bill you.
 
->   **NOTE**: Mirror is not affiliated and can not be held responsible for any charges or fees associated with service providers like
+>   **NOTE**: MirrorNG is not affiliated and can not be held responsible for any charges or fees associated with service providers like
 [AWS](https://aws.amazon.com/),
 [Microsoft Azure](https://azure.microsoft.com/en-us/free/),
 [Google Compute Engine](https://cloud.google.com/compute/) and others...
 
 ## Introduction
 
-During your development with Mirror you will need to test your project as a client and as a server.
+During your development with MirrorNG you will need to test your project as a client and as a server.
 There are a few possible ways to test your project:
 
 1. Default build: Host/client as one and connecting with another build/editor to the host locally on 1 computer.

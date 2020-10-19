@@ -1,7 +1,7 @@
 # Pong
 
-A simple example for "How to built a multiplayer game with Mirror" is Pong,
-which is included in the AssetStore package of Mirror. It illustrates the usage
+A simple example for "How to built a multiplayer game with MirrorNG" is Pong,
+which is included in the AssetStore package of MirrorNG. It illustrates the usage
 of NetworkManager, NetworkManagerHUD, NetworkBehaviour, NetworkIdentity,
 NetworkTransform, NetworkStartPosition and NetworkingAttributes.
 

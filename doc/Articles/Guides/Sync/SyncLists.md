@@ -7,14 +7,14 @@ A SyncList can contain any [supported mirror type](../DataTypes.md).
 ## Differences with HLAPI
 
 HLAPI also supports SyncLists, but we have redesigned them to better suit our needs. Some of the key differences include:
--   In HLAPI, SyncLists were synchronized immediately when they changed. If you add 10 elements, that means 10 separate messages. Mirror synchronizes SyncLists with the SyncVars. The 10 elements and other SyncVars are batched together into a single message. Mirror also respects the sync interval when synchronizing lists.
+-   In HLAPI, SyncLists were synchronized immediately when they changed. If you add 10 elements, that means 10 separate messages. MirrorNG synchronizes SyncLists with the SyncVars. The 10 elements and other SyncVars are batched together into a single message. MirrorNG also respects the sync interval when synchronizing lists.
 -   In HLAPI if you want a list of structs, you have to use `SyncListStruct<MyStructure>`, we changed it to just `SyncList<MyStructure>`
--   In HLAPI the Callback is a delegate. In Mirror we changed it to an event, so that you can add many subscribers.
--   In HLAPI the Callback tells you the operation and index. In Mirror, the callback also receives an item. We made this change so that we could tell what item was removed.
+-   In HLAPI the Callback is a delegate. In MirrorNG we changed it to an event, so that you can add many subscribers.
+-   In HLAPI the Callback tells you the operation and index. In MirrorNG, the callback also receives an item. We made this change so that we could tell what item was removed.
 
 ## Usage
 
-Create a class that derives from SyncList for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncList field to your NetworkBehaviour class. For example:
+Create a class that derives from SyncList for your specific type. This is necessary because MirrorNG will add methods to that class with the weaver. Then add a SyncList field to your NetworkBehaviour class. For example:
 
 ```cs
 [System.Serializable]
