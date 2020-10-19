@@ -53,7 +53,7 @@ namespace Mirror.Tests
         {
             client.Disconnect();
 
-            await UniTask.WaitUntil(() => !client.Active);
+            await AsyncUtil.WaitUntilWithTimeout(() => !client.Active);
 
             sceneManager.ServerSceneChanged.AddListener(TestOnServerOnlySceneChangedInvoke);
 
@@ -74,7 +74,7 @@ namespace Mirror.Tests
 
             sceneManager.ChangeServerScene("testScene");
 
-            await UniTask.WaitUntil(() => invokeClientSceneMessage && invokeNotReadyMessage);
+            await AsyncUtil.WaitUntilWithTimeout(() => invokeClientSceneMessage && invokeNotReadyMessage);
 
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
             Assert.That(sceneManager.NetworkSceneName, Is.EqualTo("testScene"));
@@ -146,7 +146,7 @@ namespace Mirror.Tests
         {
             sceneManager.ChangeServerScene("testScene", SceneOperation.LoadAdditive);
 
-            await UniTask.WaitUntil(() => SceneManager.GetSceneByName("testScene") != null);
+            await AsyncUtil.WaitUntilWithTimeout(() => SceneManager.GetSceneByName("testScene") != null);
 
             Assert.That(SceneManager.GetSceneByName("testScene"), Is.Not.Null);
         });
@@ -201,7 +201,7 @@ namespace Mirror.Tests
         {
             client.Disconnect();
 
-            await UniTask.WaitUntil(() => !client.Active);
+            await AsyncUtil.WaitUntilWithTimeout(() => !client.Active);
 
             Assert.Throws<InvalidOperationException>(() =>
             {
@@ -216,7 +216,7 @@ namespace Mirror.Tests
             clientSceneManager.ClientChangeScene.AddListener(func1);
             clientSceneManager.ClientSceneMessage(null, new SceneMessage { sceneName = "testScene" });
 
-            await UniTask.WaitUntil(() => clientSceneManager.NetworkSceneName.Equals("testScene"));
+            await AsyncUtil.WaitUntilWithTimeout(() => clientSceneManager.NetworkSceneName.Equals("testScene"));
 
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         });

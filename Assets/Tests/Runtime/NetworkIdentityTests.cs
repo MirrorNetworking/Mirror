@@ -227,9 +227,9 @@ namespace Mirror.Tests
             server.LocalConnection.AddOwnedObject(testObj3.AddComponent<NetworkIdentity>());
             server.LocalConnection.DestroyOwnedObjects();
 
-            await UniTask.WaitUntil(() => !testObj1);
-            await UniTask.WaitUntil(() => !testObj2);
-            await UniTask.WaitUntil(() => !testObj3);
+            await AsyncUtil.WaitUntilWithTimeout(() => !testObj1);
+            await AsyncUtil.WaitUntilWithTimeout(() => !testObj2);
+            await AsyncUtil.WaitUntilWithTimeout(() => !testObj3);
         });
     }
 }

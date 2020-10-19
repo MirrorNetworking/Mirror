@@ -46,7 +46,7 @@ namespace Mirror.Tests
             client.Connection.RegisterHandler<SceneMessage>(msg => invokeWovenTestMessage = true);
             lobby.SendToReady(identity, new SceneMessage(), true, Channels.DefaultReliable);
 
-            await UniTask.WaitUntil(() => invokeWovenTestMessage);
+            await AsyncUtil.WaitUntilWithTimeout(() => invokeWovenTestMessage);
         });
 
         [Test]

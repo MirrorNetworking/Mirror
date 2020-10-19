@@ -2,11 +2,17 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Mirror.Tests
 {
     public static class AsyncUtil
     {
+
+        public static UniTask WaitUntilWithTimeout(Func<bool> predicate)
+        {
+            return UniTask.WaitUntil(predicate).Timeout(TimeSpan.FromSeconds(2));
+        }
 
         // Unity's nunit does not support async tests
         // so we do this boilerplate to run our async methods

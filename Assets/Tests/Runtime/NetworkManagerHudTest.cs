@@ -65,7 +65,7 @@ namespace Mirror.Tests
             Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.True);
             Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.False);
 
-            await UniTask.WaitUntil(() => !manager.IsNetworkActive);
+            await AsyncUtil.WaitUntilWithTimeout(() => !manager.IsNetworkActive);
 
             Assert.That(manager.IsNetworkActive, Is.False);
         });
