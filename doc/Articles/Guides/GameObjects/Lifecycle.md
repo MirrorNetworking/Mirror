@@ -41,7 +41,7 @@ For example:
 ```cs
 class MyComponent : MonoBehaviour {
 
-    public void Start() {
+    public void Awake() {
         GetComponent<NetworkIdentity>.OnStartServer.AddListener(OnStartServer);
     }
 
@@ -51,7 +51,7 @@ class MyComponent : MonoBehaviour {
 }
 ```
 
-You can also simply drag the `OnStartServer` method in the <xref:Mirror.NetworkIdentity> event in the inspector.
+You can also simply drag your `OnStartServer` method in the <xref:Mirror.NetworkIdentity.OnStartServer> event in the inspector.
 
 During the spawn a message will be sent to all the clients telling them to spawn the object. The message
 will include all the data in [SyncVars](../Sync/SyncVars.md), [SyncLists](../Sync/SyncLists.md), [SyncSet](../Sync/SyncHashSet.md), [SyncDictionary](../Sync/SyncDictionary.md)
