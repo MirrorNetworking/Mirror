@@ -101,7 +101,7 @@ namespace Mirror.KCP
             if (!Validate(buffer, msgLength))
                 return;
 
-            kcp.Input(buffer, RESERVED, msgLength - RESERVED, true, false);
+            kcp.Input(buffer, RESERVED, msgLength - RESERVED);
 
             lastReceived = kcp.CurrentMS;
 

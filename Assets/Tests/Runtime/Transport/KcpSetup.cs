@@ -47,11 +47,11 @@ namespace Mirror.Tests
             if (latency > 0)
                 await UniTask.Delay(latency, false, PlayerLoopTiming.Update, token);
 
-            target.Input(data, 0, length, true, false);
+            target.Input(data, 0, length);
 
             // duplicate some packets (udp can duplicate packets)
             if (Random.value < pdup)
-                target.Input(data, 0, length, true, false);
+                target.Input(data, 0, length);
         }
 
         public virtual async UniTaskVoid Tick(Kcp kcp, CancellationToken token)

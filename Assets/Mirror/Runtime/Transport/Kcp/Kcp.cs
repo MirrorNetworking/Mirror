@@ -368,9 +368,7 @@ namespace Mirror.KCP
         /// <param name="data"></param>
         /// <param name="index"></param>
         /// <param name="size"></param>
-        /// <param name="regular">regular indicates a regular packet has received(not from FEC)</param>
-        /// <param name="ackNoDelay">will trigger immediate ACK, but surely it will not be efficient in bandwidth</param>
-        public int Input(byte[] data, int index, int size, bool regular, bool ackNoDelay)
+        public int Input(byte[] data, int index, int size)
         {
             if (size < OVERHEAD) return -1;
 
@@ -411,11 +409,7 @@ namespace Mirror.KCP
                         return -3;
                 }
 
-                // only trust window updates from regular packets. i.e: latest update
-                if (regular)
-                {
-                    RmtWnd = wnd;
-                }
+                RmtWnd = wnd;
 
                 ParseUna(una);
                 ShrinkBuf();
@@ -464,7 +458,7 @@ namespace Mirror.KCP
 
             // update rtt with the latest ts
             // ignore the FEC packet
-            if (flag && regular)
+            if (flag)
             {
                 uint current = CurrentMS;
                 if (current >= latest)
@@ -475,12 +469,6 @@ namespace Mirror.KCP
 
             // cwnd update when packet arrived
             UpdateCwnd(snd_unacknowledged);
-
-            // ack immediately
-            if (ackNoDelay && ackList.Count > 0)
-            {
-                Flush(true);
-            }
 
             return 0;
         }
