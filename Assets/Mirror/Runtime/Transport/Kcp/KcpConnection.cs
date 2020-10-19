@@ -127,7 +127,8 @@ namespace Mirror.KCP
         {
             // add a CRC64 checksum in the reserved space
             ulong crc = Crc64.Compute(data, RESERVED, length - RESERVED);
-            Utils.Encode64U(data, 0, crc);
+            var encoder = new Encoder(data, 0);
+            encoder.Encode64U(crc);
             RawSend(data, length);
 
             if (kcp.WaitSnd > 1000)

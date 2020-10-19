@@ -48,17 +48,17 @@ namespace Mirror.KCP
         // encode a segment into buffer
         internal int Encode(byte[] ptr, int offset)
         {
-            int offset_ = offset;
-            offset += Utils.Encode32U(ptr, offset, conversation);
-            offset += Utils.Encode8U(ptr, offset, (byte)cmd);
-            offset += Utils.Encode8U(ptr, offset, (byte)fragment);
-            offset += Utils.Encode16U(ptr, offset, (ushort)window);
-            offset += Utils.Encode32U(ptr, offset, timeStamp);
-            offset += Utils.Encode32U(ptr, offset, serialNumber);
-            offset += Utils.Encode32U(ptr, offset, unacknowledged);
-            offset += Utils.Encode32U(ptr, offset, (uint)data.ReadableBytes);
+            var encoder = new Encoder(ptr, offset);
+            encoder.Encode32U(conversation);
+            encoder.Encode8U((byte)cmd);
+            encoder.Encode8U((byte)fragment);
+            encoder.Encode16U((ushort)window);
+            encoder.Encode32U(timeStamp);
+            encoder.Encode32U(serialNumber);
+            encoder.Encode32U(unacknowledged);
+            encoder.Encode32U((uint)data.ReadableBytes);
 
-            return offset - offset_;
+            return encoder.Position - offset;
         }
 
         internal void Reset()

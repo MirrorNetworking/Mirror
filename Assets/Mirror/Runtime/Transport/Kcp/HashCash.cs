@@ -203,14 +203,14 @@ namespace Mirror.KCP
         /// <returns>the length of the written data</returns>
         public static int Encode(byte[] buffer, int index, HashCash hashCash)
         {
-            int offset = index;
+            var encoder = new Encoder(buffer, index);
 
-            offset += Utils.Encode64U(buffer, offset, (ulong)hashCash.dt.Ticks);
-            offset += Utils.Encode32U(buffer, offset, (uint)hashCash.resource);
-            offset += Utils.Encode64U(buffer, offset, hashCash.salt);
-            offset += Utils.Encode64U(buffer, offset, hashCash.counter);
+            encoder.Encode64U((ulong)hashCash.dt.Ticks);
+            encoder.Encode32U((uint)hashCash.resource);
+            encoder.Encode64U(hashCash.salt);
+            encoder.Encode64U(hashCash.counter);
 
-            return offset - index ;
+            return encoder.Position - index ;
         }
 
         /// <summary>

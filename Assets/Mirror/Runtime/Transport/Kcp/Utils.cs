@@ -4,25 +4,11 @@ namespace Mirror.KCP
 {
     public static class Utils
     {
-        // encode 8 bits unsigned int
-        public static int Encode8U(byte[] p, int offset, byte c)
-        {
-            p[0 + offset] = c;
-            return 1;
-        }
 
         // decode 8 bits unsigned int
         public static (int offset, byte value) Decode8U(byte[] p, int offset)
         {
             return (offset + 1, p[0 + offset]);
-        }
-
-        /* encode 16 bits unsigned int (lsb) */
-        public static int Encode16U(byte[] p, int offset, ushort w)
-        {
-            p[0 + offset] = (byte)(w >> 0);
-            p[1 + offset] = (byte)(w >> 8);
-            return 2;
         }
 
         /* decode 16 bits unsigned int (lsb) */
@@ -34,16 +20,6 @@ namespace Mirror.KCP
             return (offset + 2, result);
         }
 
-        /* encode 32 bits unsigned int (lsb) */
-        public static int Encode32U(byte[] p, int offset, uint l)
-        {
-            p[0 + offset] = (byte)(l >> 0);
-            p[1 + offset] = (byte)(l >> 8);
-            p[2 + offset] = (byte)(l >> 16);
-            p[3 + offset] = (byte)(l >> 24);
-            return 4;
-        }
-
         /* decode 32 bits unsigned int (lsb) */
         public static (int offset, uint value) Decode32U(byte[] p, int offset)
         {
@@ -53,20 +29,6 @@ namespace Mirror.KCP
             result |= (uint)(p[2 + offset] << 16);
             result |= (uint)(p[3 + offset] << 24);
             return (offset + 4, result);
-        }
-
-        /* encode 32 bits unsigned int (lsb) */
-        public static int Encode64U(byte[] p, int offset, ulong l)
-        {
-            p[0 + offset] = (byte)(l >> 0);
-            p[1 + offset] = (byte)(l >> 8);
-            p[2 + offset] = (byte)(l >> 16);
-            p[3 + offset] = (byte)(l >> 24);
-            p[4 + offset] = (byte)(l >> 32);
-            p[5 + offset] = (byte)(l >> 40);
-            p[6 + offset] = (byte)(l >> 48);
-            p[7 + offset] = (byte)(l >> 56);
-            return 8;
         }
 
         /* decode 32 bits unsigned int (lsb) */
