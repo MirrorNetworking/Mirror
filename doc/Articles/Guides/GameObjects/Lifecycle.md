@@ -78,7 +78,7 @@ Note the Authority can be revoked, and granted again.  Every time the client gai
 
 # Start Client
 
-The event <xref.Mirror.NetworkIdentity.OnStartClient> will be invoked. 
+The event <xref:Mirror.NetworkIdentity.OnStartClient> will be invoked. 
 Subscribe to this event by using `AddListener` or adding your method in the event in the inspector
 
 # Start Local Player
