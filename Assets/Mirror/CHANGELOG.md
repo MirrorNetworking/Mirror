@@ -1,3 +1,10 @@
+## [50.1.2](https://github.com/MirrorNG/MirrorNG/compare/v50.1.1...v50.1.2) (2020-10-19)
+
+
+### Bug Fixes
+
+* add WaitUntilWithTimeout to prevent tests from getting stuck ([#412](https://github.com/MirrorNG/MirrorNG/issues/412)) ([df1ccb4](https://github.com/MirrorNG/MirrorNG/commit/df1ccb48359b5a6b0b914133dbdb6f2d702e47a6))
+
 ## [50.1.1](https://github.com/MirrorNG/MirrorNG/compare/v50.1.0...v50.1.1) (2020-10-19)
 
 
