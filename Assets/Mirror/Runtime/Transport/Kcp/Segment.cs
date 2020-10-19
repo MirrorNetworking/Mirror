@@ -28,10 +28,9 @@ namespace Mirror.KCP
             if (msSegmentPool.Count > 0)
             {
                 Segment buffer =  msSegmentPool.Pop();
-                buffer.data.Resize(size);
                 return buffer;
             }
-            return new Segment(size);
+            return new Segment();
         }
 
         public static void Put(Segment seg)
@@ -40,9 +39,9 @@ namespace Mirror.KCP
             msSegmentPool.Push(seg);
         }
 
-        Segment(int size)
+        Segment()
         {
-            data = new ByteBuffer(size);
+            data = new ByteBuffer();
         }
 
         // encode a segment into buffer
@@ -56,7 +55,7 @@ namespace Mirror.KCP
             encoder.Encode32U(timeStamp);
             encoder.Encode32U(serialNumber);
             encoder.Encode32U(unacknowledged);
-            encoder.Encode32U((uint)data.ReadableBytes);
+            encoder.Encode32U((uint)data.Position);
 
             return encoder.Position - offset;
         }
@@ -76,7 +75,8 @@ namespace Mirror.KCP
             fastack = 0;
             acked = false;
 
-            data.Clear();
+            // keep buffer for next pool usage, but reset position
+            data.Position = 0;
         }
     }
 }

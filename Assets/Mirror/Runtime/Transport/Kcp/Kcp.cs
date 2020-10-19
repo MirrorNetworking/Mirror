@@ -101,7 +101,7 @@ namespace Mirror.KCP
             Segment seq = receiveQueue[0];
 
             if (seq.fragment == 0)
-                return seq.data.ReadableBytes;
+                return seq.data.Position;
 
             if (receiveQueue.Count < seq.fragment + 1)
                 return -1;
@@ -110,7 +110,7 @@ namespace Mirror.KCP
 
             foreach (Segment item in receiveQueue)
             {
-                length += item.data.ReadableBytes;
+                length += item.data.Position;
                 if (item.fragment == 0)
                     break;
             }
@@ -162,8 +162,8 @@ namespace Mirror.KCP
             foreach (Segment seg in receiveQueue)
             {
                 // copy fragment data into buffer.
-                Buffer.BlockCopy(seg.data.RawBuffer, 0, buffer, n, seg.data.ReadableBytes);
-                n += seg.data.ReadableBytes;
+                Buffer.BlockCopy(seg.data.RawBuffer, 0, buffer, n, seg.data.Position);
+                n += seg.data.Position;
 
                 count++;
                 uint fragment = seg.fragment;
@@ -679,11 +679,11 @@ namespace Mirror.KCP
                     segment.window = seg.window;
                     segment.unacknowledged = seg.unacknowledged;
 
-                    int need = OVERHEAD + segment.data.ReadableBytes;
+                    int need = OVERHEAD + segment.data.Position;
                     MakeSpace(need);
                     writeIndex += segment.Encode(buffer, writeIndex);
-                    Buffer.BlockCopy(segment.data.RawBuffer, 0, buffer, writeIndex, segment.data.ReadableBytes);
-                    writeIndex += segment.data.ReadableBytes;
+                    Buffer.BlockCopy(segment.data.RawBuffer, 0, buffer, writeIndex, segment.data.Position);
+                    writeIndex += segment.data.Position;
                 }
 
                 // get the nearest rto
