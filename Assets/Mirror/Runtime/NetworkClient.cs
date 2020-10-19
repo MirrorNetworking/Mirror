@@ -215,7 +215,6 @@ namespace Mirror
                 if (connection != null)
                 {
                     connection.Disconnect();
-                    connection.Dispose();
                     connection = null;
                     RemoveTransportHandlers();
                 }
