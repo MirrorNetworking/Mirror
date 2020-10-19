@@ -20,7 +20,7 @@ NetworkBehaviour scripts have the following features:
 
 ## Synchronized variables
 
-Your component can have data which is automatically synchronized from the server to the client. You can use [SyncVars](../Guides/Sync/SyncVars.md) as well as [SyncLists](Sync/SyncLists.md), [SyncSet](Sync/SyncHashSet.md) and [SyncDictionary](..SyncDictionary) inside a NetworkBehaviour.  They will be automatically propagated to the clients whenever their value change in the server.
+Your component can have data which is automatically synchronized from the server to the client. You can use [SyncVars](../Guides/Sync/SyncVars.md) as well as [SyncLists](Sync/SyncLists.md), [SyncSet](Sync/SyncHashSet.md) and [SyncDictionary](Sync/SyncDictionary.md) inside a NetworkBehaviour.  They will be automatically propagated to the clients whenever their value change in the server.
 
 ## Server and Client functions
 
