@@ -1,3 +1,10 @@
+## [50.1.5](https://github.com/MirrorNG/MirrorNG/compare/v50.1.4...v50.1.5) (2020-10-20)
+
+
+### Bug Fixes
+
+* recursive types with collections ([5cb0058](https://github.com/MirrorNG/MirrorNG/commit/5cb005826b79019de03df8a4b2e85fe27cdbbffc))
+
 ## [50.1.4](https://github.com/MirrorNG/MirrorNG/compare/v50.1.3...v50.1.4) (2020-10-20)
 
 
