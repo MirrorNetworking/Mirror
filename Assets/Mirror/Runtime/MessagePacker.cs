@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace Mirror
@@ -16,6 +17,25 @@ namespace Mirror
     //    (probably even shorter)
     public static class MessagePacker
     {
+        /// <summary>
+        /// Map of Message Id => Type
+        /// When we receive a message, we can lookup here to find out what type
+        /// it was.  This is populated by the weaver.
+        /// </summary>
+        private static readonly Dictionary<int, Type> messageTypes = new Dictionary<int, Type>();
+
+        public static Type GetMessageType(int id) => messageTypes[id];
+
+        public static void RegisterMessage<T>()
+        {
+            int id = GetId<T>();
+
+            if (messageTypes.TryGetValue(id, out Type type) && type != typeof(T)) {
+                throw new ArgumentException($"Message {typeof(T)} and {messageTypes[id]} have the same ID. Change the name of one of those messages");
+            }
+            messageTypes[id] = typeof(T);
+        }
+
         public static int GetId<T>()
         {
             return GetId(typeof(T));

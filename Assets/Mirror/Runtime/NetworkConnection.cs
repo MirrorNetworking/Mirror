@@ -264,7 +264,18 @@ namespace Mirror
             {
                 msgDelegate(this, reader, channelId);
             }
-            else if (Debug.isDebugBuild) logger.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+            else
+            {
+                try
+                {
+                    Type type = MessagePacker.GetMessageType(msgType);
+                    throw new InvalidDataException($"Unexpected message {type} received in {this}. Did you register a handler for it?");
+                }
+                catch (KeyNotFoundException)
+                {
+                    throw new InvalidDataException($"Unexpected message ID {msgType} received in {this}. May be due to no existing RegisterHandler for this message.");
+                }
+            }
         }
 
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
@@ -288,6 +299,10 @@ namespace Mirror
 
                     // try to invoke the handler for that message
                     InvokeHandler(msgType, networkReader, channelId);
+                }
+                catch (InvalidDataException ex)
+                {
+                    logger.Log(ex.ToString());
                 }
                 catch (Exception ex)
                 {

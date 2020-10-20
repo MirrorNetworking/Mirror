@@ -1,5 +1,6 @@
 // finds all readers and writers and register them
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -9,8 +10,21 @@ using UnityEngine;
 
 namespace Mirror.Weaver
 {
+    class TypeReferenceComparer : IEqualityComparer<TypeReference>
+    {
+        public bool Equals(TypeReference x, TypeReference y)
+        {
+            return x.FullName == y.FullName;
+        }
+
+        public int GetHashCode(TypeReference obj)
+        {
+            return obj.FullName.GetHashCode();
+        }
+    }
     public static class ReaderWriterProcessor
     {
+        private readonly static HashSet<TypeReference> messages = new HashSet<TypeReference>(new TypeReferenceComparer());
 
         public static void Process(AssemblyDefinition CurrentAssembly, Assembly unityAssembly)
         {
@@ -18,6 +32,7 @@ namespace Mirror.Weaver
             Weaver.WeaveLists.generateContainerClass = null;
             Readers.Init();
             Writers.Init();
+            messages.Clear();
             foreach (Assembly unityAsm in unityAssembly.assemblyReferences)
             {
                 if (unityAsm.name == "Mirror")
@@ -87,12 +102,10 @@ namespace Mirror.Weaver
             if (!method.IsGenericInstance)
                 return;
 
-            bool generate =
+            bool isMessage =
                 method.Is(typeof(MessagePacker), nameof(MessagePacker.Pack)) ||
                 method.Is(typeof(MessagePacker), nameof(MessagePacker.GetId)) ||
                 method.Is(typeof(MessagePacker), nameof(MessagePacker.Unpack)) ||
-                method.Is<NetworkWriter>(nameof(NetworkWriter.Write)) ||
-                method.Is<NetworkReader>(nameof(NetworkReader.Read)) ||
                 method.Is<IMessageHandler>(nameof(IMessageHandler.Send)) ||
                 method.Is<IMessageHandler>(nameof(IMessageHandler.SendAsync)) ||
                 method.Is<IMessageHandler>(nameof(IMessageHandler.RegisterHandler)) ||
@@ -110,11 +123,21 @@ namespace Mirror.Weaver
                 method.Is<NetworkServer>(nameof(NetworkServer.SendToClientOfPlayer)) ||
                 method.Is<INetworkServer>(nameof(INetworkServer.SendToAll));
 
+            bool generate = isMessage ||
+                method.Is<NetworkWriter>(nameof(NetworkWriter.Write)) ||
+                method.Is<NetworkReader>(nameof(NetworkReader.Read));
+
             if (generate)
             {
                 var instanceMethod = (GenericInstanceMethod)method;
                 TypeReference parameterType = instanceMethod.GenericArguments[0];
+
+                if (parameterType.IsGenericParameter)
+                    return;
+
                 GenerateReadersWriters(module, parameterType);
+                if (isMessage)
+                    messages.Add(parameterType);
             }
         }
 
@@ -210,6 +233,8 @@ namespace Mirror.Weaver
             var rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
                     MethodAttributes.Static,
                     WeaverTypes.Import(typeof(void)));
+            TypeDefinition generateClass = Weaver.WeaveLists.generateContainerClass;
+            generateClass.Methods.Add(rwInitializer);
 
             System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
 
@@ -230,12 +255,25 @@ namespace Mirror.Weaver
             Writers.InitializeWriters(worker);
             Readers.InitializeReaders(worker);
 
+            RegisterMessages(currentAssembly.MainModule, worker);
+
             worker.Append(worker.Create(OpCodes.Ret));
 
             Weaver.WeaveLists.ConfirmGeneratedCodeClass();
-            TypeDefinition generateClass = Weaver.WeaveLists.generateContainerClass;
 
-            generateClass.Methods.Add(rwInitializer);
+        }
+
+        private static void RegisterMessages(ModuleDefinition module, ILProcessor worker)
+        {
+            System.Reflection.MethodInfo method = typeof(MessagePacker).GetMethod(nameof(MessagePacker.RegisterMessage));
+            MethodReference registerMethod = module.ImportReference(method);
+
+            foreach (TypeReference message in messages)
+            {
+                var genericMethodCall = new GenericInstanceMethod(registerMethod);
+                genericMethodCall.GenericArguments.Add(module.ImportReference(message));
+                worker.Append(worker.Create(OpCodes.Call, genericMethodCall));
+            }
         }
     }
 }
