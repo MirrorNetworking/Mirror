@@ -168,11 +168,10 @@ namespace Mirror.Weaver
         }
 
         static MethodDefinition GenerateReadCollection(TypeReference variable, TypeReference elementType, string readerFunction)
-        { 
+        {
+            MethodDefinition readerFunc = GenerateReaderFunction(variable);
             // generate readers for the element
             GetReadFunc(elementType);
-
-            MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
             ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
             TypeReference readerExtensions = module.ImportReference(typeof(NetworkReaderExtensions));
