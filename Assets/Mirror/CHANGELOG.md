@@ -1,3 +1,10 @@
+## [50.1.4](https://github.com/MirrorNG/MirrorNG/compare/v50.1.3...v50.1.4) (2020-10-20)
+
+
+### Bug Fixes
+
+* potential NRE generating readers ([324ba60](https://github.com/MirrorNG/MirrorNG/commit/324ba60615944429a30fcdead4f8b0dc6c98aab7))
+
 ## [50.1.3](https://github.com/MirrorNG/MirrorNG/compare/v50.1.2...v50.1.3) (2020-10-20)
 
 
