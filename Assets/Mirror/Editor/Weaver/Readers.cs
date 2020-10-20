@@ -44,11 +44,15 @@ namespace Mirror.Weaver
 
             TypeDefinition variableDefinition = variableReference.Resolve();
 
+            if (variableDefinition == null)
+            {
+                Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
+                return null;
+            }
             if (variableDefinition.Is(typeof(ArraySegment<>)))
             {
                 return GenerateArraySegmentReadFunc(variableReference);
             }
-
             if (variableDefinition.Is(typeof(List<>)))
             {
                 var genericInstance = (GenericInstanceType)variableReference;
@@ -59,11 +63,6 @@ namespace Mirror.Weaver
             if (variableDefinition.IsEnum)
             {
                 return GenerateEnumReadFunc(variableReference);
-            }
-            if (variableDefinition == null)
-            {
-                Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
-                return null;
             }
             if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
