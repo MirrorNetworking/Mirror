@@ -117,7 +117,7 @@ namespace Mirror
                     // do this 2nd check inside first if so that we are not checking == twice on unity Object
                     if (netIdentityCache is null)
                     {
-                        logger.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
+                        Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                     }
                 }
                 return netIdentityCache;
