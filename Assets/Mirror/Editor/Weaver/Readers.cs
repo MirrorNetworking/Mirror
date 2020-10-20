@@ -27,10 +27,6 @@ namespace Mirror.Weaver
                 return foundFunc;
             }
 
-            // Arrays are special,  if we resolve them, we get teh element type,
-            // so the following ifs might choke on it for scriptable objects
-            // or other objects that require a custom serializer
-            // thus check if it is an array and skip all the checks.
             if (variableReference.IsArray)
             {
                 if (variableReference.IsMultidimensionalArray())
