@@ -1,3 +1,15 @@
+# [50.2.0](https://github.com/MirrorNG/MirrorNG/compare/v50.1.5...v50.2.0) (2020-10-20)
+
+
+### Bug Fixes
+
+* method access exception sending rpcs ([531e908](https://github.com/MirrorNG/MirrorNG/commit/531e908c95f8bd8f8ccc622f7314db4536932835))
+
+
+### Features
+
+* display user-friendly log with an unexpected messages. ([#417](https://github.com/MirrorNG/MirrorNG/issues/417)) ([7b78c29](https://github.com/MirrorNG/MirrorNG/commit/7b78c29309dd5f40c4981879e18facebf8fe7837))
+
 ## [50.1.5](https://github.com/MirrorNG/MirrorNG/compare/v50.1.4...v50.1.5) (2020-10-20)
 
 
