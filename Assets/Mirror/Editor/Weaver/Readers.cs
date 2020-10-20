@@ -43,6 +43,23 @@ namespace Mirror.Weaver
             }
 
             TypeDefinition variableDefinition = variableReference.Resolve();
+
+            if (variableDefinition.Is(typeof(ArraySegment<>)))
+            {
+                return GenerateArraySegmentReadFunc(variableReference);
+            }
+
+            if (variableDefinition.Is(typeof(List<>)))
+            {
+                var genericInstance = (GenericInstanceType)variableReference;
+                TypeReference elementType = genericInstance.GenericArguments[0];
+
+                return GenerateReadCollection(variableReference, elementType, nameof(NetworkReaderExtensions.ReadList));
+            }
+            if (variableDefinition.IsEnum)
+            {
+                return GenerateEnumReadFunc(variableReference);
+            }
             if (variableDefinition == null)
             {
                 Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
@@ -74,7 +91,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot pass type {variableReference.Name} by reference", variableReference);
                 return null;
             }
-            if (variableDefinition.HasGenericParameters && !variableDefinition.Is(typeof(ArraySegment<>)) && !variableDefinition.Is(typeof(List<>)))
+            if (variableDefinition.HasGenericParameters)
             {
                 Weaver.Error($"Cannot generate reader for generic variable {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
@@ -88,22 +105,6 @@ namespace Mirror.Weaver
             {
                 Weaver.Error($"Cannot generate reader for abstract class {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
-            }
-
-            if (variableDefinition.IsEnum)
-            {
-                return GenerateEnumReadFunc(variableReference);
-            }
-            else if (variableDefinition.Is(typeof(ArraySegment<>)))
-            {
-                return GenerateArraySegmentReadFunc(variableReference);
-            }
-            else if (variableDefinition.Is(typeof(List<>)))
-            {
-                var genericInstance = (GenericInstanceType)variableReference;
-                TypeReference elementType = genericInstance.GenericArguments[0];
-
-                return GenerateReadCollection(variableReference, elementType, nameof(NetworkReaderExtensions.ReadList));
             }
 
             return GenerateClassOrStructReadFunction(variableReference);
