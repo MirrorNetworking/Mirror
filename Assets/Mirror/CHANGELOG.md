@@ -1,3 +1,10 @@
+## [50.1.3](https://github.com/MirrorNG/MirrorNG/compare/v50.1.2...v50.1.3) (2020-10-20)
+
+
+### Bug Fixes
+
+* Multiplex transport exception ([#415](https://github.com/MirrorNG/MirrorNG/issues/415)) ([6534fbb](https://github.com/MirrorNG/MirrorNG/commit/6534fbb23d5d4e946ff9058cc84115d826e51672)), closes [#414](https://github.com/MirrorNG/MirrorNG/issues/414)
+
 ## [50.1.2](https://github.com/MirrorNG/MirrorNG/compare/v50.1.1...v50.1.2) (2020-10-19)
 
 
