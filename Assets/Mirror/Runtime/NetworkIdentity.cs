@@ -211,9 +211,7 @@ namespace Mirror
 
             internal set
             {
-                if (_connectionToClient != null)
-                    _connectionToClient.RemoveOwnedObject(this);
-
+                _connectionToClient?.RemoveOwnedObject(this);
                 _connectionToClient = value;
                 _connectionToClient?.AddOwnedObject(this);
             }
