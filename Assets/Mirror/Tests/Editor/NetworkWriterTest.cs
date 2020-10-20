@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -1148,6 +1149,29 @@ namespace Mirror.Tests
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadUri(), Is.EqualTo(testUri));
+        }
+
+        [Test]
+        public void TestList()
+        {
+            var original = new List<int>() { 1, 2, 3, 4, 5 };
+            var writer = new NetworkWriter();
+            writer.Write(original);
+
+            var reader = new NetworkReader(writer.ToArray());
+            var readList = reader.Read<List<int>>();
+            Assert.That(readList, Is.EqualTo(original));
+        }
+
+        [Test]
+        public void TestNullList()
+        {
+            var writer = new NetworkWriter();
+            writer.Write<List<int>>(null);
+
+            var reader = new NetworkReader(writer.ToArray());
+            var readList = reader.Read<List<int>>();
+            Assert.That(readList, Is.Null);
         }
     }
 }

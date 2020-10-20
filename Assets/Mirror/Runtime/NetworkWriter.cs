@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
@@ -556,6 +557,40 @@ namespace Mirror
         public static void WriteUri(this NetworkWriter writer, Uri uri)
         {
             writer.WriteString(uri.ToString());
+        }
+
+        public static void WriteList<T>(this NetworkWriter writer, List<T> list)
+        {
+            if (list is null)
+            {
+                writer.WritePackedInt32(-1);
+                return;
+            }
+            writer.WritePackedInt32(list.Count);
+            for (int i=0; i< list.Count; i++)
+                writer.Write(list[i]);
+        }
+
+        public static void WriteArray<T>(this NetworkWriter writer, T[] array)
+        {
+            if (array is null)
+            {
+                writer.WritePackedInt32(-1);
+                return;
+            }
+            writer.WritePackedInt32(array.Length);
+            for (int i = 0; i < array.Length; i++)
+                writer.Write(array[i]);
+        }
+
+        public static void WriteArraySegment<T>(this NetworkWriter writer, ArraySegment<T> segment)
+        {
+            int length = segment.Count;
+            writer.WritePackedInt32(length);
+            for (int i = 0; i< length; i++)
+            {
+                writer.Write(segment.Array[segment.Offset + i]);
+            }
         }
     }
 }
