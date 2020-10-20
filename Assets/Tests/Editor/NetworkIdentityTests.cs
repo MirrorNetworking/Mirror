@@ -234,12 +234,12 @@ namespace Mirror.Tests
 
             // assign a guid
             var guid2 = Guid.NewGuid();
-            var exception = Assert.Throws<InvalidOperationException>(() =>
+            InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() =>
             {
                identity.AssetId = guid2;
             });
 
-            Assert.That(exception.Message, Is.EqualTo($"Can not Set AssetId on NetworkIdentity '{identity.name}' becasue it already had an assetId, current assetId '{guid1.ToString("N")}', attempted new assetId '{guid2.ToString("N")}'"));
+            Assert.That(exception.Message, Is.EqualTo($"Can not Set AssetId on NetworkIdentity '{identity.name}' becasue it already had an assetId, current assetId '{guid1:N}', attempted new assetId '{guid2:N}'"));
             // guid was changed
             Assert.That(identity.AssetId, Is.EqualTo(guid1));
         }
@@ -252,12 +252,12 @@ namespace Mirror.Tests
 
             // assign a guid
             var guid2 = new Guid();
-            var exception = Assert.Throws<ArgumentException>(() =>
+            ArgumentException exception = Assert.Throws<ArgumentException>(() =>
             {
                 identity.AssetId = guid2;
             });
 
-            Assert.That(exception.Message, Is.EqualTo($"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1.ToString("N")}'"));
+            Assert.That(exception.Message, Is.EqualTo($"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1:N}'"));
             // guid was NOT changed
             Assert.That(identity.AssetId, Is.EqualTo(guid1));
         }
