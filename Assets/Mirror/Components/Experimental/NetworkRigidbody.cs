@@ -38,7 +38,7 @@ namespace Mirror.Experimental
         [SerializeField] float angularVelocitySensitivity = 0.1f;
 
         /// <summary>
-        /// Values sent on client with authoirty after they are sent to the server
+        /// Values sent on client with authority after they are sent to the server
         /// </summary>
         readonly ClientSyncState previousValue = new ClientSyncState();
 
@@ -157,7 +157,6 @@ namespace Mirror.Experimental
         /// <summary>
         /// Updates sync var values on server so that they sync to the client
         /// </summary>
-        [Server]
         void SyncToClients()
         {
             // only update if they have changed more than Sensitivity
@@ -190,7 +189,6 @@ namespace Mirror.Experimental
         /// <summary>
         /// Uses Command to send values to server
         /// </summary>
-        [Client]
         void SendToServer()
         {
             if (!hasAuthority)
@@ -203,7 +201,6 @@ namespace Mirror.Experimental
             SendRigidBodySettings();
         }
 
-        [Client]
         void SendVelocity()
         {
             float now = Time.time;
@@ -238,7 +235,6 @@ namespace Mirror.Experimental
             }
         }
 
-        [Client]
         void SendRigidBodySettings()
         {
             // These shouldn't change often so it is ok to send in their own Command
