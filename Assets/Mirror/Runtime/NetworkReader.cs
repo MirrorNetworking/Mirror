@@ -7,6 +7,7 @@
 //   now:
 //     0.0% CPU time,  32KB memory, 0.02ms
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -389,6 +390,32 @@ namespace Mirror
 
             if (logger.WarnEnabled()) logger.LogFormat(LogType.Warning, "ReadNetworkIdentity netId:{0} not found in spawned", netId);
             return null;
+        }
+
+        public static List<T> ReadList<T>(this NetworkReader reader)
+        {
+            int length = reader.ReadPackedInt32();
+            if (length < 0)
+                return null;
+            var result = new List<T>(length);
+            for (int i=0; i< length; i++)
+            {
+                result.Add(reader.Read<T>());
+            }
+            return result;
+        }
+
+        public static T[] ReadArray<T>(this NetworkReader reader)
+        {
+            int length = reader.ReadPackedInt32();
+            if (length < 0)
+                return null;
+            var result = new T[length];
+            for (int i = 0; i < length; i++)
+            {
+                result[i] = reader.Read<T>();
+            }
+            return result;
         }
 
         public static Uri ReadUri(this NetworkReader reader)
