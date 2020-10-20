@@ -16,6 +16,15 @@ namespace Mirror
 
     public abstract class Transport : MonoBehaviour
     {
+        [Flags]
+        public enum Delivery
+        {
+            // note reliable is 0, because all transports must support reliable
+            Reliable = 0,
+            Unreliable = 1,
+            Encryption = 2,
+            Compression = 4
+        }
         /// <summary>
         /// The current transport used by Mirror.
         /// </summary>
@@ -29,6 +38,8 @@ namespace Mirror
         /// </summary>
         /// <returns>True if this transport works in the current platform</returns>
         public abstract bool Available();
+
+        public virtual Delivery SupportedFeatures => Delivery.Reliable;
 
         #region Client
         /// <summary>
@@ -83,7 +94,7 @@ namespace Mirror
         /// as new channels</param>
         /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
         /// <returns>true if the send was successful</returns>
-        public abstract bool ClientSend(int channelId, ArraySegment<byte> segment);
+        public abstract bool ClientSend(Delivery features, ArraySegment<byte> segment);
 
         /// <summary>
         /// Disconnect this client from the server
@@ -146,7 +157,7 @@ namespace Mirror
         /// other features such as unreliable, encryption, compression, etc...</param>
         /// <param name="data"></param>
         /// <returns>true if the data was sent to all clients</returns>
-        public abstract bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment);
+        public abstract bool ServerSend(List<int> connectionIds, Delivery feature, ArraySegment<byte> segment);
 
         /// <summary>
         /// Disconnect a client from this server.  Useful to kick people out.
