@@ -83,11 +83,11 @@ namespace Mirror.KCP
             {
                 open = false;
                 dataAvailable?.TrySetResult();
-                Dispose();
+                Close();
             }
         }
 
-        protected virtual void Dispose()
+        protected virtual void Close()
         {
         }
 

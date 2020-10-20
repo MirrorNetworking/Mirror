@@ -61,7 +61,7 @@ namespace Mirror.KCP
             }
         }
 
-        protected override void Dispose()
+        protected override void Close()
         {
             socket.Close();
             socket = null;
