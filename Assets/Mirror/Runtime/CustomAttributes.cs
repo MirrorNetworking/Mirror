@@ -23,7 +23,7 @@ namespace Mirror
     public class ServerRpcAttribute : Attribute
     {
         // this is zero
-        public int channel = Channels.DefaultReliable;
+        public int channel = Channel.Reliable;
         public bool requireAuthority = true;
     }
 
@@ -37,7 +37,7 @@ namespace Mirror
     public class ClientRpcAttribute : Attribute
     {
         // this is zero
-        public int channel = Channels.DefaultReliable;
+        public int channel = Channel.Reliable;
         public Client target = Client.Observers;
         public bool excludeOwner;
     }

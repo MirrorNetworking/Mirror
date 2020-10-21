@@ -138,7 +138,7 @@ namespace Mirror.KCP
             }
         }
 
-        public UniTask SendAsync(ArraySegment<byte> data)
+        public UniTask SendAsync(ArraySegment<byte> data, int channel = Channel.Reliable)
         {
             kcp.Send(data.Array, data.Offset, data.Count);
             return UniTask.CompletedTask;
@@ -149,7 +149,7 @@ namespace Mirror.KCP
         /// </summary>
         /// <param name="buffer">buffer where the message will be written</param>
         /// <returns>true if we got a message, false if we got disconnected</returns>
-        public async UniTask<bool> ReceiveAsync(MemoryStream buffer)
+        public async UniTask<(bool next, int channel)> ReceiveAsync(MemoryStream buffer)
         {
             int msgSize = kcp.PeekSize();
 
@@ -164,7 +164,7 @@ namespace Mirror.KCP
             if (!open)
             {
                 Disconnected?.Invoke();
-                return false;
+                return (false, 0);
             }
 
             // we have some data,  return it
@@ -180,10 +180,10 @@ namespace Mirror.KCP
             {
                 open = false;
                 Disconnected?.Invoke();
-                return false;
+                return (false, 0);
             }
 
-            return true;
+            return (true, 0);
         }
 
         /// <summary>

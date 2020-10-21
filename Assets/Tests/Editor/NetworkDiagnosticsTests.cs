@@ -14,8 +14,8 @@ namespace Mirror.Tests
             NetworkDiagnostics.OutMessageEvent += outMessageCallback;
 
             var message = new TestMessage();
-            NetworkDiagnostics.OnSend(message, Channels.DefaultReliable, 10, 5);
-            var expected = new NetworkDiagnostics.MessageInfo(message, Channels.DefaultReliable, 10, 5);
+            NetworkDiagnostics.OnSend(message, Channel.Reliable, 10, 5);
+            var expected = new NetworkDiagnostics.MessageInfo(message, Channel.Reliable, 10, 5);
             outMessageCallback.Received(1).Invoke(Arg.Is(expected));
 
             NetworkDiagnostics.OutMessageEvent -= outMessageCallback;
@@ -28,7 +28,7 @@ namespace Mirror.Tests
             NetworkDiagnostics.OutMessageEvent += outMessageCallback;
 
             var message = new TestMessage();
-            NetworkDiagnostics.OnSend(message, Channels.DefaultReliable, 10, 0);
+            NetworkDiagnostics.OnSend(message, Channel.Reliable, 10, 0);
             outMessageCallback.DidNotReceive();
 
             NetworkDiagnostics.OutMessageEvent -= outMessageCallback;
@@ -41,8 +41,8 @@ namespace Mirror.Tests
             NetworkDiagnostics.InMessageEvent += outMessageCallback;
 
             var message = new TestMessage();
-            NetworkDiagnostics.OnReceive(message, Channels.DefaultReliable, 10);
-            var expected = new NetworkDiagnostics.MessageInfo(message, Channels.DefaultReliable, 10, 1);
+            NetworkDiagnostics.OnReceive(message, Channel.Reliable, 10);
+            var expected = new NetworkDiagnostics.MessageInfo(message, Channel.Reliable, 10, 1);
             outMessageCallback.Received(1).Invoke(Arg.Is(expected));
 
             NetworkDiagnostics.InMessageEvent -= outMessageCallback;

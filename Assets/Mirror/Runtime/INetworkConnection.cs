@@ -17,9 +17,9 @@ namespace Mirror
 
         void ClearHandlers();
 
-        void Send<T>(T msg, int channelId = Channels.DefaultReliable);
+        void Send<T>(T msg, int channelId = Channel.Reliable);
 
-        UniTask SendAsync<T>(T msg, int channelId = Channels.DefaultReliable);
+        UniTask SendAsync<T>(T msg, int channelId = Channel.Reliable);
 
         UniTask ProcessMessagesAsync();
 

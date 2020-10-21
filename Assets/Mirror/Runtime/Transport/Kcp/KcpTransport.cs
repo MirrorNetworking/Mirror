@@ -20,7 +20,7 @@ namespace Mirror.KCP
 
         public KcpDelayMode delayMode = KcpDelayMode.Normal;
         internal readonly Dictionary<IPEndPoint, KcpServerConnection> connectedClients = new Dictionary<IPEndPoint, KcpServerConnection>(new IPEndpointComparer());
-        readonly Channel<KcpServerConnection> acceptedConnections = Channel.CreateSingleConsumerUnbounded<KcpServerConnection>();
+        readonly Channel<KcpServerConnection> acceptedConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<KcpServerConnection>();
 
         public override IEnumerable<string> Scheme => new[] { "kcp" };
 

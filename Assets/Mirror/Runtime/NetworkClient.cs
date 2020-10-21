@@ -273,12 +273,12 @@ namespace Mirror
         /// <param name="message"></param>
         /// <param name="channelId"></param>
         /// <returns>True if message was sent.</returns>
-        public UniTask SendAsync<T>(T message, int channelId = Channels.DefaultReliable)
+        public UniTask SendAsync<T>(T message, int channelId = Channel.Reliable)
         {
             return Connection.SendAsync(message, channelId);
         }
 
-        public void Send<T>(T message, int channelId = Channels.DefaultReliable)
+        public void Send<T>(T message, int channelId = Channel.Reliable)
         {
             Connection.SendAsync(message, channelId).Forget();
         }

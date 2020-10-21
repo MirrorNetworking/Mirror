@@ -73,7 +73,7 @@ namespace Mirror.Tests
 
             var stream = new MemoryStream();
 
-            Assert.That(await serverConnection.ReceiveAsync(stream), Is.True);
+            Assert.That((await serverConnection.ReceiveAsync(stream)).next, Is.True);
             byte[] received = stream.ToArray();
             Assert.That(received, Is.EqualTo(data));
         });
@@ -112,12 +112,12 @@ namespace Mirror.Tests
 
             var stream = new MemoryStream();
 
-            Assert.That(await serverConnection.ReceiveAsync(stream), Is.True);
+            Assert.That((await serverConnection.ReceiveAsync(stream)).next, Is.True);
             byte[] received = stream.ToArray();
             Assert.That(received, Is.EqualTo(data));
 
             stream.SetLength(0);
-            Assert.That(await serverConnection.ReceiveAsync(stream), Is.True);
+            Assert.That((await serverConnection.ReceiveAsync(stream)).next, Is.True);
             byte[] received2 = stream.ToArray();
             Assert.That(received2, Is.EqualTo(data2));
         });
@@ -132,7 +132,7 @@ namespace Mirror.Tests
 
             var stream = new MemoryStream();
 
-            Assert.That(await clientConnection.ReceiveAsync(stream), Is.True);
+            Assert.That((await clientConnection.ReceiveAsync(stream)).next, Is.True);
             byte[] received = stream.ToArray();
             Assert.That(received, Is.EqualTo(data));
         });
@@ -143,7 +143,7 @@ namespace Mirror.Tests
             serverConnection.Disconnect();
 
             var stream = new MemoryStream();
-            Assert.That(await clientConnection.ReceiveAsync(stream), Is.False);
+            Assert.That((await clientConnection.ReceiveAsync(stream)).next, Is.False);
         });
 
         [UnityTest]
@@ -152,7 +152,7 @@ namespace Mirror.Tests
             clientConnection.Disconnect();
 
             var stream = new MemoryStream();
-            Assert.That(await serverConnection.ReceiveAsync(stream), Is.False);
+            Assert.That((await serverConnection.ReceiveAsync(stream)).next, Is.False);
         });
 
         [UnityTest]
@@ -161,7 +161,7 @@ namespace Mirror.Tests
             clientConnection.Disconnect();
 
             var stream = new MemoryStream();
-            Assert.That(await clientConnection.ReceiveAsync(stream), Is.False);
+            Assert.That((await clientConnection.ReceiveAsync(stream)).next, Is.False);
         });
 
         [Test]

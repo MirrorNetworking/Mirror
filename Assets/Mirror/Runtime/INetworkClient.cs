@@ -35,8 +35,8 @@ namespace Mirror
     {
         void Disconnect();
 
-        void Send<T>(T message, int channelId = Channels.DefaultReliable);
+        void Send<T>(T message, int channelId = Channel.Reliable);
 
-        UniTask SendAsync<T>(T message, int channelId = Channels.DefaultReliable);
+        UniTask SendAsync<T>(T message, int channelId = Channel.Reliable);
     }
 }

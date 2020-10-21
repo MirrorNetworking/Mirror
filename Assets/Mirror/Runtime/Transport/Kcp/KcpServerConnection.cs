@@ -25,7 +25,7 @@ namespace Mirror.KCP
             // this first message is the one that contains the Hashcash,
             // but we don't care,  we already validated it before creating
             // the connection
-            if (!await ReceiveAsync(stream))
+            if (!(await ReceiveAsync(stream)).next)
             {
                 throw new OperationCanceledException("Unable to establish connection, no Handshake message received.");
             }

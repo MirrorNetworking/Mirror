@@ -111,7 +111,7 @@ namespace Mirror.Tests
             serverConnection.Disconnect();
 
             var buffer = new MemoryStream();
-            bool more = await clientConnection.ReceiveAsync(buffer);
+            bool more = (await clientConnection.ReceiveAsync(buffer)).next;
 
             Assert.That(more, Is.False, "Receive should return false when the connection is disconnected");
         });
@@ -122,7 +122,7 @@ namespace Mirror.Tests
             clientConnection.Disconnect();
 
             var buffer = new MemoryStream();
-            bool more = await serverConnection.ReceiveAsync(buffer);
+            bool more = (await serverConnection.ReceiveAsync(buffer)).next;
 
             Assert.That(more, Is.False, "Receive should return false when the connection is disconnected");
         });
@@ -131,7 +131,7 @@ namespace Mirror.Tests
         public IEnumerator DisconnectServerFromIdle() => UniTask.ToCoroutine(async () =>
         {
             var buffer = new MemoryStream();
-            bool more = await serverConnection.ReceiveAsync(buffer);
+            bool more = (await serverConnection.ReceiveAsync(buffer)).next;
 
             Assert.That(more, Is.False, "After some time of no activity, the server should disconnect");
         });
@@ -141,7 +141,7 @@ namespace Mirror.Tests
         {
             // after certain amount of time with no messages, it should disconnect
             var buffer = new MemoryStream();
-            bool more = await clientConnection.ReceiveAsync(buffer);
+            bool more = (await clientConnection.ReceiveAsync(buffer)).next;
 
             Assert.That(more, Is.False, "After some time of no activity, the client should disconnect");
         });
@@ -167,7 +167,7 @@ namespace Mirror.Tests
             serverConnection.Disconnect();
 
             var buffer = new MemoryStream();
-            while (await serverConnection.ReceiveAsync(buffer))
+            while ((await serverConnection.ReceiveAsync(buffer)).next)
             {
                 // just keep waiting until no more messages are received
             }

@@ -7,14 +7,14 @@ namespace Mirror.Tests
 
     public class MockTransport : Transport
     {
-        public readonly Channel<IConnection> AcceptConnections = Channel.CreateSingleConsumerUnbounded<IConnection>();
+        public readonly Channel<IConnection> AcceptConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<IConnection>();
 
         public override UniTask<IConnection> AcceptAsync()
         {
             return AcceptConnections.Reader.ReadAsync();
         }
 
-        public readonly Channel<IConnection> ConnectConnections = Channel.CreateSingleConsumerUnbounded<IConnection>();
+        public readonly Channel<IConnection> ConnectConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<IConnection>();
 
         public override IEnumerable<string> Scheme => new []{"tcp4"};
 

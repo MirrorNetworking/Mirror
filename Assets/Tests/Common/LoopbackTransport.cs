@@ -8,7 +8,7 @@ namespace Mirror.Tests
 
     public class LoopbackTransport : Transport
     {
-        public readonly Channel<IConnection> AcceptConnections = Channel.CreateSingleConsumerUnbounded<IConnection>();
+        public readonly Channel<IConnection> AcceptConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<IConnection>();
 
         public override async UniTask<IConnection> AcceptAsync()
         {

@@ -18,7 +18,7 @@ namespace Mirror.Tcp
         }
 
         #region Receiving
-        public async UniTask<bool> ReceiveAsync(MemoryStream buffer)
+        public async UniTask<(bool next, int channel)> ReceiveAsync(MemoryStream buffer)
         {
             buffer.SetLength(0);
             long position = buffer.Position;
@@ -26,7 +26,7 @@ namespace Mirror.Tcp
             { 
                 // read message size
                 if (!await ReadExactlyAsync(stream, buffer, 4))
-                    return false;
+                    return (false, 0);
 
                 // rewind so that we read it
                 buffer.Position = position;
@@ -36,11 +36,12 @@ namespace Mirror.Tcp
                 // now read the message
                 buffer.Position = position;
 
-                return await ReadExactlyAsync(stream, buffer, length);
+                bool next = await ReadExactlyAsync(stream, buffer, length);
+                return (next, 0);
             }
             catch (ObjectDisposedException)
             {
-                return false;
+                return (false, 0);
             }
         }
 
@@ -96,7 +97,7 @@ namespace Mirror.Tcp
         #endregion
 
         #region Sending
-        public async UniTask SendAsync(ArraySegment<byte> data)
+        public async UniTask SendAsync(ArraySegment<byte> data, int channel = Channel.Reliable)
         {
             try
             {

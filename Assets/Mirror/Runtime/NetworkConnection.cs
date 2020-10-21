@@ -177,7 +177,7 @@ namespace Mirror
         /// <param name="msg">The message to send</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual void Send<T>(T msg, int channelId = Channels.DefaultReliable)
+        public virtual void Send<T>(T msg, int channelId = Channel.Reliable)
         {
             SendAsync(msg, channelId).Forget();
         }
@@ -189,7 +189,7 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual UniTask SendAsync<T>(T msg, int channelId = Channels.DefaultReliable)
+        public virtual UniTask SendAsync<T>(T msg, int channelId = Channel.Reliable)
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
@@ -200,7 +200,7 @@ namespace Mirror
             }
         }
 
-        public static void Send<T>(IEnumerable<INetworkConnection> connections, T msg, int channelId = Channels.DefaultReliable)
+        public static void Send<T>(IEnumerable<INetworkConnection> connections, T msg, int channelId = Channel.Reliable)
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
@@ -229,9 +229,9 @@ namespace Mirror
         
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal virtual UniTask SendAsync(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal virtual UniTask SendAsync(ArraySegment<byte> segment, int channelId = Channel.Reliable)
         {
-            return connection.SendAsync(segment);
+            return connection.SendAsync(segment, channelId);
         }
 
         public override string ToString()
@@ -347,10 +347,13 @@ namespace Mirror
         {
             var buffer = new MemoryStream();
 
-            while (await connection.ReceiveAsync(buffer))
-            {
+            (bool next, int channel) = await connection.ReceiveAsync(buffer);
+
+            while (next) { 
                 buffer.TryGetBuffer(out ArraySegment<byte> data);
-                TransportReceive(data, Channels.DefaultReliable);
+                TransportReceive(data, channel);
+
+                (next, channel) = await connection.ReceiveAsync(buffer);
             }
         }
     }

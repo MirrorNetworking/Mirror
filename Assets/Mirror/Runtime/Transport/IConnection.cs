@@ -5,16 +5,26 @@ using Cysharp.Threading.Tasks;
 
 namespace Mirror
 {
+
+    public static class Channel
+    {
+        // 2 well known channels
+        // transports can implement other channels
+        // to expose their features
+        public const int Reliable = 0;
+        public const int Unreliable = 1;
+    }
+
     public interface IConnection
     {
-        UniTask SendAsync(ArraySegment<byte> data);
+        UniTask SendAsync(ArraySegment<byte> data, int channel = Channel.Reliable);
 
         /// <summary>
         /// reads a message from connection
         /// </summary>
         /// <param name="buffer">buffer where the message will be written</param>
         /// <returns>true if we got a message, false if we got disconnected</returns>
-        UniTask<bool> ReceiveAsync(MemoryStream buffer);
+        UniTask<(bool next, int channel)> ReceiveAsync(MemoryStream buffer);
 
         /// <summary>
         /// Disconnect this connection
@@ -28,10 +38,5 @@ namespace Mirror
         /// </summary>
         /// <returns></returns>
         EndPoint GetEndPointAddress();
-    }
-
-    public interface IChannelConnection : IConnection
-    {
-        UniTask SendAsync(ArraySegment<byte> data, int channel);
     }
 }

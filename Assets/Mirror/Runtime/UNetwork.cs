@@ -24,12 +24,6 @@ namespace Mirror
         Current = 1
     }
 
-    public static class Channels
-    {
-        public const int DefaultReliable = 0;
-        public const int DefaultUnreliable = 1;
-    }
-
     // -- helpers for float conversion without allocations --
     [StructLayout(LayoutKind.Explicit)]
     internal struct UIntFloat

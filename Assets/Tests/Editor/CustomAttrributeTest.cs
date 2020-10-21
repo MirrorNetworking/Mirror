@@ -21,11 +21,11 @@ namespace Mirror.Tests
         {
             var attrib = new ServerRpcAttribute();
 
-            Assert.That(attrib.channel == Channels.DefaultReliable);
+            Assert.That(attrib.channel == Channel.Reliable);
 
-            attrib.channel = Channels.DefaultUnreliable;
+            attrib.channel = Channel.Unreliable;
 
-            Assert.That(attrib.channel == Channels.DefaultUnreliable);
+            Assert.That(attrib.channel == Channel.Unreliable);
         }
 
         [Test]
@@ -33,11 +33,11 @@ namespace Mirror.Tests
         {
             var attrib = new ClientRpcAttribute();
 
-            Assert.That(attrib.channel == Channels.DefaultReliable);
+            Assert.That(attrib.channel == Channel.Reliable);
 
-            attrib.channel = Channels.DefaultUnreliable;
+            attrib.channel = Channel.Unreliable;
 
-            Assert.That(attrib.channel == Channels.DefaultUnreliable);
+            Assert.That(attrib.channel == Channel.Unreliable);
         }
     }
 }

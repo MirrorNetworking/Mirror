@@ -52,8 +52,8 @@ namespace Mirror
 
         // technically not an IPEndpoint,  will fix later
         public EndPoint GetEndPointAddress() => new IPEndPoint(IPAddress.Loopback, 0);
-
-        public async UniTask<bool> ReceiveAsync(MemoryStream buffer)
+        
+        public async UniTask<(bool next, int channel)> ReceiveAsync(MemoryStream buffer)
         {
             // wait for a message
             await MessageCount.WaitAsync();
@@ -64,7 +64,7 @@ namespace Mirror
             ArraySegment<byte> data = reader.ReadBytesAndSizeSegment();
 
             if (data.Count == 0)
-                return false;
+                return (false, 0);
 
             buffer.SetLength(0);
             buffer.Write(data.Array, data.Offset, data.Count);
@@ -76,10 +76,10 @@ namespace Mirror
                 reader.Position = 0;
             }
 
-            return true;
+            return (true, 0);
         }
 
-        public UniTask SendAsync(ArraySegment<byte> data)
+        public UniTask SendAsync(ArraySegment<byte> data, int channel = Channel.Reliable)
         {
             // add some data to the writer in the connected connection
             // and increase the message count
