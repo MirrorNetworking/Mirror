@@ -10,7 +10,6 @@ using Object = UnityEngine.Object;
 using UnityEngine.Events;
 
 using static Mirror.Tests.LocalConnections;
-using System.IO;
 
 namespace Mirror.Tests
 {
@@ -653,7 +652,7 @@ namespace Mirror.Tests
 
             // deserialize all
             var reader = new NetworkReader(ownerWriter.ToArray());
-            Assert.Throws<InvalidDataException>(() =>
+            Assert.Throws<InvalidMessageException>(() =>
             {
                 identity.OnDeserializeAllSafely(reader, true);
             });
