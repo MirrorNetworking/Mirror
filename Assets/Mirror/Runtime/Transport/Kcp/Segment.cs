@@ -27,10 +27,7 @@ namespace Mirror.KCP
         public static Segment Lease()
         {
             if (msSegmentPool.Count > 0)
-            {
-                Segment buffer =  msSegmentPool.Pop();
-                return buffer;
-            }
+                return msSegmentPool.Pop();
             return new Segment();
         }
 
