@@ -1,5 +1,5 @@
-Mirror is a MMO Scale Networking library for Unity, used in uMMORPG, uSurvival
-and several MMO projects in development.
+Mirror is a high level Networking library for Unity, compatible with different low level 
+transports (see https://github.com/vis2k/Mirror#low-level-transports).
 
 *** IMPORTANT -- You must restart Unity after importing Mirror for the Components Menu to update! ***
 
