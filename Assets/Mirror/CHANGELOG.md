@@ -1,3 +1,13 @@
+# [51.0.0](https://github.com/MirrorNG/MirrorNG/compare/v50.2.0...v51.0.0) (2020-10-21)
+
+
+* Transport api can now send messages in channels (#419) ([9a2690e](https://github.com/MirrorNG/MirrorNG/commit/9a2690e31c6dee354254bd4c659975d900c18423)), closes [#419](https://github.com/MirrorNG/MirrorNG/issues/419)
+
+
+### BREAKING CHANGES
+
+* Transports now receive and return channels
+
 # [50.2.0](https://github.com/MirrorNG/MirrorNG/compare/v50.1.5...v50.2.0) (2020-10-20)
 
 
