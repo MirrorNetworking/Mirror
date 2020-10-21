@@ -226,10 +226,7 @@ public class #SCRIPTNAME# : NetworkManager
     /// <summary>
     /// This is invoked when the client is started.
     /// </summary>
-    public override void OnStartClient()
-    {
-        base.OnStartClient();
-    }
+    public override void OnStartClient() { }
 
     /// <summary>
     /// This is called when a host is stopped.

@@ -45,7 +45,7 @@ public class #SCRIPTNAME# : NetworkBehaviour
     /// <summary>
     /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see>.
     /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and before <see cref="OnStartClient">OnStartClient.</see></para>
-    /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
+    /// <para>When <see cref="NetworkIdentity.AssignClientAuthority">AssignClientAuthority</see> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
     /// </summary>
     public override void OnStartAuthority() { }
 
@@ -54,6 +54,27 @@ public class #SCRIPTNAME# : NetworkBehaviour
     /// <para>When NetworkIdentity.RemoveClientAuthority is called on the server, this will be called on the client that owns the object.</para>
     /// </summary>
     public override void OnStopAuthority() { }
+
+    #endregion
+
+    #region Serialization
+
+    public override bool OnSerialize(NetworkWriter writer, bool initialState)
+    {
+        return base.OnSerialize(writer, initialState);
+    }
+
+    public override bool OnDeserialize(NetworkReader reader, bool initialState)
+    {
+        return base.OnDeserialize(reader, initialState);
+    }
+
+    public override bool SerializeSyncVars(NetworkWriter writer, bool initialState)
+    {
+        return base.SerializeSyncVars(writer, initialState);
+    }
+
+    public override void DeserializeSyncVars(NetworkReader reader, bool initialState) { }
 
     #endregion
 }
