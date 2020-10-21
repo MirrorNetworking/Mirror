@@ -13,6 +13,7 @@ namespace Mirror.Tests
         private NetworkClient client;
         private NetworkServer server;
         private PlayerSpawner spawner;
+        private NetworkSceneManager sceneManager;
         private GameObject playerPrefab;
 
         private Transform pos1;
@@ -25,6 +26,10 @@ namespace Mirror.Tests
             client = go.AddComponent<NetworkClient>();
             server = go.AddComponent<NetworkServer>();
             spawner = go.AddComponent<PlayerSpawner>();
+            sceneManager = go.AddComponent<NetworkSceneManager>();
+            spawner.sceneManager = sceneManager;
+            sceneManager.client = client;
+            sceneManager.server = server;
             spawner.client = client;
             spawner.server = server;
 

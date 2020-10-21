@@ -1865,7 +1865,7 @@ MonoBehaviour:
   server: {fileID: 1661834283}
   client: {fileID: 1661834282}
   subScenes:
-  - Assets/Mirror/Examples/AdditiveScenes/Scenes/SubScene.unity
+  - Assets/Examples/AdditiveScenes/Scenes/SubScene.unity
 --- !u!4 &1661834279
 Transform:
   m_ObjectHideFlags: 0
@@ -2028,6 +2028,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Port: 7777
   HashCashBits: 18
+  delayMode: 0
 --- !u!1 &1727677796
 GameObject:
   m_ObjectHideFlags: 0
@@ -3756,7 +3757,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkManager: {fileID: 0}
+  NetworkManager: {fileID: 1661834278}
   NetworkAddress: localhost
   NetworkAddressInput: {fileID: 476531300335670375}
   OfflineGO: {fileID: 476531300067055612}

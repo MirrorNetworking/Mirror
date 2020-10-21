@@ -50,7 +50,7 @@ namespace Mirror
         /// <para>This is used to make sure that all scene changes are initialized by Mirror.</para>
         /// <para>Loading a scene manually wont set networkSceneName, so Mirror would still load it again on start.</para>
         /// </remarks>
-        public string NetworkSceneName { get; protected set; } = "";
+        public string NetworkSceneName => SceneManager.GetActiveScene().path;
 
         internal AsyncOperation asyncOperation;
 
@@ -69,25 +69,23 @@ namespace Mirror
             }
         }
 
-        public virtual void LateUpdate() { } //TODO: Remove/move this as its only used in BenchmarkNetworkManager
-
         #region Client
 
         void RegisterClientMessages(INetworkConnection connection)
         {
-            connection.RegisterHandler<NotReadyMessage>(ClientNotReadyMessage);
             connection.RegisterHandler<SceneMessage>(ClientSceneMessage);
-            connection.RegisterHandler<SceneReadyMessage>(ClientSceneReadyMessage);
+            if (!client.IsLocalClient)
+            {
+                connection.RegisterHandler<SceneReadyMessage>(ClientSceneReadyMessage);
+                connection.RegisterHandler<NotReadyMessage>(ClientNotReadyMessage);
+            }
         }
 
         // called after successful authentication
         void OnClientAuthenticated(INetworkConnection conn)
         {
-            //Dont register msg handlers in host mode
-            if (!client.IsLocalClient)
-                RegisterClientMessages(conn);
-
             logger.Log("NetworkSceneManager.OnClientAuthenticated");
+            RegisterClientMessages(conn);
         }
 
         void OnClientDisconnected()
@@ -102,12 +100,6 @@ namespace Mirror
             {
                 throw new InvalidOperationException("ClientSceneMessage: cannot change network scene while client is disconnected");
             }
-
-            if (client.IsLocalClient)
-            {
-                throw new InvalidOperationException("ClientSceneMessage: cannot change client network scene while operating in host mode");
-            }
-
             if (string.IsNullOrEmpty(msg.sceneName))
             {
                 throw new ArgumentNullException(msg.sceneName, "ClientSceneMessage: " + msg.sceneName + " cannot be empty or null");
@@ -126,7 +118,8 @@ namespace Mirror
             logger.Log("ClientSceneReadyMessage");
 
             //Server has finished changing scene. Allow the client to finish.
-            asyncOperation.allowSceneActivation = true;
+            if(asyncOperation != null)
+                asyncOperation.allowSceneActivation = true;
         }
 
         internal void ClientNotReadyMessage(INetworkConnection conn, NotReadyMessage msg)
@@ -170,9 +163,6 @@ namespace Mirror
             if (!client || !client.Active)
                 throw new InvalidOperationException("Ready() called with an null or disconnected client");
 
-            if (client.Connection.IsReady)
-                throw new InvalidOperationException("A connection has already been set as ready. There can only be one.");
-
             if (logger.LogEnabled()) logger.Log("ClientScene.Ready() called.");
 
             // Set these before sending the ReadyMessage, otherwise host client
@@ -192,8 +182,8 @@ namespace Mirror
         {
             logger.Log("NetworkSceneManager.OnServerAuthenticated");
 
-            if (!string.IsNullOrEmpty(NetworkSceneName))
-                conn.Send(new SceneMessage { sceneName = NetworkSceneName });
+            conn.Send(new SceneMessage { sceneName = NetworkSceneName });
+            conn.Send(new SceneReadyMessage());
         }
 
         /// <summary>
@@ -249,21 +239,33 @@ namespace Mirror
             switch (sceneOperation)
             {
                 case SceneOperation.Normal:
-                    NetworkSceneName = sceneName;
-                    asyncOperation = SceneManager.LoadSceneAsync(sceneName);
-
-                    //If non host client. Wait for server to finish scene change
-                    if(client && client.Active && !client.IsLocalClient)
+                    //Scene is already active.
+                    if (NetworkSceneName.Equals(sceneName))
                     {
-                        asyncOperation.allowSceneActivation = false;
+                        FinishLoadScene(sceneName, sceneOperation);
                     }
+                    else
+                    {
+                        asyncOperation = SceneManager.LoadSceneAsync(sceneName);
+                        asyncOperation.completed += OnAsyncComplete;
 
-                    yield return asyncOperation;
+                        //If non host client. Wait for server to finish scene change
+                        if (client && client.Active && !client.IsLocalClient)
+                        {
+                            asyncOperation.allowSceneActivation = false;
+                        }
+
+                        yield return asyncOperation;
+                    }
+                    
                     break;
                 case SceneOperation.LoadAdditive:
                     // Ensure additive scene is not already loaded since we don't know which was passed in the Scene message
                     if (!SceneManager.GetSceneByName(sceneName).IsValid() && !SceneManager.GetSceneByPath(sceneName).IsValid())
+                    {
                         yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+                        FinishLoadScene(sceneName, sceneOperation);
+                    }   
                     else
                     {
                         logger.LogWarning($"Scene {sceneName} is already loaded");
@@ -272,15 +274,22 @@ namespace Mirror
                 case SceneOperation.UnloadAdditive:
                     // Ensure additive scene is actually loaded since we don't know which was passed in the Scene message
                     if (SceneManager.GetSceneByName(sceneName).IsValid() || SceneManager.GetSceneByPath(sceneName).IsValid())
+                    {
                         yield return SceneManager.UnloadSceneAsync(sceneName, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+                        FinishLoadScene(sceneName, sceneOperation);
+                    }
                     else
                     {
                         logger.LogWarning($"Cannot unload {sceneName} with UnloadAdditive operation");
                     }
                     break;
             }
+        }
 
-            FinishLoadScene(sceneName, sceneOperation);
+        void OnAsyncComplete(AsyncOperation asyncOperation)
+        {
+            //This is only called in a normal scene change
+            FinishLoadScene(NetworkSceneName, SceneOperation.Normal);
         }
 
         internal void FinishLoadScene(string sceneName, SceneOperation sceneOperation)
@@ -289,11 +298,6 @@ namespace Mirror
             if (client && client.IsLocalClient)
             {
                 logger.Log("Finished loading scene in host mode.");
-
-                if (client.Connection != null && sceneOperation == SceneOperation.Normal)
-                {
-                    client.OnAuthenticated(client.Connection);
-                }
 
                 // server scene was loaded. now spawn all the objects
                 server.ActivateHostScene();
@@ -316,14 +320,9 @@ namespace Mirror
                 OnServerSceneChanged(sceneName, sceneOperation);
             }
             // client-only mode?
-            else if (client && client.Active)
+            else if (client && client.Active && !client.IsLocalClient)
             {
                 logger.Log("Finished loading scene in client-only mode.");
-
-                if (client.Connection != null && sceneOperation == SceneOperation.Normal)
-                {
-                    client.OnAuthenticated(client.Connection);
-                }
 
                 client.PrepareToSpawnSceneObjects();
 

@@ -77,8 +77,8 @@ namespace Mirror.Tests
             Assert.That(readyComp.IsReady, Is.False);
         }
 
-        [Test]
-        public void ClientReadyTest()
+        [UnityTest]
+        public IEnumerator ClientReadyTest() => UniTask.ToCoroutine(async () =>
         {
             readyPlayer = new GameObject();
             readyPlayer.AddComponent<NetworkIdentity>();
@@ -87,7 +87,7 @@ namespace Mirror.Tests
             server.Spawn(readyPlayer, server.LocalConnection);
             readyComp.Ready();
 
-            Assert.That(readyComp.IsReady, Is.False);
-        }
+            await AsyncUtil.WaitUntilWithTimeout(() => readyComp.IsReady);
+        });
     }
 }
