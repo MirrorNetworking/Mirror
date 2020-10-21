@@ -35,23 +35,23 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when when this client establish a successful connection to the server
         /// </summary>
-        [HideInInspector] public UnityEvent OnClientConnected { get; } = new UnityEvent();
+        [HideInInspector] public UnityEvent OnClientConnected = new UnityEvent();
 
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// </summary>
         // Note: we provide channelId for NetworkDiagnostics.
-        [HideInInspector] public ClientDataReceivedEvent OnClientDataReceived { get; } = new ClientDataReceivedEvent();
+        [HideInInspector] public ClientDataReceivedEvent OnClientDataReceived = new ClientDataReceivedEvent();
 
         /// <summary>
         /// Notify subscribers when this client encounters an error communicating with the server
         /// </summary>
-        [HideInInspector] public UnityEventException OnClientError { get; } = new UnityEventException();
+        [HideInInspector] public UnityEventException OnClientError = new UnityEventException();
 
         /// <summary>
         /// Notify subscribers when this client disconnects from the server
         /// </summary>
-        [HideInInspector] public UnityEvent OnClientDisconnected { get; } = new UnityEvent();
+        [HideInInspector] public UnityEvent OnClientDisconnected = new UnityEvent();
 
         /// <summary>
         /// Determines if we are currently connected to the server
@@ -106,23 +106,23 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when a client connects to this server
         /// </summary>
-        [HideInInspector] public UnityEventInt OnServerConnected { get; } = new UnityEventInt();
+        [HideInInspector] public UnityEventInt OnServerConnected = new UnityEventInt();
 
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// </summary>
         // Note: we provide channelId for NetworkDiagnostics.
-        [HideInInspector] public ServerDataReceivedEvent OnServerDataReceived { get; } = new ServerDataReceivedEvent();
+        [HideInInspector] public ServerDataReceivedEvent OnServerDataReceived = new ServerDataReceivedEvent();
 
         /// <summary>
         /// Notify subscribers when this server has some problem communicating with the client
         /// </summary>
-        [HideInInspector] public UnityEventIntException OnServerError { get; } = new UnityEventIntException();
+        [HideInInspector] public UnityEventIntException OnServerError = new UnityEventIntException();
 
         /// <summary>
         /// Notify subscribers when a client disconnects from this server
         /// </summary>
-        [HideInInspector] public UnityEventInt OnServerDisconnected { get; } = new UnityEventInt();
+        [HideInInspector] public UnityEventInt OnServerDisconnected = new UnityEventInt();
 
         /// <summary>
         /// Determines if the server is up and running
