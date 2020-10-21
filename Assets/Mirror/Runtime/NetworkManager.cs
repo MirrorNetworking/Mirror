@@ -723,8 +723,9 @@ namespace Mirror
 
             // set active transport AFTER setting singleton.
             // so only if we didn't destroy ourselves.
-            ActiveTransport.client = transport;
-            ActiveTransport.server = transport;
+            ActiveTransport.client = new ClientOldTransportWrapper(transport);
+            ActiveTransport.server = new ServerOldTransportWrapper(transport);
+            Transport.activeTransport = transport;
 
             return true;
         }
