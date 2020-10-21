@@ -14,9 +14,9 @@
 ## Mirror
 Mirror is a **high level** Networking library for Unity, compatible with different **low level** [Transports](https://github.com/vis2k/Mirror#low-level-transports).
 
-It provides a optimized and performant networking library which can be used in a variety of online game genres while focusing on **ease of use** and **probability of success** for developers.
+Led by the developer of [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-components-edition-159401), Mirror provides a optimized and performant networking library which can be used in a variety of online game genres while focusing on **ease of use** and **probability of success** for developers.
 
-Curious to know what Mirror can do? Check out what Mirror powers in our **[showcase](https://mirror-networking.com/showcase/)**. From simple games to Virtual Reality, Mirror can do it.
+Curious to know what Mirror can do? Check out what Mirror powers in our **[showcase](https://mirror-networking.com/showcase/)**. From simple games to Virtual Reality, Mirror power your creations' networking needs.
 
 ## Architecture
 The **Server & Client** are **ONE project** in order to achieve an order of magnitude gain in productivity.
