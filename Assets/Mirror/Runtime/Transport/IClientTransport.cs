@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -52,6 +53,10 @@ namespace Mirror
         public bool IsConnected() => inner.ClientConnected();
         public bool Send(int channelId, ArraySegment<byte> segment) => inner.ClientSend(channelId, segment);
         public void Shutdown() => inner.Shutdown();
-    }
 
+        void ICommonTransport.CheckForEvents()
+        {
+            Debug.LogWarning("Not Supported: Old transports dont have a way to check for events on demand");
+        }
+    }
 }

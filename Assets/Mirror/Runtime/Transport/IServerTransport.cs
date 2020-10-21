@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -58,7 +59,10 @@ namespace Mirror
         public void Start() => inner.ServerStart();
         public void Stop() => inner.ServerStop();
         public Uri Uri() => inner.ServerUri();
+
+        void ICommonTransport.CheckForEvents()
+        {
+            Debug.LogWarning("Not Supported: Old transports dont have a way to check for events on demand");
+        }
     }
-
-
 }

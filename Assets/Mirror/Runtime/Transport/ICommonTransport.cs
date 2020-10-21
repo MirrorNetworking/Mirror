@@ -20,6 +20,12 @@ namespace Mirror
         // from MonoBehaviour
         // TODO remove need to set enable for transports
         bool enabled { get; set; }
+
+        /// <summary>
+        /// Checks for data and invokes events
+        /// <para>Should be used to invoke events on main thread, eg from LateUpdate</para>
+        /// </summary>
+        void CheckForEvents();
     }
 
     public static class TransportExtensions
