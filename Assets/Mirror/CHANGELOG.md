@@ -1,3 +1,10 @@
+## [51.1.1](https://github.com/MirrorNG/MirrorNG/compare/v51.1.0...v51.1.1) (2020-10-21)
+
+
+### Bug Fixes
+
+* InvalidDataException not found problem ([229f73d](https://github.com/MirrorNG/MirrorNG/commit/229f73d88485264ebd517603f848e9ebed133fcf))
+
 # [51.1.0](https://github.com/MirrorNG/MirrorNG/compare/v51.0.0...v51.1.0) (2020-10-21)
 
 
