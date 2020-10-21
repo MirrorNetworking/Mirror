@@ -1,3 +1,10 @@
+## [51.1.2](https://github.com/MirrorNG/MirrorNG/compare/v51.1.1...v51.1.2) (2020-10-21)
+
+
+### Bug Fixes
+
+* fix multiple scene loading order issues ([#418](https://github.com/MirrorNG/MirrorNG/issues/418)) ([6d8265d](https://github.com/MirrorNG/MirrorNG/commit/6d8265d4f71029365381603abd5f4bb7a28ffeb0))
+
 ## [51.1.1](https://github.com/MirrorNG/MirrorNG/compare/v51.1.0...v51.1.1) (2020-10-21)
 
 
