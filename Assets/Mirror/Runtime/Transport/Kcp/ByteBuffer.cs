@@ -13,7 +13,7 @@ namespace Mirror.KCP
 
         // resize to 'value' capacity if needed
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void EnsureCapacity(int value)
+        public void EnsureCapacity(int value)
         {
             if (RawBuffer.Length < value)
             {

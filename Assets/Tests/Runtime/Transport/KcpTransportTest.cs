@@ -104,6 +104,30 @@ namespace Mirror.Tests
             Assert.That(buffer.ToArray(), Is.EquivalentTo(data));
         });
 
+        [UnityTest]
+        public IEnumerator SendUnreliableDataFromServer() => UniTask.ToCoroutine(async () =>
+        {
+            byte[] data = { (byte)Random.Range(1, 255) };
+            await serverConnection.SendAsync(new ArraySegment<byte>(data), Channel.Unreliable);
+
+            var buffer = new MemoryStream();
+            (bool next, int channel) = await clientConnection.ReceiveAsync(buffer);
+            Assert.That(buffer.ToArray(), Is.EquivalentTo(data));
+            Assert.That(channel, Is.EqualTo(Channel.Unreliable));
+        });
+
+        [UnityTest]
+        public IEnumerator SendUnreliableDataFromClient() => UniTask.ToCoroutine(async () =>
+        {
+            byte[] data = { (byte)Random.Range(1, 255) };
+            await clientConnection.SendAsync(new ArraySegment<byte>(data), Channel.Unreliable);
+
+            var buffer = new MemoryStream();
+            (bool next, int channel) = await serverConnection.ReceiveAsync(buffer);
+            Assert.That(buffer.ToArray(), Is.EquivalentTo(data));
+            Assert.That(channel, Is.EqualTo(Channel.Unreliable));
+        });
+
 
         [UnityTest]
         public IEnumerator DisconnectFromServer() => UniTask.ToCoroutine(async () =>

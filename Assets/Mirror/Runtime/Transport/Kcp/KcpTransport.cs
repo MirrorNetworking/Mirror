@@ -65,6 +65,12 @@ namespace Mirror.KCP
                 if (!Validate(data, msgLength))
                     return;
 
+                int channel = KcpConnection.GetChannel(data);
+
+                // handshake must start in reliable channel
+                if (channel != Channel.Reliable)
+                    return;
+
                 // add it to a queue
                 connection = new KcpServerConnection(socket, endpoint, delayMode);
                 acceptedConnections.Writer.TryWrite(connection);
@@ -95,7 +101,6 @@ namespace Mirror.KCP
             // have this token been used?
             if (used.Contains(token))
                 return false;
-
 
             // does the token validate?
             if (!token.Validate(Application.productName, HashCashBits))
