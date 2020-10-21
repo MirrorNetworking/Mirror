@@ -14,11 +14,9 @@
 ## Mirror
 Mirror is a **high level** Networking library for Unity, compatible with different **low level** [Transports](https://github.com/vis2k/Mirror#low-level-transports).
 
-Mirror is for small indie games & large scale [MMOs](https://www.youtube.com/watch?v=mDCNff1S9ZU), made by the developers of [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-components-edition-159401) and [Cubica](https://www.youtube.com/watch?v=D_f_MntrLVE).
+It provides a optimized and performant networking library which can be used in a variety of online game genres while focusing on **ease of use** and **probability of success** for developers.
 
-Mirror is optimized for **ease of use** & **probability of success**. 
-
-We needed a networking library that allows us to **[launch our games](https://mirror-networking.com/showcase/)** and **survive the next decade**.
+Curious to know what Mirror can do? Check out what Mirror powers in our **[showcase](https://mirror-networking.com/showcase/)**. From simple games to Virtual Reality, Mirror can do it.
 
 ## Architecture
 The **Server & Client** are **ONE project** in order to achieve an order of magnitude gain in productivity.
@@ -29,7 +27,7 @@ Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirro
 * **[ClientRpc]** / **[TargetRpc]** for Server->Client function calls (e.g. AddChatMessage)
 * **[SyncVar]** / SyncList to automatically synchronize variables from Server->Client
 
-_Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
+_Note: Mirror is based on Unity's abandoned UNET Networking system. We've improved, hardened and taken it to new levels that Unity Tech couldn't have._
 
 ## Low Level Transports
 * (built in) [Telepathy](https://github.com/vis2k/Telepathy): TCP
@@ -39,7 +37,7 @@ _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it 
 * [LiteNetLib](https://github.com/MirrorNetworking/LiteNetLibTransport/) UDP
 * [Ignorance](https://github.com/SoftwareGuy/Ignorance/): ENET UDP
 * [Apathy](https://mirror-networking.com/apathy/): Native TCP
-* [FizzySteam](https://github.com/Raystorms/FizzySteamyMirror/): SteamNetwork
+* [FizzySteam](https://github.com/Raystorms/FizzySteamyMirror/): Steamworks Networking Layer
 
 ## Getting Started
 Get **Unity 2018/2019 LTS**, download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
