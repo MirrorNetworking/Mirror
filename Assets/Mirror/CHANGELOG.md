@@ -1,3 +1,10 @@
+# [51.1.0](https://github.com/MirrorNG/MirrorNG/compare/v51.0.0...v51.1.0) (2020-10-21)
+
+
+### Features
+
+* KCP transport now provides unreliable channel ([#420](https://github.com/MirrorNG/MirrorNG/issues/420)) ([8aac115](https://github.com/MirrorNG/MirrorNG/commit/8aac115f8a7cb7b2c62d35716eeb081d7d81664b))
+
 # [51.0.0](https://github.com/MirrorNG/MirrorNG/compare/v50.2.0...v51.0.0) (2020-10-21)
 
 
