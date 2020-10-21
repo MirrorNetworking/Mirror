@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -7,7 +8,7 @@ namespace Mirror
     /// </summary>
     public class TransportLateUpdatePoll : MonoBehaviour
     {
-        [SerializeField] ICommonTransport[] transports;
+        public List<ICommonTransport> transports;
 
         public void LateUpdate()
         {
