@@ -168,7 +168,7 @@ namespace Mirror.KCP
 
                 count++;
                 uint fragment = seg.fragment;
-                Segment.Put(seg);
+                Segment.Release(seg);
                 if (fragment == 0)
                     break;
             }
@@ -204,7 +204,7 @@ namespace Mirror.KCP
             {
                 int size = Math.Min(length, (int)MaximumSegmentSize);
 
-                var seg = Segment.Get(size);
+                var seg = Segment.Lease();
                 seg.data.Write(buffer, offset, size);
                 offset += size;
                 length -= size;
@@ -285,7 +285,7 @@ namespace Mirror.KCP
                 if (unacknowledged >seg.serialNumber)
                 {
                     count++;
-                    Segment.Put(seg);
+                    Segment.Release(seg);
                 }
                 else
                     break;
@@ -304,7 +304,7 @@ namespace Mirror.KCP
             uint serialNumber = newseg.serialNumber;
             if (serialNumber >= rcv_nxt + ReceiveWindowMax || serialNumber < rcv_nxt)
             {
-                Segment.Put(newseg);
+                Segment.Release(newseg);
                 return;
             }
 
@@ -325,7 +325,7 @@ namespace Mirror.KCP
                 Segment seg = receiveBuffer[i];
                 if (seg.serialNumber == serialNumber)
                 {
-                    Segment.Put(newseg);
+                    Segment.Release(newseg);
                     return;
                 }
 
@@ -429,7 +429,7 @@ namespace Mirror.KCP
                             AckPush(sn, ts);
                             if (sn >= rcv_nxt)
                             {
-                                var seg = Segment.Get((int)length);
+                                var seg = Segment.Lease();
                                 seg.conversation = conv_;
                                 seg.cmd = cmd;
                                 seg.fragment = frg;
@@ -606,7 +606,7 @@ namespace Mirror.KCP
         /// <param name="ackOnly">flush remain ack segments</param>
         public int Flush(bool ackOnly)
         {
-            var seg = Segment.Get(32);
+            var seg = Segment.Lease();
             seg.conversation = conv;
             seg.cmd = CommandType.Ack;
             seg.window = WndUnused();
@@ -620,7 +620,7 @@ namespace Mirror.KCP
             if (ackOnly)
             {
                 FlushBuffer();
-                Segment.Put(seg);
+                Segment.Release(seg);
                 return interval;
             }
 
@@ -705,7 +705,7 @@ namespace Mirror.KCP
                 CwndUpdate(CalculateResent(), change, lostSegs);
             }
 
-            Segment.Put(seg);
+            Segment.Release(seg);
             return minrto;
         }
 

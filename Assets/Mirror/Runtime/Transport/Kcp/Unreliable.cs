@@ -31,7 +31,7 @@ namespace Mirror.KCP
             if (size <= OVERHEAD)
                 return -3;
 
-            var seg = Segment.Get(size);
+            var seg = Segment.Lease();
             seg.data.Write(data, index + OVERHEAD, size - OVERHEAD);
 
             messages.Enqueue(seg);
@@ -68,13 +68,13 @@ namespace Mirror.KCP
             segment.data.Position = 0;
             segment.data.Read(buffer, offset, (int)segment.data.Length);
             int bytes = (int)segment.data.Length;
-            Segment.Put(segment);
+            Segment.Release(segment);
             return bytes;
         }
 
         public void Send(byte[] buffer, int offset, int length)
         {
-            var segment = Segment.Get(length);
+            var segment = Segment.Lease();
 
             System.IO.MemoryStream sendBuffer = segment.data;
 
@@ -88,7 +88,7 @@ namespace Mirror.KCP
             sendBuffer.Write(buffer, offset, length);
             output(sendBuffer.GetBuffer(), length + Reserved + OVERHEAD);
 
-            Segment.Put(segment);
+            Segment.Release(segment);
         }
     }
 }

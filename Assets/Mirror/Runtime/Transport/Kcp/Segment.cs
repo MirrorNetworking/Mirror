@@ -24,7 +24,7 @@ namespace Mirror.KCP
 
         static readonly Stack<Segment> msSegmentPool = new Stack<Segment>(32);
 
-        public static Segment Get(int size)
+        public static Segment Lease()
         {
             if (msSegmentPool.Count > 0)
             {
@@ -34,7 +34,7 @@ namespace Mirror.KCP
             return new Segment();
         }
 
-        public static void Put(Segment seg)
+        public static void Release(Segment seg)
         {
             seg.Reset();
             msSegmentPool.Push(seg);
