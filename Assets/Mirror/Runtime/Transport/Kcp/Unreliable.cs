@@ -32,7 +32,7 @@ namespace Mirror.KCP
                 return -3;
 
             var seg = Segment.Get(size);
-            seg.data.WriteBytes(data, index + OVERHEAD, size - OVERHEAD);
+            seg.data.Write(data, index + OVERHEAD, size - OVERHEAD);
 
             messages.Enqueue(seg);
 
@@ -45,7 +45,7 @@ namespace Mirror.KCP
                 return -1;
 
             Segment seg = messages.Peek();
-            return seg.data.Position;
+            return (int)seg.data.Length;
         }
 
         /// <summary>Receive
@@ -65,8 +65,9 @@ namespace Mirror.KCP
 
             if (length < segment.data.Position)
                 return -2;
-            Buffer.BlockCopy(segment.data.RawBuffer, 0, buffer, offset, segment.data.Position);
-            int bytes = segment.data.Position;
+            segment.data.Position = 0;
+            segment.data.Read(buffer, offset, (int)segment.data.Length);
+            int bytes = (int)segment.data.Length;
             Segment.Put(segment);
             return bytes;
         }
@@ -75,17 +76,17 @@ namespace Mirror.KCP
         {
             var segment = Segment.Get(length);
 
-            ByteBuffer sendBuffer = segment.data;
+            System.IO.MemoryStream sendBuffer = segment.data;
 
-            sendBuffer.EnsureCapacity(length + Reserved + OVERHEAD);
+            sendBuffer.SetLength(length + Reserved + OVERHEAD);
 
-            var encoder = new Encoder(sendBuffer.RawBuffer, Reserved);
+            var encoder = new Encoder(sendBuffer.GetBuffer(), Reserved);
             encoder.Encode32U(Channel.Unreliable);
 
             sendBuffer.Position = encoder.Position;
 
-            sendBuffer.WriteBytes(buffer, offset, length);
-            output(sendBuffer.RawBuffer, length + Reserved + OVERHEAD);
+            sendBuffer.Write(buffer, offset, length);
+            output(sendBuffer.GetBuffer(), length + Reserved + OVERHEAD);
 
             Segment.Put(segment);
         }

@@ -101,7 +101,7 @@ namespace Mirror.KCP
             Segment seq = receiveQueue[0];
 
             if (seq.fragment == 0)
-                return seq.data.Position;
+                return (int)seq.data.Length;
 
             if (receiveQueue.Count < seq.fragment + 1)
                 return -1;
@@ -110,7 +110,7 @@ namespace Mirror.KCP
 
             foreach (Segment item in receiveQueue)
             {
-                length += item.data.Position;
+                length += (int)item.data.Length;
                 if (item.fragment == 0)
                     break;
             }
@@ -161,9 +161,10 @@ namespace Mirror.KCP
 
             foreach (Segment seg in receiveQueue)
             {
+                seg.data.Position = 0;
+                seg.data.Read(buffer, n, (int)seg.data.Length);
                 // copy fragment data into buffer.
-                Buffer.BlockCopy(seg.data.RawBuffer, 0, buffer, n, seg.data.Position);
-                n += seg.data.Position;
+                n += (int)seg.data.Length;
 
                 count++;
                 uint fragment = seg.fragment;
@@ -204,7 +205,7 @@ namespace Mirror.KCP
                 int size = Math.Min(length, (int)MaximumSegmentSize);
 
                 var seg = Segment.Get(size);
-                seg.data.WriteBytes(buffer, offset, size);
+                seg.data.Write(buffer, offset, size);
                 offset += size;
                 length -= size;
 
@@ -436,7 +437,7 @@ namespace Mirror.KCP
                                 seg.timeStamp = ts;
                                 seg.serialNumber = sn;
                                 seg.unacknowledged = una;
-                                seg.data.WriteBytes(data, offset, (int)length);
+                                seg.data.Write(data, offset, (int)length);
                                 ParseData(seg);
                             }
                         }
@@ -679,11 +680,12 @@ namespace Mirror.KCP
                     segment.window = seg.window;
                     segment.unacknowledged = seg.unacknowledged;
 
-                    int need = OVERHEAD + segment.data.Position;
+                    int need = (int)(OVERHEAD + segment.data.Position);
                     MakeSpace(need);
                     writeIndex += segment.Encode(buffer, writeIndex);
-                    Buffer.BlockCopy(segment.data.RawBuffer, 0, buffer, writeIndex, segment.data.Position);
-                    writeIndex += segment.data.Position;
+                    segment.data.Position = 0;
+                    segment.data.Read(buffer, writeIndex, (int)segment.data.Length);
+                    writeIndex += (int)segment.data.Length;
                 }
 
                 // get the nearest rto

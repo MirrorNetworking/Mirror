@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 
 namespace Mirror.KCP
 {
@@ -19,7 +20,7 @@ namespace Mirror.KCP
         internal uint resendTimeStamp;
         internal uint fastack;
         internal bool acked;
-        internal ByteBuffer data;
+        internal MemoryStream data;
 
         static readonly Stack<Segment> msSegmentPool = new Stack<Segment>(32);
 
@@ -41,7 +42,7 @@ namespace Mirror.KCP
 
         Segment()
         {
-            data = new ByteBuffer();
+            data = new MemoryStream();
         }
 
         // encode a segment into buffer
@@ -77,6 +78,7 @@ namespace Mirror.KCP
 
             // keep buffer for next pool usage, but reset position
             data.Position = 0;
+            data.SetLength(0);
         }
     }
 }
