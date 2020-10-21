@@ -94,7 +94,7 @@ namespace Mirror
         /// <summary>
         /// The current transport used by Mirror.
         /// </summary>
-        [System.Obsolete("Use ActiveTransport instead", true)]
+        [System.Obsolete("Use ActiveTransport instead")]
         public static Transport activeTransport;
 
         /// <summary>
