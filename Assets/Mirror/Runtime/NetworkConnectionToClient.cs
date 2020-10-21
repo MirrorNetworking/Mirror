@@ -10,7 +10,7 @@ namespace Mirror
 
         public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId) { }
 
-        public override string address => ActiveTransport.server.ServerGetClientAddress(connectionId);
+        public override string address => ActiveTransport.server.GetClientAddress(connectionId);
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
@@ -29,7 +29,7 @@ namespace Mirror
             if (ActiveTransport.server.ValidatePacketSize(segment, channelId))
             {
                 singleConnectionId[0] = connectionId;
-                return ActiveTransport.server.ServerSend(singleConnectionId, channelId, segment);
+                return ActiveTransport.server.Send(singleConnectionId, channelId, segment);
             }
             return false;
         }
@@ -42,9 +42,9 @@ namespace Mirror
             {
                 // only the server sends to many, we don't have that function on
                 // a client.
-                if (ActiveTransport.server.ServerActive())
+                if (ActiveTransport.server.IsActive())
                 {
-                    return ActiveTransport.server.ServerSend(connectionIds, channelId, segment);
+                    return ActiveTransport.server.Send(connectionIds, channelId, segment);
                 }
             }
             return false;
@@ -58,7 +58,7 @@ namespace Mirror
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
-            ActiveTransport.server.ServerDisconnect(connectionId);
+            ActiveTransport.server.Kick(connectionId);
             RemoveObservers();
         }
     }

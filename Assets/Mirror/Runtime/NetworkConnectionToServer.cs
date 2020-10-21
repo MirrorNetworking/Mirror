@@ -16,7 +16,7 @@ namespace Mirror
             // validate packet size first.
             if (ActiveTransport.client.ValidatePacketSize(segment, channelId))
             {
-                return ActiveTransport.client.ClientSend(channelId, segment);
+                return ActiveTransport.client.Send(channelId, segment);
             }
             return false;
         }
@@ -30,7 +30,7 @@ namespace Mirror
             // (might be client or host mode here)
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
-            ActiveTransport.client.ClientDisconnect();
+            ActiveTransport.client.Disconnect();
         }
     }
 }

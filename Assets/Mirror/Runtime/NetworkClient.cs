@@ -70,7 +70,7 @@ namespace Mirror
             InitializeTransportHandlers();
 
             connectState = ConnectState.Connecting;
-            ActiveTransport.client.ClientConnect(address);
+            ActiveTransport.client.Connect(address);
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
@@ -91,7 +91,7 @@ namespace Mirror
             InitializeTransportHandlers();
 
             connectState = ConnectState.Connecting;
-            ActiveTransport.client.ClientConnect(uri);
+            ActiveTransport.client.Connect(uri);
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
@@ -147,10 +147,10 @@ namespace Mirror
 
         static void InitializeTransportHandlers()
         {
-            ActiveTransport.client.OnClientConnected.AddListener(OnConnected);
-            ActiveTransport.client.OnClientDataReceived.AddListener(OnDataReceived);
-            ActiveTransport.client.OnClientDisconnected.AddListener(OnDisconnected);
-            ActiveTransport.client.OnClientError.AddListener(OnError);
+            ActiveTransport.client.onConnected += OnConnected;
+            ActiveTransport.client.onDataReceived += OnDataReceived;
+            ActiveTransport.client.onDisconnected += OnDisconnected;
+            ActiveTransport.client.onError += OnError;
         }
 
         static void OnError(Exception exception)
@@ -225,10 +225,10 @@ namespace Mirror
         static void RemoveTransportHandlers()
         {
             // so that we don't register them more than once
-            ActiveTransport.client.OnClientConnected.RemoveListener(OnConnected);
-            ActiveTransport.client.OnClientDataReceived.RemoveListener(OnDataReceived);
-            ActiveTransport.client.OnClientDisconnected.RemoveListener(OnDisconnected);
-            ActiveTransport.client.OnClientError.RemoveListener(OnError);
+            ActiveTransport.client.onConnected -= OnConnected;
+            ActiveTransport.client.onDataReceived -= OnDataReceived;
+            ActiveTransport.client.onDisconnected -= OnDisconnected;
+            ActiveTransport.client.onError -= OnError;
         }
 
         /// <summary>
@@ -382,7 +382,7 @@ namespace Mirror
             // we do NOT call Transport.Shutdown, because someone only called
             // NetworkClient.Shutdown. we can't assume that the server is
             // supposed to be shut down too!
-            ActiveTransport.client.ClientDisconnect();
+            ActiveTransport.client.Disconnect();
         }
     }
 }

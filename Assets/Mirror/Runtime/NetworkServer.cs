@@ -102,13 +102,13 @@ namespace Mirror
                     // we do NOT call Transport.Shutdown, because someone only
                     // called NetworkServer.Shutdown. we can't assume that the
                     // client is supposed to be shut down too!
-                    ActiveTransport.server.ServerStop();
+                    ActiveTransport.server.Stop();
                 }
 
-                ActiveTransport.server.OnServerDisconnected.RemoveListener(OnDisconnected);
-                ActiveTransport.server.OnServerConnected.RemoveListener(OnConnected);
-                ActiveTransport.server.OnServerDataReceived.RemoveListener(OnDataReceived);
-                ActiveTransport.server.OnServerError.RemoveListener(OnError);
+                ActiveTransport.server.onDisconnected -= OnDisconnected;
+                ActiveTransport.server.onConnected -= OnConnected;
+                ActiveTransport.server.onDataReceived -= OnDataReceived;
+                ActiveTransport.server.onError -= OnError;
 
                 initialized = false;
             }
@@ -153,10 +153,10 @@ namespace Mirror
             connections.Clear();
 
             logger.Assert(ActiveTransport.server != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'ActiveTransport.server' first");
-            ActiveTransport.server.OnServerDisconnected.AddListener(OnDisconnected);
-            ActiveTransport.server.OnServerConnected.AddListener(OnConnected);
-            ActiveTransport.server.OnServerDataReceived.AddListener(OnDataReceived);
-            ActiveTransport.server.OnServerError.AddListener(OnError);
+            ActiveTransport.server.onDisconnected += OnDisconnected;
+            ActiveTransport.server.onConnected += OnConnected;
+            ActiveTransport.server.onDataReceived += OnDataReceived;
+            ActiveTransport.server.onError += OnError;
         }
 
         internal static void RegisterMessageHandlers()
@@ -178,7 +178,7 @@ namespace Mirror
             // only start server if we want to listen
             if (!dontListen)
             {
-                ActiveTransport.server.ServerStart();
+                ActiveTransport.server.Start();
                 logger.Log("Server started listening");
             }
 
@@ -536,14 +536,14 @@ namespace Mirror
             if (connectionId <= 0)
             {
                 logger.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be >0, because 0 is reserved for local player.");
-                ActiveTransport.server.ServerDisconnect(connectionId);
+                ActiveTransport.server.Kick(connectionId);
                 return;
             }
 
             // connectionId not in use yet?
             if (connections.ContainsKey(connectionId))
             {
-                ActiveTransport.server.ServerDisconnect(connectionId);
+                ActiveTransport.server.Kick(connectionId);
                 if (logger.LogEnabled()) logger.Log("Server connectionId " + connectionId + " already in use. kicked client:" + connectionId);
                 return;
             }
@@ -562,7 +562,7 @@ namespace Mirror
             else
             {
                 // kick
-                ActiveTransport.server.ServerDisconnect(connectionId);
+                ActiveTransport.server.Kick(connectionId);
                 if (logger.LogEnabled()) logger.Log("Server full, kicked client:" + connectionId);
             }
         }
