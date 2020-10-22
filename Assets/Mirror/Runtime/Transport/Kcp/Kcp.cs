@@ -465,10 +465,6 @@ namespace Mirror.KCP
             {
                 var decoder = new Decoder(data, offset);
                 uint conv_ = decoder.Decode32U();
-
-                if (conv_ != conv)
-                    return -1;
-
                 var cmd = (CommandType)decoder.Decode8U();
                 byte frg = decoder.Decode8U();
                 ushort wnd = decoder.Decode16U();
@@ -480,19 +476,8 @@ namespace Mirror.KCP
                 offset = decoder.Position;
                 size -= OVERHEAD;
 
-                if (size < len || len < 0)
-                    return -2;
-
-                switch (cmd)
-                {
-                    case CommandType.Ack:
-                    case CommandType.Push:
-                    case CommandType.WindowAsk:
-                    case CommandType.WindowTell:
-                        break;
-                    default:
-                        return -3;
-                }
+                if (!ValidateSegment(size, conv_, cmd, len))
+                    return -1;
 
                 rmt_wnd = wnd;
                 ParseUna(una);
@@ -559,6 +544,28 @@ namespace Mirror.KCP
             UpdateCongestionWindow(prev_una);
 
             return 0;
+        }
+
+        private bool ValidateSegment(int size, uint conv_, CommandType cmd, uint len)
+        {
+            if (conv_ != conv)
+                return false;
+
+            if (size < len || len < 0)
+                return false;
+
+            switch (cmd)
+            {
+                case CommandType.Ack:
+                case CommandType.Push:
+                case CommandType.WindowAsk:
+                case CommandType.WindowTell:
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
         }
 
         private void UpdateCongestionWindow(uint prev_una)
