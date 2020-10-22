@@ -197,37 +197,24 @@ namespace Mirror
                 // apply the operation only if it is a new change
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
-                T item = default;
 
                 switch (operation)
                 {
                     case Operation.OP_ADD:
-                        item = reader.Read<T>();
-                        if (apply)
-                        {
-                            objects.Add(item);
-                        }
+                         DeserializeAdd(reader, apply);
                         break;
 
                     case Operation.OP_CLEAR:
-                        if (apply)
-                        {
-                            objects.Clear();
-                        }
+                        DeserializeClear(apply);
                         break;
 
                     case Operation.OP_REMOVE:
-                        item = reader.Read<T>();
-                        if (apply)
-                        {
-                            objects.Remove(item);
-                        }
+                        DeserializeRemove(reader, apply);
                         break;
                 }
 
                 if (apply)
                 {
-                    RaiseEvents(operation, item);
                     raiseOnChange = true;
                 }
                 // we just skipped this change
@@ -240,6 +227,35 @@ namespace Mirror
             if (raiseOnChange)
             {
                 OnChange?.Invoke();
+            }
+        }
+
+        private void DeserializeAdd(NetworkReader reader, bool apply)
+        {
+            T item = reader.Read<T>();
+            if (apply)
+            {
+                objects.Add(item);
+                OnAdd?.Invoke(item);
+            }
+        }
+
+        private void DeserializeClear(bool apply)
+        {
+            if (apply)
+            {
+                objects.Clear();
+                OnClear?.Invoke();
+            }
+        }
+
+        private void DeserializeRemove(NetworkReader reader, bool apply)
+        {
+            T item = reader.Read<T>();
+            if (apply)
+            {
+                objects.Remove(item);
+                OnRemove?.Invoke(item);
             }
         }
 
