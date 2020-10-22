@@ -13,14 +13,6 @@ uMMORPG was possible with \<6000 lines of code. We needed a networking library t
 -   **Requires Unity 2018.4 LTS and Runtime .Net 4.x (default in Unity 2019) and .Net 2.0 Compatibility is recommended**
 -   Alpha / Beta Unity versions cannot be supported
 
-**Multiple Transports Available:**
--   **TCP** ([Telepathy](Articles/Transports/Telepathy.md) and [Apathy](https://mirror-networking.com/apathy/) and [Booster](https://mirror-networking.com/booster/))
--   **UDP** ([ENet](Articles/Transports/Ignorance.md) and [LiteNetLib](Articles/Transports/LiteNetLib4Mirror.md))
--   **WebGL** ([Secure Web Sockets](Articles/Transports/WebSockets.md))
--   **Steam** ([Steamworks.Net](Articles/Transports/FizzySteamworks.md)) and ([FacePunch](Articles/Transports/FizzyFacepunch.md))
--   **Multiplexer** ([Multiplexer](Articles/Transports/Multiplexer.md))
--   **Fallback** ([Fallback](Articles/Transports/Fallback.md))
-
 **List Server**
 
 We've developed a [List Server](https://mirror-networking.com/list-server/) where game servers can register and clients can connect to find those servers to play on them.

@@ -16,7 +16,7 @@ namespace Mirror.Tests
 
         public readonly Channel<IConnection> ConnectConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<IConnection>();
 
-        public override IEnumerable<string> Scheme => new []{"tcp4"};
+        public override IEnumerable<string> Scheme => new []{"kcp"};
 
         public override bool Supported => true;
 
@@ -37,7 +37,7 @@ namespace Mirror.Tests
 
         public override IEnumerable<Uri> ServerUri()
         {
-            return new[] { new Uri("tcp4://localhost") };
+            return new[] { new Uri("kcp://localhost") };
         }
     }
 }

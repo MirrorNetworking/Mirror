@@ -1,7 +1,4 @@
 # MirrorNG Quick Start Guide 
-Written by [StephenAllenGames.co.uk](http://stephenallengames.co.uk/) <br />
-Edited by [James Frowen](https://github.com/James-Frowen)
-***
 This guide currently shows you:
 - [Basic scene setup](#part-1)
 - [Player movement](#part-4)
@@ -17,8 +14,7 @@ The Pre-made MirrorNG examples are great for using as reference, it is recommend
 
 ## Part 1
 
-Blank Project, import MirrorNG from [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321).
-
+Blank Project, import UniTask and MirrorNG using Unity package manager.
 
 
 ## Part 2
@@ -26,7 +22,7 @@ Blank Project, import MirrorNG from [Asset Store](https://assetstore.unity.com/p
 - Create new scene, save it, and add it to build settings
 - Create a new GameObject, name it NetworkManager in the scene, and add these 3 components
     - NetworkManager
-    - TelepathyTransport
+    - KcpTransport
     - NetworkManagerHUD
 - On the NetworkManager component, drag your Offline and Online scene into the slots, we have only one scene
 for now, so put your scene in both

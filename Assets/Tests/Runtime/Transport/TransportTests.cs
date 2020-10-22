@@ -2,7 +2,6 @@ using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Mirror.Tcp;
 using System.Text;
 using System.IO;
 using System.Net;
@@ -14,9 +13,6 @@ using Mirror.KCP;
 
 namespace Mirror.Tests
 {
-#pragma warning disable CS0618 // Type or member is obsolete
-    [TestFixture(typeof(TcpTransport), new[] { "tcp4" }, "tcp4://localhost", 7777)]
-#pragma warning restore CS0618 // Type or member is obsolete
     [TestFixture(typeof(KcpTransport), new[] { "kcp" }, "kcp://localhost", 7777)]
     public class AsyncTransportTests<T> where T : Transport
     {

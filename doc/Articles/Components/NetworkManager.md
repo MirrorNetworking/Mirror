@@ -23,9 +23,9 @@ If you are already familiar with multiplayer game development, you might find it
 
 ## Transports
 
-MirrorNG uses a separate component (derived from the Transport class) to connect across the network. By default, it is Telepathy Transport. This design choice of separating the transport into its own component allows game developers to choose the transport that best fits their game needs. Changing transports is as simple as swapping out the component on the Network Manager object and assigning it to the Transport field.
+MirrorNG uses a separate component (derived from the Transport class) to connect across the network. By default, it is Kcp Transport. This design choice of separating the transport into its own component allows game developers to choose the transport that best fits their game needs. Changing transports is as simple as swapping out the component on the Network Manager object and assigning it to the Transport field.
 
-Transports are available for TCP, UDP, WebGL, and Steam. Additionally, there's a Multiplex transport that allows for using two transports together on the server, e.g. Telepathy and WebSockets, so that desktop and browser players can play together on the same server seamlessly. See [Transports](../Transports/index.md) for more information.
+Transports are available for UDP, WebGL, and Steam. Additionally, there's a Multiplex transport that allows for using two transports together on the server, e.g. Kcp and WebSockets, so that desktop and browser players can play together on the same server seamlessly. See [Transports](../Transports/index.md) for more information.
 
 ## Game State Management
 
@@ -106,7 +106,7 @@ There are virtual functions on the `NetworkManager` class that you can customize
 -   **Network Info**
 
     -   **transport**  
-        A link to a Component derived from `Transport` class. TelepathyTransport is created and linked there by default.
+        A link to a Component derived from `Transport` class. KcpTransport is created and linked there by default.
 
     -   **networkAddress**  
         The network address currently in use. For clients, this is the address of the server that is connected to. For servers, this is the local address. This is set to ‘localhost’ by default. A Fully Qualified Domain Name (FQDN) can be used by clients in this field.

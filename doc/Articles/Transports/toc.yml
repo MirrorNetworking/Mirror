@@ -1,7 +1,7 @@
 - name: Overview
   href: index.md
-- name: TCP - Telepathy
-  href: Telepathy.md
+- name: KCP
+  href: Kcp.md
 - name: WebGL - WebSockets
   href: WebSockets.md
 - name: Multiplexer

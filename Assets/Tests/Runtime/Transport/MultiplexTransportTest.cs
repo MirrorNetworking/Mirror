@@ -116,17 +116,17 @@ namespace Mirror.Tests
         [Test]
         public void ServerUri()
         {
-            transport1.ServerUri().Returns(new[] { new Uri("tcp4://myserver") });
+            transport1.ServerUri().Returns(new[] { new Uri("kcp://myserver") });
 
-            Assert.That(transport.ServerUri(), Is.EquivalentTo(new[] { new Uri("tcp4://myserver") }));
+            Assert.That(transport.ServerUri(), Is.EquivalentTo(new[] { new Uri("kcp://myserver") }));
         }
 
         [Test]
         public void Scheme1()
         {
-            transport1.Scheme.Returns(new[] { "tcp4" });
+            transport1.Scheme.Returns(new[] { "kcp" });
 
-            Assert.That(transport.Scheme, Is.EquivalentTo(new[] { "tcp4" }));
+            Assert.That(transport.Scheme, Is.EquivalentTo(new[] { "kcp" }));
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace Mirror.Tests
         public IEnumerator Connect() => UniTask.ToCoroutine(async () =>
         {
             transport1.Scheme.Returns(new[] { "yomama" });
-            transport2.Scheme.Returns(new[] { "tcp4" });
+            transport2.Scheme.Returns(new[] { "kcp" });
 
             transport1.ConnectAsync(Arg.Any<Uri>())
                 .Returns(UniTask.FromException<IConnection>(new ArgumentException("Invalid protocol")));
@@ -154,7 +154,7 @@ namespace Mirror.Tests
             transport2.ConnectAsync(Arg.Any<Uri>())
                 .Returns(UniTask.FromResult(conn2));
 
-            IConnection accepted1 = await transport.ConnectAsync(new Uri("tcp4://localhost"));
+            IConnection accepted1 = await transport.ConnectAsync(new Uri("kcp://localhost"));
 
             Assert.That(accepted1, Is.SameAs(conn2));
         });
@@ -171,7 +171,7 @@ namespace Mirror.Tests
 
             try
             {
-                _ = await transport.ConnectAsync(new Uri("tcp4://localhost"));
+                _ = await transport.ConnectAsync(new Uri("kcp://localhost"));
                 Assert.Fail("Should not be able to connect if none of the transports can connect");
             }
             catch (ArgumentException)

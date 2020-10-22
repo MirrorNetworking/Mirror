@@ -11,7 +11,7 @@ When you have a multiplayer game, often you need to store information about your
 
 ## Encryption Notice
 
-By default MirrorNG uses Telepathy, which is not encrypted, so if you want to do authentication through MirrorNG, we highly recommend you use a transport that supports encryption.
+By default MirrorNG uses Kcp, which is not encrypted, so if you want to do authentication through MirrorNG, we highly recommend you use a transport that supports encryption.
 
 ## Basic Authenticator
 

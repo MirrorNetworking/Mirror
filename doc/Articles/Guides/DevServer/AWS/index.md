@@ -78,7 +78,7 @@ Nothing has to be changed. Keep it default. Click on **"Next: Configure Security
 Create a new security group and you can give it your own name and description. Add the following rules:
 
 -   RDP with source "Anywhere", Description can be whatever but put it as Remote Desktop Program.
--   Custom TCP Rule with port 7777 and source "Anywhere", Description can be whatever but put it as MirrorNG.
+-   Custom UDP Rule with port 7777 and source "Anywhere", Description can be whatever but put it as MirrorNG.
 -   SSH with source "Anywhere", Description can be whatever but put it as SSH.
 
 SSH is not strictly necessary but can be used to remote connect to it through other means than the RDP.
@@ -160,7 +160,7 @@ There you have it! Now you have your password and Remote Desktop should show you
 #### Setting up the firewall to allow connections through
 
 Go to the windows firewall settings, go to the advanced firewall settings and go to inbound rules. **Add a new rule** and choose the port type.
-Select TCP and enter the 7777 port (or any other if you use another port in MirrorNG). Continue clicking next and keep things default.
+Select UDP and enter the 7777 port (or any other if you use another port in MirrorNG). Continue clicking next and keep things default.
 Close all the windows when done.
 
 ![Windows Firewall Exception](Windows%20Firewall%20Exception.PNG)

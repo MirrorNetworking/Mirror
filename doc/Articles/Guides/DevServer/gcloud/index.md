@@ -89,9 +89,9 @@ This will allow other people to connect to your server using its IP and port
     - Target tags: `mirror-demo`
     - Source filter: IP ranges
     - Source IP ranges: 0.0.0.0/0
-    - Protocols or ports: Select tcp, and then enter port 7777 into the field provided.
+    - Protocols or ports: Select UDP, and then enter port 7777 into the field provided.
 
-> note tcp and port 7777 is default settings for telepathy, if you are using a different transport you will need to find out what settings that uses.
+> note UDP and port 7777 is default settings for KCP transport, if you are using a different transport you will need to find out what settings that uses.
 
 ![Create network rule](./07-create-network-rule.jpg)
 

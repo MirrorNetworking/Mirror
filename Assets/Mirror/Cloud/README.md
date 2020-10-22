@@ -101,7 +101,7 @@ Below are some example logs to look for to check things are working.
 The add request is sent to add a server to the list server
 
 ```
-Request: POST servers {"protocol":"tcp4","port":7777,"playerCount":0,"maxPlayerCount":4,"displayName":"Tanks Game 521","address":"","customAddress":"","customData":[]}
+Request: POST servers {"protocol":"kcp","port":7777,"playerCount":0,"maxPlayerCount":4,"displayName":"Tanks Game 521","address":"","customAddress":"","customData":[]}
 ```
 ```
 Response: POST 200 /servers {"id":"BI6bQQ2TbNiqhdp1D7UB"}
@@ -142,7 +142,7 @@ The example below shows an array of 2 servers, one with name `Tanks Game 521` an
 Request: GET servers
 ```
 ```
-Response: GET 200 /servers {"servers":[{"address":"tcp4://xx.xx.xx.xx:7777","displayName":"Tanks Game 521","port":7777,"protocol":"tcp4","playerCount":0,"maxPlayerCount":4,"customAddress":"","customData":[]},{"address":"tcp4://xx.xx.xx.xx:7777","displayName":"Tanks Game 212","port":7777,"protocol":"tcp4","playerCount":0,"maxPlayerCount":4,"customData":[]}]}
+Response: GET 200 /servers {"servers":[{"address":"kcp://xx.xx.xx.xx:7777","displayName":"Tanks Game 521","port":7777,"protocol":"kcp","playerCount":0,"maxPlayerCount":4,"customAddress":"","customData":[]},{"address":"kcp://xx.xx.xx.xx:7777","displayName":"Tanks Game 212","port":7777,"protocol":"kcp","playerCount":0,"maxPlayerCount":4,"customData":[]}]}
 ```
 *xx.xx.xx.xx will be the IP address for the server*
 

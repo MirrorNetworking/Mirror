@@ -77,8 +77,6 @@ public class NetStreamer : NetworkBehaviour
 }
 ```
 
-Please note that the default transport [Telpathy](../Transports/Telepathy.md), completely ignores channels, all messages are reliable, sequenced and fragmented. They just work with no fuss. If you want to take advantage of unreliable channels use LLAPITransport instead.
-
 ### 6. Change SyncListStruct to SyncList
 
 There is a bug in the original UNet Weaver that makes it mess with our `MirrorNG.SyncListStruct` without checking the namespace. In MirrorNG, we fixed SyncLists so that they work with structs by default.
@@ -205,7 +203,7 @@ See [Custom Player Spawn Guide](../Guides/GameObjects/SpawnPlayerCustom.md) for 
 
 ### 11. Pick your transport
 
-You can choose one of several transports in MirrorNG.  Open your NetworkManager gameobject,   in the inspector you will see a `TelepathyTransport` component by default.  Drag in one of the available transports and remove `TelepathyTransport` if you wish to use a UDP based transport instead.
+You can choose one of several transports in MirrorNG.  Open your NetworkManager gameobject,   in the inspector you will see a `KcpTransport` component by default.  Drag in one of the available transports and remove `KcpTransport` if you wish to use another transport instead.
 
 ### 12. Configure address and port
 
@@ -213,7 +211,7 @@ In HLAPI, you configure the port and local address in the NetworkManager. One of
 
 ### 13. Update your firewall and router
 
-LLAPI uses UDP. MirrorNG uses TCP by default. This means you may need to change your router port forwarding and firewall rules in your machine to expose the TCP port instead of UDP. This highly depends on your router and operating system.
+MirrorNG uses UDP by default. This means you may need to change your router port forwarding and firewall rules in your machine to expose the UDP port. This highly depends on your router and operating system.
 
 ## Video version
 

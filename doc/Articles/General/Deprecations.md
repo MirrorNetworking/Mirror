@@ -49,11 +49,11 @@ Use `SyncList<YourSpecialStruct>` instead.
 
 In classic UNet, QoS Flags were used to determine how packets got to the remote end. For example, if you needed a packet to be prioritized in the queue, you would specify a high priority flag which the Unity LLAPI would then receive and deal with appropriately. Unfortunately, this caused a lot of extra work for the transport layer and some of the QoS flags did not work as intended due to buggy code that relied on too much magic.
 
-In MirrorNG, QoS flags were replaced with a "Channels" system. While the default transport, [Telepathy](../Transports/Telepathy.md), does not use channels at all because it's TCP-based, other transports, such as [Ignorance](../Transports/Ignorance.md) and [LiteNetLib4Mirror](../Transports/LiteNetLib4Mirror.md), do support them.
+In MirrorNG, QoS flags were replaced with a "Channels" system. While the default transport, Telepathy, does not use channels at all because it's TCP-based, other transports, such as [Ignorance](../Transports/Ignorance.md) and [LiteNetLib4Mirror](../Transports/LiteNetLib4Mirror.md), do support them.
 
 The currently defined channels are:
--   `Channels.DefaultReliable = 0`
--   `Channels.DefaultUnreliable = 1`
+-   `Channel.Reliable = 0`
+-   `Channel.Unreliable = 1`
 
 ## Changes by Class
 
