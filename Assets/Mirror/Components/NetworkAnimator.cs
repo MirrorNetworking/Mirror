@@ -240,8 +240,7 @@ namespace Mirror
                         {
                             int newIntValue = Animator.GetInteger(par.nameHash);
                             changed = newIntValue != lastIntParameters[i];
-                            if (changed)
-                                lastIntParameters[i] = newIntValue;
+                            lastIntParameters[i] = newIntValue;
                             break;
                         }
 
@@ -259,8 +258,7 @@ namespace Mirror
                         {
                             bool newBoolValue = Animator.GetBool(par.nameHash);
                             changed = newBoolValue != lastBoolParameters[i];
-                            if (changed)
-                                lastBoolParameters[i] = newBoolValue;
+                            lastBoolParameters[i] = newBoolValue;
                             break;
                         }
                 }
