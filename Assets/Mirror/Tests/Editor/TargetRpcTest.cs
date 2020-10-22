@@ -71,7 +71,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(UnityEngine.LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendInt)} was given a null connection, make sure the object has an owner or you pass in the target connection");
+            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendInt)} was given a null connection, make sure the object has an owner or you pass in the target connection");
             hostBehaviour.SendInt(someInt);
         }
 
@@ -86,7 +86,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(UnityEngine.LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendIntWithTarget)} was given a null connection, make sure the object has an owner or you pass in the target connection");
+            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendIntWithTarget)} was given a null connection, make sure the object has an owner or you pass in the target connection");
             hostBehaviour.SendIntWithTarget(null, someInt);
         }
 
@@ -101,8 +101,14 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(UnityEngine.LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendIntWithTarget)} requires a NetworkConnectionToClient but was given {typeof(FakeNetworkConnection).Name}");
-            hostBehaviour.SendIntWithTarget(new FakeNetworkConnection(), someInt);
+            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendIntWithTarget)} requires a NetworkConnectionToClient but was given {typeof(FakeConnection).Name}");
+            hostBehaviour.SendIntWithTarget(new FakeConnection(), someInt);
+        }
+        class FakeConnection : NetworkConnection
+        {
+            public override string address => throw new NotImplementedException();
+            public override void Disconnect() => throw new NotImplementedException();
+            internal override bool Send(ArraySegment<byte> segment, int channelId = 0) => throw new NotImplementedException();
         }
 
         [Test]
@@ -117,7 +123,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
                 Assert.Fail("Event should not be invoked with error");
             };
             NetworkServer.active = false;
-            LogAssert.Expect(UnityEngine.LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendInt)} called when server not active");
+            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendInt)} called when server not active");
             hostBehaviour.SendInt(someInt);
         }
 
@@ -135,7 +141,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(UnityEngine.LogType.Error, $"TargetRpc {nameof(TargetRpcBehaviour.SendInt)} called on {hostBehaviour.name} but that object has not been spawned or has been unspawned");
+            LogAssert.Expect(LogType.Warning, $"TargetRpc {nameof(TargetRpcBehaviour.SendInt)} called on {hostBehaviour.name} but that object has not been spawned or has been unspawned");
             hostBehaviour.SendInt(someInt);
         }
     }
