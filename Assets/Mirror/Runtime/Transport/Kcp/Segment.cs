@@ -53,7 +53,7 @@ namespace Mirror.KCP
             encoder.Encode32U(timeStamp);
             encoder.Encode32U(serialNumber);
             encoder.Encode32U(unacknowledged);
-            encoder.Encode32U((uint)data.Position);
+            encoder.Encode32U((uint)data.Length);
 
             return encoder.Position;
         }
