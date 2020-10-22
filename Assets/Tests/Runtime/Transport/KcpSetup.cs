@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class KcpSetup : MonoBehaviour
+    public class KcpSetup
     {
         public readonly float pdrop;
         public readonly float pdup;
@@ -16,7 +16,7 @@ namespace Mirror.Tests
         public Kcp server;
         public CancellationTokenSource cts;
 
-        Stopwatch stopwatch = new Stopwatch();
+        readonly Stopwatch stopwatch = new Stopwatch();
 
         /// <summary>
         /// 
