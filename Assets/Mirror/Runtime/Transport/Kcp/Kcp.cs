@@ -483,11 +483,8 @@ namespace Mirror.KCP
                         UpdateAck(ts);
                         ParseAck(sn);
                         ShrinkBuf();
-                        if (!flag || sn > maxack)
-                        {
-                            flag = true;
-                            maxack = sn;
-                        }
+                        maxack = Math.Max(maxack, sn);
+                        flag = true;
                         break;
                     case CommandType.Push:
                         if (sn < rcv_nxt + rcv_wnd)
