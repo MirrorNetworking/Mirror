@@ -658,15 +658,7 @@ namespace Mirror.KCP
                     needsend = true;
                     segment.transmit++;
                     xmit++;
-                    if (nodelay == 0)
-                    {
-                        segment.rto += Math.Max(segment.rto, rx_rto);
-                    }
-                    else
-                    {
-                        int step = (nodelay < 2) ? segment.rto : rx_rto;
-                        segment.rto += step / 2;
-                    }
+                    segment.rto = NewRto(segment.rto);
                     segment.resendTimeStamp = current + (uint)segment.rto;
                     lost = true;
                 }
@@ -740,6 +732,22 @@ namespace Mirror.KCP
             // need to properly delete and return it to the pool now that we are
             // done with it.
             Segment.Release(seg);
+        }
+
+        private int NewRto(int rto)
+        {
+            if (nodelay == 0)
+            {
+                return rto + Math.Max(rto, rx_rto);
+            }
+            else if (nodelay < 2)
+            {
+                return rto + rto / 2;
+            }
+            else
+            {
+                return rto + rx_rto / 2;
+            }
         }
 
         private void SendQueueToSendBuffer(Segment seg, uint cwnd_)
