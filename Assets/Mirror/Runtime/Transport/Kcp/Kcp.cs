@@ -580,6 +580,8 @@ namespace Mirror.KCP
         // ikcp_wnd_unused
         uint WndUnused() => Math.Max(rcv_wnd - (uint)rcv_queue.Count, 0);
 
+        int offset;
+
         // ikcp_flush
         // flush remain ack segments
         public void Flush()
@@ -587,7 +589,7 @@ namespace Mirror.KCP
             // buffer ptr in original C
             // unlike the C version we leave a little room at the beginning
             // of the buffer for the reserved bytes
-            int offset = Reserved;    
+            offset = Reserved;    
             bool lost = false; // lost segments
 
             // helper functions
