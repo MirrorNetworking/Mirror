@@ -627,10 +627,7 @@ namespace Mirror.KCP
             // probe window size (if remote window size equals zero)
             FlushProbe(seg);
 
-            // calculate window size
-            uint cwnd_ = Math.Min(snd_wnd, rmt_wnd);
-            if (!nocwnd)
-                cwnd_ = Math.Min(cwnd, cwnd_);
+            uint cwnd_ = CalculateWindowSize();
 
             // move data from send queue to send buffer
             SendQueueToSendBuffer(seg, cwnd_);
@@ -669,7 +666,7 @@ namespace Mirror.KCP
                     segment.transmit++;
                     segment.fastack = 0;
                     segment.resendTimeStamp = current + (uint)segment.rto;
-                    change= true;
+                    change = true;
                 }
 
                 if (needsend)
@@ -725,6 +722,14 @@ namespace Mirror.KCP
             // need to properly delete and return it to the pool now that we are
             // done with it.
             Segment.Release(seg);
+        }
+
+        private uint CalculateWindowSize()
+        {
+            uint cwnd_ = Math.Min(snd_wnd, rmt_wnd);
+            if (!nocwnd)
+                cwnd_ = Math.Min(cwnd, cwnd_);
+            return cwnd_;
         }
 
         private int ResendRto(int rto)
