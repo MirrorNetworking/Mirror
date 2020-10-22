@@ -2,6 +2,6 @@ namespace Mirror
 {
     public interface INetworkSceneManager
     {
-        void ChangeServerScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal);
+        void ChangeServerScene(string scenePath, SceneOperation sceneOperation = SceneOperation.Normal);
     }
 }

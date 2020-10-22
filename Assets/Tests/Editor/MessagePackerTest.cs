@@ -14,7 +14,7 @@ namespace Mirror.Tests
         {
             var message = new SceneMessage
             {
-                sceneName = "Hello world",
+                scenePath = "Hello world",
                 sceneOperation = SceneOperation.LoadAdditive
             };
 
@@ -22,7 +22,7 @@ namespace Mirror.Tests
 
             SceneMessage unpacked = MessagePacker.Unpack<SceneMessage>(data);
 
-            Assert.That(unpacked.sceneName, Is.EqualTo("Hello world"));
+            Assert.That(unpacked.scenePath, Is.EqualTo("Hello world"));
             Assert.That(unpacked.sceneOperation, Is.EqualTo(SceneOperation.LoadAdditive));
         }
 
@@ -47,7 +47,7 @@ namespace Mirror.Tests
 
             var message = new SceneMessage()
             {
-                sceneName = "Hello world",
+                scenePath = "Hello world",
                 sceneOperation = SceneOperation.LoadAdditive
             };
 
@@ -70,7 +70,7 @@ namespace Mirror.Tests
             // try a regular message
             var message = new SceneMessage()
             {
-                sceneName = "Hello world",
+                scenePath = "Hello world",
                 sceneOperation = SceneOperation.LoadAdditive
             };
 

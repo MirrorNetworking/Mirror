@@ -34,7 +34,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         IEnumerator AddPlayerDelayed(NetworkConnection conn)
         {
             yield return new WaitForSeconds(.5f);
-            conn.Send(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.LoadAdditive });
+            conn.Send(new SceneMessage { scenePath = gameScene, sceneOperation = SceneOperation.LoadAdditive });
 
             PlayerScore playerScore = conn.Identity.GetComponent<PlayerScore>();
             playerScore.playerNumber = playerId;
@@ -74,7 +74,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         /// </summary>
         public void OnStopServer()
         {
-            server.SendToAll(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.UnloadAdditive });
+            server.SendToAll(new SceneMessage { scenePath = gameScene, sceneOperation = SceneOperation.UnloadAdditive });
             StartCoroutine(UnloadSubScenes());
         }
 

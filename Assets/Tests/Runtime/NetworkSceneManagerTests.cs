@@ -69,12 +69,12 @@ namespace Mirror.Tests
             client.Connection.RegisterHandler<NotReadyMessage>(msg => invokeNotReadyMessage = true);
             sceneManager.ServerChangeScene.AddListener(func1);
 
-            sceneManager.ChangeServerScene("testScene");
+            sceneManager.ChangeServerScene("Assets/Mirror/Tests/Runtime/testScene.unity");
 
-            await AsyncUtil.WaitUntilWithTimeout(() => sceneManager.NetworkSceneName.Equals("Assets/Mirror/Tests/Runtime/testScene.unity"));
+            await AsyncUtil.WaitUntilWithTimeout(() => sceneManager.NetworkScenePath.Equals("Assets/Mirror/Tests/Runtime/testScene.unity"));
 
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
-            Assert.That(sceneManager.NetworkSceneName, Is.EqualTo("Assets/Mirror/Tests/Runtime/testScene.unity"));
+            Assert.That(sceneManager.NetworkScenePath, Is.EqualTo("Assets/Mirror/Tests/Runtime/testScene.unity"));
             Assert.That(invokeClientSceneMessage, Is.True);
             Assert.That(invokeNotReadyMessage, Is.True);
         });
@@ -121,7 +121,7 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator ChangeSceneAdditiveLoadTest() => UniTask.ToCoroutine(async () =>
         {
-            sceneManager.ChangeServerScene("testScene", SceneOperation.LoadAdditive);
+            sceneManager.ChangeServerScene("Assets/Mirror/Tests/Runtime/testScene.unity", SceneOperation.LoadAdditive);
 
             await AsyncUtil.WaitUntilWithTimeout(() => SceneManager.GetSceneByName("testScene") != null);
 
@@ -157,7 +157,7 @@ namespace Mirror.Tests
         {
             UnityAction<string, SceneOperation> func2 = Substitute.For<UnityAction<string, SceneOperation>>();
             clientSceneManager.ClientSceneChanged.AddListener(func2);
-            clientSceneManager.FinishLoadScene("test", SceneOperation.Normal);
+            clientSceneManager.FinishLoadScene("Assets/Mirror/Tests/Runtime/testScene.unity", SceneOperation.Normal);
 
             func2.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         }
@@ -180,7 +180,7 @@ namespace Mirror.Tests
         {
             UnityAction<string, SceneOperation> func1 = Substitute.For<UnityAction<string, SceneOperation>>();
             clientSceneManager.ClientChangeScene.AddListener(func1);
-            clientSceneManager.ClientSceneMessage(null, new SceneMessage { sceneName = "testScene" });
+            clientSceneManager.ClientSceneMessage(null, new SceneMessage { scenePath = "Assets/Mirror/Tests/Runtime/testScene.unity" });
 
             await AsyncUtil.WaitUntilWithTimeout(() => clientSceneManager.asyncOperation != null);
 
@@ -188,7 +188,7 @@ namespace Mirror.Tests
 
             await AsyncUtil.WaitUntilWithTimeout(() => clientSceneManager.asyncOperation.isDone);
 
-            Assert.That(clientSceneManager.NetworkSceneName, Is.EqualTo("Assets/Mirror/Tests/Runtime/testScene.unity"));
+            Assert.That(clientSceneManager.NetworkScenePath, Is.EqualTo("Assets/Mirror/Tests/Runtime/testScene.unity"));
 
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         });
@@ -196,7 +196,7 @@ namespace Mirror.Tests
         [Test]
         public void NetworkSceneNameStringValueTest()
         {
-            Assert.That(clientSceneManager.NetworkSceneName.Equals(SceneManager.GetActiveScene().path));
+            Assert.That(clientSceneManager.NetworkScenePath.Equals(SceneManager.GetActiveScene().path));
         }
 
         [Test]

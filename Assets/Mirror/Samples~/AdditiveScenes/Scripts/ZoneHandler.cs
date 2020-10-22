@@ -21,7 +21,7 @@ namespace Mirror.Examples.Additive
             if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Loading {0}", subScene);
 
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
-            Server.SendToClientOfPlayer(networkIdentity, new SceneMessage { sceneName = subScene, sceneOperation = SceneOperation.LoadAdditive });
+            Server.SendToClientOfPlayer(networkIdentity, new SceneMessage { scenePath = subScene, sceneOperation = SceneOperation.LoadAdditive });
         }
 
         [Server]
@@ -30,7 +30,7 @@ namespace Mirror.Examples.Additive
             if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Unloading {0}", subScene);
 
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
-            Server.SendToClientOfPlayer(networkIdentity, new SceneMessage { sceneName = subScene, sceneOperation = SceneOperation.UnloadAdditive });
+            Server.SendToClientOfPlayer(networkIdentity, new SceneMessage { scenePath = subScene, sceneOperation = SceneOperation.UnloadAdditive });
         }
     }
 }
