@@ -301,7 +301,6 @@ namespace Mirror
 
         void ReadParameters(NetworkReader reader)
         {
-            bool animatorEnabled = Animator.enabled;
             // need to read values from NetworkReader even if animator is disabled
 
             ulong dirtyBits = reader.ReadPackedUInt64();
@@ -311,25 +310,48 @@ namespace Mirror
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
-                if (par.type == AnimatorControllerParameterType.Int)
+                switch (par.type)
                 {
-                    int newIntValue = reader.ReadPackedInt32();
-                    if (animatorEnabled)
-                        Animator.SetInteger(par.nameHash, newIntValue);
-                }
-                else if (par.type == AnimatorControllerParameterType.Float)
-                {
-                    float newFloatValue = reader.ReadSingle();
-                    if (animatorEnabled)
-                        Animator.SetFloat(par.nameHash, newFloatValue);
-                }
-                else if (par.type == AnimatorControllerParameterType.Bool)
-                {
-                    bool newBoolValue = reader.ReadBoolean();
-                    if (animatorEnabled)
-                        Animator.SetBool(par.nameHash, newBoolValue);
+                    case AnimatorControllerParameterType.Int:
+                        {
+                            int newIntValue = reader.ReadPackedInt32();
+                            SetInteger(par, newIntValue);
+                            break;
+                        }
+
+                    case AnimatorControllerParameterType.Float:
+                        {
+                            float newFloatValue = reader.ReadSingle();
+                            SetFloat(par, newFloatValue);
+                            break;
+                        }
+
+                    case AnimatorControllerParameterType.Bool:
+                        {
+                            bool newBoolValue = reader.ReadBoolean();
+                            SetBool(par, newBoolValue);
+                            break;
+                        }
                 }
             }
+        }
+
+        private void SetBool(AnimatorControllerParameter par, bool newBoolValue)
+        {
+            if (Animator.enabled)
+                Animator.SetBool(par.nameHash, newBoolValue);
+        }
+
+        private void SetFloat(AnimatorControllerParameter par, float newFloatValue)
+        {
+            if (Animator.enabled)
+                Animator.SetFloat(par.nameHash, newFloatValue);
+        }
+
+        private void SetInteger(AnimatorControllerParameter par, int newIntValue)
+        {
+            if (Animator.enabled)
+                Animator.SetInteger(par.nameHash, newIntValue);
         }
 
         /// <summary>
