@@ -267,8 +267,13 @@ namespace Mirror.KCP
         }
 
         // ikcp_update_ack
-        void UpdateAck(int rtt) // round trip time
+        void UpdateAck(uint ts) // round trip time
         {
+            if (current < ts)
+                return;
+
+            int rtt = (int)(current - ts);
+
             // https://tools.ietf.org/html/rfc6298
             if (rx_srtt == 0)
             {
@@ -499,10 +504,7 @@ namespace Mirror.KCP
                 switch (cmd)
                 {
                     case CommandType.Ack:
-                        if (current >= ts)
-                        {
-                            UpdateAck((int)(current - ts));
-                        }
+                        UpdateAck(ts);
                         ParseAck(sn);
                         ShrinkBuf();
                         if (!flag)
@@ -781,11 +783,6 @@ namespace Mirror.KCP
                 }
             }
 
-            // kcp stackallocs 'seg'. our C# segment is a class though, so we
-            // need to properly delete and return it to the pool now that we are
-            // done with it.
-            Segment.Release(seg);
-
             // flash remain segments
             if (offset > Reserved)
             {
@@ -820,6 +817,12 @@ namespace Mirror.KCP
                 cwnd = 1;
                 incr = Mss;
             }
+
+
+            // kcp stackallocs 'seg'. our C# segment is a class though, so we
+            // need to properly delete and return it to the pool now that we are
+            // done with it.
+            Segment.Release(seg);
         }
 
         // ikcp_update
