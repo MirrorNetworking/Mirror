@@ -249,27 +249,30 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
-            // this was in Weaver before
             if (!NetworkServer.active)
             {
-                logger.LogError("TargetRPC Function " + rpcName + " called on client.");
+                logger.LogError($"TargetRPC {rpcName} called when server not active");
                 return;
             }
-            // connection parameter is optional. assign if null.
-            if (conn == null)
-            {
-                conn = connectionToClient;
-            }
-            // this was in Weaver before
-            if (conn is NetworkConnectionToServer)
-            {
-                logger.LogError("TargetRPC Function " + rpcName + " called on connection to server");
-                return;
-            }
-            // This cannot use NetworkServer.active, as that is not specific to this object.
+
             if (!isServer)
             {
-                logger.LogWarning("TargetRpc " + rpcName + " called on un-spawned object: " + name);
+                logger.LogWarning($"TargetRpc {rpcName} called on {name} but that object has not been spawned or has been unspawned");
+                return;
+            }
+
+            // connection parameter is optional. assign if null.
+            conn = conn ?? connectionToClient;
+
+            if (conn is null)
+            {
+                logger.LogError($"TargetRPC {rpcName} was given a null connection, make sure the object has an owner or you pass in the target connection");
+                return;
+            }
+
+            if (!(conn is NetworkConnectionToClient))
+            {
+                logger.LogError($"TargetRPC {rpcName} requires a NetworkConnectionToClient but was given {conn.GetType().FullName}");
                 return;
             }
 
