@@ -496,55 +496,55 @@ namespace Mirror.KCP
                 ParseUna(una);
                 ShrinkBuf();
 
-                if (cmd == CommandType.Ack)
+                switch (cmd)
                 {
-                    if (current >= ts)
-                    {
-                        UpdateAck((int)(current - ts));
-                    }
-                    ParseAck(sn);
-                    ShrinkBuf();
-                    if (!flag)
-                    {
-                        flag = true;
-                        maxack = sn;
-                        latest_ts = ts;
-                    }
-                    else if (sn > maxack && (!FastAckConserve || ts > latest_ts))
-                    {
-                        maxack = sn;
-                        latest_ts = ts;
-                    }
-
-                }
-                else if (cmd == CommandType.Push)
-                {
-                    if (sn < rcv_nxt + rcv_wnd)
-                    {
-                        AckPush(sn, ts);
-                        if (sn >= rcv_nxt)
+                    case CommandType.Ack:
+                        if (current >= ts)
                         {
-                            var seg = Segment.Lease();
-                            seg.conversation = conv_;
-                            seg.cmd = cmd;
-                            seg.fragment = frg;
-                            seg.window = wnd;
-                            seg.timeStamp = ts;
-                            seg.serialNumber = sn;
-                            seg.unacknowledged = una;
-                            if (len > 0)
-                            {
-                                seg.data.Write(data, offset, (int)len);
-                            }
-                            ParseData(seg);
+                            UpdateAck((int)(current - ts));
                         }
-                    }
-                }
-                else if (cmd == CommandType.WindowAsk)
-                {
-                    // ready to send back CMD_WINS in flush
-                    // tell remote my window size
-                    probe |= ASK_TELL;
+                        ParseAck(sn);
+                        ShrinkBuf();
+                        if (!flag)
+                        {
+                            flag = true;
+                            maxack = sn;
+                            latest_ts = ts;
+                        }
+                        else if (sn > maxack && (!FastAckConserve || ts > latest_ts))
+                        {
+                            maxack = sn;
+                            latest_ts = ts;
+                        }
+                        break;
+                    case CommandType.Push:
+                        if (sn < rcv_nxt + rcv_wnd)
+                        {
+                            AckPush(sn, ts);
+                            if (sn >= rcv_nxt)
+                            {
+                                var seg = Segment.Lease();
+                                seg.conversation = conv_;
+                                seg.cmd = cmd;
+                                seg.fragment = frg;
+                                seg.window = wnd;
+                                seg.timeStamp = ts;
+                                seg.serialNumber = sn;
+                                seg.unacknowledged = una;
+                                if (len > 0)
+                                {
+                                    seg.data.Write(data, offset, (int)len);
+                                }
+                                ParseData(seg);
+                            }
+                        }
+                        break;
+                    case CommandType.WindowAsk:
+
+                        // ready to send back CMD_WINS in flush
+                        // tell remote my window size
+                        probe |= ASK_TELL;
+                        break;
                 }
 
                 offset += (int)len;
