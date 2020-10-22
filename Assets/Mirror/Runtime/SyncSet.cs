@@ -94,26 +94,7 @@ namespace Mirror
             };
 
             changes.Add(change);
-
-            RaiseEvents(op, item);
-
             OnChange?.Invoke();
-        }
-
-        private void RaiseEvents(Operation op, T item)
-        {
-            switch (op)
-            {
-                case Operation.OP_ADD:
-                    OnAdd?.Invoke(item);
-                    break;
-                case Operation.OP_CLEAR:
-                    OnClear?.Invoke();
-                    break;
-                case Operation.OP_REMOVE:
-                    OnRemove?.Invoke(item);
-                    break;
-            }
         }
 
         public void OnSerializeAll(NetworkWriter writer)
@@ -263,23 +244,19 @@ namespace Mirror
         {
             if (objects.Add(item))
             {
+                OnAdd?.Invoke(item);
                 AddOperation(Operation.OP_ADD, item);
                 return true;
             }
             return false;
         }
 
-        void ICollection<T>.Add(T item)
-        {
-            if (objects.Add(item))
-            {
-                AddOperation(Operation.OP_ADD, item);
-            }
-        }
+        void ICollection<T>.Add(T item) => _ = Add(item);
 
         public void Clear()
         {
             objects.Clear();
+            OnClear?.Invoke();
             AddOperation(Operation.OP_CLEAR);
         }
 
@@ -291,6 +268,7 @@ namespace Mirror
         {
             if (objects.Remove(item))
             {
+                OnRemove?.Invoke(item);
                 AddOperation(Operation.OP_REMOVE, item);
                 return true;
             }
