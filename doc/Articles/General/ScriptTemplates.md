@@ -7,7 +7,7 @@ We've added Script Templates to make it easier to create derived class scripts t
 -   Base method calls are all in place where needed so you can see what they already do.
 -   Each has links at the top to their doc page(s).
 
-Import [this package](ScriptTemplates.unitypackage) to add Script Templates to your project.
+Import [this package](ScriptTemplates.zip) to add Script Templates to your project.
 
 > **NOTE:** You must restart Unity after importing this package!
 
