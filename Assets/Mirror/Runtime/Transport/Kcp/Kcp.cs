@@ -717,7 +717,7 @@ namespace Mirror.KCP
             }
 
             // calculate resent
-            uint resent = fastresend > 0 ? (uint)fastresend : 0xffffffff;
+            uint resent = fastresend > 0 ? (uint)fastresend : uint.MaxValue;
             uint rtomin = nodelay == 0 ? (uint)rx_rto >> 3 : 0;
 
             // flush data segments
