@@ -528,8 +528,8 @@ namespace Mirror.KCP
                         break;
                 }
 
-                offset += (int)len;
-                size -= (int)len;
+                offset += len;
+                size -= len;
             }
 
             if (flag)
