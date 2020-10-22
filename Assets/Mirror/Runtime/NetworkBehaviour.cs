@@ -275,7 +275,7 @@ namespace Mirror
 
             if (!(conn is NetworkConnectionToClient))
             {
-                logger.LogError($"TargetRPC {rpcName} requires a NetworkConnectionToClient but was given {conn.GetType().FullName}");
+                logger.LogError($"TargetRPC {rpcName} requires a NetworkConnectionToClient but was given {conn.GetType().Name}");
                 return;
             }
 
