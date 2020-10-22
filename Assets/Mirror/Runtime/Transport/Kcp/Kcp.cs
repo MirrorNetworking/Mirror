@@ -700,9 +700,7 @@ namespace Mirror.KCP
             if (change)
             {
                 uint inflight = snd_nxt - snd_una;
-                ssthresh = inflight / 2;
-                if (ssthresh < THRESH_MIN)
-                    ssthresh = THRESH_MIN;
+                ssthresh = Math.Max(inflight / 2, THRESH_MIN);
                 cwnd = ssthresh + resent;
                 incr = cwnd * Mss;
             }
@@ -711,9 +709,7 @@ namespace Mirror.KCP
             if (lost)
             {
                 // original C uses 'cwnd', not kcp->cwnd!
-                ssthresh = cwnd_ / 2;
-                if (ssthresh < THRESH_MIN)
-                    ssthresh = THRESH_MIN;
+                ssthresh = Math.Max(cwnd_ / 2, THRESH_MIN);
                 cwnd = 1;
                 incr = Mss;
             }
