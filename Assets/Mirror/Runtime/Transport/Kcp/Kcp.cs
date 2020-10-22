@@ -604,7 +604,6 @@ namespace Mirror.KCP
             // unlike the C version we leave a little room at the beginning
             // of the buffer for the reserved bytes
             offset = Reserved;
-            bool lost = false; // lost segments
 
             // 'ikcp_update' haven't been called.
             if (!updated)
@@ -630,14 +629,37 @@ namespace Mirror.KCP
             uint cwnd_ = CalculateWindowSize();
 
             // move data from send queue to send buffer
-            SendQueueToSendBuffer(seg, cwnd_);
+            SendQueueToSendBuffer(seg.window, cwnd_);
 
+            FlushDataSegments(seg.window, cwnd_);
+
+            if (cwnd < 1)
+            {
+                cwnd = 1;
+                incr = Mss;
+            }
+
+            // flash remain segments
+            if (offset > Reserved)
+            {
+                output(buffer, offset);
+            }
+
+            // kcp stackallocs 'seg'. our C# segment is a class though, so we
+            // need to properly delete and return it to the pool now that we are
+            // done with it.
+            Segment.Release(seg);
+        }
+
+        private void FlushDataSegments(uint window, uint cwnd_)
+        {
             // calculate resent
             uint resent = fastresend > 0 ? (uint)fastresend : uint.MaxValue;
             uint rtomin = nodelay == 0 ? (uint)rx_rto >> 3 : 0;
 
             // flush data segments
             bool change = false;
+            bool lost = false; // lost segments
             foreach (Segment segment in snd_buf)
             {
                 bool needsend = false;
@@ -672,7 +694,7 @@ namespace Mirror.KCP
                 if (needsend)
                 {
                     segment.timeStamp = current;
-                    segment.window = seg.window;
+                    segment.window = window;
                     segment.unacknowledged = rcv_nxt;
 
                     int need = (int)(OVERHEAD + segment.data.Length);
@@ -686,11 +708,6 @@ namespace Mirror.KCP
                 }
             }
 
-            // flash remain segments
-            if (offset > Reserved)
-            {
-                output(buffer, offset);
-            }
 
             // update ssthresh
             // rate halving, https://tools.ietf.org/html/rfc6937
@@ -710,18 +727,6 @@ namespace Mirror.KCP
                 cwnd = 1;
                 incr = Mss;
             }
-
-            if (cwnd < 1)
-            {
-                cwnd = 1;
-                incr = Mss;
-            }
-
-
-            // kcp stackallocs 'seg'. our C# segment is a class though, so we
-            // need to properly delete and return it to the pool now that we are
-            // done with it.
-            Segment.Release(seg);
         }
 
         private uint CalculateWindowSize()
@@ -748,7 +753,7 @@ namespace Mirror.KCP
             }
         }
 
-        private void SendQueueToSendBuffer(Segment seg, uint cwnd_)
+        private void SendQueueToSendBuffer(uint window, uint cwnd_)
         {
             // move data from snd_queue to snd_buf
             // sliding window, controlled by snd_nxt && sna_una+cwnd
@@ -761,7 +766,7 @@ namespace Mirror.KCP
 
                 newseg.conversation = conv;
                 newseg.cmd = CommandType.Push;
-                newseg.window = seg.window;
+                newseg.window = window;
                 newseg.timeStamp = current;
                 newseg.serialNumber = snd_nxt++;
                 newseg.unacknowledged = rcv_nxt;
