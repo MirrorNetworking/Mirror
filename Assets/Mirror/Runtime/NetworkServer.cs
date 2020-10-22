@@ -342,7 +342,6 @@ namespace Mirror
             {
                 conn.Disconnect();
                 OnDisconnected(conn);
-                conn.Dispose();
             }
             connections.Clear();
         }
