@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Mirror.RemoteCalls;
 using UnityEngine;
 
@@ -466,7 +467,18 @@ namespace Mirror
         /// </summary>
         public static void DisconnectAllConnections()
         {
-            foreach (NetworkConnection conn in connections.Values)
+            // disconnect and remove all connections.
+            // we can not use foreach here because if
+            //   conn.Disconnect -> Transport.ServerDisconnect calls
+            //   OnDisconnect -> NetworkServer.OnDisconnect(connectionId)
+            // immediately then OnDisconnect would remove the connection while
+            // we are iterating here.
+            //   see also: https://github.com/vis2k/Mirror/issues/2357
+            // this whole process should be simplified some day.
+            // until then, let's copy .Values to avoid InvalidOperatinException.
+            // note that this is only called when stopping the server, so the
+            // copy is no performance problem.
+            foreach (NetworkConnection conn in connections.Values.ToList())
             {
                 conn.Disconnect();
                 // call OnDisconnected unless local player in host mode
