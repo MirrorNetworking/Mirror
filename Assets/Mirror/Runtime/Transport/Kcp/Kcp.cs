@@ -625,47 +625,7 @@ namespace Mirror.KCP
             FlushAcknowledge(seg);
 
             // probe window size (if remote window size equals zero)
-            if (rmt_wnd == 0)
-            {
-                if (probe_wait == 0)
-                {
-                    probe_wait = PROBE_INIT;
-                    ts_probe = current + probe_wait;
-                }
-                else if (current >= ts_probe)
-                {
-                    if (probe_wait < PROBE_INIT)
-                        probe_wait = PROBE_INIT;
-                    probe_wait += probe_wait / 2;
-                    if (probe_wait > PROBE_LIMIT)
-                        probe_wait = PROBE_LIMIT;
-                    ts_probe = current + probe_wait;
-                    probe |= ASK_SEND;
-                }
-            }
-            else
-            {
-                ts_probe = 0;
-                probe_wait = 0;
-            }
-
-            // flush window probing commands
-            if ((probe & ASK_SEND) != 0)
-            {
-                seg.cmd = CommandType.WindowAsk;
-                MakeSpace(OVERHEAD);
-                offset = seg.Encode(buffer, offset);
-            }
-
-            // flush window probing commands
-            if ((probe & ASK_TELL) != 0)
-            {
-                seg.cmd = CommandType.WindowTell;
-                MakeSpace(OVERHEAD);
-                offset = seg.Encode(buffer, offset);
-            }
-
-            probe = 0;
+            FlushProbe(seg);
 
             // calculate window size
             uint cwnd_ = Math.Min(snd_wnd, rmt_wnd);
@@ -799,6 +759,51 @@ namespace Mirror.KCP
             // need to properly delete and return it to the pool now that we are
             // done with it.
             Segment.Release(seg);
+        }
+
+        private void FlushProbe(Segment seg)
+        {
+            if (rmt_wnd == 0)
+            {
+                if (probe_wait == 0)
+                {
+                    probe_wait = PROBE_INIT;
+                    ts_probe = current + probe_wait;
+                }
+                else if (current >= ts_probe)
+                {
+                    if (probe_wait < PROBE_INIT)
+                        probe_wait = PROBE_INIT;
+                    probe_wait += probe_wait / 2;
+                    if (probe_wait > PROBE_LIMIT)
+                        probe_wait = PROBE_LIMIT;
+                    ts_probe = current + probe_wait;
+                    probe |= ASK_SEND;
+                }
+            }
+            else
+            {
+                ts_probe = 0;
+                probe_wait = 0;
+            }
+
+            // flush window probing commands
+            if ((probe & ASK_SEND) != 0)
+            {
+                seg.cmd = CommandType.WindowAsk;
+                MakeSpace(OVERHEAD);
+                offset = seg.Encode(buffer, offset);
+            }
+
+            // flush window probing commands
+            if ((probe & ASK_TELL) != 0)
+            {
+                seg.cmd = CommandType.WindowTell;
+                MakeSpace(OVERHEAD);
+                offset = seg.Encode(buffer, offset);
+            }
+
+            probe = 0;
         }
 
         private void FlushAcknowledge(Segment seg)
