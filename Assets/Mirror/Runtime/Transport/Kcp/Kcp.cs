@@ -658,7 +658,7 @@ namespace Mirror.KCP
                     needsend = true;
                     segment.transmit++;
                     xmit++;
-                    segment.rto = NewRto(segment.rto);
+                    segment.rto = ResendRto(segment.rto);
                     segment.resendTimeStamp = current + (uint)segment.rto;
                     lost = true;
                 }
@@ -734,7 +734,7 @@ namespace Mirror.KCP
             Segment.Release(seg);
         }
 
-        private int NewRto(int rto)
+        private int ResendRto(int rto)
         {
             if (nodelay == 0)
             {
