@@ -573,7 +573,8 @@ namespace Mirror.KCP
                 }
                 else
                 {
-                    if (incr < Mss) incr = Mss;
+                    if (incr < Mss)
+                        incr = Mss;
                     incr += Mss * Mss / incr + (Mss / 16);
                     if ((cwnd + 1) * Mss <= incr)
                     {
