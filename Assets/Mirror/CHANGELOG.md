@@ -1,3 +1,10 @@
+## [51.1.3](https://github.com/MirrorNG/MirrorNG/compare/v51.1.2...v51.1.3) (2020-10-22)
+
+
+### Performance Improvements
+
+* port kcp code from vis2k ([#422](https://github.com/MirrorNG/MirrorNG/issues/422)) ([aaab0e3](https://github.com/MirrorNG/MirrorNG/commit/aaab0e3ae1f2c39b281a01fb82e8f2c3b54edcda))
+
 ## [51.1.2](https://github.com/MirrorNG/MirrorNG/compare/v51.1.1...v51.1.2) (2020-10-21)
 
 
