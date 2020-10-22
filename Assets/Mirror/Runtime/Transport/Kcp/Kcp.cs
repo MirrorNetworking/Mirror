@@ -456,7 +456,7 @@ namespace Mirror.KCP
 
             // the data is expected to have the reserved space
             size -= Reserved;
-            if (data == null || size < OVERHEAD)
+            if (size < OVERHEAD)
                 return -1;
 
             int offset = Reserved;
