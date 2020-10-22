@@ -1,3 +1,10 @@
+## [51.1.4](https://github.com/MirrorNG/MirrorNG/compare/v51.1.3...v51.1.4) (2020-10-22)
+
+
+### Bug Fixes
+
+* expect reserved header to be in the input ([547bdd6](https://github.com/MirrorNG/MirrorNG/commit/547bdd6a83521c753d703765d5592b20dabf4032))
+
 ## [51.1.3](https://github.com/MirrorNG/MirrorNG/compare/v51.1.2...v51.1.3) (2020-10-22)
 
 
