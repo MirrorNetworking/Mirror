@@ -234,27 +234,35 @@ namespace Mirror
             {
                 AnimatorControllerParameter par = parameters[i];
                 bool changed = false;
-                if (par.type == AnimatorControllerParameterType.Int)
+                switch (par.type)
                 {
-                    int newIntValue = Animator.GetInteger(par.nameHash);
-                    changed = newIntValue != lastIntParameters[i];
-                    if (changed)
-                        lastIntParameters[i] = newIntValue;
-                }
-                else if (par.type == AnimatorControllerParameterType.Float)
-                {
-                    float newFloatValue = Animator.GetFloat(par.nameHash);
-                    changed = Mathf.Abs(newFloatValue - lastFloatParameters[i]) > 0.001f;
-                    // only set lastValue if it was changed, otherwise value could slowly drift within the 0.001f limit each frame
-                    if (changed)
-                        lastFloatParameters[i] = newFloatValue;
-                }
-                else if (par.type == AnimatorControllerParameterType.Bool)
-                {
-                    bool newBoolValue = Animator.GetBool(par.nameHash);
-                    changed = newBoolValue != lastBoolParameters[i];
-                    if (changed)
-                        lastBoolParameters[i] = newBoolValue;
+                    case AnimatorControllerParameterType.Int:
+                        {
+                            int newIntValue = Animator.GetInteger(par.nameHash);
+                            changed = newIntValue != lastIntParameters[i];
+                            if (changed)
+                                lastIntParameters[i] = newIntValue;
+                            break;
+                        }
+
+                    case AnimatorControllerParameterType.Float:
+                        {
+                            float newFloatValue = Animator.GetFloat(par.nameHash);
+                            changed = Mathf.Abs(newFloatValue - lastFloatParameters[i]) > 0.001f;
+                            // only set lastValue if it was changed, otherwise value could slowly drift within the 0.001f limit each frame
+                            if (changed)
+                                lastFloatParameters[i] = newFloatValue;
+                            break;
+                        }
+
+                    case AnimatorControllerParameterType.Bool:
+                        {
+                            bool newBoolValue = Animator.GetBool(par.nameHash);
+                            changed = newBoolValue != lastBoolParameters[i];
+                            if (changed)
+                                lastBoolParameters[i] = newBoolValue;
+                            break;
+                        }
                 }
                 if (changed)
                 {
