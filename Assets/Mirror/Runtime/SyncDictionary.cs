@@ -96,7 +96,7 @@ namespace Mirror
             this.objects = objects;
         }
 
-        void AddOperation(Operation op, TKey key, TValue item, TValue oldItem)
+        void AddOperation(Operation op, TKey key, TValue item)
         {
             if (IsReadOnly)
             {
@@ -112,28 +112,7 @@ namespace Mirror
 
             changes.Add(change);
 
-            RaiseEvents(op, key, item, oldItem);
-
             OnChange?.Invoke();
-        }
-
-        private void RaiseEvents(Operation op, TKey key, TValue value, TValue oldValue)
-        {
-            switch (op)
-            {
-                case Operation.OP_ADD:
-                    OnInsert?.Invoke(key, value);
-                    break;
-                case Operation.OP_CLEAR:
-                    OnClear?.Invoke();
-                    break;
-                case Operation.OP_REMOVE:
-                    OnRemove?.Invoke(key, value);
-                    break;
-                case Operation.OP_SET:
-                    OnSet?.Invoke(key, oldValue, value);
-                    break;
-            }
         }
 
         public void OnSerializeAll(NetworkWriter writer)
@@ -300,7 +279,8 @@ namespace Mirror
         public void Clear()
         {
             objects.Clear();
-            AddOperation(Operation.OP_CLEAR, default, default, default);
+            OnClear?.Invoke();
+            AddOperation(Operation.OP_CLEAR, default, default);
         }
 
         public bool ContainsKey(TKey key) => objects.ContainsKey(key);
@@ -309,7 +289,8 @@ namespace Mirror
         {
             if (objects.TryGetValue(key, out TValue item) && objects.Remove(key))
             {
-                AddOperation(Operation.OP_REMOVE, key, item, default);
+                OnRemove?.Invoke(key, item);
+                AddOperation(Operation.OP_REMOVE, key, item);
                 return true;
             }
             return false;
@@ -324,12 +305,14 @@ namespace Mirror
                 {
                     TValue oldItem = objects[i];
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, value, oldItem);
+                    OnSet?.Invoke(i, oldItem, value);
+                    AddOperation(Operation.OP_SET, i, value);
                 }
                 else
                 {
                     objects[i] = value;
-                    AddOperation(Operation.OP_ADD, i, value, default);
+                    OnInsert?.Invoke(i, value);
+                    AddOperation(Operation.OP_ADD, i, value);
                 }
             }
         }
@@ -339,7 +322,8 @@ namespace Mirror
         public void Add(TKey key, TValue value)
         {
             objects.Add(key, value);
-            AddOperation(Operation.OP_ADD, key, value, default);
+            OnInsert?.Invoke(key, value);
+            AddOperation(Operation.OP_ADD, key, value);
         }
 
         public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
@@ -373,7 +357,8 @@ namespace Mirror
             bool result = objects.Remove(item.Key);
             if (result)
             {
-                AddOperation(Operation.OP_REMOVE, item.Key, item.Value, default);
+                OnRemove?.Invoke(item.Key, item.Value);
+                AddOperation(Operation.OP_REMOVE, item.Key, item.Value);
             }
             return result;
         }
