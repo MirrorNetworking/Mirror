@@ -236,7 +236,6 @@ namespace Mirror
             if (localConnection != null)
             {
                 localConnection.Disconnect();
-                localConnection.Dispose();
                 localConnection = null;
             }
             RemoveConnection(0);
@@ -473,7 +472,6 @@ namespace Mirror
                 // call OnDisconnected unless local player in host mode
                 if (conn.connectionId != NetworkConnection.LocalConnectionId)
                     OnDisconnected(conn);
-                conn.Dispose();
             }
             connections.Clear();
         }

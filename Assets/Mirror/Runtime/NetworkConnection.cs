@@ -14,7 +14,7 @@ namespace Mirror
     /// <para>NetworkConnection objects also act as observers for networked objects. When a connection is an observer of a networked object with a NetworkIdentity, then the object will be visible to corresponding client for the connection, and incremental state changes will be sent to the client.</para>
     /// <para>There are many virtual functions on NetworkConnection that allow its behaviour to be customized. NetworkClient and NetworkServer can both be made to instantiate custom classes derived from NetworkConnection by setting their networkConnectionClass member variable.</para>
     /// </remarks>
-    public abstract class NetworkConnection : IDisposable
+    public abstract class NetworkConnection
     {
         public const int LocalConnectionId = 0;
         static readonly ILogger logger = LogFactory.GetLogger<NetworkConnection>();
@@ -105,28 +105,6 @@ namespace Mirror
         internal NetworkConnection(int networkConnectionId) : this()
         {
             connectionId = networkConnectionId;
-        }
-
-        ~NetworkConnection()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Disposes of this connection, releasing channel buffers that it holds.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            // Take yourself off the Finalization queue
-            // to prevent finalization code for this object
-            // from executing a second time.
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            clientOwnedObjects.Clear();
         }
 
         /// <summary>

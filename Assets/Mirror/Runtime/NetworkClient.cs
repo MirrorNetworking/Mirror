@@ -215,14 +215,6 @@ namespace Mirror
                 if (connection != null)
                 {
                     connection.Disconnect();
-                    // connection.Disconnect calls Transport.ClientDisconnect.
-                    // if transport calls Mirror's OnDisconnected event immediately
-                    // before returning, then we end up in a circular call:
-                    //   https://github.com/vis2k/Mirror/issues/2353
-                    // in which case connection becomes null after returning here.
-                    // in other words, the following Dispose call needs to use '.?'
-                    // to avoid NullReferenceExceptions.
-                    connection?.Dispose();
                     connection = null;
                     RemoveTransportHandlers();
                 }
