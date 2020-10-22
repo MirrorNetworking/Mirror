@@ -27,14 +27,14 @@ namespace Mirror.Weaver
                 return foundFunc;
             }
 
+            if (variableReference.IsMultidimensionalArray())
+            {
+                Weaver.Error($"{variableReference.Name} is an unsupported type. Multidimensional arrays are not supported", variableReference);
+                return null;
+            }
+
             if (variableReference.IsArray)
             {
-                if (variableReference.IsMultidimensionalArray())
-                {
-                    Weaver.Error($"{variableReference.Name} is an unsupported type. Multidimensional arrays are not supported", variableReference);
-                    return null;
-                }
-
                 return GenerateReadCollection(variableReference, variableReference.GetElementType(), nameof(NetworkReaderExtensions.ReadArray));
             }
 
