@@ -487,23 +487,23 @@ namespace Mirror.KCP
                         flag = true;
                         break;
                     case CommandType.Push:
-                        if (sn < rcv_nxt + rcv_wnd)
-                        {
-                            AckPush(sn, ts);
-                            if (sn >= rcv_nxt)
-                            {
-                                var seg = Segment.Lease();
-                                seg.conversation = conv_;
-                                seg.cmd = cmd;
-                                seg.fragment = frg;
-                                seg.window = wnd;
-                                seg.timeStamp = ts;
-                                seg.serialNumber = sn;
-                                seg.unacknowledged = una;
-                                seg.data.Write(data, offset, len);
-                                ParseData(seg);
-                            }
-                        }
+                        if (sn >= rcv_nxt + rcv_wnd)
+                            break;
+
+                        AckPush(sn, ts);
+                        if (sn < rcv_nxt)
+                            break;
+
+                        var seg = Segment.Lease();
+                        seg.conversation = conv_;
+                        seg.cmd = cmd;
+                        seg.fragment = frg;
+                        seg.window = wnd;
+                        seg.timeStamp = ts;
+                        seg.serialNumber = sn;
+                        seg.unacknowledged = una;
+                        seg.data.Write(data, offset, len);
+                        ParseData(seg);
                         break;
                     case CommandType.WindowAsk:
 
