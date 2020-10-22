@@ -596,6 +596,8 @@ namespace Mirror.KCP
         // flush remain ack segments
         public void Flush()
         {
+            // unlike the C version, leave room for reserved bytes
+
             int offset = Reserved;    // buffer ptr in original C
             bool lost = false; // lost segments
 
@@ -604,6 +606,10 @@ namespace Mirror.KCP
             {
                 if (offset + space > mtu)
                 {
+                    // we can't fit that space in the buffer
+                    // so send the current buffer
+                    // and start a new one
+                    // leave space for the reserved bytes
                     output(buffer, offset);
                     offset = Reserved;
                 }
