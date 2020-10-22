@@ -63,7 +63,7 @@ The currently defined channels are:
     Removed as part of separating Transports to components. Not all transports use ports, but those that do have a field for it. See [Transports](../Transports/index.md) for more info.
 
 -   `IsHeadless()`  
-    Use `isHeadless` instead, as it's a property now.
+    Use compiler symbol `UNITY_SERVER` instead.
 
 -   `client`  
     Use NetworkClient directly, it will be made static soon. For example, use `NetworkClient.Send(message)` instead of `NetworkManager.client.Send(message)`.
