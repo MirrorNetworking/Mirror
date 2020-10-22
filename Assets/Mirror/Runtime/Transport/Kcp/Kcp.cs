@@ -151,7 +151,7 @@ namespace Mirror.KCP
 
             bool recover = rcv_queue.Count >= rcv_wnd;
 
-            int len = ReceiveQueueToMessage(buffer);
+            int len = DequeueMessage(buffer);
 
             ReceiveBufferToReceiveQueue();
 
@@ -166,7 +166,7 @@ namespace Mirror.KCP
             return len;
         }
 
-        private int ReceiveQueueToMessage(byte[] buffer)
+        private int DequeueMessage(byte[] buffer)
         {
             // merge fragment.
             int offset = 0;
