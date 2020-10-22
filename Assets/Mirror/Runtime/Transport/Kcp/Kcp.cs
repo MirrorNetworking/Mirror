@@ -582,6 +582,20 @@ namespace Mirror.KCP
 
         int offset;
 
+        // helper functions
+        void MakeSpace(int space)
+        {
+            if (offset + space > mtu)
+            {
+                // we can't fit that space in the buffer
+                // so send the current buffer
+                // and start a new one
+                // leave space for the reserved bytes
+                output(buffer, offset);
+                offset = Reserved;
+            }
+        }
+
         // ikcp_flush
         // flush remain ack segments
         public void Flush()
@@ -589,22 +603,8 @@ namespace Mirror.KCP
             // buffer ptr in original C
             // unlike the C version we leave a little room at the beginning
             // of the buffer for the reserved bytes
-            offset = Reserved;    
+            offset = Reserved;
             bool lost = false; // lost segments
-
-            // helper functions
-            void MakeSpace(int space)
-            {
-                if (offset + space > mtu)
-                {
-                    // we can't fit that space in the buffer
-                    // so send the current buffer
-                    // and start a new one
-                    // leave space for the reserved bytes
-                    output(buffer, offset);
-                    offset = Reserved;
-                }
-            }
 
             // 'ikcp_update' haven't been called.
             if (!updated)
@@ -622,16 +622,7 @@ namespace Mirror.KCP
             seg.unacknowledged = rcv_nxt;
 
             // flush acknowledges
-            foreach (AckItem ack in acklist)
-            {
-                MakeSpace(OVERHEAD);
-                // ikcp_ack_get assigns ack[i] to seg.sn, seg.ts
-                seg.serialNumber = ack.serialNumber;
-                seg.timeStamp = ack.timestamp;
-                offset = seg.Encode(buffer, offset);
-            }
-
-            acklist.Clear();
+            FlushAcknowledge(seg);
 
             // probe window size (if remote window size equals zero)
             if (rmt_wnd == 0)
@@ -811,6 +802,20 @@ namespace Mirror.KCP
             // need to properly delete and return it to the pool now that we are
             // done with it.
             Segment.Release(seg);
+        }
+
+        private void FlushAcknowledge(Segment seg)
+        {
+            foreach (AckItem ack in acklist)
+            {
+                MakeSpace(OVERHEAD);
+                // ikcp_ack_get assigns ack[i] to seg.sn, seg.ts
+                seg.serialNumber = ack.serialNumber;
+                seg.timeStamp = ack.timestamp;
+                offset = seg.Encode(buffer, offset);
+            }
+
+            acklist.Clear();
         }
 
         // ikcp_update
