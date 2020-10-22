@@ -35,7 +35,8 @@
                     "images/**",
                     "**.png",
                     "**.jpg",
-                    "**.svg"
+                    "**.svg",
+                    "**.unitypackage"
                 ]
             }
         ],
