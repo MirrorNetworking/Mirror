@@ -632,27 +632,8 @@ namespace Mirror.KCP
             if (!nocwnd)
                 cwnd_ = Math.Min(cwnd, cwnd_);
 
-            // move data from snd_queue to snd_buf
-            // sliding window, controlled by snd_nxt && sna_una+cwnd
-            while (snd_nxt < snd_una + cwnd_)
-            {
-                if (snd_queue.Count == 0)
-                    break;
-
-                Segment newseg = snd_queue.Dequeue();
-
-                newseg.conversation = conv;
-                newseg.cmd = CommandType.Push;
-                newseg.window = seg.window;
-                newseg.timeStamp = current;
-                newseg.serialNumber = snd_nxt++;
-                newseg.unacknowledged = rcv_nxt;
-                newseg.resendTimeStamp = current;
-                newseg.rto = rx_rto;
-                newseg.fastack = 0;
-                newseg.transmit = 0;
-                snd_buf.Add(newseg);
-            }
+            // move data from send queue to send buffer
+            SendQueueToSendBuffer(seg, cwnd_);
 
             // calculate resent
             uint resent = fastresend > 0 ? (uint)fastresend : uint.MaxValue;
@@ -759,6 +740,31 @@ namespace Mirror.KCP
             // need to properly delete and return it to the pool now that we are
             // done with it.
             Segment.Release(seg);
+        }
+
+        private void SendQueueToSendBuffer(Segment seg, uint cwnd_)
+        {
+            // move data from snd_queue to snd_buf
+            // sliding window, controlled by snd_nxt && sna_una+cwnd
+            while (snd_nxt < snd_una + cwnd_)
+            {
+                if (snd_queue.Count == 0)
+                    break;
+
+                Segment newseg = snd_queue.Dequeue();
+
+                newseg.conversation = conv;
+                newseg.cmd = CommandType.Push;
+                newseg.window = seg.window;
+                newseg.timeStamp = current;
+                newseg.serialNumber = snd_nxt++;
+                newseg.unacknowledged = rcv_nxt;
+                newseg.resendTimeStamp = current;
+                newseg.rto = rx_rto;
+                newseg.fastack = 0;
+                newseg.transmit = 0;
+                snd_buf.Add(newseg);
+            }
         }
 
         private void FlushProbe(Segment seg)
