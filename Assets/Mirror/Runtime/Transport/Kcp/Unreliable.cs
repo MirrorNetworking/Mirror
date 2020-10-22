@@ -26,13 +26,13 @@ namespace Mirror.KCP
         /// <param name="data"></param>
         /// <param name="index"></param>
         /// <param name="size"></param>
-        public int Input(byte[] data, int index, int size)
+        public int Input(byte[] data, int size)
         {
             if (size <= OVERHEAD)
                 return -3;
 
             var seg = Segment.Lease();
-            seg.data.Write(data, index + OVERHEAD, size - OVERHEAD);
+            seg.data.Write(data, Reserved + OVERHEAD, size - OVERHEAD - Reserved);
 
             messages.Enqueue(seg);
 
@@ -56,7 +56,7 @@ namespace Mirror.KCP
         /// <param name="buffer"></param>
         /// <param name="offset"></param>
         /// <param name="length"></param>
-        public int Receive(byte[] buffer, int offset, int length)
+        public int Receive(byte[] buffer, int length)
         {
             if (messages.Count <= 0)
                 return -1;
@@ -66,7 +66,7 @@ namespace Mirror.KCP
             if (length < segment.data.Position)
                 return -2;
             segment.data.Position = 0;
-            segment.data.Read(buffer, offset, (int)segment.data.Length);
+            segment.data.Read(buffer, 0, (int)segment.data.Length);
             int bytes = (int)segment.data.Length;
             Segment.Release(segment);
             return bytes;

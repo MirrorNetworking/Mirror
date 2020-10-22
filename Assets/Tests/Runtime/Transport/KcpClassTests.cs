@@ -21,12 +21,12 @@ namespace Mirror.Tests
         {
             Assert.Throws<ArgumentException>(() =>
             {
-                server.SetMtu(0);
+                server.Mtu = 0;
             });
 
             Assert.Throws<ArgumentException>(() =>
             {
-                server.SetMtu(uint.MaxValue);
+                server.Mtu = uint.MaxValue;
             });
         }
 
@@ -35,7 +35,7 @@ namespace Mirror.Tests
         {
             Assert.Throws<ArgumentException>(() =>
             {
-                server.ReserveBytes(uint.MaxValue);
+                server.Reserved = int.MaxValue;
             });
         }
     }

@@ -15,7 +15,7 @@ namespace Mirror.KCP
         internal uint timeStamp;
         internal uint serialNumber;
         internal uint unacknowledged;
-        internal uint rto;
+        internal int rto;
         internal uint transmit;
         internal uint resendTimeStamp;
         internal uint fastack;
@@ -55,7 +55,7 @@ namespace Mirror.KCP
             encoder.Encode32U(unacknowledged);
             encoder.Encode32U((uint)data.Position);
 
-            return encoder.Position - offset;
+            return encoder.Position;
         }
 
         internal void Reset()

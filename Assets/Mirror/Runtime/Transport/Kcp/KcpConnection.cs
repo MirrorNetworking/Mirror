@@ -1,9 +1,11 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Mirror.KCP
 {
@@ -25,7 +27,14 @@ namespace Mirror.KCP
         // then consider us disconnected
         public int Timeout { get; set; } = 15000;
 
-        volatile uint lastReceived;
+        private static readonly Stopwatch stopWatch = new Stopwatch();
+
+        static KcpConnection()
+        {
+            stopWatch.Start();
+        }
+
+        private long lastReceived;
 
         /// <summary>
         /// Space for CRC64
@@ -47,11 +56,12 @@ namespace Mirror.KCP
                 Reserved = RESERVED
             };
 
-            kcp = new Kcp(0, SendWithChecksum);
-            kcp.SetNoDelay(delayMode);
+            kcp = new Kcp(0, SendWithChecksum)
+            {
+                Reserved = RESERVED
+            };
 
-            // reserve some space for CRC64
-            kcp.ReserveBytes(RESERVED);
+            kcp.SetNoDelay(delayMode);
             open = true;
 
             Tick().Forget();
@@ -61,19 +71,24 @@ namespace Mirror.KCP
         {
             try
             {
-                lastReceived = kcp.CurrentMS;
+                long now = stopWatch.ElapsedMilliseconds;
+                lastReceived = now;
 
-                while (open && kcp.CurrentMS < lastReceived + Timeout)
+                while (open )
                 {
-                    kcp.Update();
+                    now = stopWatch.ElapsedMilliseconds;
+                    if (now > lastReceived + Timeout)
+                        break;
 
-                    int check = kcp.Check();
+                    kcp.Update((uint)now);
 
-                    // call every 10 ms unless check says we can wait longer
-                    if (check < 10)
-                        check = 10;
+                    uint check = kcp.Check((uint)now);
 
-                    await UniTask.Delay(check);
+                    if (check <= now)
+                        check = (uint)(now + 10);
+
+
+                    await UniTask.Delay((int)(check - now));
                 }
             }
             catch (SocketException)
@@ -119,8 +134,8 @@ namespace Mirror.KCP
 
         private void InputUnreliable(byte[] buffer, int msgLength)
         {
-            unreliable.Input(buffer, RESERVED, msgLength - RESERVED);
-            lastReceived = kcp.CurrentMS;
+            unreliable.Input(buffer, msgLength);
+            lastReceived = stopWatch.ElapsedMilliseconds;
 
             if (isWaiting && unreliable.PeekSize() > 0)
             {
@@ -130,9 +145,9 @@ namespace Mirror.KCP
 
         private void InputReliable(byte[] buffer, int msgLength)
         {
-            kcp.Input(buffer, RESERVED, msgLength - RESERVED);
+            kcp.Input(buffer, msgLength);
 
-            lastReceived = kcp.CurrentMS;
+            lastReceived = stopWatch.ElapsedMilliseconds;
 
             if (isWaiting && kcp.PeekSize() > 0)
             {
@@ -202,9 +217,8 @@ namespace Mirror.KCP
                 // we got a message in the unreliable channel
                 int msgSize = unreliable.PeekSize();
                 buffer.SetLength(msgSize);
-                buffer.Position = 0;
-                buffer.TryGetBuffer(out ArraySegment<byte> data);
-                unreliable.Receive(data.Array, data.Offset, data.Count);
+                unreliable.Receive(buffer.GetBuffer(), (int)buffer.Length);
+                buffer.Position = msgSize;
                 return (true, Channel.Unreliable);
             }
             else
@@ -212,9 +226,8 @@ namespace Mirror.KCP
                 int msgSize = kcp.PeekSize();
                 // we have some data,  return it
                 buffer.SetLength(msgSize);
-                buffer.Position = 0;
-                buffer.TryGetBuffer(out ArraySegment<byte> data);
-                kcp.Receive(data.Array, data.Offset, data.Count);
+                kcp.Receive(buffer.GetBuffer());
+                buffer.Position = msgSize;
 
                 // if we receive a disconnect message,  then close everything
 
@@ -240,7 +253,7 @@ namespace Mirror.KCP
                 try
                 {
                     SendAsync(Goodby).Forget();
-                    kcp.Flush(false);
+                    kcp.Flush();
                 }
                 catch (SocketException)
                 {

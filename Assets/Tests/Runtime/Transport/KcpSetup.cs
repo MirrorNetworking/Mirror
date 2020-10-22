@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Mirror.KCP;
@@ -15,6 +16,8 @@ namespace Mirror.Tests
         public Kcp server;
         public CancellationTokenSource cts;
 
+        Stopwatch stopwatch = new Stopwatch();
+
         /// <summary>
         /// 
         /// </summary>
@@ -27,6 +30,7 @@ namespace Mirror.Tests
             this.pdrop = pdrop;
             this.pdup = pdup;
             this.maxLat = maxLat;
+            stopwatch.Start();
         }
 
         /// <summary>
@@ -47,11 +51,11 @@ namespace Mirror.Tests
             if (latency > 0)
                 await UniTask.Delay(latency, false, PlayerLoopTiming.Update, token);
 
-            target.Input(data, 0, length);
+            target.Input(data, length);
 
             // duplicate some packets (udp can duplicate packets)
             if (Random.value < pdup)
-                target.Input(data, 0, length);
+                target.Input(data, length);
         }
 
         public virtual async UniTaskVoid Tick(Kcp kcp, CancellationToken token)
@@ -60,7 +64,7 @@ namespace Mirror.Tests
             {
                 await UniTask.Delay(10, false, PlayerLoopTiming.Update, token);
 
-                kcp.Update();
+                kcp.Update((uint)stopwatch.ElapsedMilliseconds);
             }
         }
 
@@ -77,7 +81,7 @@ namespace Mirror.Tests
             });
             // fast mode so that we finish quicker
             client.SetNoDelay(KcpDelayMode.Fast3);
-            client.SetMtu(1000);
+            client.Mtu = 1000;
             client.SetWindowSize(16, 16);
 
             server = new Kcp(0, (data, length) =>
@@ -86,7 +90,7 @@ namespace Mirror.Tests
             });
             // fast mode so that we finish quicker
             server.SetNoDelay(KcpDelayMode.Fast3);
-            client.SetMtu(1000);
+            client.Mtu = 1000;
             client.SetWindowSize(16, 16);
 
 

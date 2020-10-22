@@ -57,8 +57,8 @@ namespace Mirror.Tests
 
             // for our tests,  lower the timeout to just 0.1s
             // so that the tests run quickly.
-            serverConnection.Timeout = 100;
-            clientConnection.Timeout = 100;
+            serverConnection.Timeout = 500;
+            clientConnection.Timeout = 500;
         });
 
         [UnityTearDown]
@@ -90,6 +90,7 @@ namespace Mirror.Tests
 
             var buffer = new MemoryStream();
             await serverConnection.ReceiveAsync(buffer);
+
             Assert.That(buffer.ToArray(), Is.EquivalentTo(data));
         });
 

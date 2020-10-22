@@ -42,7 +42,7 @@ namespace Mirror.Tests
             for (byte i=0; i< 50; i++)
             {
                 // wait for data
-                while (server.Receive(buffer, 0, 1) < 0)
+                while (server.Receive(buffer) < 0)
                     await UniTask.Delay(10);
 
                 Assert.That(buffer[0], Is.EqualTo(i));
@@ -69,11 +69,11 @@ namespace Mirror.Tests
             // receive the packet, it should be reassembled as a single packet
             byte[] buffer = new byte[data.Length];
 
-            int size = server.Receive(buffer, 0, buffer.Length);
+            int size = server.Receive(buffer);
             while (size < 0)
             {
                 await UniTask.Delay(10);
-                size = server.Receive(buffer, 0, buffer.Length);
+                size = server.Receive(buffer);
             }
 
             Assert.That(data, Is.EqualTo(buffer));
