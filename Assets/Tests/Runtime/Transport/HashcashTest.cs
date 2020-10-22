@@ -1,7 +1,5 @@
 ﻿using NUnit.Framework;
 using System;
-
-using UnityEngine;
 using Mirror.KCP;
 
 namespace Mirror.Tests
