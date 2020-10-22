@@ -1,3 +1,10 @@
+## [51.1.5](https://github.com/MirrorNG/MirrorNG/compare/v51.1.4...v51.1.5) (2020-10-22)
+
+
+### Bug Fixes
+
+* TCPTransport is obsolete, use KCPTransport instead ([c031ae9](https://github.com/MirrorNG/MirrorNG/commit/c031ae99b1666f76494bed80ca32df438bf705a3))
+
 ## [51.1.4](https://github.com/MirrorNG/MirrorNG/compare/v51.1.3...v51.1.4) (2020-10-22)
 
 
