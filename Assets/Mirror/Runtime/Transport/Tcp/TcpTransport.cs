@@ -68,7 +68,7 @@ namespace Mirror.Tcp
             var builder = new UriBuilder
             {
                 Host = Dns.GetHostName(),
-                Port = this.Port,
+                Port = Port,
                 Scheme = "tcp4"
             };
 
