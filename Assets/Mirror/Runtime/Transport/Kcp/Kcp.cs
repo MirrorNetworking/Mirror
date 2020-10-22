@@ -107,7 +107,6 @@ namespace Mirror.KCP
         // get how many packet is waiting to be sent
         public int WaitSnd => snd_buf.Count + snd_queue.Count;
 
-
         // ikcp_create
         /// <summary>
         ///  create a new kcp control object, 'conv' must equal in two endpoint
@@ -707,7 +706,6 @@ namespace Mirror.KCP
                     offset += (int)segment.data.Length;
                 }
             }
-
 
             // update ssthresh
             // rate halving, https://tools.ietf.org/html/rfc6937
