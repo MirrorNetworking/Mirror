@@ -180,7 +180,9 @@ namespace Mirror.HeadlessBenchmark
             {
                 if (transport.Equals("tcp"))
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     TcpTransport newTransport = networkManager.gameObject.AddComponent<TcpTransport>();
+#pragma warning restore CS0618 // Type or member is obsolete
 
                     //Try to apply port if exists and needed by transport.
                     if (!string.IsNullOrEmpty(port))

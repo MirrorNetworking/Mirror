@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 
 namespace Mirror.Tcp
 {
+    [Obsolete("Use KcpConnection instead")]
     internal class TcpConnection : IConnection
     {
         private readonly TcpClient client;

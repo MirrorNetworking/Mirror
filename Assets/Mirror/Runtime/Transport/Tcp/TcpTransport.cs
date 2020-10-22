@@ -7,7 +7,8 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Mirror.Tcp
-{ 
+{
+    [Obsolete("Use KcpTransport instead")]
     public class TcpTransport : Transport
     {
         private TcpListener listener;
