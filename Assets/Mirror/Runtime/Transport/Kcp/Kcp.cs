@@ -471,7 +471,7 @@ namespace Mirror.KCP
                 uint ts = decoder.Decode32U();
                 uint sn = decoder.Decode32U();
                 uint una = decoder.Decode32U();
-                uint len = decoder.Decode32U();
+                int len = (int)decoder.Decode32U();
 
                 offset = decoder.Position;
                 size -= OVERHEAD;
@@ -515,10 +515,7 @@ namespace Mirror.KCP
                                 seg.timeStamp = ts;
                                 seg.serialNumber = sn;
                                 seg.unacknowledged = una;
-                                if (len > 0)
-                                {
-                                    seg.data.Write(data, offset, (int)len);
-                                }
+                                seg.data.Write(data, offset, len);
                                 ParseData(seg);
                             }
                         }
@@ -546,7 +543,7 @@ namespace Mirror.KCP
             return 0;
         }
 
-        private bool ValidateSegment(int size, uint conv_, CommandType cmd, uint len)
+        private bool ValidateSegment(int size, uint conv_, CommandType cmd, int len)
         {
             if (conv_ != conv)
                 return false;
