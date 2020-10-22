@@ -253,7 +253,7 @@ namespace Mirror.KCP
             // fragment
             for (int i = 0; i < count; i++)
             {
-                int size = length > (int)Mss ? (int)Mss : length;
+                int size = Math.Min(length, (int)Mss);
                 var seg = Segment.Lease();
 
                 seg.data.Write(buffer, offset, size);
