@@ -640,7 +640,7 @@ namespace Mirror.KCP
             uint rtomin = nodelay == 0 ? (uint)rx_rto >> 3 : 0;
 
             // flush data segments
-            int change = 0;
+            bool change = false;
             foreach (Segment segment in snd_buf)
             {
                 bool needsend = false;
@@ -677,7 +677,7 @@ namespace Mirror.KCP
                     segment.transmit++;
                     segment.fastack = 0;
                     segment.resendTimeStamp = current + (uint)segment.rto;
-                    change++;
+                    change= true;
                 }
 
                 if (needsend)
@@ -708,7 +708,7 @@ namespace Mirror.KCP
 
             // update ssthresh
             // rate halving, https://tools.ietf.org/html/rfc6937
-            if (change > 0)
+            if (change)
             {
                 uint inflight = snd_nxt - snd_una;
                 ssthresh = inflight / 2;
