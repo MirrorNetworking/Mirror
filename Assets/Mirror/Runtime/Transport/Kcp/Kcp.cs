@@ -632,18 +632,15 @@ namespace Mirror.KCP
                     probe_wait = PROBE_INIT;
                     ts_probe = current + probe_wait;
                 }
-                else
+                else if (current >= ts_probe)
                 {
-                    if (current >= ts_probe)
-                    {
-                        if (probe_wait < PROBE_INIT)
-                            probe_wait = PROBE_INIT;
-                        probe_wait += probe_wait / 2;
-                        if (probe_wait > PROBE_LIMIT)
-                            probe_wait = PROBE_LIMIT;
-                        ts_probe = current + probe_wait;
-                        probe |= ASK_SEND;
-                    }
+                    if (probe_wait < PROBE_INIT)
+                        probe_wait = PROBE_INIT;
+                    probe_wait += probe_wait / 2;
+                    if (probe_wait > PROBE_LIMIT)
+                        probe_wait = PROBE_LIMIT;
+                    ts_probe = current + probe_wait;
+                    probe |= ASK_SEND;
                 }
             }
             else
