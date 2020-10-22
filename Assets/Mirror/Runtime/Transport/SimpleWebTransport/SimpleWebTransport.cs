@@ -155,7 +155,7 @@ namespace Mirror.SimpleWeb
                 OnClientError.Invoke(e);
             };
 
-            client.Connect(builder.ToString());
+            client.Connect(builder.Uri);
         }
 
         public override void ClientDisconnect()

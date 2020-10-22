@@ -22,9 +22,9 @@ namespace Mirror.SimpleWeb
 
         public bool CheckJsConnected() => SimpleWebJSLib.IsConnected(index);
 
-        public override void Connect(string address)
+        public override void Connect(Uri serverAddress)
         {
-            index = SimpleWebJSLib.Connect(address, OpenCallback, CloseCallBack, MessageCallback, ErrorCallback);
+            index = SimpleWebJSLib.Connect(serverAddress.ToString(), OpenCallback, CloseCallBack, MessageCallback, ErrorCallback);
             instances.Add(index, this);
             state = ClientState.Connecting;
         }

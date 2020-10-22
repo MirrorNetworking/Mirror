@@ -49,9 +49,7 @@ namespace Mirror.SimpleWeb
 
                     while (client.Connected)
                     {
-                        bool success = ReadOneMessage(config, readBuffer);
-                        if (!success)
-                            break;
+                        ReadOneMessage(config, readBuffer);
                     }
 
                     Log.Info($"{conn} Not Connected");
@@ -100,7 +98,7 @@ namespace Mirror.SimpleWeb
             }
         }
 
-        static bool ReadOneMessage(Config config, byte[] buffer)
+        static void ReadOneMessage(Config config, byte[] buffer)
         {
             (Connection conn, int maxMessageSize, bool expectMask, ConcurrentQueue<Message> queue, BufferPool bufferPool) = config;
             Stream stream = conn.stream;
@@ -128,12 +126,11 @@ namespace Mirror.SimpleWeb
             int payloadLength = MessageProcessor.GetPayloadLength(buffer);
 
             Log.Verbose($"Header ln:{payloadLength} op:{opcode} mask:{expectMask}");
+            Log.DumpBuffer($"Raw Header", buffer, 0, offset);
 
+            int msgOffset = offset;
             offset = ReadHelper.Read(stream, buffer, offset, payloadLength);
 
-            int msgOffset = offset - payloadLength;
-
-            Log.DumpBuffer($"Raw Header", buffer, 0, msgOffset);
             switch (opcode)
             {
                 case 2:
@@ -143,8 +140,6 @@ namespace Mirror.SimpleWeb
                     HandleCloseMessage(config, buffer, msgOffset, payloadLength);
                     break;
             }
-
-            return true;
         }
 
         static void HandleArrayMessage(Config config, byte[] buffer, int msgOffset, int payloadLength)
@@ -183,7 +178,7 @@ namespace Mirror.SimpleWeb
             // dump after mask off
             Log.DumpBuffer($"Message", buffer, msgOffset, payloadLength);
 
-            Log.Info($"Close: {GetCodeCode(buffer, msgOffset)} message:{GetCloseMessage(buffer, msgOffset, payloadLength)}");
+            Log.Info($"Close: {GetCloseCode(buffer, msgOffset)} message:{GetCloseMessage(buffer, msgOffset, payloadLength)}");
 
             conn.Dispose();
         }
@@ -193,7 +188,7 @@ namespace Mirror.SimpleWeb
             return Encoding.UTF8.GetString(buffer, msgOffset + 2, payloadLength - 2);
         }
 
-        static int GetCodeCode(byte[] buffer, int msgOffset)
+        static int GetCloseCode(byte[] buffer, int msgOffset)
         {
             return buffer[msgOffset + 0] << 8 | buffer[msgOffset + 1];
         }

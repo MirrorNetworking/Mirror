@@ -39,6 +39,7 @@ namespace Mirror.SimpleWeb
             this.maxMessagesPerTick = maxMessagesPerTick;
             bufferPool = new BufferPool(5, 20, maxMessageSize);
         }
+
         public ClientState ConnectionState => state;
 
         public event Action onConnect;
@@ -78,7 +79,7 @@ namespace Mirror.SimpleWeb
             }
         }
 
-        public abstract void Connect(string address);
+        public abstract void Connect(Uri serverAddress);
         public abstract void Disconnect();
         public abstract void Send(ArraySegment<byte> segment);
     }

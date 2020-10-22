@@ -105,10 +105,10 @@ namespace Mirror.SimpleWeb
         static int WriteHeader(byte[] buffer, int msgLength, bool setMask)
         {
             int sendLength = 0;
-            byte finished = 128;
-            byte byteOpCode = 2;
+            const byte finished = 128;
+            const byte byteOpCode = 2;
 
-            buffer[0] = (byte)(finished | byteOpCode);
+            buffer[0] = finished | byteOpCode;
             sendLength++;
 
             if (msgLength <= Constants.BytePayloadLength)
