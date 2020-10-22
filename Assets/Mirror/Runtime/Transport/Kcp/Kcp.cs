@@ -461,11 +461,8 @@ namespace Mirror.KCP
 
             int offset = Reserved;
 
-            while (true)
+            while (size >= OVERHEAD)
             {
-                if (size < OVERHEAD)
-                    break;
-
                 var decoder = new Decoder(data, offset);
                 uint conv_ = decoder.Decode32U();
 
