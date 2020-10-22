@@ -293,16 +293,18 @@ namespace Mirror
             }
         }
 
-        // Failsafe to kick clients that have stopped sending anything to the server.
-        // Clients Ping the server every 2 seconds but transports are unreliable
-        // when it comes to properly generating Disconnect messages to the server.
-        // This cannot be abstract because then NetworkConnectionToServer
-        // would require and override that would never be called
-        // This is overriden in NetworkConnectionToClient.
-        internal virtual bool IsClientAlive()
-        {
-            return true;
-        }
+        /// <summary>
+        /// Checks if cliet has sent a message within timeout
+        /// <para>
+        /// Some transports are unreliable at sending disconnect message to the server
+        /// so this acts as a failsafe to make sure clients are kicked
+        /// </para>
+        /// <para>
+        /// Client should send ping message to server every 2 seconds to keep this alive
+        /// </para>
+        /// </summary>
+        /// <returns>True if server has recently recieved a message</returns>
+        internal virtual bool IsAlive(float timeout) => Time.time - lastMessageTime < timeout;
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {
