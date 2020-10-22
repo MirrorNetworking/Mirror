@@ -60,8 +60,6 @@ namespace Mirror.KCP
 
         }
 
-        public bool FastAckConserve { get; set; }
-
         // kcp members.
         readonly uint conv;                    // conversation
         private uint mtu = MTU_DEF;
@@ -354,7 +352,7 @@ namespace Mirror.KCP
         }
 
         // ikcp_parse_fastack
-        void ParseFastack(uint sn, uint ts)
+        void ParseFastack(uint sn)
         {
             if (sn < snd_una || sn >= snd_nxt)
                 return;
@@ -364,10 +362,7 @@ namespace Mirror.KCP
                 if (sn <= seg.serialNumber)
                     break;
 
-                if (!FastAckConserve || ts >= seg.timeStamp)
-                {
-                    seg.fastack++;
-                }
+                seg.fastack++;
             }
         }
 
@@ -451,7 +446,6 @@ namespace Mirror.KCP
         {
             uint prev_una = snd_una;
             uint maxack = 0;
-            uint latest_ts = 0;
             bool flag = false;
 
             // the data is expected to have the reserved space
@@ -489,16 +483,10 @@ namespace Mirror.KCP
                         UpdateAck(ts);
                         ParseAck(sn);
                         ShrinkBuf();
-                        if (!flag)
+                        if (!flag || sn > maxack)
                         {
                             flag = true;
                             maxack = sn;
-                            latest_ts = ts;
-                        }
-                        else if (sn > maxack && (!FastAckConserve || ts > latest_ts))
-                        {
-                            maxack = sn;
-                            latest_ts = ts;
                         }
                         break;
                     case CommandType.Push:
@@ -534,7 +522,7 @@ namespace Mirror.KCP
 
             if (flag)
             {
-                ParseFastack(maxack, latest_ts);
+                ParseFastack(maxack);
             }
 
             // cwnd update when packet arrived
