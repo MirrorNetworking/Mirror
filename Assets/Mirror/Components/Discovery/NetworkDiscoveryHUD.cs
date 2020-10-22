@@ -6,10 +6,10 @@ using UnityEngine;
 namespace Mirror.Discovery
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/NetworkDiscoveryHUD")]
+    [AddComponentMenu("Network/NetworkDiscoveryHud")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]
     [RequireComponent(typeof(NetworkDiscovery))]
-    public class NetworkDiscoveryHUD : MonoBehaviour
+    public class NetworkDiscoveryHud : MonoBehaviour
     {
         readonly Dictionary<long, ServerResponse> discoveredServers = new Dictionary<long, ServerResponse>();
         Vector2 scrollViewPos = Vector2.zero;
