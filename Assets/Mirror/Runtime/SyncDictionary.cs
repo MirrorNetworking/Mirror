@@ -217,51 +217,28 @@ namespace Mirror
                 // apply the operation only if it is a new change
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
-                TKey key = default;
-                TValue item = default;
-                TValue oldItem = default;
 
                 switch (operation)
                 {
                     case Operation.OP_ADD:
-                        key = reader.Read<TKey>();
-                        item = reader.Read<TValue>();
-                        if (apply)
-                        {
-                            objects[key] = item;
-                        }
+                        DeserializeAdd(reader, apply);
                         break;
 
                     case Operation.OP_SET:
-                        key = reader.Read<TKey>();
-                        item = reader.Read<TValue>();
-                        if (apply)
-                        {
-                            oldItem = objects[key];
-                            objects[key] = item;
-                        }
+                         DeserializeSet(reader, apply);
                         break;
 
                     case Operation.OP_CLEAR:
-                        if (apply)
-                        {
-                            objects.Clear();
-                        }
+                        DeserializeClear(apply);
                         break;
 
                     case Operation.OP_REMOVE:
-                        key = reader.Read<TKey>();
-                        item = reader.Read<TValue>();
-                        if (apply)
-                        {
-                            objects.Remove(key);
-                        }
+                        DeserializeRemove(reader, apply);
                         break;
                 }
 
                 if (apply)
                 {
-                    RaiseEvents(operation, key, item, oldItem);
                     raiseOnChange = true;
                 }
                 // we just skipped this change
@@ -274,6 +251,49 @@ namespace Mirror
             if (raiseOnChange)
             {
                 OnChange?.Invoke();
+            }
+        }
+
+        private void DeserializeAdd(NetworkReader reader, bool apply)
+        {
+            TKey key = reader.Read<TKey>();
+            TValue item = reader.Read<TValue>();
+            if (apply)
+            {
+                objects[key] = item;
+                OnInsert?.Invoke(key, item);
+            }
+        }
+
+        private void DeserializeSet(NetworkReader reader, bool apply)
+        {
+            TKey key = reader.Read<TKey>();
+            TValue item = reader.Read<TValue>();
+            if (apply)
+            {
+                TValue oldItem = objects[key];
+                objects[key] = item;
+                OnSet?.Invoke(key, oldItem, item);
+            }
+        }
+
+        private void DeserializeClear(bool apply)
+        {
+            if (apply)
+            {
+                objects.Clear();
+                OnClear?.Invoke();
+            }
+        }
+
+        private void DeserializeRemove(NetworkReader reader, bool apply)
+        {
+            TKey key = reader.Read<TKey>();
+            TValue item = reader.Read<TValue>();
+            if (apply)
+            {
+                objects.Remove(key);
+                OnRemove?.Invoke(key, item);
             }
         }
 
