@@ -449,6 +449,7 @@ namespace Mirror.KCP
             uint latest_ts = 0;
             bool flag = false;
 
+            // the data is expected to have the reserved space
             size -= Reserved;
             if (data == null || size < OVERHEAD)
                 return -1;
