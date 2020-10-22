@@ -16,13 +16,10 @@ namespace Mirror.KCP
 
         public const int RTO_NDL = 30;           // no delay min rto
         public const int RTO_MIN = 100;          // normal min rto
-        public const int RTO_DEF = 200;          // default RTO
         public const int RTO_MAX = 60000;        // maximum RTO
         public const int ASK_SEND = 1;           // need to send CMD_WASK
         public const int ASK_TELL = 2;           // need to send CMD_WINS
-        public const int WND_SND = 32;           // default send window
         public const int WND_RCV = 128;          // default receive window. must be >= max fragment size
-        public const int MTU_DEF = 1200;         // default MTU (reduced to 1200 to fit all cases: https://en.wikipedia.org/wiki/Maximum_transmission_unit ; steam uses 1200 too!)
         public const int ACK_FAST = 3;
         public const int INTERVAL = 100;
         public const int OVERHEAD = 24;
@@ -31,7 +28,6 @@ namespace Mirror.KCP
         public const int THRESH_MIN = 2;
         public const int PROBE_INIT = 7000;      // 7 secs to probe window size
         public const int PROBE_LIMIT = 120000;   // up to 120 secs to probe window
-        public const int FASTACK_LIMIT = 5;      // max times to trigger fastack
 
         internal struct AckItem
         {
@@ -62,7 +58,7 @@ namespace Mirror.KCP
 
         // kcp members.
         readonly uint conv;                    // conversation
-        private uint mtu = MTU_DEF;
+        private uint mtu = 1200; // default MTU (reduced to 1200 to fit all cases: https://en.wikipedia.org/wiki/Maximum_transmission_unit ; steam uses 1200 too!)
         internal uint Mss => (uint)(mtu - OVERHEAD - Reserved);           // maximum segment size
         internal uint snd_una;                 // unacknowledged
         internal uint snd_nxt;
@@ -70,9 +66,9 @@ namespace Mirror.KCP
         internal uint ssthresh = THRESH_INIT;  // slow start threshold
         internal int rx_rttval;
         internal int rx_srtt;                  // smoothed round trip time
-        internal int rx_rto = RTO_DEF;
+        internal int rx_rto = 200;
         internal int rx_minrto = RTO_MIN;
-        internal uint snd_wnd = WND_SND;       // send window
+        internal uint snd_wnd = 32;       // send window
         internal uint rcv_wnd = WND_RCV;       // receive window
         internal uint rmt_wnd = WND_RCV;       // remote window
         internal uint cwnd;                    // congestion window
@@ -89,7 +85,7 @@ namespace Mirror.KCP
         internal uint current;                 // current time (milliseconds). set by Update.
 
         internal int fastresend;
-        internal int fastlimit = FASTACK_LIMIT;
+        internal int fastlimit = 5; // max times to trigger fastack
         internal bool nocwnd;
         internal readonly Queue<Segment> snd_queue = new Queue<Segment>(16); // send queue
         internal readonly Queue<Segment> rcv_queue = new Queue<Segment>(16); // receive queue
