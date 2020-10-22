@@ -1,3 +1,18 @@
+# [52.0.0](https://github.com/MirrorNG/MirrorNG/compare/v51.1.5...v52.0.0) (2020-10-22)
+
+
+* Remove TcpTransport (#425) ([076c05a](https://github.com/MirrorNG/MirrorNG/commit/076c05a8473d08ecb3d886d59b9a32d7b12c3eff)), closes [#425](https://github.com/MirrorNG/MirrorNG/issues/425)
+
+
+### Bug Fixes
+
+* names and refs clear that PATH should be sent in scene msg ([#423](https://github.com/MirrorNG/MirrorNG/issues/423)) ([c68189c](https://github.com/MirrorNG/MirrorNG/commit/c68189cc62d59cade5f27245d566129a6fb77b72))
+
+
+### BREAKING CHANGES
+
+* TCPTransport removed. Use KCPTransport instead
+
 ## [51.1.5](https://github.com/MirrorNG/MirrorNG/compare/v51.1.4...v51.1.5) (2020-10-22)
 
 
