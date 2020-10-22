@@ -449,6 +449,7 @@ namespace Mirror.KCP
             uint latest_ts = 0;
             bool flag = false;
 
+            size -= Reserved;
             if (data == null || size < OVERHEAD)
                 return -1;
 
