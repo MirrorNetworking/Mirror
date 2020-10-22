@@ -262,7 +262,10 @@ namespace Mirror
             }
 
             // connection parameter is optional. assign if null.
-            conn = conn ?? connectionToClient;
+            if (conn == null)
+            {
+                conn = connectionToClient;
+            }
 
             if (conn is null)
             {
