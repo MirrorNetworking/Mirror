@@ -7,7 +7,7 @@ using Mirror.KCP;
 namespace Mirror.Tests
 {
 
-    public class HashcashTest : MonoBehaviour
+    public class HashcashTest
     {
         HashCash hashCash;
 
