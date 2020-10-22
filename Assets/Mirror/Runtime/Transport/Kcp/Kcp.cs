@@ -20,10 +20,8 @@ namespace Mirror.KCP
         public const int ASK_SEND = 1;           // need to send CMD_WASK
         public const int ASK_TELL = 2;           // need to send CMD_WINS
         public const int WND_RCV = 128;          // default receive window. must be >= max fragment size
-        public const int ACK_FAST = 3;
         public const int INTERVAL = 100;
         public const int OVERHEAD = 24;
-        public const int DEADLINK = 20;
         public const int THRESH_INIT = 2;
         public const int THRESH_MIN = 2;
         public const int PROBE_INIT = 7000;      // 7 secs to probe window size
@@ -80,7 +78,6 @@ namespace Mirror.KCP
         internal bool updated;
         internal uint ts_probe;                // timestamp probe
         internal uint probe_wait;
-        internal uint dead_link = DEADLINK;
         internal uint incr;
         internal uint current;                 // current time (milliseconds). set by Update.
 
