@@ -1,3 +1,17 @@
+# [53.0.0](https://github.com/MirrorNG/MirrorNG/compare/v52.1.1...v53.0.0) (2020-10-23)
+
+
+* Remove FallbackTransport (#432) ([261bf24](https://github.com/MirrorNG/MirrorNG/commit/261bf24bfcf5a201e7e96ba1a4dc16f9429f8121)), closes [#432](https://github.com/MirrorNG/MirrorNG/issues/432)
+* Remove FallbackTransport ([2c04202](https://github.com/MirrorNG/MirrorNG/commit/2c042021b965322e7fc08d9f82177bf9cf5268ff))
+
+
+### BREAKING CHANGES
+
+* FallbackTransport removed
+
+* fix docs
+* FallbackTransport removed
+
 ## [52.1.1](https://github.com/MirrorNG/MirrorNG/compare/v52.1.0...v52.1.1) (2020-10-23)
 
 
