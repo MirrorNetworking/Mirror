@@ -291,37 +291,37 @@ namespace Mirror.Weaver
             // find syncvars
             foreach (FieldDefinition fd in td.Fields)
             {
-                if (fd.HasCustomAttribute<SyncVarAttribute>())
+                if (!fd.HasCustomAttribute<SyncVarAttribute>())
                 {
-                    if ((fd.Attributes & FieldAttributes.Static) != 0)
-                    {
-                        Weaver.Error($"{fd.Name} cannot be static", fd);
-                        continue;
-                    }
-
-                    if (fd.FieldType.IsArray)
-                    {
-                        Weaver.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
-                        continue;
-                    }
-
-                    if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
-                    {
-                        Weaver.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);
-                    }
-                    else
-                    {
-                        syncVars.Add(fd);
-
-                        ProcessSyncVar(fd, syncVarNetIds, 1L << dirtyBitCounter);
-                        dirtyBitCounter += 1;
-
-                        if (dirtyBitCounter == SyncVarLimit)
-                        {
-                            Weaver.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
-                        }
-                    }
+                    continue;
                 }
+
+                if ((fd.Attributes & FieldAttributes.Static) != 0)
+                {
+                    Weaver.Error($"{fd.Name} cannot be static", fd);
+                    continue;
+                }
+
+                if (fd.FieldType.IsArray)
+                {
+                    Weaver.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
+                    continue;
+                }
+
+                if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
+                {
+                    Weaver.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);
+                    continue;
+                }
+                syncVars.Add(fd);
+
+                ProcessSyncVar(fd, syncVarNetIds, 1L << dirtyBitCounter);
+                dirtyBitCounter += 1;
+            }
+
+            if (dirtyBitCounter >= SyncVarLimit)
+            {
+                Weaver.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
             }
 
             // add all the new SyncVar __netId fields
