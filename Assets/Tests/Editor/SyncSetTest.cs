@@ -51,6 +51,37 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void ClearEventOnSyncAll()
+        {
+            Action callback = Substitute.For<Action>();
+            clientSyncSet.OnClear += callback;
+            SerializeAllTo(serverSyncSet, clientSyncSet);
+            callback.Received().Invoke();
+        }
+
+        [Test]
+        public void InsertEventOnSyncAll()
+        {
+            Action<string> callback = Substitute.For<Action<string>>();
+            clientSyncSet.OnAdd += callback;
+            SerializeAllTo(serverSyncSet, clientSyncSet);
+
+            callback.Received().Invoke("Hello");
+            callback.Received().Invoke("World");
+            callback.Received().Invoke("!");
+        }
+
+        [Test]
+        public void ChangeEventOnSyncAll()
+        {
+            Action callback = Substitute.For<Action>();
+            clientSyncSet.OnChange += callback;
+            SerializeAllTo(serverSyncSet, clientSyncSet);
+            callback.Received().Invoke();
+        }
+
+
+        [Test]
         public void TestAdd()
         {
             serverSyncSet.Add("yay");
