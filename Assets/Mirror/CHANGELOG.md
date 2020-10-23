@@ -1,3 +1,10 @@
+## [52.1.1](https://github.com/MirrorNG/MirrorNG/compare/v52.1.0...v52.1.1) (2020-10-23)
+
+
+### Performance Improvements
+
+* simplify NetworkWriter/Reader dispose ([#431](https://github.com/MirrorNG/MirrorNG/issues/431)) ([bf62345](https://github.com/MirrorNG/MirrorNG/commit/bf62345f22137dd69f476b5ae1b2da63029e68a9))
+
 # [52.1.0](https://github.com/MirrorNG/MirrorNG/compare/v52.0.1...v52.1.0) (2020-10-23)
 
 
