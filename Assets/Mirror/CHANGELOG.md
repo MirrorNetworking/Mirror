@@ -1,3 +1,12 @@
+# [52.1.0](https://github.com/MirrorNG/MirrorNG/compare/v52.0.1...v52.1.0) (2020-10-23)
+
+
+### Features
+
+* SyncDictionary raise event when initially synchronized ([23349af](https://github.com/MirrorNG/MirrorNG/commit/23349af382ca911e4b16d30b811a3acb4f5ab7b9))
+* SyncList raise event when initially synchronized ([9f679c5](https://github.com/MirrorNG/MirrorNG/commit/9f679c5706df22ea18345d5f0b40833089171110))
+* SyncSet raise event when initially synchronized ([03f2075](https://github.com/MirrorNG/MirrorNG/commit/03f20751a871e63c8e34382b2c1d09ce0275860c))
+
 ## [52.0.1](https://github.com/MirrorNG/MirrorNG/compare/v52.0.0...v52.0.1) (2020-10-23)
 
 
