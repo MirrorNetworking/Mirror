@@ -100,7 +100,11 @@ jobs:
           projectKey: MirrorNG_MirrorNG
           projectName: MirrorNG
           sonarOrganisation: mirrorng
-          beginArguments: /d:sonar.verbose="false" /d:sonar.cs.nunit.reportsPaths=Tests/editmode-results.xml,Tests/playimode-results.xml /d:sonar.cs.opencover.reportsPaths=Tests/workspace-opencov/EditMode/TestCoverageResults_0000.xml,Tests/workspace-opencov/PlayMode/TestCoverageResults_0000.xml
+          beginArguments: >-
+            /d:sonar.verbose="false" 
+            ${{ steps.sematic.output.new_release_published && format('/d:sonar.projectVersoin={0}',steps.sematic.output.new_release_version) }}
+            /d:sonar.cs.nunit.reportsPaths=Tests/editmode-results.xml,Tests/playimode-results.xml 
+            /d:sonar.cs.opencover.reportsPaths=Tests/workspace-opencov/EditMode/TestCoverageResults_0000.xml,Tests/workspace-opencov/PlayMode/TestCoverageResults_0000.xml
         env:
           FrameworkPathOverride: /opt/Unity/Editor/Data/MonoBleedingEdge/
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
