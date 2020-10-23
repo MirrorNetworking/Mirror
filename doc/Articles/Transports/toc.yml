@@ -6,8 +6,6 @@
   href: WebSockets.md
 - name: Multiplexer
   href: Multiplexer.md
-- name: Fallback
-  href: Fallback.md
 - name: UDP - Ignorance
   href: Ignorance.md
 - name: UDP - LiteNetLib4Mirror
