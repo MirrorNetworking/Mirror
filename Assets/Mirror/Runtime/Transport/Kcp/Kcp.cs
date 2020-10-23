@@ -159,7 +159,7 @@ namespace Mirror.KCP
         private int DequeueMessage(byte[] buffer)
         {
             // merge fragment.
-            int offset = 0;
+            int dequeueOffset = 0;
             int len = 0;
             // original KCP iterates rcv_queue and deletes if !ispeek.
             // removing from a c# queue while iterating is not possible, but
@@ -172,8 +172,8 @@ namespace Mirror.KCP
                 Segment seg = rcv_queue.Dequeue();
 
                 seg.data.Position = 0;
-                seg.data.Read(buffer, offset, (int)seg.data.Length);
-                offset += (int)seg.data.Length;
+                seg.data.Read(buffer, dequeueOffset, (int)seg.data.Length);
+                dequeueOffset += (int)seg.data.Length;
 
                 len += (int)seg.data.Length;
                 uint fragment = seg.fragment;
@@ -445,11 +445,11 @@ namespace Mirror.KCP
             if (size < OVERHEAD)
                 return -1;
 
-            int offset = Reserved;
+            int reservedOffset = Reserved;
 
             while (size >= OVERHEAD)
             {
-                var decoder = new Decoder(data, offset);
+                var decoder = new Decoder(data, reservedOffset);
                 uint conv_ = decoder.Decode32U();
                 var cmd = (CommandType)decoder.Decode8U();
                 byte frg = decoder.Decode8U();
@@ -459,7 +459,7 @@ namespace Mirror.KCP
                 uint una = decoder.Decode32U();
                 int len = (int)decoder.Decode32U();
 
-                offset = decoder.Position;
+                reservedOffset = decoder.Position;
                 size -= OVERHEAD;
 
                 if (!ValidateSegment(size, conv_, cmd, len))
@@ -494,7 +494,7 @@ namespace Mirror.KCP
                         seg.timeStamp = ts;
                         seg.serialNumber = sn;
                         seg.unacknowledged = una;
-                        seg.data.Write(data, offset, len);
+                        seg.data.Write(data, reservedOffset, len);
                         ParseData(seg);
                         break;
                     case CommandType.WindowAsk:
@@ -505,7 +505,7 @@ namespace Mirror.KCP
                         break;
                 }
 
-                offset += len;
+                reservedOffset += len;
                 size -= len;
             }
 
