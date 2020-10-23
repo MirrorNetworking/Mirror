@@ -176,18 +176,22 @@ namespace Mirror
             int count = (int)reader.ReadPackedUInt32();
 
             objects.Clear();
+            OnClear?.Invoke();
             changes.Clear();
 
             for (int i = 0; i < count; i++)
             {
                 T obj = reader.Read<T>();
                 objects.Add(obj);
+                OnInsert?.Invoke(i, obj);
             }
 
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
             changesAhead = (int)reader.ReadPackedUInt32();
+
+            OnChange?.Invoke();
         }
 
         public void OnDeserializeDelta(NetworkReader reader)
