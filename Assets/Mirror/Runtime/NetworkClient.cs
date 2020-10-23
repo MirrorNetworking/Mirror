@@ -232,7 +232,6 @@ namespace Mirror
             connectState = ConnectState.Connected;
             Connected.Invoke(Connection);
 
-            PrepareToSpawnSceneObjects();
             // start processing messages
             try
             {

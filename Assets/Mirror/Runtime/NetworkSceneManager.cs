@@ -64,6 +64,7 @@ namespace Mirror
             }
             if (server != null)
             {
+                server.Started.AddListener(() => FinishLoadScene(NetworkScenePath, SceneOperation.Normal));
                 server.Authenticated.AddListener(OnServerAuthenticated);
             }
         }

@@ -195,7 +195,6 @@ namespace Mirror
 
             // (useful for loading & spawning stuff from database etc.)
             Started.Invoke();
-            SpawnObjects();
 
             AcceptAsync().Forget();
         }
@@ -237,8 +236,6 @@ namespace Mirror
             await ListenAsync();
 
             client.ConnectHost(this);
-
-            ActivateHostScene();
 
             // call OnStartHost AFTER SetupServer. this way we can use
             // NetworkServer.Spawn etc. in there too. just like OnStartServer
