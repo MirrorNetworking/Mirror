@@ -6,19 +6,13 @@ namespace Mirror
     /// <summary>
     /// NetworkReader to be used with <see cref="NetworkReaderPool">NetworkReaderPool</see>
     /// </summary>
-    public class PooledNetworkReader : NetworkReader, IDisposable
+    public sealed class PooledNetworkReader : NetworkReader, IDisposable
     {
         internal PooledNetworkReader(byte[] bytes) : base(bytes) { }
 
         internal PooledNetworkReader(ArraySegment<byte> segment) : base(segment) { }
 
         public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        public virtual void Dispose(bool disposing)
         {
             NetworkReaderPool.Recycle(this);
         }
