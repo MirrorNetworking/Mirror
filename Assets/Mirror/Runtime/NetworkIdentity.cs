@@ -1140,35 +1140,9 @@ namespace Mirror
                 return;
             }
 
-            // add all newObservers that aren't in .observers yet
-            foreach (INetworkConnection conn in newObservers)
-            {
-                // only add ready connections.
-                // otherwise the player might not be in the world yet or anymore
-                if (conn != null && conn.IsReady && (initialize || !observers.Contains(conn)))
-                {
-                    // new observer
-                    conn.AddToVisList(this);
-                    // spawn identity for this conn
-                    Server.ShowForConnection(this, conn);
-                    if (logger.LogEnabled()) logger.Log("New Observer for " + gameObject + " " + conn);
-                    changed = true;
-                }
-            }
+            changed = AddNewObservers(initialize, changed);
 
-            // remove all old .observers that aren't in newObservers anymore
-            foreach (INetworkConnection conn in observers)
-            {
-                if (!newObservers.Contains(conn))
-                {
-                    // removed observer
-                    conn.RemoveFromVisList(this);
-                    Server.HideForConnection(this, conn);
-
-                    if (logger.LogEnabled()) logger.Log("Removed Observer for " + gameObject + " " + conn);
-                    changed = true;
-                }
-            }
+            changed = RemoveOldObservers(changed);
 
             if (changed)
             {
@@ -1205,6 +1179,46 @@ namespace Mirror
             {
                 OnSetHostVisibility(false);
             }
+        }
+
+        // remove all old .observers that aren't in newObservers anymore
+        bool RemoveOldObservers(bool changed)
+        {
+            foreach (INetworkConnection conn in observers)
+            {
+                if (!newObservers.Contains(conn))
+                {
+                    // removed observer
+                    conn.RemoveFromVisList(this);
+                    Server.HideForConnection(this, conn);
+
+                    if (logger.LogEnabled()) logger.Log("Removed Observer for " + gameObject + " " + conn);
+                    changed = true;
+                }
+            }
+
+            return changed;
+        }
+
+        // add all newObservers that aren't in .observers yet
+        bool AddNewObservers(bool initialize, bool changed)
+        {
+            foreach (INetworkConnection conn in newObservers)
+            {
+                // only add ready connections.
+                // otherwise the player might not be in the world yet or anymore
+                if (conn != null && conn.IsReady && (initialize || !observers.Contains(conn)))
+                {
+                    // new observer
+                    conn.AddToVisList(this);
+                    // spawn identity for this conn
+                    Server.ShowForConnection(this, conn);
+                    if (logger.LogEnabled()) logger.Log("New Observer for " + gameObject + " " + conn);
+                    changed = true;
+                }
+            }
+
+            return changed;
         }
 
         /// <summary>
