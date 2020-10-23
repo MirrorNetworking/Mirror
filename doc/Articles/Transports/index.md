@@ -8,8 +8,6 @@ MirrorNG is a high level Networking Library that can use several different low l
 
 -   [Multiplexer](Multiplexer.md) Multiplexer is a bridging transport to allow a server to handle clients on different transports concurrently, for example desktop clients using Kcp together with WebGL clients using Websockets.
 
--   [Fallback](Fallback.md) Fallback is a compatibility transport for transports that don't run on all platforms and need fallback options to cover all other platforms.
-
 -   [UDP - Ignorance](Ignorance.md) Ignorance implements a reliable and unreliable sequenced UDP transport based on ENet.
 
 -   [UDP - LiteNetLib4Mirror](LiteNetLib4Mirror.md) LiteNetLib4Mirror implements a UDP transport based on LiteNetLib with Network Discovery and uPnP included.
