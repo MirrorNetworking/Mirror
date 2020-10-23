@@ -1,3 +1,10 @@
+## [52.0.1](https://github.com/MirrorNG/MirrorNG/compare/v52.0.0...v52.0.1) (2020-10-23)
+
+
+### Bug Fixes
+
+* use the spawn calls that already happen via scene loading ([#426](https://github.com/MirrorNG/MirrorNG/issues/426)) ([cc19f3b](https://github.com/MirrorNG/MirrorNG/commit/cc19f3b1b1e69e7f6b46d800fba75adfd468cca3))
+
 # [52.0.0](https://github.com/MirrorNG/MirrorNG/compare/v51.1.5...v52.0.0) (2020-10-22)
 
 
