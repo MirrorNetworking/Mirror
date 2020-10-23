@@ -486,7 +486,7 @@ namespace Mirror.Tests
             foreach (Matrix4x4 input in inputs)
             {
                 var writer = new NetworkWriter();
-                writer.WriteMatrix4x4(input);
+                writer.WriteMatrix4X4(input);
                 var reader = new NetworkReader(writer.ToArray());
                 Matrix4x4 output = reader.ReadMatrix4x4();
                 Assert.That(output, Is.EqualTo(input));

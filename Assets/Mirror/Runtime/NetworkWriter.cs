@@ -442,7 +442,7 @@ namespace Mirror
             writer.WriteVector3(value.direction);
         }
 
-        public static void WriteMatrix4x4(this NetworkWriter writer, Matrix4x4 value)
+        public static void WriteMatrix4X4(this NetworkWriter writer, Matrix4x4 value)
         {
             writer.WriteSingle(value.m00);
             writer.WriteSingle(value.m01);
