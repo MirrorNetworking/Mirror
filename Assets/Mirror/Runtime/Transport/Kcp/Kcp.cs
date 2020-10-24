@@ -27,7 +27,7 @@ namespace Mirror.KCP
         public const int PROBE_INIT = 7000;      // 7 secs to probe window size
         public const int PROBE_LIMIT = 120000;   // up to 120 secs to probe window
 
-        internal struct AckItem
+        private struct AckItem
         {
             internal uint serialNumber;
             internal uint timestamp;
@@ -57,44 +57,44 @@ namespace Mirror.KCP
         // kcp members.
         readonly uint conv;                    // conversation
         private uint mtu = 1200; // default MTU (reduced to 1200 to fit all cases: https://en.wikipedia.org/wiki/Maximum_transmission_unit ; steam uses 1200 too!)
-        internal uint Mss => (uint)(mtu - OVERHEAD - Reserved);           // maximum segment size
-        internal uint snd_una;                 // unacknowledged
-        internal uint snd_nxt;
-        internal uint rcv_nxt;
-        internal uint ssthresh = THRESH_INIT;  // slow start threshold
-        internal int rx_rttval;
-        internal int rx_srtt;                  // smoothed round trip time
-        internal int rx_rto = 200;
-        internal int rx_minrto = RTO_MIN;
-        internal uint snd_wnd = 32;       // send window
-        internal uint rcv_wnd = WND_RCV;       // receive window
-        internal uint rmt_wnd = WND_RCV;       // remote window
-        internal uint cwnd;                    // congestion window
-        internal uint probe;
-        internal uint interval = INTERVAL;
-        internal uint ts_flush = INTERVAL;
-        internal uint xmit;
-        internal uint nodelay;                 // not a bool. original Kcp has '<2 else' check.
-        internal bool updated;
-        internal uint ts_probe;                // timestamp probe
-        internal uint probe_wait;
-        internal uint incr;
-        internal uint current;                 // current time (milliseconds). set by Update.
+        private uint Mss => (uint)(mtu - OVERHEAD - Reserved);           // maximum segment size
+        private uint snd_una;                 // unacknowledged
+        private uint snd_nxt;
+        private uint rcv_nxt;
+        private uint ssthresh = THRESH_INIT;  // slow start threshold
+        private int rx_rttval;
+        private int rx_srtt;                  // smoothed round trip time
+        private int rx_rto = 200;
+        private int rx_minrto = RTO_MIN;
+        private uint snd_wnd = 32;       // send window
+        private uint rcv_wnd = WND_RCV;       // receive window
+        private uint rmt_wnd = WND_RCV;       // remote window
+        private uint cwnd;                    // congestion window
+        private uint probe;
+        private uint interval = INTERVAL;
+        private uint ts_flush = INTERVAL;
+        private uint xmit;
+        private uint nodelay;                 // not a bool. original Kcp has '<2 else' check.
+        private bool updated;
+        private uint ts_probe;                // timestamp probe
+        private uint probe_wait;
+        private uint incr;
+        private uint current;                 // current time (milliseconds). set by Update.
 
-        internal int fastresend;
-        internal int fastlimit = 5; // max times to trigger fastack
-        internal bool nocwnd;
-        internal readonly Queue<Segment> snd_queue = new Queue<Segment>(16); // send queue
-        internal readonly Queue<Segment> rcv_queue = new Queue<Segment>(16); // receive queue
+        private int fastresend;
+        private int fastlimit = 5; // max times to trigger fastack
+        private bool nocwnd;
+        private readonly Queue<Segment> snd_queue = new Queue<Segment>(16); // send queue
+        private readonly Queue<Segment> rcv_queue = new Queue<Segment>(16); // receive queue
         // snd_buffer needs index removals.
         // C# LinkedList allocates for each entry, so let's keep List for now.
-        internal readonly List<Segment> snd_buf = new List<Segment>(16);   // send buffer
+        private readonly List<Segment> snd_buf = new List<Segment>(16);   // send buffer
         // rcv_buffer needs index insertions and backwards iteration.
         // C# LinkedList allocates for each entry, so let's keep List for now.
-        internal readonly List<Segment> rcv_buf = new List<Segment>(16);   // receive buffer
-        internal readonly List<AckItem> acklist = new List<AckItem>(16);
+        private readonly List<Segment> rcv_buf = new List<Segment>(16);   // receive buffer
+        private readonly List<AckItem> acklist = new List<AckItem>(16);
 
-        internal byte[] buffer;
+        private byte[] buffer;
         readonly Action<byte[], int> output; // buffer, size
 
         // get how many packet is waiting to be sent
@@ -285,7 +285,7 @@ namespace Mirror.KCP
         }
 
         // ikcp_shrink_buf
-        internal void ShrinkBuf()
+        private void ShrinkBuf()
         {
             if (snd_buf.Count > 0)
             {
@@ -300,7 +300,7 @@ namespace Mirror.KCP
 
         // ikcp_parse_ack
         // removes the segment with 'sn' from send buffer
-        internal void ParseAck(uint sn)
+        private void ParseAck(uint sn)
         {
             if (sn < snd_una || sn >= snd_nxt)
                 return;
@@ -387,7 +387,7 @@ namespace Mirror.KCP
         // note: see KcpTests.InsertSegmentInReceiveBuffer test!
         // note: 'insert or delete' can be done in different ways, but let's
         //       keep consistency with original C kcp.
-        internal void InsertSegmentInReceiveBuffer(Segment newseg)
+        private void InsertSegmentInReceiveBuffer(Segment newseg)
         {
             // original C iterates backwards, so we need to do that as well.
             int i;
