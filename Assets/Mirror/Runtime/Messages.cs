@@ -3,9 +3,11 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // Deprecated 10/06/2020
     [Obsolete("Implement NetworkMessage instead. Use extension methods instead of Serialize/Deserialize, see https://github.com/vis2k/Mirror/pull/2317", true)]
     public interface IMessageBase { }
 
+    // Deprecated 10/06/2020
     [Obsolete("Implement NetworkMessage instead. Use extension methods instead of Serialize/Deserialize, see https://github.com/vis2k/Mirror/pull/2317", true)]
     public class MessageBase : IMessageBase { }
 
@@ -33,15 +35,6 @@ namespace Mirror
     }
 
     public struct AddPlayerMessage : NetworkMessage
-    {
-    }
-
-    // Deprecated 5/2/2020
-    /// <summary>
-    /// Obsolete: Removed as a security risk. Use <see cref="NetworkServer.RemovePlayerForConnection(NetworkConnection, bool)">NetworkServer.RemovePlayerForConnection</see> instead.
-    /// </summary>
-    [Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, bool keepAuthority = false) instead")]
-    public struct RemovePlayerMessage : NetworkMessage
     {
     }
 

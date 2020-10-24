@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Mirror.RemoteCalls;
 using UnityEngine;
 
@@ -629,24 +628,11 @@ namespace Mirror
             }
         }
 
-        // Deprecated 04/20/2020
-        /// <summary>
-        /// Obsolete: Use <see cref="OnStopClient()">OnStopClient()</see> instead
-        /// </summary>
-        [Obsolete("Override OnStopClient() instead")]
-        public virtual void OnNetworkDestroy() { }
-
         /// <summary>
         /// This is invoked on clients when the server has caused this object to be destroyed.
         /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
         /// </summary>
-        public virtual void OnStopClient()
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            // backwards compatibility
-            OnNetworkDestroy();
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
+        public virtual void OnStopClient() { }
 
         /// <summary>
         /// This is invoked for NetworkBehaviour objects when they become active on the server.
