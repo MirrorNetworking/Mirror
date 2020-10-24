@@ -140,26 +140,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void TestSyncModeObserversMask()
-        {
-            var gameObject1 = new GameObject("player", typeof(NetworkIdentity));
-            NetworkIdentity identity = gameObject1.GetComponent<NetworkIdentity>();
-            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
-            player1.syncInterval = 0;
-            MockPlayer player2 = gameObject1.AddComponent<MockPlayer>();
-            player2.syncInterval = 0;
-            MockPlayer player3 = gameObject1.AddComponent<MockPlayer>();
-            player3.syncInterval = 0;
-
-            // sync mode
-            player1.syncMode = SyncMode.Observers;
-            player2.syncMode = SyncMode.Owner;
-            player3.syncMode = SyncMode.Observers;
-
-            Assert.That(identity.GetSyncModeObserversMask(), Is.EqualTo(0b101));
-        }
-
-        [Test]
         public void SetNetworkIdentitySyncvar()
         {
             var gameObject = new GameObject("player", typeof(NetworkIdentity), typeof(MockPlayer));

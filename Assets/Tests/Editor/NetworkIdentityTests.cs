@@ -559,7 +559,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnSerializeAndDeserializeAllSafely()
+        public void OnSerializeAllSafely()
         {
             // create a networkidentity with our test components
             SerializeTest1NetworkBehaviour comp1 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
@@ -582,29 +582,6 @@ namespace Mirror.Tests
             {
                 identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
             });
-
-            // reset component values
-            comp1.value = 0;
-            comp2.value = null;
-
-            // deserialize all for owner - should work even if compExc throws an exception
-            var reader = new NetworkReader(ownerWriter.ToArray());
-
-            Assert.Throws<Exception>(() =>
-            {
-                identity.OnDeserializeAllSafely(reader, true);
-            });
-
-            // reset component values
-            comp1.value = 0;
-            comp2.value = null;
-
-            // deserialize all for observers - should propagate exceptions
-            reader = new NetworkReader(observersWriter.ToArray());
-            Assert.Throws<Exception>(() =>
-            {
-                identity.OnDeserializeAllSafely(reader, true);
-            });
         }
 
         // OnSerializeAllSafely supports at max 64 components, because our
@@ -612,8 +589,8 @@ namespace Mirror.Tests
         [Test]
         public void NoMoreThan64Components()
         {
-            // add 65 components
-            for (int i = 0; i < 65; ++i)
+            // add byte.MaxValue+1 components
+            for (int i = 0; i < byte.MaxValue+1; ++i)
             {
                 gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             }

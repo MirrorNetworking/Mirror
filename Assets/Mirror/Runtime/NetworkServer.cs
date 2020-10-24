@@ -411,7 +411,7 @@ namespace Mirror
 
                     if (identity.StillDirty())
                         DirtyObjectsTmp.Add(identity);
-                }                
+                }
             }
 
             DirtyObjects.Clear();
