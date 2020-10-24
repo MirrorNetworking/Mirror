@@ -6,7 +6,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
 {
     public class RemoteTestBase
     {
-        List<GameObject> spawned = new List<GameObject>();
+        protected List<GameObject> spawned = new List<GameObject>();
 
         [SetUp]
         public void Setup()

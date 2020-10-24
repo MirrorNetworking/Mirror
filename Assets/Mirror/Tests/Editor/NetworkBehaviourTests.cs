@@ -492,7 +492,7 @@ namespace Mirror.Tests
             Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
 
             // calling rpc before server is active shouldn't work
-            LogAssert.Expect(LogType.Error, "TargetRPC Function " + nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated) + " called on client.");
+            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} called when server not active");
             comp.CallSendTargetRPCInternal(null);
             Assert.That(comp.called, Is.EqualTo(0));
 
@@ -522,7 +522,7 @@ namespace Mirror.Tests
             connectionToServer.connectionToClient.identity = identity;
 
             // calling rpc before isServer is true shouldn't work
-            LogAssert.Expect(LogType.Warning, "TargetRpc " + nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated) + " called on un-spawned object: " + gameObject.name);
+            LogAssert.Expect(LogType.Warning, $"TargetRpc {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} called on {gameObject.name} but that object has not been spawned or has been unspawned");
             comp.CallSendTargetRPCInternal(null);
             Assert.That(comp.called, Is.EqualTo(0));
 
@@ -530,7 +530,7 @@ namespace Mirror.Tests
             identity.OnStartServer();
 
             // calling rpc on connectionToServer shouldn't work
-            LogAssert.Expect(LogType.Error, "TargetRPC Function " + nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated) + " called on connection to server");
+            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} requires a NetworkConnectionToClient but was given {typeof(NetworkConnectionToServer).Name}");
             comp.CallSendTargetRPCInternal(new NetworkConnectionToServer());
             Assert.That(comp.called, Is.EqualTo(0));
 
