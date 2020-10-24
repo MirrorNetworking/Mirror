@@ -562,7 +562,6 @@ namespace Mirror
         //    if no scene is in build settings then Editor and Build have
         //    different indices too (Editor=0, Build=-1)
         // => ONLY USE THIS FROM POSTPROCESSSCENE!
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public void SetSceneIdSceneHashPartInternal()
         {
             // get deterministic scene hash

@@ -22,7 +22,7 @@ namespace Mirror
         public bool NoDelay = true;
 
         // Deprecated 04/08/2019
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use MaxMessageSizeFromClient or MaxMessageSizeFromServer instead.")]
+        [Obsolete("Use MaxMessageSizeFromClient or MaxMessageSizeFromServer instead.")]
         public int MaxMessageSize
         {
             get => serverMaxMessageSize;

@@ -568,7 +568,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
         /// <returns>A new GamePlayer object.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer) instead", true)]
+        [Obsolete("Use OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer) instead", true)]
         public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
         {
             return null;
@@ -601,7 +601,7 @@ namespace Mirror
         /// <summary>
         /// Obsolete: Use <see cref="OnRoomServerSceneLoadedForPlayer(NetworkConnection, GameObject, GameObject)">OnRoomServerSceneLoadedForPlayer(NetworkConnection, GameObject, GameObject)</see> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer) instead")]
+        [Obsolete("Use OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer) instead")]
         public virtual bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)
         {
             return true;

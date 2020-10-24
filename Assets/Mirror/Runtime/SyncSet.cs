@@ -5,7 +5,6 @@ using System.ComponentModel;
 
 namespace Mirror
 {
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public class SyncSet<T> : ISet<T>, SyncObject
     {
         public delegate void SyncSetChanged(Operation op, T item);
