@@ -73,7 +73,6 @@ namespace Mirror.KCP
         private uint probe;
         private uint interval = INTERVAL;
         private uint ts_flush = INTERVAL;
-        private uint xmit;
         private uint nodelay;                 // not a bool. original Kcp has '<2 else' check.
         private bool updated;
         private uint ts_probe;                // timestamp probe
@@ -668,7 +667,6 @@ namespace Mirror.KCP
                 {
                     needsend = true;
                     segment.transmit++;
-                    xmit++;
                     segment.rto = ResendRto(segment.rto);
                     segment.resendTimeStamp = current + (uint)segment.rto;
                     lost = true;
