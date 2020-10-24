@@ -86,14 +86,14 @@ namespace Mirror.Weaver
             // check for collections
             if (variableReference.Is(typeof(ArraySegment<>)))
             {
-                var genericInstance = (GenericInstanceType)variableReference;
+                GenericInstanceType genericInstance = (GenericInstanceType)variableReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
                 return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteArraySegment));
             }
             if (variableReference.Is(typeof(List<>)))
             {
-                var genericInstance = (GenericInstanceType)variableReference;
+                GenericInstanceType genericInstance = (GenericInstanceType)variableReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
                 return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteList));
@@ -198,7 +198,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Brtrue, labelNotNull));
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Call,  GetWriteFunc(WeaverTypes.Import<bool>())));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.Import<bool>())));
             worker.Append(worker.Create(OpCodes.Ret));
             worker.Append(labelNotNull);
 
@@ -237,7 +237,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateCollectionWriter(TypeReference variable, TypeReference elementType, string writerFunction)
         {
-           
+
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
             MethodReference elementWriteFunc = GetWriteFunc(elementType);
@@ -254,7 +254,7 @@ namespace Mirror.Weaver
             TypeReference readerExtensions = module.ImportReference(typeof(NetworkWriterExtensions));
             MethodReference collectionWriter = Resolvers.ResolveMethod(readerExtensions, Weaver.CurrentAssembly, writerFunction);
 
-            var methodRef = new GenericInstanceMethod(collectionWriter);
+            GenericInstanceMethod methodRef = new GenericInstanceMethod(collectionWriter);
             methodRef.GenericArguments.Add(elementType);
 
             // generates

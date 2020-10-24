@@ -1005,7 +1005,7 @@ namespace Mirror.Tests
         public void CreatingNetworkBehavioursCacheShouldLogErrorForTooComponents()
         {
             // add byte.MaxValue+1 components
-            for (int i = 0; i < byte.MaxValue+1; ++i)
+            for (int i = 0; i < byte.MaxValue + 1; ++i)
             {
                 gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             }

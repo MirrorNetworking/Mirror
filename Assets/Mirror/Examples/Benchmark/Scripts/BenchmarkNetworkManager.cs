@@ -32,7 +32,7 @@ namespace Mirror.Examples.Benchmark
                         GameObject go = Instantiate(spawnPrefab);
                         float x = offset + spawnX * interleave;
                         float z = offset + spawnZ * interleave;
-                        go.transform.position  = new Vector3(x, 0, z);
+                        go.transform.position = new Vector3(x, 0, z);
 
                         // spawn
                         NetworkServer.Spawn(go);

@@ -117,7 +117,7 @@ namespace Mirror.Weaver
         {
             return currentAssembly.MainModule.AssemblyReferences.Any(assemblyReference =>
                 assemblyReference.Name == nameof(UnityEditor)
-                ) ;
+                );
         }
 
         /// <summary>
@@ -130,11 +130,11 @@ namespace Mirror.Weaver
         /// <param name="currentAssembly"></param>
         public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly)
         {
-            var rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
+            MethodDefinition rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
                     MethodAttributes.Static,
                     WeaverTypes.Import(typeof(void)));
 
-            System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
+            System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new[] { typeof(RuntimeInitializeLoadType) });
 
             CustomAttribute customAttributeRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(attributeconstructor));
             customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(WeaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));

@@ -13,7 +13,7 @@ namespace WeaverSyncDictionaryTests.SyncDictionaryGenericStructKeyWithCustomMeth
         public T genericpotato;
     }
 
-    public static class MyGenericStructDictionary 
+    public static class MyGenericStructDictionary
     {
         public static void WriteKey(this NetworkWriter writer, MyGenericStruct<float> item)
         {

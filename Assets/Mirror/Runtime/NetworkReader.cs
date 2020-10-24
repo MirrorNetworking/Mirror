@@ -397,8 +397,8 @@ namespace Mirror
             int length = reader.ReadPackedInt32();
             if (length < 0)
                 return null;
-            var result = new List<T>(length);
-            for (int i=0; i< length; i++)
+            List<T> result = new List<T>(length);
+            for (int i = 0; i < length; i++)
             {
                 result.Add(reader.Read<T>());
             }
@@ -410,7 +410,7 @@ namespace Mirror
             int length = reader.ReadPackedInt32();
             if (length < 0)
                 return null;
-            var result = new T[length];
+            T[] result = new T[length];
             for (int i = 0; i < length; i++)
             {
                 result[i] = reader.Read<T>();

@@ -567,7 +567,7 @@ namespace Mirror
                 return;
             }
             writer.WritePackedInt32(list.Count);
-            for (int i=0; i< list.Count; i++)
+            for (int i = 0; i < list.Count; i++)
                 writer.Write(list[i]);
         }
 
@@ -587,7 +587,7 @@ namespace Mirror
         {
             int length = segment.Count;
             writer.WritePackedInt32(length);
-            for (int i = 0; i< length; i++)
+            for (int i = 0; i < length; i++)
             {
                 writer.Write(segment.Array[segment.Offset + i]);
             }
