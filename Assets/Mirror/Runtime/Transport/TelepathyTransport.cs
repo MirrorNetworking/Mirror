@@ -21,14 +21,6 @@ namespace Mirror
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
 
-        // Deprecated 04/08/2019
-        [Obsolete("Use MaxMessageSizeFromClient or MaxMessageSizeFromServer instead.")]
-        public int MaxMessageSize
-        {
-            get => serverMaxMessageSize;
-            set => serverMaxMessageSize = clientMaxMessageSize = value;
-        }
-
         [Header("Server")]
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         [FormerlySerializedAs("MaxMessageSize")] public int serverMaxMessageSize = 16 * 1024;
