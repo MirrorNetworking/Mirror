@@ -1,7 +1,6 @@
 // wraps Telepathy for use as HLAPI TransportLayer
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
