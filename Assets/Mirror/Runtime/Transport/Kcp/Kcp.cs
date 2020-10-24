@@ -81,7 +81,7 @@ namespace Mirror.KCP
         private uint current;                 // current time (milliseconds). set by Update.
 
         private int fastresend;
-        private int fastlimit = 5; // max times to trigger fastack
+        private readonly int fastlimit = 5; // max times to trigger fastack
         private bool nocwnd;
         private readonly Queue<Segment> snd_queue = new Queue<Segment>(16); // send queue
         private readonly Queue<Segment> rcv_queue = new Queue<Segment>(16); // receive queue
