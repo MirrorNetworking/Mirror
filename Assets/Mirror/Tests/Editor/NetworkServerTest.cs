@@ -1120,15 +1120,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ResetTest()
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            NetworkServer.Reset();
-#pragma warning restore CS0618 // Type or member is obsolete
-            Assert.That(NetworkServer.active, Is.False);
-        }
-
-        [Test]
         [TestCase(nameof(NetworkServer.SendToAll))]
         [TestCase(nameof(NetworkServer.SendToReady))]
         public void SendCalledWhileNotActive_ShouldGiveWarning(string functionName)
