@@ -262,11 +262,12 @@ namespace Mirror
             }
 
             // connection parameter is optional. assign if null.
-            if (conn == null)
+            if (conn is null)
             {
                 conn = connectionToClient;
             }
 
+            // if still null
             if (conn is null)
             {
                 logger.LogError($"TargetRPC {rpcName} was given a null connection, make sure the object has an owner or you pass in the target connection");
