@@ -4,7 +4,7 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
-## Version 25.x.x -- InProgress
+## Version 25.x.x -- In Progress
 - Changed: **Breaking** -- Removed older obsolete methods and tests
 
 ## Version 23.0.3 -- 2020-Oct-24
