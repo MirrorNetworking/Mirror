@@ -8,6 +8,12 @@ on:
     paths-ignore:
       - 'doc/**'
       - '*.md'
+  pull_request_target:
+    branches: 
+      - master
+    paths-ignore:
+      - 'doc/**'
+      - '*.md'
   
 jobs:
 
