@@ -1,3 +1,10 @@
+## [53.0.1](https://github.com/MirrorNG/MirrorNG/compare/v53.0.0...v53.0.1) (2020-10-24)
+
+
+### Performance Improvements
+
+* faster component serialization ([#430](https://github.com/MirrorNG/MirrorNG/issues/430)) ([b675027](https://github.com/MirrorNG/MirrorNG/commit/b67502711798bebe15ae58c96d6b09145fe0e8ed)), closes [#2331](https://github.com/MirrorNG/MirrorNG/issues/2331)
+
 # [53.0.0](https://github.com/MirrorNG/MirrorNG/compare/v52.1.1...v53.0.0) (2020-10-23)
 
 
