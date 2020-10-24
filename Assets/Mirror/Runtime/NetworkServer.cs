@@ -1000,7 +1000,7 @@ namespace Mirror
         /// Obsolete: Removed as a security risk. Use <see cref="RemovePlayerForConnection(NetworkConnection, bool)">NetworkServer.RemovePlayerForConnection</see> instead.
         /// <para>Deprecated 5/2/2020</para>
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, bool keepAuthority = false) instead", true)]
+        [Obsolete("Removed as a security risk. Use NetworkServer.RemovePlayerForConnection(NetworkConnection conn, bool keepAuthority = false) instead", true)]
         static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg) { }
 
         /// <summary>

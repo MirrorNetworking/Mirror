@@ -135,7 +135,7 @@ namespace Mirror
         /// <summary>
         /// Obsolete: Override <see cref="ReadyStateChanged(bool, bool)">ReadyStateChanged(bool, bool)</see> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override ReadyStateChanged(bool, bool) instead")]
+        [Obsolete("Override ReadyStateChanged(bool, bool) instead")]
         public virtual void OnClientReady(bool readyState) { }
 
         #endregion
