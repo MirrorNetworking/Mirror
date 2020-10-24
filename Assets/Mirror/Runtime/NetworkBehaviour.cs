@@ -530,7 +530,7 @@ namespace Mirror
         }
 
         // Don't rename. Weaver uses this exact function name.
-        public virtual bool SerializeSyncVars(NetworkWriter writer, bool initialState)
+        protected virtual bool SerializeSyncVars(NetworkWriter writer, bool initialState)
         {
             return false;
 
@@ -544,7 +544,7 @@ namespace Mirror
         }
 
         // Don't rename. Weaver uses this exact function name.
-        public virtual void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        protected virtual void DeserializeSyncVars(NetworkReader reader, bool initialState)
         {
             // SyncVars are read here in subclass
 
