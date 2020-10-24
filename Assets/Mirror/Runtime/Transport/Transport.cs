@@ -1,5 +1,3 @@
-// abstract transport layer component
-// note: not all transports need a port, so add it to yours if needed.
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +12,12 @@ namespace Mirror
     [Serializable] public class ServerDataReceivedEvent : UnityEvent<int, ArraySegment<byte>, int> { }
     [Serializable] public class UnityEventIntException : UnityEvent<int, Exception> { }
 
+    /// <summary>
+    /// Abstract transport layer component
+    /// </summary>
+    /// <remarks>
+    /// note: Not all transports need a port, so add it to yours if needed.
+    /// </remarks>
     public abstract class Transport : MonoBehaviour
     {
         /// <summary>
