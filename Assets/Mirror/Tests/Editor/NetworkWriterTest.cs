@@ -1154,23 +1154,23 @@ namespace Mirror.Tests
         [Test]
         public void TestList()
         {
-            var original = new List<int>() { 1, 2, 3, 4, 5 };
-            var writer = new NetworkWriter();
+            List<int> original = new List<int>() { 1, 2, 3, 4, 5 };
+            NetworkWriter writer = new NetworkWriter();
             writer.Write(original);
 
-            var reader = new NetworkReader(writer.ToArray());
-            var readList = reader.Read<List<int>>();
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            List<int> readList = reader.Read<List<int>>();
             Assert.That(readList, Is.EqualTo(original));
         }
 
         [Test]
         public void TestNullList()
         {
-            var writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter();
             writer.Write<List<int>>(null);
 
-            var reader = new NetworkReader(writer.ToArray());
-            var readList = reader.Read<List<int>>();
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            List<int> readList = reader.Read<List<int>>();
             Assert.That(readList, Is.Null);
         }
     }
