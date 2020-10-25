@@ -378,7 +378,7 @@ namespace Mirror
         /// <para>Whenever an object is spawned with client authority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
         /// <para>This callback is only invoked on the server.</para>
         /// </summary>
-        public static ClientAuthorityCallback clientAuthorityCallback;
+        public static event ClientAuthorityCallback clientAuthorityCallback;
 
         /// <summary>
         /// this is used when a connection is destroyed, since the "observers" property is read-only
