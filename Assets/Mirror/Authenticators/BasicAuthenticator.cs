@@ -14,9 +14,9 @@ namespace Mirror.Authenticators
         public string username;
         public string password;
 
-		#region Messages
+        #region Messages
 
-		public struct AuthRequestMessage : NetworkMessage
+        public struct AuthRequestMessage : NetworkMessage
         {
             // use whatever credentials make sense for your game
             // for example, you might want to pass the accessToken if using oauth
@@ -74,8 +74,8 @@ namespace Mirror.Authenticators
 
                 conn.Send(authResponseMessage);
 
-                // Invoke the event to complete a successful authentication
-                OnServerAuthenticated.Invoke(conn);
+                // Accept the successful authentication
+                ServerAccept(conn);
             }
             else
             {
@@ -99,7 +99,9 @@ namespace Mirror.Authenticators
         IEnumerator DelayedDisconnect(NetworkConnection conn, float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
-            conn.Disconnect();
+
+            // Reject the unsuccessful authentication
+            ServerReject(conn);
         }
 
         #endregion
@@ -142,18 +144,15 @@ namespace Mirror.Authenticators
             {
                 if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Authentication Response: {0}", msg.message);
 
-                // Invoke the event to complete a successful authentication
-                OnClientAuthenticated.Invoke(conn);
+                // Authentication has been accepted
+                ClientAccept(conn);
             }
             else
             {
                 logger.LogFormat(LogType.Error, "Authentication Response: {0}", msg.message);
 
-                // Set this on the client for local reference
-                conn.isAuthenticated = false;
-
-                // disconnect the client
-                conn.Disconnect();
+                // Authentication has been rejected
+                ClientReject(conn);
             }
         }
 
