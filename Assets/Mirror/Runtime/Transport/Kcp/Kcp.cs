@@ -73,7 +73,7 @@ namespace Mirror.KCP
         private uint probe;
         private uint interval = INTERVAL;
         private uint ts_flush = INTERVAL;
-        private uint nodelay;                 // not a bool. original Kcp has '<2 else' check.
+        private bool nodelay;
         private bool updated;
         private uint ts_probe;                // timestamp probe
         private uint probe_wait;
@@ -646,7 +646,7 @@ namespace Mirror.KCP
         {
             // calculate resent
             uint resent = fastresend > 0 ? (uint)fastresend : uint.MaxValue;
-            uint rtomin = nodelay == 0 ? (uint)rx_rto >> 3 : 0;
+            uint rtomin = nodelay ? 0 : (uint)rx_rto >> 3;
 
             // flush data segments
             bool change = false;
@@ -728,17 +728,13 @@ namespace Mirror.KCP
 
         private int ResendRto(int rto)
         {
-            if (nodelay == 0)
-            {
-                return rto + Math.Max(rto, rx_rto);
-            }
-            else if (nodelay < 2)
+            if (nodelay)
             {
                 return rto + rto / 2;
             }
             else
             {
-                return rto + rx_rto / 2;
+                return rto + Math.Max(rto, rx_rto);
             }
         }
 
@@ -929,11 +925,11 @@ namespace Mirror.KCP
         //   Fast:   0, 30, 2, 1
         //   Fast2:  1, 20, 2, 1
         //   Fast3:  1, 10, 2, 1
-        public void SetNoDelay(uint nodelay = 0, int interval = INTERVAL, int resend = 0, bool nocwnd = false)
+        public void SetNoDelay(bool nodelay = false, int interval = INTERVAL, int resend = 0, bool nocwnd = false)
         {
             this.nodelay = nodelay;
 
-            rx_minrto = (nodelay != 0) ? RTO_NDL : RTO_MIN;
+            rx_minrto = nodelay ? RTO_NDL : RTO_MIN;
 
             this.interval = (uint)Utils.Clamp(interval, 10, 5000);
 
@@ -952,16 +948,16 @@ namespace Mirror.KCP
             switch(mode)
             {
                 case KcpDelayMode.Normal:
-                    SetNoDelay(0, 40, 0, false);
+                    SetNoDelay(false, 40, 0, false);
                     break;
                 case KcpDelayMode.Fast:
-                    SetNoDelay(0, 30, 2, true);
+                    SetNoDelay(false, 30, 2, true);
                     break;
                 case KcpDelayMode.Fast2:
-                    SetNoDelay(1, 20, 2, true);
+                    SetNoDelay(true, 20, 2, true);
                     break;
                 case KcpDelayMode.Fast3:
-                    SetNoDelay(1, 10, 2, true);
+                    SetNoDelay(true, 10, 2, true);
                     break;
             }
         }
