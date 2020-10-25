@@ -32,7 +32,7 @@ namespace Mirror.Tests
         private static async Task ExpectData(IConnection c, byte[] expected)
         {
             var memoryStream = new MemoryStream();
-            Assert.That((await c.ReceiveAsync(memoryStream)).next);
+            await c.ReceiveAsync(memoryStream);
 
             memoryStream.TryGetBuffer(out ArraySegment<byte> receivedData);
             Assert.That(receivedData, Is.EqualTo(new ArraySegment<byte>(expected)));
@@ -63,8 +63,25 @@ namespace Mirror.Tests
             c1.Disconnect();
 
             var memoryStream = new MemoryStream();
-            Assert.That((await c1.ReceiveAsync(memoryStream)).next, Is.False);
-            Assert.That((await c2.ReceiveAsync(memoryStream)).next, Is.False);
+            try
+            {
+                await c1.ReceiveAsync(memoryStream);
+                Assert.Fail("Recive Async should have thrown EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
+
+            try
+            {
+                await c2.ReceiveAsync(memoryStream);
+                Assert.Fail("Recive Async should have thrown EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
         });
 
         [UnityTest]
@@ -74,8 +91,25 @@ namespace Mirror.Tests
             c2.Disconnect();
 
             var memoryStream = new MemoryStream();
-            Assert.That((await c1.ReceiveAsync(memoryStream)).next, Is.False);
-            Assert.That((await c2.ReceiveAsync(memoryStream)).next, Is.False);
+            try
+            {
+                await c1.ReceiveAsync(memoryStream);
+                Assert.Fail("Recive Async should have thrown EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
+
+            try
+            {
+                await c2.ReceiveAsync(memoryStream);
+                Assert.Fail("Recive Async should have thrown EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
         });
 
         [Test]

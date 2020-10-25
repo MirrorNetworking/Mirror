@@ -71,7 +71,7 @@ namespace Mirror.Tests
 
             var stream = new MemoryStream();
 
-            Assert.That((await serverConnection.ReceiveAsync(stream)).next, Is.True);
+            await serverConnection.ReceiveAsync(stream);
             byte[] received = stream.ToArray();
             Assert.That(received, Is.EqualTo(data));
         });
@@ -110,12 +110,12 @@ namespace Mirror.Tests
 
             var stream = new MemoryStream();
 
-            Assert.That((await serverConnection.ReceiveAsync(stream)).next, Is.True);
+            await serverConnection.ReceiveAsync(stream);
             byte[] received = stream.ToArray();
             Assert.That(received, Is.EqualTo(data));
 
             stream.SetLength(0);
-            Assert.That((await serverConnection.ReceiveAsync(stream)).next, Is.True);
+            await serverConnection.ReceiveAsync(stream);
             byte[] received2 = stream.ToArray();
             Assert.That(received2, Is.EqualTo(data2));
         });
@@ -130,7 +130,7 @@ namespace Mirror.Tests
 
             var stream = new MemoryStream();
 
-            Assert.That((await clientConnection.ReceiveAsync(stream)).next, Is.True);
+            await clientConnection.ReceiveAsync(stream);
             byte[] received = stream.ToArray();
             Assert.That(received, Is.EqualTo(data));
         });
@@ -141,7 +141,15 @@ namespace Mirror.Tests
             serverConnection.Disconnect();
 
             var stream = new MemoryStream();
-            Assert.That((await clientConnection.ReceiveAsync(stream)).next, Is.False);
+            try
+            {
+                await clientConnection.ReceiveAsync(stream);
+                Assert.Fail("ReceiveAsync should have thrown EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
         });
 
         [UnityTest]
@@ -150,7 +158,15 @@ namespace Mirror.Tests
             clientConnection.Disconnect();
 
             var stream = new MemoryStream();
-            Assert.That((await serverConnection.ReceiveAsync(stream)).next, Is.False);
+            try
+            {
+                await serverConnection.ReceiveAsync(stream);
+                Assert.Fail("ReceiveAsync should have thrown EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
         });
 
         [UnityTest]
@@ -159,7 +175,15 @@ namespace Mirror.Tests
             clientConnection.Disconnect();
 
             var stream = new MemoryStream();
-            Assert.That((await clientConnection.ReceiveAsync(stream)).next, Is.False);
+            try
+            {
+                await clientConnection.ReceiveAsync(stream);
+                Assert.Fail("ReceiveAsync should have thrown EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
         });
 
         [Test]

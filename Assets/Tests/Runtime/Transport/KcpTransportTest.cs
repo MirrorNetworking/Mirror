@@ -112,7 +112,7 @@ namespace Mirror.Tests
             await serverConnection.SendAsync(new ArraySegment<byte>(data), Channel.Unreliable);
 
             var buffer = new MemoryStream();
-            (bool next, int channel) = await clientConnection.ReceiveAsync(buffer);
+            int channel = await clientConnection.ReceiveAsync(buffer);
             Assert.That(buffer.ToArray(), Is.EquivalentTo(data));
             Assert.That(channel, Is.EqualTo(Channel.Unreliable));
         });
@@ -124,7 +124,7 @@ namespace Mirror.Tests
             await clientConnection.SendAsync(new ArraySegment<byte>(data), Channel.Unreliable);
 
             var buffer = new MemoryStream();
-            (bool next, int channel) = await serverConnection.ReceiveAsync(buffer);
+            int channel = await serverConnection.ReceiveAsync(buffer);
             Assert.That(buffer.ToArray(), Is.EquivalentTo(data));
             Assert.That(channel, Is.EqualTo(Channel.Unreliable));
         });
@@ -136,9 +136,15 @@ namespace Mirror.Tests
             serverConnection.Disconnect();
 
             var buffer = new MemoryStream();
-            bool more = (await clientConnection.ReceiveAsync(buffer)).next;
-
-            Assert.That(more, Is.False, "Receive should return false when the connection is disconnected");
+            try
+            {
+                await clientConnection.ReceiveAsync(buffer);
+                Assert.Fail("ReceiveAsync should throw EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
         });
 
         [UnityTest]
@@ -147,18 +153,30 @@ namespace Mirror.Tests
             clientConnection.Disconnect();
 
             var buffer = new MemoryStream();
-            bool more = (await serverConnection.ReceiveAsync(buffer)).next;
-
-            Assert.That(more, Is.False, "Receive should return false when the connection is disconnected");
+            try
+            {
+                await serverConnection.ReceiveAsync(buffer);
+                Assert.Fail("ReceiveAsync should throw EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
         });
 
         [UnityTest]
         public IEnumerator DisconnectServerFromIdle() => UniTask.ToCoroutine(async () =>
         {
             var buffer = new MemoryStream();
-            bool more = (await serverConnection.ReceiveAsync(buffer)).next;
-
-            Assert.That(more, Is.False, "After some time of no activity, the server should disconnect");
+            try
+            {
+                await serverConnection.ReceiveAsync(buffer);
+                Assert.Fail("ReceiveAsync should throw EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
         });
 
         [UnityTest]
@@ -166,9 +184,15 @@ namespace Mirror.Tests
         {
             // after certain amount of time with no messages, it should disconnect
             var buffer = new MemoryStream();
-            bool more = (await clientConnection.ReceiveAsync(buffer)).next;
-
-            Assert.That(more, Is.False, "After some time of no activity, the client should disconnect");
+            try
+            {
+                await clientConnection.ReceiveAsync(buffer);
+                Assert.Fail("ReceiveAsync should throw EndOfStreamException");
+            }
+            catch (EndOfStreamException)
+            {
+                // good to go
+            }
         });
 
         [Test]
@@ -192,9 +216,17 @@ namespace Mirror.Tests
             serverConnection.Disconnect();
 
             var buffer = new MemoryStream();
-            while ((await serverConnection.ReceiveAsync(buffer)).next)
+
+            try
             {
-                // just keep waiting until no more messages are received
+                while (true)
+                {
+                    await serverConnection.ReceiveAsync(buffer);
+                }
+            }
+            catch (EndOfStreamException)
+            {
+                // connection is now successfully closed
             }
 
             Assert.That(transport.connectedClients, Is.Empty);

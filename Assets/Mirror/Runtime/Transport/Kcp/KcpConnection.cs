@@ -197,7 +197,7 @@ namespace Mirror.KCP
         /// </summary>
         /// <param name="buffer">buffer where the message will be written</param>
         /// <returns>true if we got a message, false if we got disconnected</returns>
-        public async UniTask<(bool next, int channel)> ReceiveAsync(MemoryStream buffer)
+        public async UniTask<int> ReceiveAsync(MemoryStream buffer)
         {
             while (kcp.PeekSize() < 0 && unreliable.PeekSize() < 0 && open) { 
                 isWaiting = true;
@@ -209,7 +209,7 @@ namespace Mirror.KCP
             if (!open)
             {
                 Disconnected?.Invoke();
-                return (false, Channel.Reliable);
+                throw new EndOfStreamException();
             }
 
             if (unreliable.PeekSize() >= 0)
@@ -219,7 +219,7 @@ namespace Mirror.KCP
                 buffer.SetLength(msgSize);
                 unreliable.Receive(buffer.GetBuffer(), (int)buffer.Length);
                 buffer.Position = msgSize;
-                return (true, Channel.Unreliable);
+                return Channel.Unreliable;
             }
             else
             {
@@ -236,9 +236,9 @@ namespace Mirror.KCP
                 {
                     open = false;
                     Disconnected?.Invoke();
-                    return (false, Channel.Reliable);
+                    throw new EndOfStreamException();
                 }
-                return (true, Channel.Reliable);
+                return Channel.Reliable;
             }
         }
 

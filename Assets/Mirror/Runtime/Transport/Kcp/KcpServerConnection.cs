@@ -21,16 +21,19 @@ namespace Mirror.KCP
             await SendAsync(Hello);
             var stream = new MemoryStream();
 
-            // receive our first message and just throw it away
-            // this first message is the one that contains the Hashcash,
-            // but we don't care,  we already validated it before creating
-            // the connection
-            if (!(await ReceiveAsync(stream)).next)
+            try
             {
-                throw new OperationCanceledException("Unable to establish connection, no Handshake message received.");
+                // receive our first message and just throw it away
+                // this first message is the one that contains the Hashcash,
+                // but we don't care,  we already validated it before creating
+                // the connection
+                await ReceiveAsync(stream);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidDataException("No handshake received", ex);
             }
         }
-
         protected override void RawSend(byte[] data, int length)
         {
             socket.SendTo(data, 0, length, SocketFlags.None, remoteEndpoint);
