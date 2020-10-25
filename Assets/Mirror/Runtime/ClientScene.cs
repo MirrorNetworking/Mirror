@@ -121,11 +121,10 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This adds a player GameObject for this client. This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called. If an extra message was passed to AddPlayer, then OnServerAddPlayer will be called with a NetworkReader that contains the contents of the message.
-        /// <para>extraMessage can contain character selection, etc.</para>
+        /// This adds a player GameObject for this client. This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called.
         /// </summary>
         /// <param name="readyConn">The connection to become ready for this client.</param>
-        /// <returns>True if player was added.</returns>
+        /// <returns>True if AddPlayer message was sent</returns>
         public static bool AddPlayer(NetworkConnection readyConn)
         {
             // ensure valid ready connection
