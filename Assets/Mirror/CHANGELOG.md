@@ -1,3 +1,13 @@
+# [54.0.0](https://github.com/MirrorNG/MirrorNG/compare/v53.0.1...v54.0.0) (2020-10-25)
+
+
+* ReceiveAsync throws EndOfStreamException (#435) ([faf2e54](https://github.com/MirrorNG/MirrorNG/commit/faf2e54abe07beb0405657f41e166212f3ae00ff)), closes [#435](https://github.com/MirrorNG/MirrorNG/issues/435)
+
+
+### BREAKING CHANGES
+
+* External transports will need an update
+
 ## [53.0.1](https://github.com/MirrorNG/MirrorNG/compare/v53.0.0...v53.0.1) (2020-10-24)
 
 
