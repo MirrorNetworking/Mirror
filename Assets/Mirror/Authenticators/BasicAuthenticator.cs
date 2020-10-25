@@ -14,9 +14,9 @@ namespace Mirror.Authenticators
         public string username;
         public string password;
 
-		#region Messages
+        #region Messages
 
-		public struct AuthRequestMessage : NetworkMessage
+        public struct AuthRequestMessage : NetworkMessage
         {
             // use whatever credentials make sense for your game
             // for example, you might want to pass the accessToken if using oauth

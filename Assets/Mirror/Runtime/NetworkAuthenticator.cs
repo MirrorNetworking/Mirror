@@ -75,7 +75,7 @@ namespace Mirror
         }
 
         protected void ClientReject(NetworkConnection conn)
-		{
+        {
             // Set this on the client for local reference
             conn.isAuthenticated = false;
 
