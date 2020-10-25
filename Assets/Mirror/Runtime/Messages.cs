@@ -11,9 +11,7 @@ namespace Mirror
     [Obsolete("Implement NetworkMessage instead. Use extension methods instead of Serialize/Deserialize, see https://github.com/vis2k/Mirror/pull/2317", true)]
     public class MessageBase : IMessageBase { }
 
-    public interface NetworkMessage
-    {
-    }
+    public interface NetworkMessage { }
 
     #region Public System Messages
     public struct ErrorMessage : NetworkMessage
@@ -26,25 +24,15 @@ namespace Mirror
         }
     }
 
-    public struct ReadyMessage : NetworkMessage
-    {
-    }
+    public struct ReadyMessage : NetworkMessage { }
 
-    public struct NotReadyMessage : NetworkMessage
-    {
-    }
+    public struct NotReadyMessage : NetworkMessage { }
 
-    public struct AddPlayerMessage : NetworkMessage
-    {
-    }
+    public struct AddPlayerMessage : NetworkMessage { }
 
-    public struct DisconnectMessage : NetworkMessage
-    {
-    }
+    public struct DisconnectMessage : NetworkMessage { }
 
-    public struct ConnectMessage : NetworkMessage
-    {
-    }
+    public struct ConnectMessage : NetworkMessage { }
 
     public struct SceneMessage : NetworkMessage
     {
@@ -128,13 +116,9 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    public struct ObjectSpawnStartedMessage : NetworkMessage
-    {
-    }
+    public struct ObjectSpawnStartedMessage : NetworkMessage { }
 
-    public struct ObjectSpawnFinishedMessage : NetworkMessage
-    {
-    }
+    public struct ObjectSpawnFinishedMessage : NetworkMessage { }
 
     public struct ObjectDestroyMessage : NetworkMessage
     {
