@@ -75,7 +75,7 @@ namespace Mirror.Authenticators
                 conn.Send(authResponseMessage);
 
                 // Accept the successful authentication
-                base.ServerAccept(conn);
+                ServerAccept(conn);
             }
             else
             {
@@ -101,7 +101,7 @@ namespace Mirror.Authenticators
             yield return new WaitForSeconds(waitTime);
 
             // Reject the unsuccessful authentication
-            base.ServerReject(conn);
+            ServerReject(conn);
         }
 
         #endregion
@@ -145,14 +145,14 @@ namespace Mirror.Authenticators
                 if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Authentication Response: {0}", msg.message);
 
                 // Authentication has been accepted
-                base.ClientAccept(conn);
+                ClientAccept(conn);
             }
             else
             {
                 logger.LogFormat(LogType.Error, "Authentication Response: {0}", msg.message);
 
                 // Authentication has been rejected
-                base.ClientReject(conn);
+                ClientReject(conn);
             }
         }
 
