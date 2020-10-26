@@ -1,3 +1,10 @@
+## [54.1.1](https://github.com/MirrorNG/MirrorNG/compare/v54.1.0...v54.1.1) (2020-10-26)
+
+
+### Bug Fixes
+
+* local client loading additive scene twice. ([5a74fb0](https://github.com/MirrorNG/MirrorNG/commit/5a74fb0573b254e8c0cbb9c86d38e3bbe2724f77))
+
 # [54.1.0](https://github.com/MirrorNG/MirrorNG/compare/v54.0.0...v54.1.0) (2020-10-26)
 
 
