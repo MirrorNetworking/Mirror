@@ -9,7 +9,11 @@ We've added Script Templates to make it easier to create derived class scripts t
 
 Import [this package](ScriptTemplates.unitypackage) to add Script Templates to your project.
 
-> **NOTE:** You must restart Unity after importing this package!
+> **Restart Required:** You must restart Unity after importing this package!
+
+> **Root Folder Required:** ScriptTemplats is a special folder to Unity and must remain in the Assets root...don't move it.
+
+> **Mirror Version Compatibility:** This package is made for the current Asset Store release of Mirror. It may not be compatible with older versions of Mirror.
 
 After importing and restarting Unity, the Mirror section will appear under the Assets > Create menu, as well as the context menu that comes up when you right-click on any folder in your project.  You'll be prompted for the file name like any other asset creation.
 
