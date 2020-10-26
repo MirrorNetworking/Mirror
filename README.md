@@ -73,8 +73,8 @@ This is how I do it for Cubica because unity will display all versions of Mirror
 3) Install [openupm](https://openupm.com/)
 4) install MirrorNG in your project:
     ```sh
-        cd YOUR_PROJECT
-        openupm add com.mirrorng.mirrorng 
+    cd YOUR_PROJECT
+    openupm add com.mirrorng.mirrorng 
     ```
 5) Open your project i Unity 
   
