@@ -34,7 +34,7 @@ When migrating a project from Mirror to MirrorNG, these will be the most notable
 | [Domain Reload](https://blogs.unity3d.com/2019/11/05/enter-play-mode-faster-in-unity-2019-3/) |                                        |
 | Errors are thrown as exceptions                                                               | Errors are logged                      |
 | `[ServerRpc]`                                                                                 | `[Command]`                            |
-| `[ClientRpc(target=Client.Owner)]`                                                            | `[TargetRpc]`  ass of Synclist         |
+| `[ClientRpc(target=Client.Owner)]`                                                            | `[TargetRpc]`                          |
 | Subscribe to events in `NetworkServer`                                                        | Override methods in `NetworkManager`   |
 | Subscribe to events in `NetworkClient`                                                        | Override methods in `NetworkManager`   |
 | Subscribe to events in `NetworkIdentity`                                                      | Override methods in `NetworkBehaviour` |
