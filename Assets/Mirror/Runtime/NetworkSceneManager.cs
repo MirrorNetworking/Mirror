@@ -110,7 +110,9 @@ namespace Mirror
             // Let client prepare for scene change
             OnClientChangeScene(msg.scenePath, msg.sceneOperation);
 
-            StartCoroutine(ApplySceneOperation(msg.scenePath, msg.sceneOperation));
+            //Dont allow local client to change the scene after the host server already did
+            if(!client.IsLocalClient)
+                StartCoroutine(ApplySceneOperation(msg.scenePath, msg.sceneOperation));
         }
 
         internal void ClientSceneReadyMessage(INetworkConnection conn, SceneReadyMessage msg)
