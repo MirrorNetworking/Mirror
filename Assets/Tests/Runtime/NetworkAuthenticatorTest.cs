@@ -13,6 +13,10 @@ namespace Mirror.Tests
         NetworkAuthenticator serverAuthenticator;
         NetworkAuthenticator clientAuthenticator;
 
+        Action<INetworkConnection> serverMockMethod;
+        Action<INetworkConnection> clientMockMethod;
+
+
         class NetworkAuthenticationImpl : NetworkAuthenticator { };
 
         public override void ExtraSetup()
@@ -21,50 +25,44 @@ namespace Mirror.Tests
             clientAuthenticator = clientGo.AddComponent<NetworkAuthenticationImpl>();
             server.authenticator = serverAuthenticator;
             client.authenticator = clientAuthenticator;
+
+            serverMockMethod = Substitute.For<Action<INetworkConnection>>();
+            serverAuthenticator.OnServerAuthenticated += serverMockMethod;
+
+            clientMockMethod = Substitute.For<Action<INetworkConnection>>();
+            clientAuthenticator.OnClientAuthenticated += clientMockMethod;
         }
 
         [Test]
         public void OnServerAuthenticateTest()
         {
-            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            serverAuthenticator.OnServerAuthenticated += mockMethod;
-
             serverAuthenticator.OnServerAuthenticate(Substitute.For<INetworkConnection>());
 
-            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
+            serverMockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
 
         [Test]
         public void OnServerAuthenticateInternalTest()
         {
-            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            serverAuthenticator.OnServerAuthenticated += mockMethod;
-
             serverAuthenticator.OnServerAuthenticateInternal(Substitute.For<INetworkConnection>());
 
-            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
+            serverMockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
 
         [Test]
         public void OnClientAuthenticateTest()
         {
-            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            clientAuthenticator.OnClientAuthenticated += mockMethod;
-
             clientAuthenticator.OnClientAuthenticate(Substitute.For<INetworkConnection>());
 
-            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
+            clientMockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
 
         [Test]
         public void OnClientAuthenticateInternalTest()
         {
-            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            clientAuthenticator.OnClientAuthenticated += mockMethod;
-
             clientAuthenticator.OnClientAuthenticateInternal(Substitute.For<INetworkConnection>());
 
-            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
+            clientMockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         }
 
         [Test]
@@ -82,33 +80,13 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator NetworkClientCallsAuthenticator() => UniTask.ToCoroutine(async () =>
         {
-            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            clientAuthenticator.OnClientAuthenticated += mockMethod;
-
-            await UniTask.Delay(1);
-
-            client.ConnectHost(server);
-
-            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
-
-            client.Disconnect();
+            clientMockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         });
 
         [UnityTest]
         public IEnumerator NetworkServerCallsAuthenticator() => UniTask.ToCoroutine(async () =>
         {
-            Action<INetworkConnection> mockMethod = Substitute.For<Action<INetworkConnection>>();
-            serverAuthenticator.OnServerAuthenticated += mockMethod;
-
-            await UniTask.Delay(1);
-
-            client.ConnectHost(server);
-
-            await UniTask.Delay(1);
-
-            mockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
-
-            client.Disconnect();
+            clientMockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
         });
     }
 }
