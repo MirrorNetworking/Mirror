@@ -77,16 +77,16 @@ namespace Mirror.Tests
             Assert.That(server.authenticator, Is.EqualTo(serverAuthenticator));
         }
 
-        [UnityTest]
-        public IEnumerator NetworkClientCallsAuthenticator() => UniTask.ToCoroutine(async () =>
+        [Test]
+        public void NetworkClientCallsAuthenticator()
         {
             clientMockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
-        });
+        }
 
-        [UnityTest]
-        public IEnumerator NetworkServerCallsAuthenticator() => UniTask.ToCoroutine(async () =>
+        [Test]
+        public void NetworkServerCallsAuthenticator()
         {
             clientMockMethod.Received().Invoke(Arg.Any<INetworkConnection>());
-        });
+        }
     }
 }
