@@ -67,10 +67,7 @@ namespace Mirror.Tests
 
             // recycle all
             NetworkReaderPool.Recycle(a);
-            ExpectWarn("NetworkReaderPool.Recycle, Pool was full leaving extra reader for GC", () =>
-            {
-                NetworkReaderPool.Recycle(b);
-            });
+            NetworkReaderPool.Recycle(b);
 
             // get 2 new ones
             PooledNetworkReader c = NetworkReaderPool.GetReader(default(ArraySegment<byte>));

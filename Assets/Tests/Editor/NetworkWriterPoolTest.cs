@@ -64,10 +64,7 @@ namespace Mirror.Tests
 
             // recycle all
             NetworkWriterPool.Recycle(a);
-            ExpectWarn("NetworkWriterPool.Recycle, Pool was full leaving extra writer for GC", () =>
-            {
-                NetworkWriterPool.Recycle(b);
-            });
+            NetworkWriterPool.Recycle(b);
 
             // get 2 new ones
             PooledNetworkWriter c = NetworkWriterPool.GetWriter();

@@ -5,14 +5,7 @@ namespace Mirror
 {
     public static class LogFactory
     {
-        internal static readonly SortedDictionary<string, ILogger> loggers = new SortedDictionary<string, ILogger>();
-
-        public static SortedDictionary<string, ILogger>.ValueCollection AllLoggers => loggers.Values;
-
-        /// <summary>
-        /// logHandler used for new loggers
-        /// </summary>
-        static ILogHandler defaultLogHandler = Debug.unityLogger;
+        internal static readonly Dictionary<string, ILogger> loggers = new Dictionary<string, ILogger>();
 
         public static ILogger GetLogger<T>(LogType defaultLogLevel = LogType.Warning)
         {
@@ -31,7 +24,7 @@ namespace Mirror
                 return logger;
             }
 
-            logger = new Logger(defaultLogHandler)
+            logger = new Logger(Debug.unityLogger)
             {
                 // by default, log warnings and up
                 filterLogType = defaultLogLevel
@@ -40,20 +33,6 @@ namespace Mirror
             loggers[loggerName] = logger;
             return logger;
         }
-
-        /// <summary>
-        /// Replacing log handler for all existing loggers and sets defaultLogHandler for new loggers
-        /// </summary>
-        /// <param name="logHandler"></param>
-        public static void ReplaceLogHandler(ILogHandler logHandler)
-        {
-            defaultLogHandler = logHandler;
-
-            foreach (ILogger logger in loggers.Values)
-            {
-                logger.logHandler = logHandler;
-            }
-        }
     }
 
 
@@ -61,22 +40,18 @@ namespace Mirror
     {
         public static void LogError(this ILogger logger, object message)
         {
-            logger.Log(LogType.Error, message);
-        }
-
-        public static void Assert(this ILogger logger, bool condition, string message)
-        {
-            if (!condition)
-                logger.Log(LogType.Assert, message);
+            logger.LogError(null, message);
         }
 
         public static void LogWarning(this ILogger logger, object message)
         {
-            logger.Log(LogType.Warning, message);
+            logger.LogWarning(null, message);
         }
 
         public static bool LogEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Log);
+
         public static bool WarnEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Warning);
-        public static bool ErrorEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Error);
+
+        public static bool ErrorEnabled(this ILogger logger) => logger.IsLogTypeAllowed(LogType.Warning);
     }
 }
