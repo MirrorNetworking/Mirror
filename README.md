@@ -65,7 +65,7 @@ Use unity 2019.3 or later.
 5) enter https://github.com/MirrorNG/MirrorNG.git?path=/Assets/Mirror
 6) Unity will download and install MirrorNG
 
-### Install from [openupm](https://openupm.com/packages/com.mirrorng.mirrorng/)
+### Install using [openupm](https://openupm.com/packages/com.mirrorng.mirrorng/)
 This is how I do it for Cubica because unity will display all versions of MirrorNG and allow me to switch amongst them.
 
 1) Install [git](https://www.git-scm.com/)
