@@ -79,7 +79,7 @@ This is how I do it for Cubica because unity will display all versions of Mirror
 5) Open your project i Unity 
 
 ### Install manually
-If you prefer some pain, you can download it directly from the [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases) and add it to your project. You will need to manually install UniTask and Cecil.
+If you prefer some pain, you can download it directly from the [release section](https://github.com/MirrorNG/MirrorNG/releases) and add it to your project. You will need to manually install UniTask and Cecil.
 
 ## Development environment
 If you want to contribute to  MirrorNG, follow these steps:
