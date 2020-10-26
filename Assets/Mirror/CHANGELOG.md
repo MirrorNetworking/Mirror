@@ -1,3 +1,10 @@
+# [54.1.0](https://github.com/MirrorNG/MirrorNG/compare/v54.0.0...v54.1.0) (2020-10-26)
+
+
+### Features
+
+* log settings component ([#439](https://github.com/MirrorNG/MirrorNG/issues/439)) ([9f06f2e](https://github.com/MirrorNG/MirrorNG/commit/9f06f2e527a816994f16903575bb11ec14d24ce6))
+
 # [54.0.0](https://github.com/MirrorNG/MirrorNG/compare/v53.0.1...v54.0.0) (2020-10-25)
 
 
