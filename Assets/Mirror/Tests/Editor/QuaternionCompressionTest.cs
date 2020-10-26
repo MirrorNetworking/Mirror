@@ -25,11 +25,10 @@ namespace Mirror.Tests
         static void QuaternionCompressWithinPrecision(Quaternion rotationIn, float allowedPrecision)
         {
             NetworkWriter writer = new NetworkWriter();
-            QuaternionCompression.WriteCompressedQuaternion(writer, rotationIn);
-            writer.WriteQuaternion(rotationIn);
+            NetworkCompression.WriteQuaternion(writer, rotationIn);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            Quaternion rotationOut = QuaternionCompression.ReadCompressedQuaternion(reader);
+            Quaternion rotationOut = NetworkCompression.ReadQuaternion(reader);
 
             Assert.That(rotationOut.x, Is.Not.NaN, "x was NaN");
             Assert.That(rotationOut.y, Is.Not.NaN, "y was NaN");
@@ -41,7 +40,7 @@ namespace Mirror.Tests
 
         internal static void AssertPrecision(Quaternion inRot, Quaternion outRot, float precision)
         {
-            int largest = QuaternionCompression.FindLargestIndex(inRot);
+            int largest = NetworkCompression.FindLargestIndex(inRot);
             float sign = Mathf.Sign(inRot[largest]);
             // flip sign of A if largest is is negative
             // Q == (-Q)
@@ -114,7 +113,7 @@ namespace Mirror.Tests
         public void WriteQuaternionCorrectLengthForHalf()
         {
             NetworkWriter writer = new NetworkWriter();
-            QuaternionCompression.WriteCompressedQuaternion(writer, Quaternion.identity);
+            NetworkCompression.WriteQuaternion(writer, Quaternion.identity);
 
             Assert.That(writer.ToArray().Length, Is.EqualTo(4));
         }
@@ -123,7 +122,7 @@ namespace Mirror.Tests
         [TestCaseSource(nameof(GetLargestIndexTestCases))]
         public void FindLargestIndexWork(Quaternion quaternion, int expected)
         {
-            int largest = QuaternionCompression.FindLargestIndex(quaternion);
+            int largest = NetworkCompression.FindLargestIndex(quaternion);
 
             Assert.That(largest, Is.EqualTo(expected));
         }
