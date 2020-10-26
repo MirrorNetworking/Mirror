@@ -75,22 +75,12 @@ namespace Mirror
             uint b = ScaleToUInt(small.y, bitLength);
             uint c = ScaleToUInt(small.z, bitLength);
 
-            // split abc into 8+1 bits, pack extra 1 bit with largestIndex
-            uint a1 = byte.MaxValue & a;
-            uint a2 = byte.MaxValue & (a >> 8);
+            // pack each 10 bits and extra 2 bits into uint32
+            // it is faster to pack into int32 than byte to save calls on writer
 
-            uint b1 = byte.MaxValue & b;
-            uint b2 = byte.MaxValue & (b >> 8);
+            uint packed = a | b << 10 | c << 20 | (uint)largestIndex << 30;
 
-            uint c1 = byte.MaxValue & c;
-            uint c2 = byte.MaxValue & (c >> 8);
-
-            uint extra = ((uint)largestIndex) + (a2 << 2) + (b2 << 4) + (c2 << 6);
-
-            writer.WriteByte((byte)a1);
-            writer.WriteByte((byte)b1);
-            writer.WriteByte((byte)c1);
-            writer.WriteByte((byte)extra);
+            writer.WriteUInt32(packed);
         }
 
         /// <summary>
@@ -100,22 +90,15 @@ namespace Mirror
         public static Quaternion ReadCompressedQuaternion(this NetworkReader reader)
         {
             Quaternion result;
-            uint a1 = reader.ReadByte();
-            uint b1 = reader.ReadByte();
-            uint c1 = reader.ReadByte();
-            byte extra = reader.ReadByte();
 
-            // first 2 bytes
-            uint largestIndex = (uint)(extra & 3);
+            // 10 bits
+            const uint mask = 0b11_1111_1111;
 
-            // get nth bit, then move to start
-            uint a2 = (uint)((extra & (3 << 2)) >> 2);
-            uint b2 = (uint)((extra & (3 << 4)) >> 4);
-            uint c2 = (uint)((extra & (3 << 6)) >> 6);
-
-            uint a = a1 | (a2 << 8);
-            uint b = b1 | (b2 << 8);
-            uint c = c1 | (c2 << 8);
+            uint packed = reader.ReadUInt32();
+            uint a = packed & mask;
+            uint b = (packed >> 10) & mask;
+            uint c = (packed >> 20) & mask;
+            uint largestIndex = (packed >> 30) & mask;
 
             const int bitLength = 10;
 
