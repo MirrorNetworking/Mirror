@@ -1,6 +1,5 @@
 using System.Linq;
 using NUnit.Framework;
-using static Mirror.Tests.LogExpect;
 
 namespace Mirror.Tests
 {
