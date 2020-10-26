@@ -108,7 +108,6 @@ namespace Mirror.Weaver
         {
             readFuncs[typeReference.FullName] = newReaderFunc;
 
-            Weaver.WeaveLists.ConfirmGeneratedCodeClass();
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
