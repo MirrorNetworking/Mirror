@@ -52,20 +52,33 @@ If you look under the hood,  the code base has some significant diferences based
 * MirrorNG values code quality,  Mirror values API stability
 
 ## Installation
-If you want to make a game with MirrorNG, the preferred installation method is Unity Package manager.
+If you want to make a game with MirrorNG, the preferred installation method is Unity Package Manager.
 
-If you are using unity 2019.3 or later: 
+### Install from git url
+Use unity 2019.3 or later. 
 
 1) Install [git](https://www.git-scm.com/)
 2) Open your project in unity
+3) Install [UniTask](https://github.com/Cysharp/UniTask) using Unity Package Manager
 3) Click on Windows -> Package Manager
 4) Click on the plus sign on the left and click on "Add package from git URL..."
 5) enter https://github.com/MirrorNG/MirrorNG.git?path=/Assets/Mirror
 6) Unity will download and install MirrorNG
 
-If you are using unity 2019.2, you can use [openupm](https://openupm.com/packages/com.mirrorng.mirrorng/) or you can manually add the url to your [packages.json](https://docs.unity3d.com/Manual/upm-git.html) file. 
+### Install from [openupm](https://openupm.com/packages/com.mirrorng.mirrorng/)
+This is how I do it for Cubica because unity will display all versions of MirrorNG and allow me to switch amongst them.
 
-Alternatively you can download it from [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases).  You will need to install some dependencies yourself such as cecil.
+1) Install [git](https://www.git-scm.com/)
+2) Install [node.js 12](https://nodejs.org/en/)
+3) Install [openupm](https://openupm.com/)
+4) install MirrorNG in your project:
+    ```sh
+        cd YOUR_PROJECT
+        openupm add com.mirrorng.mirrorng 
+    ```
+5) Open your project i Unity 
+  
+Alternatively you can download it from [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases).  You will need to manually install UniTask and Cecil.
 
 ## Development environment
 If you want to contribute to  MirrorNG, follow these steps:
