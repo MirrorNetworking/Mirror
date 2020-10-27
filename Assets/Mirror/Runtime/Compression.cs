@@ -54,7 +54,7 @@ namespace Mirror
     /// <br/><see href="https://gafferongames.com/post/snapshot_compression/">Post on Snapshot Compression</see>
     /// </para>
     /// </remarks>
-    public static class QuaternionCompression
+    public static class Compression
     {
         const float MinValue = -1f / 1.414214f; // 1/ sqrt(2)
         const float MaxValue = 1f / 1.414214f;
@@ -63,7 +63,7 @@ namespace Mirror
         /// <summary>
         /// Used to Compress Quaternion into 4 bytes
         /// </summary>
-        public static uint Pack(Quaternion value)
+        public static uint CompressQuaternion(Quaternion value)
         {
             value = value.normalized;
 
@@ -82,40 +82,13 @@ namespace Mirror
 
             return packed;
         }
-
-        /// <summary>
-        /// Used to read a Compressed Quaternion from 4 bytes
-        /// <para>Quaternion is normalized</para>
-        /// </summary>
-        public static Quaternion Unpack(uint packed)
-        {
-            Quaternion result;
-
-            // 10 bits
-            const uint mask = 0b11_1111_1111;
-
-            uint a = packed & mask;
-            uint b = (packed >> 10) & mask;
-            uint c = (packed >> 20) & mask;
-            uint largestIndex = (packed >> 30) & mask;
-
-            const int bitLength = 10;
-
-            float x = ScaleFromUInt(a, bitLength);
-            float y = ScaleFromUInt(b, bitLength);
-            float z = ScaleFromUInt(c, bitLength);
-
-            Vector3 small = new Vector3(x, y, z);
-            result = FromSmallerDimensions(largestIndex, small);
-            return result;
-        }
-
         internal static int FindLargestIndex(Quaternion q)
         {
-            int index = 0;
-            float current = Mathf.Abs(q.x);
+            int index = default;
+            float current = default;
 
-            for (int i = 1; i < 4; i++)
+            // check each value to see which one is largest (ignoring +-)
+            for (int i = 0; i < 4; i++)
             {
                 float next = Mathf.Abs(q[i]);
                 if (next > current)
@@ -127,7 +100,6 @@ namespace Mirror
 
             return index;
         }
-
         static Vector3 GetSmallerDimensions(int largestIndex, Quaternion value)
         {
             float x = value.x;
@@ -166,7 +138,47 @@ namespace Mirror
             float largestSign = Mathf.Sign(value[largestIndex]);
             return new Vector3(a, b, c) * largestSign;
         }
+        static uint ScaleToUInt(float value, int targetBitLength)
+        {
+            // same as Mathf.Pow(2, targetBitLength) - 1
+            int targetRange = (1 << targetBitLength) - 1;
 
+            if (value > MaxValue) { return (uint)targetRange; }
+            if (value < MinValue) { return 0; }
+
+            float valueRelative = (value - MinValue) / ValueRange;
+            float outValue = valueRelative * targetRange;
+
+            return (uint)outValue;
+        }
+
+
+        /// <summary>
+        /// Used to read a Compressed Quaternion from 4 bytes
+        /// <para>Quaternion is normalized</para>
+        /// </summary>
+        public static Quaternion DecompressQuaternion(uint packed)
+        {
+            Quaternion result;
+
+            // 10 bits
+            const uint mask = 0b11_1111_1111;
+
+            uint a = packed & mask;
+            uint b = (packed >> 10) & mask;
+            uint c = (packed >> 20) & mask;
+            uint largestIndex = (packed >> 30) & mask;
+
+            const int bitLength = 10;
+
+            float x = ScaleFromUInt(a, bitLength);
+            float y = ScaleFromUInt(b, bitLength);
+            float z = ScaleFromUInt(c, bitLength);
+
+            Vector3 small = new Vector3(x, y, z);
+            result = FromSmallerDimensions(largestIndex, small);
+            return result;
+        }
         static Quaternion FromSmallerDimensions(uint largestIndex, Vector3 smallest)
         {
             float a = smallest.x;
@@ -208,21 +220,6 @@ namespace Mirror
             Debug.Assert(x * x + y * y + z * z + w * w < (2 - 0.999999f), "larger than 1");
             return new Quaternion(x, y, z, w).normalized;
         }
-
-        static uint ScaleToUInt(float value, int targetBitLength)
-        {
-            // same as Mathf.Pow(2, targetBitLength) - 1
-            int targetRange = (1 << targetBitLength) - 1;
-
-            if (value > MaxValue) { return (uint)targetRange; }
-            if (value < MinValue) { return 0; }
-
-            float valueRelative = (value - MinValue) / ValueRange;
-            float outValue = valueRelative * targetRange;
-
-            return (uint)outValue;
-        }
-
         static float ScaleFromUInt(uint source, int sourceBitLength)
         {
             // same as Mathf.Pow(2, targetBitLength) - 1
