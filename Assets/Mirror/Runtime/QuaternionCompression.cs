@@ -54,7 +54,7 @@ namespace Mirror
     /// <br/><see href="https://gafferongames.com/post/snapshot_compression/">Post on Snapshot Compression</see>
     /// </para>
     /// </remarks>
-    public static class NetworkCompression
+    public static class QuaternionCompression
     {
         const float MinValue = -1f / 1.414214f; // 1/ sqrt(2)
         const float MaxValue = 1f / 1.414214f;
@@ -63,7 +63,7 @@ namespace Mirror
         /// <summary>
         /// Used to Compress Quaternion into 4 bytes
         /// </summary>
-        public static void WriteQuaternion(NetworkWriter writer, Quaternion value)
+        public static uint Pack(Quaternion value)
         {
             value = value.normalized;
 
@@ -80,21 +80,20 @@ namespace Mirror
 
             uint packed = a | b << 10 | c << 20 | (uint)largestIndex << 30;
 
-            writer.WriteUInt32(packed);
+            return packed;
         }
 
         /// <summary>
         /// Used to read a Compressed Quaternion from 4 bytes
         /// <para>Quaternion is normalized</para>
         /// </summary>
-        public static Quaternion ReadQuaternion(NetworkReader reader)
+        public static Quaternion Unpack(uint packed)
         {
             Quaternion result;
 
             // 10 bits
             const uint mask = 0b11_1111_1111;
 
-            uint packed = reader.ReadUInt32();
             uint a = packed & mask;
             uint b = (packed >> 10) & mask;
             uint c = (packed >> 20) & mask;

@@ -24,11 +24,9 @@ namespace Mirror.Tests
 
         static void QuaternionCompressWithinPrecision(Quaternion rotationIn, float allowedPrecision)
         {
-            NetworkWriter writer = new NetworkWriter();
-            NetworkCompression.WriteQuaternion(writer, rotationIn);
+            uint packed = QuaternionCompression.Pack(rotationIn);
 
-            NetworkReader reader = new NetworkReader(writer.ToArray());
-            Quaternion rotationOut = NetworkCompression.ReadQuaternion(reader);
+            Quaternion rotationOut = QuaternionCompression.Unpack(packed);
 
             Assert.That(rotationOut.x, Is.Not.NaN, "x was NaN");
             Assert.That(rotationOut.y, Is.Not.NaN, "y was NaN");
@@ -40,7 +38,7 @@ namespace Mirror.Tests
 
         internal static void AssertPrecision(Quaternion inRot, Quaternion outRot, float precision)
         {
-            int largest = NetworkCompression.FindLargestIndex(inRot);
+            int largest = QuaternionCompression.FindLargestIndex(inRot);
             float sign = Mathf.Sign(inRot[largest]);
             // flip sign of A if largest is is negative
             // Q == (-Q)
@@ -110,19 +108,10 @@ namespace Mirror.Tests
 
 
         [Test]
-        public void WriteQuaternionCorrectLengthForHalf()
-        {
-            NetworkWriter writer = new NetworkWriter();
-            NetworkCompression.WriteQuaternion(writer, Quaternion.identity);
-
-            Assert.That(writer.ToArray().Length, Is.EqualTo(4));
-        }
-
-        [Test]
         [TestCaseSource(nameof(GetLargestIndexTestCases))]
         public void FindLargestIndexWork(Quaternion quaternion, int expected)
         {
-            int largest = NetworkCompression.FindLargestIndex(quaternion);
+            int largest = QuaternionCompression.FindLargestIndex(quaternion);
 
             Assert.That(largest, Is.EqualTo(expected));
         }
