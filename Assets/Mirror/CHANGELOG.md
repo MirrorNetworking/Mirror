@@ -1,3 +1,10 @@
+## [55.0.1](https://github.com/MirrorNG/MirrorNG/compare/v55.0.0...v55.0.1) (2020-10-27)
+
+
+### Bug Fixes
+
+* **weaver:** NRE with basic authenticator ([#440](https://github.com/MirrorNG/MirrorNG/issues/440)) ([68480db](https://github.com/MirrorNG/MirrorNG/commit/68480db93762b0f08f9e28c22512a546109bf7bc))
+
 # [55.0.0](https://github.com/MirrorNG/MirrorNG/compare/v54.1.1...v55.0.0) (2020-10-27)
 
 
