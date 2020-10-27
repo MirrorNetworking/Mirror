@@ -82,8 +82,6 @@ namespace Mirror
             uint c = ScaleToUInt(small.z, bitLength);
 
             // pack each 10 bits and extra 2 bits into uint32
-            // it is faster to pack into int32 than byte to save calls on writer
-
             uint packed = a | b << 10 | c << 20 | (uint)largestIndex << 30;
 
             return packed;
@@ -163,10 +161,10 @@ namespace Mirror
         /// </summary>
         public static Quaternion DecompressQuaternion(uint packed)
         {
-            Quaternion result;
-
             // 10 bits
             const uint mask = 0b11_1111_1111;
+            Quaternion result;
+
 
             uint a = packed & mask;
             uint b = (packed >> 10) & mask;
