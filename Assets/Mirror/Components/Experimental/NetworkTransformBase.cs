@@ -156,6 +156,9 @@ namespace Mirror.Experimental
             }
         }
 
+        // We need to store this locally on the server so clients can't request Authority when ever they like
+        bool clientAuthorityBeforeTeleport;
+
         // moved or rotated or scaled since last time we checked it?
         bool HasEitherMovedRotatedScaled()
         {
@@ -388,6 +391,86 @@ namespace Mirror.Experimental
             }
             return 1;
         }
+
+        #region Server Teleport (force move player)
+
+        /// <summary>
+        /// This method will override this GameObject's current Transform.Position to the Vector3 you have provided
+        /// and send it to all other Clients to override it at their side too.
+        /// </summary>
+        /// <param name="position">Where to teleport this GameObject</param>
+        [Server]
+        public void ServerTeleport(Vector3 position)
+        {
+            Quaternion rotation = transform.rotation;
+            ServerTeleport(position, rotation);
+        }
+
+        /// <summary>
+        /// This method will override this GameObject's current Transform.Position and Transform.Rotation
+        /// to the Vector3 you have provided and send it to all other Clients to override it at their side too.
+        /// </summary>
+        /// <param name="position">Where to teleport this GameObject</param>
+        /// <param name="rotation">Which rotation to set this GameObject</param>
+        [Server]
+        public void ServerTeleport(Vector3 position, Quaternion rotation)
+        {
+            // To prevent applying the position updates received from client (if they have ClientAuth) while being teleported.
+            // clientAuthorityBeforeTeleport defaults to false when not teleporting, if it is true then it means that teleport
+            // was previously called but not finished therefore we should keep it as true so that 2nd teleport call doesn't clear authority
+            clientAuthorityBeforeTeleport = clientAuthority || clientAuthorityBeforeTeleport;
+            clientAuthority = false;
+
+            DoTeleport(position, rotation);
+
+            // tell all clients about new values
+            RpcTeleport(position, rotation, clientAuthorityBeforeTeleport);
+        }
+
+        void DoTeleport(Vector3 newPosition, Quaternion newRotation)
+        {
+            transform.position = newPosition;
+            transform.rotation = newRotation;
+
+            // Since we are overriding the position we don't need a goal and start.
+            // Reset them to null for fresh start
+            goal = new DataPoint();
+            start = new DataPoint();
+            lastPosition = newPosition;
+            lastRotation = newRotation;
+        }
+
+        [ClientRpc]
+        void RpcTeleport(Vector3 newPosition, Quaternion newRotation, bool isClientAuthority)
+        {
+            DoTeleport(newPosition, newRotation);
+
+            // only send finished if is owner and is ClientAuthority on server 
+            if (hasAuthority && isClientAuthority)
+                CmdTeleportFinished();
+        }
+
+        /// <summary>
+        /// This RPC will be invoked on server after client finishes overriding the position.
+        /// </summary>
+        /// <param name="initialAuthority"></param>
+        [Command]
+        void CmdTeleportFinished()
+        {
+            if (clientAuthorityBeforeTeleport)
+            {
+                clientAuthority = true;
+
+                // reset value so doesnt effect future calls, see note in ServerTeleport
+                clientAuthorityBeforeTeleport = false;
+            }
+            else
+            {
+                Debug.LogWarning("Client called TeleportFinished when clientAuthority was false on server", this);
+            }
+        }
+
+        #endregion
 
         #region Debug Gizmos
 
