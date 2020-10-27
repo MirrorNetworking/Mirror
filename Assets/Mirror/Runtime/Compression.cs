@@ -69,6 +69,12 @@ namespace Mirror
 
             int largestIndex = FindLargestIndex(value);
             Vector3 small = GetSmallerDimensions(largestIndex, value);
+            // largest needs to be positive to be calculated by reader 
+            // if largest is negative flip sign of others because Q = -Q
+            if (value[largestIndex] < 0)
+            {
+                small *= -1;
+            }
 
             const int bitLength = 10;
             uint a = ScaleToUInt(small.x, bitLength);
@@ -133,10 +139,8 @@ namespace Mirror
                 default:
                     return Vector3.zero;
             }
-            // largest needs to be positive to be calculated by reader 
-            // if largest is negative flip sign of others
-            float largestSign = Mathf.Sign(value[largestIndex]);
-            return new Vector3(a, b, c) * largestSign;
+
+            return new Vector3(a, b, c);
         }
         static uint ScaleToUInt(float value, int targetBitLength)
         {
