@@ -11,7 +11,7 @@ Import [this package](ScriptTemplates.unitypackage) to add Script Templates to y
 
 > **Restart Required:** You must restart Unity after importing this package!
 
-> **Root Folder Required:** ScriptTemplats is a special folder to Unity and must remain in the Assets root...don't move it.
+> **Root Folder Required:** ScriptTemplates is a special folder to Unity and must remain in the Assets root...don't move it.
 
 > **Mirror Version Compatibility:** This package is made for the current Asset Store release of Mirror. It may not be compatible with older versions of Mirror.
 
