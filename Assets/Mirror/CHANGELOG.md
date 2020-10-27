@@ -1,3 +1,13 @@
+# [55.0.0](https://github.com/MirrorNG/MirrorNG/compare/v54.1.1...v55.0.0) (2020-10-27)
+
+
+* no need for NM here ([78b3b10](https://github.com/MirrorNG/MirrorNG/commit/78b3b1061eb9183a54f3c5ea9614804f5474716e))
+
+
+### BREAKING CHANGES
+
+* Authenticator does not have dependency on NM anymore
+
 ## [54.1.1](https://github.com/MirrorNG/MirrorNG/compare/v54.1.0...v54.1.1) (2020-10-26)
 
 
