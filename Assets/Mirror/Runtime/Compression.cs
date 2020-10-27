@@ -88,6 +88,7 @@ namespace Mirror
 
             return packed;
         }
+
         internal static int FindLargestIndex(Quaternion q)
         {
             int index = default;
@@ -106,6 +107,7 @@ namespace Mirror
 
             return index;
         }
+
         static Vector3 GetSmallerDimensions(int largestIndex, Quaternion value)
         {
             float x = value.x;
@@ -143,6 +145,7 @@ namespace Mirror
             return new Vector3(a, b, c);
         }
 
+
         /// <summary>
         /// Used to read a Compressed Quaternion from 4 bytes
         /// <para>Quaternion is normalized</para>
@@ -167,6 +170,7 @@ namespace Mirror
             result = FromSmallerDimensions(largestIndex, small);
             return result;
         }
+
         static Quaternion FromSmallerDimensions(uint largestIndex, Vector3 smallest)
         {
             float a = smallest.x;
@@ -208,6 +212,7 @@ namespace Mirror
             Debug.Assert(x * x + y * y + z * z + w * w < (2 - 0.999999f), "larger than 1");
             return new Quaternion(x, y, z, w).normalized;
         }
+
 
         /// <summary>
         /// Scales float from minFloat->maxFloat to 0->maxUint
