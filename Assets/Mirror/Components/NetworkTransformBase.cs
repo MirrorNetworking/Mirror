@@ -413,7 +413,7 @@ namespace Mirror
         {
             // To prevent applying the position updates received from client (if they have ClientAuth) while being teleported.
 
-            // clientAuthorityBeforeTeleport defaults to false when not teleporting, if it is true then it means hat teleport was previously called but not finished
+            // clientAuthorityBeforeTeleport defaults to false when not teleporting, if it is true then it means that teleport was previously called but not finished
             // therefore we should keep it as true so that 2nd teleport call doesn't clear authority
             clientAuthorityBeforeTeleport = clientAuthority || clientAuthorityBeforeTeleport;
             clientAuthority = false;
