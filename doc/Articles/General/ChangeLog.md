@@ -5,7 +5,9 @@
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
 ## Version 25.x.x -- In Progress
-- Changed: **Breaking** -- Removed older obsolete methods and tests
+- Added: Middleware Transport
+- Fixed: Authenticators and assemblies with only messages and no Behaviors weaver failure
+- Changed: **Breaking** Removed older obsolete methods and tests
 
 ## Version 23.0.3 -- 2020-Oct-24
 - Added: Support null when serializing classes 
@@ -20,15 +22,15 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Fixing NullReferenceException when loading scene
 - Fixed: Fixing NetworkConnectionToClient for IL2CPP
 - Fixed: NullReferenceException in tanks example when running in headless server only
-- Changed: Use SyncLists/SyncSet/SyncDictionary directly, eg `SyncList<int>`, see [Pull Request 2307](https://github.com/vis2k/Mirror/pull/2307) 
-- Changed: Renamed `IMessageBase` to `NetworkMessage`, see [Pull Request 2317](https://github.com/vis2k/Mirror/pull/2317)
+- Changed: **Breaking** Use SyncLists/SyncSet/SyncDictionary directly, eg `SyncList<int>`, see [Pull Request 2307](https://github.com/vis2k/Mirror/pull/2307) 
+- Changed: **Breaking** Renamed `IMessageBase` to `NetworkMessage`, see [Pull Request 2317](https://github.com/vis2k/Mirror/pull/2317)
 - Changed: OnSerialize now includes the component index as byte before serializing each component. Better CPU performance at the cost of bandwidth
 - Changed: Can now have 256 NetworkBehaviours per NetworkIdentity
-- Removed: SyncEvents, see [Pull Request 2178](https://github.com/vis2k/Mirror/pull/2178)
-- Removed: Removing manual invoke for Cmd and RPC, see [Pull Request 2223](https://github.com/vis2k/Mirror/pull/2223)
-- Removed: Removed Serialize/Deserialize in messages, see [Pull Request 2317](https://github.com/vis2k/Mirror/pull/2317)
-- Removed: Removing auto initialize for SyncLists/SyncSet/SyncDictionary, see [Pull Request 2330](https://github.com/vis2k/Mirror/pull/2330)
-- Removed: Replacing [Ninja.WebSockets](https://github.com/MirrorNetworking/NinjaWebSocketsTransport) with [SimpleWebTransport](https://github.com/MirrorNetworking/SimpleWebTransport) 
+- Removed: **Breaking** SyncEvents, see [Pull Request 2178](https://github.com/vis2k/Mirror/pull/2178)
+- Removed: **Breaking** Removing manual invoke for Cmd and RPC, see [Pull Request 2223](https://github.com/vis2k/Mirror/pull/2223)
+- Removed: **Breaking** Removed Serialize/Deserialize in messages, see [Pull Request 2317](https://github.com/vis2k/Mirror/pull/2317)
+- Removed: **Breaking** Removing auto initialize for SyncLists/SyncSet/SyncDictionary, see [Pull Request 2330](https://github.com/vis2k/Mirror/pull/2330)
+- Removed: **Breaking** Replacing [Ninja.WebSockets](https://github.com/MirrorNetworking/NinjaWebSocketsTransport) with [SimpleWebTransport](https://github.com/MirrorNetworking/SimpleWebTransport) 
 
 ## Version 17.3.0 -- 2020-Sep-04
 - Added: NetworkAnimator now syncs Layer Weight
