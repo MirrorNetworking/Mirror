@@ -76,7 +76,7 @@ This is how I do it for Cubica because unity will display all versions of Mirror
     cd YOUR_PROJECT
     openupm add com.mirrorng.mirrorng 
     ```
-5) Open your project i Unity 
+5) Open your project in Unity 
 
 ### Install manually
 If you prefer some pain, you can download it directly from the [release section](https://github.com/MirrorNG/MirrorNG/releases) and add it to your project. You will need to manually install UniTask and Cecil.
