@@ -60,7 +60,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (selector(md))
+            if (md.Body.CodeSize> 0 && selector(md))
             {
                 Instruction instr = md.Body.Instructions[0];
 

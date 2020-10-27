@@ -26,10 +26,9 @@ namespace Mirror.Weaver
     {
         private readonly static HashSet<TypeReference> messages = new HashSet<TypeReference>(new TypeReferenceComparer());
 
-        public static void Process(AssemblyDefinition CurrentAssembly, Assembly unityAssembly)
+        public static bool Process(AssemblyDefinition CurrentAssembly, Assembly unityAssembly)
         {
             // darn global state causing bugs
-            Weaver.WeaveLists.generateContainerClass = null;
             Readers.Init();
             Writers.Init();
             messages.Clear();
@@ -45,7 +44,12 @@ namespace Mirror.Weaver
                 }
             }
 
+            int writeCount = Writers.Count;
+            int readCount = Readers.Count;
+
             ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly);
+
+            return Writers.Count != writeCount || Readers.Count != readCount;
         }
 
         static void ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly)
@@ -233,8 +237,7 @@ namespace Mirror.Weaver
             var rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
                     MethodAttributes.Static,
                     WeaverTypes.Import(typeof(void)));
-            TypeDefinition generateClass = Weaver.WeaveLists.generateContainerClass;
-            generateClass.Methods.Add(rwInitializer);
+            Weaver.WeaveLists.GeneratedCode().Methods.Add(rwInitializer);
 
             System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
 
@@ -259,7 +262,7 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ret));
 
-            Weaver.WeaveLists.ConfirmGeneratedCodeClass();
+            Weaver.WeaveLists.GeneratedCode();
 
         }
 

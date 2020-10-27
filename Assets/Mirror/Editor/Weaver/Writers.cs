@@ -10,6 +10,8 @@ namespace Mirror.Weaver
     {
         static Dictionary<string, MethodReference> writeFuncs;
 
+        public static int Count => writeFuncs.Count;
+
         public static void Init()
         {
             writeFuncs = new Dictionary<string, MethodReference>();
@@ -24,8 +26,7 @@ namespace Mirror.Weaver
         {
             writeFuncs[typeReference.FullName] = newWriterFunc;
 
-            Weaver.WeaveLists.ConfirmGeneratedCodeClass();
-            Weaver.WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
+            Weaver.WeaveLists.GeneratedCode().Methods.Add(newWriterFunc);
         }
 
         /// <summary>

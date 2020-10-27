@@ -10,6 +10,8 @@ namespace Mirror.Weaver
     {
         static Dictionary<string, MethodReference> readFuncs;
 
+        public static int Count => readFuncs.Count;
+
         public static void Init()
         {
             readFuncs = new Dictionary<string, MethodReference>();
@@ -109,8 +111,7 @@ namespace Mirror.Weaver
         {
             readFuncs[typeReference.FullName] = newReaderFunc;
 
-            Weaver.WeaveLists.ConfirmGeneratedCodeClass();
-            Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
+            Weaver.WeaveLists.GeneratedCode().Methods.Add(newReaderFunc);
         }
 
         static MethodDefinition GenerateEnumReadFunc(TypeReference variable)

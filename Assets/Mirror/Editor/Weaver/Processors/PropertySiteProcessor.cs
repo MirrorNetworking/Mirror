@@ -13,11 +13,6 @@ namespace Mirror.Weaver
             // replace all field access with property access for syncvars
             CodePass.ForEachInstruction(moduleDef, WeavedMethods, ProcessInstruction);
 
-            if (Weaver.WeaveLists.generateContainerClass != null)
-            {
-                moduleDef.Types.Add(Weaver.WeaveLists.generateContainerClass);
-            }
-
             Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
         }
 

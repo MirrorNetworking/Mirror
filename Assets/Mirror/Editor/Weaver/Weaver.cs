@@ -14,7 +14,7 @@ namespace Mirror.Weaver
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
 
-        public TypeDefinition generateContainerClass;
+        private TypeDefinition generateContainerClass ;
 
         // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
@@ -31,14 +31,16 @@ namespace Mirror.Weaver
             numSyncVars[className] = num;
         }
 
-        public void ConfirmGeneratedCodeClass()
+        public TypeDefinition GeneratedCode()
         {
             if (generateContainerClass == null)
             {
                 generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
                         TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
                         WeaverTypes.Import<object>());
+                Weaver.CurrentAssembly.MainModule.Types.Add(generateContainerClass);
             }
+            return generateContainerClass;
         }
     }
 
@@ -166,14 +168,14 @@ namespace Mirror.Weaver
 
                 WeaverTypes.SetupTargetTypes(CurrentAssembly);
                 var rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
-                ReaderWriterProcessor.Process(CurrentAssembly, unityAssembly);
+                bool modified = ReaderWriterProcessor.Process(CurrentAssembly, unityAssembly);
                 rwstopwatch.Stop();
                 Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
 
                 ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
                 Console.WriteLine($"Script Module: {moduleDefinition.Name}");
 
-                bool modified = WeaveModule(moduleDefinition);
+                modified |= WeaveModule(moduleDefinition);
 
                 if (WeavingFailed)
                 {
