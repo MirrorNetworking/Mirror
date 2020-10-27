@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class QuaternionCompressionTest
+    public class CompressionQuaternionTest
     {
         // worse case where xyzw all equal error in largest is ~1.732 times greater than error in smallest 3
         // High/Low Precision fails when xyzw all equal,
