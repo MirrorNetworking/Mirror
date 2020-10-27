@@ -56,9 +56,12 @@ namespace Mirror
     /// </remarks>
     public static class Compression
     {
-        const float MinValue = -1f / 1.414214f; // 1/ sqrt(2)
-        const float MaxValue = 1f / 1.414214f;
-        const float ValueRange = MaxValue - MinValue;
+        const float QuaternionMinValue = -1f / 1.414214f; // 1/ sqrt(2)
+        const float QuaternionMaxValue = 1f / 1.414214f;
+
+        const int QuaternionBitLength = 10;
+        // same as Mathf.Pow(2, targetBitLength) - 1
+        const uint QuaternionUintRange = (1 << QuaternionBitLength) - 1;
 
         /// <summary>
         /// Used to Compress Quaternion into 4 bytes
@@ -76,10 +79,9 @@ namespace Mirror
                 small *= -1;
             }
 
-            const int bitLength = 10;
-            uint a = ScaleToUInt(small.x, bitLength);
-            uint b = ScaleToUInt(small.y, bitLength);
-            uint c = ScaleToUInt(small.z, bitLength);
+            uint a = ScaleToUInt(small.x, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
+            uint b = ScaleToUInt(small.y, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
+            uint c = ScaleToUInt(small.z, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
 
             // pack each 10 bits and extra 2 bits into uint32
             uint packed = a | b << 10 | c << 20 | (uint)largestIndex << 30;
@@ -140,20 +142,6 @@ namespace Mirror
 
             return new Vector3(a, b, c);
         }
-        static uint ScaleToUInt(float value, int targetBitLength)
-        {
-            // same as Mathf.Pow(2, targetBitLength) - 1
-            int targetRange = (1 << targetBitLength) - 1;
-
-            if (value > MaxValue) { return (uint)targetRange; }
-            if (value < MinValue) { return 0; }
-
-            float valueRelative = (value - MinValue) / ValueRange;
-            float outValue = valueRelative * targetRange;
-
-            return (uint)outValue;
-        }
-
 
         /// <summary>
         /// Used to read a Compressed Quaternion from 4 bytes
@@ -171,11 +159,9 @@ namespace Mirror
             uint c = (packed >> 20) & mask;
             uint largestIndex = (packed >> 30) & mask;
 
-            const int bitLength = 10;
-
-            float x = ScaleFromUInt(a, bitLength);
-            float y = ScaleFromUInt(b, bitLength);
-            float z = ScaleFromUInt(c, bitLength);
+            float x = ScaleFromUInt(a, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
+            float y = ScaleFromUInt(b, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
+            float z = ScaleFromUInt(c, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
 
             Vector3 small = new Vector3(x, y, z);
             result = FromSmallerDimensions(largestIndex, small);
@@ -222,15 +208,33 @@ namespace Mirror
             Debug.Assert(x * x + y * y + z * z + w * w < (2 - 0.999999f), "larger than 1");
             return new Quaternion(x, y, z, w).normalized;
         }
-        static float ScaleFromUInt(uint source, int sourceBitLength)
+
+        /// <summary>
+        /// Scales float from minFloat->maxFloat to 0->maxUint
+        /// </summary>
+        public static uint ScaleToUInt(float value, float minFloat, float maxFloat, uint maxUint)
         {
-            // same as Mathf.Pow(2, targetBitLength) - 1
-            int sourceRange = (1 << sourceBitLength) - 1;
+            if (value > maxFloat) { return maxUint; }
+            if (value < minFloat) { return 0u; }
 
+            // move value to 0->1
+            float valueRelative = (value - minFloat) / (maxFloat - minFloat);
+            // scale value to 0->uMax
+            float outValue = valueRelative * maxUint;
 
-            float valueRelative = ((float)source) / sourceRange;
-            float value = valueRelative * ValueRange + MinValue;
-            return value;
+            return (uint)outValue;
+        }
+
+        /// <summary>
+        /// Scales uint from 0->maxUint to minFloat->maxFloat 
+        /// </summary>
+        public static float ScaleFromUInt(uint value, float minFloat, float maxFloat, uint maxUint)
+        {
+            // scale value from 0->uMax to 0->1
+            float valueRelative = ((float)value) / maxUint;
+            // move value to fMin-> fMax
+            float outValue = valueRelative * (maxFloat - minFloat) + minFloat;
+            return outValue;
         }
     }
 }
