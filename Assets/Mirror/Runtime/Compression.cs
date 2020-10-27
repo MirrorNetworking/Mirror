@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>
-    /// Functions to Compress Quaternions
+    /// Functions to Compress Quaternions and Floats
     /// </summary>
     /// <remarks>
     /// Uncompressed Quaternion = 32 * 4 = 128 bits => send 16 bytes
@@ -216,9 +216,11 @@ namespace Mirror
 
         /// <summary>
         /// Scales float from minFloat->maxFloat to 0->maxUint
+        /// <para>values out side of minFloat/maxFloat will return either 0 or maxUint</para>
         /// </summary>
         public static uint ScaleToUInt(float value, float minFloat, float maxFloat, uint maxUint)
         {
+            // if out of range return 0/max
             if (value > maxFloat) { return maxUint; }
             if (value < minFloat) { return 0u; }
 
