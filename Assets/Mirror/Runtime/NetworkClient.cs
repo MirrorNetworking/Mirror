@@ -707,7 +707,7 @@ namespace Mirror
             return null;
         }
 
-        NetworkIdentity SpawnSceneObject(SpawnMessage msg)
+        internal NetworkIdentity SpawnSceneObject(SpawnMessage msg)
         {
             NetworkIdentity spawnedId = SpawnSceneObject(msg.sceneId);
             if (spawnedId == null)

@@ -149,5 +149,64 @@ namespace Mirror.Tests
             await AsyncUtil.WaitUntilWithTimeout(() => client.connectState == ConnectState.Disconnected);
             await AsyncUtil.WaitUntilWithTimeout(() => !client.Active);
         });
+
+        [Test]
+        public void RegisterPrefabDelegateNoIdentityExceptionTest()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                client.RegisterPrefab(new GameObject(), TestSpawnDelegate, TestUnspawnDelegate);
+            });
+        }
+
+        [Test]
+        public void RegisterPrefabDelegateEmptyIdentityExceptionTest()
+        {
+            GameObject prefabObject = new GameObject("prefab", typeof(NetworkIdentity));
+            NetworkIdentity identity = prefabObject.GetComponent<NetworkIdentity>();
+            identity.AssetId = Guid.Empty;
+
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                client.RegisterPrefab(prefabObject, TestSpawnDelegate, TestUnspawnDelegate);
+            });
+
+            Object.Destroy(prefabObject);
+        }
+
+        GameObject TestSpawnDelegate(Vector3 position, Guid assetId)
+        {
+            return new GameObject();
+        }
+
+        void TestUnspawnDelegate(GameObject gameObject)
+        {
+            Debug.Log("Just testing. Nothing to see here");
+        }
+
+        [Test]
+        public void GetPrefabEmptyNullTest()
+        {
+            GameObject result = client.GetPrefab(Guid.Empty);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void SpawnSceneObjectTest()
+        {
+            //Setup new scene object for test
+            var guid = Guid.NewGuid();
+            var prefabObject = new GameObject("prefab", typeof(NetworkIdentity));
+            var identity = prefabObject.GetComponent<NetworkIdentity>();
+            identity.AssetId = guid;
+            client.spawnableObjects.Add(0, identity);
+
+            NetworkIdentity result = client.SpawnSceneObject(new SpawnMessage { sceneId = 0, assetId = guid });
+
+            Assert.That(result, Is.SameAs(identity));
+
+            Object.Destroy(prefabObject);
+        }
     }
 }
