@@ -39,5 +39,53 @@ namespace Mirror.Tests
 
             Assert.That(attrib.channel == Channel.Unreliable);
         }
+
+        [Test]
+        public void ServerAttributeTest()
+        {
+            var attrib = new ServerAttribute();
+
+            Assert.IsTrue(attrib.error);
+
+            attrib.error = false;
+
+            Assert.IsFalse(attrib.error);
+        }
+
+        [Test]
+        public void ClientAttributeTest()
+        {
+            var attrib = new ClientAttribute();
+
+            Assert.IsTrue(attrib.error);
+
+            attrib.error = false;
+
+            Assert.IsFalse(attrib.error);
+        }
+
+        [Test]
+        public void HasAuthorityAttributeTest()
+        {
+            var attrib = new HasAuthorityAttribute();
+
+            Assert.IsTrue(attrib.error);
+
+            attrib.error = false;
+
+            Assert.IsFalse(attrib.error);
+        }
+
+        [Test]
+        public void LocalPlayerAttributeTest()
+        {
+            var attrib = new LocalPlayerAttribute();
+
+            Assert.IsTrue(attrib.error);
+
+            attrib.error = false;
+
+            Assert.IsFalse(attrib.error);
+        }
     }
 }
