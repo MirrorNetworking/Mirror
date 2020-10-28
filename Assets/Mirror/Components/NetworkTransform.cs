@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Mirror
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/Experimental/NetworkTransformExperimental")]
+    [AddComponentMenu("Network/NetworkTransformExperimental")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkTransform.html")]
     public class NetworkTransform : NetworkTransformBase
     {
