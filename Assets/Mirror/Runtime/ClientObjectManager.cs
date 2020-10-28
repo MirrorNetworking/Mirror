@@ -14,7 +14,6 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger(typeof(ClientObjectManager));
 
         public NetworkClient client;
-        public NetworkServer server;
         public NetworkSceneManager networkSceneManager;
 
         // spawn handlers. internal for testing purposes. do not use directly.

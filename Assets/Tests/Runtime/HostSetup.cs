@@ -38,7 +38,6 @@ namespace Mirror.Tests
             sceneManager.client = client;
             sceneManager.server = server;
             clientObjectManager.client = client;
-            clientObjectManager.server = server;
             clientObjectManager.networkSceneManager = sceneManager;
 
             ExtraSetup();
