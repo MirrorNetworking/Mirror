@@ -2974,6 +2974,7 @@ GameObject:
   - component: {fileID: 1783103027}
   - component: {fileID: 1783103023}
   - component: {fileID: 1783103024}
+  - component: {fileID: 1783103029}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -3021,6 +3022,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Port: 7777
   HashCashBits: 18
+  delayMode: 0
 --- !u!114 &1783103025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3035,6 +3037,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 1783103028}
   client: {fileID: 1783103027}
+  sceneManager: {fileID: 0}
   chatWindow: {fileID: 75861000}
   playerPrefab: {fileID: 718303009120396421, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
 --- !u!4 &1783103026
@@ -3073,8 +3076,6 @@ MonoBehaviour:
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
-  spawnPrefabs:
-  - {fileID: 5075528875289742095, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
   Transport: {fileID: 1783103024}
 --- !u!114 &1783103028
 MonoBehaviour:
@@ -3113,6 +3114,23 @@ MonoBehaviour:
   authenticator: {fileID: 0}
   Listening: 1
   transport: {fileID: 1783103024}
+--- !u!114 &1783103029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783103022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  client: {fileID: 1783103027}
+  server: {fileID: 1783103028}
+  networkSceneManager: {fileID: 0}
+  spawnPrefabs:
+  - {fileID: 5075528875289742095, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
 --- !u!1 &1863915624
 GameObject:
   m_ObjectHideFlags: 0

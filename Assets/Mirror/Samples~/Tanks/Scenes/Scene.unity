@@ -1488,6 +1488,7 @@ GameObject:
   - component: {fileID: 1282001525}
   - component: {fileID: 1282001526}
   - component: {fileID: 1282001519}
+  - component: {fileID: 1282001522}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -1523,6 +1524,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Port: 7777
   HashCashBits: 18
+  delayMode: 0
 --- !u!114 &1282001520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1537,6 +1539,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 1282001523}
   client: {fileID: 1282001525}
+  sceneManager: {fileID: 0}
 --- !u!114 &1282001521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1552,6 +1555,7 @@ MonoBehaviour:
   client: {fileID: 1282001525}
   server: {fileID: 1282001523}
   sceneManager: {fileID: 1282001526}
+  objectManager: {fileID: 1282001522}
   playerPrefab: {fileID: 114118589361100106, guid: 6f43bf5488a7443d19ab2a83c6b91f35, type: 3}
   startPositionIndex: 0
   startPositions:
@@ -1560,6 +1564,24 @@ MonoBehaviour:
   - {fileID: 251893065}
   - {fileID: 1458789073}
   playerSpawnMethod: 0
+--- !u!114 &1282001522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282001517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  client: {fileID: 1282001525}
+  server: {fileID: 1282001523}
+  networkSceneManager: {fileID: 1282001526}
+  spawnPrefabs:
+  - {fileID: 5890560936853567077, guid: b7dd46dbf38c643f09e206f9fa4be008, type: 3}
+  - {fileID: 1916082411674582, guid: 6f43bf5488a7443d19ab2a83c6b91f35, type: 3}
 --- !u!114 &1282001523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1619,9 +1641,6 @@ MonoBehaviour:
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
-  spawnPrefabs:
-  - {fileID: 5890560936853567077, guid: b7dd46dbf38c643f09e206f9fa4be008, type: 3}
-  - {fileID: 1916082411674582, guid: 6f43bf5488a7443d19ab2a83c6b91f35, type: 3}
   Transport: {fileID: 1282001519}
 --- !u!114 &1282001526
 MonoBehaviour:

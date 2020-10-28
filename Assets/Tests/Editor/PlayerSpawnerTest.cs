@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace Mirror.Tests
@@ -14,6 +14,7 @@ namespace Mirror.Tests
         private NetworkServer server;
         private PlayerSpawner spawner;
         private NetworkSceneManager sceneManager;
+        private ClientObjectManager clientObjectManager;
         private GameObject playerPrefab;
 
         private Transform pos1;
@@ -27,11 +28,16 @@ namespace Mirror.Tests
             server = go.AddComponent<NetworkServer>();
             spawner = go.AddComponent<PlayerSpawner>();
             sceneManager = go.AddComponent<NetworkSceneManager>();
+            clientObjectManager = go.AddComponent<ClientObjectManager>();
             spawner.sceneManager = sceneManager;
             sceneManager.client = client;
             sceneManager.server = server;
+            clientObjectManager.client = client;
+            clientObjectManager.server = server;
+            clientObjectManager.networkSceneManager = sceneManager;
             spawner.client = client;
             spawner.server = server;
+            spawner.objectManager = clientObjectManager;
 
             playerPrefab = new GameObject();
             NetworkIdentity playerId = playerPrefab.AddComponent<NetworkIdentity>();

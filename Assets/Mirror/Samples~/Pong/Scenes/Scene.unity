@@ -838,12 +838,12 @@ GameObject:
   m_Component:
   - component: {fileID: 1886246550}
   - component: {fileID: 1886246552}
-  - component: {fileID: 1886246551}
   - component: {fileID: 1886246555}
   - component: {fileID: 1886246554}
   - component: {fileID: 1886246553}
   - component: {fileID: 1886246556}
   - component: {fileID: 1886246557}
+  - component: {fileID: 1886246551}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -874,15 +874,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1886246549}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
+  m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkManager: {fileID: 1886246552}
-  NetworkAddress: localhost
-  NetworkAddressInput: {fileID: 0}
-  OfflineGO: {fileID: 0}
-  OnlineGO: {fileID: 0}
-  StatusLabel: {fileID: 0}
+  client: {fileID: 1886246554}
+  server: {fileID: 1886246555}
+  networkSceneManager: {fileID: 1886246556}
+  spawnPrefabs:
+  - {fileID: 1080679924113744, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
+  - {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
 --- !u!114 &1886246552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -897,6 +897,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 1886246555}
   client: {fileID: 1886246554}
+  sceneManager: {fileID: 0}
 --- !u!114 &1886246553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -912,6 +913,7 @@ MonoBehaviour:
   client: {fileID: 1886246554}
   server: {fileID: 1886246555}
   sceneManager: {fileID: 1886246556}
+  objectManager: {fileID: 1886246551}
   playerPrefab: {fileID: 114104497298166850, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
   startPositionIndex: 0
   startPositions: []
@@ -941,9 +943,6 @@ MonoBehaviour:
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
-  spawnPrefabs:
-  - {fileID: 1080679924113744, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
-  - {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
   Transport: {fileID: 1886246557}
 --- !u!114 &1886246555
 MonoBehaviour:
@@ -1022,6 +1021,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Port: 7777
   HashCashBits: 18
+  delayMode: 0
 --- !u!1 &70109839852233236
 GameObject:
   m_ObjectHideFlags: 0

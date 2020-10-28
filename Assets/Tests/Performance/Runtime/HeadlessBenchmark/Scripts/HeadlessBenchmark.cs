@@ -90,12 +90,15 @@ namespace Mirror.HeadlessBenchmark
 
         async UniTask StartClient(int i, Transport transport, string networkAddress)
         {
-            var clientGo = new GameObject($"Client {i}", typeof(NetworkClient));
+            var clientGo = new GameObject($"Client {i}", typeof(NetworkClient), typeof(ClientObjectManager));
             NetworkClient client = clientGo.GetComponent<NetworkClient>();
+            ClientObjectManager objectManager = clientGo.GetComponent<ClientObjectManager>();
+            objectManager.client = client;
+            objectManager.Start();
             client.Transport = transport;
 
-            client.RegisterPrefab(MonsterPrefab);
-            client.RegisterPrefab(PlayerPrefab);
+            objectManager.RegisterPrefab(MonsterPrefab);
+            objectManager.RegisterPrefab(PlayerPrefab);
 
             try
             {

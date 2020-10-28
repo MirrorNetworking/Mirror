@@ -1836,13 +1836,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1661834279}
-  - component: {fileID: 1661834281}
   - component: {fileID: 1661834278}
   - component: {fileID: 1661834283}
   - component: {fileID: 1661834282}
   - component: {fileID: 1661834280}
   - component: {fileID: 1661834284}
   - component: {fileID: 1661834285}
+  - component: {fileID: 1661834281}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -1864,6 +1864,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 1661834283}
   client: {fileID: 1661834282}
+  sceneManager: {fileID: 0}
   subScenes:
   - Assets/Examples/AdditiveScenes/Scenes/SubScene.unity
 --- !u!4 &1661834279
@@ -1895,6 +1896,7 @@ MonoBehaviour:
   client: {fileID: 1661834282}
   server: {fileID: 1661834283}
   sceneManager: {fileID: 1661834284}
+  objectManager: {fileID: 1661834281}
   playerPrefab: {fileID: 8537344390966522168, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
   startPositionIndex: 0
   startPositions:
@@ -1912,15 +1914,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 1661834277}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
+  m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkManager: {fileID: 1661834278}
-  NetworkAddress: localhost
-  NetworkAddressInput: {fileID: 0}
-  OfflineGO: {fileID: 0}
-  OnlineGO: {fileID: 0}
-  StatusLabel: {fileID: 0}
+  client: {fileID: 1661834282}
+  server: {fileID: 1661834283}
+  networkSceneManager: {fileID: 1661834284}
+  spawnPrefabs:
+  - {fileID: 1076878374699499732, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
+  - {fileID: 5623359707189648430, guid: 4ff300cf6bb3c6342a9552c4f18788c8, type: 3}
+  - {fileID: 6852530814182375312, guid: 12a4c14e672c00b4b840f937d824b890, type: 3}
+  - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
+  - {fileID: 855244094988030905, guid: f6d08eb9a8e35d84fa30a7e3ae64181a, type: 3}
+  - {fileID: 160176457, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
 --- !u!114 &1661834282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1943,13 +1949,6 @@ MonoBehaviour:
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
-  spawnPrefabs:
-  - {fileID: 1076878374699499732, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
-  - {fileID: 5623359707189648430, guid: 4ff300cf6bb3c6342a9552c4f18788c8, type: 3}
-  - {fileID: 6852530814182375312, guid: 12a4c14e672c00b4b840f937d824b890, type: 3}
-  - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
-  - {fileID: 855244094988030905, guid: f6d08eb9a8e35d84fa30a7e3ae64181a, type: 3}
-  - {fileID: 160176457, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
   Transport: {fileID: 1661834285}
 --- !u!114 &1661834283
 MonoBehaviour:

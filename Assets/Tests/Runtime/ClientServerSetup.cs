@@ -24,6 +24,7 @@ namespace Mirror.Tests
         protected GameObject clientGo;
         protected NetworkClient client;
         protected NetworkSceneManager clientSceneManager;
+        protected ClientObjectManager clientObjectManager;
         protected GameObject clientPlayerGO;
         protected NetworkIdentity clientIdentity;
         protected T clientComponent;
@@ -40,7 +41,7 @@ namespace Mirror.Tests
         public IEnumerator Setup() => UniTask.ToCoroutine(async () =>
         {
             serverGo = new GameObject("server", typeof(NetworkSceneManager), typeof(NetworkServer));
-            clientGo = new GameObject("client", typeof(NetworkSceneManager), typeof(NetworkClient));
+            clientGo = new GameObject("client", typeof(NetworkSceneManager), typeof(ClientObjectManager), typeof(NetworkClient));
             testTransport = serverGo.AddComponent<LoopbackTransport>();
 
             await UniTask.Delay(1);
@@ -53,16 +54,22 @@ namespace Mirror.Tests
 
             serverSceneManager = serverGo.GetComponent<NetworkSceneManager>();
             clientSceneManager = clientGo.GetComponent<NetworkSceneManager>();
-
             serverSceneManager.server = server;
             clientSceneManager.client = client;
+            serverSceneManager.Start();
+            clientSceneManager.Start();
+
+            clientObjectManager = clientGo.GetComponent<ClientObjectManager>();
+            clientObjectManager.client = client;
+            clientObjectManager.networkSceneManager = clientSceneManager;
+            clientObjectManager.Start();
 
             ExtraSetup();
 
             // create and register a prefab
             playerPrefab = new GameObject("serverPlayer", typeof(NetworkIdentity), typeof(T));
             playerPrefab.GetComponent<NetworkIdentity>().AssetId = Guid.NewGuid();
-            client.RegisterPrefab(playerPrefab);
+            clientObjectManager.RegisterPrefab(playerPrefab);
 
             // wait for client and server to initialize themselves
             await UniTask.Delay(1);

@@ -233,7 +233,7 @@ namespace Mirror.Tests
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
             NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
             replacementIdentity.AssetId = Guid.NewGuid();
-            client.RegisterPrefab(playerReplacement);
+            clientObjectManager.RegisterPrefab(playerReplacement);
 
             server.ReplacePlayerForConnection(connectionToClient, client, playerReplacement);
 
@@ -246,7 +246,7 @@ namespace Mirror.Tests
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
             NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
             replacementIdentity.AssetId = Guid.NewGuid();
-            client.RegisterPrefab(playerReplacement);
+            clientObjectManager.RegisterPrefab(playerReplacement);
 
             server.ReplacePlayerForConnection(connectionToClient, client, playerReplacement, true);
 
@@ -260,7 +260,7 @@ namespace Mirror.Tests
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
             NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
             replacementIdentity.AssetId = replacementGuid;
-            client.RegisterPrefab(playerReplacement);
+            clientObjectManager.RegisterPrefab(playerReplacement);
 
             server.ReplacePlayerForConnection(connectionToClient, client, playerReplacement, replacementGuid);
 
@@ -280,7 +280,7 @@ namespace Mirror.Tests
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
             NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
             replacementIdentity.AssetId = replacementGuid;
-            client.RegisterPrefab(playerReplacement);
+            clientObjectManager.RegisterPrefab(playerReplacement);
 
             connectionToClient.Identity = null;
 

@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 493337956}
   - component: {fileID: 493337957}
   - component: {fileID: 493337952}
+  - component: {fileID: 493337958}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -159,6 +160,7 @@ MonoBehaviour:
   client: {fileID: 493337953}
   server: {fileID: 493337954}
   sceneManager: {fileID: 493337957}
+  objectManager: {fileID: 493337958}
   playerPrefab: {fileID: 4169741493956293168, guid: bebeb0dfd33f4074894ef25112ab4a8d, type: 3}
   startPositionIndex: 0
   startPositions: []
@@ -254,6 +256,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 493337954}
   client: {fileID: 493337953}
+  sceneManager: {fileID: 0}
+  objectManager: {fileID: 0}
 --- !u!114 &493337957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,6 +284,21 @@ MonoBehaviour:
   ServerSceneChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &493337958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 493337951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  client: {fileID: 493337953}
+  server: {fileID: 493337954}
+  networkSceneManager: {fileID: 493337957}
 --- !u!1 &1064133783
 GameObject:
   m_ObjectHideFlags: 0
@@ -388,6 +407,7 @@ MonoBehaviour:
   MonsterPrefab: {fileID: 6374416922608025457, guid: 28d1af38d0173324ea03798dd86eac8f, type: 3}
   PlayerPrefab: {fileID: 7039704267495960125, guid: bebeb0dfd33f4074894ef25112ab4a8d, type: 3}
   editorArgs: -transport kcp -server -port 3333
+  kcpTransport: {fileID: 0}
 --- !u!4 &2043118187
 Transform:
   m_ObjectHideFlags: 0

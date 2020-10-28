@@ -216,12 +216,12 @@ GameObject:
   m_Component:
   - component: {fileID: 69965670}
   - component: {fileID: 69965669}
-  - component: {fileID: 69965667}
   - component: {fileID: 69965672}
   - component: {fileID: 69965671}
   - component: {fileID: 69965668}
   - component: {fileID: 69965674}
   - component: {fileID: 69965673}
+  - component: {fileID: 69965667}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -238,15 +238,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 69965666}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
+  m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkManager: {fileID: 69965669}
-  NetworkAddress: localhost
-  NetworkAddressInput: {fileID: 0}
-  OfflineGO: {fileID: 0}
-  OnlineGO: {fileID: 0}
-  StatusLabel: {fileID: 0}
+  client: {fileID: 69965671}
+  server: {fileID: 69965672}
+  networkSceneManager: {fileID: 69965674}
+  spawnPrefabs:
+  - {fileID: 5513112217680870098, guid: a104de86221e66a48832c222471d4f1e, type: 3}
+  - {fileID: 1480027675339556, guid: 1f4d376d8ca693049abd1744e4c79fad, type: 3}
+  - {fileID: 1139254171913846, guid: 8cec47ed46e0eff45966a5173d3aa0d3, type: 3}
 --- !u!114 &69965668
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262,6 +263,7 @@ MonoBehaviour:
   client: {fileID: 69965671}
   server: {fileID: 69965672}
   sceneManager: {fileID: 69965674}
+  objectManager: {fileID: 69965667}
   playerPrefab: {fileID: 114402732107420660, guid: 1f4d376d8ca693049abd1744e4c79fad, type: 3}
   startPositionIndex: 0
   startPositions:
@@ -288,6 +290,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 69965672}
   client: {fileID: 69965671}
+  sceneManager: {fileID: 0}
   instances: 3
   gameScene: 
 --- !u!4 &69965670
@@ -326,7 +329,6 @@ MonoBehaviour:
   Disconnected:
     m_PersistentCalls:
       m_Calls: []
-  spawnPrefabs: []
   Transport: {fileID: 69965673}
 --- !u!114 &69965672
 MonoBehaviour:
@@ -379,6 +381,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Port: 7777
   HashCashBits: 18
+  delayMode: 0
 --- !u!114 &69965674
 MonoBehaviour:
   m_ObjectHideFlags: 0
