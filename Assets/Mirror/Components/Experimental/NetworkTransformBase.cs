@@ -32,23 +32,19 @@ namespace Mirror.Experimental
         [SyncVar]
         public bool clientAuthority;
 
-        [Tooltip("Set to true if updates from server should be ignored by owner")]
-        [SyncVar]
-        public bool excludeOwnerUpdate = true;
-
         [Header("Synchronization")]
 
-        [Tooltip("Set to true if position should be synchronized")]
+        [Tooltip("Set to true if position changes should be applied")]
         [SyncVar]
-        public bool syncPosition = true;
+        public bool applyPosition = true;
 
-        [Tooltip("Set to true if rotation should be synchronized")]
+        [Tooltip("Set to true if rotation changes should be applied")]
         [SyncVar]
-        public bool syncRotation = true;
+        public bool applyRotation = true;
 
-        [Tooltip("Set to true if scale should be synchronized")]
+        [Tooltip("Set to true if scale changes should be applied")]
         [SyncVar]
-        public bool syncScale = true;
+        public bool applyScale = true;
 
         [Header("Interpolation")]
 
@@ -172,9 +168,6 @@ namespace Mirror.Experimental
                                            InterpolateScale(start, goal, targetTransform.localScale));
             }
         }
-
-        // We need to store this locally on the server so clients can't request Authority when ever they like
-        bool clientAuthorityBeforeTeleport;
 
         // moved or rotated or scaled since last time we checked it?
         bool HasEitherMovedRotatedScaled()
