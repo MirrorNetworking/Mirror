@@ -173,9 +173,6 @@ namespace Mirror.Experimental
             }
         }
 
-        // We need to store this locally on the server so clients can't request Authority when ever they like
-        bool clientAuthorityBeforeTeleport;
-
         // moved or rotated or scaled since last time we checked it?
         bool HasEitherMovedRotatedScaled()
         {
