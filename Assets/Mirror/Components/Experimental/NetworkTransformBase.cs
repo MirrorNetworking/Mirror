@@ -109,11 +109,14 @@ namespace Mirror.Experimental
         public DataPoint start = new DataPoint();
         public DataPoint goal = new DataPoint();
 
+        public TransformValues previousSent;
+
         void FixedUpdate()
         {
             // if server then always sync to others.
             // let the clients know that this has moved
-            if (isServer && HasEitherMovedRotatedScaled())
+
+            if (isServer)
             {
                 ServerUpdate();
             }
@@ -135,17 +138,21 @@ namespace Mirror.Experimental
 
         void ServerUpdate()
         {
-            RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+            TransformValues values = getChangedValues(previousSent, targetTransform);
+            if (values.syncMode != TransformValues.SyncMode.none)
+            {
+                RpcMove(values);
+                previousSent = values;
+            }
         }
 
         void ClientAuthorityUpdate()
         {
-            if (!isServer && HasEitherMovedRotatedScaled())
+            TransformValues values = getChangedValues(previousSent, targetTransform);
+            if (values.syncMode != TransformValues.SyncMode.none)
             {
-                // serialize
-                // local position/rotation for VR support
-                // send to server
-                CmdClientToServerSync(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+                CmdClientToServerSync(values);
+                previousSent = values;
             }
         }
 
@@ -173,21 +180,49 @@ namespace Mirror.Experimental
         // We need to store this locally on the server so clients can't request Authority when ever they like
         bool clientAuthorityBeforeTeleport;
 
-        // moved or rotated or scaled since last time we checked it?
-        bool HasEitherMovedRotatedScaled()
+        /// <summary>
+        /// Creates TransformValues that has values which have changed between previous and target Transform
+        /// </summary>
+        TransformValues getChangedValues(TransformValues previous, Transform target)
         {
-            // Save last for next frame to compare only if change was detected, otherwise
-            // slow moving objects might never sync because of C#'s float comparison tolerance.
-            // See also: https://github.com/vis2k/Mirror/pull/428)
-            bool changed = HasMoved || HasRotated || HasScaled;
-            if (changed)
+            TransformValues values = new TransformValues();
+
+            if (syncPosition)
             {
-                // local position/rotation for VR support
-                if (syncPosition) lastPosition = targetTransform.localPosition;
-                if (syncRotation) lastRotation = targetTransform.localRotation;
-                if (syncScale) lastScale = targetTransform.localScale;
+                Vector3 current = target.localPosition;
+                float dist = Vector3.Distance(current, previous.position);
+                bool changed = dist > localPositionSensitivity;
+                if (changed)
+                {
+                    values.syncMode |= TransformValues.SyncMode.position;
+                    values.position = current;
+                }
             }
-            return changed;
+
+            if (syncRotation)
+            {
+                Quaternion current = target.localRotation;
+                float dist = Quaternion.Angle(current, previous.rotation);
+                bool changed = dist > localRotationSensitivity;
+                if (changed)
+                {
+                    values.syncMode |= TransformValues.SyncMode.rotation;
+                    values.rotation = current;
+                }
+            }
+            if (syncScale)
+            {
+                Vector3 current = target.localScale;
+                float dist = Vector3.Distance(current, previous.scale);
+                bool changed = dist > localScaleSensitivity;
+                if (changed)
+                {
+                    values.syncMode |= TransformValues.SyncMode.scale;
+                    values.scale = current;
+                }
+            }
+
+            return values;
         }
 
         // local position/rotation for VR support
@@ -213,29 +248,29 @@ namespace Mirror.Experimental
 
         // local authority client sends sync message to server for broadcasting
         [Command]
-        void CmdClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale)
+        void CmdClientToServerSync(TransformValues values)
         {
             // Ignore messages from client if not in client authority mode
             if (!clientAuthority)
                 return;
 
             // deserialize payload
-            SetGoal(position, rotation, scale);
+            SetGoal(values.position, values.rotation, values.scale);
 
             // server-only mode does no interpolation to save computations, but let's set the position directly
             if (isServer && !isClient)
                 ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
 
-            RpcMove(position, rotation, scale);
+            RpcMove(values);
         }
 
         [ClientRpc]
-        void RpcMove(Vector3 position, Quaternion rotation, Vector3 scale)
+        void RpcMove(TransformValues values)
         {
             if (hasAuthority && excludeOwnerUpdate) return;
 
             if (!isServer)
-                SetGoal(position, rotation, scale);
+                SetGoal(values.position, values.rotation, values.scale);
         }
 
         // serialization is needed by OnSerialize and by manual sending from authority
@@ -526,4 +561,58 @@ namespace Mirror.Experimental
 
         #endregion
     }
+
+    // todo move TransformValues to its own file when we are happy with it
+    public struct TransformValues
+    {
+        [Flags]
+        public enum SyncMode : byte
+        {
+            none = 0,
+            position = 1,
+            rotation = 2,
+            scale = 4,
+
+            PosRot = position | rotation,
+            PosRotSca = PosRot | scale,
+        }
+        public SyncMode syncMode;
+
+        public TransformValues(SyncMode syncMode) : this()
+        {
+            this.syncMode = syncMode;
+        }
+
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 scale;
+    }
+
+    public static class TransformValuesFunctions
+    {
+        public static void WriteTransformValues(this NetworkWriter writer, TransformValues value)
+        {
+            TransformValues.SyncMode mode = value.syncMode;
+            writer.WriteByte((byte)mode);
+
+            if ((mode & TransformValues.SyncMode.position) > 0) writer.WriteVector3(value.position);
+            if ((mode & TransformValues.SyncMode.rotation) > 0) writer.WriteQuaternion(value.rotation);
+            if ((mode & TransformValues.SyncMode.scale) > 0) writer.WriteVector3(value.scale);
+        }
+        public static TransformValues ReadTransformValues(this NetworkReader reader)
+        {
+            TransformValues.SyncMode mode = (TransformValues.SyncMode)reader.ReadByte();
+
+            TransformValues value = new TransformValues(mode)
+            {
+                position = (mode & TransformValues.SyncMode.position) > 0 ? reader.ReadVector3() : default,
+                rotation = (mode & TransformValues.SyncMode.rotation) > 0 ? reader.ReadQuaternion() : default,
+                scale = (mode & TransformValues.SyncMode.scale) > 0 ? reader.ReadVector3() : default,
+            };
+
+            return value;
+        }
+    }
+
+
 }
