@@ -28,11 +28,11 @@ namespace Mirror.Experimental
 
         [Header("Authority")]
 
-        [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
+        [Tooltip("Set to true if updates come from owner client, set to false if updates always come from server")]
         [SyncVar]
         public bool clientAuthority;
 
-        [Header("Synchronization")]
+        [Header("Application of Updates")]
 
         [Tooltip("Set to true if position changes should be applied")]
         [SyncVar]
@@ -113,28 +113,25 @@ namespace Mirror.Experimental
             // if server then always sync to others.
             // let the clients know that this has moved
             if (isServer && HasEitherMovedRotatedScaled())
-            {
                 ServerUpdate();
-            }
 
             if (isClient)
             {
                 // send to server if we have local authority (and aren't the server)
                 // -> only if connectionToServer has been initialized yet too
                 if (IsOwnerWithClientAuthority)
-                {
                     ClientAuthorityUpdate();
-                }
                 else if (goal.isValid)
-                {
                     ClientRemoteUpdate();
-                }
             }
         }
 
         void ServerUpdate()
         {
-            RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+            if (clientAuthority)
+                RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+            else
+                RpcForceMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
         }
 
         void ClientAuthorityUpdate()
@@ -179,9 +176,9 @@ namespace Mirror.Experimental
             if (changed)
             {
                 // local position/rotation for VR support
-                if (syncPosition) lastPosition = targetTransform.localPosition;
-                if (syncRotation) lastRotation = targetTransform.localRotation;
-                if (syncScale) lastScale = targetTransform.localScale;
+                if (applyPosition) lastPosition = targetTransform.localPosition;
+                if (applyRotation) lastRotation = targetTransform.localRotation;
+                if (applyScale) lastScale = targetTransform.localScale;
             }
             return changed;
         }
@@ -190,9 +187,9 @@ namespace Mirror.Experimental
         // SqrMagnitude is faster than Distance per Unity docs
         // https://docs.unity3d.com/ScriptReference/Vector3-sqrMagnitude.html
 
-        bool HasMoved => syncPosition && Vector3.SqrMagnitude(lastPosition - targetTransform.localPosition) > localPositionSensitivity * localPositionSensitivity;
-        bool HasRotated => syncRotation && Quaternion.Angle(lastRotation, targetTransform.localRotation) > localRotationSensitivity;
-        bool HasScaled => syncScale && Vector3.SqrMagnitude(lastScale - targetTransform.localScale) > localScaleSensitivity * localScaleSensitivity;
+        bool HasMoved => applyPosition && Vector3.SqrMagnitude(lastPosition - targetTransform.localPosition) > localPositionSensitivity * localPositionSensitivity;
+        bool HasRotated => applyRotation && Quaternion.Angle(lastRotation, targetTransform.localRotation) > localRotationSensitivity;
+        bool HasScaled => applyScale && Vector3.SqrMagnitude(lastScale - targetTransform.localScale) > localScaleSensitivity * localScaleSensitivity;
 
         // teleport / lag / stuck detection
         // - checking distance is not enough since there could be just a tiny fence between us and the goal
@@ -222,14 +219,26 @@ namespace Mirror.Experimental
             if (isServer && !isClient)
                 ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
 
-            RpcMove(position, rotation, scale);
+            if (clientAuthority)
+                RpcMove(position, rotation, scale);
+            else
+                RpcForceMove(position, rotation, scale);
         }
 
-        [ClientRpc]
+        // Use this when clientAuthority = true to prevent messages to owner client
+        [ClientRpc(excludeOwner = true)]
         void RpcMove(Vector3 position, Quaternion rotation, Vector3 scale)
         {
-            if (hasAuthority && excludeOwnerUpdate) return;
+            // don't apply to host client
+            if (!isServer)
+                SetGoal(position, rotation, scale);
+        }
 
+        // Use this when clientAuthority = false to send messages to owner client
+        [ClientRpc]
+        void RpcForceMove(Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            // don't apply to host client
             if (!isServer)
                 SetGoal(position, rotation, scale);
         }
@@ -331,9 +340,9 @@ namespace Mirror.Experimental
         void ApplyPositionRotationScale(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // local position/rotation for VR support
-            if (syncPosition) targetTransform.localPosition = position;
-            if (syncRotation) targetTransform.localRotation = rotation;
-            if (syncScale) targetTransform.localScale = scale;
+            if (applyPosition) targetTransform.localPosition = position;
+            if (applyRotation) targetTransform.localRotation = rotation;
+            if (applyScale) targetTransform.localScale = scale;
         }
 
         // where are we in the timeline between start and goal? [0,1]
