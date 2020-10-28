@@ -38,6 +38,10 @@ namespace Mirror.SimpleWeb
                 TcpClient client = new TcpClient();
                 tcpConfig.ApplyTo(client);
 
+                // create connection object here so dispose correctly disconnects on failed connect
+                conn = new Connection(client, AfterConnectionDisposed);
+                conn.receiveThread = Thread.CurrentThread;
+
                 try
                 {
                     client.Connect(serverAddress.Host, serverAddress.Port);
@@ -48,8 +52,6 @@ namespace Mirror.SimpleWeb
                     throw;
                 }
 
-                conn = new Connection(client, AfterConnectionDisposed);
-                conn.receiveThread = Thread.CurrentThread;
 
                 bool success = sslHelper.TryCreateStream(conn, serverAddress);
                 if (!success)
@@ -100,7 +102,7 @@ namespace Mirror.SimpleWeb
             finally
             {
                 // close here incase connect fails
-                conn.Dispose();
+                conn?.Dispose();
             }
         }
 

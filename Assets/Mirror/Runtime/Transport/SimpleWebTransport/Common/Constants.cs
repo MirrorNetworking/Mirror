@@ -62,7 +62,7 @@ namespace Mirror.SimpleWeb
 
         public static readonly int HandshakeGUIDLength = HandshakeGUID.Length;
 
-        public static readonly byte[] HandshakeGUIDBytes = Encoding.UTF8.GetBytes(HandshakeGUID);
+        public static readonly byte[] HandshakeGUIDBytes = Encoding.ASCII.GetBytes(HandshakeGUID);
 
         /// <summary>
         /// Handshake messages will end with \r\n\r\n
