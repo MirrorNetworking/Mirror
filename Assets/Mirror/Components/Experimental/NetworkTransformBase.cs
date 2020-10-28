@@ -118,7 +118,7 @@ namespace Mirror.Experimental
             // let the clients know that this has moved
             if (isServer && HasEitherMovedRotatedScaled())
             {
-                RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+                ServerUpdate();
             }
 
             if (isClient)
@@ -127,37 +127,54 @@ namespace Mirror.Experimental
                 // -> only if connectionToServer has been initialized yet too
                 if (IsOwnerWithClientAuthority)
                 {
-                    if (!isServer && HasEitherMovedRotatedScaled())
-                    {
-                        // serialize
-                        // local position/rotation for VR support
-                        // send to server
-                        CmdClientToServerSync(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
-                    }
+                    ClientAuthorityUpdate();
                 }
                 else if (goal.isValid)
                 {
-                    // teleport or interpolate
-                    if (NeedsTeleport())
-                    {
-                        // local position/rotation for VR support
-                        ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
-
-                        // reset data points so we don't keep interpolating
-                        start = new DataPoint();
-                        goal = new DataPoint();
-                    }
-                    else
-                    {
-                        // local position/rotation for VR support
-                        ApplyPositionRotationScale(InterpolatePosition(start, goal, targetTransform.localPosition),
-                                                   InterpolateRotation(start, goal, targetTransform.localRotation),
-                                                   InterpolateScale(start, goal, targetTransform.localScale));
-                    }
-
+                    ClientRemoteUpdate();
                 }
             }
         }
+
+        void ServerUpdate()
+        {
+            RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+        }
+
+        void ClientAuthorityUpdate()
+        {
+            if (!isServer && HasEitherMovedRotatedScaled())
+            {
+                // serialize
+                // local position/rotation for VR support
+                // send to server
+                CmdClientToServerSync(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+            }
+        }
+
+        void ClientRemoteUpdate()
+        {
+            // teleport or interpolate
+            if (NeedsTeleport())
+            {
+                // local position/rotation for VR support
+                ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
+
+                // reset data points so we don't keep interpolating
+                start = new DataPoint();
+                goal = new DataPoint();
+            }
+            else
+            {
+                // local position/rotation for VR support
+                ApplyPositionRotationScale(InterpolatePosition(start, goal, targetTransform.localPosition),
+                                           InterpolateRotation(start, goal, targetTransform.localRotation),
+                                           InterpolateScale(start, goal, targetTransform.localScale));
+            }
+        }
+
+        // We need to store this locally on the server so clients can't request Authority when ever they like
+        bool clientAuthorityBeforeTeleport;
 
         // moved or rotated or scaled since last time we checked it?
         bool HasEitherMovedRotatedScaled()
