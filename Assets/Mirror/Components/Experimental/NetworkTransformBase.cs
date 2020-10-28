@@ -395,25 +395,27 @@ namespace Mirror.Experimental
         #region Server Teleport (force move player)
 
         /// <summary>
-        /// This method will override this GameObject's current Transform.Position to the Vector3 you have provided
-        /// and send it to all other Clients to override it at their side too.
+        /// This method will override this GameObject's current Transform.localPosition to the specified Vector3  and update all clients.
+        /// <para>NOTE: position must be in LOCAL space if the transform has a parent</para>
         /// </summary>
-        /// <param name="position">Where to teleport this GameObject</param>
+        /// <param name="localPosition">Where to teleport this GameObject</param>
         [Server]
-        public void ServerTeleport(Vector3 position)
+        public void ServerTeleport(Vector3 localPosition)
         {
-            Quaternion rotation = transform.rotation;
-            ServerTeleport(position, rotation);
+            Quaternion localRotation = targetTransform.localRotation;
+            ServerTeleport(localPosition, localRotation);
         }
 
         /// <summary>
-        /// This method will override this GameObject's current Transform.Position and Transform.Rotation
-        /// to the Vector3 you have provided and send it to all other Clients to override it at their side too.
+        /// This method will override this GameObject's current Transform.localPosition and Transform.localRotation
+        /// to the specified Vector3 and Quaternion and update all clients.
+        /// <para>NOTE: localPosition must be in LOCAL space if the transform has a parent</para>
+        /// <para>NOTE: localRotation must be in LOCAL space if the transform has a parent</para>
         /// </summary>
-        /// <param name="position">Where to teleport this GameObject</param>
-        /// <param name="rotation">Which rotation to set this GameObject</param>
+        /// <param name="localPosition">Where to teleport this GameObject</param>
+        /// <param name="localRotation">Which rotation to set this GameObject</param>
         [Server]
-        public void ServerTeleport(Vector3 position, Quaternion rotation)
+        public void ServerTeleport(Vector3 localPosition, Quaternion localRotation)
         {
             // To prevent applying the position updates received from client (if they have ClientAuth) while being teleported.
             // clientAuthorityBeforeTeleport defaults to false when not teleporting, if it is true then it means that teleport
@@ -421,23 +423,23 @@ namespace Mirror.Experimental
             clientAuthorityBeforeTeleport = clientAuthority || clientAuthorityBeforeTeleport;
             clientAuthority = false;
 
-            DoTeleport(position, rotation);
+            DoTeleport(localPosition, localRotation);
 
             // tell all clients about new values
-            RpcTeleport(position, rotation, clientAuthorityBeforeTeleport);
+            RpcTeleport(localPosition, localRotation, clientAuthorityBeforeTeleport);
         }
 
-        void DoTeleport(Vector3 newPosition, Quaternion newRotation)
+        void DoTeleport(Vector3 newLocalPosition, Quaternion newLocalRotation)
         {
-            transform.position = newPosition;
-            transform.rotation = newRotation;
+            targetTransform.localPosition = newLocalPosition;
+            targetTransform.localRotation = newLocalRotation;
 
             // Since we are overriding the position we don't need a goal and start.
             // Reset them to null for fresh start
             goal = new DataPoint();
             start = new DataPoint();
-            lastPosition = newPosition;
-            lastRotation = newRotation;
+            lastPosition = newLocalPosition;
+            lastRotation = newLocalRotation;
         }
 
         [ClientRpc]
