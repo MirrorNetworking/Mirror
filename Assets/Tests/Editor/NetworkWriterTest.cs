@@ -103,6 +103,16 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestMaxStringWrite()
+        {
+            var writer = new NetworkWriter();
+            Assert.Throws<DataMisalignedException>(() =>
+            {
+                writer.WriteString(new string('*', NetworkWriter.MaxStringLength));
+            });
+        }
+
+        [Test]
         public void TestSetLengthZeroes()
         {
             var writer = new NetworkWriter();

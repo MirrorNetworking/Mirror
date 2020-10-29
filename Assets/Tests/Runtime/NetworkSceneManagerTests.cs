@@ -95,6 +95,19 @@ namespace Mirror.Tests
             Assert.That(client.Connection.IsReady);
         }
 
+        [UnityTest]
+        public IEnumerator ReadyExceptionTest() => UniTask.ToCoroutine(async () =>
+        {
+            sceneManager.client.Disconnect();
+
+            await AsyncUtil.WaitUntilWithTimeout(() => !sceneManager.client.Active);
+
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                sceneManager.SetClientReady();
+            });
+        });
+
         int ClientChangeCalled;
         public void ClientChangeScene(string sceneName, SceneOperation sceneOperation)
         {
