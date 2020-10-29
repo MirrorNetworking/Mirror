@@ -79,9 +79,9 @@ namespace Mirror
                 small *= -1;
             }
 
-            uint a = ScaleToUInt(small.x, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
-            uint b = ScaleToUInt(small.y, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
-            uint c = ScaleToUInt(small.z, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
+            uint a = ScaleToUInt(small.x, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
+            uint b = ScaleToUInt(small.y, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
+            uint c = ScaleToUInt(small.z, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
 
             // pack each 10 bits and extra 2 bits into uint32
             uint packed = a | b << 10 | c << 20 | (uint)largestIndex << 30;
@@ -162,9 +162,9 @@ namespace Mirror
             uint c = (packed >> 20) & mask;
             uint largestIndex = (packed >> 30) & mask;
 
-            float x = ScaleFromUInt(a, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
-            float y = ScaleFromUInt(b, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
-            float z = ScaleFromUInt(c, QuaternionMinValue, QuaternionMaxValue, QuaternionUintRange);
+            float x = ScaleFromUInt(a, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
+            float y = ScaleFromUInt(b, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
+            float z = ScaleFromUInt(c, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
 
             Vector3 small = new Vector3(x, y, z);
             result = FromSmallerDimensions(largestIndex, small);
@@ -215,32 +215,43 @@ namespace Mirror
 
 
         /// <summary>
-        /// Scales float from minFloat->maxFloat to 0->maxUint
+        /// Scales float from minFloat->maxFloat to minUint->maxUint
         /// <para>values out side of minFloat/maxFloat will return either 0 or maxUint</para>
         /// </summary>
-        public static uint ScaleToUInt(float value, float minFloat, float maxFloat, uint maxUint)
+        public static uint ScaleToUInt(float value, float minFloat, float maxFloat, uint minUint, uint maxUint)
         {
-            // if out of range return 0/max
+            // if out of range return min/max
             if (value > maxFloat) { return maxUint; }
-            if (value < minFloat) { return 0u; }
+            if (value < minFloat) { return minUint; }
 
-            // move value to 0->1
-            float valueRelative = (value - minFloat) / (maxFloat - minFloat);
-            // scale value to 0->uMax
-            float outValue = valueRelative * maxUint;
+            float rangeFloat = maxFloat - minFloat;
+            uint rangeUint = maxUint - minUint;
+
+            // scale value to 0->1 (as float)
+            float valueRelative = (value - minFloat) / rangeFloat;
+            // scale value to uMin->uMax
+            float outValue = valueRelative * rangeUint + minUint;
 
             return (uint)outValue;
         }
 
         /// <summary>
-        /// Scales uint from 0->maxUint to minFloat->maxFloat 
+        /// Scales uint from minUint->maxUint to minFloat->maxFloat 
         /// </summary>
-        public static float ScaleFromUInt(uint value, float minFloat, float maxFloat, uint maxUint)
+        public static float ScaleFromUInt(uint value, float minFloat, float maxFloat, uint minUint, uint maxUint)
         {
-            // scale value from 0->uMax to 0->1
-            float valueRelative = ((float)value) / maxUint;
-            // move value to fMin-> fMax
-            float outValue = valueRelative * (maxFloat - minFloat) + minFloat;
+            // if out of range return min/max
+            if (value > maxUint) { return maxFloat; }
+            if (value < minUint) { return minFloat; }
+
+            float rangeFloat = maxFloat - minFloat;
+            uint rangeUint = maxUint - minUint;
+
+            // scale value to 0->1 (as float)
+            // make sure divide is float
+            float valueRelative = (value - minUint) / (float)rangeUint;
+            // scale value to fMin->fMax
+            float outValue = valueRelative * rangeFloat + minFloat;
             return outValue;
         }
     }
