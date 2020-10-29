@@ -5,8 +5,6 @@ namespace Mirror
 
     [AddComponentMenu("Network/NetworkManager")]
     [HelpURL("https://mirrorng.github.io/MirrorNG/Articles/Guides/Communications/NetworkManager.html")]
-    [RequireComponent(typeof(NetworkServer))]
-    [RequireComponent(typeof(NetworkClient))]
     [DisallowMultipleComponent]
     public class NetworkManager : MonoBehaviour
     {
