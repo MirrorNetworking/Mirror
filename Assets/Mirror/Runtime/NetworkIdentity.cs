@@ -560,11 +560,14 @@ namespace Mirror
         //    build indices if there are disabled scenes in build settings, and
         //    if no scene is in build settings then Editor and Build have
         //    different indices too (Editor=0, Build=-1)
+        // -> use lower case path because BuildPipeline.BuildPlayer can give
+        //    different case than is used in the editor
         // => ONLY USE THIS FROM POSTPROCESSSCENE!
         public void SetSceneIdSceneHashPartInternal()
         {
             // get deterministic scene hash
-            uint pathHash = (uint)gameObject.scene.path.GetStableHashCode();
+            string scenePath = gameObject.scene.path.ToLower();
+            uint pathHash = (uint)scenePath.GetStableHashCode();
 
             // shift hash from 0x000000FFFFFFFF to 0xFFFFFFFF00000000
             ulong shiftedHash = (ulong)pathHash << 32;
