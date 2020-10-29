@@ -21,7 +21,7 @@ namespace Mirror
     /// <para>Some of the built-in components of the networking system are derived from NetworkBehaviour, including NetworkTransport, NetworkAnimator and NetworkProximityChecker.</para>
     /// </remarks>
     [AddComponentMenu("")]
-    [HelpURL("https://mirror-networking.com/docs/Guides/NetworkBehaviour.html")]
+    [HelpURL("https://mirrorng.github.io/MirrorNG/Articles/Guides/GameObjects/NetworkBehaviour.html")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkBehaviour));

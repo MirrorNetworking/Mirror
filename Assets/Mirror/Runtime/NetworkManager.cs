@@ -4,7 +4,7 @@ namespace Mirror
 {
 
     [AddComponentMenu("Network/NetworkManager")]
-    [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
+    [HelpURL("https://mirrorng.github.io/MirrorNG/Articles/Guides/Communications/NetworkManager.html")]
     [RequireComponent(typeof(NetworkServer))]
     [RequireComponent(typeof(NetworkClient))]
     [DisallowMultipleComponent]

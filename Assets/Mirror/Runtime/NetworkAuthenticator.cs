@@ -6,7 +6,7 @@ namespace Mirror
     /// <summary>
     /// Base class for implementing component-based authentication during the Connect phase
     /// </summary>
-    [HelpURL("https://mirror-networking.com/docs/Guides/Authentication.html")]
+    [HelpURL("https://mirrorng.github.io/MirrorNG/Articles/Components/Authenticators/index.html")]
     public abstract class NetworkAuthenticator : MonoBehaviour
     {
         /// <summary>
