@@ -83,7 +83,7 @@ namespace Mirror
         /// </summary>
         internal NetworkConnection()
         {
-            // set lastTime to current time when creating connection to make sure it isn't instantly kicked for inactivity 
+            // set lastTime to current time when creating connection to make sure it isn't instantly kicked for inactivity
             lastMessageTime = Time.time;
         }
 
@@ -112,15 +112,14 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
-        /// <returns></returns>
-        public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : NetworkMessage
+        public void Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : NetworkMessage
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message and send allocation free
                 MessagePacker.Pack(msg, writer);
                 NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
-                return Send(writer.ToArraySegment(), channelId);
+                Send(writer.ToArraySegment(), channelId);
             }
         }
 
@@ -150,7 +149,7 @@ namespace Mirror
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal abstract bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
+        internal abstract void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
 
         public override string ToString()
         {

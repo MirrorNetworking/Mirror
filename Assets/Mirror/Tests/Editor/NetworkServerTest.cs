@@ -748,8 +748,7 @@ namespace Mirror.Tests
             TestMessage1 message = new TestMessage1 { IntValue = 1, DoubleValue = 2, StringValue = "3" };
 
             // send it to all
-            bool result = NetworkServer.SendToAll(message);
-            Assert.That(result, Is.True);
+            NetworkServer.SendToAll(message);
 
             // update local connection once so that the incoming queue is processed
             connection.connectionToServer.Update();
@@ -1125,17 +1124,14 @@ namespace Mirror.Tests
         public void SendCalledWhileNotActive_ShouldGiveWarning(string functionName)
         {
             LogAssert.Expect(LogType.Warning, $"Can not send using NetworkServer.{functionName}<T>(T msg) because NetworkServer is not active");
-            bool success;
 
             switch (functionName)
             {
                 case nameof(NetworkServer.SendToAll):
-                    success = NetworkServer.SendToAll(new NetworkPingMessage { });
-                    Assert.That(success, Is.False);
+                    NetworkServer.SendToAll(new NetworkPingMessage { });
                     break;
                 case nameof(NetworkServer.SendToReady):
-                    success = NetworkServer.SendToReady(new NetworkPingMessage { });
-                    Assert.That(success, Is.False);
+                    NetworkServer.SendToReady(new NetworkPingMessage { });
                     break;
                 default:
                     Debug.LogError("Could not find function name");

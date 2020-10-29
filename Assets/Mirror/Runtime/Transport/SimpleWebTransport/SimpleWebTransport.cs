@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Security.Authentication;
 using UnityEngine;
@@ -116,7 +115,7 @@ namespace Mirror.SimpleWeb
         string GetScheme() => sslEnabled ? SecureScheme : NormalScheme;
         public override bool ClientConnected()
         {
-            // not null and not NotConnected (we want to return true if connecting or disconnecting) 
+            // not null and not NotConnected (we want to return true if connecting or disconnecting)
             return client != null && client.ConnectionState != ClientState.NotConnected;
         }
 
@@ -164,28 +163,27 @@ namespace Mirror.SimpleWeb
             client?.Disconnect();
         }
 
-        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(int channelId, ArraySegment<byte> segment)
         {
             if (!ClientConnected())
             {
                 Debug.LogError("Not Connected");
-                return false;
+                return;
             }
 
             if (segment.Count > maxMessageSize)
             {
                 Log.Error("Message greater than max size");
-                return false;
+                return;
             }
 
             if (segment.Count == 0)
             {
                 Log.Error("Message count was zero");
-                return false;
+                return;
             }
 
             client.Send(segment);
-            return true;
         }
         #endregion
 
@@ -235,28 +233,27 @@ namespace Mirror.SimpleWeb
             return server.KickClient(connectionId);
         }
 
-        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
             if (!ServerActive())
             {
                 Debug.LogError("SimpleWebServer Not Active");
-                return false;
+                return;
             }
 
             if (segment.Count > maxMessageSize)
             {
                 Log.Error("Message greater than max size");
-                return false;
+                return;
             }
 
             if (segment.Count == 0)
             {
                 Log.Error("Message count was zero");
-                return false;
+                return;
             }
 
-            server.SendAll(connectionIds, segment);
-            return true;
+            server.Send(connectionId, segment);
         }
 
         public override string ServerGetClientAddress(int connectionId)

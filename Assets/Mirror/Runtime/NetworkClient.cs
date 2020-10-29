@@ -238,20 +238,17 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="message"></param>
         /// <param name="channelId"></param>
-        /// <returns>True if message was sent.</returns>
-        public static bool Send<T>(T message, int channelId = Channels.DefaultReliable) where T : NetworkMessage
+        public static void Send<T>(T message, int channelId = Channels.DefaultReliable) where T : NetworkMessage
         {
             if (connection != null)
             {
-                if (connectState != ConnectState.Connected)
+                if (connectState == ConnectState.Connected)
                 {
-                    logger.LogError("NetworkClient Send when not connected to a server");
-                    return false;
+                    connection.Send(message, channelId);
                 }
-                return connection.Send(message, channelId);
+                else logger.LogError("NetworkClient Send when not connected to a server");
             }
-            logger.LogError("NetworkClient Send with no connection");
-            return false;
+            else logger.LogError("NetworkClient Send with no connection");
         }
 
         public static void Update()

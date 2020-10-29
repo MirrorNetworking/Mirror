@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -153,20 +151,14 @@ namespace Mirror.Tests
             // on connect, send a message back
             void SendMessage(int connectionId)
             {
-                List<int> connectionIds = new List<int>(new[] { connectionId });
-                transport.ServerSend(connectionIds, 5, segment);
+                transport.ServerSend(connectionId, 5, segment);
             }
 
             transport.OnServerConnected.AddListener(SendMessage);
 
             transport1.OnServerConnected.Invoke(1);
 
-            int[] expectedIds = { 1 };
-
-            transport1.Received().ServerSend(
-                Arg.Is<List<int>>(x => x.SequenceEqual(expectedIds)),
-                5,
-                segment);
+            transport1.Received().ServerSend(1, 5, segment);
         }
 
 

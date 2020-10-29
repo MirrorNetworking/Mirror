@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror.SimpleWeb
@@ -38,17 +37,13 @@ namespace Mirror.SimpleWeb
             Active = false;
         }
 
-        public void SendAll(List<int> connectionIds, ArraySegment<byte> source)
+        public void Send(int connectionId, ArraySegment<byte> source)
         {
             ArrayBuffer buffer = bufferPool.Take(source.Count);
             buffer.CopyFrom(source);
-            buffer.SetReleasesRequired(connectionIds.Count);
+            buffer.SetReleasesRequired(1);
 
-            // make copy of array before for each, data sent to each client is the same
-            foreach (int id in connectionIds)
-            {
-                server.Send(id, buffer);
-            }
+            server.Send(connectionId, buffer);
         }
 
         public bool KickClient(int connectionId)
