@@ -88,6 +88,31 @@ namespace Mirror.Tests
         }
 
         [Test]
+        [TestCaseSource(nameof(QuaternionTestCases))]
+        public void RotationIsWithinPrecision(Quaternion rotationIn)
+        {
+            uint packed = Compression.CompressQuaternion(rotationIn);
+
+            Quaternion rotationOut = Compression.DecompressQuaternion(packed);
+
+            Assert.That(rotationOut.x, Is.Not.NaN, "x was NaN");
+            Assert.That(rotationOut.y, Is.Not.NaN, "y was NaN");
+            Assert.That(rotationOut.z, Is.Not.NaN, "z was NaN");
+            Assert.That(rotationOut.w, Is.Not.NaN, "w was NaN");
+
+            // allow for extra precision when rotating vector
+            AssertRotationPrecision(rotationIn * Vector3.forward, rotationOut * Vector3.forward, AllowedPrecision * 2);
+        }
+
+        internal static void AssertRotationPrecision(Vector3 inRot, Vector3 outRot, float precision)
+        {
+            Assert.AreEqual(inRot.x, outRot.x, precision, $"x off by {Mathf.Abs(inRot.x - outRot.x)}");
+            Assert.AreEqual(inRot.y, outRot.y, precision, $"y off by {Mathf.Abs(inRot.y - outRot.y)}");
+            Assert.AreEqual(inRot.z, outRot.z, precision, $"z off by {Mathf.Abs(inRot.z - outRot.z)}");
+        }
+
+
+        [Test]
         [TestCaseSource(nameof(LargestIndexTestCases))]
         public void FindLargestIndexWork(Quaternion quaternion, int expected)
         {
