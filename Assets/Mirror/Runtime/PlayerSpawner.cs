@@ -37,7 +37,7 @@ namespace Mirror
                 server.Authenticated.AddListener(OnServerAuthenticated);
                 if (serverObjectManager == null)
                 {
-                    throw new InvalidOperationException("Assign a player in the PlayerSpawner");
+                    throw new InvalidOperationException("Assign a ServerObjectManager");
                 }
             }
         }
