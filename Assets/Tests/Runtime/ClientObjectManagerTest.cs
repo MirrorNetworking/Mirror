@@ -175,6 +175,26 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void GetPrefabNotFoundNullTest()
+        {
+            GameObject result = clientObjectManager.GetPrefab(GenerateUniqueGuid());
+
+            Assert.That(result, Is.Null);
+        }
+
+        //Used to ensure the test has a unique non empty guid
+        Guid GenerateUniqueGuid()
+        {
+            Guid testGuid = Guid.NewGuid();
+
+            if (clientObjectManager.prefabs.ContainsKey(testGuid))
+            {
+                testGuid = GenerateUniqueGuid();
+            }
+            return testGuid;    
+        }
+
+        [Test]
         public void ReplacePlayerHostTest()
         {
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
