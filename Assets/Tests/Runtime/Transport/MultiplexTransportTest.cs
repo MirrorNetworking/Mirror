@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using Cysharp.Threading.Tasks;
 using NSubstitute;
@@ -179,5 +179,22 @@ namespace Mirror.Tests
                 // ok
             }
         });
+
+        [Test]
+        public void GetTransportTest()
+        {
+            Assert.That(transport.GetTransport() == transport1 || transport.GetTransport() == transport2);
+        }
+
+        [Test]
+        public void GetTransportExceptionTest()
+        {
+            transport.transports = new Transport[0];
+
+            Assert.Throws<PlatformNotSupportedException>(() =>
+            {
+                transport.GetTransport();
+            });
+        }
     }
 }

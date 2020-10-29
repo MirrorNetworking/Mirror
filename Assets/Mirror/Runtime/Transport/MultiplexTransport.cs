@@ -21,7 +21,7 @@ namespace Mirror
                 .Where(transport => transport.Supported)
                 .SelectMany(transport => transport.Scheme);
 
-        private Transport GetTransport()
+        internal Transport GetTransport()
         {
             foreach (Transport transport in transports)
             {
