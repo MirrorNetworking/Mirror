@@ -1,3 +1,11 @@
+## [56.0.1](https://github.com/MirrorNG/MirrorNG/compare/v56.0.0...v56.0.1) (2020-10-29)
+
+
+### Bug Fixes
+
+* host wasnt loading with additive fix ([cd6110a](https://github.com/MirrorNG/MirrorNG/commit/cd6110a1350387a915a07bf348418713717d8816))
+* wrong text in exception ([d0d5581](https://github.com/MirrorNG/MirrorNG/commit/d0d55811fb8e143b9d745cc73f2a0ee65332878e))
+
 # [56.0.0](https://github.com/MirrorNG/MirrorNG/compare/v55.0.1...v56.0.0) (2020-10-29)
 
 
