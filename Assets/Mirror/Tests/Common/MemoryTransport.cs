@@ -46,7 +46,7 @@ namespace Mirror.Tests
                 clientConnected = true;
             }
         }
-        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(int channelId, ArraySegment<byte> segment)
         {
             // only  if client connected
             if (clientConnected)
@@ -57,9 +57,7 @@ namespace Mirror.Tests
 
                 // add server data message with connId=1 because 0 is reserved
                 serverIncoming.Enqueue(new Message(1, EventType.Data, data));
-                return true;
             }
-            return false;
         }
         public override void ClientDisconnect()
         {
@@ -110,7 +108,7 @@ namespace Mirror.Tests
         public override bool ServerActive() => serverActive;
         public override Uri ServerUri() => throw new NotImplementedException();
         public override void ServerStart() { serverActive = true; }
-        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
             // only if server is running and client is connected
             if (serverActive && clientConnected)
@@ -121,9 +119,7 @@ namespace Mirror.Tests
 
                 // add client data message
                 clientIncoming.Enqueue(new Message(0, EventType.Data, data));
-                return true;
             }
-            return false;
         }
 
         public override bool ServerDisconnect(int connectionId)

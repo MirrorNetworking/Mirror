@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
@@ -11,10 +10,6 @@ namespace Mirror
         public Transport[] transports;
 
         Transport available;
-
-        // used to partition recipients for each one of the base transports
-        // without allocating a new list every time
-        List<int>[] recipientsCache;
 
         public void Awake()
         {
@@ -115,9 +110,9 @@ namespace Mirror
                 available.ClientDisconnect();
         }
 
-        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(int channelId, ArraySegment<byte> segment)
         {
-            return available.ClientSend(channelId, segment);
+            available.ClientSend(channelId, segment);
         }
 
         #endregion
@@ -145,13 +140,9 @@ namespace Mirror
 
         void InitServer()
         {
-            recipientsCache = new List<int>[transports.Length];
-
             // wire all the base transports to my events
             for (int i = 0; i < transports.Length; i++)
             {
-                recipientsCache[i] = new List<int>();
-
                 // this is required for the handlers,  if I use i directly
                 // then all the handlers will use the last i
                 int locali = i;
@@ -213,32 +204,18 @@ namespace Mirror
             return transports[transportId].ServerDisconnect(baseConnectionId);
         }
 
-        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
-            // the message may be for different transports,
-            // partition the recipients by transport
-            foreach (List<int> list in recipientsCache)
-            {
-                list.Clear();
-            }
+            int baseConnectionId = ToBaseId(connectionId);
+            int transportId = ToTransportId(connectionId);
 
-            foreach (int connectionId in connectionIds)
-            {
-                int baseConnectionId = ToBaseId(connectionId);
-                int transportId = ToTransportId(connectionId);
-                recipientsCache[transportId].Add(baseConnectionId);
-            }
-
-            bool result = true;
             for (int i = 0; i < transports.Length; ++i)
             {
-                List<int> baseRecipients = recipientsCache[i];
-                if (baseRecipients.Count > 0)
+                if (i == transportId)
                 {
-                    result &= transports[i].ServerSend(baseRecipients, channelId, segment);
+                    transports[i].ServerSend(baseConnectionId, channelId, segment);
                 }
             }
-            return result;
         }
 
         public override void ServerStart()

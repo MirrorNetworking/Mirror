@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -86,8 +85,7 @@ namespace Mirror
         /// but some transports might want to provide unreliable, encrypted, compressed, or any other feature
         /// as new channels</param>
         /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
-        /// <returns>true if the send was successful</returns>
-        public abstract bool ClientSend(int channelId, ArraySegment<byte> segment);
+        public abstract void ClientSend(int channelId, ArraySegment<byte> segment);
 
         /// <summary>
         /// Disconnect this client from the server
@@ -139,18 +137,13 @@ namespace Mirror
         public abstract void ServerStart();
 
         /// <summary>
-        /// Send data to one or multiple clients. We provide a list, so that transports can make use
-        /// of multicasting, and avoid allocations where possible.
-        ///
-        /// We don't provide a single ServerSend function to reduce complexity. Simply overwrite this
-        /// one in your Transport.
+        /// Send data to a client.
         /// </summary>
-        /// <param name="connectionIds">The list of client connection ids to send the data to</param>
+        /// <param name="connectionId">The client connection id to send the data to</param>
         /// <param name="channelId">The channel to be used.  Transports can use channels to implement
         /// other features such as unreliable, encryption, compression, etc...</param>
         /// <param name="data"></param>
-        /// <returns>true if the data was sent to all clients</returns>
-        public abstract bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment);
+        public abstract void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment);
 
         /// <summary>
         /// Disconnect a client from this server.  Useful to kick people out.

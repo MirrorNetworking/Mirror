@@ -15,9 +15,8 @@ namespace Mirror.Tests
             // nothing
         }
 
-        internal override bool Send(ArraySegment<byte> segment, int channelId = 0)
+        internal override void Send(ArraySegment<byte> segment, int channelId = 0)
         {
-            return true;
         }
     }
 }
