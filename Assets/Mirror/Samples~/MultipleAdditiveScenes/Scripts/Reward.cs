@@ -50,7 +50,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 spawner.SpawnPrize();
 
                 // destroy this one
-                Server.Destroy(gameObject);
+                NetIdentity.ServerObjectManager.Destroy(gameObject);
             }
         }
     }

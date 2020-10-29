@@ -45,7 +45,7 @@ namespace Mirror.Tests
         {
             Assert.That(testIdentity.IsServer, Is.False);
             // create a networkidentity with our test component
-            server.Spawn(gameObject);
+            serverObjectManager.Spawn(gameObject);
 
             Assert.That(testIdentity.IsServer, Is.True);
         }
@@ -55,7 +55,7 @@ namespace Mirror.Tests
         {
             Assert.That(testIdentity.IsClient, Is.False);
             // create a networkidentity with our test component
-            server.Spawn(gameObject);
+            serverObjectManager.Spawn(gameObject);
 
             Assert.That(testIdentity.IsClient, Is.True);
         }
@@ -65,7 +65,7 @@ namespace Mirror.Tests
         {
             Assert.That(testIdentity.IsLocalPlayer, Is.False);
             // create a networkidentity with our test component
-            server.Spawn(gameObject);
+            serverObjectManager.Spawn(gameObject);
 
             Assert.That(testIdentity.IsLocalPlayer, Is.False);
         }
@@ -74,7 +74,7 @@ namespace Mirror.Tests
         public void AssignClientAuthorityCallback()
         {
             // create a networkidentity with our test component
-            server.Spawn(gameObject);
+            serverObjectManager.Spawn(gameObject);
 
             // test the callback too
             int callbackCalled = 0;
@@ -100,7 +100,7 @@ namespace Mirror.Tests
         public void DefaultAuthority()
         {
             // create a networkidentity with our test component
-            server.Spawn(gameObject);
+            serverObjectManager.Spawn(gameObject);
             Assert.That(testIdentity.ConnectionToClient, Is.Null);
         }
 
@@ -108,7 +108,7 @@ namespace Mirror.Tests
         public void AssignAuthority()
         {
             // create a networkidentity with our test component
-            server.Spawn(gameObject);
+            serverObjectManager.Spawn(gameObject);
             testIdentity.AssignClientAuthority(server.LocalConnection);
 
             Assert.That(testIdentity.ConnectionToClient, Is.SameAs(server.LocalConnection));
@@ -117,7 +117,7 @@ namespace Mirror.Tests
         [Test]
         public void SpawnWithAuthority()
         {
-            server.Spawn(gameObject, server.LocalConnection);
+            serverObjectManager.Spawn(gameObject, server.LocalConnection);
             Assert.That(testIdentity.ConnectionToClient, Is.SameAs(server.LocalConnection));
         }
 
@@ -125,7 +125,7 @@ namespace Mirror.Tests
         public void SpawnWithAssetId()
         {
             Guid replacementGuid = Guid.NewGuid();
-            server.Spawn(gameObject, replacementGuid, server.LocalConnection);
+            serverObjectManager.Spawn(gameObject, replacementGuid, server.LocalConnection);
             Assert.That(testIdentity.AssetId, Is.EqualTo(replacementGuid));
         }
 
@@ -133,7 +133,7 @@ namespace Mirror.Tests
         public void ReassignClientAuthority()
         {
             // create a networkidentity with our test component
-            server.Spawn(gameObject);
+            serverObjectManager.Spawn(gameObject);
             // assign authority
             testIdentity.AssignClientAuthority(server.LocalConnection);
 
@@ -149,7 +149,7 @@ namespace Mirror.Tests
         public void AssignNullAuthority()
         {
             // create a networkidentity with our test component
-            server.Spawn(gameObject);
+            serverObjectManager.Spawn(gameObject);
 
             // someone might try to remove authority by assigning null.
             // make sure this fails.
@@ -172,7 +172,7 @@ namespace Mirror.Tests
         [Test]
         public void RemoveClientAuthorityOfOwner()
         {
-            server.AddPlayerForConnection(server.LocalConnection, gameObject);
+            serverObjectManager.AddPlayerForConnection(server.LocalConnection, gameObject);
 
             Assert.Throws<InvalidOperationException>(() =>
             {
@@ -183,7 +183,7 @@ namespace Mirror.Tests
         [Test]
         public void RemoveClientAuthority()
         {
-            server.Spawn(gameObject);
+            serverObjectManager.Spawn(gameObject);
             testIdentity.AssignClientAuthority(server.LocalConnection);
             testIdentity.RemoveClientAuthority();
             Assert.That(testIdentity.ConnectionToClient, Is.Null);
@@ -192,12 +192,12 @@ namespace Mirror.Tests
         [UnityTest]
         public IEnumerator OnStopServer() => UniTask.ToCoroutine(async () =>
         {
-            server.Spawn(gameObject);
+            serverObjectManager.Spawn(gameObject);
 
             UnityAction mockHandler = Substitute.For<UnityAction>();
             testIdentity.OnStopServer.AddListener(mockHandler);
 
-            server.UnSpawn(gameObject);
+            serverObjectManager.UnSpawn(gameObject);
 
             await UniTask.Delay(1);
             mockHandler.Received().Invoke();

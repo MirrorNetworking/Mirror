@@ -11,6 +11,7 @@ namespace Mirror.Tests
     {
         private GameObject serverGO;
         private NetworkServer server;
+        private ServerObjectManager serverObjectManager;
         private GameObject player1;
         private GameObject player2;
         private GameObject player3;
@@ -24,9 +25,11 @@ namespace Mirror.Tests
         [SetUp]
         public void Setup()
         {
-            serverGO = new GameObject("Network Server", typeof(LoopbackTransport), typeof(NetworkServer));
+            serverGO = new GameObject("Network Server", typeof(LoopbackTransport), typeof(NetworkServer), typeof(ServerObjectManager));
 
             server = serverGO.GetComponent<NetworkServer>();
+            serverObjectManager = serverGO.GetComponent<ServerObjectManager>();
+            serverObjectManager.server = server;
 
             player1 = new GameObject("TestPlayer1", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
             player2 = new GameObject("TestPlayer2", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
@@ -34,8 +37,11 @@ namespace Mirror.Tests
 
 
             player1.GetComponent<NetworkIdentity>().Server = server;
+            player1.GetComponent<NetworkIdentity>().ServerObjectManager = serverObjectManager;
             player2.GetComponent<NetworkIdentity>().Server = server;
+            player2.GetComponent<NetworkIdentity>().ServerObjectManager = serverObjectManager;
             player3.GetComponent<NetworkIdentity>().Server = server;
+            player3.GetComponent<NetworkIdentity>().ServerObjectManager = serverObjectManager;
 
             player1MatchChecker = player1.GetComponent<NetworkMatchChecker>();
             player2MatchChecker = player2.GetComponent<NetworkMatchChecker>();

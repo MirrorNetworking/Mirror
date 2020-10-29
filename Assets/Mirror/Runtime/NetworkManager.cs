@@ -13,6 +13,8 @@ namespace Mirror
         public NetworkServer server;
         public NetworkClient client;
         public NetworkSceneManager sceneManager;
+        public ServerObjectManager serverObjectManager;
+        public ClientObjectManager clientObjectManager;
 
         /// <summary>
         /// True if the server or client is started and running

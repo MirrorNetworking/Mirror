@@ -15,7 +15,8 @@ namespace Mirror
         public NetworkClient client;
         public NetworkServer server;
         public NetworkSceneManager sceneManager;
-        public ClientObjectManager objectManager;
+        public ClientObjectManager clientObjectManager;
+        public ServerObjectManager serverObjectManager;
         public NetworkIdentity playerPrefab;
 
         // Start is called before the first frame update
@@ -28,11 +29,16 @@ namespace Mirror
             if (client != null)
             {
                 sceneManager.ClientSceneChanged.AddListener(OnClientSceneChanged);
-                objectManager.RegisterPrefab(playerPrefab.gameObject);
+                if(clientObjectManager != null)
+                    clientObjectManager.RegisterPrefab(playerPrefab.gameObject);
             }
             if (server != null)
             {
                 server.Authenticated.AddListener(OnServerAuthenticated);
+                if (serverObjectManager == null)
+                {
+                    throw new InvalidOperationException("Assign a player in the PlayerSpawner");
+                }
             }
         }
 
@@ -77,7 +83,7 @@ namespace Mirror
                 ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
                 : Instantiate(playerPrefab);
 
-            server.AddPlayerForConnection(conn, player.gameObject);
+            serverObjectManager.AddPlayerForConnection(conn, player.gameObject);
         }
 
         /// <summary>

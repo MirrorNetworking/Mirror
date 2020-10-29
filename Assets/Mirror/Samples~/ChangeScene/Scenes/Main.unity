@@ -218,6 +218,7 @@ GameObject:
   - component: {fileID: 450078212}
   - component: {fileID: 450078214}
   - component: {fileID: 450078220}
+  - component: {fileID: 450078213}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -251,6 +252,20 @@ MonoBehaviour:
   ServerSceneChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &450078213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 450078211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b750203ddb2d9f84abd799a5c2c32cb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  server: {fileID: 450078217}
+  networkSceneManager: {fileID: 450078212}
 --- !u!114 &450078214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281,6 +296,8 @@ MonoBehaviour:
   server: {fileID: 450078217}
   client: {fileID: 450078216}
   sceneManager: {fileID: 0}
+  serverObjectManager: {fileID: 0}
+  clientObjectManager: {fileID: 0}
 --- !u!114 &450078216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -370,7 +387,8 @@ MonoBehaviour:
   client: {fileID: 450078216}
   server: {fileID: 450078217}
   sceneManager: {fileID: 450078212}
-  objectManager: {fileID: 450078220}
+  clientObjectManager: {fileID: 450078220}
+  serverObjectManager: {fileID: 450078213}
   playerPrefab: {fileID: 3878225662718291898, guid: 234985fef22d66a4ca2dba0e688f1743, type: 3}
   startPositionIndex: 0
   startPositions:
@@ -389,7 +407,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   client: {fileID: 450078216}
-  server: {fileID: 450078217}
   networkSceneManager: {fileID: 450078212}
   spawnPrefabs:
   - {fileID: 6450763840449902378, guid: 4a9f40d34c71ba745b664150c6a4b8b2, type: 3}

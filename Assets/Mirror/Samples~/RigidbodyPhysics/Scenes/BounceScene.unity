@@ -235,6 +235,7 @@ GameObject:
   - component: {fileID: 492096634}
   - component: {fileID: 492096638}
   - component: {fileID: 492096637}
+  - component: {fileID: 492096642}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -283,6 +284,8 @@ MonoBehaviour:
   server: {fileID: 492096640}
   client: {fileID: 492096641}
   sceneManager: {fileID: 0}
+  serverObjectManager: {fileID: 0}
+  clientObjectManager: {fileID: 0}
 --- !u!4 &492096636
 Transform:
   m_ObjectHideFlags: 0
@@ -310,7 +313,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   client: {fileID: 492096641}
-  server: {fileID: 492096640}
   networkSceneManager: {fileID: 492096634}
   spawnPrefabs:
   - {fileID: 844717362685181648, guid: 4ab0a427bdc13244499c6e044ad7eb40, type: 3}
@@ -344,7 +346,8 @@ MonoBehaviour:
   client: {fileID: 492096641}
   server: {fileID: 492096640}
   sceneManager: {fileID: 492096634}
-  objectManager: {fileID: 492096637}
+  clientObjectManager: {fileID: 492096637}
+  serverObjectManager: {fileID: 492096642}
   playerPrefab: {fileID: 1287874831399521600, guid: 4ab0a427bdc13244499c6e044ad7eb40, type: 3}
   startPositionIndex: 0
   startPositions: []
@@ -409,6 +412,20 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   Transport: {fileID: 492096638}
+--- !u!114 &492096642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492096633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b750203ddb2d9f84abd799a5c2c32cb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  server: {fileID: 492096640}
+  networkSceneManager: {fileID: 492096634}
 --- !u!1 &746548597
 GameObject:
   m_ObjectHideFlags: 0
@@ -555,6 +572,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 4215798323
   serverOnly: 0
+  ServerObjectManager: {fileID: 0}
   m_AssetId: 
   OnStartServer:
     m_PersistentCalls:
@@ -855,6 +873,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 707906828
   serverOnly: 0
+  ServerObjectManager: {fileID: 0}
   m_AssetId: 
   OnStartServer:
     m_PersistentCalls:

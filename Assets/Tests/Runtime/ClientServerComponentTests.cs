@@ -89,7 +89,7 @@ namespace Mirror.Tests
 
             clientObjectManager.RegisterSpawnHandler(guid, SpawnDelegateTest, go => { });
             clientObjectManager.RegisterPrefab(gameObject, guid);
-            server.SendSpawnMessage(identity, connectionToClient);
+            serverObjectManager.SendSpawnMessage(identity, connectionToClient);
 
             await AsyncUtil.WaitUntilWithTimeout(() => spawnDelegateTestCalled != 0);
 
@@ -109,7 +109,7 @@ namespace Mirror.Tests
 
             clientObjectManager.RegisterSpawnHandler(guid, SpawnDelegateTest, unspawnDelegate);
             clientObjectManager.RegisterPrefab(gameObject, guid);
-            server.SendSpawnMessage(identity, connectionToClient);
+            serverObjectManager.SendSpawnMessage(identity, connectionToClient);
 
             await AsyncUtil.WaitUntilWithTimeout(() => spawnDelegateTestCalled != 0);
 

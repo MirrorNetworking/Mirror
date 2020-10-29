@@ -182,7 +182,7 @@ namespace Mirror.Tests
             replacementIdentity.AssetId = Guid.NewGuid();
             clientObjectManager.RegisterPrefab(playerReplacement);
 
-            server.ReplacePlayerForConnection(server.LocalConnection, client, playerReplacement, true);
+            serverObjectManager.ReplacePlayerForConnection(server.LocalConnection, client, playerReplacement, true);
 
             Assert.That(server.LocalClient.Connection.Identity, Is.EqualTo(replacementIdentity));
         }

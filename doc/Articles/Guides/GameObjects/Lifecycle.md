@@ -96,7 +96,7 @@ Note the Authority can be revoked, and granted again.  Every time the client los
 # Server Stop
 
 Either because the client disconnected, the server stopped, 
-you called <xref:Mirror.NetworkServer.UnSpawn(GameObject)>,  or you called <xref:Mirror.NetworkServer.Destroy(GameObject)> the object may stop in the server.
+you called <xref:Mirror.ServerObjectManager.UnSpawn(GameObject)>,  or you called <xref:Mirror.ServerObjectManager.Destroy(GameObject)> the object may stop in the server.
 During this state, a message is sent to all the clients to unspawn the object.
 The event <xref:Mirror.NetworkIdentity.OnStopServer> will be invoked. 
 

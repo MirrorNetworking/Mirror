@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Mirror.Examples.Pong
 {
@@ -15,13 +15,13 @@ namespace Mirror.Examples.Pong
             // add player at correct spawn position
             Transform start = server.NumPlayers == 0 ? leftRacketSpawn : rightRacketSpawn;
             NetworkIdentity player = Instantiate(playerPrefab, start.position, start.rotation);
-            server.AddPlayerForConnection(conn, player.gameObject);
+            serverObjectManager.AddPlayerForConnection(conn, player.gameObject);
 
             // spawn ball if two players
             if (server.NumPlayers == 2)
             {
                 ball = Instantiate(ballPrefab);
-                server.Spawn(ball);
+                serverObjectManager.Spawn(ball);
             }
         }
 
@@ -30,7 +30,7 @@ namespace Mirror.Examples.Pong
         {
             // destroy ball
             if (ball != null)
-                server.Destroy(ball);
+                serverObjectManager.Destroy(ball);
         }
     }
 }

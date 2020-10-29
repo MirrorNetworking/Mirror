@@ -167,6 +167,7 @@ namespace Mirror.Tests
         GameObject gameObject;
         NetworkIdentity identity;
         private NetworkServer server;
+        private ServerObjectManager serverObjectManager;
         private NetworkClient client;
         private GameObject networkServerGameObject;
 
@@ -178,11 +179,14 @@ namespace Mirror.Tests
         {
             networkServerGameObject = new GameObject();
             server = networkServerGameObject.AddComponent<NetworkServer>();
+            serverObjectManager = networkServerGameObject.AddComponent<ServerObjectManager>();
+            serverObjectManager.server = server;
             client = networkServerGameObject.AddComponent<NetworkClient>();
 
             gameObject = new GameObject();
             identity = gameObject.AddComponent<NetworkIdentity>();
             identity.Server = server;
+            identity.ServerObjectManager = serverObjectManager;
 
             tconn42 = Substitute.For<IConnection>();
             tconn43 = Substitute.For<IConnection>();

@@ -329,6 +329,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 1581524575
   serverOnly: 0
+  ServerObjectManager: {fileID: 0}
   m_AssetId: 
   OnStartServer:
     m_PersistentCalls:
@@ -2975,6 +2976,7 @@ GameObject:
   - component: {fileID: 1783103023}
   - component: {fileID: 1783103024}
   - component: {fileID: 1783103029}
+  - component: {fileID: 1783103030}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -3037,7 +3039,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 1783103028}
   client: {fileID: 1783103027}
-  sceneManager: {fileID: 0}
+  sceneManager: {fileID: 1783103023}
+  serverObjectManager: {fileID: 1783103030}
+  clientObjectManager: {fileID: 1783103029}
   chatWindow: {fileID: 75861000}
   playerPrefab: {fileID: 718303009120396421, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
 --- !u!4 &1783103026
@@ -3127,10 +3131,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   client: {fileID: 1783103027}
-  server: {fileID: 1783103028}
   networkSceneManager: {fileID: 0}
   spawnPrefabs:
   - {fileID: 5075528875289742095, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
+--- !u!114 &1783103030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783103022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b750203ddb2d9f84abd799a5c2c32cb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  server: {fileID: 1783103028}
+  networkSceneManager: {fileID: 1783103023}
 --- !u!1 &1863915624
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,7 +16,7 @@ namespace Mirror.Tests
             MockComponent rpcComponent2 = gameObject2.GetComponent<MockComponent>();
 
             // spawn it without client authority
-            server.Spawn(gameObject2);
+            serverObjectManager.Spawn(gameObject2);
 
             // process spawn message from server
             client.Update();

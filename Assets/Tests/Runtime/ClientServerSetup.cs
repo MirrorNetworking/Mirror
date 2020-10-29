@@ -17,6 +17,7 @@ namespace Mirror.Tests
         protected GameObject serverGo;
         protected NetworkServer server;
         protected NetworkSceneManager serverSceneManager;
+        protected ServerObjectManager serverObjectManager;
         protected GameObject serverPlayerGO;
         protected NetworkIdentity serverIdentity;
         protected T serverComponent;
@@ -40,7 +41,7 @@ namespace Mirror.Tests
         [UnitySetUp]
         public IEnumerator Setup() => UniTask.ToCoroutine(async () =>
         {
-            serverGo = new GameObject("server", typeof(NetworkSceneManager), typeof(NetworkServer));
+            serverGo = new GameObject("server", typeof(NetworkSceneManager), typeof(ServerObjectManager), typeof(NetworkServer));
             clientGo = new GameObject("client", typeof(NetworkSceneManager), typeof(ClientObjectManager), typeof(NetworkClient));
             testTransport = serverGo.AddComponent<LoopbackTransport>();
 
@@ -58,6 +59,11 @@ namespace Mirror.Tests
             clientSceneManager.client = client;
             serverSceneManager.Start();
             clientSceneManager.Start();
+
+            serverObjectManager = serverGo.GetComponent<ServerObjectManager>();
+            serverObjectManager.server = server;
+            serverObjectManager.networkSceneManager = serverSceneManager;
+            serverObjectManager.Start();
 
             clientObjectManager = clientGo.GetComponent<ClientObjectManager>();
             clientObjectManager.client = client;
@@ -98,7 +104,7 @@ namespace Mirror.Tests
             serverPlayerGO = Object.Instantiate(playerPrefab);
             serverIdentity = serverPlayerGO.GetComponent<NetworkIdentity>();
             serverComponent = serverPlayerGO.GetComponent<T>();
-            server.AddPlayerForConnection(connectionToClient, serverPlayerGO);
+            serverObjectManager.AddPlayerForConnection(connectionToClient, serverPlayerGO);
 
             // wait for client to spawn it
             await AsyncUtil.WaitUntilWithTimeout(() => connectionToServer.Identity != null);

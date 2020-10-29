@@ -331,13 +331,13 @@ namespace Mirror
                 //dont destroy self yet.
                 if (netIdentity != null && netIdentity != Identity)
                 {
-                    Identity.Server.Destroy(netIdentity.gameObject);
+                    Identity.ServerObjectManager.Destroy(netIdentity.gameObject);
                 }
             }
 
             if (Identity != null && Identity.Server != null)
                 // Destroy the connections own identity.
-                Identity.Server.Destroy(Identity.gameObject);
+                Identity.ServerObjectManager.Destroy(Identity.gameObject);
 
             // clear the hashset because we destroyed them all
             clientOwnedObjects.Clear();

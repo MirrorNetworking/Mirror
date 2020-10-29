@@ -379,6 +379,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 1834901131
   serverOnly: 1
+  ServerObjectManager: {fileID: 0}
   m_AssetId: 
   OnStartServer:
     m_PersistentCalls:
@@ -1843,6 +1844,7 @@ GameObject:
   - component: {fileID: 1661834284}
   - component: {fileID: 1661834285}
   - component: {fileID: 1661834281}
+  - component: {fileID: 1661834286}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -1865,6 +1867,8 @@ MonoBehaviour:
   server: {fileID: 1661834283}
   client: {fileID: 1661834282}
   sceneManager: {fileID: 0}
+  serverObjectManager: {fileID: 0}
+  clientObjectManager: {fileID: 0}
   subScenes:
   - Assets/Examples/AdditiveScenes/Scenes/SubScene.unity
 --- !u!4 &1661834279
@@ -1896,7 +1900,8 @@ MonoBehaviour:
   client: {fileID: 1661834282}
   server: {fileID: 1661834283}
   sceneManager: {fileID: 1661834284}
-  objectManager: {fileID: 1661834281}
+  clientObjectManager: {fileID: 1661834281}
+  serverObjectManager: {fileID: 1661834286}
   playerPrefab: {fileID: 8537344390966522168, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
   startPositionIndex: 0
   startPositions:
@@ -1918,7 +1923,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   client: {fileID: 1661834282}
-  server: {fileID: 1661834283}
   networkSceneManager: {fileID: 1661834284}
   spawnPrefabs:
   - {fileID: 1076878374699499732, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
@@ -2028,6 +2032,20 @@ MonoBehaviour:
   Port: 7777
   HashCashBits: 18
   delayMode: 0
+--- !u!114 &1661834286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1661834277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b750203ddb2d9f84abd799a5c2c32cb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  server: {fileID: 1661834283}
+  networkSceneManager: {fileID: 1661834284}
 --- !u!1 &1727677796
 GameObject:
   m_ObjectHideFlags: 0

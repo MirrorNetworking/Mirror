@@ -203,7 +203,6 @@ namespace Mirror
             }
 
             if (logger.LogEnabled()) logger.Log("ServerChangeScene " + scenePath);
-            server.SetAllClientsNotReady();
 
             // Let server prepare for scene change
             OnServerChangeScene(scenePath, sceneOperation);
@@ -302,9 +301,6 @@ namespace Mirror
             {
                 logger.Log("Finished loading scene in host mode.");
 
-                // server scene was loaded. now spawn all the objects
-                server.ActivateHostScene();
-
                 // call OnServerSceneChanged
                 OnServerSceneChanged(scenePath, sceneOperation);
 
@@ -319,7 +315,6 @@ namespace Mirror
             {
                 logger.Log("Finished loading scene in server-only mode.");
 
-                server.SpawnObjects();
                 OnServerSceneChanged(scenePath, sceneOperation);
             }
             // client-only mode?

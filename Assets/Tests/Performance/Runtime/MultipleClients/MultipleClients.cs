@@ -24,6 +24,7 @@ namespace Mirror.Tests.Performance.Runtime
         const int MonsterCount = 10;
 
         public NetworkServer server;
+        public ServerObjectManager serverObjectManager;
         public Transport transport;
 
         public NetworkIdentity monsterPrefab;
@@ -40,8 +41,9 @@ namespace Mirror.Tests.Performance.Runtime
             monsterPrefab = AssetDatabase.LoadAssetAtPath<NetworkIdentity>(MonsterPath);
             // load host
             server = Object.FindObjectOfType<NetworkServer>();
+            serverObjectManager = Object.FindObjectOfType<ServerObjectManager>();
 
-            server.Authenticated.AddListener(conn => server.SetClientReady(conn));
+            server.Authenticated.AddListener(conn => serverObjectManager.SetClientReady(conn));
 
             await server.ListenAsync();
 
@@ -80,7 +82,7 @@ namespace Mirror.Tests.Performance.Runtime
 
             monster.GetComponent<MonsterBehavior>().MonsterId = i;
             monster.gameObject.name = $"Monster {i}";
-            server.Spawn(monster.gameObject);
+            serverObjectManager.Spawn(monster.gameObject);
         }
 
         [UnityTearDown]

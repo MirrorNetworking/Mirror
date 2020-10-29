@@ -200,7 +200,7 @@ namespace Mirror
         {
             if (IsServer)
             {
-                Server.DirtyObjects.Add(NetIdentity);
+                NetIdentity.ServerObjectManager.DirtyObjects.Add(NetIdentity);
             }
         }
 
@@ -429,7 +429,7 @@ namespace Mirror
         {
             SyncVarDirtyBits |= dirtyBit;
             if (IsServer)
-                Server.DirtyObjects.Add(NetIdentity);
+                NetIdentity.ServerObjectManager.DirtyObjects.Add(NetIdentity);
         }
 
         /// <summary>

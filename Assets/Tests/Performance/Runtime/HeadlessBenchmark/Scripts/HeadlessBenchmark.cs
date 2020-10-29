@@ -9,6 +9,7 @@ namespace Mirror.HeadlessBenchmark
     public class HeadlessBenchmark : MonoBehaviour
     {
         public NetworkManager networkManager;
+        public ServerObjectManager serverObjectManager;
         public GameObject MonsterPrefab;
         public GameObject PlayerPrefab;
         public string editorArgs;
@@ -85,7 +86,7 @@ namespace Mirror.HeadlessBenchmark
         {
             GameObject monster = Instantiate(MonsterPrefab);
             monster.gameObject.name = $"Monster {i}";
-            networkManager.server.Spawn(monster.gameObject);
+            serverObjectManager.Spawn(monster.gameObject);
         }
 
         async UniTask StartClient(int i, Transport transport, string networkAddress)
@@ -118,7 +119,7 @@ namespace Mirror.HeadlessBenchmark
             if (!string.IsNullOrEmpty(GetArg("-server")))
             {
                 networkManager.server.Started.AddListener(OnServerStarted);
-                networkManager.server.Authenticated.AddListener(conn => networkManager.server.SetClientReady(conn));
+                networkManager.server.Authenticated.AddListener(conn => serverObjectManager.SetClientReady(conn));
                 _ = networkManager.server.ListenAsync();
                 Console.WriteLine("Starting Server Only Mode");
             }

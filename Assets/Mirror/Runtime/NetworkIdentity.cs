@@ -168,6 +168,8 @@ namespace Mirror
         /// </summary>
         public NetworkServer Server { get; internal set; }
 
+        public ServerObjectManager ServerObjectManager;
+
         /// <summary>
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
         /// </summary>
@@ -321,7 +323,7 @@ namespace Mirror
         /// <summary>
         /// This is invoked on behaviours that have authority, based on context and <see cref="HasAuthority">NetworkIdentity.hasAuthority</see>.
         /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and before <see cref="OnStartClient">OnStartClient.</see></para>
-        /// <para>When <see cref="AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
+        /// <para>When <see cref="AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="ServerObjectManager.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
         /// </summary>
         public UnityEvent OnStartAuthority = new UnityEvent();
 
@@ -655,7 +657,7 @@ namespace Mirror
             // if it is still true, then we need to unspawn it
             if (IsServer)
             {
-                Server.Destroy(gameObject);
+                ServerObjectManager.Destroy(gameObject);
             }
         }
 
@@ -997,7 +999,7 @@ namespace Mirror
             conn.AddToVisList(this);
 
             // spawn identity for this conn
-            Server.ShowForConnection(this, conn);
+            ServerObjectManager.ShowForConnection(this, conn);
         }
 
         /// <summary>
@@ -1130,7 +1132,7 @@ namespace Mirror
                 {
                     // removed observer
                     conn.RemoveFromVisList(this);
-                    Server.HideForConnection(this, conn);
+                    ServerObjectManager.HideForConnection(this, conn);
 
                     if (logger.LogEnabled()) logger.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
@@ -1152,7 +1154,7 @@ namespace Mirror
                     // new observer
                     conn.AddToVisList(this);
                     // spawn identity for this conn
-                    Server.ShowForConnection(this, conn);
+                    ServerObjectManager.ShowForConnection(this, conn);
                     if (logger.LogEnabled()) logger.Log("New Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
@@ -1188,14 +1190,14 @@ namespace Mirror
 
             // The client will match to the existing object
             // update all variables and assign authority
-            Server.SendSpawnMessage(this, conn);
+            ServerObjectManager.SendSpawnMessage(this, conn);
 
             clientAuthorityCallback?.Invoke(conn, this, true);
         }
 
         /// <summary>
         /// Removes ownership for an object.
-        /// <para>This applies to objects that had authority set by AssignClientAuthority, or <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included.</para>
+        /// <para>This applies to objects that had authority set by AssignClientAuthority, or <see cref="ServerObjectManager.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included.</para>
         /// <para>Authority cannot be removed for player objects.</para>
         /// </summary>
         public void RemoveClientAuthority()
@@ -1222,7 +1224,7 @@ namespace Mirror
                 // so just spawn it again,
                 // the client will not create a new instance,  it will simply
                 // reset all variables and remove authority
-                Server.SendSpawnMessage(this, previousOwner);
+                ServerObjectManager.SendSpawnMessage(this, previousOwner);
             }
         }
 
