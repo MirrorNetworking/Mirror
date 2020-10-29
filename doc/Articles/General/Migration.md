@@ -114,7 +114,7 @@ public sealed class SpawnItemMessage : MessageBase
 replace with:
 
 ```cs
-public sealed class SpawnItemMessage : NetworkMessage
+public sealed struct SpawnItemMessage : NetworkMessage
 {
     public System.Guid assetID;
     public uint networkInstanceID;
