@@ -222,7 +222,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2008127829}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7424c1070fad4ba2a7a96b02fbeb4bb, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b0fecffa3f624585964b0d0eb21b18e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   OnClientConnected:
@@ -249,10 +249,14 @@ MonoBehaviour:
   OnServerDisconnected:
     m_PersistentCalls:
       m_Calls: []
-  port: 7777
+  Port: 7777
   NoDelay: 1
-  serverMaxMessageSize: 16384
-  clientMaxMessageSize: 16384
+  Interval: 10
+  FastResend: 0
+  CongestionWindow: 1
+  SendWindowSize: 128
+  ReceiveWindowSize: 128
+  debugGUI: 0
 --- !u!114 &2008127831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -267,7 +271,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  startOnHeadless: 1
+  autoStartServerBuild: 1
   showDebugMessages: 0
   serverTickRate: 30
   offlineScene: Assets/Mirror/Examples/Room/Scenes/OfflineScene.unity
@@ -290,7 +294,7 @@ MonoBehaviour:
     type: 3}
   RoomScene: Assets/Mirror/Examples/Room/Scenes/RoomScene.unity
   GameplayScene: Assets/Mirror/Examples/Room/Scenes/OnlineScene.unity
-  allPlayersReady: 0
+  _allPlayersReady: 0
   roomSlots: []
 --- !u!4 &2008127832
 Transform:
