@@ -1,3 +1,15 @@
+# [56.0.0](https://github.com/MirrorNG/MirrorNG/compare/v55.0.1...v56.0.0) (2020-10-29)
+
+
+### breaking
+
+* add ServerObjectManager for object spawning ([#443](https://github.com/MirrorNG/MirrorNG/issues/443)) ([7abf355](https://github.com/MirrorNG/MirrorNG/commit/7abf3556284d831e5e85993f7f264c28c97df458)), closes [#438](https://github.com/MirrorNG/MirrorNG/issues/438)
+
+
+### BREAKING CHANGES
+
+* NetworkServer no longer spawns objects, add a ServerObjectManager for that
+
 ## [55.0.1](https://github.com/MirrorNG/MirrorNG/compare/v55.0.0...v55.0.1) (2020-10-27)
 
 
