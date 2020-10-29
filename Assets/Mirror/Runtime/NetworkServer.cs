@@ -14,7 +14,7 @@ namespace Mirror
     /// <remarks>
     /// <para>NetworkServer handles remote connections from remote clients, and also has a local connection for a local client.</para>
     /// </remarks>
-    [AddComponentMenu("Network/NetworkClient")]
+    [AddComponentMenu("Network/NetworkServer")]
     [DisallowMultipleComponent]
     public class NetworkServer : MonoBehaviour, INetworkServer
     {
