@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
 {
     [ExecuteInEditMode]
+    [AddComponentMenu("Network/LogSettings")]
     public class LogSettings : MonoBehaviour
     {
         [Serializable]
