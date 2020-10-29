@@ -1540,9 +1540,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 1282001523}
   client: {fileID: 1282001525}
-  sceneManager: {fileID: 0}
-  serverObjectManager: {fileID: 0}
-  clientObjectManager: {fileID: 0}
+  sceneManager: {fileID: 1282001526}
+  serverObjectManager: {fileID: 1282001524}
+  clientObjectManager: {fileID: 1282001522}
 --- !u!114 &1282001521
 MonoBehaviour:
   m_ObjectHideFlags: 0
