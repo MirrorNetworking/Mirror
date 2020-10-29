@@ -223,6 +223,7 @@ GameObject:
   - component: {fileID: 69965673}
   - component: {fileID: 69965667}
   - component: {fileID: 69965675}
+  - component: {fileID: 69965676}
   m_Layer: 0
   m_Name: Network
   m_TagString: Untagged
@@ -291,9 +292,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 69965672}
   client: {fileID: 69965671}
-  sceneManager: {fileID: 0}
-  serverObjectManager: {fileID: 0}
-  clientObjectManager: {fileID: 0}
+  sceneManager: {fileID: 69965674}
+  serverObjectManager: {fileID: 69965675}
+  clientObjectManager: {fileID: 69965667}
   instances: 3
   gameScene: 
 --- !u!4 &69965670
@@ -425,6 +426,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   server: {fileID: 69965672}
   networkSceneManager: {fileID: 69965674}
+--- !u!114 &69965676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 69965666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac6e8eccf4b6f4dc7b24c276ef47fde8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Levels:
+  - Name: NetworkIdentity
+    level: 2
+  - Name: ServerObjectManager
+    level: 2
+  - Name: NetworkServer
+    level: 2
+  - Name: NetworkTime
+    level: 2
+  - Name: NetworkClient
+    level: 2
+  - Name: NetworkSceneManager
+    level: 2
+  - Name: PlayerSpawner
+    level: 2
+  - Name: ClientObjectManager
+    level: 2
+  - Name: EnterPlayModeSettingsCheck
+    level: 2
+  - Name: ZoneHandler
+    level: 2
+  - Name: NetworkBehaviour
+    level: 2
+  - Name: AdditiveNetworkManager
+    level: 2
+  - Name: NetworkProximityChecker
+    level: 2
+  - Name: RemoteCallHelper
+    level: 2
+  - Name: NetworkAnimator
+    level: 2
+  - Name: SceneDrawer
+    level: 2
+  - Name: ChatWindow
+    level: 2
+  - Name: NetworkSceneChecker
+    level: 2
+  - Name: Reward
+    level: 2
 --- !u!1 &204334129
 GameObject:
   m_ObjectHideFlags: 0
