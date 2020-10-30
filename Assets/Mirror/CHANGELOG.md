@@ -1,3 +1,10 @@
+## [56.1.1](https://github.com/MirrorNG/MirrorNG/compare/v56.1.0...v56.1.1) (2020-10-30)
+
+
+### Bug Fixes
+
+* disconnect transport when play mode exits ([#449](https://github.com/MirrorNG/MirrorNG/issues/449)) ([e741809](https://github.com/MirrorNG/MirrorNG/commit/e74180947103fd41c2f3ecfad917825c16c18627))
+
 # [56.1.0](https://github.com/MirrorNG/MirrorNG/compare/v56.0.2...v56.1.0) (2020-10-30)
 
 
