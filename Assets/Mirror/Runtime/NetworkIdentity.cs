@@ -563,8 +563,16 @@ namespace Mirror
         // => ONLY USE THIS FROM POSTPROCESSSCENE!
         public void SetSceneIdSceneHashPartInternal()
         {
+            // Use `ToLower` to that because BuildPipeline.BuildPlayer is case insensitive but hash is case sensitive
+            // If the scene in the project is `forest.unity` but `Forest.unity` is given to BuildPipeline then the
+            // BuildPipeline will use `Forest.unity` for the build and create a different hash than the editor will.
+            // Using ToLower will mean the hash will be the same for these 2 paths
+            // Assets/Scenes/Forest.unity
+            // Assets/Scenes/forest.unity
+            string scenePath = gameObject.scene.path.ToLower();
+
             // get deterministic scene hash
-            uint pathHash = (uint)gameObject.scene.path.GetStableHashCode();
+            uint pathHash = (uint)scenePath.GetStableHashCode();
 
             // shift hash from 0x000000FFFFFFFF to 0xFFFFFFFF00000000
             ulong shiftedHash = (ulong)pathHash << 32;
