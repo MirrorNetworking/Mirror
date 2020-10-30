@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Mirror
@@ -115,34 +116,19 @@ namespace Mirror
             float z = value.z;
             float w = value.w;
 
-            float a, b, c;
             switch (largestIndex)
             {
                 case 0:
-                    a = y;
-                    b = z;
-                    c = w;
-                    break;
+                    return new Vector3(y, z, w);
                 case 1:
-                    a = x;
-                    b = z;
-                    c = w;
-                    break;
+                    return new Vector3(x, z, w);
                 case 2:
-                    a = x;
-                    b = y;
-                    c = w;
-                    break;
+                    return new Vector3(x, y, w);
                 case 3:
-                    a = x;
-                    b = y;
-                    c = z;
-                    break;
+                    return new Vector3(x, y, z);
                 default:
-                    return Vector3.zero;
+                    throw new IndexOutOfRangeException("Invalid Quaternion index!");
             }
-
-            return new Vector3(a, b, c);
         }
 
 
@@ -177,40 +163,21 @@ namespace Mirror
             float b = smallest.y;
             float c = smallest.z;
 
-            float x, y, z, w;
             float largest = Mathf.Sqrt(1 - a * a - b * b - c * c);
             switch (largestIndex)
             {
                 case 0:
-                    x = largest;
-                    y = a;
-                    z = b;
-                    w = c;
-                    break;
+                    return new Quaternion(largest, a, b, c).normalized;
                 case 1:
-                    x = a;
-                    y = largest;
-                    z = b;
-                    w = c;
-                    break;
+                    return new Quaternion(a, largest, b, c).normalized;
                 case 2:
-                    x = a;
-                    y = b;
-                    z = largest;
-                    w = c;
-                    break;
+                    return new Quaternion(a, b, largest, c).normalized;
                 case 3:
-                    x = a;
-                    y = b;
-                    z = c;
-                    w = largest;
-                    break;
+                    return new Quaternion(a, b, c, largest).normalized;
                 default:
-                    return Quaternion.identity;
+                    throw new IndexOutOfRangeException("Invalid Quaternion index!");
+
             }
-            // 0.999999f is tolerance for Unity's Dot function
-            Debug.Assert(x * x + y * y + z * z + w * w < (2 - 0.999999f), "larger than 1");
-            return new Quaternion(x, y, z, w).normalized;
         }
 
 
