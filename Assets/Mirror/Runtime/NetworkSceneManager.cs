@@ -110,15 +110,7 @@ namespace Mirror
             // Let client prepare for scene change
             OnClientChangeScene(msg.scenePath, msg.sceneOperation);
 
-            //if host mode and scene change is additive
-            if (client.IsLocalClient && msg.sceneOperation != SceneOperation.Normal)
-            {
-                FinishLoadScene(msg.scenePath, msg.sceneOperation);
-            }
-            else
-            {
-                StartCoroutine(ApplySceneOperation(msg.scenePath, msg.sceneOperation));
-            }
+            StartCoroutine(ApplySceneOperation(msg.scenePath, msg.sceneOperation));
         }
 
         internal void ClientSceneReadyMessage(INetworkConnection conn, SceneReadyMessage msg)
@@ -213,7 +205,8 @@ namespace Mirror
             // Let server prepare for scene change
             OnServerChangeScene(scenePath, sceneOperation);
 
-            StartCoroutine(ApplySceneOperation(scenePath, sceneOperation));
+            if(!client.IsLocalClient)
+                StartCoroutine(ApplySceneOperation(scenePath, sceneOperation));
 
             // notify all clients about the new scene
             server.SendToAll(new SceneMessage { scenePath = scenePath, sceneOperation = sceneOperation });
