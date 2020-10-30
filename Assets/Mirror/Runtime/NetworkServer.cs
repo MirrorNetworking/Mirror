@@ -231,7 +231,7 @@ namespace Mirror
             // is called after the server is actually properly started.
             OnStartHost.Invoke();
 
-            logger.Log("NetworkManager StartHost");
+            logger.Log("NetworkServer StartHost");
         }
 
         /// <summary>
