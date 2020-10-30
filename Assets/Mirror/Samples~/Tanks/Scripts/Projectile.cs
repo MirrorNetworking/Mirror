@@ -33,7 +33,7 @@ namespace Mirror.Examples.Tanks
         [Server]
         void DestroySelf()
         {
-            NetIdentity.ServerObjectManager.Destroy(gameObject);
+            ServerObjectManager.Destroy(gameObject);
         }
 
         // [Server] because we don't want a warning if OnTriggerEnter is
@@ -51,7 +51,7 @@ namespace Mirror.Examples.Tanks
                 source.GetComponent<Tank>().score += damage;
             }
 
-            NetIdentity.ServerObjectManager.Destroy(gameObject);
+            ServerObjectManager.Destroy(gameObject);
         }
     }
 }

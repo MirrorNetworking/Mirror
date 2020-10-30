@@ -92,6 +92,8 @@ namespace Mirror
         /// </summary>
         public NetworkServer Server => NetIdentity.Server;
 
+        public ServerObjectManager ServerObjectManager => NetIdentity.ServerObjectManager;
+
         /// <summary>
         /// The <see cref="NetworkClient">NetworkClient</see> associated to this object.
         /// </summary>
@@ -200,7 +202,7 @@ namespace Mirror
         {
             if (IsServer)
             {
-                NetIdentity.ServerObjectManager.DirtyObjects.Add(NetIdentity);
+                ServerObjectManager.DirtyObjects.Add(NetIdentity);
             }
         }
 
@@ -429,7 +431,7 @@ namespace Mirror
         {
             SyncVarDirtyBits |= dirtyBit;
             if (IsServer)
-                NetIdentity.ServerObjectManager.DirtyObjects.Add(NetIdentity);
+                ServerObjectManager.DirtyObjects.Add(NetIdentity);
         }
 
         /// <summary>

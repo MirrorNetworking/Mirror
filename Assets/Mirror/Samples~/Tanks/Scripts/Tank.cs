@@ -77,7 +77,7 @@ namespace Mirror.Examples.Tanks
         {
             GameObject projectile = Instantiate(projectilePrefab, projectileMount.position, transform.rotation);
             projectile.GetComponent<Projectile>().source = gameObject;
-            NetIdentity.ServerObjectManager.Spawn(projectile);
+            ServerObjectManager.Spawn(projectile);
             RpcOnFire();
         }
 

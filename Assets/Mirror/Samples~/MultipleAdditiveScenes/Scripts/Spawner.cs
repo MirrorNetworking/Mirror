@@ -21,7 +21,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             Reward reward = newPrize.gameObject.GetComponent<Reward>();
             reward.spawner = this;
 
-            NetIdentity.ServerObjectManager.Spawn(newPrize);
+            ServerObjectManager.Spawn(newPrize);
             SceneManager.MoveGameObjectToScene(newPrize, gameObject.scene);
         }
     }
