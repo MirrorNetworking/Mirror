@@ -1,3 +1,10 @@
+## [56.0.2](https://github.com/MirrorNG/MirrorNG/compare/v56.0.1...v56.0.2) (2020-10-30)
+
+
+### Bug Fixes
+
+* third try to prevent double load ([#447](https://github.com/MirrorNG/MirrorNG/issues/447)) ([347d176](https://github.com/MirrorNG/MirrorNG/commit/347d176c83f9e43c177b450688899191f4221fe7))
+
 ## [56.0.1](https://github.com/MirrorNG/MirrorNG/compare/v56.0.0...v56.0.1) (2020-10-29)
 
 
