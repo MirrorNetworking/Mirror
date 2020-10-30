@@ -117,7 +117,14 @@ namespace Mirror.SimpleWeb
         {
             state = ClientState.Disconnecting;
             Log.Info("Disconnect Called");
-            conn.Dispose();
+            if (conn == null)
+            {
+                state = ClientState.NotConnected;
+            }
+            else
+            {
+                conn?.Dispose();
+            }
         }
 
         public override void Send(ArraySegment<byte> segment)

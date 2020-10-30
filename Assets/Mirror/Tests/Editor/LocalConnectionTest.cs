@@ -1,6 +1,4 @@
-using System;
 using NUnit.Framework;
-using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -95,16 +93,5 @@ namespace Mirror.Tests
 
             Assert.True(invoked, "handler should have been invoked");
         }*/
-
-        [Test]
-        public void ClientToServerFailTest()
-        {
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            bool result = connectionToServer.Send(new ArraySegment<byte>(new byte[0]));
-            LogAssert.ignoreFailingMessages = false;
-
-            Assert.That(result, Is.False);
-        }
     }
 }

@@ -13,11 +13,9 @@ namespace Mirror
 
         public override string address => "localhost";
 
-        internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             connectionToServer.buffer.Write(segment);
-
-            return true;
         }
 
         // true because local connections never timeout
@@ -89,17 +87,16 @@ namespace Mirror
 
         public override string address => "localhost";
 
-        internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (segment.Count == 0)
             {
                 logger.LogError("LocalConnection.SendBytes cannot send zero bytes");
-                return false;
+                return;
             }
 
             // handle the server's message directly
             connectionToClient.TransportReceive(segment, channelId);
-            return true;
         }
 
         internal void Update()

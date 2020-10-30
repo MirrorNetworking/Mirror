@@ -13,8 +13,6 @@ namespace Mirror.SimpleWeb
         readonly object disposedLock = new object();
 
         public TcpClient client;
-        // used for ToString
-        readonly string endpoint;
 
         public int connId = IdNotSet;
         public Stream stream;
@@ -31,7 +29,6 @@ namespace Mirror.SimpleWeb
         public Connection(TcpClient client, Action<Connection> onDispose)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
-            endpoint = client.Client.RemoteEndPoint.ToString();
             this.onDispose = onDispose;
         }
 
@@ -86,6 +83,7 @@ namespace Mirror.SimpleWeb
 
         public override string ToString()
         {
+            System.Net.EndPoint endpoint = client?.Client?.RemoteEndPoint;
             return $"[Conn:{connId}, endPoint:{endpoint}]";
         }
     }

@@ -50,6 +50,13 @@ namespace Mirror.SimpleWeb
                 server.Send(id, buffer);
             }
         }
+        public void SendOne(int connectionId, ArraySegment<byte> source)
+        {
+            ArrayBuffer buffer = bufferPool.Take(source.Count);
+            buffer.CopyFrom(source);
+
+            server.Send(connectionId, buffer);
+        }
 
         public bool KickClient(int connectionId)
         {

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Security.Authentication;
 using UnityEngine;
@@ -116,7 +115,7 @@ namespace Mirror.SimpleWeb
         string GetScheme() => sslEnabled ? SecureScheme : NormalScheme;
         public override bool ClientConnected()
         {
-            // not null and not NotConnected (we want to return true if connecting or disconnecting) 
+            // not null and not NotConnected (we want to return true if connecting or disconnecting)
             return client != null && client.ConnectionState != ClientState.NotConnected;
         }
 
@@ -164,6 +163,30 @@ namespace Mirror.SimpleWeb
             client?.Disconnect();
         }
 
+#if MIRROR_26_0_OR_NEWER
+        public override void ClientSend(int channelId, ArraySegment<byte> segment)
+        {
+            if (!ClientConnected())
+            {
+                Debug.LogError("Not Connected");
+                return;
+            }
+
+            if (segment.Count > maxMessageSize)
+            {
+                Log.Error("Message greater than max size");
+                return;
+            }
+
+            if (segment.Count == 0)
+            {
+                Log.Error("Message count was zero");
+                return;
+            }
+
+            client.Send(segment);
+        }
+#else
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
             if (!ClientConnected())
@@ -187,6 +210,7 @@ namespace Mirror.SimpleWeb
             client.Send(segment);
             return true;
         }
+#endif
         #endregion
 
         #region Server
@@ -235,7 +259,32 @@ namespace Mirror.SimpleWeb
             return server.KickClient(connectionId);
         }
 
-        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
+#if MIRROR_26_0_OR_NEWER
+        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        {
+            if (!ServerActive())
+            {
+                Debug.LogError("SimpleWebServer Not Active");
+                return;
+            }
+
+            if (segment.Count > maxMessageSize)
+            {
+                Log.Error("Message greater than max size");
+                return;
+            }
+
+            if (segment.Count == 0)
+            {
+                Log.Error("Message count was zero");
+                return;
+            }
+
+            server.SendOne(connectionId, segment);
+            return;
+        }
+#else
+        public override bool ServerSend(System.Collections.Generic.List<int> connectionIds, int channelId, ArraySegment<byte> segment)
         {
             if (!ServerActive())
             {
@@ -258,6 +307,7 @@ namespace Mirror.SimpleWeb
             server.SendAll(connectionIds, segment);
             return true;
         }
+#endif
 
         public override string ServerGetClientAddress(int connectionId)
         {
