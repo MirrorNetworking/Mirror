@@ -33,6 +33,8 @@ namespace Mirror
         public static NetworkConnection connection { get; internal set; }
 
         internal static ConnectState connectState = ConnectState.None;
+        internal static event ConnectionEvent OnConnectedEvent;
+        internal static event ConnectionEvent OnDisconnectEvent;
 
         /// <summary>
         /// The IP address of the server that this client is connected to.
@@ -125,7 +127,9 @@ namespace Mirror
         public static void ConnectLocalServer()
         {
             NetworkServer.OnConnected(NetworkServer.localConnection);
-            NetworkServer.localConnection.Send(new ConnectMessage());
+
+            Debug.Assert(connection is ULocalConnectionToServer, "Connection should be local connection");
+            OnConnectedEvent?.Invoke(connection);
         }
 
         /// <summary>
@@ -164,7 +168,7 @@ namespace Mirror
 
             ClientScene.HandleClientDisconnect(connection);
 
-            connection?.InvokeHandler(new DisconnectMessage(), -1);
+            OnDisconnectEvent?.Invoke(connection);
         }
 
         internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
@@ -187,7 +191,7 @@ namespace Mirror
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
                 NetworkTime.UpdateClient();
-                connection.InvokeHandler(new ConnectMessage(), -1);
+                OnConnectedEvent?.Invoke(connection);
             }
             else logger.LogError("Skipped Connect message handling because connection is null.");
         }
@@ -206,7 +210,8 @@ namespace Mirror
             {
                 if (isConnected)
                 {
-                    NetworkServer.localConnection.Send(new DisconnectMessage());
+                    Debug.Assert(connection is ULocalConnectionToServer, "Connection should be local connection");
+                    OnDisconnectEvent?.Invoke(connection);
                 }
                 NetworkServer.RemoveLocalConnection();
             }

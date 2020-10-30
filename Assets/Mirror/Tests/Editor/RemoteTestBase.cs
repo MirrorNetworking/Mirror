@@ -13,6 +13,11 @@ namespace Mirror.Tests.RemoteAttrributeTest
         {
             Transport.activeTransport = new GameObject().AddComponent<MemoryTransport>();
 
+            // shutdown has to be called after activeTransport is set
+            // make sure shutdown correctly before running test
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
+
             // start server/client
             NetworkServer.Listen(1);
             NetworkClient.ConnectHost();

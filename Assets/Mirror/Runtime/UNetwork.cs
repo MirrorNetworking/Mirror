@@ -15,6 +15,10 @@ namespace Mirror
     // Handles requests to unspawn objects on the client
     public delegate void UnSpawnDelegate(GameObject spawned);
 
+
+    public delegate void ConnectionEvent(NetworkConnection conn);
+
+
     // invoke type for Cmd/Rpc
     public enum MirrorInvokeType
     {

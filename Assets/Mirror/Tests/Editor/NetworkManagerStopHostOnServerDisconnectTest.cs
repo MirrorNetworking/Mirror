@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+using System;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -13,6 +14,7 @@ namespace Mirror.Tests
     public class NetworkManagerStopHostOnServerDisconnectTest
     {
         GameObject gameObject;
+        GameObject playerPrefab;
         NetworkManagerOnServerDisconnect manager;
         MemoryTransport transport;
 
@@ -22,12 +24,18 @@ namespace Mirror.Tests
             gameObject = new GameObject();
             transport = gameObject.AddComponent<MemoryTransport>();
             manager = gameObject.AddComponent<NetworkManagerOnServerDisconnect>();
+            playerPrefab = new GameObject("player");
+            NetworkIdentity id = playerPrefab.AddComponent<NetworkIdentity>();
+            id.assetId = Guid.NewGuid();
+            id.sceneId = 0;
+            manager.playerPrefab = playerPrefab;
         }
 
         [TearDown]
         public void TearDown()
         {
             GameObject.DestroyImmediate(gameObject);
+            GameObject.DestroyImmediate(playerPrefab);
         }
 
         // test to prevent https://github.com/vis2k/Mirror/issues/1515

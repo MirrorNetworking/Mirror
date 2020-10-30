@@ -73,6 +73,15 @@ namespace Mirror
         public static float disconnectInactiveTimeout = 60f;
 
         /// <summary>
+        /// Called after new connection is set up on server
+        /// </summary>
+        public static event ConnectionEvent OnConnectedEvent;
+        /// <summary>
+        /// Called after connection disconnects from server
+        /// </summary>
+        public static event ConnectionEvent OnDisconnectEvent;
+
+        /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
         public static void Shutdown()
@@ -540,7 +549,7 @@ namespace Mirror
 
             // add connection and invoke connected event
             AddConnection(conn);
-            conn.InvokeHandler(new ConnectMessage(), -1);
+            OnConnectedEvent?.Invoke(conn);
         }
 
         internal static void OnDisconnected(int connectionId)
@@ -559,7 +568,8 @@ namespace Mirror
 
         static void OnDisconnected(NetworkConnection conn)
         {
-            conn.InvokeHandler(new DisconnectMessage(), -1);
+            // todo change to event instead of message
+            OnDisconnectEvent?.Invoke(conn);
             if (logger.LogEnabled()) logger.Log("Server lost client:" + conn);
         }
 

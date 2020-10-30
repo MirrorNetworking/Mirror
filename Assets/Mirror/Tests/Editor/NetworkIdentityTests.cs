@@ -845,7 +845,6 @@ namespace Mirror.Tests
             // call client connect so that internals are set up
             // (it won't actually successfully connect)
             // -> also set up connectmessage handler to avoid unhandled msg error
-            NetworkClient.RegisterHandler<ConnectMessage>(msg => { }, false);
             NetworkClient.Connect("localhost");
 
             // manually invoke transport.OnConnected so that NetworkClient.active is set to true
