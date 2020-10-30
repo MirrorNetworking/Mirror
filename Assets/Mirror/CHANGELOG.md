@@ -1,3 +1,10 @@
+# [56.1.0](https://github.com/MirrorNG/MirrorNG/compare/v56.0.2...v56.1.0) (2020-10-30)
+
+
+### Features
+
+* add quick access ref to NetIdentity.ServerObjectManager ([#444](https://github.com/MirrorNG/MirrorNG/issues/444)) ([d691ca4](https://github.com/MirrorNG/MirrorNG/commit/d691ca4e2c7c7abd6d746718ceca577d41c3b606))
+
 ## [56.0.2](https://github.com/MirrorNG/MirrorNG/compare/v56.0.1...v56.0.2) (2020-10-30)
 
 
