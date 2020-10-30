@@ -309,7 +309,7 @@ MonoBehaviour:
   - {fileID: 449802645721213856, guid: 30b8f251d03d84284b70601e691d474f, type: 3}
   spawnPrefab: {fileID: 449802645721213856, guid: 30b8f251d03d84284b70601e691d474f,
     type: 3}
-  spawnAmount: 4000
+  spawnAmount: 1000
   interleave: 1
 --- !u!114 &1282001521
 MonoBehaviour:
@@ -320,7 +320,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1282001517}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7424c1070fad4ba2a7a96b02fbeb4bb, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b0fecffa3f624585964b0d0eb21b18e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   OnClientConnected:
@@ -347,12 +347,14 @@ MonoBehaviour:
   OnServerDisconnected:
     m_PersistentCalls:
       m_Calls: []
-  port: 7777
+  Port: 7777
   NoDelay: 1
-  serverMaxMessageSize: 16384
-  serverMaxReceivesPerTick: 10000
-  clientMaxMessageSize: 16384
-  clientMaxReceivesPerTick: 1000
+  Interval: 10
+  FastResend: 0
+  CongestionWindow: 0
+  SendWindowSize: 512
+  ReceiveWindowSize: 512
+  debugGUI: 1
 --- !u!1 &2054208274
 GameObject:
   m_ObjectHideFlags: 0

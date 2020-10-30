@@ -1,0 +1,9 @@
+V1.1
+- high level cleanup, fixes, improvements
+
+V1.0
+- Kcp.cs now mirrors original Kcp.c behaviour
+  (this fixes dozens of bugs)
+
+V0.1
+- initial kcp-csharp based version
