@@ -560,8 +560,6 @@ namespace Mirror
         //    build indices if there are disabled scenes in build settings, and
         //    if no scene is in build settings then Editor and Build have
         //    different indices too (Editor=0, Build=-1)
-        // -> use lower case path because BuildPipeline.BuildPlayer can give
-        //    different case than is used in the editor
         // => ONLY USE THIS FROM POSTPROCESSSCENE!
         public void SetSceneIdSceneHashPartInternal()
         {
