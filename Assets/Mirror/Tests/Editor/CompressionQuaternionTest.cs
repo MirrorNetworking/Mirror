@@ -12,7 +12,7 @@ namespace Mirror.Tests
 
         [Test]
         [TestCaseSource(nameof(QuaternionTestCases))]
-        public void QuaternionCompressAtHalfPrecision(Quaternion rotationIn)
+        public void QuaternionCompressIsWithinPrecision(Quaternion rotationIn)
         {
             uint packed = Compression.CompressQuaternion(rotationIn);
 
