@@ -542,6 +542,7 @@ namespace Mirror
                 if (msg.isLocalPlayer)
                     InternalAddPlayer(localObject);
 
+                localObject.Client = client;
                 localObject.HasAuthority = msg.isOwner;
                 localObject.NotifyAuthority();
                 localObject.StartClient();
