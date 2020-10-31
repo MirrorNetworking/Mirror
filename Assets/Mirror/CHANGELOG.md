@@ -1,3 +1,10 @@
+## [56.1.2](https://github.com/MirrorNG/MirrorNG/compare/v56.1.1...v56.1.2) (2020-10-31)
+
+
+### Bug Fixes
+
+* client NRE for objects spawned in .Started in hostmode  ([#453](https://github.com/MirrorNG/MirrorNG/issues/453)) ([918504c](https://github.com/MirrorNG/MirrorNG/commit/918504c1b7a16f44dcb6c348150ac078869766c3))
+
 ## [56.1.1](https://github.com/MirrorNG/MirrorNG/compare/v56.1.0...v56.1.1) (2020-10-30)
 
 
