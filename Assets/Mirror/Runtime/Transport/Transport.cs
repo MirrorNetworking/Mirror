@@ -1,16 +1,8 @@
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Mirror
 {
-    // UnityEvent definitions
-    [Serializable] public class ClientDataReceivedEvent : UnityEvent<ArraySegment<byte>, int> { }
-    [Serializable] public class UnityEventException : UnityEvent<Exception> { }
-    [Serializable] public class UnityEventInt : UnityEvent<int> { }
-    [Serializable] public class ServerDataReceivedEvent : UnityEvent<int, ArraySegment<byte>, int> { }
-    [Serializable] public class UnityEventIntException : UnityEvent<int, Exception> { }
-
     /// <summary>
     /// Abstract transport layer component
     /// </summary>
@@ -37,23 +29,22 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when when this client establish a successful connection to the server
         /// </summary>
-        [HideInInspector] public UnityEvent OnClientConnected = new UnityEvent();
+        public abstract event Action OnClientConnected;
 
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// </summary>
-        // Note: we provide channelId for NetworkDiagnostics.
-        [HideInInspector] public ClientDataReceivedEvent OnClientDataReceived = new ClientDataReceivedEvent();
+        public abstract event Action<ArraySegment<byte>, int> OnClientDataReceived;
 
         /// <summary>
         /// Notify subscribers when this client encounters an error communicating with the server
         /// </summary>
-        [HideInInspector] public UnityEventException OnClientError = new UnityEventException();
+        public abstract event Action<Exception> OnClientError;
 
         /// <summary>
         /// Notify subscribers when this client disconnects from the server
         /// </summary>
-        [HideInInspector] public UnityEvent OnClientDisconnected = new UnityEvent();
+        public abstract event Action OnClientDisconnected;
 
         /// <summary>
         /// Determines if we are currently connected to the server
@@ -107,23 +98,22 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when a client connects to this server
         /// </summary>
-        [HideInInspector] public UnityEventInt OnServerConnected = new UnityEventInt();
+        public abstract event Action<int> OnServerConnected;
 
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// </summary>
-        // Note: we provide channelId for NetworkDiagnostics.
-        [HideInInspector] public ServerDataReceivedEvent OnServerDataReceived = new ServerDataReceivedEvent();
+        public abstract event Action<int, ArraySegment<byte>, int> OnServerDataReceived;
 
         /// <summary>
         /// Notify subscribers when this server has some problem communicating with the client
         /// </summary>
-        [HideInInspector] public UnityEventIntException OnServerError = new UnityEventIntException();
+        public abstract event Action<int, Exception> OnServerError;
 
         /// <summary>
         /// Notify subscribers when a client disconnects from this server
         /// </summary>
-        [HideInInspector] public UnityEventInt OnServerDisconnected = new UnityEventInt();
+        public abstract event Action<int> OnServerDisconnected;
 
         /// <summary>
         /// Determines if the server is up and running
