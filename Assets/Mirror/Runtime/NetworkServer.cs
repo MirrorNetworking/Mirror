@@ -90,10 +90,10 @@ namespace Mirror
                     Transport.activeTransport.ServerStop();
                 }
 
-                Transport.activeTransport.OnServerDisconnected.RemoveListener(OnDisconnected);
-                Transport.activeTransport.OnServerConnected.RemoveListener(OnConnected);
-                Transport.activeTransport.OnServerDataReceived.RemoveListener(OnDataReceived);
-                Transport.activeTransport.OnServerError.RemoveListener(OnError);
+                Transport.activeTransport.OnServerDisconnected -= OnDisconnected;
+                Transport.activeTransport.OnServerConnected -= OnConnected;
+                Transport.activeTransport.OnServerDataReceived -= OnDataReceived;
+                Transport.activeTransport.OnServerError -= OnError;
 
                 initialized = false;
             }
@@ -138,10 +138,10 @@ namespace Mirror
             connections.Clear();
 
             logger.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'Transport.activeTransport' first");
-            Transport.activeTransport.OnServerDisconnected.AddListener(OnDisconnected);
-            Transport.activeTransport.OnServerConnected.AddListener(OnConnected);
-            Transport.activeTransport.OnServerDataReceived.AddListener(OnDataReceived);
-            Transport.activeTransport.OnServerError.AddListener(OnError);
+            Transport.activeTransport.OnServerDisconnected += OnDisconnected;
+            Transport.activeTransport.OnServerConnected += OnConnected;
+            Transport.activeTransport.OnServerDataReceived += OnDataReceived;
+            Transport.activeTransport.OnServerError += OnError;
         }
 
         internal static void RegisterMessageHandlers()
