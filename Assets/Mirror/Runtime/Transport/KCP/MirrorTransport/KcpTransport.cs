@@ -2,8 +2,8 @@
 using System;
 using System.Linq;
 using System.Net;
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
 namespace kcp2k
 {
@@ -36,6 +36,15 @@ namespace kcp2k
         // debugging
         [Header("Debug")]
         public bool debugGUI;
+
+        public override event Action OnClientConnected;
+        public override event Action<ArraySegment<byte>, int> OnClientDataReceived;
+        public override event Action<Exception> OnClientError;
+        public override event Action OnClientDisconnected;
+        public override event Action<int> OnServerConnected;
+        public override event Action<int, ArraySegment<byte>, int> OnServerDataReceived;
+        public override event Action<int, Exception> OnServerError;
+        public override event Action<int> OnServerDisconnected;
 
         void Awake()
         {
@@ -117,7 +126,7 @@ namespace kcp2k
         public override void ServerStop() => server.Stop();
 
         // common
-        public override void Shutdown() {}
+        public override void Shutdown() { }
 
         // MTU
         public override int GetMaxPacketSize(int channelId = Channels.DefaultReliable) => Kcp.MTU_DEF;

@@ -17,6 +17,15 @@ namespace Mirror
     [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
     public class LLAPITransport : Transport
     {
+        public override event Action OnClientConnected;
+        public override event Action<ArraySegment<byte>, int> OnClientDataReceived;
+        public override event Action<Exception> OnClientError;
+        public override event Action OnClientDisconnected;
+        public override event Action<int> OnServerConnected;
+        public override event Action<int, ArraySegment<byte>, int> OnServerDataReceived;
+        public override event Action<int, Exception> OnServerError;
+        public override event Action<int> OnServerDisconnected;
+
         public const string Scheme = "unet";
 
         public ushort port = 7777;

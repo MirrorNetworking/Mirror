@@ -72,6 +72,15 @@ namespace Mirror.SimpleWeb
         SimpleWebClient client;
         SimpleWebServer server;
 
+        public override event Action OnClientConnected;
+        public override event Action<ArraySegment<byte>, int> OnClientDataReceived;
+        public override event Action<Exception> OnClientError;
+        public override event Action OnClientDisconnected;
+        public override event Action<int> OnServerConnected;
+        public override event Action<int, ArraySegment<byte>, int> OnServerDataReceived;
+        public override event Action<int, Exception> OnServerError;
+        public override event Action<int> OnServerDisconnected;
+
         TcpConfig TcpConfig => new TcpConfig(noDelay, sendTimeout, receiveTimeout);
 
         public override bool Available()

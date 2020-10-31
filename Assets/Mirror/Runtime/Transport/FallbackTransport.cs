@@ -14,14 +14,60 @@ namespace Mirror
         // the first transport that is available on this platform
         Transport available;
 
+        public override event Action OnClientConnected
+        {
+            add => available.OnClientConnected += value;
+            remove => available.OnClientConnected -= value;
+        }
+
+        public override event Action<ArraySegment<byte>, int> OnClientDataReceived
+        {
+            add => available.OnClientDataReceived += value;
+            remove => available.OnClientDataReceived -= value;
+        }
+
+        public override event Action<Exception> OnClientError
+        {
+            add => available.OnClientError += value;
+            remove => available.OnClientError -= value;
+        }
+
+        public override event Action OnClientDisconnected
+        {
+            add => available.OnClientDisconnected += value;
+            remove => available.OnClientDisconnected -= value;
+        }
+
+        public override event Action<int> OnServerConnected
+        {
+            add => available.OnServerConnected += value;
+            remove => available.OnServerConnected -= value;
+        }
+
+        public override event Action<int, ArraySegment<byte>, int> OnServerDataReceived
+        {
+            add => available.OnServerDataReceived += value;
+            remove => available.OnServerDataReceived -= value;
+        }
+
+        public override event Action<int, Exception> OnServerError
+        {
+            add => available.OnServerError += value;
+            remove => available.OnServerError -= value;
+        }
+
+        public override event Action<int> OnServerDisconnected
+        {
+            add => available.OnServerDisconnected += value;
+            remove => available.OnServerDisconnected -= value;
+        }
+
         public void Awake()
         {
             if (transports == null || transports.Length == 0)
             {
                 throw new Exception("FallbackTransport requires at least 1 underlying transport");
             }
-            InitClient();
-            InitServer();
             available = GetAvailableTransport();
             Debug.Log("FallbackTransport available: " + available.GetType());
         }
@@ -52,19 +98,6 @@ namespace Mirror
         public override bool Available()
         {
             return available.Available();
-        }
-
-        // clients always pick the first transport
-        void InitClient()
-        {
-            // wire all the base transports to our events
-            foreach (Transport transport in transports)
-            {
-                transport.OnClientConnected.AddListener(OnClientConnected.Invoke);
-                transport.OnClientDataReceived.AddListener(OnClientDataReceived.Invoke);
-                transport.OnClientError.AddListener(OnClientError.Invoke);
-                transport.OnClientDisconnected.AddListener(OnClientDisconnected.Invoke);
-            }
         }
 
         public override void ClientConnect(string address)
@@ -105,18 +138,6 @@ namespace Mirror
         public override void ClientSend(int channelId, ArraySegment<byte> segment)
         {
             available.ClientSend(channelId, segment);
-        }
-
-        void InitServer()
-        {
-            // wire all the base transports to our events
-            foreach (Transport transport in transports)
-            {
-                transport.OnServerConnected.AddListener(OnServerConnected.Invoke);
-                transport.OnServerDataReceived.AddListener(OnServerDataReceived.Invoke);
-                transport.OnServerError.AddListener(OnServerError.Invoke);
-                transport.OnServerDisconnected.AddListener(OnServerDisconnected.Invoke);
-            }
         }
 
         // right now this just returns the first available uri,
