@@ -2,12 +2,13 @@
     "name": "Mirror",
     "references": [
         "Mirror.CompilerSymbols",
-        "Telepathy"
+        "Telepathy",
+        "kcp2k"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": true,
+    "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
