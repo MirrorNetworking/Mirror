@@ -850,35 +850,36 @@ namespace Mirror.Weaver
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
         public static bool ValidateRemoteCallAndParameters(MethodDefinition method, RemoteCallType callType)
         {
+            if (method.IsAbstract)
+            {
+                Weaver.Error("Abstract ServerRpcs are currently not supported, use virtual method instead", method);
+                return false;
+            }
+
             if (method.IsStatic)
             {
                 Weaver.Error($"{method.Name} must not be static", method);
                 return false;
             }
 
-            return ValidateFunction(method) &&
-                   ValidateParameters(method, callType);
-        }
+            if (method.ReturnType.Is<System.Collections.IEnumerator>())
+            {
+                Weaver.Error($"{method.Name} cannot be a coroutine", method);
+                return false;
+            }
 
-        // check if a Command/TargetRpc/Rpc function is valid for weaving
-        static bool ValidateFunction(MethodReference md)
-        {
-            if (md.ReturnType.Is<System.Collections.IEnumerator>())
+            if (!method.ReturnType.Is(typeof(void)))
             {
-                Weaver.Error($"{md.Name} cannot be a coroutine", md);
+                Weaver.Error($"{method.Name} cannot return a value.  Make it void instead", method);
                 return false;
             }
-            if (!md.ReturnType.Is(typeof(void)))
+            if (method.HasGenericParameters)
             {
-                Weaver.Error($"{md.Name} cannot return a value.  Make it void instead", md);
+                Weaver.Error($"{method.Name} cannot have generic parameters", method);
                 return false;
             }
-            if (md.HasGenericParameters)
-            {
-                Weaver.Error($"{md.Name} cannot have generic parameters", md);
-                return false;
-            }
-            return true;
+
+            return ValidateParameters(method, callType);
         }
 
         // check if all Command/TargetRpc/Rpc function's parameters are valid for weaving
@@ -963,12 +964,6 @@ namespace Mirror.Weaver
 
         void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            if (md.IsAbstract)
-            {
-                Weaver.Error("Abstract ClientRpc are currently not supported, use virtual method instead", md);
-                return;
-            }
-
             if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc))
             {
                 return;
@@ -1005,12 +1000,6 @@ namespace Mirror.Weaver
 
         void ProcessServerRpc(HashSet<string> names, MethodDefinition md, CustomAttribute serverRpcAttr)
         {
-            if (md.IsAbstract)
-            {
-                Weaver.Error("Abstract ServerRpcs are currently not supported, use virtual method instead", md);
-                return;
-            }
-
             if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ServerRpc))
                 return;
 
