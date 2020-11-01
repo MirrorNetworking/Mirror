@@ -12,6 +12,20 @@ namespace Mirror
         /// </summary>
         public Transport inner;
 
+        public virtual void Awake()
+        {
+            // listen for inner events and invoke when they are called
+            inner.OnClientConnected.AddListener(OnClientConnected.Invoke);
+            inner.OnClientDataReceived.AddListener(OnClientDataReceived.Invoke);
+            inner.OnClientDisconnected.AddListener(OnClientDisconnected.Invoke);
+            inner.OnClientError.AddListener(OnClientError.Invoke);
+
+            inner.OnServerConnected.AddListener(OnServerConnected.Invoke);
+            inner.OnServerDataReceived.AddListener(OnServerDataReceived.Invoke);
+            inner.OnServerDisconnected.AddListener(OnServerDisconnected.Invoke);
+            inner.OnServerError.AddListener(OnServerError.Invoke);
+        }
+
         public override bool Available() => inner.Available();
         public override int GetMaxPacketSize(int channelId = 0) => inner.GetMaxPacketSize(channelId);
         public override void Shutdown() => inner.Shutdown();
