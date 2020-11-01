@@ -37,9 +37,12 @@ namespace Mirror
     ///     The NetworkIdentity manages the dirty state of the NetworkBehaviours of the object.
     ///     When it discovers that NetworkBehaviours are dirty, it causes an update packet to be created and sent to clients.
     /// </para>
-    /// <para>
-    ///     The flow for serialization updates managed by the NetworkIdentity is:
+    /// 
     /// <list type="bullet">
+    ///     <listheader><description>
+    ///         The flow for serialization updates managed by the NetworkIdentity is:
+    ///     </description></listheader>
+    ///     
     ///     <item>
     ///         Each NetworkBehaviour has a dirty mask. This mask is available inside OnSerialize as syncVarDirtyBits
     ///     </item>
@@ -75,10 +78,11 @@ namespace Mirror
     ///         The UpdateVars packet is sent to ready clients that are observing the object
     ///     </item>
     /// </list>
-    /// </para>
-    /// <para>
-    ///     On the client:
+    /// 
     /// <list type="bullet">
+    ///     <listheader><description>
+    ///         On the client:
+    ///     </description></listheader>
     ///     <item>
     ///         an UpdateVars packet is received for an object
     ///     </item>
@@ -98,7 +102,6 @@ namespace Mirror
     ///         If there are SyncVar hook functions, those are invoked with the value read from the stream.
     ///     </item>
     /// </list>
-    /// </para>
     /// </remarks>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkIdentity")]
@@ -265,7 +268,9 @@ namespace Mirror
         /// Unique identifier used to find the source assets when server spawns the on clients.
         /// </summary>
         /// <remarks>
-        /// The AssetId trick:
+        /// <listheader><description>
+        ///     The AssetId trick:
+        /// </description></description>listheader>
         /// <list type="bullet">
         ///     <item>
         ///         Ideally we would have a serialized 'Guid m_AssetId' but Unity can't
@@ -862,17 +867,9 @@ namespace Mirror
 
         /// <summary>
         /// check if observer can be seen by connection.
-        /// <list type="bullet">
-        ///     <item>
-        ///         returns visibility.OnCheckObserver
-        ///     </item>
-        ///     <item>
-        ///         returns true if we have no NetworkVisibility, default objects are visible
-        ///     </item>
-        /// </list>
         /// </summary>
         /// <param name="conn"></param>
-        /// <returns></returns>
+        /// <returns>true if we have no NetworkVisibility, default objects are visible</returns>
         internal bool OnCheckObserver(NetworkConnection conn)
         {
             if (visibility != null)
