@@ -1,3 +1,4 @@
+//#if MIRROR <- commented out because MIRROR isn't defined on first import yet
 using System;
 using System.Linq;
 using System.Net;
@@ -168,3 +169,4 @@ namespace kcp2k
         }
     }
 }
+//#endif MIRROR <- commented out because MIRROR isn't defined on first import yet
