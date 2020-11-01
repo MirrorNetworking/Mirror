@@ -18,6 +18,9 @@ namespace Mirror.SimpleWeb
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
 
+        [Tooltip("Max size for http header send as handshake for websockets")]
+        public int handshakeMaxSize = 3000;
+
         [Tooltip("disables nagle algorithm. lowers CPU% and latency but increases bandwidth")]
         public bool noDelay = true;
 
@@ -37,7 +40,7 @@ namespace Mirror.SimpleWeb
         public bool sslEnabled;
         [Tooltip("Path to json file that contains path to cert and its password\n\nUse Json file so that cert password is not included in client builds\n\nSee cert.example.Json")]
         public string sslCertJson = "./cert.json";
-        public SslProtocols sslProtocols = SslProtocols.Ssl3 | SslProtocols.Tls12;
+        public SslProtocols sslProtocols = SslProtocols.Tls12;
 
         [Header("Debug")]
         [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed. DEBUG allows warn/error, SIMPLEWEB_LOG_ENABLED allows all")]
@@ -227,7 +230,7 @@ namespace Mirror.SimpleWeb
             }
 
             SslConfig config = SslConfigLoader.Load(this);
-            server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, config);
+            server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, handshakeMaxSize, config);
 
             server.onConnect += OnServerConnected.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;
