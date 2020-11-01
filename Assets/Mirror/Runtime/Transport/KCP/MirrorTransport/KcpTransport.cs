@@ -1,4 +1,3 @@
-#if MIRROR
 using System;
 using System.Linq;
 using System.Net;
@@ -169,4 +168,3 @@ namespace kcp2k
         }
     }
 }
-#endif
