@@ -238,10 +238,9 @@ namespace Mirror.Weaver
             string originalName = fd.Name;
             Weaver.DLog(fd.DeclaringType, "Sync Var " + fd.Name + " " + fd.FieldType);
 
-            // GameObject/NetworkIdentity SyncVars have a new field for netId
+            // NetworkIdentity SyncVars have a new field for netId
             FieldDefinition netIdField = null;
-            if (fd.FieldType.Is<UnityEngine.GameObject>() ||
-                fd.FieldType.Is<NetworkIdentity>())
+            if (fd.FieldType.Is<NetworkIdentity>())
             {
                 netIdField = new FieldDefinition("___" + fd.Name + "NetId",
                     FieldAttributes.Private,
@@ -268,12 +267,11 @@ namespace Mirror.Weaver
             fd.DeclaringType.Properties.Add(propertyDefinition);
             Weaver.WeaveLists.replacementSetterProperties[fd] = set;
 
-            // replace getter field if GameObject/NetworkIdentity so it uses
+            // replace getter field if NetworkIdentity so it uses
             // netId instead
             // -> only for GameObjects, otherwise an int syncvar's getter would
             //    end up in recursion.
-            if (fd.FieldType.Is<UnityEngine.GameObject>() ||
-                fd.FieldType.Is<NetworkIdentity>())
+            if (fd.FieldType.Is<NetworkIdentity>())
             {
                 Weaver.WeaveLists.replacementGetterProperties[fd] = get;
             }
