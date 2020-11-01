@@ -12,31 +12,26 @@ namespace Mirror.Tests
 
         [Test]
         [TestCaseSource(nameof(QuaternionTestCases))]
-        public void QuaternionCompressIsWithinPrecision(Quaternion rotationIn)
+        public void QuaternionCompressIsWithinPrecision(Quaternion inRot)
         {
-            uint packed = Compression.CompressQuaternion(rotationIn);
+            uint packed = Compression.CompressQuaternion(inRot);
 
-            Quaternion rotationOut = Compression.DecompressQuaternion(packed);
+            Quaternion outRot = Compression.DecompressQuaternion(packed);
 
-            Assert.That(rotationOut.x, Is.Not.NaN, "x was NaN");
-            Assert.That(rotationOut.y, Is.Not.NaN, "y was NaN");
-            Assert.That(rotationOut.z, Is.Not.NaN, "z was NaN");
-            Assert.That(rotationOut.w, Is.Not.NaN, "w was NaN");
+            Assert.That(outRot.x, Is.Not.NaN, "x was NaN");
+            Assert.That(outRot.y, Is.Not.NaN, "y was NaN");
+            Assert.That(outRot.z, Is.Not.NaN, "z was NaN");
+            Assert.That(outRot.w, Is.Not.NaN, "w was NaN");
 
-            AssertPrecision(rotationIn, rotationOut, AllowedPrecision);
-        }
-
-        internal static void AssertPrecision(Quaternion inRot, Quaternion outRot, float precision)
-        {
             int largest = Compression.FindLargestIndex(inRot);
             float sign = Mathf.Sign(inRot[largest]);
             // flip sign of A if largest is is negative
             // Q == (-Q)
 
-            Assert.AreEqual(sign * inRot.x, outRot.x, precision, $"x off by {Mathf.Abs(sign * inRot.x - outRot.x)}");
-            Assert.AreEqual(sign * inRot.y, outRot.y, precision, $"y off by {Mathf.Abs(sign * inRot.y - outRot.y)}");
-            Assert.AreEqual(sign * inRot.z, outRot.z, precision, $"z off by {Mathf.Abs(sign * inRot.z - outRot.z)}");
-            Assert.AreEqual(sign * inRot.w, outRot.w, precision, $"w off by {Mathf.Abs(sign * inRot.w - outRot.w)}");
+            Assert.AreEqual(sign * inRot.x, outRot.x, AllowedPrecision, $"x off by {Mathf.Abs(sign * inRot.x - outRot.x)}");
+            Assert.AreEqual(sign * inRot.y, outRot.y, AllowedPrecision, $"y off by {Mathf.Abs(sign * inRot.y - outRot.y)}");
+            Assert.AreEqual(sign * inRot.z, outRot.z, AllowedPrecision, $"z off by {Mathf.Abs(sign * inRot.z - outRot.z)}");
+            Assert.AreEqual(sign * inRot.w, outRot.w, AllowedPrecision, $"w off by {Mathf.Abs(sign * inRot.w - outRot.w)}");
         }
 
         static IEnumerable QuaternionTestCases
@@ -100,15 +95,14 @@ namespace Mirror.Tests
             Assert.That(rotationOut.z, Is.Not.NaN, "z was NaN");
             Assert.That(rotationOut.w, Is.Not.NaN, "w was NaN");
 
+            Vector3 inVec = rotationIn * Vector3.forward;
+            Vector3 outVec = rotationOut * Vector3.forward;
             // allow for extra precision when rotating vector
-            AssertRotationPrecision(rotationIn * Vector3.forward, rotationOut * Vector3.forward, AllowedPrecision * 2);
-        }
+            float precision = AllowedPrecision * 2;
 
-        internal static void AssertRotationPrecision(Vector3 inRot, Vector3 outRot, float precision)
-        {
-            Assert.AreEqual(inRot.x, outRot.x, precision, $"x off by {Mathf.Abs(inRot.x - outRot.x)}");
-            Assert.AreEqual(inRot.y, outRot.y, precision, $"y off by {Mathf.Abs(inRot.y - outRot.y)}");
-            Assert.AreEqual(inRot.z, outRot.z, precision, $"z off by {Mathf.Abs(inRot.z - outRot.z)}");
+            Assert.AreEqual(inVec.x, outVec.x, precision, $"x off by {Mathf.Abs(inVec.x - outVec.x)}");
+            Assert.AreEqual(inVec.y, outVec.y, precision, $"y off by {Mathf.Abs(inVec.y - outVec.y)}");
+            Assert.AreEqual(inVec.z, outVec.z, precision, $"z off by {Mathf.Abs(inVec.z - outVec.z)}");
         }
 
 
