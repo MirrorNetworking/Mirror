@@ -57,6 +57,12 @@ namespace kcp2k
         // note: we have a ChokeConnectionAutoDisconnects test for this too!
         internal const int QueueDisconnectThreshold = 10000;
 
+        // getters for queue and buffer counts, used for debug info
+        public int SendQueueCount => kcp.snd_queue.Count;
+        public int ReceiveQueueCount => kcp.rcv_queue.Count;
+        public int SendBufferCount => kcp.snd_buf.Count;
+        public int ReceiveBufferCount => kcp.rcv_buf.Count;
+
         // NoDelay, interval, window size are the most important configurations.
         // let's force require the parameters so we don't forget it anywhere.
         protected void SetupKcp(bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV)

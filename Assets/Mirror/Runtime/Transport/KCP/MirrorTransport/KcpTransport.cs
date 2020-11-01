@@ -2,8 +2,8 @@
 using System;
 using System.Linq;
 using System.Net;
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
 namespace kcp2k
 {
@@ -128,13 +128,13 @@ namespace kcp2k
         }
 
         int GetTotalSendQueue() =>
-            server.connections.Values.Sum(conn => conn.kcp.snd_queue.Count);
+            server.connections.Values.Sum(conn => conn.SendQueueCount);
         int GetTotalReceiveQueue() =>
-            server.connections.Values.Sum(conn => conn.kcp.rcv_queue.Count);
+            server.connections.Values.Sum(conn => conn.ReceiveQueueCount);
         int GetTotalSendBuffer() =>
-            server.connections.Values.Sum(conn => conn.kcp.snd_buf.Count);
+            server.connections.Values.Sum(conn => conn.SendBufferCount);
         int GetTotalReceiveBuffer() =>
-            server.connections.Values.Sum(conn => conn.kcp.rcv_buf.Count);
+            server.connections.Values.Sum(conn => conn.ReceiveBufferCount);
 
         void OnGUI()
         {
@@ -158,10 +158,10 @@ namespace kcp2k
             {
                 GUILayout.BeginVertical("Box");
                 GUILayout.Label("CLIENT");
-                GUILayout.Label("  SendQueue: " + client.connection.kcp.snd_queue.Count);
-                GUILayout.Label("  ReceiveQueue: " + client.connection.kcp.rcv_queue.Count);
-                GUILayout.Label("  SendBuffer: " + client.connection.kcp.snd_buf.Count);
-                GUILayout.Label("  ReceiveBuffer: " + client.connection.kcp.rcv_buf.Count);
+                GUILayout.Label("  SendQueue: " + client.connection.SendQueueCount);
+                GUILayout.Label("  ReceiveQueue: " + client.connection.ReceiveQueueCount);
+                GUILayout.Label("  SendBuffer: " + client.connection.SendBufferCount);
+                GUILayout.Label("  ReceiveBuffer: " + client.connection.ReceiveBufferCount);
                 GUILayout.EndVertical();
             }
 
