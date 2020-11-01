@@ -73,13 +73,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void AbstractServerRpc()
         {
-            Assert.That(weaverErrors, Contains.Item("Abstract ServerRpcs are currently not supported, use virtual method instead (at System.Void WeaverServerRpcTests.AbstractServerRpc.AbstractServerRpc::CmdDoSomething())"));
+            Assert.That(weaverErrors, Contains.Item("Abstract Rpcs are currently not supported, use virtual method instead (at System.Void WeaverServerRpcTests.AbstractServerRpc.AbstractServerRpc::CmdDoSomething())"));
         }
 
         [Test]
         public void OverrideAbstractServerRpc()
         {
-            Assert.That(weaverErrors, Contains.Item("Abstract ServerRpcs are currently not supported, use virtual method instead (at System.Void WeaverServerRpcTests.OverrideAbstractServerRpc.BaseBehaviour::CmdDoSomething())"));
+            Assert.That(weaverErrors, Contains.Item("Abstract Rpcs are currently not supported, use virtual method instead (at System.Void WeaverServerRpcTests.OverrideAbstractServerRpc.BaseBehaviour::CmdDoSomething())"));
         }
     }
 }

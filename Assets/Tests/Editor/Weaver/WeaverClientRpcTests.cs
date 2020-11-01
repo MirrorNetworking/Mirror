@@ -32,14 +32,14 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void AbstractClientRpc()
         {
-            HasError("Abstract ClientRpc are currently not supported, use virtual method instead",
+            HasError("Abstract Rpcs are currently not supported, use virtual method instead",
                 "System.Void WeaverClientRpcTests.AbstractClientRpc.AbstractClientRpc::RpcDoSomething()");
         }
 
         [Test]
         public void OverrideAbstractClientRpc()
         {
-            HasError("Abstract ClientRpc are currently not supported, use virtual method instead",
+            HasError("Abstract Rpcs are currently not supported, use virtual method instead",
                 "System.Void WeaverClientRpcTests.OverrideAbstractClientRpc.BaseBehaviour::RpcDoSomething()");
         }
 
