@@ -268,10 +268,10 @@ namespace Mirror
         /// Unique identifier used to find the source assets when server spawns the on clients.
         /// </summary>
         /// <remarks>
+        /// <list type="bullet">
         /// <listheader><description>
         ///     The AssetId trick:
-        /// </description></description>listheader>
-        /// <list type="bullet">
+        /// </description></listheader>
         ///     <item><description>
         ///         Ideally we would have a serialized 'Guid m_AssetId' but Unity can't
         ///         serialize it because Guid's internal bytes are private
