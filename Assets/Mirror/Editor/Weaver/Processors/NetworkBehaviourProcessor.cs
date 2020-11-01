@@ -852,7 +852,7 @@ namespace Mirror.Weaver
         {
             if (method.IsAbstract)
             {
-                Weaver.Error("Abstract ServerRpcs are currently not supported, use virtual method instead", method);
+                Weaver.Error("Abstract Rpcs are currently not supported, use virtual method instead", method);
                 return false;
             }
 
