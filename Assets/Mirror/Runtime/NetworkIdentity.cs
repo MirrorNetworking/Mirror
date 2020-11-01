@@ -695,7 +695,7 @@ namespace Mirror
             netId = GetNextNetworkId();
             observers = new Dictionary<int, NetworkConnection>();
 
-            if (logger.LogEnabled()) logger.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
+            if (logger.LogEnabled()) logger.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId.ToString("X"));
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
