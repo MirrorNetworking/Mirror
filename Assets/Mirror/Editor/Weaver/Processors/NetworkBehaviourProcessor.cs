@@ -93,28 +93,6 @@ namespace Mirror.Weaver
             return true;
         }
 
-        /*
-        generates code like:
-            if (!obj.netIdentity.client.active)
-              Debug.LogError((object) "ServerRpc function CmdRespawn called on server.");
-
-            which is used in InvokeCmd, InvokeRpc, etc.
-        */
-        public static void WriteClientActiveCheck(ILProcessor worker, string mdName, Instruction label, string errString)
-        {
-            // client active check
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkBehaviourGetIdentity));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkIdentityGetClient));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkClientGetActive));
-            worker.Append(worker.Create(OpCodes.Brtrue, label));
-
-            worker.Append(worker.Create(OpCodes.Ldstr, errString + " " + mdName + " called on server."));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.logErrorReference));
-            worker.Append(worker.Create(OpCodes.Ret));
-            worker.Append(label);
-        }
-
         public static void WriteSetupLocals(ILProcessor worker)
         {
             worker.Body.InitLocals = true;
