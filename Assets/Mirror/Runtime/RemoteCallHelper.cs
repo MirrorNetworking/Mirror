@@ -138,38 +138,32 @@ namespace Mirror.RemoteCalls
                 return invoker;
             }
 
-            // debug message if not found, or null, or mismatched type
-            // (no need to throw an error, an attacker might just be trying to
-            //  call an cmd with an rpc's hash)
-            if (logger.LogEnabled()) logger.Log("Skeleton for hash:" + cmdHash + " not found");
-
-            return null;
+            throw new MethodInvocationException($"No RPC method found for hash {cmdHash}");
         }
 
         // InvokeCmd/Rpc can all use the same function here
-        internal static bool InvokeSkeleton(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
+        internal static void InvokeSkeleton(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
         {
             Skeleton invoker = GetSkeleton(cmdHash, invokeType);
-            if (invoker != null && invoker.invokeClass.IsInstanceOfType(invokingType))
+            if (invoker.invokeClass.IsInstanceOfType(invokingType))
             {
                 invoker.invokeFunction(invokingType, reader, senderConnection);
-
-                return true;
+                return;
             }
-            return false;
+            throw new MethodInvocationException($"No RPC method found for hash {cmdHash}");
         }
 
         internal static ServerRpcInfo GetServerRpcInfo(int cmdHash, NetworkBehaviour invokingType)
         {
             Skeleton invoker = GetSkeleton(cmdHash, MirrorInvokeType.ServerRpc);
-            if (invoker != null && invoker.invokeClass.IsInstanceOfType(invokingType))
+            if (invoker.invokeClass.IsInstanceOfType(invokingType))
             {
                 return new ServerRpcInfo
                 {
                     requireAuthority = invoker.cmdRequireAuthority
                 };
             }
-            return default;
+            throw new MethodInvocationException($"No RPC method found for hash {cmdHash}");
         }
 
         /// <summary>

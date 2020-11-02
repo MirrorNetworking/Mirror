@@ -250,9 +250,9 @@ namespace Mirror
         /// <param name="reader">Parameters to pass to the ServerRpc.</param>
         /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeServerRpc(int cmdHash, NetworkReader reader)
+        public virtual void InvokeServerRpc(int cmdHash, NetworkReader reader)
         {
-            return RemoteCallHelper.InvokeSkeleton(cmdHash, MirrorInvokeType.ServerRpc, reader, this);
+            RemoteCallHelper.InvokeSkeleton(cmdHash, MirrorInvokeType.ServerRpc, reader, this);
         }
         #endregion
 
@@ -332,9 +332,9 @@ namespace Mirror
         /// <param name="reader">Parameters to pass to the RPC function.</param>
         /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeRpc(int rpcHash, NetworkReader reader)
+        public virtual void InvokeRpc(int rpcHash, NetworkReader reader)
         {
-            return RemoteCallHelper.InvokeSkeleton(rpcHash, MirrorInvokeType.ClientRpc, reader, this);
+            RemoteCallHelper.InvokeSkeleton(rpcHash, MirrorInvokeType.ClientRpc, reader, this);
         }
         #endregion
 
