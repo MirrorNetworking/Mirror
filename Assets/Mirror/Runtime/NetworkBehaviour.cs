@@ -252,7 +252,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeServerRpc(int cmdHash, NetworkReader reader)
         {
-            return RemoteCallHelper.InvokeHandlerDelegate(cmdHash, MirrorInvokeType.ServerRpc, reader, this);
+            return RemoteCallHelper.InvokeSkeleton(cmdHash, MirrorInvokeType.ServerRpc, reader, this);
         }
         #endregion
 
@@ -334,7 +334,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeRpc(int rpcHash, NetworkReader reader)
         {
-            return RemoteCallHelper.InvokeHandlerDelegate(rpcHash, MirrorInvokeType.ClientRpc, reader, this);
+            return RemoteCallHelper.InvokeSkeleton(rpcHash, MirrorInvokeType.ClientRpc, reader, this);
         }
         #endregion
 

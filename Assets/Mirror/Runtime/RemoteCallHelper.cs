@@ -11,7 +11,7 @@ namespace Mirror.RemoteCalls
     /// <param name="reader"></param>
     public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader, INetworkConnection senderConnection);
 
-    class Invoker
+    class Skeleton
     {
         public Type invokeClass;
         public MirrorInvokeType invokeType;
@@ -38,7 +38,7 @@ namespace Mirror.RemoteCalls
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(RemoteCallHelper));
 
-        static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
+        static readonly Dictionary<int, Skeleton> cmdHandlerDelegates = new Dictionary<int, Skeleton>();
 
         /// <summary>
         /// Creates hash from Type and method name
@@ -75,7 +75,7 @@ namespace Mirror.RemoteCalls
             if (CheckIfDelegateExists(invokeClass, invokerType, func, cmdHash))
                 return cmdHash;
 
-            var invoker = new Invoker
+            var invoker = new Skeleton
             {
                 invokeType = invokerType,
                 invokeClass = invokeClass,
@@ -99,7 +99,7 @@ namespace Mirror.RemoteCalls
             if (cmdHandlerDelegates.ContainsKey(cmdHash))
             {
                 // something already registered this hash
-                Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
+                Skeleton oldInvoker = cmdHandlerDelegates[cmdHash];
                 if (oldInvoker.AreEqual(invokeClass, invokerType, func))
                 {
                     // it's all right,  it was the same function
@@ -130,10 +130,10 @@ namespace Mirror.RemoteCalls
             cmdHandlerDelegates.Remove(hash);
         }
 
-        static Invoker GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType)
+        static Skeleton GetSkeleton(int cmdHash, MirrorInvokeType invokeType)
         {
 
-            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker) && invoker != null && invoker.invokeType == invokeType)
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Skeleton invoker) && invoker != null && invoker.invokeType == invokeType)
             {
                 return invoker;
             }
@@ -141,15 +141,15 @@ namespace Mirror.RemoteCalls
             // debug message if not found, or null, or mismatched type
             // (no need to throw an error, an attacker might just be trying to
             //  call an cmd with an rpc's hash)
-            if (logger.LogEnabled()) logger.Log("GetInvokerForHash hash:" + cmdHash + " not found");
+            if (logger.LogEnabled()) logger.Log("Skeleton for hash:" + cmdHash + " not found");
 
             return null;
         }
 
         // InvokeCmd/Rpc can all use the same function here
-        internal static bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
+        internal static bool InvokeSkeleton(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
         {
-            Invoker invoker = GetInvokerForHash(cmdHash, invokeType);
+            Skeleton invoker = GetSkeleton(cmdHash, invokeType);
             if (invoker != null && invoker.invokeClass.IsInstanceOfType(invokingType))
             {
                 invoker.invokeFunction(invokingType, reader, senderConnection);
@@ -161,7 +161,7 @@ namespace Mirror.RemoteCalls
 
         internal static ServerRpcInfo GetServerRpcInfo(int cmdHash, NetworkBehaviour invokingType)
         {
-            Invoker invoker = GetInvokerForHash(cmdHash, MirrorInvokeType.ServerRpc);
+            Skeleton invoker = GetSkeleton(cmdHash, MirrorInvokeType.ServerRpc);
             if (invoker != null && invoker.invokeClass.IsInstanceOfType(invokingType))
             {
                 return new ServerRpcInfo
@@ -180,7 +180,7 @@ namespace Mirror.RemoteCalls
         /// <returns>The function delegate that will handle the ServerRpc</returns>
         public static CmdDelegate GetDelegate(int cmdHash)
         {
-            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Skeleton invoker))
             {
                 return invoker.invokeFunction;
             }
