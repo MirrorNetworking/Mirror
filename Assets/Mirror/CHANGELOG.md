@@ -1,3 +1,10 @@
+# [56.3.0](https://github.com/MirrorNG/MirrorNG/compare/v56.2.0...v56.3.0) (2020-11-02)
+
+
+### Features
+
+* throw exception if invalid rpc ([#456](https://github.com/MirrorNG/MirrorNG/issues/456)) ([3cef90d](https://github.com/MirrorNG/MirrorNG/commit/3cef90d3a059dd0311b59ce6561fe9abe798b9e4))
+
 # [56.2.0](https://github.com/MirrorNG/MirrorNG/compare/v56.1.2...v56.2.0) (2020-11-02)
 
 
