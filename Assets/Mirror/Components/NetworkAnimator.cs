@@ -548,8 +548,12 @@ namespace Mirror
 
             // handle and broadcast
             // host should have already the trigger
-            if (!IsClient)
+            bool isHostOwner = IsClient && HasAuthority;
+            if (!isHostOwner)
+            {
                 HandleAnimTriggerMsg(hash);
+            }
+
             RpcOnAnimationTriggerClientMessage(hash);
         }
 
@@ -562,8 +566,12 @@ namespace Mirror
 
             // handle and broadcast
             // host should have already the trigger
-            if (!IsClient)
+            bool isHostOwner = IsClient && HasAuthority;
+            if (!isHostOwner)
+            {
                 HandleAnimResetTriggerMsg(hash);
+            }
+
             RpcOnAnimationResetTriggerClientMessage(hash);
         }
 
