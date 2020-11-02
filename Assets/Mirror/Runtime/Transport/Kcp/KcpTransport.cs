@@ -20,7 +20,7 @@ namespace Mirror.KCP
 
         public KcpDelayMode delayMode = KcpDelayMode.Normal;
         internal readonly Dictionary<IPEndPoint, KcpServerConnection> connectedClients = new Dictionary<IPEndPoint, KcpServerConnection>(new IPEndpointComparer());
-        readonly Channel<KcpServerConnection> acceptedConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<KcpServerConnection>();
+        Channel<KcpServerConnection> acceptedConnections;
 
         public override IEnumerable<string> Scheme => new[] { "kcp" };
 
@@ -41,6 +41,7 @@ namespace Mirror.KCP
                 DualMode = true
             };
             socket.Bind(new IPEndPoint(IPAddress.IPv6Any, Port));
+            acceptedConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<KcpServerConnection>();
             return UniTask.CompletedTask;
         }
 
@@ -136,6 +137,7 @@ namespace Mirror.KCP
         {
             socket?.Close();
             socket = null;
+            acceptedConnections.Writer.TryComplete();
         }
 
         /// <summary>
@@ -146,11 +148,21 @@ namespace Mirror.KCP
         /// <returns>The connection to a client</returns>
         public override async UniTask<IConnection> AcceptAsync()
         {
-            KcpServerConnection connection = await acceptedConnections.Reader.ReadAsync();
+            if (socket == null)
+                return null;
 
-            await connection.HandshakeAsync();
+            try
+            {
+                KcpServerConnection connection = await acceptedConnections.Reader.ReadAsync();
 
-            return connection;
+                await connection.HandshakeAsync();
+
+                return connection;
+            }
+            catch (ChannelClosedException)
+            {
+                return null;
+            }
         }
 
         /// <summary>

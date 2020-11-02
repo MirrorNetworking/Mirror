@@ -50,14 +50,30 @@ namespace Mirror.Tests
         });
 
 
-        [TearDown]
-        public void TearDown()
+        [UnityTearDown]
+        public IEnumerator TearDown() => UniTask.ToCoroutine(async () =>
         {
             clientConnection.Disconnect();
             serverConnection.Disconnect();
             transport.Disconnect();
+
+            try
+            {
+                // make sure we are done accepting,
+                // the transport might take a little bit of time to disconnect
+                while (await transport.AcceptAsync() != null)
+                {
+                    // fine,  just wait until transport stops accepting
+                }
+
+            }
+            catch (Exception)
+            {
+                // fine,  just wait until it is done
+            }
+
             Object.DestroyImmediate(transportObj);
-        }
+        });
 
         #endregion
 
