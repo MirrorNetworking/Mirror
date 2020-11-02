@@ -36,9 +36,6 @@ namespace Mirror.Examples.Basic
         {
             base.OnStartServer();
 
-            // Set SyncVar values
-            playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
-
             // Start generating updates
             InvokeRepeating(nameof(UpdateData), 1, 1);
         }
