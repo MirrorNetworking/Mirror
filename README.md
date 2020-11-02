@@ -117,7 +117,7 @@ Here is a list of some transports supported by NG and how they compare to each o
 | **Encryption** |                    |                  :white_check_mark:                  |                     :white_check_mark:                      |                                                          |                                                             |
 | **IPV6**       | :white_check_mark: |                  :white_check_mark:                  |                              ?                              |                            ?                             |                              ?                              |
 | **Managed**    | :white_check_mark: |                  :white_check_mark:                  |                                                             |                    :white_check_mark:                    |                                                             |
-| **Based on**   |        KCP         |                   Ninja Websockets                   |                Steam Game Networking Sockets                |                        LiteNetLib                        |                            ENet                             |
+| **Based on**   |        KCP         |                   Websockets                         |                Steam Game Networking Sockets                |                        LiteNetLib                        |                            ENet                             |
 
 ## Contributing
 
