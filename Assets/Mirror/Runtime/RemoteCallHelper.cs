@@ -72,7 +72,7 @@ namespace Mirror.RemoteCalls
             // type+func so Inventory.RpcUse != Equipment.RpcUse
             int cmdHash = GetMethodHash(invokeClass, cmdName);
 
-            if (CheckIfDeligateExists(invokeClass, invokerType, func, cmdHash))
+            if (CheckIfDelegateExists(invokeClass, invokerType, func, cmdHash))
                 return cmdHash;
 
             var invoker = new Invoker
@@ -94,7 +94,7 @@ namespace Mirror.RemoteCalls
             return cmdHash;
         }
 
-        static bool CheckIfDeligateExists(Type invokeClass, MirrorInvokeType invokerType, CmdDelegate func, int cmdHash)
+        static bool CheckIfDelegateExists(Type invokeClass, MirrorInvokeType invokerType, CmdDelegate func, int cmdHash)
         {
             if (cmdHandlerDelegates.ContainsKey(cmdHash))
             {
