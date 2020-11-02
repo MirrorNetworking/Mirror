@@ -20,9 +20,9 @@ namespace Mirror.RemoteCalls
 
         public bool AreEqual(Type invokeClass, MirrorInvokeType invokeType, CmdDelegate invokeFunction)
         {
-            return (this.invokeClass == invokeClass &&
+            return this.invokeClass == invokeClass &&
                     this.invokeType == invokeType &&
-                    this.invokeFunction == invokeFunction);
+                    this.invokeFunction == invokeFunction;
         }
     }
 
