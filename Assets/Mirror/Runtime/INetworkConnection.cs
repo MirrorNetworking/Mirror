@@ -21,6 +21,8 @@ namespace Mirror
 
         UniTask SendAsync<T>(T msg, int channelId = Channel.Reliable);
 
+        UniTask SendAsync(ArraySegment<byte> segment, int channelId = Channel.Reliable);
+
         UniTask ProcessMessagesAsync();
 
     }

@@ -182,6 +182,26 @@ namespace Mirror
             SendAsync(msg, channelId).Forget();
         }
 
+        public static void Send<T>(IEnumerable<INetworkConnection> connections, T msg, int channelId = Channel.Reliable)
+        {
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                // pack message into byte[] once
+                MessagePacker.Pack(msg, writer);
+                var segment = writer.ToArraySegment();
+                int count = 0;
+
+                foreach (INetworkConnection conn in connections)
+                {
+                    // send to all connections, but don't wait for them
+                    conn.SendAsync(segment, channelId).Forget();
+                    count++;
+                }
+
+                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
+            }
+        }
+
         /// <summary>
         /// This sends a network message to the connection. You can await it to check for errors
         /// </summary>
@@ -200,39 +220,13 @@ namespace Mirror
             }
         }
 
-        public static void Send<T>(IEnumerable<INetworkConnection> connections, T msg, int channelId = Channel.Reliable)
-        {
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                // pack message into byte[] once
-                MessagePacker.Pack(msg, writer);
-                var segment = writer.ToArraySegment();
-                int count = 0;
-
-                foreach (INetworkConnection conn in connections)
-                {
-                    if (conn is NetworkConnection networkConnection)
-                    {
-                        // send to all connections, but don't wait for them
-                        networkConnection.SendAsync(segment, channelId).Forget();
-                    }
-                    else
-                    {
-                        conn.SendAsync(msg, channelId).Forget();
-                    }
-                    count++;
-                }
-
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
-            }
-        }
-        
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal virtual UniTask SendAsync(ArraySegment<byte> segment, int channelId = Channel.Reliable)
+        public UniTask SendAsync(ArraySegment<byte> segment, int channelId = Channel.Reliable)
         {
             return connection.SendAsync(segment, channelId);
         }
+
 
         public override string ToString()
         {
