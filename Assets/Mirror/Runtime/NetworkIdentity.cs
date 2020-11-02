@@ -945,7 +945,7 @@ namespace Mirror
             }
             else
             {
-                logger.LogWarning($"Component [{componentIndex}] not found for [netId={NetId}]");
+                throw new MethodInvocationException($"Invalid component {componentIndex} in {this} for RPC {skeleton.invokeFunction}");
             }
         }
 
