@@ -590,7 +590,8 @@ This whole process can be tidied up, but should provide a good scene switch temp
 ## Part 20
 
 Here we will add basic weapon firing, using rigidbody prefabs.
-Raycasts with a representation of the fired object is usually better to do, but anyway, here we go!
+Raycasts with a representation of the fired object is usually better to do this, and keep phycisal objects for things like Grenades and Cannon balls.
+This section will also lack a lot of security and ant-cheat techniques in order to keep the guide simple, but anyway, here we go!
 
 Double click the Player Prefab to open it, create empty gameobjects and line them up with the end of your weapon, add them as child to each weapon.
 Some weapons may be short pistols, others long rifles, so the place where objects spawn will be different.
@@ -606,6 +607,8 @@ public class Weapon : MonoBehaviour
     public float weaponSpeed = 15.0f;
     public float weaponLife = 3.0f;
     public float weaponCooldown = 1.0f;
+    public int weaponAmmo = 15;
+    
     public GameObject weaponBullet;
     public Transform weaponFirePosition;
 }
@@ -621,8 +624,26 @@ Add rigidbody to this sphere, make the scale 0.2, 0.2, 0.2, then save it as a Pr
 Inside your player prefab again, select a weapon, and set the variables on weapon script.
 
 ![](./image--033.jpg)
+![](./image--034.jpg)
 
 ## Part 22
+In SceneScript.cs, add this variable and function.
+
+```cs
+public Text canvasAmmoText;
+    
+public void UIAmmo(int _value)
+{
+    canvasAmmoText.text = "Ammo: " + _value;
+}
+```
+
+Enter MyScene (map 1).
+Duplicate the Canvas StatusText, rename to Ammo, then drag that Ammo text UI into SceneScript gameobject, canvasAmmoText variable.
+Do this on BOTH MyScene (map 1) and MyOtherScene (map 2), as we have not yet linked or prefabbed our canvas and scene scripts to auto update changes on each map.
+
+![](./image--035.jpg)
+
 Open up PlayerScript.cs, add these two variables:
 
 ```cs
@@ -644,6 +665,7 @@ void OnWeaponChanged(int _Old, int _New)
     {
         weaponArray[_New].SetActive(true);
         activeWeapon = weaponArray[activeWeaponSynced].GetComponent<Weapon>();
+        if( isLocalPlayer ) { sceneScript.UIAmmo(activeWeapon.weaponAmmo); }
      }
 }
 ```
@@ -652,7 +674,7 @@ In Awake(), add this at the end:
 
 ```cs
 if (selectedWeaponLocal < weaponArray.Length && weaponArray[selectedWeaponLocal] != null)
-{ activeWeapon = weaponArray[selectedWeaponLocal].GetComponent<Weapon>(); }
+{ activeWeapon = weaponArray[selectedWeaponLocal].GetComponent<Weapon>(); sceneScript.UIAmmo(activeWeapon.weaponAmmo); }
 ```
 
 In Update(), add this at the end:
@@ -660,9 +682,11 @@ In Update(), add this at the end:
 ```cs
 if (Input.GetButtonDown("Fire1") ) //Fire1 is mouse 1st click
 {
-    if (activeWeapon && Time.time > weaponCooldownTime)
+    if (activeWeapon && Time.time > weaponCooldownTime && activeWeapon.weaponAmmo > 0)
     {
         weaponCooldownTime = Time.time + activeWeapon.weaponCooldown;
+        activeWeapon.weaponAmmo -= 1;
+        sceneScript.UIAmmo(activeWeapon.weaponAmmo);
         CmdShootRay();
     }
 }
