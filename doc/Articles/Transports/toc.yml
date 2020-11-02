@@ -1,5 +1,9 @@
 - name: Overview
   href: index.md
+- name: KCP - KCP Transport
+  href: KCP.md
+- name: TCP - Libuv2k
+  href: Libuv2k.md
 - name: TCP - Telepathy
   href: Telepathy.md
 - name: WebGL - SimpleWebTransport
