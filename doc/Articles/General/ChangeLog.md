@@ -4,10 +4,26 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
-## Version 25.x.x -- In Progress
-- Added: Middleware Transport
-- Fixed: Authenticators and assemblies with only messages and no Behaviors weaver failure
+## Version 26.x.x -- In Progress
+- Added: [Middleware Transport](../Transports/Middleware.md)
+- Added: [KCP Transport](../Transports/KCP.md)
+- Added: AsmDef to Kcp Transport folder
+- Added: Quaternion and float compression
+- Added: Option to configure handshakeMaxSize in SimpleWebTransport
+- Added: ServerTeleport to Experimental NetworkTransform
+- Added: Accept and Reject methods to Authenticator base class for ease of use
+- Fixed: Weaver failure on Authenticators and assemblies with only messages and no behaviors
+- Fixed: Examples no longer rely on sequential connectionId
+- Fixed: Eliminated errors when first importing due to preprocessor defines in transports
+- Fixed: Scene ID logging is now consistantly in hex format
+- Fixed: sceneId when using BuildPipeline.BuildPlayer with incorrect case in path
+- Fixed: Trigger not applied correctly for host in NetworkAnimator
+- Fixed: Ensure ReadHelper.Read reads exactly number of bytes in SimpleWebTransport
+- Changed: Minimum Unity version is now 2018.4.28 LTS
+- Changed: Script Templates are now avalable as a separate package [here](ScriptTemplates.md)
+- Changed: **Breaking** NetworkIdentity.ClientAuthorityCallback is an event now
 - Changed: **Breaking** Removed older obsolete methods and tests
+- Changed: **Breaking** Transports no longer support sending to a List<int> of connectionIds
 
 ## Version 23.0.3 -- 2020-Oct-24
 - Added: Support null when serializing classes 
