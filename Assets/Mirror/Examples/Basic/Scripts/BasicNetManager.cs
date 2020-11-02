@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-using Mirror;
+using UnityEngine;
 
 /*
 	Documentation: https://mirror-networking.com/docs/Components/NetworkManager.html
