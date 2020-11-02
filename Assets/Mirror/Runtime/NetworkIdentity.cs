@@ -941,7 +941,7 @@ namespace Mirror
             if (componentIndex >= 0 && componentIndex < NetworkBehaviours.Length)
             {
                 NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                RemoteCallHelper.InvokeSkeleton(skeleton, reader, invokeComponent, senderConnection);
+                skeleton.Invoke(reader, invokeComponent, senderConnection);
             }
             else
             {

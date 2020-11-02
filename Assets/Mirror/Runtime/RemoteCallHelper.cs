@@ -24,6 +24,17 @@ namespace Mirror.RemoteCalls
                     this.invokeType == invokeType &&
                     this.invokeFunction == invokeFunction;
         }
+
+        // InvokeCmd/Rpc can all use the same function here
+        internal void Invoke(NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
+        {
+            if (invokeClass.IsInstanceOfType(invokingType))
+            {
+                invokeFunction(invokingType, reader, senderConnection);
+                return;
+            }
+            throw new MethodInvocationException($"Invalid Rpc call {invokeFunction} for component {invokingType}");
+        }
     }
 
     /// <summary>
@@ -51,7 +62,6 @@ namespace Mirror.RemoteCalls
                 return hash * 503 + methodName.GetStableHashCode();
             }
         }
-
 
         /// <summary>
         /// helper function register a ServerRpc/Rpc delegate
@@ -134,17 +144,6 @@ namespace Mirror.RemoteCalls
             }
 
             throw new MethodInvocationException($"No RPC method found for hash {cmdHash}");
-        }
-
-        // InvokeCmd/Rpc can all use the same function here
-        internal static void InvokeSkeleton(Skeleton skeleton, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
-        {
-            if (skeleton.invokeClass.IsInstanceOfType(invokingType))
-            {
-                skeleton.invokeFunction(invokingType, reader, senderConnection);
-                return;
-            }
-            throw new MethodInvocationException($"Invalid Rpc call {skeleton.invokeFunction} for component {invokingType}");
         }
 
         /// <summary>
