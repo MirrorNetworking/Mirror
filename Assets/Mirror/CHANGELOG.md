@@ -1,3 +1,11 @@
+## [56.3.1](https://github.com/MirrorNG/MirrorNG/compare/v56.3.0...v56.3.1) (2020-11-02)
+
+
+### Bug Fixes
+
+* accept after disconnect ([3d06e8a](https://github.com/MirrorNG/MirrorNG/commit/3d06e8aa9b21c667b231a609cf194e517b75438c))
+* add missing reset ([4f75b92](https://github.com/MirrorNG/MirrorNG/commit/4f75b925fb72077c9e2d0ee56b9b99cc14e44281))
+
 # [56.3.0](https://github.com/MirrorNG/MirrorNG/compare/v56.2.0...v56.3.0) (2020-11-02)
 
 
