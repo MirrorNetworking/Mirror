@@ -467,11 +467,13 @@ Open up SceneScript.cs and add the following variable.
 public SceneReference sceneReference;
 ```
 
-Now in your Unity scene create a gameobject, name it SceneReference, and add the new script. On both Scene gameobjects, set the reference to each other. So SceneReference can speak to SceneScript, and SceneScript to SceneReference.
+Now in your Unity scene create a gameobject, name it SceneReference, and add the new script.
+On both Scene gameobjects, set the reference to each other.
+So SceneReference can speak to SceneScript, and SceneScript to SceneReference.
 
 ![](./image--022.jpg)
 
-Open up PlayerScript.cs Overwrite the Awake function to this:
+Open up PlayerScript.cs and overwrite the Awake function to this:
 
 ```cs
 void Awake()
@@ -505,8 +507,9 @@ public void ButtonChangeScene()
 ![](./image--023.jpg)
 
 Duplicate your previous Canvas button, rename it and reposition it, then setup the OnClick() to point to SceneScript.ButtonChangeScene, like in the image.
-Then drag your NetworkManager into your Project, to make it a Prefab, this way any changes we make later will apply to them all.
-If you havn’t already, you can sort out your project into folders, one for scripts, prefabs, scenes, textures etc. :)
+
+Then drag your NetworkManager into your Project, to make it a Prefab, this way any changes we make later will apply to them all. 
+If you haven’t already, you can sort out your project into folders, one for scripts, prefabs, scenes, textures etc.  :)
 
 ![](./image--024.jpg)
 
@@ -536,15 +539,18 @@ public class Menu : MonoBehaviour
         SceneManager.LoadScene("GamesList");
     }
 }
- ```
+```
  
- ![](./image--027.jpg)
+![](./image--027.jpg)
  
- ## Part 18
+## Part 18
  
- Open up GamesList scene, do similar to Menu but KEEP NetworkManager prefab.
-Create a GamesList.cs, add the code, and add it onto a GamesList gameobject in the scene. Adjust a canvas button to say Menu (this is our back button). It should look like the image below.
-- The games list is where you can add List server contents, or matchmaker, or just the host and join buttons, similar to the default NetworkManagerHud, for now leave this. :)
+Open up GamesList scene, do similar to Menu but KEEP NetworkManager prefab.
+
+Create a GamesList.cs, add the code, and add it onto a GamesList gameobject in the scene.
+Adjust a canvas button to say Menu (this is our back button). It should look like the image below.
+
+- The games list is where you can add List server contents, or matchmaker, or just the host and join buttons, similar to the default NetworkManagerHud, for now leave this.  :)
 
 ```cs
 using UnityEngine;
@@ -561,9 +567,6 @@ public class GamesList : MonoBehaviour
  
 ![](./image--028.jpg)
  
- 
- 
- 
 ## Part 19
   
 Open MyOtherScene, this is our second map.
@@ -572,12 +575,116 @@ To summarise, MyScene is map 1 and MyOtherScene is map 2.
 
 ![](./image--029.jpg)
 
-In your NetworkManager prefab in PROJECT (not the one in scenes), add Menu to offline, and MyScene to Online variables. This should change all the NetworkManager prefabs to have these settings.
+In your NetworkManager prefab in PROJECT (not the one in scenes), add Menu to offline, and MyScene to Online variables.  This should change all the NetworkManager prefabs to have these settings.
 
 ![](./image--030.jpg)
 
 Build and Run, press Play on the Menu to go to GamesList, then click Host (for player 1).
 For player 2, press Play on Menu, then client connect on GamesList.
-Now the host can change scenes between map 1 and map 2, and if anyone disconnects or stops the game, Menu scene is load to start again.
 
+Now the host can change scenes between map 1 and map 2, and if anyone disconnects or stops the game, Menu scene is load to start again.
 This whole process can be tidied up, but should provide a good scene switch template to your Mirror game :)
+
+
+
+## Part 20
+
+Here we will add basic weapon firing, using rigidbody prefabs.
+Raycasts with a representation of the fired object is usually better to do, but anyway, here we go!
+
+Double click the Player Prefab to open it, create empty gameobjects and line them up with the end of your weapon, add them as child to each weapon.
+Some weapons may be short pistols, others long rifles, so the place where objects spawn will be different.
+
+![](./image--031.jpg)
+
+Create a Weapon.cs script, add it to the Weapon1 and Weapon 2 gameObjects inside the player prefab.
+
+```cs
+using UnityEngine;
+public class Weapon : MonoBehaviour
+{
+    public float weaponSpeed = 15.0f;
+    public float weaponLife = 3.0f;
+    public float weaponCooldown = 1.0f;
+    public GameObject weaponBullet;
+    public Transform weaponFirePosition;
+}
+```
+
+## Part 21
+
+Now back in your scene we shall make 2 bullets, in Unitys menu, go to GameObject, 3D Object, Sphere.
+Add rigidbody to this sphere, make the scale 0.2, 0.2, 0.2, then save it as a Prefab in the Project. Do the same with a cube, so you have two different looking bullets.
+
+![](./image--032.jpg)
+
+Inside your player prefab again, select a weapon, and set the variables on weapon script.
+
+![](./image--033.jpg)
+
+## Part 22
+Open up PlayerScript.cs, add these two variables:
+
+```cs
+private Weapon activeWeapon;
+private float weaponCooldownTime;  
+```
+
+In the  ‘OnWeaponChanged’ function, update it with the new line, so it should look like this. 
+
+```cs
+void OnWeaponChanged(int _Old, int _New)
+{
+    activeWeaponSynced = _New;
+    foreach (var item in weaponArray)
+    {
+        if (item != null) { item.SetActive(false); }
+    }
+    if (_New < weaponArray.Length && weaponArray[_New] != null)
+    {
+        weaponArray[_New].SetActive(true);
+        activeWeapon = weaponArray[activeWeaponSynced].GetComponent<Weapon>();
+     }
+}
+```
+
+In Awake(), add this at the end:
+
+```cs
+if (selectedWeaponLocal < weaponArray.Length && weaponArray[selectedWeaponLocal] != null)
+{ activeWeapon = weaponArray[selectedWeaponLocal].GetComponent<Weapon>(); }
+```
+
+In Update(), add this at the end:
+
+```cs
+if (Input.GetButtonDown("Fire1") ) //Fire1 is mouse 1st click
+{
+    if (activeWeapon && Time.time > weaponCooldownTime)
+    {
+        weaponCooldownTime = Time.time + activeWeapon.weaponCooldown;
+        CmdShootRay();
+    }
+}
+```
+
+Add these two functions after the Update() {} function finishes.
+
+```cs
+[Command]
+void CmdShootRay()
+{
+    RpcFireWeapon();
+}
+
+[ClientRpc]
+void RpcFireWeapon()
+{
+    //bulletAudio.Play(); muzzleflash  etc
+    var bullet = (GameObject)Instantiate(activeWeapon.weaponBullet, activeWeapon.weaponFirePosition.position, activeWeapon.weaponFirePosition.rotation);
+    bullet.GetComponent<Rigidbody>().velocity = bullet.transform.forward * activeWeapon.weaponSpeed;
+    if (bullet) { Destroy(bullet, activeWeapon.weaponLife); }
+}
+```
+
+Build and Run, you should have firing, with different speeds and cooldowns on all players :)
