@@ -22,7 +22,7 @@ namespace Mirror.Examples.Basic
             GameObject go = Instantiate(playerPrefab);
             Player player = go.GetComponent<Player>();
             player.playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
-            player.playerNo = clientIndex;
+            player.playerNumber = clientIndex;
 
             // increment the index after setting on player, so first player starts at 0
             clientIndex++;
