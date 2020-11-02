@@ -12,7 +12,7 @@ namespace Mirror.Examples.NetworkRoom
 
         public override void OnStartServer()
         {
-            index = connectionToClient.connectionId;
+            index = ((NetworkRoomManager)NetworkManager.singleton).clientIndex;
         }
 
         void OnGUI()
