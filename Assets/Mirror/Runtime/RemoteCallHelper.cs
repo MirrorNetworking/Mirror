@@ -137,15 +137,14 @@ namespace Mirror.RemoteCalls
         }
 
         // InvokeCmd/Rpc can all use the same function here
-        internal static void InvokeSkeleton(int cmdHash, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
+        internal static void InvokeSkeleton(Skeleton skeleton, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
         {
-            Skeleton invoker = GetSkeleton(cmdHash);
-            if (invoker.invokeClass.IsInstanceOfType(invokingType))
+            if (skeleton.invokeClass.IsInstanceOfType(invokingType))
             {
-                invoker.invokeFunction(invokingType, reader, senderConnection);
+                skeleton.invokeFunction(invokingType, reader, senderConnection);
                 return;
             }
-            throw new MethodInvocationException($"No RPC method found for hash {cmdHash}");
+            throw new MethodInvocationException($"Invalid Rpc call {skeleton.invokeFunction} for component {invokingType}");
         }
 
         /// <summary>

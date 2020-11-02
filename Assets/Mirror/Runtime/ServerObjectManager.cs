@@ -375,7 +375,7 @@ namespace Mirror
             if (logger.LogEnabled()) logger.Log("OnServerRpcMessage for netId=" + msg.netId + " conn=" + conn);
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, networkReader, conn);
+                identity.HandleRemoteCall(skeleton, msg.componentIndex, networkReader, conn);
         }
 
         internal void SpawnObject(GameObject obj, INetworkConnection ownerConnection)

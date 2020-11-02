@@ -571,7 +571,7 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId);
 
-            var skeleton = RemoteCallHelper.GetSkeleton(msg.functionHash);
+            Skeleton skeleton = RemoteCallHelper.GetSkeleton(msg.functionHash);
 
             if (skeleton.invokeType != MirrorInvokeType.ClientRpc)
             {
@@ -580,7 +580,7 @@ namespace Mirror
             if (client.Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity != null)
             {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                    identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, networkReader);
+                    identity.HandleRemoteCall(skeleton, msg.componentIndex, networkReader);
             }
         }
 
