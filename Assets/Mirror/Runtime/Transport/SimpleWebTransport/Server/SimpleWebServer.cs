@@ -11,12 +11,14 @@ namespace Mirror.SimpleWeb
         readonly WebSocketServer server;
         readonly BufferPool bufferPool;
 
-        public SimpleWebServer(int maxMessagesPerTick, TcpConfig tcpConfig, int maxMessageSize, SslConfig sslConfig)
+        public SimpleWebServer(int maxMessagesPerTick, TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig)
         {
             this.maxMessagesPerTick = maxMessagesPerTick;
-            bufferPool = new BufferPool(5, 20, maxMessageSize);
+            // use max because bufferpool is used for both messages and handshake
+            int max = Math.Max(maxMessageSize, handshakeMaxSize);
+            bufferPool = new BufferPool(5, 20, max);
 
-            server = new WebSocketServer(tcpConfig, maxMessageSize, sslConfig, bufferPool);
+            server = new WebSocketServer(tcpConfig, maxMessageSize, handshakeMaxSize, sslConfig, bufferPool);
         }
 
         public bool Active { get; private set; }

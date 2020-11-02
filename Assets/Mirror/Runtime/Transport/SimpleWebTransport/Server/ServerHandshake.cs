@@ -17,14 +17,15 @@ namespace Mirror.SimpleWeb
         const int MergedKeyLength = 60;
         const string KeyHeaderString = "Sec-WebSocket-Key: ";
         // this isnt an offical max, just a reasonable size for a websocket handshake
-        const int maxHttpHeaderSize = 3000;
+        readonly int maxHttpHeaderSize = 3000;
 
         readonly SHA1 sha1 = SHA1.Create();
         readonly BufferPool bufferPool;
 
-        public ServerHandshake(BufferPool bufferPool)
+        public ServerHandshake(BufferPool bufferPool, int handshakeMaxSize)
         {
             this.bufferPool = bufferPool;
+            this.maxHttpHeaderSize = handshakeMaxSize;
         }
 
         ~ServerHandshake()

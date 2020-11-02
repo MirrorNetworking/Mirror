@@ -114,7 +114,6 @@ namespace Mirror.SimpleWeb
                 offset = ReadHelper.Read(stream, buffer, offset, Constants.ShortLength);
             }
 
-
             MessageProcessor.ValidateHeader(buffer, maxMessageSize, expectMask);
 
             if (expectMask)

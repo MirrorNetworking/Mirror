@@ -21,9 +21,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.CompareTag("Player"))
-            {
                 ClaimPrize(other.gameObject);
-            }
         }
 
         // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit

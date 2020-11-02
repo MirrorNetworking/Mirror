@@ -17,12 +17,12 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         {
             Vector3 spawnPosition = new Vector3(Random.Range(-19, 20), 1, Random.Range(-19, 20));
 
-            GameObject newPrize = Instantiate(prizePrefab.gameObject, spawnPosition, Quaternion.identity);
+            // spawn as child of the spawner that's already in the additive scene at 0,0,0 so we don't have to move it
+            GameObject newPrize = Instantiate(prizePrefab.gameObject, spawnPosition, Quaternion.identity, transform);
             Reward reward = newPrize.gameObject.GetComponent<Reward>();
             reward.spawner = this;
 
             NetworkServer.Spawn(newPrize);
-            SceneManager.MoveGameObjectToScene(newPrize, gameObject.scene);
         }
     }
 }

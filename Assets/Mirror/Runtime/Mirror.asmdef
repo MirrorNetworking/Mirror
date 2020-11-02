@@ -2,7 +2,8 @@
     "name": "Mirror",
     "references": [
         "Mirror.CompilerSymbols",
-        "Telepathy"
+        "Telepathy",
+        "kcp2k"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

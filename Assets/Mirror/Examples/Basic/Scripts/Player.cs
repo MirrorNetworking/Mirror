@@ -13,11 +13,12 @@ namespace Mirror.Examples.Basic
         public Text playerNameText;
         public Text playerDataText;
 
-        // These are set in OnStartServer and used in OnStartClient
+        // These are set in BasicNetManager::OnServerAddPlayer
+        [Header("SyncVars")]
         [SyncVar]
-        int playerNo;
+        public int playerNumber;
         [SyncVar]
-        Color playerColor;
+        public Color playerColor;
 
         // This is updated by UpdateData which is called from OnStartServer via InvokeRepeating
         [SyncVar(hook = nameof(OnPlayerDataChanged))]
@@ -34,10 +35,6 @@ namespace Mirror.Examples.Basic
         public override void OnStartServer()
         {
             base.OnStartServer();
-
-            // Set SyncVar values
-            playerNo = connectionToClient.connectionId;
-            playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
 
             // Start generating updates
             InvokeRepeating(nameof(UpdateData), 1, 1);
@@ -59,13 +56,13 @@ namespace Mirror.Examples.Basic
             transform.SetParent(GameObject.Find("PlayersPanel").transform);
 
             // Calculate position in the layout panel
-            int x = 100 + ((playerNo % 4) * 150);
-            int y = -170 - ((playerNo / 4) * 80);
+            int x = 100 + ((playerNumber % 4) * 150);
+            int y = -170 - ((playerNumber / 4) * 80);
             rectTransform.anchoredPosition = new Vector2(x, y);
 
             // Apply SyncVar values
             playerNameText.color = playerColor;
-            playerNameText.text = string.Format("Player {0:00}", playerNo);
+            playerNameText.text = string.Format("Player {0:00}", playerNumber);
         }
 
         // This only fires on the local client when this player object is network-ready

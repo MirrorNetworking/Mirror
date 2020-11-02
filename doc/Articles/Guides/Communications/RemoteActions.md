@@ -17,6 +17,9 @@ Commands functions must have the prefix “Cmd” and cannot be static. This is 
 ``` cs
 public class Player : NetworkBehaviour
 {
+    // assigned in inspector
+    public GameObject cubePrefab;
+
     void Update()
     {
         if (!isLocalPlayer) return;
@@ -24,9 +27,6 @@ public class Player : NetworkBehaviour
         if (Input.GetKey(KeyCode.X))
             CmdDropCube();
     }
-
-    // assigned in inspector
-    public GameObject cubePrefab;
 
     [Command]
     void CmdDropCube()
@@ -98,7 +98,7 @@ public class Player : NetworkBehaviour
     }
 
     [ClientRpc]
-    void RpcDamage(int amount)
+    public void RpcDamage(int amount)
     {
         Debug.Log("Took damage:" + amount);
     }
@@ -116,12 +116,12 @@ TargetRpc functions are called by user code on the server, and then invoked on t
 -   If the first parameter of your TargetRpc method is a `NetworkConnection` then that's the connection that will receive the message regardless of context.
 -   If the first parameter is any other type, then the owner client of the object with the script containing your TargetRpc will receive the message.
 
-This example shows how a client can use a Command to make a request from the server (`CmdMagic`) by including its own `connectionToClient` as one of the parameters of the TargetRpc invoked directly from that Command:
+This example shows how a client can use a Command to make a request to the server (`CmdMagic`) by including another Player's `connectionToClient` as one of the parameters of the TargetRpc invoked directly from that Command:
 
 ``` cs
 public class Player : NetworkBehaviour
 {
-    int health;
+    public int health;
 
     [Command]
     void CmdMagic(GameObject target, int damage)
@@ -129,7 +129,7 @@ public class Player : NetworkBehaviour
         target.GetComponent<Player>().health -= damage;
 
         NetworkIdentity opponentIdentity = target.GetComponent<NetworkIdentity>();
-        TargetDoMagic(opponentIdentity .connectionToClient, damage);
+        TargetDoMagic(opponentIdentity.connectionToClient, damage);
     }
 
     [TargetRpc]
@@ -139,8 +139,9 @@ public class Player : NetworkBehaviour
         Debug.Log($"Magic Damage = {damage}");
     }
 
+    // Heal thyself
     [Command]
-    void CmdHealMe()
+    public void CmdHealMe()
     {
         health += 10;
         TargetHealed(10);

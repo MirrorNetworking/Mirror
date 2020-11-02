@@ -24,13 +24,13 @@ namespace Mirror.SimpleWeb
 
         int _idCounter = 0;
 
-        public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, SslConfig sslConfig, BufferPool bufferPool)
+        public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig, BufferPool bufferPool)
         {
             this.tcpConfig = tcpConfig;
             this.maxMessageSize = maxMessageSize;
             sslHelper = new ServerSslHelper(sslConfig);
             this.bufferPool = bufferPool;
-            handShake = new ServerHandshake(this.bufferPool);
+            handShake = new ServerHandshake(this.bufferPool, handshakeMaxSize);
         }
 
         public void Listen(int port)
