@@ -36,24 +36,7 @@ namespace Mirror
         /// <param name="initialize">True if the set of observers is being built for the first time.</param>
         public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
-            if (logger.LogEnabled()) logger.Log($"OnRebuildObservers {gameObject} {netIdentity.connectionToClient}");
-
-            // early out for non-player objects with no owner
-            if (netIdentity.connectionToClient == null)
-                return;
-
-            // iterate connections.Values looking for the owner
-            foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values)
-            {
-                if (conn != null && conn.identity != null && netIdentity.connectionToClient == conn)
-                {
-                    // found a match - add it to the list
-                    observers.Add(conn);
-
-                    // no need to continue since there can be only one owner
-                    break;
-                }
-            }
+            // Do nothing here because the authority client is always added as an observer internally.
         }
     }
 }
