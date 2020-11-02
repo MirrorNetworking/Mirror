@@ -71,7 +71,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             for (int index = 1; index <= instances; index++)
             {
                 yield return SceneManager.LoadSceneAsync(gameScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
-                subScenes.Add(SceneManager.GetSceneAt(index + 1));
+                subScenes.Add(SceneManager.GetSceneAt(index));
             }
 
             subscenesLoaded = true;
