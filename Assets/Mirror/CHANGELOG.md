@@ -1,3 +1,10 @@
+## [56.3.2](https://github.com/MirrorNG/MirrorNG/compare/v56.3.1...v56.3.2) (2020-11-02)
+
+
+### Bug Fixes
+
+* **NetworkAnimator:** fixing trigger not applied on host ([49b5325](https://github.com/MirrorNG/MirrorNG/commit/49b532546f22074ff1478bf76ecd78f2406a1b55))
+
 ## [56.3.1](https://github.com/MirrorNG/MirrorNG/compare/v56.3.0...v56.3.1) (2020-11-02)
 
 
