@@ -125,10 +125,10 @@ namespace Mirror.RemoteCalls
             cmdHandlerDelegates.Remove(hash);
         }
 
-        internal static Skeleton GetSkeleton(int cmdHash, MirrorInvokeType invokeType)
+        internal static Skeleton GetSkeleton(int cmdHash)
         {
 
-            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Skeleton invoker) && invoker != null && invoker.invokeType == invokeType)
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Skeleton invoker))
             {
                 return invoker;
             }
@@ -137,9 +137,9 @@ namespace Mirror.RemoteCalls
         }
 
         // InvokeCmd/Rpc can all use the same function here
-        internal static void InvokeSkeleton(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
+        internal static void InvokeSkeleton(int cmdHash, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
         {
-            Skeleton invoker = GetSkeleton(cmdHash, invokeType);
+            Skeleton invoker = GetSkeleton(cmdHash);
             if (invoker.invokeClass.IsInstanceOfType(invokingType))
             {
                 invoker.invokeFunction(invokingType, reader, senderConnection);

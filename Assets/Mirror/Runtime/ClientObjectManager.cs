@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Mirror.RemoteCalls;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -570,10 +571,16 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId);
 
+            var skeleton = RemoteCallHelper.GetSkeleton(msg.functionHash);
+
+            if (skeleton.invokeType != MirrorInvokeType.ClientRpc)
+            {
+                throw new MethodInvocationException($"Invalid RPC call with id {msg.functionHash}");
+            }
             if (client.Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity != null)
             {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                    identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, MirrorInvokeType.ClientRpc, networkReader);
+                    identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, networkReader);
             }
         }
 

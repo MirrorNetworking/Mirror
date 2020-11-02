@@ -356,7 +356,12 @@ namespace Mirror
                 logger.LogWarning("Spawned object not found when handling ServerRpc message [netId=" + msg.netId + "]");
                 return;
             }
-            Skeleton skeleton = RemoteCallHelper.GetSkeleton(msg.functionHash, MirrorInvokeType.ServerRpc);
+            Skeleton skeleton = RemoteCallHelper.GetSkeleton(msg.functionHash);
+
+            if (skeleton.invokeType != MirrorInvokeType.ServerRpc)
+            {
+                throw new MethodInvocationException($"Invalid ServerRpc for id {msg.functionHash}");
+            }
 
             // ServerRpcs can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
@@ -370,7 +375,7 @@ namespace Mirror
             if (logger.LogEnabled()) logger.Log("OnServerRpcMessage for netId=" + msg.netId + " conn=" + conn);
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, MirrorInvokeType.ServerRpc, networkReader, conn);
+                identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, networkReader, conn);
         }
 
         internal void SpawnObject(GameObject obj, INetworkConnection ownerConnection)
