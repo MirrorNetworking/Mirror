@@ -10,11 +10,6 @@ namespace Mirror.Examples.NetworkRoom
         [SyncVar]
         public uint score;
 
-        public override void OnStartServer()
-        {
-            index = ((NetworkRoomManager)NetworkManager.singleton).clientIndex;
-        }
-
         void OnGUI()
         {
             GUI.Box(new Rect(10f + (index * 110), 10f, 100f, 25f), $"P{index}: {score.ToString("0000000")}");
