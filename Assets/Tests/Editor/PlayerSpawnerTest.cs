@@ -72,6 +72,16 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void StartExceptionMissingServerObjectManagerTest()
+        {
+            spawner.serverObjectManager = null;
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                spawner.Start();
+            });
+        }
+
+        [Test]
         public void AutoConfigureClient()
         {
             spawner.Start();
