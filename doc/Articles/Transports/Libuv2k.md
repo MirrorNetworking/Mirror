@@ -5,12 +5,15 @@
 ![The Libuv2k Transport component in the Inspector window](Libuv2k.PNG)
 
 ## About this transport
-Details coming soon!
+libuv2k is a TCP transport using libuv(https://github.com/libuv/libuv). 
+libuv is the native C networking backend behind Node.js.
+It's battle tested and extremely fast.
 
 ## Usage
-Details coming soon!
+Add the component to your NetworkManager.
 
 ## Features
-Details coming soon!
+* TCP
 
 ## Credits
+libuv(https://github.com/libuv/libuv)
