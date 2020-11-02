@@ -712,3 +712,5 @@ void RpcFireWeapon()
 ```
 
 Build and Run, you should have firing, with different speeds and cooldowns on all players :)
+
+![](./image--036.jpg)
