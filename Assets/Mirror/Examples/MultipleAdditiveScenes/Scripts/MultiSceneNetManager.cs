@@ -19,6 +19,9 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         #region Server System Callbacks
 
+        // Sequential index used in round-robin deployment of players into instances and score positioning
+        int clientIndex;
+
         /// <summary>
         /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
@@ -26,6 +29,9 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
+            // increment the index before adding the player, so first player starts at 1
+            clientIndex++;
+
             StartCoroutine(OnServerAddPlayerDelayed(conn));
         }
 
@@ -42,12 +48,12 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             base.OnServerAddPlayer(conn);
 
             PlayerScore playerScore = conn.identity.GetComponent<PlayerScore>();
-            playerScore.playerNumber = conn.connectionId;
-            playerScore.scoreIndex = conn.connectionId / subScenes.Count;
-            playerScore.matchIndex = conn.connectionId % subScenes.Count;
+            playerScore.playerNumber = clientIndex;
+            playerScore.scoreIndex = clientIndex / subScenes.Count;
+            playerScore.matchIndex = clientIndex % subScenes.Count;
 
             if (subScenes.Count > 0)
-                SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[conn.connectionId % subScenes.Count]);
+                SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[clientIndex % subScenes.Count]);
         }
 
         #endregion
