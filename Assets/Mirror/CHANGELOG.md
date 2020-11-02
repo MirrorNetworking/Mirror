@@ -1,3 +1,10 @@
+## [56.3.3](https://github.com/MirrorNG/MirrorNG/compare/v56.3.2...v56.3.3) (2020-11-02)
+
+
+### Bug Fixes
+
+* prevent NRE if client is not present on server ([#461](https://github.com/MirrorNG/MirrorNG/issues/461)) ([357da87](https://github.com/MirrorNG/MirrorNG/commit/357da87d530e8bdb01e2eb0967d75a7a354c92b1))
+
 ## [56.3.2](https://github.com/MirrorNG/MirrorNG/compare/v56.3.1...v56.3.2) (2020-11-02)
 
 
