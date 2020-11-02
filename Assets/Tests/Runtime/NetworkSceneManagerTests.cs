@@ -39,24 +39,20 @@ namespace Mirror.Tests
             func3.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         }
 
-        int onOnServerSceneOnlyChangedCounter;
-        void TestOnServerOnlySceneChangedInvoke(string sceneName, SceneOperation sceneOperation)
-        {
-            onOnServerSceneOnlyChangedCounter++;
-        }
-
         [UnityTest]
         public IEnumerator FinishLoadServerOnlyTest() => UniTask.ToCoroutine(async () =>
         {
+            UnityAction<string, SceneOperation> func1 = Substitute.For<UnityAction<string, SceneOperation>>();
+
             client.Disconnect();
 
             await AsyncUtil.WaitUntilWithTimeout(() => !client.Active);
 
-            sceneManager.ServerSceneChanged.AddListener(TestOnServerOnlySceneChangedInvoke);
-
+            sceneManager.ServerSceneChanged.AddListener(func1);
+            
             sceneManager.FinishLoadScene("test", SceneOperation.Normal);
 
-            Assert.That(onOnServerSceneOnlyChangedCounter, Is.EqualTo(1));
+            func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         });
 
         [UnityTest]
@@ -108,18 +104,15 @@ namespace Mirror.Tests
             });
         });
 
-        int ClientChangeCalled;
-        public void ClientChangeScene(string sceneName, SceneOperation sceneOperation)
-        {
-            ClientChangeCalled++;
-        }
-
         [Test]
         public void ClientChangeSceneTest()
         {
-            sceneManager.ClientChangeScene.AddListener(ClientChangeScene);
+            UnityAction<string, SceneOperation> func1 = Substitute.For<UnityAction<string, SceneOperation>>();
+            sceneManager.ClientChangeScene.AddListener(func1);
+
             sceneManager.OnClientChangeScene("", SceneOperation.Normal);
-            Assert.That(ClientChangeCalled, Is.EqualTo(1));
+
+            func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         }
 
         [Test]
@@ -234,6 +227,38 @@ namespace Mirror.Tests
             serverSceneManager.ServerSceneChanged.AddListener(func1);
             serverSceneManager.OnServerSceneChanged("test", SceneOperation.Normal);
             func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
+        }
+
+        [Test]
+        public void OnClientSceneChangedAdditiveListTest()
+        {
+            UnityAction<string, SceneOperation> func1 = Substitute.For<UnityAction<string, SceneOperation>>();
+            clientSceneManager.ClientSceneChanged.AddListener(func1);
+            clientSceneManager.pendingAdditiveSceneList.Add("Assets/Mirror/Tests/Runtime/testScene.unity");
+
+            clientSceneManager.OnClientSceneChanged(null, SceneOperation.Normal);
+
+            func1.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
+            Assert.That(clientSceneManager.pendingAdditiveSceneList.Count == 0);
+        }
+
+        [Test]
+        public void ClientSceneMessagePendingAdditiveSceneListTest()
+        {
+            //Check for the additive scene in the pending list at the time of ClientSceneChanged before its removed as part of it being loaded.
+            clientSceneManager.ClientSceneChanged.AddListener(CheckForAdditiveScene);
+            clientSceneManager.ClientSceneMessage(client.Connection, new SceneMessage { scenePath = "Assets/Mirror/Tests/Runtime/testScene.unity", additiveScenes = new [] { "Assets/Mirror/Tests/Runtime/testScene.unity" } });
+
+            Assert.That(additiveSceneWasFound);
+        }
+
+        bool additiveSceneWasFound;
+        void CheckForAdditiveScene(string scenePath, SceneOperation sceneOperation)
+        {
+            if(clientSceneManager.pendingAdditiveSceneList.Contains("Assets/Mirror/Tests/Runtime/testScene.unity"))
+            {
+                additiveSceneWasFound = true;
+            }
         }
     }
 }
