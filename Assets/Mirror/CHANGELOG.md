@@ -1,3 +1,10 @@
+# [56.2.0](https://github.com/MirrorNG/MirrorNG/compare/v56.1.2...v56.2.0) (2020-11-02)
+
+
+### Features
+
+* server sends list of additive scenes upon connect ([#451](https://github.com/MirrorNG/MirrorNG/issues/451)) ([3d0b6c5](https://github.com/MirrorNG/MirrorNG/commit/3d0b6c5ad2401798cfd19fdba7f71d0817c67854))
+
 ## [56.1.2](https://github.com/MirrorNG/MirrorNG/compare/v56.1.1...v56.1.2) (2020-10-31)
 
 
