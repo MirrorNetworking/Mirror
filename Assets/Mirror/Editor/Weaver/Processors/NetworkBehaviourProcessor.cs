@@ -114,25 +114,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
             worker.Append(label);
         }
-        /*
-        generates code like:
-            if (!obj.netIdentity.server.active)
-              Debug.LogError((object) "ServerRpc CmdMsgWhisper called on client.");
-        */
-        public static void WriteServerActiveCheck(ILProcessor worker, string mdName, Instruction label, string errString)
-        {
-            // server active check
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkBehaviourGetIdentity));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkIdentityGetServer));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkServerGetActive));
-            worker.Append(worker.Create(OpCodes.Brtrue, label));
-
-            worker.Append(worker.Create(OpCodes.Ldstr, errString + " " + mdName + " called on client."));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.logErrorReference));
-            worker.Append(worker.Create(OpCodes.Ret));
-            worker.Append(label);
-        }
 
         public static void WriteSetupLocals(ILProcessor worker)
         {

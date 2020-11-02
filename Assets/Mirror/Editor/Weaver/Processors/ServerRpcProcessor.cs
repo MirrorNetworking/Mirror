@@ -103,9 +103,6 @@ namespace Mirror.Weaver
                 WeaverTypes.Import(typeof(void)));
 
             ILProcessor worker = cmd.Body.GetILProcessor();
-            Instruction label = worker.Create(OpCodes.Nop);
-
-            NetworkBehaviourProcessor.WriteServerActiveCheck(worker, method.Name, label, "ServerRpc");
 
             // setup for reader
             worker.Append(worker.Create(OpCodes.Ldarg_0));
