@@ -130,11 +130,12 @@ namespace Mirror.RemoteCalls
             cmdHandlerDelegates.Remove(hash);
         }
 
-        static bool GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType, out Invoker invoker)
+        static Invoker GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType)
         {
-            if (cmdHandlerDelegates.TryGetValue(cmdHash, out invoker) && invoker != null && invoker.invokeType == invokeType)
+
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker) && invoker != null && invoker.invokeType == invokeType)
             {
-                return true;
+                return invoker;
             }
 
             // debug message if not found, or null, or mismatched type
@@ -142,13 +143,14 @@ namespace Mirror.RemoteCalls
             //  call an cmd with an rpc's hash)
             if (logger.LogEnabled()) logger.Log("GetInvokerForHash hash:" + cmdHash + " not found");
 
-            return false;
+            return null;
         }
 
         // InvokeCmd/Rpc can all use the same function here
         internal static bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
         {
-            if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(invokingType))
+            Invoker invoker = GetInvokerForHash(cmdHash, invokeType);
+            if (invoker != null && invoker.invokeClass.IsInstanceOfType(invokingType))
             {
                 invoker.invokeFunction(invokingType, reader, senderConnection);
 
@@ -159,7 +161,8 @@ namespace Mirror.RemoteCalls
 
         internal static ServerRpcInfo GetServerRpcInfo(int cmdHash, NetworkBehaviour invokingType)
         {
-            if (GetInvokerForHash(cmdHash, MirrorInvokeType.ServerRpc, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(invokingType))
+            Invoker invoker = GetInvokerForHash(cmdHash, MirrorInvokeType.ServerRpc);
+            if (invoker != null && invoker.invokeClass.IsInstanceOfType(invokingType))
             {
                 return new ServerRpcInfo
                 {
