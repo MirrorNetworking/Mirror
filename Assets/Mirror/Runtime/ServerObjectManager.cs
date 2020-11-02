@@ -356,13 +356,12 @@ namespace Mirror
                 logger.LogWarning("Spawned object not found when handling ServerRpc message [netId=" + msg.netId + "]");
                 return;
             }
-
-            ServerRpcInfo ServerRpcInfo = identity.GetServerRpcInfo(msg.componentIndex, msg.functionHash);
+            Skeleton skeleton = RemoteCallHelper.GetSkeleton(msg.functionHash, MirrorInvokeType.ServerRpc);
 
             // ServerRpcs can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the ServerRpc if clientAuthorityOwner
-            if (ServerRpcInfo.requireAuthority && identity.ConnectionToClient != conn)
+            if (skeleton.cmdRequireAuthority && identity.ConnectionToClient != conn)
             {
                 logger.LogWarning("ServerRpc for object without authority [netId=" + msg.netId + "]");
                 return;

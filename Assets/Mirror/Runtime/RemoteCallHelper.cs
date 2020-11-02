@@ -26,11 +26,6 @@ namespace Mirror.RemoteCalls
         }
     }
 
-    public struct ServerRpcInfo
-    {
-        public bool requireAuthority;
-    }
-
     /// <summary>
     /// Used to help manage remote calls for NetworkBehaviours
     /// </summary>
@@ -130,7 +125,7 @@ namespace Mirror.RemoteCalls
             cmdHandlerDelegates.Remove(hash);
         }
 
-        static Skeleton GetSkeleton(int cmdHash, MirrorInvokeType invokeType)
+        internal static Skeleton GetSkeleton(int cmdHash, MirrorInvokeType invokeType)
         {
 
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out Skeleton invoker) && invoker != null && invoker.invokeType == invokeType)
@@ -149,19 +144,6 @@ namespace Mirror.RemoteCalls
             {
                 invoker.invokeFunction(invokingType, reader, senderConnection);
                 return;
-            }
-            throw new MethodInvocationException($"No RPC method found for hash {cmdHash}");
-        }
-
-        internal static ServerRpcInfo GetServerRpcInfo(int cmdHash, NetworkBehaviour invokingType)
-        {
-            Skeleton invoker = GetSkeleton(cmdHash, MirrorInvokeType.ServerRpc);
-            if (invoker.invokeClass.IsInstanceOfType(invokingType))
-            {
-                return new ServerRpcInfo
-                {
-                    requireAuthority = invoker.cmdRequireAuthority
-                };
             }
             throw new MethodInvocationException($"No RPC method found for hash {cmdHash}");
         }

@@ -950,27 +950,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Runs on server
-        /// </summary>
-        /// <param name="componentIndex"></param>
-        /// <param name="cmdHash"></param>
-        /// <returns></returns>
-        internal ServerRpcInfo GetServerRpcInfo(int componentIndex, int cmdHash)
-        {
-            // find the right component to invoke the function on
-            if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
-            {
-                NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                return RemoteCallHelper.GetServerRpcInfo(cmdHash, invokeComponent);
-            }
-            else
-            {
-                // error can be logged later
-                return default;
-            }
-        }
-
-        /// <summary>
         /// Called when NetworkIdentity is destroyed
         /// </summary>
         internal void ClearObservers()
