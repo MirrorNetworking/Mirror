@@ -13,11 +13,12 @@ namespace Mirror.Examples.Basic
         public Text playerNameText;
         public Text playerDataText;
 
-        // These are set in OnStartServer and used in OnStartClient
+        // These are set in BasicNetManager::OnServerAddPlayer
+        [Header("SyncVars")]
         [SyncVar]
-        int playerNo;
+        public int playerNo;
         [SyncVar]
-        Color playerColor;
+        public Color playerColor;
 
         // This is updated by UpdateData which is called from OnStartServer via InvokeRepeating
         [SyncVar(hook = nameof(OnPlayerDataChanged))]
@@ -36,7 +37,6 @@ namespace Mirror.Examples.Basic
             base.OnStartServer();
 
             // Set SyncVar values
-            playerNo = connectionToClient.connectionId;
             playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
 
             // Start generating updates
