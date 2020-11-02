@@ -302,6 +302,9 @@ namespace Mirror
             base.OnServerDisconnect(conn);
         }
 
+        // Sequential index used in round-robin deployment of players into instances and score positioning
+        public int clientIndex;
+
         /// <summary>
         /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
@@ -309,6 +312,9 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
+            // increment the index before adding the player, so first player starts at 1
+            clientIndex++;
+
             if (IsSceneActive(RoomScene))
             {
                 if (roomSlots.Count == maxConnections)
