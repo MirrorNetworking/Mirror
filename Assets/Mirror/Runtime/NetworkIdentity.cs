@@ -1220,6 +1220,7 @@ namespace Mirror
             NetId = 0;
             Server = null;
             Client = null;
+            ServerObjectManager = null;
             ConnectionToServer = null;
             ConnectionToClient = null;
             networkBehavioursCache = null;
