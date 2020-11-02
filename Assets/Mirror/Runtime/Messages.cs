@@ -17,6 +17,7 @@ namespace Mirror
         public string scenePath;
         // Normal = 0, LoadAdditive = 1, UnloadAdditive = 2
         public SceneOperation sceneOperation;
+        public string[] additiveScenes;
     }
 
     public struct SceneReadyMessage { }

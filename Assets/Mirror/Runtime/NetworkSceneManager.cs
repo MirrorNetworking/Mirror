@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -52,6 +53,11 @@ namespace Mirror
         public string NetworkScenePath => SceneManager.GetActiveScene().path;
 
         internal AsyncOperation asyncOperation;
+
+        //Used by the server to track all additive scenes. To notify clients upon connection
+        internal List<string> additiveSceneList = new List<string>();
+        //Used by the client to load the full additive scene list that the server has upon connection
+        internal List<string> pendingAdditiveSceneList = new List<string>();
 
         public void Start()
         {
@@ -110,6 +116,18 @@ namespace Mirror
             // Let client prepare for scene change
             OnClientChangeScene(msg.scenePath, msg.sceneOperation);
 
+            //Additive are scenes loaded on server and this client is not a host client
+            if(msg.additiveScenes != null && msg.additiveScenes.Length > 0)
+            {
+                if(client && !client.IsLocalClient)
+                {
+                    foreach (string scene in msg.additiveScenes)
+                    {
+                        pendingAdditiveSceneList.Add(scene);
+                    }
+                }
+            }
+
             StartCoroutine(ApplySceneOperation(msg.scenePath, msg.sceneOperation));
         }
 
@@ -148,11 +166,18 @@ namespace Mirror
         /// <param name="sceneOperation">Scene operation that was just  happen</param>
         internal void OnClientSceneChanged(string scenePath, SceneOperation sceneOperation)
         {
+            ClientSceneChanged.Invoke(scenePath, sceneOperation);
+
+            if (pendingAdditiveSceneList.Count > 0 && client && !client.IsLocalClient)
+            {
+                StartCoroutine(ApplySceneOperation(pendingAdditiveSceneList[0], SceneOperation.LoadAdditive));
+                pendingAdditiveSceneList.RemoveAt(0);
+                return;
+            }
+
             //set ready after scene change has completed
             if (!client.Connection.IsReady)
                 SetClientReady();
-
-            ClientSceneChanged.Invoke(scenePath, sceneOperation);
         }
 
         /// <summary>
@@ -183,7 +208,7 @@ namespace Mirror
         {
             logger.Log("NetworkSceneManager.OnServerAuthenticated");
 
-            conn.Send(new SceneMessage { scenePath = NetworkScenePath });
+            conn.Send(new SceneMessage { scenePath = NetworkScenePath, additiveScenes = additiveSceneList.ToArray() });
             conn.Send(new SceneReadyMessage());
         }
 
@@ -265,6 +290,7 @@ namespace Mirror
                     if (!SceneManager.GetSceneByPath(scenePath).IsValid())
                     {
                         yield return SceneManager.LoadSceneAsync(scenePath, LoadSceneMode.Additive);
+                        additiveSceneList.Add(scenePath);
                         FinishLoadScene(scenePath, sceneOperation);
                     }   
                     else
@@ -277,6 +303,7 @@ namespace Mirror
                     if (SceneManager.GetSceneByPath(scenePath).IsValid())
                     {
                         yield return SceneManager.UnloadSceneAsync(scenePath, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+                        additiveSceneList.Remove(scenePath);
                         FinishLoadScene(scenePath, sceneOperation);
                     }
                     else
@@ -298,7 +325,7 @@ namespace Mirror
             // host mode?
             if (client && client.IsLocalClient)
             {
-                logger.Log("Finished loading scene in host mode.");
+                if (logger.LogEnabled()) logger.Log("Host: " + sceneOperation.ToString() + " operation for scene: " + scenePath);
 
                 // call OnServerSceneChanged
                 OnServerSceneChanged(scenePath, sceneOperation);
@@ -312,14 +339,14 @@ namespace Mirror
             // server-only mode?
             else if (server && server.Active)
             {
-                logger.Log("Finished loading scene in server-only mode.");
+                if (logger.LogEnabled()) logger.Log("Server: " + sceneOperation.ToString() + " operation for scene: " + scenePath);
 
                 OnServerSceneChanged(scenePath, sceneOperation);
             }
             // client-only mode?
             else if (client && client.Active && !client.IsLocalClient)
             {
-                logger.Log("Finished loading scene in client-only mode.");
+                if (logger.LogEnabled()) logger.Log("Client: " + sceneOperation.ToString() + " operation for scene: " + scenePath);
 
                 OnClientSceneChanged(scenePath, sceneOperation);
             }
