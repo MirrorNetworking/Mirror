@@ -286,11 +286,15 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             worker.Append(worker.Create(OpCodes.Ldnull));
-            worker.Append(worker.Create(OpCodes.Ldftn, func));
-
-            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.CmdDelegateConstructor));
+            CreateRpcDelegate(worker, func);
             //
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
+        }
+
+        private static void CreateRpcDelegate(ILProcessor worker, MethodDefinition func)
+        {
+            worker.Append(worker.Create(OpCodes.Ldftn, func));
+            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.CmdDelegateConstructor));
         }
 
         void GenerateRegisterServerRpcDelegate(ILProcessor worker, MethodDefinition func, CmdResult cmdResult)
@@ -303,9 +307,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             worker.Append(worker.Create(OpCodes.Ldnull));
-            worker.Append(worker.Create(OpCodes.Ldftn, func));
-
-            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.CmdDelegateConstructor));
+            CreateRpcDelegate(worker, func);
 
             worker.Append(worker.Create(requireAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
 
