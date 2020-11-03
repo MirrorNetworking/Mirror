@@ -1,3 +1,11 @@
+## [56.4.2](https://github.com/MirrorNG/MirrorNG/compare/v56.4.1...v56.4.2) (2020-11-03)
+
+
+### Bug Fixes
+
+* better transport checks on NS and NC ([#464](https://github.com/MirrorNG/MirrorNG/issues/464)) ([7703d80](https://github.com/MirrorNG/MirrorNG/commit/7703d8042875521177e5c5fa2755091563148601))
+* old refs to NetMan ([0df8c89](https://github.com/MirrorNG/MirrorNG/commit/0df8c897330199933a309248ef286b2cb652ea14))
+
 ## [56.4.1](https://github.com/MirrorNG/MirrorNG/compare/v56.4.0...v56.4.1) (2020-11-03)
 
 
