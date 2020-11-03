@@ -201,7 +201,7 @@ namespace Mirror.Weaver
             {
                 asmResolver.AddSearchDirectory(Path.GetDirectoryName(path));
             }
-    }
+        }
 
         public static bool WeaveAssembly(Assembly assembly)
         {
@@ -218,6 +218,5 @@ namespace Mirror.Weaver
                 return false;
             }
         }
-
     }
 }
