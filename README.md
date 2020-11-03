@@ -31,7 +31,6 @@ When migrating a project from Mirror to MirrorNG, these will be the most notable
 | MirrorNG                                                                                      | Mirror                                 |
 | --------------------------------------------------------------------------------------------- | -------------------------------------- |
 | Install via Unity Package Manager                                                             | Install from Asset Store               |
-| [Domain Reload](https://blogs.unity3d.com/2019/11/05/enter-play-mode-faster-in-unity-2019-3/) |                                        |
 | Errors are thrown as exceptions                                                               | Errors are logged                      |
 | `[ServerRpc]`                                                                                 | `[Command]`                            |
 | `[ClientRpc(target=Client.Owner)]`                                                            | `[TargetRpc]`                          |
