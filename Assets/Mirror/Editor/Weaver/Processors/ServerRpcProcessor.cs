@@ -48,7 +48,7 @@ namespace Mirror.Weaver
 
             // write all the arguments that the user passed to the Cmd call
             if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.ServerRpc))
-                return null;
+                return cmd;
 
             string cmdName = md.Name;
 

@@ -138,7 +138,7 @@ namespace Mirror.Weaver
 
             // write all the arguments that the user passed to the Rpc call
             if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.ClientRpc))
-                return null;
+                return rpc;
 
             string rpcName = md.Name;
 
