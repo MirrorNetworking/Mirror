@@ -10,7 +10,7 @@ The diagram below shows the directions that remote actions take:
 
 Server RPC Calls are sent from player objects on the client to player objects on the server. For security, Server RPC Calls can only be sent from YOUR player object by default, so you cannot control the objects of other players.  You can bypass the authority check using `[ServerRpc(requireAuthority = false)]`.
 
-To make a function into a Server RPC Calls, add the [ServerRpc] custom attribute to it, and add the “Cmd” prefix. This function will now be run on the server when it is called on the client. Any parameters of [allowed data type](../DataTypes.md) will be automatically passed to the server with the Server RPC Call.
+To make a function into a Server RPC Calls, add the [ServerRpc] custom attribute to it. This function will now be run on the server when it is called on the client. Any parameters of [allowed data type](../DataTypes.md) will be automatically passed to the server with the Server RPC Call.
 
 Server RPC Calls functions must have the prefix “Cmd” and cannot be static. This is a hint when reading code that calls the ServerRpc - this function is special and is not invoked locally like a normal function.
 
