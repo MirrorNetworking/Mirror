@@ -1,3 +1,10 @@
+## [56.4.1](https://github.com/MirrorNG/MirrorNG/compare/v56.4.0...v56.4.1) (2020-11-03)
+
+
+### Bug Fixes
+
+* DoS vector in kcp accept ([#469](https://github.com/MirrorNG/MirrorNG/issues/469)) ([6964bc6](https://github.com/MirrorNG/MirrorNG/commit/6964bc6a34147a916ff49fa1fabcd933f9efce42))
+
 # [56.4.0](https://github.com/MirrorNG/MirrorNG/compare/v56.3.4...v56.4.0) (2020-11-03)
 
 
