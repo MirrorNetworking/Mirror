@@ -1,3 +1,10 @@
+# [56.4.0](https://github.com/MirrorNG/MirrorNG/compare/v56.3.4...v56.4.0) (2020-11-03)
+
+
+### Features
+
+* return values from [ServerRpc] ([#454](https://github.com/MirrorNG/MirrorNG/issues/454)) ([0d076a7](https://github.com/MirrorNG/MirrorNG/commit/0d076a72c30daea0d343523bdf38dc1f9e14739d))
+
 ## [56.3.4](https://github.com/MirrorNG/MirrorNG/compare/v56.3.3...v56.3.4) (2020-11-03)
 
 
