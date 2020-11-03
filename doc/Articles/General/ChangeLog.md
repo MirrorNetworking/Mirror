@@ -20,6 +20,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Ensure ReadHelper.Read reads exactly number of bytes in SimpleWebTransport
 - Changed: Minimum Unity version is now 2018.4.28 LTS
 - Changed: Script Templates are now avalable as a separate package [here](ScriptTemplates.md)
+- Changed: Telepathy Transport is now obsolete - Use [KCP Transport](../Transports/KCPTransport.md) instead.
 - Changed: **Breaking** NetworkIdentity.ClientAuthorityCallback is an event now
 - Changed: **Breaking** Removed older obsolete methods and tests
 - Changed: **Breaking** Transports no longer support sending to a List<int> of connectionIds
@@ -61,8 +62,8 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Weaver now correctly gives error when generating a reader methods for abstract classes
 - Changed: NetworkServer no longer runs update if there are no connections
 - Changed: NetworkBehaviour.IsDirty is now a public
-- Changed: SyncEvent are now Obsolete and will be removed in the next version
-- Removed: isHeadless is now Obsolete, Use preprocessor directive `#if UNITY_SERVER` instead
+- Changed: SyncEvent are now obsolete and will be removed in the next version
+- Removed: isHeadless is now obsolete, Use preprocessor directive `#if UNITY_SERVER` instead
 
 ## Version 16.9.0 -- 2020-Aug-01
 - Added: [NetworkHeadlessLogger](../Components/NetworkHeadlessLogger.md) log handler that sets console color
