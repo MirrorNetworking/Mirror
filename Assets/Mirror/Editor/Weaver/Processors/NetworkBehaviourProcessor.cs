@@ -248,13 +248,13 @@ namespace Mirror.Weaver
             for (int i = 0; i < serverRpcs.Count; ++i)
             {
                 CmdResult cmdResult = serverRpcs[i];
-                GenerateRegisterServerRpcDelegate(cctorWorker, WeaverTypes.registerServerRpcDelegateReference, serverRpcSkeletonFuncs[i], cmdResult);
+                GenerateRegisterServerRpcDelegate(cctorWorker, serverRpcSkeletonFuncs[i], cmdResult);
             }
 
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
                 ClientRpcResult clientRpcResult = clientRpcs[i];
-                GenerateRegisterRemoteDelegate(cctorWorker, WeaverTypes.registerRpcDelegateReference, clientRpcSkeletonFuncs[i], clientRpcResult.method.Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, clientRpcSkeletonFuncs[i], clientRpcResult.method.Name);
             }
 
             foreach (FieldDefinition fd in syncObjects)
@@ -279,8 +279,9 @@ namespace Mirror.Weaver
             // This generates code like:
             NetworkBehaviour.RegisterServerRpcDelegate(base.GetType(), "CmdThrust", new NetworkBehaviour.CmdDelegate(ShipControl.InvokeCmdCmdThrust));
         */
-        void GenerateRegisterRemoteDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, string cmdName)
+        void GenerateRegisterRemoteDelegate(ILProcessor worker, MethodDefinition func, string cmdName)
         {
+            MethodReference registerMethod = WeaverTypes.registerRpcDelegateReference;
             worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
@@ -292,8 +293,9 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
 
-        void GenerateRegisterServerRpcDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
+        void GenerateRegisterServerRpcDelegate(ILProcessor worker, MethodDefinition func, CmdResult cmdResult)
         {
+            MethodReference registerMethod = WeaverTypes.registerServerRpcDelegateReference;
             string cmdName = cmdResult.method.Name;
             bool requireAuthority = cmdResult.requireAuthority;
 
