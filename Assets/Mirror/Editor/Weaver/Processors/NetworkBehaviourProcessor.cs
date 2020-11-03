@@ -432,7 +432,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
+                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
                     return;
                 }
             }
@@ -487,7 +487,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
+                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
                     return;
                 }
 
@@ -663,7 +663,7 @@ namespace Mirror.Weaver
             MethodReference readFunc = Readers.GetReadFunc(syncVar.FieldType);
             if (readFunc == null)
             {
-                Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
+                Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
                 return;
             }
 
@@ -837,7 +837,7 @@ namespace Mirror.Weaver
 
                 if (readFunc == null)
                 {
-                    Weaver.Error($"{method.Name} has invalid parameter {param}.  Unsupported type {param.ParameterType},  use a supported Mirror type instead", method);
+                    Weaver.Error($"{method.Name} has invalid parameter {param}.  Unsupported type {param.ParameterType},  use a supported MirrorNG type instead", method);
                     return false;
                 }
 

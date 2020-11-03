@@ -2,7 +2,7 @@
 
 `SyncHashSet` are sets similar to C\# [HashSet\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1) that synchronize their contents from the server to the clients.
 
-A SyncHashSet can contain any [supported mirror type](../DataTypes.md) 
+A SyncHashSet can contain any [supported MirrorNG type](../DataTypes.md) 
 
 ## Usage
 

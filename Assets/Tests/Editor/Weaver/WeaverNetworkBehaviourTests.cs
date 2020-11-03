@@ -89,7 +89,7 @@ namespace Mirror.Weaver.Tests
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot pass type Int32& by reference",
             //    "System.Int32&");
-            //HasError("RpcCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported Mirror type instead",
+            //HasError("RpcCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported MirrorNG type instead",
             //    "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamRef.NetworkBehaviourClientRpcParamRef::RpcCantHaveParamRef(System.Int32&)");
         }
 
@@ -113,7 +113,7 @@ namespace Mirror.Weaver.Tests
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for component type ComponentClass. Use a supported type or provide a custom reader",
             //    "WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass");
-            //HasError("RpcCantHaveParamComponent has invalid parameter monkeyComp.  Unsupported type WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass,  use a supported Mirror type instead",
+            //HasError("RpcCantHaveParamComponent has invalid parameter monkeyComp.  Unsupported type WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass,  use a supported MirrorNG type instead",
             //    "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent::RpcCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass)");
         }
 
@@ -159,7 +159,7 @@ namespace Mirror.Weaver.Tests
                 "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef.NetworkBehaviourCmdParamRef::CmdCantHaveParamRef(System.Int32&)");
             HasError("Cannot pass type Int32& by reference",
                 "System.Int32&");
-            HasError("CmdCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported Mirror type instead",
+            HasError("CmdCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported MirrorNG type instead",
                 "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamRef.NetworkBehaviourCmdParamRef::CmdCantHaveParamRef(System.Int32&)");
         }
 
@@ -182,7 +182,7 @@ namespace Mirror.Weaver.Tests
                 "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent::CmdCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass)");
             HasError("Cannot generate reader for component type ComponentClass. Use a supported type or provide a custom reader",
                 "WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass");
-            HasError("CmdCantHaveParamComponent has invalid parameter monkeyComp.  Unsupported type WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass,  use a supported Mirror type instead",
+            HasError("CmdCantHaveParamComponent has invalid parameter monkeyComp.  Unsupported type WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass,  use a supported MirrorNG type instead",
                 "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent::CmdCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamComponent.NetworkBehaviourCmdParamComponent/ComponentClass)");
         }
 
@@ -195,7 +195,7 @@ namespace Mirror.Weaver.Tests
                 "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamGameObject.NetworkBehaviourCmdParamGameObject::CmdCantHaveGameObjectComponent(UnityEngine.GameObject)");
             HasError("Cannot generate reader for GameObject. Use a supported type or provide a custom reader",
                 "UnityEngine.GameObject");
-            HasError("CmdCantHaveGameObjectComponent has invalid parameter monkeyComp.  Unsupported type UnityEngine.GameObject,  use a supported Mirror type instead",
+            HasError("CmdCantHaveGameObjectComponent has invalid parameter monkeyComp.  Unsupported type UnityEngine.GameObject,  use a supported MirrorNG type instead",
                 "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamGameObject.NetworkBehaviourCmdParamGameObject::CmdCantHaveGameObjectComponent(UnityEngine.GameObject)");
         }
 
