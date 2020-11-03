@@ -1,3 +1,10 @@
+## [56.3.4](https://github.com/MirrorNG/MirrorNG/compare/v56.3.3...v56.3.4) (2020-11-03)
+
+
+### Bug Fixes
+
+* added missing UniTask.asmdef reference to Mirror.Weaver.asmdef ([#463](https://github.com/MirrorNG/MirrorNG/issues/463)) ([bcb8ae7](https://github.com/MirrorNG/MirrorNG/commit/bcb8ae73f4ebc949d10d8abec6e57a2737bfd276))
+
 ## [56.3.3](https://github.com/MirrorNG/MirrorNG/compare/v56.3.2...v56.3.3) (2020-11-02)
 
 
