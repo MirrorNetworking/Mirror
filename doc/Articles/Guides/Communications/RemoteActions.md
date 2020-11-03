@@ -12,7 +12,7 @@ Server RPC Calls are sent from player objects on the client to player objects on
 
 To make a function into a Server RPC Calls, add the [ServerRpc] custom attribute to it. This function will now be run on the server when it is called on the client. Any parameters of [allowed data type](../DataTypes.md) will be automatically passed to the server with the Server RPC Call.
 
-Server RPC Calls functions must have the prefix “Cmd” and cannot be static. This is a hint when reading code that calls the ServerRpc - this function is special and is not invoked locally like a normal function.
+Server RPC Calls functions cannot be static. 
 
 ``` cs
 public class Player : NetworkBehaviour
