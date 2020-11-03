@@ -1,3 +1,10 @@
+## [56.4.3](https://github.com/MirrorNG/MirrorNG/compare/v56.4.2...v56.4.3) (2020-11-03)
+
+
+### Bug Fixes
+
+* PlayerSpawner depends on ClientObjectManager throw if missing ([#472](https://github.com/MirrorNG/MirrorNG/issues/472)) ([0ab0a70](https://github.com/MirrorNG/MirrorNG/commit/0ab0a7040c2809cab111557345bb4f56c5cccda9))
+
 ## [56.4.2](https://github.com/MirrorNG/MirrorNG/compare/v56.4.1...v56.4.2) (2020-11-03)
 
 
