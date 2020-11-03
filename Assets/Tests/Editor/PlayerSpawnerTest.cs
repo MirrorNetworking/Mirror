@@ -39,6 +39,7 @@ namespace Mirror.Tests
             spawner.client = client;
             spawner.server = server;
             spawner.serverObjectManager = serverObjectManager;
+            spawner.clientObjectManager = clientObjectManager;
 
             playerPrefab = new GameObject();
             NetworkIdentity playerId = playerPrefab.AddComponent<NetworkIdentity>();
@@ -123,6 +124,16 @@ namespace Mirror.Tests
 
             spawner.startPositions.Clear();
             Assert.That(spawner.GetStartPosition(), Is.SameAs(null));
+        }
+
+        [Test]
+        public void MissingClientObjectSpawnerExceptionTest()
+        {
+            spawner.clientObjectManager = null;
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                spawner.Start();
+            });
         }
     }
 }
