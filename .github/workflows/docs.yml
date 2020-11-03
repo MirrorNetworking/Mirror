@@ -10,11 +10,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Generate API
-      uses: nikeee/docfx-action@v0.1.0
+      uses: nikeee/docfx-action@v1.0.0
       with:
         args: metadata --logLevel Warning --warningsAsErrors doc/docfx.json
     - name: Compile Docs
-      uses: nikeee/docfx-action@v0.1.0
+      uses: nikeee/docfx-action@v1.0.0
       with:
         args: build --logLevel Warning --warningsAsErrors doc/docfx.json
     - name: GitHub Pages
