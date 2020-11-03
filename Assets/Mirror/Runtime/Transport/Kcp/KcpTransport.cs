@@ -72,17 +72,33 @@ namespace Mirror.KCP
                 if (channel != Channel.Reliable)
                     return;
 
-                // add it to a queue
-                connection = new KcpServerConnection(socket, endpoint, delayMode);
-                acceptedConnections.Writer.TryWrite(connection);
-                connectedClients.Add(endpoint as IPEndPoint, connection);
-                connection.Disconnected += () =>
-                {
-                    connectedClients.Remove(endpoint as IPEndPoint);
-                };
+                // fire a separate task for handshake
+                // that way if the client does not cooperate
+                // we can continue with other clients
+                ServerHandshake(endpoint, data, msgLength).Forget();
             }
+            else
+            {
+                connection.RawInput(data, msgLength);
+            }
+        }
+
+        private async UniTaskVoid ServerHandshake(EndPoint endpoint, byte[] data, int msgLength)
+        {
+            var connection = new KcpServerConnection(socket, endpoint, delayMode);
+            connectedClients.Add(endpoint as IPEndPoint, connection);
+
+            connection.Disconnected += () =>
+            {
+                connectedClients.Remove(endpoint as IPEndPoint);
+            };
 
             connection.RawInput(data, msgLength);
+
+            await connection.HandshakeAsync();
+
+            // once handshake is completed,  then the connection has been accepted
+            acceptedConnections.Writer.TryWrite(connection);
         }
 
         private readonly HashSet<HashCash> used = new HashSet<HashCash>();
@@ -153,11 +169,7 @@ namespace Mirror.KCP
 
             try
             {
-                KcpServerConnection connection = await acceptedConnections.Reader.ReadAsync();
-
-                await connection.HandshakeAsync();
-
-                return connection;
+                return await acceptedConnections.Reader.ReadAsync();
             }
             catch (ChannelClosedException)
             {
