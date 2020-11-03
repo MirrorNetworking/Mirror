@@ -4,7 +4,6 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Mirror.KCP
