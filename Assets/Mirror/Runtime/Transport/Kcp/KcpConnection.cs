@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 
@@ -62,7 +63,6 @@ namespace Mirror.KCP
 
             kcp.SetNoDelay(delayMode);
             open = true;
-            lastReceived = stopWatch.ElapsedMilliseconds;
 
             Tick().Forget();
         }
@@ -71,10 +71,13 @@ namespace Mirror.KCP
         {
             try
             {
+                Thread.VolatileWrite(ref lastReceived, stopWatch.ElapsedMilliseconds);
+
                 while (open )
                 {
                     long now = stopWatch.ElapsedMilliseconds;
-                    if (now > lastReceived + Timeout)
+                    long received = Thread.VolatileRead(ref lastReceived);
+                    if (now > received + Timeout)
                         break;
 
                     kcp.Update((uint)now);
@@ -132,7 +135,7 @@ namespace Mirror.KCP
         private void InputUnreliable(byte[] buffer, int msgLength)
         {
             unreliable.Input(buffer, msgLength);
-            lastReceived = stopWatch.ElapsedMilliseconds;
+            Thread.VolatileWrite(ref lastReceived, stopWatch.ElapsedMilliseconds);
 
             if (isWaiting && unreliable.PeekSize() > 0)
             {
@@ -144,7 +147,7 @@ namespace Mirror.KCP
         {
             kcp.Input(buffer, msgLength);
 
-            lastReceived = stopWatch.ElapsedMilliseconds;
+            Thread.VolatileWrite(ref lastReceived, stopWatch.ElapsedMilliseconds);
 
             if (isWaiting && kcp.PeekSize() > 0)
             {
