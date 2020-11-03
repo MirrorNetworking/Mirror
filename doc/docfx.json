@@ -53,7 +53,7 @@
         "dest": "_site",
         "globalMetadataFiles": [],
         "globalMetadata": {
-            "_homepage": "http://mirror-networking.com",
+            "_homepage": "https://github.com/MirrorNG/MirrorNG",
             "_appLogoPath": "logo.png",
             "_enableSearch": true
         },
