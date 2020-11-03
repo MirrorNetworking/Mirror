@@ -5,7 +5,7 @@
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
 ## Version 26.x.x -- In Progress
-- Added: [KCP Transport](../Transports/KCP.md)
+- Added: [KCP Transport](../Transports/KCPTransport.md)
 - Added: [Libuv2k Transport](../Transports/Libuv2k.md)
 - Added: Quaternion and float compression
 - Added: Option to configure handshakeMaxSize in SimpleWebTransport
