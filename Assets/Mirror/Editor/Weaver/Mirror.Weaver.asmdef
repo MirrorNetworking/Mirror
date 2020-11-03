@@ -1,9 +1,9 @@
 {
     "name": "Mirror.Weaver",
     "references": [
-        "Mirror"
+        "Mirror",
+        "UniTask"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
