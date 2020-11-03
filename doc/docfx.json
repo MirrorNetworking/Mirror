@@ -54,7 +54,10 @@
         "globalMetadata": {
             "_homepage": "https://github.com/MirrorNG/MirrorNG",
             "_appLogoPath": "logo.png",
-            "_enableSearch": true
+            "_enableSearch": true,
+            "_gitContribute": {
+                "branch": "master"
+            }
         },
         "fileMetadataFiles": [],
         "template": [
