@@ -34,7 +34,7 @@ namespace Mirror.KCP
             stopWatch.Start();
         }
 
-        private long lastReceived;
+        private volatile long lastReceived;
 
         /// <summary>
         /// Space for CRC64
