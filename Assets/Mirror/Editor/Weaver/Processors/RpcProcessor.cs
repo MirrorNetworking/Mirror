@@ -43,6 +43,9 @@ namespace Mirror.Weaver
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 WeaverTypes.Import(typeof(void)));
 
+            NetworkBehaviourProcessor.AddInvokeParameters(rpc.Parameters);
+            md.DeclaringType.Methods.Add(rpc);
+
             ILProcessor worker = rpc.Body.GetILProcessor();
 
             // setup for reader
@@ -61,14 +64,12 @@ namespace Mirror.Weaver
             }
             
             if (!NetworkBehaviourProcessor.ReadArguments(md, worker, hasNetworkConnection))
-                return null;
+                return rpc;
 
             // invoke actual ServerRpc function
             worker.Append(worker.Create(OpCodes.Callvirt, userCodeFunc));
             worker.Append(worker.Create(OpCodes.Ret));
 
-            NetworkBehaviourProcessor.AddInvokeParameters(rpc.Parameters);
-            md.DeclaringType.Methods.Add(rpc);
             return rpc;
         }
 

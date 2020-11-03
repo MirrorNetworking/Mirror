@@ -102,6 +102,9 @@ namespace Mirror.Weaver
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 WeaverTypes.Import(typeof(void)));
 
+            NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
+            method.DeclaringType.Methods.Add(cmd);
+
             ILProcessor worker = cmd.Body.GetILProcessor();
 
             // setup for reader
@@ -109,7 +112,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Castclass, method.DeclaringType));
 
             if (!NetworkBehaviourProcessor.ReadArguments(method, worker, false))
-                return null;
+                return cmd;
 
             AddSenderConnection(method, worker);
 
@@ -117,9 +120,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Callvirt, userCodeFunc));
             worker.Append(worker.Create(OpCodes.Ret));
 
-            NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
-
-            method.DeclaringType.Methods.Add(cmd);
             return cmd;
         }
 
