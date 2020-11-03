@@ -46,8 +46,8 @@ Be careful of sending ServerRpcs from the client every frame! This can cause a l
 
 ### Returning values
 
-ServerRpcs can return values.  It can take a long time for the server to reply,  so we leverage async/await to wait for the response without blocking the main thread.
-To return a value,  add a return value using `UniTask<MyReturnType>` where `MyReturnType` is any data type supported by MirrorNG.  In the server you can make your method async,  or you can use `UniTask.FromResult(myresult);`.  For example:
+ServerRpcs can return values.  It can take a long time for the server to reply, so they must return a UniTask which the client can await.
+To return a value,  add a return value using `UniTask<MyReturnType>` where `MyReturnType` is any [supported mirror type](../DataTypes.md).  In the server you can make your method async,  or you can use `UniTask.FromResult(myresult);`.  For example:
 
 ```cs
 public class Shop: NetworkBehavior {
@@ -110,9 +110,9 @@ public class Door : NetworkBehaviour
 
 ## ClientRpc Calls
 
-ClientRpc calls are sent from objects on the server to objects on clients. They can be sent from any server object with a NetworkIdentity that has been spawned. Since the server has authority, then there no security issues with server objects being able to send these calls. To make a function into a ClientRpc call, add the [ClientRpc] custom attribute to it, and add the “Rpc” prefix. This function will now be run on clients when it is called on the server. Any parameters of [allowed data type](../DataTypes.md) will automatically be passed to the clients with the ClientRpc call..
+ClientRpc calls are sent from objects on the server to objects on clients. They can be sent from any server object with a NetworkIdentity that has been spawned. Since the server has authority, then there no security issues with server objects being able to send these calls. To make a function into a ClientRpc call, add the [ClientRpc] custom attribute to it. This function will now be run on clients when it is called on the server. Any parameters of [allowed data type](../DataTypes.md) will automatically be passed to the clients with the ClientRpc call..
 
-ClientRpc functions must have the prefix “Rpc” and cannot be static. This is a hint when reading code that calls the method - this function is special and is not invoked locally like a normal function.
+ClientRpc functions cannot be static.  They must return `void`
 
 ClientRpc messages are only sent to observers of an object according to its [Network Visibility](../Visibility.md). Player objects are always obeservers of themselves. In some cases, you may want to exclude the owner client when calling a ClientRpc.  This is done with the `excludeOwner` option: `[ClientRpc(excludeOwner = true)]`.
 
@@ -126,11 +126,11 @@ public class Player : NetworkBehaviour
         if (!isServer) return;
 
         health -= amount;
-        RpcDamage(amount);
+        Damage(amount);
     }
 
     [ClientRpc]
-    void RpcDamage(int amount)
+    void Damage(int amount)
     {
         Debug.Log("Took damage:" + amount);
     }
@@ -148,31 +148,31 @@ public class Player : NetworkBehaviour
 {
     int health;
 
-    [ClientRpc]
-    void CmdMagic(GameObject target, int damage)
+    [Server]
+    void Magic(GameObject target, int damage)
     {
         target.GetComponent<Player>().health -= damage;
 
         NetworkIdentity opponentIdentity = target.GetComponent<NetworkIdentity>();
-        TargetDoMagic(opponentIdentity.connectionToClient, damage);
+        DoMagic(opponentIdentity.connectionToClient, damage);
     }
 
     [ClientRpc(target = Client.Connection)]
-    public void TargetDoMagic(NetworkConnection target, int damage)
+    public void DoMagic(NetworkConnection target, int damage)
     {
         // This will appear on the opponent's client, not the attacking player's
         Debug.Log($"Magic Damage = {damage}");
     }
 
-    [ServerRpc]
-    void CmdHealMe()
+    [Server]
+    void HealMe()
     {
         health += 10;
-        TargetHealed(10);
+        Healed(10);
     }
 
     [ClientRpc(target = client.Owner)]
-    public void TargetHealed(int amount)
+    public void Healed(int amount)
     {
         // No NetworkConnection parameter, so it goes to owner
         Debug.Log($"Health increased by {amount}");
