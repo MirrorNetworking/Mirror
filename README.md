@@ -50,6 +50,7 @@ MirrorNG has many features not present in Mirror
 * Modular,  use only the components you need.
 * Error handling
 * [Version defines](https://docs.unity3d.com/Manual/ScriptCompilationAssemblyDefinitionFiles.html#define-symbols)
+* Server Rpcs can [return values](https://mirrorng.github.io/MirrorNG/Articles/Guides/Communications/RemoteActions.html)
 
 If you look under the hood,  the code base has some significant diferences based on the core values of each project
 * MirrorNG tries to adhere to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID).
