@@ -3,6 +3,7 @@ using System.Collections;
 using Cysharp.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.TestTools;
 
@@ -147,11 +148,26 @@ namespace Mirror.Tests
 
         [UnityTest]
         public IEnumerator StoppedInvokeTest() => UniTask.ToCoroutine(async () =>
+        
         {
             UnityAction func1 = Substitute.For<UnityAction>();
             server.Stopped.AddListener(func1);
 
             server.Disconnect();
+
+            await AsyncUtil.WaitUntilWithTimeout(() => !server.Active);
+
+            func1.Received(1).Invoke();
+        });
+
+        public IEnumerator ApplicationQuitTest() => UniTask.ToCoroutine(async () =>
+        {
+            UnityAction func1 = Substitute.For<UnityAction>();
+            server.Stopped.AddListener(func1);
+
+            await UniTask.Delay(1);
+
+            Application.Quit();
 
             await AsyncUtil.WaitUntilWithTimeout(() => !server.Active);
 
