@@ -63,6 +63,7 @@ namespace Mirror.KCP
 
             kcp.SetNoDelay(delayMode);
             open = true;
+            lastReceived = stopWatch.ElapsedMilliseconds;
 
             Tick().Forget();
         }
@@ -71,12 +72,9 @@ namespace Mirror.KCP
         {
             try
             {
-                long now = stopWatch.ElapsedMilliseconds;
-                lastReceived = now;
-
                 while (open )
                 {
-                    now = stopWatch.ElapsedMilliseconds;
+                    long now = stopWatch.ElapsedMilliseconds;
                     if (now > lastReceived + Timeout)
                         break;
 
