@@ -6,6 +6,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 
 ## Version 26.x.x -- In Progress
 - Added: [KCP Transport](../Transports/KCP.md)
+- Added: [Libuv2k Transport](../Transports/Libuv2k.md)
 - Added: Quaternion and float compression
 - Added: Option to configure handshakeMaxSize in SimpleWebTransport
 - Added: ServerTeleport to Experimental NetworkTransform
