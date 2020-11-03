@@ -28,19 +28,19 @@ The **Server & Client** are **ONE project** in order to achieve an order of magn
 ## Comparison with Mirror
 When migrating a project from Mirror to MirrorNG, these will be the most notable differences.
 
-| MirrorNG                                                                                      | Mirror                                 |
-| --------------------------------------------------------------------------------------------- | -------------------------------------- |
-| Install via Unity Package Manager                                                             | Install from Asset Store               |
-| Errors are thrown as exceptions                                                               | Errors are logged                      |
-| `[ServerRpc]`                                                                                 | `[Command]`                            |
-| `[ClientRpc(target=Client.Owner)]`                                                            | `[TargetRpc]`                          |
-| Subscribe to events in `NetworkServer`                                                        | Override methods in `NetworkManager`   |
-| Subscribe to events in `NetworkClient`                                                        | Override methods in `NetworkManager`   |
-| Subscribe to events in `NetworkIdentity`                                                      | Override methods in `NetworkBehaviour` |
-| Methods use PascalCase (C# guidelines)                                                        | No consistency                         |
-| `NetworkTime` available in `NetworkBehaviour`                                                 | `NetworkTime` is global static         |
-| Send any data as messages                                                                     | Messages must implement NetworkMessage |
-| Supports Unity 2019.3 or later                                                                | Supports Unity 2018.4 or later         |
+| MirrorNG                                      | Mirror                                 |
+| --------------------------------------------- | -------------------------------------- |
+| Install via Unity Package Manager             | Install from Asset Store               |
+| Errors are thrown as exceptions               | Errors are logged                      |
+| `[ServerRpc]`                                 | `[Command]`                            |
+| `[ClientRpc(target=Client.Owner)]`            | `[TargetRpc]`                          |
+| Subscribe to events in `NetworkServer`        | Override methods in `NetworkManager`   |
+| Subscribe to events in `NetworkClient`        | Override methods in `NetworkManager`   |
+| Subscribe to events in `NetworkIdentity`      | Override methods in `NetworkBehaviour` |
+| Methods use PascalCase (C# guidelines)        | No consistency                         |
+| `NetworkTime` available in `NetworkBehaviour` | `NetworkTime` is global static         |
+| Send any data as messages                     | Messages must implement NetworkMessage |
+| Supports Unity 2019.3 or later                | Supports Unity 2018.4 or later         |
 
 MirrorNG has many features not present in Mirror
 * MirrorNG supports [fast domain reload](https://blogs.unity3d.com/2019/11/05/enter-play-mode-faster-in-unity-2019-3/)
@@ -124,7 +124,7 @@ Here is a list of some transports supported by NG and how they compare to each o
 | **Encryption** |                    |                  :white_check_mark:                  |                     :white_check_mark:                      |                                                          |                                                             |
 | **IPV6**       | :white_check_mark: |                  :white_check_mark:                  |                              ?                              |                            ?                             |                              ?                              |
 | **Managed**    | :white_check_mark: |                  :white_check_mark:                  |                                                             |                    :white_check_mark:                    |                                                             |
-| **Based on**   |        KCP         |                   Websockets                         |                Steam Game Networking Sockets                |                        LiteNetLib                        |                            ENet                             |
+| **Based on**   |        KCP         |                      Websockets                      |                Steam Game Networking Sockets                |                        LiteNetLib                        |                            ENet                             |
 
 ## Contributing
 
