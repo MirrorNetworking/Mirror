@@ -37,8 +37,18 @@ namespace Mirror
         public uint netId;
         public int componentIndex;
         public int functionHash;
+
+        // if the server Rpc can return values
+        // this then a ServerRpcReply will be sent with this id
+        public int replyId;
         // the parameters for the Cmd function
         // -> ArraySegment to avoid unnecessary allocations
+        public ArraySegment<byte> payload;
+    }
+
+    public struct ServerRpcReply
+    {
+        public int replyId;
         public ArraySegment<byte> payload;
     }
 

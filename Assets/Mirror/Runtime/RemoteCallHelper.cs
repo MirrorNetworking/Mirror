@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Mirror.RemoteCalls
@@ -9,7 +10,8 @@ namespace Mirror.RemoteCalls
     /// </summary>
     /// <param name="obj"></param>
     /// <param name="reader"></param>
-    public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader, INetworkConnection senderConnection);
+    public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader, INetworkConnection senderConnection, int replyId);
+    public delegate UniTask<T> RequestDelegate<T>(NetworkBehaviour obj, NetworkReader reader, INetworkConnection senderConnection, int replyId);
 
     class Skeleton
     {
@@ -26,11 +28,11 @@ namespace Mirror.RemoteCalls
         }
 
         // InvokeCmd/Rpc can all use the same function here
-        internal void Invoke(NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null)
+        internal void Invoke(NetworkReader reader, NetworkBehaviour invokingType, INetworkConnection senderConnection = null, int replyId=0)
         {
             if (invokeClass.IsInstanceOfType(invokingType))
             {
-                invokeFunction(invokingType, reader, senderConnection);
+                invokeFunction(invokingType, reader, senderConnection, replyId);
                 return;
             }
             throw new MethodInvocationException($"Invalid Rpc call {invokeFunction} for component {invokingType}");
@@ -97,6 +99,34 @@ namespace Mirror.RemoteCalls
             }
 
             return cmdHash;
+        }
+
+        internal static void RegisterRequestDelegate<T>(Type invokeClass, string cmdName, RequestDelegate<T> func, bool cmdRequireAuthority = true)
+        {
+            async UniTaskVoid Wrapper(NetworkBehaviour obj, NetworkReader reader, INetworkConnection senderConnection, int replyId)
+            {
+                /// invoke the serverRpc and send a reply message
+                T result = await func(obj, reader, senderConnection, replyId);
+
+                using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+                {
+                    writer.Write(result);
+                    var serverRpcReply = new ServerRpcReply
+                    {
+                        replyId = replyId,
+                        payload = writer.ToArraySegment()
+                    };
+
+                    senderConnection.Send(serverRpcReply);
+                }
+            }
+
+            void CmdWrapper(NetworkBehaviour obj, NetworkReader reader, INetworkConnection senderConnection, int replyId)
+            {
+                Wrapper(obj, reader, senderConnection, replyId).Forget();
+            }
+
+            RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.ServerRpc, CmdWrapper, cmdRequireAuthority);
         }
 
         static bool CheckIfDelegateExists(Type invokeClass, MirrorInvokeType invokerType, CmdDelegate func, int cmdHash)

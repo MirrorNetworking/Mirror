@@ -208,7 +208,25 @@ namespace Mirror
 
         #region ServerRpcs
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendServerRpcInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requireAuthority = true)
+        protected internal void SendServerRpcInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requireAuthority = true)
+        {
+            ValidateServerRpc(invokeClass, cmdName, requireAuthority);
+
+            // construct the message
+            var message = new ServerRpcMessage
+            {
+                netId = NetId,
+                componentIndex = ComponentIndex,
+                // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = RemoteCallHelper.GetMethodHash(invokeClass, cmdName),
+                // segment to avoid reader allocations
+                payload = writer.ToArraySegment()
+            };
+
+            Client.SendAsync(message, channelId).Forget();
+        }
+
+        private void ValidateServerRpc(Type invokeClass, string cmdName, bool requireAuthority)
         {
             // this was in Weaver before
             // NOTE: we could remove this later to allow calling Cmds on Server
@@ -228,12 +246,20 @@ namespace Mirror
             {
                 throw new InvalidOperationException("Send ServerRpc attempted with no client running [client=" + ConnectionToServer + "].");
             }
+        }
+
+        protected internal UniTask<T> SendServerRpcWithReturn<T>(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requireAuthority = true)
+        {
+            ValidateServerRpc(invokeClass, cmdName, requireAuthority);
+
+            (UniTask<T> task, int id) = Client.CreateReplyTask<T>();
 
             // construct the message
             var message = new ServerRpcMessage
             {
                 netId = NetId,
                 componentIndex = ComponentIndex,
+                replyId = id,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = RemoteCallHelper.GetMethodHash(invokeClass, cmdName),
                 // segment to avoid reader allocations
@@ -241,7 +267,10 @@ namespace Mirror
             };
 
             Client.SendAsync(message, channelId).Forget();
+
+            return task;
         }
+
         #endregion
 
         #region Client RPCs

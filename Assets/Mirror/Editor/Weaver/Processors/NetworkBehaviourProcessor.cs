@@ -1,6 +1,13 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Cysharp.Threading.Tasks;
+using Mirror.RemoteCalls;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using MethodAttributes = Mono.Cecil.MethodAttributes;
+using ParameterAttributes = Mono.Cecil.ParameterAttributes;
+using TypeAttributes = Mono.Cecil.TypeAttributes;
 
 namespace Mirror.Weaver
 {
@@ -293,13 +300,43 @@ namespace Mirror.Weaver
 
         private static void CreateRpcDelegate(ILProcessor worker, MethodDefinition func)
         {
+            MethodReference CmdDelegateConstructor;
+
+
+            if (func.ReturnType.Is(typeof(void)))
+            {
+                ConstructorInfo[] constructors = typeof(RemoteCalls.CmdDelegate).GetConstructors();
+                CmdDelegateConstructor = func.Module.ImportReference(constructors.First());
+            }
+            else if (func.ReturnType.Is(typeof(UniTask<int>).GetGenericTypeDefinition()))
+            {
+                var taskReturnType = func.ReturnType as GenericInstanceType;
+
+                var returnType = taskReturnType.GenericArguments[0];
+                var genericDelegate = WeaverTypes.Import(typeof(RemoteCalls.RequestDelegate<int>).GetGenericTypeDefinition());
+
+                var delegateInstance =  new GenericInstanceType(genericDelegate);
+                delegateInstance.GenericArguments.Add(returnType);
+
+                ConstructorInfo constructor = typeof(RemoteCalls.RequestDelegate<int>).GetConstructors().First();
+
+                MethodReference constructorRef = func.Module.ImportReference(constructor);
+
+                CmdDelegateConstructor = constructorRef.MakeHostInstanceGeneric(delegateInstance);
+            }
+            else
+            {
+                Log.Error("Use UniTask<x> to return a value from ServerRpc in" + func);
+                return;
+            }
+
             worker.Append(worker.Create(OpCodes.Ldftn, func));
-            worker.Append(worker.Create(OpCodes.Newobj, WeaverTypes.CmdDelegateConstructor));
+            worker.Append(worker.Create(OpCodes.Newobj, CmdDelegateConstructor));
         }
 
         void GenerateRegisterServerRpcDelegate(ILProcessor worker, MethodDefinition func, CmdResult cmdResult)
         {
-            MethodReference registerMethod = WeaverTypes.registerServerRpcDelegateReference;
+            MethodReference registerMethod = GetRegisterMethod(func);
             string cmdName = cmdResult.method.Name;
             bool requireAuthority = cmdResult.requireAuthority;
 
@@ -312,6 +349,24 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(requireAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
 
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
+        }
+
+        private static MethodReference GetRegisterMethod(MethodDefinition func)
+        {
+            if (func.ReturnType.Is(typeof(void)))
+               return WeaverTypes.registerServerRpcDelegateReference;
+
+            var taskReturnType = func.ReturnType as GenericInstanceType;
+
+            var returnType = taskReturnType.GenericArguments[0];
+
+            var method = typeof(RemoteCallHelper).GetMethods(BindingFlags.NonPublic | BindingFlags.Static).First(m => m.Name == nameof(RemoteCallHelper.RegisterRequestDelegate));
+
+            var genericRegisterMethod = func.Module.ImportReference(method);
+
+            var registerInstance = new GenericInstanceMethod(genericRegisterMethod);
+            registerInstance.GenericArguments.Add(returnType);
+            return registerInstance;
         }
 
         void GenerateSerialization()
@@ -808,6 +863,7 @@ namespace Mirror.Weaver
             collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
             // senderConnection is only used for commands but NetworkBehaviour.CmdDelegate is used for all remote calls
             collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, WeaverTypes.Import<INetworkConnection>()));
+            collection.Add(new ParameterDefinition("replyId", ParameterAttributes.None, WeaverTypes.Import<int>()));
         }
 
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
@@ -831,11 +887,6 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!method.ReturnType.Is(typeof(void)))
-            {
-                Weaver.Error($"{method.Name} cannot return a value.  Make it void instead", method);
-                return false;
-            }
             if (method.HasGenericParameters)
             {
                 Weaver.Error($"{method.Name} cannot have generic parameters", method);
@@ -964,6 +1015,9 @@ namespace Mirror.Weaver
         void ProcessServerRpc(HashSet<string> names, MethodDefinition md, CustomAttribute serverRpcAttr)
         {
             if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ServerRpc))
+                return;
+
+            if (!ServerRpcProcessor.Validate(md, serverRpcAttr))
                 return;
 
             if (names.Contains(md.Name))

@@ -14,8 +14,6 @@ namespace Mirror.Weaver
 
         public static MethodReference BehaviorConnectionToServerReference;
 
-        public static MethodReference CmdDelegateConstructor;
-
         public static MethodReference NetworkServerGetActive;
         public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
@@ -92,9 +90,6 @@ namespace Mirror.Weaver
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_LocalClientActive");
             TypeReference NetworkClientType = Import<NetworkClient>();
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, currentAssembly, "get_Active");
-
-            TypeReference cmdDelegateReference = Import<RemoteCalls.CmdDelegate>();
-            CmdDelegateConstructor = Resolvers.ResolveMethod(cmdDelegateReference, currentAssembly, ".ctor");
 
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
             TypeReference RemoteCallHelperType = Import(typeof(RemoteCalls.RemoteCallHelper));

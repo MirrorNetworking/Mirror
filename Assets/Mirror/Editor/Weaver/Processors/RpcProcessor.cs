@@ -182,6 +182,11 @@ namespace Mirror.Weaver
 
         public static bool Validate(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
+            if (!md.ReturnType.Is(typeof(void)))
+            {
+                Weaver.Error($"{md.Name} cannot return a value.  Make it void instead", md);
+                return false;
+            }
 
             Client target = clientRpcAttr.GetField("target", Client.Observers); 
             if (target == Client.Connection && !HasNetworkConnectionParameter(md))

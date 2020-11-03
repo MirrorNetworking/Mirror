@@ -40,7 +40,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourCmdVoidReturn()
         {
-            HasError("CmdCantHaveNonVoidReturn cannot return a value.  Make it void instead",
+            HasError("Use UniTask<System.Int32> to return values from [ServerRpc]",
                 "System.Int32 WeaverNetworkBehaviourTests.NetworkBehaviourCmdVoidReturn.NetworkBehaviourCmdVoidReturn::CmdCantHaveNonVoidReturn()");
         }
 

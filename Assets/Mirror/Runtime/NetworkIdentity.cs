@@ -930,7 +930,7 @@ namespace Mirror
         /// <param name="invokeType"></param>
         /// <param name="reader"></param>
         /// <param name="senderConnection"></param>
-        internal void HandleRemoteCall(Skeleton skeleton, int componentIndex, NetworkReader reader, INetworkConnection senderConnection = null)
+        internal void HandleRemoteCall(Skeleton skeleton, int componentIndex, NetworkReader reader, INetworkConnection senderConnection = null, int replyId = 0)
         {
             // hack sets the current client and server so that we can deserialize
             // gameobjects and network identities in the reader
@@ -941,7 +941,7 @@ namespace Mirror
             if (componentIndex >= 0 && componentIndex < NetworkBehaviours.Length)
             {
                 NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                skeleton.Invoke(reader, invokeComponent, senderConnection);
+                skeleton.Invoke(reader, invokeComponent, senderConnection, replyId);
             }
             else
             {
