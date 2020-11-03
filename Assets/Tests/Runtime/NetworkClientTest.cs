@@ -41,5 +41,17 @@ namespace Mirror.Tests
             await AsyncUtil.WaitUntilWithTimeout(() => client.connectState == ConnectState.Disconnected);
             await AsyncUtil.WaitUntilWithTimeout(() => !client.Active);
         });
+
+        [Test]
+        public void ConnectionClearHandlersTest()
+        {
+            NetworkConnection clientConn = client.Connection as NetworkConnection;
+
+            Assert.That(clientConn.messageHandlers.Count > 0);
+
+            clientConn.ClearHandlers();
+
+            Assert.That(clientConn.messageHandlers.Count == 0);
+        }
     }
 }

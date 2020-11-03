@@ -23,13 +23,13 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkConnection));
 
         // Handles network messages on client and server
-        private delegate void NetworkMessageDelegate(INetworkConnection conn, NetworkReader reader, int channelId);
+        internal delegate void NetworkMessageDelegate(INetworkConnection conn, NetworkReader reader, int channelId);
 
         // internal so it can be tested
         private readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         // message handlers for this connection
-        private readonly Dictionary<int, NetworkMessageDelegate> messageHandlers = new Dictionary<int, NetworkMessageDelegate>();
+        internal readonly Dictionary<int, NetworkMessageDelegate> messageHandlers = new Dictionary<int, NetworkMessageDelegate>();
 
         /// <summary>
         /// Transport level connection
