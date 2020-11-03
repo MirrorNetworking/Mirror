@@ -100,7 +100,7 @@ namespace Mirror.Weaver
         {
             var cmd = new MethodDefinition(MethodProcessor.SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                WeaverTypes.Import(typeof(void)));
+                userCodeFunc.ReturnType);
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
             method.DeclaringType.Methods.Add(cmd);
