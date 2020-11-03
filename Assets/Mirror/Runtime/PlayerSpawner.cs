@@ -61,7 +61,7 @@ namespace Mirror
 
         void OnServerAddPlayerInternal(INetworkConnection conn, AddPlayerMessage msg)
         {
-            logger.Log("NetworkManager.OnServerAddPlayer");
+            logger.Log("PlayerSpawner.OnServerAddPlayer");
 
             if (conn.Identity != null)
             {
@@ -121,7 +121,7 @@ namespace Mirror
         public enum PlayerSpawnMethod { Random, RoundRobin }
 
         /// <summary>
-        /// The current method of spawning players used by the NetworkManager.
+        /// The current method of spawning players used by the PlayerSpawner.
         /// </summary>
         [Tooltip("Round Robin or Random order of Start Position selection")]
         public PlayerSpawnMethod playerSpawnMethod;

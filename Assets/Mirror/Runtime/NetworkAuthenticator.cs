@@ -61,7 +61,7 @@ namespace Mirror
         void OnValidate()
         {
             UnityEditor.Undo.RecordObject(this, "Assigned NetworkClient authenticator");
-            // automatically assign NetworkManager field if we add this to NetworkManager
+            // automatically assign NetworkClient field if we add this to NetworkClient
             NetworkClient client = GetComponent<NetworkClient>();
             if (client != null && client.authenticator == null)
             {
