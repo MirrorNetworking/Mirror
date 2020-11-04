@@ -20,10 +20,10 @@ namespace Mirror.Weaver
         {
             public MethodDefinition method;
             public bool requireAuthority;
+            public MethodDefinition skeleton;
         }
 
         readonly List<CmdResult> serverRpcs = new List<CmdResult>();
-        readonly List<MethodDefinition> serverRpcSkeletonFuncs = new List<MethodDefinition>();
 
         /// <summary>
         /// Replaces the user code with a stub.
@@ -190,25 +190,25 @@ namespace Mirror.Weaver
 
         public void RegisterServerRpcs(ILProcessor cctorWorker)
         {
-            for (int i = 0; i < serverRpcs.Count; ++i)
+            foreach (CmdResult cmdResult in serverRpcs)
             {
-                CmdResult cmdResult = serverRpcs[i];
-                GenerateRegisterServerRpcDelegate(cctorWorker, serverRpcSkeletonFuncs[i], cmdResult);
+                GenerateRegisterServerRpcDelegate(cctorWorker, cmdResult);
             }
         }
 
-        void GenerateRegisterServerRpcDelegate(ILProcessor worker, MethodDefinition func, CmdResult cmdResult)
+        void GenerateRegisterServerRpcDelegate(ILProcessor worker, CmdResult cmdResult)
         {
-            MethodReference registerMethod = GetRegisterMethod(func);
+            MethodDefinition skeleton = cmdResult.skeleton;
+            MethodReference registerMethod = GetRegisterMethod(skeleton);
             string cmdName = cmdResult.method.Name;
             bool requireAuthority = cmdResult.requireAuthority;
 
-            TypeDefinition netBehaviourSubclass = func.DeclaringType;
+            TypeDefinition netBehaviourSubclass = skeleton.DeclaringType;
             worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             worker.Append(worker.Create(OpCodes.Ldnull));
-            CreateRpcDelegate(worker, func);
+            CreateRpcDelegate(worker, skeleton);
 
             worker.Append(worker.Create(requireAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
 
@@ -250,19 +250,17 @@ namespace Mirror.Weaver
             bool requireAuthority = serverRpcAttr.GetField("requireAuthority", false);
 
             names.Add(md.Name);
-            serverRpcs.Add(new CmdResult
-            {
-                method = md,
-                requireAuthority = requireAuthority
-            });
+
 
             MethodDefinition userCodeFunc = GenerateStub(md, serverRpcAttr);
 
             MethodDefinition skeletonFunc = GenerateSkeleton(md, userCodeFunc);
-            if (skeletonFunc != null)
+            serverRpcs.Add(new CmdResult
             {
-                serverRpcSkeletonFuncs.Add(skeletonFunc);
-            }
+                method = md,
+                requireAuthority = requireAuthority,
+                skeleton = skeletonFunc
+            });
         }
     }
 }
