@@ -219,8 +219,10 @@ namespace Mirror.Weaver
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     WeaverTypes.Import<bool>());
 
-            serialize.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<NetworkWriter>()));
-            serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, WeaverTypes.Import<bool>()));
+            var writerParameter = new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<NetworkWriter>());
+            serialize.Parameters.Add(writerParameter);
+            var initializeParameter = new ParameterDefinition("initialize", ParameterAttributes.None, WeaverTypes.Import<bool>());
+            serialize.Parameters.Add(initializeParameter);
             ILProcessor worker = serialize.Body.GetILProcessor();
 
             serialize.Body.InitLocals = true;
@@ -235,9 +237,9 @@ namespace Mirror.Weaver
                 // base
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 // writer
-                worker.Append(worker.Create(OpCodes.Ldarg_1));
+                worker.Append(worker.Create(OpCodes.Ldarg, writerParameter));
                 // forceAll
-                worker.Append(worker.Create(OpCodes.Ldarg_2));
+                worker.Append(worker.Create(OpCodes.Ldarg, initializeParameter));
                 worker.Append(worker.Create(OpCodes.Call, baseSerialize));
                 // set dirtyLocal to result of base.OnSerialize()
                 worker.Append(worker.Create(OpCodes.Stloc_0));
@@ -246,14 +248,14 @@ namespace Mirror.Weaver
             // Generates: if (forceAll);
             Instruction initialStateLabel = worker.Create(OpCodes.Nop);
             // forceAll
-            worker.Append(worker.Create(OpCodes.Ldarg_2));
+            worker.Append(worker.Create(OpCodes.Ldarg, initializeParameter));
             worker.Append(worker.Create(OpCodes.Brfalse, initialStateLabel));
 
             foreach (FieldDefinition syncVar in syncVars)
             {
                 // Generates a writer call for each sync variable
                 // writer
-                worker.Append(worker.Create(OpCodes.Ldarg_1));
+                worker.Append(worker.Create(OpCodes.Ldarg, writerParameter));
                 // this
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
@@ -281,7 +283,7 @@ namespace Mirror.Weaver
             // write dirty bits before the data fields
             // Generates: writer.WritePackedUInt64 (base.get_syncVarDirtyBits ());
             // writer
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Ldarg, writerParameter));
             // base
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkBehaviourDirtyBitsReference));
@@ -307,7 +309,7 @@ namespace Mirror.Weaver
 
                 // Generates a call to the writer for that field
                 // writer
-                worker.Append(worker.Create(OpCodes.Ldarg_1));
+                worker.Append(worker.Create(OpCodes.Ldarg, writerParameter));
                 // base
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
