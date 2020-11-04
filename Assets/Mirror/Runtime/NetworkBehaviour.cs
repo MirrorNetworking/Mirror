@@ -254,7 +254,7 @@ namespace Mirror
         {
             ValidateServerRpc(invokeClass, cmdName, requireAuthority);
 
-            (UniTask<T> task, int id) = Client.CreateReplyTask<T>();
+            (UniTask<T> task, int id) = ClientObjectManager.CreateReplyTask<T>();
 
             // construct the message
             var message = new ServerRpcMessage

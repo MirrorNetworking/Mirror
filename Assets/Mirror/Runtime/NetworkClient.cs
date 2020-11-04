@@ -272,52 +272,11 @@ namespace Mirror
         internal void RegisterHostHandlers()
         {
             Connection.RegisterHandler<NetworkPongMessage>(msg => { });
-            Connection.RegisterHandler<ServerRpcReply>(OnServerRpcReply);
         }
 
         internal void RegisterMessageHandlers()
         {
             Connection.RegisterHandler<NetworkPongMessage>(Time.OnClientPong);
-            Connection.RegisterHandler<ServerRpcReply>(OnServerRpcReply);
-        }
-
-        private void OnServerRpcReply(INetworkConnection connection, ServerRpcReply reply)
-        {
-            // find the callback that was waiting for this and invoke it.
-            if (callbacks.TryGetValue(reply.replyId, out Action<NetworkReader> action))
-            {
-                callbacks.Remove(replyId);
-                using(PooledNetworkReader reader = NetworkReaderPool.GetReader(reply.payload))
-                {
-                    action(reader);
-                }
-            }
-            else
-            {
-                throw new MethodAccessException("Received reply but no handler was registered");
-            }
-        }
-
-        private readonly Dictionary<int, Action<NetworkReader>> callbacks = new Dictionary<int, Action<NetworkReader>>();
-        private int replyId;
-
-        /// <summary>
-        /// Creates a task that waits for a reply from the server
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns>the task that will be completed when the result is in, and the id to use in the request</returns>
-        internal (UniTask<T> task, int replyId) CreateReplyTask<T>()
-        {
-            int newReplyId = replyId++;
-            var completionSource = AutoResetUniTaskCompletionSource<T>.Create();
-            void Callback(NetworkReader reader)
-            {
-                T result = reader.Read<T>();
-                completionSource.TrySetResult(result);
-            }
-
-            callbacks.Add(newReplyId, Callback);
-            return (completionSource.Task, newReplyId);
         }
 
 

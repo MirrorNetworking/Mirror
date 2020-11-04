@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Mirror.RemoteCalls;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -81,6 +82,7 @@ namespace Mirror
             client.Connection.RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
             client.Connection.RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
             client.Connection.RegisterHandler<SpawnMessage>(OnHostClientSpawn);
+            client.Connection.RegisterHandler<ServerRpcReply>(OnServerRpcReply);
             // host mode reuses objects in the server
             // so we don't need to spawn them
             client.Connection.RegisterHandler<UpdateVarsMessage>(msg => { });
@@ -92,6 +94,7 @@ namespace Mirror
             client.Connection.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
             client.Connection.RegisterHandler<ObjectHideMessage>(OnObjectHide);
             client.Connection.RegisterHandler<SpawnMessage>(OnSpawn);
+            client.Connection.RegisterHandler<ServerRpcReply>(OnServerRpcReply);
             client.Connection.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
             client.Connection.RegisterHandler<RpcMessage>(OnRpcMessage);
         }
@@ -597,6 +600,47 @@ namespace Mirror
                 if (logger.LogEnabled()) logger.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
             }
         }
+
+        private void OnServerRpcReply(INetworkConnection connection, ServerRpcReply reply)
+        {
+            // find the callback that was waiting for this and invoke it.
+            if (callbacks.TryGetValue(reply.replyId, out Action<NetworkReader> action))
+            {
+                callbacks.Remove(replyId);
+                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(reply.payload))
+                {
+                    action(reader);
+                }
+            }
+            else
+            {
+                throw new MethodAccessException("Received reply but no handler was registered");
+            }
+        }
+
+        private readonly Dictionary<int, Action<NetworkReader>> callbacks = new Dictionary<int, Action<NetworkReader>>();
+        private int replyId;
+
+        /// <summary>
+        /// Creates a task that waits for a reply from the server
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>the task that will be completed when the result is in, and the id to use in the request</returns>
+        internal (UniTask<T> task, int replyId) CreateReplyTask<T>()
+        {
+            int newReplyId = replyId++;
+            var completionSource = AutoResetUniTaskCompletionSource<T>.Create();
+            void Callback(NetworkReader reader)
+            {
+                T result = reader.Read<T>();
+                completionSource.TrySetResult(result);
+            }
+
+            callbacks.Add(newReplyId, Callback);
+            return (completionSource.Task, newReplyId);
+        }
+
+
     }
 }
 
