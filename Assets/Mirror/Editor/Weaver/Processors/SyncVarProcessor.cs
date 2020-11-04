@@ -22,7 +22,7 @@ namespace Mirror.Weaver
             => string.Format("void {0}({1} oldValue, {1} newValue)", hookName, ValueType);
 
         // Get hook method if any
-        public static MethodDefinition GetHookMethod(FieldDefinition syncVar)
+        static MethodDefinition GetHookMethod(FieldDefinition syncVar)
         {
             CustomAttribute syncVarAttr = syncVar.GetCustomAttribute<SyncVarAttribute>();
 
@@ -74,7 +74,7 @@ namespace Mirror.Weaver
                    method.Parameters[1].ParameterType.FullName == syncVar.FieldType.FullName;
         }
 
-        public static MethodDefinition GenerateSyncVarGetter(FieldDefinition fd, string originalName, FieldDefinition netFieldId)
+        static MethodDefinition GenerateSyncVarGetter(FieldDefinition fd, string originalName, FieldDefinition netFieldId)
         {
             //Create the get method
             var get = new MethodDefinition(
@@ -114,7 +114,7 @@ namespace Mirror.Weaver
             return get;
         }
 
-        public static MethodDefinition GenerateSyncVarSetter(FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
+        static MethodDefinition GenerateSyncVarSetter(FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
         {
             //Create the set method
             var set = new MethodDefinition("set_Network" + originalName, MethodAttributes.Public |
@@ -237,7 +237,7 @@ namespace Mirror.Weaver
             return set;
         }
 
-        public static void ProcessSyncVar(FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit)
+        static void ProcessSyncVar(FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit)
         {
             string originalName = fd.Name;
             Weaver.DLog(fd.DeclaringType, "Sync Var " + fd.Name + " " + fd.FieldType);
@@ -329,14 +329,17 @@ namespace Mirror.Weaver
                 td.Fields.Add(fd);
             }
             Weaver.WeaveLists.SetNumSyncVars(td.FullName, syncVars.Count);
+
+            GenerateSerialization(td);
+            GenerateDeSerialization(td);
         }
 
-        public static void WriteCallHookMethodUsingArgument(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue)
+        static void WriteCallHookMethodUsingArgument(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue)
         {
             WriteCallHookMethod(worker, hookMethod, oldValue, null);
         }
 
-        public static void WriteCallHookMethodUsingField(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
+        static void WriteCallHookMethodUsingField(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
         {
             if (newValue == null)
             {
@@ -402,7 +405,7 @@ namespace Mirror.Weaver
             }
         }
 
-        public void GenerateSerialization(TypeDefinition netBehaviourSubclass)
+        void GenerateSerialization(TypeDefinition netBehaviourSubclass)
         {
             Weaver.DLog(netBehaviourSubclass, "  GenerateSerialization");
 
@@ -554,10 +557,10 @@ namespace Mirror.Weaver
         }
 
 
-        public void DeserializeField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize)
+        void DeserializeField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize)
         {
             // check for Hook function
-            MethodDefinition hookMethod = SyncVarProcessor.GetHookMethod(syncVar);
+            MethodDefinition hookMethod = GetHookMethod(syncVar);
 
             if (IsNetworkIdentityField(syncVar))
             {
@@ -569,7 +572,7 @@ namespace Mirror.Weaver
             }
         }
 
-        public void GenerateDeSerialization(TypeDefinition netBehaviourSubclass)
+        void GenerateDeSerialization(TypeDefinition netBehaviourSubclass)
         {
             Weaver.DLog(netBehaviourSubclass, "  GenerateDeSerialization");
 
@@ -730,7 +733,7 @@ namespace Mirror.Weaver
 
                 // call the hook
                 // Generates: OnValueChanged(oldValue, this.syncVar);
-                SyncVarProcessor.WriteCallHookMethodUsingField(serWorker, hookMethod, oldValue, syncVar);
+                WriteCallHookMethodUsingField(serWorker, hookMethod, oldValue, syncVar);
 
                 // Generates: end if (!SyncVarEqual);
                 serWorker.Append(syncVarEqualLabel);
@@ -746,7 +749,7 @@ namespace Mirror.Weaver
         /// <param name="deserialize"></param>
         /// <param name="initialState"></param>
         /// <param name="hookResult"></param>
-        public void DeserializeNetworkIdentityField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize, MethodDefinition hookMethod)
+        void DeserializeNetworkIdentityField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize, MethodDefinition hookMethod)
         {
             /*
             Generates code like:
@@ -838,7 +841,7 @@ namespace Mirror.Weaver
 
                 // call the hook
                 // Generates: OnValueChanged(oldValue, this.syncVar);
-                SyncVarProcessor.WriteCallHookMethodUsingField(worker, hookMethod, oldSyncVar, syncVar);
+                WriteCallHookMethodUsingField(worker, hookMethod, oldSyncVar, syncVar);
 
                 // Generates: end if (!SyncVarEqual);
                 worker.Append(syncVarEqualLabel);

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MethodAttributes = Mono.Cecil.MethodAttributes;
-using ParameterAttributes = Mono.Cecil.ParameterAttributes;
 using TypeAttributes = Mono.Cecil.TypeAttributes;
 
 namespace Mirror.Weaver
@@ -66,15 +65,6 @@ namespace Mirror.Weaver
 
             RegisterSyncObjects();
 
-            syncVarProcessor.GenerateSerialization(netBehaviourSubclass);
-            if (Weaver.WeavingFailed)
-            {
-                // originally Process returned true in every case, except if already processed.
-                // maybe return false here in the future.
-                return true;
-            }
-
-            syncVarProcessor.GenerateDeSerialization(netBehaviourSubclass);
             Weaver.DLog(netBehaviourSubclass, "Process Done");
             return true;
         }
