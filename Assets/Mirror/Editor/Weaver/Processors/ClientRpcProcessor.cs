@@ -234,7 +234,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
 
-        public void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
+        public void ProcessClientRpc(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc))
             {
@@ -244,16 +244,8 @@ namespace Mirror.Weaver
             if (!Validate(md, clientRpcAttr))
                 return;
 
-            if (names.Contains(md.Name))
-            {
-                Weaver.Error($"Duplicate ClientRpc name {md.Name}", md);
-                return;
-            }
-
             Client clientTarget = clientRpcAttr.GetField("target", Client.Observers);
             bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
-
-            names.Add(md.Name);
 
             MethodDefinition userCodeFunc = GenerateStub(md, clientRpcAttr);
 

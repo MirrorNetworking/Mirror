@@ -648,19 +648,31 @@ namespace Mirror.Weaver
             // find ServerRpc and RPC functions
             foreach (MethodDefinition md in methods)
             {
+                bool rpc = false;
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
                     if (ca.AttributeType.Is<ServerRpcAttribute>())
                     {
-                        serverRpcProcessor.ProcessServerRpc(names, md, ca);
+                        serverRpcProcessor.ProcessServerRpc(md, ca);
+                        rpc = true;
                         break;
                     }
 
                     if (ca.AttributeType.Is<ClientRpcAttribute>())
                     {
-                        clientRpcProcessor.ProcessClientRpc(names, md, ca);
+                        clientRpcProcessor.ProcessClientRpc(md, ca);
+                        rpc = true;
                         break;
                     }
+                }
+
+                if (rpc)
+                {
+                    if (names.Contains(md.Name))
+                    {
+                        Weaver.Error($"Duplicate Rpc name {md.Name}", md);
+                    }
+                    names.Add(md.Name);
                 }
             }
         }

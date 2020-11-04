@@ -233,7 +233,7 @@ namespace Mirror.Weaver
             return registerInstance;
         }
 
-        public void ProcessServerRpc(HashSet<string> names, MethodDefinition md, CustomAttribute serverRpcAttr)
+        public void ProcessServerRpc(MethodDefinition md, CustomAttribute serverRpcAttr)
         {
             if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ServerRpc))
                 return;
@@ -241,16 +241,7 @@ namespace Mirror.Weaver
             if (!Validate(md))
                 return;
 
-            if (names.Contains(md.Name))
-            {
-                Weaver.Error($"Duplicate ServerRpc name {md.Name}", md);
-                return;
-            }
-
             bool requireAuthority = serverRpcAttr.GetField("requireAuthority", false);
-
-            names.Add(md.Name);
-
 
             MethodDefinition userCodeFunc = GenerateStub(md, serverRpcAttr);
 
