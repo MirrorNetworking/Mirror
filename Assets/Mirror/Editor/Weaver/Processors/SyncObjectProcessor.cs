@@ -1,20 +1,21 @@
 using System.Collections.Generic;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public static class SyncObjectProcessor
+    public class SyncObjectProcessor
     {
+        readonly List<FieldDefinition> syncObjects = new List<FieldDefinition>();
+
         /// <summary>
         /// Finds SyncObjects fields in a type
         /// <para>Type should be a NetworkBehaviour</para>
         /// </summary>
         /// <param name="td"></param>
         /// <returns></returns>
-        public static List<FieldDefinition> FindSyncObjectsFields(TypeDefinition td)
+        public void ProcessSyncObjects(TypeDefinition td)
         {
-            var syncObjects = new List<FieldDefinition>();
-
             foreach (FieldDefinition fd in td.Fields)
             {
                 if (fd.FieldType.Resolve().ImplementsInterface<ISyncObject>())
@@ -31,7 +32,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            return syncObjects;
+            RegisterSyncObjects(td);
         }
 
         /// <summary>
@@ -58,5 +59,83 @@ namespace Mirror.Weaver
                 GenerateReadersAndWriters(tr.Resolve().BaseType);
             }
         }
+
+        void RegisterSyncObjects(TypeDefinition netBehaviourSubclass)
+        {
+            Weaver.DLog(netBehaviourSubclass, "  GenerateConstants ");
+
+            // find instance constructor
+            MethodDefinition ctor = netBehaviourSubclass.GetMethod(".ctor");
+
+            if (ctor == null)
+            {
+                Weaver.Error($"{netBehaviourSubclass.Name} has invalid constructor", netBehaviourSubclass);
+                return;
+            }
+
+            Instruction ret = ctor.Body.Instructions[ctor.Body.Instructions.Count - 1];
+            if (ret.OpCode == OpCodes.Ret)
+            {
+                ctor.Body.Instructions.RemoveAt(ctor.Body.Instructions.Count - 1);
+            }
+            else
+            {
+                Weaver.Error($"{netBehaviourSubclass.Name} has invalid constructor", ctor);
+                return;
+            }
+
+            ILProcessor ctorWorker = ctor.Body.GetILProcessor();
+
+            foreach (FieldDefinition fd in syncObjects)
+            {
+                GenerateSyncObjectInitializer(ctorWorker, fd);
+            }
+
+            // finish ctor
+            ctorWorker.Append(ctorWorker.Create(OpCodes.Ret));
+
+            // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
+            netBehaviourSubclass.Attributes &= ~TypeAttributes.BeforeFieldInit;
+        }
+
+        static void GenerateSyncObjectInitializer(ILProcessor worker, FieldDefinition fd)
+        {
+            // register syncobject in network behaviour
+            GenerateSyncObjectRegistration(worker, fd);
+        }
+
+        public static bool ImplementsSyncObject(TypeReference typeRef)
+        {
+            try
+            {
+                // value types cant inherit from SyncObject
+                if (typeRef.IsValueType)
+                {
+                    return false;
+                }
+
+                return typeRef.Resolve().ImplementsInterface<ISyncObject>();
+            }
+            catch
+            {
+                // sometimes this will fail if we reference a weird library that can't be resolved, so we just swallow that exception and return false
+            }
+
+            return false;
+        }
+
+        /*
+            // generates code like:
+            this.InitSyncObject(m_sizes);
+        */
+        static void GenerateSyncObjectRegistration(ILProcessor worker, FieldDefinition fd)
+        {
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldfld, fd));
+
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.InitSyncObjectReference));
+        }
+
     }
 }

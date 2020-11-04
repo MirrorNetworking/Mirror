@@ -307,7 +307,7 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
+                if (SyncObjectProcessor.ImplementsSyncObject(fd.FieldType))
                 {
                     Weaver.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);
                     continue;

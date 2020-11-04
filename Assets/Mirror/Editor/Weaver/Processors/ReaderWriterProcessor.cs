@@ -24,7 +24,7 @@ namespace Mirror.Weaver
     }
     public static class ReaderWriterProcessor
     {
-        private readonly static HashSet<TypeReference> messages = new HashSet<TypeReference>(new TypeReferenceComparer());
+        private static readonly HashSet<TypeReference> messages = new HashSet<TypeReference>(new TypeReferenceComparer());
 
         public static bool Process(AssemblyDefinition CurrentAssembly, Assembly unityAssembly)
         {

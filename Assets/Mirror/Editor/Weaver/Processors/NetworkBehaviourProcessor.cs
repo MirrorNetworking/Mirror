@@ -17,12 +17,11 @@ namespace Mirror.Weaver
     /// </summary>
     class NetworkBehaviourProcessor
     {
-        List<FieldDefinition> syncObjects = new List<FieldDefinition>();
-
         readonly TypeDefinition netBehaviourSubclass;
         readonly ServerRpcProcessor serverRpcProcessor = new ServerRpcProcessor();
         readonly ClientRpcProcessor clientRpcProcessor = new ClientRpcProcessor();
         readonly SyncVarProcessor syncVarProcessor = new SyncVarProcessor();
+        readonly SyncObjectProcessor syncObjectProcessor = new SyncObjectProcessor();
 
         public NetworkBehaviourProcessor(TypeDefinition td)
         {
@@ -52,18 +51,9 @@ namespace Mirror.Weaver
 
             syncVarProcessor.ProcessSyncVars(netBehaviourSubclass);
 
-            syncObjects = SyncObjectProcessor.FindSyncObjectsFields(netBehaviourSubclass);
+            syncObjectProcessor.ProcessSyncObjects(netBehaviourSubclass);
 
-            ProcessMethods();
-            if (Weaver.WeavingFailed)
-            {
-                // originally Process returned true in every case, except if already processed.
-                // maybe return false here in the future.
-                return true;
-            }
-            RegisterRpcs();
-
-            RegisterSyncObjects();
+            ProcessRpcs();
 
             Weaver.DLog(netBehaviourSubclass, "Process Done");
             return true;
@@ -157,45 +147,7 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Attributes &= ~TypeAttributes.BeforeFieldInit;
         }
 
-        void RegisterSyncObjects()
-        {
-            Weaver.DLog(netBehaviourSubclass, "  GenerateConstants ");
-
-            // find instance constructor
-            MethodDefinition ctor = netBehaviourSubclass.GetMethod(".ctor");
-
-            if (ctor == null)
-            {
-                Weaver.Error($"{netBehaviourSubclass.Name} has invalid constructor", netBehaviourSubclass);
-                return;
-            }
-
-            Instruction ret = ctor.Body.Instructions[ctor.Body.Instructions.Count - 1];
-            if (ret.OpCode == OpCodes.Ret)
-            {
-                ctor.Body.Instructions.RemoveAt(ctor.Body.Instructions.Count - 1);
-            }
-            else
-            {
-                Weaver.Error($"{netBehaviourSubclass.Name} has invalid constructor", ctor);
-                return;
-            }
-
-            ILProcessor ctorWorker = ctor.Body.GetILProcessor();
-
-            foreach (FieldDefinition fd in syncObjects)
-            {
-                SyncObjectInitializer.GenerateSyncObjectInitializer(ctorWorker, fd);
-            }
-
-            // finish ctor
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Ret));
-
-            // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
-            netBehaviourSubclass.Attributes &= ~TypeAttributes.BeforeFieldInit;
-        }
-
-        void ProcessMethods()
+        void ProcessRpcs()
         {
             var names = new HashSet<string>();
 
@@ -231,6 +183,8 @@ namespace Mirror.Weaver
                     names.Add(md.Name);
                 }
             }
+
+            RegisterRpcs();
         }
     }
 }
