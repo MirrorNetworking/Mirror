@@ -231,10 +231,8 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             worker.Append(worker.Create(OpCodes.Ldnull));
             CreateRpcDelegate(worker, func);
-            //
             worker.Append(worker.Create(OpCodes.Call, registerMethod));
         }
-
 
         public void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
