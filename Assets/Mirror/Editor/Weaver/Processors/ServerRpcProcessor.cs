@@ -16,14 +16,14 @@ namespace Mirror.Weaver
     /// </summary>
     public class ServerRpcProcessor :RpcProcessor
     {
-        struct CmdResult
+        struct ServerRpcMethod
         {
-            public MethodDefinition method;
+            public MethodDefinition stub;
             public bool requireAuthority;
             public MethodDefinition skeleton;
         }
 
-        readonly List<CmdResult> serverRpcs = new List<CmdResult>();
+        readonly List<ServerRpcMethod> serverRpcs = new List<ServerRpcMethod>();
 
         /// <summary>
         /// Replaces the user code with a stub.
@@ -190,17 +190,17 @@ namespace Mirror.Weaver
 
         public void RegisterServerRpcs(ILProcessor cctorWorker)
         {
-            foreach (CmdResult cmdResult in serverRpcs)
+            foreach (ServerRpcMethod cmdResult in serverRpcs)
             {
                 GenerateRegisterServerRpcDelegate(cctorWorker, cmdResult);
             }
         }
 
-        void GenerateRegisterServerRpcDelegate(ILProcessor worker, CmdResult cmdResult)
+        void GenerateRegisterServerRpcDelegate(ILProcessor worker, ServerRpcMethod cmdResult)
         {
             MethodDefinition skeleton = cmdResult.skeleton;
             MethodReference registerMethod = GetRegisterMethod(skeleton);
-            string cmdName = cmdResult.method.Name;
+            string cmdName = cmdResult.stub.Name;
             bool requireAuthority = cmdResult.requireAuthority;
 
             TypeDefinition netBehaviourSubclass = skeleton.DeclaringType;
@@ -246,9 +246,9 @@ namespace Mirror.Weaver
             MethodDefinition userCodeFunc = GenerateStub(md, serverRpcAttr);
 
             MethodDefinition skeletonFunc = GenerateSkeleton(md, userCodeFunc);
-            serverRpcs.Add(new CmdResult
+            serverRpcs.Add(new ServerRpcMethod
             {
-                method = md,
+                stub = md,
                 requireAuthority = requireAuthority,
                 skeleton = skeletonFunc
             });

@@ -10,7 +10,7 @@ namespace Mirror.Weaver
     /// </summary>
     public class ClientRpcProcessor : RpcProcessor
     {
-        struct ClientRpcResult
+        struct ClientRpcMethod
         {
             public MethodDefinition stub;
             public Client target;
@@ -18,7 +18,7 @@ namespace Mirror.Weaver
             public MethodDefinition skeleton;
         }
 
-        readonly List<ClientRpcResult> clientRpcs = new List<ClientRpcResult>();
+        readonly List<ClientRpcMethod> clientRpcs = new List<ClientRpcMethod>();
 
         /// <summary>
         /// Generates a skeleton for an RPC
@@ -212,7 +212,7 @@ namespace Mirror.Weaver
 
         public void RegisterClientRpcs(ILProcessor cctorWorker)
         {
-            foreach (ClientRpcResult clientRpcResult in clientRpcs)
+            foreach (ClientRpcMethod clientRpcResult in clientRpcs)
             {
                 GenerateRegisterRemoteDelegate(cctorWorker, clientRpcResult.skeleton, clientRpcResult.stub.Name);
             }
@@ -250,7 +250,7 @@ namespace Mirror.Weaver
             MethodDefinition userCodeFunc = GenerateStub(md, clientRpcAttr);
 
             MethodDefinition skeletonFunc = GenerateSkeleton(md, userCodeFunc, clientRpcAttr);
-            clientRpcs.Add(new ClientRpcResult
+            clientRpcs.Add(new ClientRpcMethod
             {
                 stub = md,
                 target = clientTarget,
