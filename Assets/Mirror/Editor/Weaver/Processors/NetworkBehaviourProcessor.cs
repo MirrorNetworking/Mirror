@@ -62,7 +62,9 @@ namespace Mirror.Weaver
                 // maybe return false here in the future.
                 return true;
             }
-            GenerateConstants();
+            RegisterRpcs();
+
+            RegisterSyncObjects();
 
             syncVarProcessor.GenerateSerialization(netBehaviourSubclass);
             if (Weaver.WeavingFailed)
@@ -118,13 +120,12 @@ namespace Mirror.Weaver
         }
         #endregion
 
-        void GenerateConstants()
+        void RegisterRpcs()
         {
             Weaver.DLog(netBehaviourSubclass, "  GenerateConstants ");
 
             // find static constructor
             MethodDefinition cctor = netBehaviourSubclass.GetMethod(".cctor");
-            bool cctorFound = cctor != null;
             if (cctor != null)
             {
                 // remove the return opcode from end of function. will add our own later.
@@ -151,7 +152,24 @@ namespace Mirror.Weaver
                         MethodAttributes.RTSpecialName |
                         MethodAttributes.Static,
                         WeaverTypes.Import(typeof(void)));
+                netBehaviourSubclass.Methods.Add(cctor);
             }
+
+            ILProcessor cctorWorker = cctor.Body.GetILProcessor();
+
+            serverRpcProcessor.RegisterServerRpcs(cctorWorker);
+
+            clientRpcProcessor.RegisterClientRpcs(cctorWorker);
+
+            cctorWorker.Append(cctorWorker.Create(OpCodes.Ret));
+
+            // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
+            netBehaviourSubclass.Attributes &= ~TypeAttributes.BeforeFieldInit;
+        }
+
+        void RegisterSyncObjects()
+        {
+            Weaver.DLog(netBehaviourSubclass, "  GenerateConstants ");
 
             // find instance constructor
             MethodDefinition ctor = netBehaviourSubclass.GetMethod(".ctor");
@@ -174,21 +192,10 @@ namespace Mirror.Weaver
             }
 
             ILProcessor ctorWorker = ctor.Body.GetILProcessor();
-            ILProcessor cctorWorker = cctor.Body.GetILProcessor();
-
-            serverRpcProcessor.RegisterServerRpcs(cctorWorker);
-
-            clientRpcProcessor.RegisterClientRpcs(cctorWorker);
 
             foreach (FieldDefinition fd in syncObjects)
             {
                 SyncObjectInitializer.GenerateSyncObjectInitializer(ctorWorker, fd);
-            }
-
-            cctorWorker.Append(cctorWorker.Create(OpCodes.Ret));
-            if (!cctorFound)
-            {
-                netBehaviourSubclass.Methods.Add(cctor);
             }
 
             // finish ctor
@@ -197,7 +204,6 @@ namespace Mirror.Weaver
             // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
             netBehaviourSubclass.Attributes &= ~TypeAttributes.BeforeFieldInit;
         }
-
 
         void ProcessMethods()
         {
