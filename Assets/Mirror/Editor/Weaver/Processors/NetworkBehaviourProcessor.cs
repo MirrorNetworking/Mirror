@@ -33,6 +33,8 @@ namespace Mirror.Weaver
         readonly List<MethodDefinition> clientRpcSkeletonFuncs = new List<MethodDefinition>();
 
         readonly TypeDefinition netBehaviourSubclass;
+        readonly ServerRpcProcessor serverRpcProcessor = new ServerRpcProcessor();
+        readonly ClientRpcProcessor clientRpcProcessor = new ClientRpcProcessor();
 
         public struct CmdResult
         {
@@ -118,55 +120,6 @@ namespace Mirror.Weaver
             // NetworkWriterPool.Recycle(writer);
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.RecycleWriterReference));
-        }
-
-        public static bool WriteArguments(ILProcessor worker, MethodDefinition method, RemoteCallType callType)
-        {
-            // write each argument
-            // example result
-            /*
-            writer.WritePackedInt32(someNumber);
-            writer.WriteNetworkIdentity(someTarget);
-             */
-
-            bool skipFirst = callType == RemoteCallType.ClientRpc
-                && ClientRpcProcessor.HasNetworkConnectionParameter(method);
-
-            // arg of calling  function, arg 0 is "this" so start counting at 1
-            int argNum = 1;
-            foreach (ParameterDefinition param in method.Parameters)
-            {
-                // NetworkConnection is not sent via the NetworkWriter so skip it here
-                // skip first for NetworkConnection in TargetRpc
-                if (argNum == 1 && skipFirst)
-                {
-                    argNum += 1;
-                    continue;
-                }
-                // skip SenderConnection in ServerRpc
-                if (IsNetworkConnection(param.ParameterType))
-                {
-                    argNum += 1;
-                    continue;
-                }
-
-                MethodReference writeFunc = Writers.GetWriteFunc(param.ParameterType);
-                if (writeFunc == null)
-                {
-                    Weaver.Error($"{method.Name} has invalid parameter {param}", method);
-                    return false;
-                }
-
-                // use built-in writer func on writer object
-                // NetworkWriter object
-                worker.Append(worker.Create(OpCodes.Ldloc_0));
-                // add argument to call
-                worker.Append(worker.Create(OpCodes.Ldarg, argNum));
-                // call writer extension method
-                worker.Append(worker.Create(OpCodes.Call, writeFunc));
-                argNum += 1;
-            }
-            return true;
         }
 
         #region mark / check type as processed
@@ -807,149 +760,6 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Methods.Add(serialize);
         }
 
-        public static bool ReadArguments(MethodDefinition method, ILProcessor worker, bool skipFirst)
-        {
-            // read each argument
-            // example result
-            /*
-            CallCmdDoSomething(reader.ReadPackedInt32(), reader.ReadNetworkIdentity());
-             */
-
-            // arg of calling  function, arg 0 is "this" so start counting at 1
-            int argNum = 1;
-            foreach (ParameterDefinition param in method.Parameters)
-            {
-                // NetworkConnection is not sent via the NetworkWriter so skip it here
-                // skip first for NetworkConnection in TargetRpc
-                if (argNum == 1 && skipFirst)
-                {
-                    argNum += 1;
-                    continue;
-                }
-                // skip SenderConnection in ServerRpc
-                if (IsNetworkConnection(param.ParameterType))
-                {
-                    argNum += 1;
-                    continue;
-                }
-
-                MethodReference readFunc = Readers.GetReadFunc(param.ParameterType);
-
-                if (readFunc == null)
-                {
-                    Weaver.Error($"{method.Name} has invalid parameter {param}.  Unsupported type {param.ParameterType},  use a supported MirrorNG type instead", method);
-                    return false;
-                }
-
-                worker.Append(worker.Create(OpCodes.Ldarg_1));
-                worker.Append(worker.Create(OpCodes.Call, readFunc));
-
-                // conversion.. is this needed?
-                if (param.ParameterType.Is<float>())
-                {
-                    worker.Append(worker.Create(OpCodes.Conv_R4));
-                }
-                else if (param.ParameterType.Is<double>())
-                {
-                    worker.Append(worker.Create(OpCodes.Conv_R8));
-                }
-            }
-            return true;
-        }
-
-        public static void AddInvokeParameters(ICollection<ParameterDefinition> collection)
-        {
-            collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, WeaverTypes.Import<NetworkBehaviour>()));
-            collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
-            // senderConnection is only used for commands but NetworkBehaviour.CmdDelegate is used for all remote calls
-            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, WeaverTypes.Import<INetworkConnection>()));
-            collection.Add(new ParameterDefinition("replyId", ParameterAttributes.None, WeaverTypes.Import<int>()));
-        }
-
-        // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
-        public static bool ValidateRemoteCallAndParameters(MethodDefinition method, RemoteCallType callType)
-        {
-            if (method.IsAbstract)
-            {
-                Weaver.Error("Abstract Rpcs are currently not supported, use virtual method instead", method);
-                return false;
-            }
-
-            if (method.IsStatic)
-            {
-                Weaver.Error($"{method.Name} must not be static", method);
-                return false;
-            }
-
-            if (method.ReturnType.Is<System.Collections.IEnumerator>())
-            {
-                Weaver.Error($"{method.Name} cannot be a coroutine", method);
-                return false;
-            }
-
-            if (method.HasGenericParameters)
-            {
-                Weaver.Error($"{method.Name} cannot have generic parameters", method);
-                return false;
-            }
-
-            return ValidateParameters(method, callType);
-        }
-
-        // check if all Command/TargetRpc/Rpc function's parameters are valid for weaving
-        static bool ValidateParameters(MethodReference method, RemoteCallType callType)
-        {
-            for (int i = 0; i < method.Parameters.Count; ++i)
-            {
-                ParameterDefinition param = method.Parameters[i];
-                if (!ValidateParameter(method, param, callType, i == 0))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        // validate parameters for a remote function call like Rpc/Cmd
-        static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
-        {
-            if (param.IsOut)
-            {
-                Weaver.Error($"{method.Name} cannot have out parameters", method);
-                return false;
-            }
-
-            if (IsNetworkConnection(param.ParameterType))
-            {
-                if (callType == RemoteCallType.ClientRpc && firstParam)
-                {
-                    // perfectly fine,  target rpc can receive a network connection as first parameter
-                    return true;
-                }
-
-                if (callType == RemoteCallType.ServerRpc)
-                {
-                    return true;
-                }
-
-                Weaver.Error($"{method.Name} has invalid parameter {param}, Cannot pass NetworkConnections", method);
-                return false;
-            }
-
-            if (param.IsOptional)
-            {
-                Weaver.Error($"{method.Name} cannot have optional parameters", method);
-                return false;
-            }
-
-            return true;
-        }
-
-        public static bool IsNetworkConnection(TypeReference type)
-        {
-            return type.Resolve().ImplementsInterface<INetworkConnection>();
-        }
-
         void ProcessMethods()
         {
             var names = new HashSet<string>();
@@ -978,12 +788,12 @@ namespace Mirror.Weaver
 
         void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc))
+            if (!RpcProcessor.ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc))
             {
                 return;
             }
 
-            if (!ClientRpcProcessor.Validate(md, clientRpcAttr))
+            if (!clientRpcProcessor.Validate(md, clientRpcAttr))
                 return;
 
             if (names.Contains(md.Name))
@@ -1003,9 +813,9 @@ namespace Mirror.Weaver
                 excludeOwner = excludeOwner
             });
 
-            MethodDefinition userCodeFunc = ClientRpcProcessor.GenerateStub(md, clientRpcAttr);
+            MethodDefinition userCodeFunc = clientRpcProcessor.GenerateStub(md, clientRpcAttr);
 
-            MethodDefinition skeletonFunc = ClientRpcProcessor.GenerateSkeleton(md, userCodeFunc, clientRpcAttr);
+            MethodDefinition skeletonFunc = clientRpcProcessor.GenerateSkeleton(md, userCodeFunc, clientRpcAttr);
             if (skeletonFunc != null)
             {
                 clientRpcSkeletonFuncs.Add(skeletonFunc);
@@ -1014,10 +824,10 @@ namespace Mirror.Weaver
 
         void ProcessServerRpc(HashSet<string> names, MethodDefinition md, CustomAttribute serverRpcAttr)
         {
-            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ServerRpc))
+            if (!RpcProcessor.ValidateRemoteCallAndParameters(md, RemoteCallType.ServerRpc))
                 return;
 
-            if (!ServerRpcProcessor.Validate(md, serverRpcAttr))
+            if (!serverRpcProcessor.Validate(md, serverRpcAttr))
                 return;
 
             if (names.Contains(md.Name))
@@ -1035,9 +845,9 @@ namespace Mirror.Weaver
                 requireAuthority = requireAuthority
             });
 
-            MethodDefinition userCodeFunc = ServerRpcProcessor.GenerateStub(md, serverRpcAttr);
+            MethodDefinition userCodeFunc = serverRpcProcessor.GenerateStub(md, serverRpcAttr);
 
-            MethodDefinition skeletonFunc = ServerRpcProcessor.GenerateSkeleton(md, userCodeFunc);
+            MethodDefinition skeletonFunc = serverRpcProcessor.GenerateSkeleton(md, userCodeFunc);
             if (skeletonFunc != null)
             {
                 serverRpcSkeletonFuncs.Add(skeletonFunc);

@@ -12,7 +12,7 @@ namespace Mirror.Weaver
     /// <summary>
     /// Processes [ServerRpc] methods in NetworkBehaviour
     /// </summary>
-    public static class ServerRpcProcessor
+    public class ServerRpcProcessor :RpcProcessor
     {
         /// <summary>
         /// Replaces the user code with a stub.
@@ -40,7 +40,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public static MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute serverRpcAttr)
+        public MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute serverRpcAttr)
         {
             MethodDefinition cmd = MethodProcessor.SubstituteMethod(md);
 
@@ -52,7 +52,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Cmd call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.ServerRpc))
+            if (!WriteArguments(worker, md, RemoteCallType.ServerRpc))
                 return cmd;
 
             string cmdName = md.Name;
@@ -81,7 +81,7 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        private static void CallSendServerRpc(MethodDefinition md, ILProcessor worker)
+        private void CallSendServerRpc(MethodDefinition md, ILProcessor worker)
         {
             if (md.ReturnType.Is(typeof(void)))
             {
@@ -125,13 +125,13 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public static MethodDefinition GenerateSkeleton(MethodDefinition method, MethodDefinition userCodeFunc)
+        public MethodDefinition GenerateSkeleton(MethodDefinition method, MethodDefinition userCodeFunc)
         {
             var cmd = new MethodDefinition(MethodProcessor.SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 userCodeFunc.ReturnType);
 
-            NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
+            AddInvokeParameters(cmd.Parameters);
             method.DeclaringType.Methods.Add(cmd);
 
             ILProcessor worker = cmd.Body.GetILProcessor();
@@ -140,7 +140,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Castclass, method.DeclaringType));
 
-            if (!NetworkBehaviourProcessor.ReadArguments(method, worker, false))
+            if (!ReadArguments(method, worker, false))
                 return cmd;
 
             AddSenderConnection(method, worker);
@@ -152,11 +152,11 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        static void AddSenderConnection(MethodDefinition method, ILProcessor worker)
+        void AddSenderConnection(MethodDefinition method, ILProcessor worker)
         {
             foreach (ParameterDefinition param in method.Parameters)
             {
-                if (NetworkBehaviourProcessor.IsNetworkConnection(param.ParameterType))
+                if (IsNetworkConnection(param.ParameterType))
                 {
                     // NetworkConnection is 3nd arg (arg0 is "obj" not "this" because method is static)
                     // exmaple: static void InvokeCmdCmdSendServerRpc(NetworkBehaviour obj, NetworkReader reader, NetworkConnection connection)
@@ -165,7 +165,7 @@ namespace Mirror.Weaver
             }
         }
 
-        internal static bool Validate(MethodDefinition md, CustomAttribute serverRpcAttr)
+        internal bool Validate(MethodDefinition md, CustomAttribute serverRpcAttr)
         {
             Type unitaskType = typeof(UniTask<int>).GetGenericTypeDefinition();
             if (!md.ReturnType.Is(typeof(void)) && !md.ReturnType.Is(unitaskType))

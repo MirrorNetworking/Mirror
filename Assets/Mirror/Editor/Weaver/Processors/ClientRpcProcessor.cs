@@ -7,15 +7,8 @@ namespace Mirror.Weaver
     /// <summary>
     /// Processes [Rpc] methods in NetworkBehaviour
     /// </summary>
-    public static class ClientRpcProcessor
+    public class ClientRpcProcessor : RpcProcessor
     {
-        // helper functions to check if the method has a NetworkConnection parameter
-        public static bool HasNetworkConnectionParameter(MethodDefinition md)
-        {
-            return md.Parameters.Count > 0 &&
-                   md.Parameters[0].ParameterType.Is<INetworkConnection>();
-        }
-
         /// <summary>
         /// Generates a skeleton for an RPC
         /// </summary>
@@ -36,14 +29,14 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public static MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc, CustomAttribute clientRpcAttr)
+        public MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc, CustomAttribute clientRpcAttr)
         {
             var rpc = new MethodDefinition(
                 MethodProcessor.SkeletonPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 WeaverTypes.Import(typeof(void)));
 
-            NetworkBehaviourProcessor.AddInvokeParameters(rpc.Parameters);
+            AddInvokeParameters(rpc.Parameters);
             md.DeclaringType.Methods.Add(rpc);
 
             ILProcessor worker = rpc.Body.GetILProcessor();
@@ -63,7 +56,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Call, WeaverTypes.BehaviorConnectionToServerReference));
             }
             
-            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, hasNetworkConnection))
+            if (!ReadArguments(md, worker, hasNetworkConnection))
                 return rpc;
 
             // invoke actual ServerRpc function
@@ -126,7 +119,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public static MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute clientRpcAttr)
+        public MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(md);
 
@@ -137,7 +130,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.ClientRpc))
+            if (!WriteArguments(worker, md, RemoteCallType.ClientRpc))
                 return rpc;
 
             string rpcName = md.Name;
@@ -180,7 +173,7 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        public static bool Validate(MethodDefinition md, CustomAttribute clientRpcAttr)
+        public bool Validate(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             if (!md.ReturnType.Is(typeof(void)))
             {
