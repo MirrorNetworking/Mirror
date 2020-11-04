@@ -12,13 +12,13 @@ namespace Mirror.Weaver
     {
         struct ClientRpcResult
         {
-            public MethodDefinition method;
+            public MethodDefinition stub;
             public Client target;
             public bool excludeOwner;
+            public MethodDefinition skeleton;
         }
 
         readonly List<ClientRpcResult> clientRpcs = new List<ClientRpcResult>();
-        readonly List<MethodDefinition> clientRpcSkeletonFuncs = new List<MethodDefinition>();
 
         /// <summary>
         /// Generates a skeleton for an RPC
@@ -212,10 +212,9 @@ namespace Mirror.Weaver
 
         public void RegisterClientRpcs(ILProcessor cctorWorker)
         {
-            for (int i = 0; i < clientRpcs.Count; ++i)
+            foreach (ClientRpcResult clientRpcResult in clientRpcs)
             {
-                ClientRpcResult clientRpcResult = clientRpcs[i];
-                GenerateRegisterRemoteDelegate(cctorWorker, clientRpcSkeletonFuncs[i], clientRpcResult.method.Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, clientRpcResult.skeleton, clientRpcResult.stub.Name);
             }
         }
 
@@ -257,21 +256,17 @@ namespace Mirror.Weaver
             bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
 
             names.Add(md.Name);
-            clientRpcs.Add(new ClientRpcResult
-            {
-                method = md,
-                target = clientTarget,
-                excludeOwner = excludeOwner
-            });
 
             MethodDefinition userCodeFunc = GenerateStub(md, clientRpcAttr);
 
             MethodDefinition skeletonFunc = GenerateSkeleton(md, userCodeFunc, clientRpcAttr);
-            if (skeletonFunc != null)
+            clientRpcs.Add(new ClientRpcResult
             {
-                clientRpcSkeletonFuncs.Add(skeletonFunc);
-            }
+                stub = md,
+                target = clientTarget,
+                excludeOwner = excludeOwner,
+                skeleton = skeletonFunc
+            });
         }
-
     }
 }
