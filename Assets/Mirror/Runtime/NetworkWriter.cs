@@ -15,7 +15,7 @@ namespace Mirror
     /// <typeparam name="T"></typeparam>
     public static class Writer<T>
     {
-        public static Action<NetworkWriter, T> write;
+        public static Action<NetworkWriter, T> Write { internal get; set; }
     }
 
     /// <summary>
@@ -174,13 +174,13 @@ namespace Mirror
         /// <param name="value"></param>
         public void Write<T>(T value)
         {
-            if (Writer<T>.write == null)
+            if (Writer<T>.Write == null)
                 Debug.AssertFormat(
-                    Writer<T>.write != null,
+                    Writer<T>.Write != null,
                     @"No writer found for {0}. See https://mirrorng.github.io/MirrorNG/Articles/General/Troubleshooting.html for details",
                     typeof(T));
 
-            Writer<T>.write(this, value);
+            Writer<T>.Write(this, value);
         }
     }
 

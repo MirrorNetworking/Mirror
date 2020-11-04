@@ -276,7 +276,7 @@ namespace Mirror.Weaver
         }
 
         /// <summary>
-        /// Save a delegate for each one of the writers into <see cref="Writer{T}.write"/>
+        /// Save a delegate for each one of the writers into <see cref="Writer{T}.Write"/>
         /// </summary>
         /// <param name="worker"></param>
         internal static void InitializeWriters(ILProcessor worker)
@@ -285,8 +285,8 @@ namespace Mirror.Weaver
 
             TypeReference genericWriterClassRef = module.ImportReference(typeof(Writer<>));
 
-            System.Reflection.FieldInfo fieldInfo = typeof(Writer<>).GetField(nameof(Writer<object>.write));
-            FieldReference fieldRef = module.ImportReference(fieldInfo);
+            System.Reflection.PropertyInfo writerProperty = typeof(Writer<>).GetProperty(nameof(Writer<int>.Write));
+            MethodReference fieldRef = module.ImportReference(writerProperty.GetSetMethod());
             TypeReference networkWriterRef = module.ImportReference(typeof(NetworkWriter));
             TypeReference actionRef = module.ImportReference(typeof(Action<,>));
             MethodReference actionConstructorRef = module.ImportReference(typeof(Action<,>).GetConstructors()[0]);
@@ -305,8 +305,8 @@ namespace Mirror.Weaver
 
                 // save it in Writer<T>.write
                 GenericInstanceType genericInstance = genericWriterClassRef.MakeGenericInstanceType(dataType);
-                FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
-                worker.Append(worker.Create(OpCodes.Stsfld, specializedField));
+                MethodReference specializedField = fieldRef.MakeHostInstanceGeneric(genericInstance);
+                worker.Append(worker.Create(OpCodes.Call, specializedField));
             }
         }
     }

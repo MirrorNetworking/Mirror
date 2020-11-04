@@ -14,7 +14,7 @@ namespace Mirror.Tests
         [Test]
         public void TestIntWriterNotNull()
         {
-            Assert.That(Writer<int>.write, Is.Not.Null);
+            Assert.That(Writer<int>.Write, Is.Not.Null);
         }
 
         [Test]
@@ -26,7 +26,7 @@ namespace Mirror.Tests
         [Test]
         public void TestCustomWriterNotNull()
         {
-            Assert.That(Writer<MyType>.write, Is.Not.Null);
+            Assert.That(Writer<MyType>.Write, Is.Not.Null);
         }
 
         [Test]

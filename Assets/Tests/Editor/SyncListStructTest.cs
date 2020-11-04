@@ -8,7 +8,8 @@ namespace Mirror.Tests
         public void ListIsDirtyWhenModifingAndSettingStruct()
         {
             // let the weaver know to generate a reader and writer for TestPlayer
-            _ = Writer<TestPlayer>.write;
+            NetworkWriter writer = new NetworkWriter() ;
+            writer.Write<TestPlayer>(default);
 
             var serverList = new SyncList<TestPlayer>();
             var clientList = new SyncList<TestPlayer>();
