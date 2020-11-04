@@ -1,3 +1,10 @@
+# [56.5.0](https://github.com/MirrorNG/MirrorNG/compare/v56.4.4...v56.5.0) (2020-11-04)
+
+
+### Features
+
+* ClientObjectManager is available in network behaviors ([#466](https://github.com/MirrorNG/MirrorNG/issues/466)) ([d0d0b2a](https://github.com/MirrorNG/MirrorNG/commit/d0d0b2a4c910fa89065b0f0144f63ed3a2ce9dac))
+
 ## [56.4.4](https://github.com/MirrorNG/MirrorNG/compare/v56.4.3...v56.4.4) (2020-11-04)
 
 
