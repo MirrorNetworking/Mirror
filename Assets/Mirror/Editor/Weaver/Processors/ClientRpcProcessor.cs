@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 namespace Mirror.Weaver
@@ -9,6 +10,16 @@ namespace Mirror.Weaver
     /// </summary>
     public class ClientRpcProcessor : RpcProcessor
     {
+        struct ClientRpcResult
+        {
+            public MethodDefinition method;
+            public Client target;
+            public bool excludeOwner;
+        }
+
+        readonly List<ClientRpcResult> clientRpcs = new List<ClientRpcResult>();
+        readonly List<MethodDefinition> clientRpcSkeletonFuncs = new List<MethodDefinition>();
+
         /// <summary>
         /// Generates a skeleton for an RPC
         /// </summary>
@@ -29,7 +40,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc, CustomAttribute clientRpcAttr)
+        MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc, CustomAttribute clientRpcAttr)
         {
             var rpc = new MethodDefinition(
                 MethodProcessor.SkeletonPrefix + md.Name,
@@ -119,7 +130,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute clientRpcAttr)
+        MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(md);
 
@@ -173,7 +184,7 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        public bool Validate(MethodDefinition md, CustomAttribute clientRpcAttr)
+        bool Validate(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             if (!md.ReturnType.Is(typeof(void)))
             {
@@ -197,5 +208,70 @@ namespace Mirror.Weaver
             return true;
 
         }
+
+
+        public void RegisterClientRpcs(ILProcessor cctorWorker)
+        {
+            for (int i = 0; i < clientRpcs.Count; ++i)
+            {
+                ClientRpcResult clientRpcResult = clientRpcs[i];
+                GenerateRegisterRemoteDelegate(cctorWorker, clientRpcSkeletonFuncs[i], clientRpcResult.method.Name);
+            }
+        }
+
+        /*
+            // This generates code like:
+            NetworkBehaviour.RegisterServerRpcDelegate(base.GetType(), "CmdThrust", new NetworkBehaviour.CmdDelegate(ShipControl.InvokeCmdCmdThrust));
+        */
+        void GenerateRegisterRemoteDelegate(ILProcessor worker, MethodDefinition func, string cmdName)
+        {
+            TypeDefinition netBehaviourSubclass = func.DeclaringType;
+            MethodReference registerMethod = WeaverTypes.registerRpcDelegateReference;
+            worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
+            worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
+            worker.Append(worker.Create(OpCodes.Ldnull));
+            CreateRpcDelegate(worker, func);
+            //
+            worker.Append(worker.Create(OpCodes.Call, registerMethod));
+        }
+
+
+        public void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
+        {
+            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc))
+            {
+                return;
+            }
+
+            if (!Validate(md, clientRpcAttr))
+                return;
+
+            if (names.Contains(md.Name))
+            {
+                Weaver.Error($"Duplicate ClientRpc name {md.Name}", md);
+                return;
+            }
+
+            Client clientTarget = clientRpcAttr.GetField("target", Client.Observers);
+            bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
+
+            names.Add(md.Name);
+            clientRpcs.Add(new ClientRpcResult
+            {
+                method = md,
+                target = clientTarget,
+                excludeOwner = excludeOwner
+            });
+
+            MethodDefinition userCodeFunc = GenerateStub(md, clientRpcAttr);
+
+            MethodDefinition skeletonFunc = GenerateSkeleton(md, userCodeFunc, clientRpcAttr);
+            if (skeletonFunc != null)
+            {
+                clientRpcSkeletonFuncs.Add(skeletonFunc);
+            }
+        }
+
     }
 }

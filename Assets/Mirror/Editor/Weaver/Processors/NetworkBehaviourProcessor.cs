@@ -1,8 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Cysharp.Threading.Tasks;
-using Mirror.RemoteCalls;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MethodAttributes = Mono.Cecil.MethodAttributes;
@@ -17,7 +13,6 @@ namespace Mirror.Weaver
         ClientRpc
     }
 
-
     /// <summary>
     /// processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
     /// </summary>
@@ -27,27 +22,10 @@ namespace Mirror.Weaver
         List<FieldDefinition> syncObjects = new List<FieldDefinition>();
         // <SyncVarField,NetIdField>
         Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
-        readonly List<CmdResult> serverRpcs = new List<CmdResult>();
-        readonly List<ClientRpcResult> clientRpcs = new List<ClientRpcResult>();
-        readonly List<MethodDefinition> serverRpcSkeletonFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> clientRpcSkeletonFuncs = new List<MethodDefinition>();
 
         readonly TypeDefinition netBehaviourSubclass;
         readonly ServerRpcProcessor serverRpcProcessor = new ServerRpcProcessor();
         readonly ClientRpcProcessor clientRpcProcessor = new ClientRpcProcessor();
-
-        public struct CmdResult
-        {
-            public MethodDefinition method;
-            public bool requireAuthority;
-        }
-
-        public struct ClientRpcResult
-        {
-            public MethodDefinition method;
-            public Client target;
-            public bool excludeOwner;
-        }
 
         public NetworkBehaviourProcessor(TypeDefinition td)
         {
@@ -145,9 +123,6 @@ namespace Mirror.Weaver
 
         void GenerateConstants()
         {
-            if (serverRpcs.Count == 0 && clientRpcs.Count == 0 && syncObjects.Count == 0)
-                return;
-
             Weaver.DLog(netBehaviourSubclass, "  GenerateConstants ");
 
             // find static constructor
@@ -201,21 +176,12 @@ namespace Mirror.Weaver
                 return;
             }
 
-            // TODO: find out if the order below matters. If it doesn't split code below into 2 functions
             ILProcessor ctorWorker = ctor.Body.GetILProcessor();
             ILProcessor cctorWorker = cctor.Body.GetILProcessor();
 
-            for (int i = 0; i < serverRpcs.Count; ++i)
-            {
-                CmdResult cmdResult = serverRpcs[i];
-                GenerateRegisterServerRpcDelegate(cctorWorker, serverRpcSkeletonFuncs[i], cmdResult);
-            }
+            serverRpcProcessor.RegisterServerRpcs(cctorWorker);
 
-            for (int i = 0; i < clientRpcs.Count; ++i)
-            {
-                ClientRpcResult clientRpcResult = clientRpcs[i];
-                GenerateRegisterRemoteDelegate(cctorWorker, clientRpcSkeletonFuncs[i], clientRpcResult.method.Name);
-            }
+            clientRpcProcessor.RegisterClientRpcs(cctorWorker);
 
             foreach (FieldDefinition fd in syncObjects)
             {
@@ -233,93 +199,6 @@ namespace Mirror.Weaver
 
             // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
             netBehaviourSubclass.Attributes &= ~TypeAttributes.BeforeFieldInit;
-        }
-
-        /*
-            // This generates code like:
-            NetworkBehaviour.RegisterServerRpcDelegate(base.GetType(), "CmdThrust", new NetworkBehaviour.CmdDelegate(ShipControl.InvokeCmdCmdThrust));
-        */
-        void GenerateRegisterRemoteDelegate(ILProcessor worker, MethodDefinition func, string cmdName)
-        {
-            MethodReference registerMethod = WeaverTypes.registerRpcDelegateReference;
-            worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
-            worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
-            worker.Append(worker.Create(OpCodes.Ldnull));
-            CreateRpcDelegate(worker, func);
-            //
-            worker.Append(worker.Create(OpCodes.Call, registerMethod));
-        }
-
-        private static void CreateRpcDelegate(ILProcessor worker, MethodDefinition func)
-        {
-            MethodReference CmdDelegateConstructor;
-
-
-            if (func.ReturnType.Is(typeof(void)))
-            {
-                ConstructorInfo[] constructors = typeof(CmdDelegate).GetConstructors();
-                CmdDelegateConstructor = func.Module.ImportReference(constructors.First());
-            }
-            else if (func.ReturnType.Is(typeof(UniTask<int>).GetGenericTypeDefinition()))
-            {
-                var taskReturnType = func.ReturnType as GenericInstanceType;
-
-                TypeReference returnType = taskReturnType.GenericArguments[0];
-                TypeReference genericDelegate = WeaverTypes.Import(typeof(RequestDelegate<int>).GetGenericTypeDefinition());
-
-                var delegateInstance =  new GenericInstanceType(genericDelegate);
-                delegateInstance.GenericArguments.Add(returnType);
-
-                ConstructorInfo constructor = typeof(RequestDelegate<int>).GetConstructors().First();
-
-                MethodReference constructorRef = func.Module.ImportReference(constructor);
-
-                CmdDelegateConstructor = constructorRef.MakeHostInstanceGeneric(delegateInstance);
-            }
-            else
-            {
-                Log.Error("Use UniTask<x> to return a value from ServerRpc in" + func);
-                return;
-            }
-
-            worker.Append(worker.Create(OpCodes.Ldftn, func));
-            worker.Append(worker.Create(OpCodes.Newobj, CmdDelegateConstructor));
-        }
-
-        void GenerateRegisterServerRpcDelegate(ILProcessor worker, MethodDefinition func, CmdResult cmdResult)
-        {
-            MethodReference registerMethod = GetRegisterMethod(func);
-            string cmdName = cmdResult.method.Name;
-            bool requireAuthority = cmdResult.requireAuthority;
-
-            worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
-            worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
-            worker.Append(worker.Create(OpCodes.Ldnull));
-            CreateRpcDelegate(worker, func);
-
-            worker.Append(worker.Create(requireAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
-
-            worker.Append(worker.Create(OpCodes.Call, registerMethod));
-        }
-
-        private static MethodReference GetRegisterMethod(MethodDefinition func)
-        {
-            if (func.ReturnType.Is(typeof(void)))
-               return WeaverTypes.registerServerRpcDelegateReference;
-
-            var taskReturnType = func.ReturnType as GenericInstanceType;
-
-            TypeReference returnType = taskReturnType.GenericArguments[0];
-
-            MethodInfo method = typeof(RemoteCallHelper).GetMethods(BindingFlags.NonPublic | BindingFlags.Static).First(m => m.Name == nameof(RemoteCallHelper.RegisterRequestDelegate));
-
-            MethodReference genericRegisterMethod = func.Module.ImportReference(method);
-
-            var registerInstance = new GenericInstanceMethod(genericRegisterMethod);
-            registerInstance.GenericArguments.Add(returnType);
-            return registerInstance;
         }
 
         void GenerateSerialization()
@@ -773,84 +652,16 @@ namespace Mirror.Weaver
                 {
                     if (ca.AttributeType.Is<ServerRpcAttribute>())
                     {
-                        ProcessServerRpc(names, md, ca);
+                        serverRpcProcessor.ProcessServerRpc(names, md, ca);
                         break;
                     }
 
                     if (ca.AttributeType.Is<ClientRpcAttribute>())
                     {
-                        ProcessClientRpc(names, md, ca);
+                        clientRpcProcessor.ProcessClientRpc(names, md, ca);
                         break;
                     }
                 }
-            }
-        }
-
-        void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
-        {
-            if (!RpcProcessor.ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc))
-            {
-                return;
-            }
-
-            if (!clientRpcProcessor.Validate(md, clientRpcAttr))
-                return;
-
-            if (names.Contains(md.Name))
-            {
-                Weaver.Error($"Duplicate ClientRpc name {md.Name}", md);
-                return;
-            }
-
-            Client clientTarget = clientRpcAttr.GetField("target", Client.Observers);
-            bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
-
-            names.Add(md.Name);
-            clientRpcs.Add(new ClientRpcResult
-            {
-                method = md,
-                target = clientTarget,
-                excludeOwner = excludeOwner
-            });
-
-            MethodDefinition userCodeFunc = clientRpcProcessor.GenerateStub(md, clientRpcAttr);
-
-            MethodDefinition skeletonFunc = clientRpcProcessor.GenerateSkeleton(md, userCodeFunc, clientRpcAttr);
-            if (skeletonFunc != null)
-            {
-                clientRpcSkeletonFuncs.Add(skeletonFunc);
-            }
-        }
-
-        void ProcessServerRpc(HashSet<string> names, MethodDefinition md, CustomAttribute serverRpcAttr)
-        {
-            if (!RpcProcessor.ValidateRemoteCallAndParameters(md, RemoteCallType.ServerRpc))
-                return;
-
-            if (!serverRpcProcessor.Validate(md, serverRpcAttr))
-                return;
-
-            if (names.Contains(md.Name))
-            {
-                Weaver.Error($"Duplicate ServerRpc name {md.Name}", md);
-                return;
-            }
-
-            bool requireAuthority = serverRpcAttr.GetField("requireAuthority", false);
-
-            names.Add(md.Name);
-            serverRpcs.Add(new CmdResult
-            {
-                method = md,
-                requireAuthority = requireAuthority
-            });
-
-            MethodDefinition userCodeFunc = serverRpcProcessor.GenerateStub(md, serverRpcAttr);
-
-            MethodDefinition skeletonFunc = serverRpcProcessor.GenerateSkeleton(md, userCodeFunc);
-            if (skeletonFunc != null)
-            {
-                serverRpcSkeletonFuncs.Add(skeletonFunc);
             }
         }
     }

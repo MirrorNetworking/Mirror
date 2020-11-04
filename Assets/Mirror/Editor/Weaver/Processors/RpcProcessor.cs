@@ -1,8 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Cysharp.Threading.Tasks;
+using Mirror.RemoteCalls;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using UnityEngine;
+using ParameterAttributes = Mono.Cecil.ParameterAttributes;
 
 namespace Mirror.Weaver
 {
@@ -208,6 +211,42 @@ namespace Mirror.Weaver
             }
 
             return true;
+        }
+
+        public static void CreateRpcDelegate(ILProcessor worker, MethodDefinition func)
+        {
+            MethodReference CmdDelegateConstructor;
+
+
+            if (func.ReturnType.Is(typeof(void)))
+            {
+                ConstructorInfo[] constructors = typeof(CmdDelegate).GetConstructors();
+                CmdDelegateConstructor = func.Module.ImportReference(constructors.First());
+            }
+            else if (func.ReturnType.Is(typeof(UniTask<int>).GetGenericTypeDefinition()))
+            {
+                var taskReturnType = func.ReturnType as GenericInstanceType;
+
+                TypeReference returnType = taskReturnType.GenericArguments[0];
+                TypeReference genericDelegate = WeaverTypes.Import(typeof(RequestDelegate<int>).GetGenericTypeDefinition());
+
+                var delegateInstance = new GenericInstanceType(genericDelegate);
+                delegateInstance.GenericArguments.Add(returnType);
+
+                ConstructorInfo constructor = typeof(RequestDelegate<int>).GetConstructors().First();
+
+                MethodReference constructorRef = func.Module.ImportReference(constructor);
+
+                CmdDelegateConstructor = constructorRef.MakeHostInstanceGeneric(delegateInstance);
+            }
+            else
+            {
+                Log.Error("Use UniTask<x> to return a value from ServerRpc in" + func);
+                return;
+            }
+
+            worker.Append(worker.Create(OpCodes.Ldftn, func));
+            worker.Append(worker.Create(OpCodes.Newobj, CmdDelegateConstructor));
         }
 
     }

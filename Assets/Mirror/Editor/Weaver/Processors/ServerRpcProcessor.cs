@@ -1,8 +1,10 @@
 // all the [ServerRpc] code from NetworkBehaviourProcessor in one place
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
+using Mirror.RemoteCalls;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MethodAttributes = Mono.Cecil.MethodAttributes;
@@ -14,6 +16,15 @@ namespace Mirror.Weaver
     /// </summary>
     public class ServerRpcProcessor :RpcProcessor
     {
+        struct CmdResult
+        {
+            public MethodDefinition method;
+            public bool requireAuthority;
+        }
+
+        readonly List<CmdResult> serverRpcs = new List<CmdResult>();
+        readonly List<MethodDefinition> serverRpcSkeletonFuncs = new List<MethodDefinition>();
+
         /// <summary>
         /// Replaces the user code with a stub.
         /// Moves the original code to a new method
@@ -40,7 +51,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute serverRpcAttr)
+        MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute serverRpcAttr)
         {
             MethodDefinition cmd = MethodProcessor.SubstituteMethod(md);
 
@@ -125,7 +136,7 @@ namespace Mirror.Weaver
         /// }
         /// </code>
         /// </remarks>
-        public MethodDefinition GenerateSkeleton(MethodDefinition method, MethodDefinition userCodeFunc)
+        MethodDefinition GenerateSkeleton(MethodDefinition method, MethodDefinition userCodeFunc)
         {
             var cmd = new MethodDefinition(MethodProcessor.SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
@@ -165,7 +176,7 @@ namespace Mirror.Weaver
             }
         }
 
-        internal bool Validate(MethodDefinition md, CustomAttribute serverRpcAttr)
+        internal bool Validate(MethodDefinition md)
         {
             Type unitaskType = typeof(UniTask<int>).GetGenericTypeDefinition();
             if (!md.ReturnType.Is(typeof(void)) && !md.ReturnType.Is(unitaskType))
@@ -175,6 +186,83 @@ namespace Mirror.Weaver
             }
 
             return true;
+        }
+
+        public void RegisterServerRpcs(ILProcessor cctorWorker)
+        {
+            for (int i = 0; i < serverRpcs.Count; ++i)
+            {
+                CmdResult cmdResult = serverRpcs[i];
+                GenerateRegisterServerRpcDelegate(cctorWorker, serverRpcSkeletonFuncs[i], cmdResult);
+            }
+        }
+
+        void GenerateRegisterServerRpcDelegate(ILProcessor worker, MethodDefinition func, CmdResult cmdResult)
+        {
+            MethodReference registerMethod = GetRegisterMethod(func);
+            string cmdName = cmdResult.method.Name;
+            bool requireAuthority = cmdResult.requireAuthority;
+
+            TypeDefinition netBehaviourSubclass = func.DeclaringType;
+            worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
+            worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
+            worker.Append(worker.Create(OpCodes.Ldnull));
+            CreateRpcDelegate(worker, func);
+
+            worker.Append(worker.Create(requireAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
+
+            worker.Append(worker.Create(OpCodes.Call, registerMethod));
+        }
+
+        private static MethodReference GetRegisterMethod(MethodDefinition func)
+        {
+            if (func.ReturnType.Is(typeof(void)))
+                return WeaverTypes.registerServerRpcDelegateReference;
+
+            var taskReturnType = func.ReturnType as GenericInstanceType;
+
+            TypeReference returnType = taskReturnType.GenericArguments[0];
+
+            MethodInfo method = typeof(RemoteCallHelper).GetMethods(BindingFlags.NonPublic | BindingFlags.Static).First(m => m.Name == nameof(RemoteCallHelper.RegisterRequestDelegate));
+
+            MethodReference genericRegisterMethod = func.Module.ImportReference(method);
+
+            var registerInstance = new GenericInstanceMethod(genericRegisterMethod);
+            registerInstance.GenericArguments.Add(returnType);
+            return registerInstance;
+        }
+
+        public void ProcessServerRpc(HashSet<string> names, MethodDefinition md, CustomAttribute serverRpcAttr)
+        {
+            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ServerRpc))
+                return;
+
+            if (!Validate(md))
+                return;
+
+            if (names.Contains(md.Name))
+            {
+                Weaver.Error($"Duplicate ServerRpc name {md.Name}", md);
+                return;
+            }
+
+            bool requireAuthority = serverRpcAttr.GetField("requireAuthority", false);
+
+            names.Add(md.Name);
+            serverRpcs.Add(new CmdResult
+            {
+                method = md,
+                requireAuthority = requireAuthority
+            });
+
+            MethodDefinition userCodeFunc = GenerateStub(md, serverRpcAttr);
+
+            MethodDefinition skeletonFunc = GenerateSkeleton(md, userCodeFunc);
+            if (skeletonFunc != null)
+            {
+                serverRpcSkeletonFuncs.Add(skeletonFunc);
+            }
         }
     }
 }
