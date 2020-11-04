@@ -305,20 +305,20 @@ namespace Mirror.Weaver
 
             if (func.ReturnType.Is(typeof(void)))
             {
-                ConstructorInfo[] constructors = typeof(RemoteCalls.CmdDelegate).GetConstructors();
+                ConstructorInfo[] constructors = typeof(CmdDelegate).GetConstructors();
                 CmdDelegateConstructor = func.Module.ImportReference(constructors.First());
             }
             else if (func.ReturnType.Is(typeof(UniTask<int>).GetGenericTypeDefinition()))
             {
                 var taskReturnType = func.ReturnType as GenericInstanceType;
 
-                var returnType = taskReturnType.GenericArguments[0];
-                var genericDelegate = WeaverTypes.Import(typeof(RemoteCalls.RequestDelegate<int>).GetGenericTypeDefinition());
+                TypeReference returnType = taskReturnType.GenericArguments[0];
+                TypeReference genericDelegate = WeaverTypes.Import(typeof(RequestDelegate<int>).GetGenericTypeDefinition());
 
                 var delegateInstance =  new GenericInstanceType(genericDelegate);
                 delegateInstance.GenericArguments.Add(returnType);
 
-                ConstructorInfo constructor = typeof(RemoteCalls.RequestDelegate<int>).GetConstructors().First();
+                ConstructorInfo constructor = typeof(RequestDelegate<int>).GetConstructors().First();
 
                 MethodReference constructorRef = func.Module.ImportReference(constructor);
 
@@ -358,11 +358,11 @@ namespace Mirror.Weaver
 
             var taskReturnType = func.ReturnType as GenericInstanceType;
 
-            var returnType = taskReturnType.GenericArguments[0];
+            TypeReference returnType = taskReturnType.GenericArguments[0];
 
-            var method = typeof(RemoteCallHelper).GetMethods(BindingFlags.NonPublic | BindingFlags.Static).First(m => m.Name == nameof(RemoteCallHelper.RegisterRequestDelegate));
+            MethodInfo method = typeof(RemoteCallHelper).GetMethods(BindingFlags.NonPublic | BindingFlags.Static).First(m => m.Name == nameof(RemoteCallHelper.RegisterRequestDelegate));
 
-            var genericRegisterMethod = func.Module.ImportReference(method);
+            MethodReference genericRegisterMethod = func.Module.ImportReference(method);
 
             var registerInstance = new GenericInstanceMethod(genericRegisterMethod);
             registerInstance.GenericArguments.Add(returnType);
