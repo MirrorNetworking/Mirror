@@ -130,7 +130,7 @@ namespace Mirror.Weaver
              */
 
             bool skipFirst = callType == RemoteCallType.ClientRpc
-                && RpcProcessor.HasNetworkConnectionParameter(method);
+                && ClientRpcProcessor.HasNetworkConnectionParameter(method);
 
             // arg of calling  function, arg 0 is "this" so start counting at 1
             int argNum = 1;
@@ -983,7 +983,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (!RpcProcessor.Validate(md, clientRpcAttr))
+            if (!ClientRpcProcessor.Validate(md, clientRpcAttr))
                 return;
 
             if (names.Contains(md.Name))
@@ -1003,9 +1003,9 @@ namespace Mirror.Weaver
                 excludeOwner = excludeOwner
             });
 
-            MethodDefinition userCodeFunc = RpcProcessor.GenerateStub(md, clientRpcAttr);
+            MethodDefinition userCodeFunc = ClientRpcProcessor.GenerateStub(md, clientRpcAttr);
 
-            MethodDefinition skeletonFunc = RpcProcessor.GenerateSkeleton(md, userCodeFunc, clientRpcAttr);
+            MethodDefinition skeletonFunc = ClientRpcProcessor.GenerateSkeleton(md, userCodeFunc, clientRpcAttr);
             if (skeletonFunc != null)
             {
                 clientRpcSkeletonFuncs.Add(skeletonFunc);

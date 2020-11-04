@@ -7,7 +7,7 @@ namespace Mirror.Weaver
     /// <summary>
     /// Processes [Rpc] methods in NetworkBehaviour
     /// </summary>
-    public static class RpcProcessor
+    public static class ClientRpcProcessor
     {
         // helper functions to check if the method has a NetworkConnection parameter
         public static bool HasNetworkConnectionParameter(MethodDefinition md)
