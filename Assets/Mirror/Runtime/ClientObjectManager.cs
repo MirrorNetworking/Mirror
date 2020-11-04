@@ -383,6 +383,7 @@ namespace Mirror
             identity.HasAuthority = msg.isOwner;
             identity.NetId = msg.netId;
             identity.Client = client;
+            identity.ClientObjectManager = this;
 
             if (msg.isLocalPlayer)
                 InternalAddPlayer(identity);
@@ -544,6 +545,7 @@ namespace Mirror
                     InternalAddPlayer(localObject);
 
                 localObject.Client = client;
+                localObject.ClientObjectManager = this;
                 localObject.HasAuthority = msg.isOwner;
                 localObject.NotifyAuthority();
                 localObject.StartClient();

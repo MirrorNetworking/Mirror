@@ -180,6 +180,8 @@ namespace Mirror
         /// </summary>
         public NetworkClient Client { get; internal set; }
 
+        public ClientObjectManager ClientObjectManager;
+
         INetworkConnection _connectionToClient;
 
         /// <summary>
@@ -1221,6 +1223,7 @@ namespace Mirror
             Server = null;
             Client = null;
             ServerObjectManager = null;
+            ClientObjectManager = null;
             ConnectionToServer = null;
             ConnectionToClient = null;
             networkBehavioursCache = null;

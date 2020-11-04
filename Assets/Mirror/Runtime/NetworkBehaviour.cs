@@ -99,6 +99,8 @@ namespace Mirror
         /// </summary>
         public NetworkClient Client => NetIdentity.Client;
 
+        public ClientObjectManager ClientObjectManager => NetIdentity.ClientObjectManager;
+
         /// <summary>
         /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the client.
         /// </summary>
