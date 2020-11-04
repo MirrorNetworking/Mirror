@@ -20,7 +20,7 @@ namespace Mirror.Tests
         [Test]
         public void TestIntReaderNotNull()
         {
-            Assert.That(Reader<int>.read, Is.Not.Null);
+            Assert.That(Reader<int>.Read, Is.Not.Null);
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace Mirror.Tests
         [Test]
         public void TestCustomReaderNotNull()
         {
-            Assert.That(Reader<MyType>.read, Is.Not.Null);
+            Assert.That(Reader<MyType>.Read, Is.Not.Null);
         }
 
         [Test]

@@ -292,7 +292,7 @@ namespace Mirror.Weaver
         }
 
         /// <summary>
-        /// Save a delegate for each one of the readers into <see cref="Reader{T}.read"/>
+        /// Save a delegate for each one of the readers into <see cref="Reader{T}.Read"/>
         /// </summary>
         /// <param name="worker"></param>
         internal static void InitializeReaders(ILProcessor worker)
@@ -301,8 +301,8 @@ namespace Mirror.Weaver
 
             TypeReference genericReaderClassRef = module.ImportReference(typeof(Reader<>));
 
-            System.Reflection.FieldInfo fieldInfo = typeof(Reader<>).GetField(nameof(Reader<object>.read));
-            FieldReference fieldRef = module.ImportReference(fieldInfo);
+            var readProperty = typeof(Reader<>).GetProperty(nameof(Reader<object>.Read));
+            MethodReference fieldRef = module.ImportReference(readProperty.GetSetMethod());
             TypeReference networkReaderRef = module.ImportReference(typeof(NetworkReader));
             TypeReference funcRef = module.ImportReference(typeof(Func<,>));
             MethodReference funcConstructorRef = module.ImportReference(typeof(Func<,>).GetConstructors()[0]);
@@ -318,10 +318,10 @@ namespace Mirror.Weaver
                 MethodReference funcConstructorInstance = funcConstructorRef.MakeHostInstanceGeneric(funcGenericInstance);
                 worker.Append(worker.Create(OpCodes.Newobj, funcConstructorInstance));
 
-                // save it in Writer<T>.write
+                // save it in Reader<T>.Read
                 GenericInstanceType genericInstance = genericReaderClassRef.MakeGenericInstanceType(dataType);
-                FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
-                worker.Append(worker.Create(OpCodes.Stsfld, specializedField));
+                MethodReference specializedField = fieldRef.MakeHostInstanceGeneric(genericInstance);
+                worker.Append(worker.Create(OpCodes.Call, specializedField));
             }
 
         }

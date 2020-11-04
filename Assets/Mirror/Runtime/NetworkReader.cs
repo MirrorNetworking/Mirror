@@ -23,7 +23,7 @@ namespace Mirror
     /// <typeparam name="T"></typeparam>
     public static class Reader<T>
     {
-        public static Func<NetworkReader, T> read;
+        public static Func<NetworkReader, T> Read { internal get; set; }
     }
 
     // Note: This class is intended to be extremely pedantic, and
@@ -130,13 +130,13 @@ namespace Mirror
         /// <returns></returns>
         public T Read<T>()
         {
-            if (Reader<T>.read == null)
+            if (Reader<T>.Read == null)
                 Debug.AssertFormat(
-                    Reader<T>.read != null,
+                    Reader<T>.Read != null,
                     @"No reader found for {0}. See https://mirrorng.github.io/MirrorNG/Articles/General/Troubleshooting.html for details",
                     typeof(T));
 
-            return Reader<T>.read(this);
+            return Reader<T>.Read(this);
         }
     }
 
