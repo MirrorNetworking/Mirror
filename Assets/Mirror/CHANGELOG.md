@@ -1,3 +1,10 @@
+## [56.4.4](https://github.com/MirrorNG/MirrorNG/compare/v56.4.3...v56.4.4) (2020-11-04)
+
+
+### Bug Fixes
+
+* do not cache lastReceived in release ([9a15863](https://github.com/MirrorNG/MirrorNG/commit/9a15863565259888dca5570c64df8fbbba476988))
+
 ## [56.4.3](https://github.com/MirrorNG/MirrorNG/compare/v56.4.2...v56.4.3) (2020-11-03)
 
 
