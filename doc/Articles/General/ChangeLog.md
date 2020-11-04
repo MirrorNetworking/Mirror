@@ -21,7 +21,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Changed: Minimum Unity version is now 2018.4.28 LTS
 - Changed: Script Templates are now avalable as a separate package [here](ScriptTemplates.md)
 - Changed: Telepathy Transport is now obsolete - Use [KCP Transport](../Transports/KCPTransport.md) instead.
-- Changed: **Breaking** NetworkIdentity.ClientAuthorityCallback is an event now
+- Changed: **Breaking** NetworkIdentity.clientAuthorityCallback is an event now
 - Changed: **Breaking** Removed older obsolete methods and tests
 - Changed: **Breaking** Transports no longer support sending to a List<int> of connectionIds
 
