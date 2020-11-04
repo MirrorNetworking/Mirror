@@ -72,7 +72,7 @@ namespace Mirror.Tests
                 // fine,  just wait until it is done
             }
 
-            Object.DestroyImmediate(transportObj);
+            Object.Destroy(transportObj);
         });
 
         #endregion

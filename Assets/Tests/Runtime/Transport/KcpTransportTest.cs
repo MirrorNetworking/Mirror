@@ -62,17 +62,30 @@ namespace Mirror.Tests
         });
 
         [UnityTearDown]
-        public IEnumerator TearDown()
+        public IEnumerator TearDown() => UniTask.ToCoroutine(async () =>
         {
             clientConnection?.Disconnect();
             serverConnection?.Disconnect();
             transport.Disconnect();
 
+            try
+            {
+                // make sure we are done accepting,
+                // the transport might take a little bit of time to disconnect
+                while (await transport.AcceptAsync() != null)
+                {
+                    // fine,  just wait until transport stops accepting
+                }
+
+            }
+            catch (Exception)
+            {
+                // fine,  just wait until it is done
+            }
+
             UnityEngine.Object.Destroy(transport.gameObject);
             // wait a frame so object will be destroyed
-
-            yield return null;
-        }
+        });
 
         // A Test behaves as an ordinary method
         [Test]
