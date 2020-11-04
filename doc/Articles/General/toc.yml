@@ -4,10 +4,6 @@
   href: Start.md
 - name: Script Templates
   href: ScriptTemplates.md
-- name: Migration Guide
-  href: Migration.md
-- name: Deprecations
-  href: Deprecations.md
 - name: Showcase
   href: https://mirror-networking.com/showcase/
 - name: Integrations
