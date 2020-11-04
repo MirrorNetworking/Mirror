@@ -117,6 +117,10 @@ namespace Mirror.Weaver
                     MethodAttributes.SpecialName |
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
+            var valueParam = new ParameterDefinition("value", ParameterAttributes.In, fd.FieldType);
+            set.Parameters.Add(valueParam);
+            set.SemanticsAttributes = MethodSemanticsAttributes.Setter;
+            set.DeclaringType = fd.DeclaringType;
 
             ILProcessor worker = set.Body.GetILProcessor();
 
@@ -126,7 +130,7 @@ namespace Mirror.Weaver
             // this
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             // new value to set
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Ldarg, valueParam));
             // reference to field to set
             // make generic version of SetSyncVar with field type
             if (fd.FieldType.Is<NetworkIdentity>())
@@ -160,7 +164,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
 
             // new value to set
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Ldarg, valueParam));
 
             // reference to field to set
             worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -225,9 +229,6 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ret));
 
-            set.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.In, fd.FieldType));
-            set.SemanticsAttributes = MethodSemanticsAttributes.Setter;
-            set.DeclaringType = fd.DeclaringType;
 
             return set;
         }
