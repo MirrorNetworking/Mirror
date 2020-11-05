@@ -434,7 +434,7 @@ namespace Mirror
         /// <remarks>This is a hack, but it is needed to deserialize
         /// gameobjects when processing the message</remarks>
         /// 
-        internal static NetworkServer Current;
+        internal static NetworkServer Current { get; set; }
 
         /// <summary>
         /// send this message to the player only
