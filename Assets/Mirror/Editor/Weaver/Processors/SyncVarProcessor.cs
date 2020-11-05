@@ -1,7 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using FieldAttributes = Mono.Cecil.FieldAttributes;
+using MethodAttributes = Mono.Cecil.MethodAttributes;
+using ParameterAttributes = Mono.Cecil.ParameterAttributes;
+using PropertyAttributes = Mono.Cecil.PropertyAttributes;
 
 namespace Mirror.Weaver
 {
@@ -164,22 +169,24 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldfld, fd));
             worker.Append(worker.Create(OpCodes.Stloc, oldValue));
 
-            // this
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
 
-            // new value to set
-            worker.Append(worker.Create(OpCodes.Ldarg, valueParam));
-
-            // reference to field to set
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Ldflda, fd));
-
-            // dirty bit
-            // 8 byte integer aka long
-            worker.Append(worker.Create(OpCodes.Ldc_I8, dirtyBit));
 
             if (fd.FieldType.Is<NetworkIdentity>())
             {
+                // this
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+
+                // new value to set
+                worker.Append(worker.Create(OpCodes.Ldarg, valueParam));
+
+                // reference to field to set
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldflda, fd));
+
+                // dirty bit
+                // 8 byte integer aka long
+                worker.Append(worker.Create(OpCodes.Ldc_I8, dirtyBit));
+
                 // reference to netId Field to set
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldflda, netFieldId));
@@ -188,12 +195,20 @@ namespace Mirror.Weaver
             }
             else
             {
-                // make generic version of SetSyncVar with field type
-                var gm = new GenericInstanceMethod(WeaverTypes.setSyncVarReference);
-                gm.GenericArguments.Add(fd.FieldType);
+                // fieldValue = value;
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldarg, valueParam));
+                worker.Append(worker.Create(OpCodes.Stfld, fd));
+
+                // SetDirtyBit(dirtyBit);
+                MethodInfo setDirtyBitMethod = typeof(NetworkBehaviour).GetMethod(nameof(NetworkBehaviour.SetDirtyBit));
+                MethodReference setDirtyBitRef = fd.Module.ImportReference(setDirtyBitMethod);
+
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldc_I8, dirtyBit));
 
                 // invoke SetSyncVar
-                worker.Append(worker.Create(OpCodes.Call, gm));
+                worker.Append(worker.Create(OpCodes.Call, setDirtyBitRef));
             }
 
             MethodDefinition hookMethod = GetHookMethod(fd);
