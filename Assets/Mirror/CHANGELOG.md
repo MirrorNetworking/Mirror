@@ -1,3 +1,10 @@
+## [58.0.1](https://github.com/MirrorNG/MirrorNG/compare/v58.0.0...v58.0.1) (2020-11-05)
+
+
+### Bug Fixes
+
+* Restarting host does not start player ([#480](https://github.com/MirrorNG/MirrorNG/issues/480)) ([11cb7f2](https://github.com/MirrorNG/MirrorNG/commit/11cb7f2da4b6eda9c19bbd3844523396a713d648))
+
 # [58.0.0](https://github.com/MirrorNG/MirrorNG/compare/v57.0.0...v58.0.0) (2020-11-05)
 
 
