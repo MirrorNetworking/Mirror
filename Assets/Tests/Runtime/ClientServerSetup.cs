@@ -74,8 +74,9 @@ namespace Mirror.Tests
 
             // create and register a prefab
             playerPrefab = new GameObject("serverPlayer", typeof(NetworkIdentity), typeof(T));
-            playerPrefab.GetComponent<NetworkIdentity>().AssetId = Guid.NewGuid();
-            clientObjectManager.RegisterPrefab(playerPrefab);
+            NetworkIdentity identity = playerPrefab.GetComponent<NetworkIdentity>();
+            identity.AssetId = Guid.NewGuid();
+            clientObjectManager.RegisterPrefab(identity);
 
             // wait for client and server to initialize themselves
             await UniTask.Delay(1);

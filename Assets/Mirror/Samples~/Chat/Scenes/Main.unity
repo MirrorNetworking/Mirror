@@ -330,6 +330,7 @@ MonoBehaviour:
   sceneId: 1581524575
   serverOnly: 0
   ServerObjectManager: {fileID: 0}
+  ClientObjectManager: {fileID: 0}
   m_AssetId: 
   OnStartServer:
     m_PersistentCalls:
@@ -3134,7 +3135,7 @@ MonoBehaviour:
   client: {fileID: 1783103027}
   networkSceneManager: {fileID: 1783103023}
   spawnPrefabs:
-  - {fileID: 5075528875289742095, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
+  - {fileID: 114398755512196590, guid: e5905ffa27de84009b346b49d518ba03, type: 3}
 --- !u!114 &1783103030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3164,25 +3165,35 @@ MonoBehaviour:
   Levels:
   - Name: NetworkIdentity
     level: 2
+  - Name: NetworkBehaviour
+    level: 2
   - Name: ServerObjectManager
+    level: 2
+  - Name: ClientObjectManager
     level: 2
   - Name: NetworkServer
     level: 2
   - Name: NetworkTime
     level: 2
-  - Name: NetworkClient
-    level: 2
   - Name: NetworkSceneManager
     level: 2
   - Name: PlayerSpawner
     level: 2
-  - Name: ClientObjectManager
+  - Name: NetworkClient
     level: 2
   - Name: EnterPlayModeSettingsCheck
     level: 2
-  - Name: ZoneHandler
+  - Name: NetworkScenePostProcess
     level: 2
-  - Name: NetworkBehaviour
+  - Name: NetworkConnection
+    level: 2
+  - Name: NetworkWriterPool
+    level: 2
+  - Name: NetworkReaderExtensions
+    level: 2
+  - Name: NetworkReaderPool
+    level: 2
+  - Name: ZoneHandler
     level: 2
   - Name: AdditiveNetworkManager
     level: 2

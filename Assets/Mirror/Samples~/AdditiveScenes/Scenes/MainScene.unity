@@ -380,6 +380,7 @@ MonoBehaviour:
   sceneId: 1834901131
   serverOnly: 1
   ServerObjectManager: {fileID: 0}
+  ClientObjectManager: {fileID: 0}
   m_AssetId: 
   OnStartServer:
     m_PersistentCalls:
@@ -1926,12 +1927,12 @@ MonoBehaviour:
   client: {fileID: 1661834282}
   networkSceneManager: {fileID: 1661834284}
   spawnPrefabs:
-  - {fileID: 1076878374699499732, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
-  - {fileID: 5623359707189648430, guid: 4ff300cf6bb3c6342a9552c4f18788c8, type: 3}
-  - {fileID: 6852530814182375312, guid: 12a4c14e672c00b4b840f937d824b890, type: 3}
-  - {fileID: 8872462076811691049, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
-  - {fileID: 855244094988030905, guid: f6d08eb9a8e35d84fa30a7e3ae64181a, type: 3}
-  - {fileID: 160176457, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
+  - {fileID: 2648107611936813301, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
+  - {fileID: 5623359707189648404, guid: 4ff300cf6bb3c6342a9552c4f18788c8, type: 3}
+  - {fileID: 6852530814182375318, guid: 12a4c14e672c00b4b840f937d824b890, type: 3}
+  - {fileID: 8537344390966522168, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
+  - {fileID: 855244094988030911, guid: f6d08eb9a8e35d84fa30a7e3ae64181a, type: 3}
+  - {fileID: 160176459, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
 --- !u!114 &1661834282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2060,27 +2061,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Levels:
+  - Name: PlayerSpawner
+    level: 2
+  - Name: NetworkSceneManager
+    level: 2
   - Name: NetworkIdentity
     level: 2
-  - Name: ServerObjectManager
+  - Name: NetworkBehaviour
+    level: 2
+  - Name: ClientObjectManager
     level: 2
   - Name: NetworkServer
     level: 2
   - Name: NetworkTime
     level: 2
+  - Name: ServerObjectManager
+    level: 2
   - Name: NetworkClient
-    level: 2
-  - Name: NetworkSceneManager
-    level: 2
-  - Name: PlayerSpawner
-    level: 2
-  - Name: ClientObjectManager
     level: 2
   - Name: EnterPlayModeSettingsCheck
     level: 2
-  - Name: ZoneHandler
+  - Name: NetworkScenePostProcess
     level: 2
-  - Name: NetworkBehaviour
+  - Name: NetworkConnection
+    level: 2
+  - Name: NetworkWriterPool
+    level: 2
+  - Name: NetworkReaderExtensions
+    level: 2
+  - Name: NetworkReaderPool
+    level: 2
+  - Name: ZoneHandler
     level: 2
   - Name: AdditiveNetworkManager
     level: 2

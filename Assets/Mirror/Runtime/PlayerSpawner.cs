@@ -31,7 +31,7 @@ namespace Mirror
                 sceneManager.ClientSceneChanged.AddListener(OnClientSceneChanged);
                 if(clientObjectManager != null)
                 {
-                    clientObjectManager.RegisterPrefab(playerPrefab.gameObject);
+                    clientObjectManager.RegisterPrefab(playerPrefab);
                 }
                 else
                 {

@@ -98,8 +98,8 @@ namespace Mirror.HeadlessBenchmark
             objectManager.Start();
             client.Transport = transport;
 
-            objectManager.RegisterPrefab(MonsterPrefab);
-            objectManager.RegisterPrefab(PlayerPrefab);
+            objectManager.RegisterPrefab(MonsterPrefab.GetComponent<NetworkIdentity>());
+            objectManager.RegisterPrefab(PlayerPrefab.GetComponent<NetworkIdentity>());
 
             try
             {

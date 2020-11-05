@@ -212,7 +212,7 @@ namespace Mirror.Tests
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
             NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
             replacementIdentity.AssetId = Guid.NewGuid();
-            clientObjectManager.RegisterPrefab(playerReplacement);
+            clientObjectManager.RegisterPrefab(replacementIdentity);
 
             serverObjectManager.ReplacePlayerForConnection(connectionToClient, client, playerReplacement);
 
@@ -225,7 +225,7 @@ namespace Mirror.Tests
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
             NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
             replacementIdentity.AssetId = Guid.NewGuid();
-            clientObjectManager.RegisterPrefab(playerReplacement);
+            clientObjectManager.RegisterPrefab(replacementIdentity);
 
             serverObjectManager.ReplacePlayerForConnection(connectionToClient, client, playerReplacement, true);
 
@@ -239,7 +239,7 @@ namespace Mirror.Tests
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
             NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
             replacementIdentity.AssetId = replacementGuid;
-            clientObjectManager.RegisterPrefab(playerReplacement);
+            clientObjectManager.RegisterPrefab(replacementIdentity);
 
             serverObjectManager.ReplacePlayerForConnection(connectionToClient, client, playerReplacement, replacementGuid);
 
@@ -253,7 +253,7 @@ namespace Mirror.Tests
             playerReplacement = new GameObject("replacement", typeof(NetworkIdentity));
             NetworkIdentity replacementIdentity = playerReplacement.GetComponent<NetworkIdentity>();
             replacementIdentity.AssetId = replacementGuid;
-            clientObjectManager.RegisterPrefab(playerReplacement);
+            clientObjectManager.RegisterPrefab(replacementIdentity);
 
             connectionToClient.Identity = null;
 

@@ -4,22 +4,22 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public delegate GameObject SpawnHandlerDelegate(SpawnMessage msg);
+    public delegate NetworkIdentity SpawnHandlerDelegate(SpawnMessage msg);
 
     // Handles requests to unspawn objects on the client
-    public delegate void UnSpawnDelegate(GameObject spawned);
+    public delegate void UnSpawnDelegate(NetworkIdentity spawned);
 
     public interface IClientObjectManager
     {
         GameObject GetPrefab(Guid assetId);
 
-        void RegisterPrefab(GameObject prefab);
+        void RegisterPrefab(NetworkIdentity prefab);
 
-        void RegisterPrefab(GameObject prefab, Guid newAssetId);
+        void RegisterPrefab(NetworkIdentity prefab, Guid newAssetId);
 
-        void RegisterPrefab(GameObject prefab, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler);
+        void RegisterPrefab(NetworkIdentity prefab, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler);
 
-        void UnregisterPrefab(GameObject prefab);
+        void UnregisterPrefab(NetworkIdentity prefab);
 
         void RegisterSpawnHandler(Guid assetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler);
 

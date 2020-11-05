@@ -22,9 +22,9 @@ namespace Mirror
 
         public void RegisterPrefabs(ClientObjectManager gameObject)
         {
-            ISet<GameObject> prefabs = LoadPrefabsContaining<NetworkIdentity>("Assets");
+            ISet<NetworkIdentity> prefabs = LoadPrefabsContaining<NetworkIdentity>("Assets");
 
-            foreach (var existing in gameObject.spawnPrefabs)
+            foreach (NetworkIdentity existing in gameObject.spawnPrefabs)
             {
                 prefabs.Add(existing);
             }
@@ -32,9 +32,9 @@ namespace Mirror
             gameObject.spawnPrefabs.AddRange(prefabs);
         }
 
-        private static ISet<GameObject> LoadPrefabsContaining<T>(string path) where T : UnityEngine.Component
+        private static ISet<T> LoadPrefabsContaining<T>(string path) where T : UnityEngine.Component
         {
-            var result = new HashSet<GameObject>();
+            var result = new HashSet<T>();
 
             var guids = AssetDatabase.FindAssets("t:Object", new[] { path });
 
@@ -45,7 +45,7 @@ namespace Mirror
                 T obj = AssetDatabase.LoadAssetAtPath<T>(assetPath);
 
                 if (obj != null)
-                    result.Add(obj.gameObject);
+                    result.Add(obj);
             }
             return result;
         }

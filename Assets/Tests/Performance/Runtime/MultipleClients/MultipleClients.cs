@@ -70,7 +70,7 @@ namespace Mirror.Tests.Performance.Runtime
             objectManager.Start();
             client.Transport = transport;
 
-            objectManager.RegisterPrefab(monsterPrefab.gameObject);
+            objectManager.RegisterPrefab(monsterPrefab);
             client.ConnectAsync("localhost");
             while (!client.IsConnected)
                 yield return null;

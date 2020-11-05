@@ -882,8 +882,8 @@ MonoBehaviour:
   client: {fileID: 1886246554}
   networkSceneManager: {fileID: 1886246556}
   spawnPrefabs:
-  - {fileID: 1080679924113744, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
-  - {fileID: 1240244544407914, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
+  - {fileID: 114290021321007948, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
+  - {fileID: 114104497298166850, guid: b1651eaf8c7564a1c86031dfbb8a7b28, type: 3}
 --- !u!114 &1886246552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1055,25 +1055,35 @@ MonoBehaviour:
   Levels:
   - Name: NetworkIdentity
     level: 2
+  - Name: NetworkBehaviour
+    level: 2
   - Name: ServerObjectManager
+    level: 2
+  - Name: ClientObjectManager
     level: 2
   - Name: NetworkServer
     level: 2
   - Name: NetworkTime
     level: 2
-  - Name: NetworkClient
-    level: 2
   - Name: NetworkSceneManager
     level: 2
   - Name: PlayerSpawner
     level: 2
-  - Name: ClientObjectManager
+  - Name: NetworkClient
     level: 2
   - Name: EnterPlayModeSettingsCheck
     level: 2
-  - Name: ZoneHandler
+  - Name: NetworkScenePostProcess
     level: 2
-  - Name: NetworkBehaviour
+  - Name: NetworkConnection
+    level: 2
+  - Name: NetworkWriterPool
+    level: 2
+  - Name: NetworkReaderExtensions
+    level: 2
+  - Name: NetworkReaderPool
+    level: 2
+  - Name: ZoneHandler
     level: 2
   - Name: AdditiveNetworkManager
     level: 2
@@ -1086,6 +1096,10 @@ MonoBehaviour:
   - Name: SceneDrawer
     level: 2
   - Name: ChatWindow
+    level: 2
+  - Name: NetworkDiscovery
+    level: 2
+  - Name: NetworkDiscoveryBase`2
     level: 2
   - Name: NetworkSceneChecker
     level: 2
