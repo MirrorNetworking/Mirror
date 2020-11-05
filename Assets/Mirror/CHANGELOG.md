@@ -1,3 +1,13 @@
+# [57.0.0](https://github.com/MirrorNG/MirrorNG/compare/v56.5.0...v57.0.0) (2020-11-05)
+
+
+* Remove redundant spawn handler (#476) ([9bbf0dc](https://github.com/MirrorNG/MirrorNG/commit/9bbf0dc824efb068b5c181ce0ee3fd519da0380f)), closes [#476](https://github.com/MirrorNG/MirrorNG/issues/476)
+
+
+### BREAKING CHANGES
+
+* Removed redundant spawn handler
+
 # [56.5.0](https://github.com/MirrorNG/MirrorNG/compare/v56.4.4...v56.5.0) (2020-11-04)
 
 
