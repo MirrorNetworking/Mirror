@@ -385,18 +385,13 @@ namespace Mirror
 
             if (NetworkClient.Current != null)
             {
-                if (NetworkClient.Current.Spawned.TryGetValue(netId, out NetworkIdentity identity))
-                {
-                    return identity;
-                }
+                NetworkClient.Current.Spawned.TryGetValue(netId, out NetworkIdentity identity);
+                return identity;
             }
             else if (NetworkServer.Current != null)
             {
-                if (NetworkServer.Current.Spawned.TryGetValue(netId, out NetworkIdentity identity))
-                {
-                    return identity;
-                }
-
+                NetworkServer.Current.Spawned.TryGetValue(netId, out NetworkIdentity identity);
+                return identity;
             }
 
             if (logger.WarnEnabled()) logger.LogFormat(LogType.Warning, "ReadNetworkIdentity netId:{0} not found in spawned", netId);
