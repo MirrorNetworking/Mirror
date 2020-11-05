@@ -148,7 +148,7 @@ namespace Mirror.Weaver
             else
             {
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldflda, fd));
+                worker.Append(worker.Create(OpCodes.Ldfld, fd));
 
                 var syncVarEqualGm = new GenericInstanceMethod(WeaverTypes.syncVarEqualReference);
                 syncVarEqualGm.GenericArguments.Add(fd.FieldType);
@@ -724,7 +724,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue));
                 // 'ref this.syncVar'
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar));
+                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
                 // call the function
                 var syncVarEqualGm = new GenericInstanceMethod(WeaverTypes.syncVarEqualReference);
                 syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
@@ -832,7 +832,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldloc, oldNetId));
                 // 'ref this.__netId'
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldflda, netIdField));
+                worker.Append(worker.Create(OpCodes.Ldfld, netIdField));
                 // call the function
                 var syncVarEqualGm = new GenericInstanceMethod(WeaverTypes.syncVarEqualReference);
                 syncVarEqualGm.GenericArguments.Add(netIdField.FieldType);

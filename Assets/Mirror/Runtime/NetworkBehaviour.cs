@@ -414,7 +414,7 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected bool SyncVarEqual<T>(T value, ref T fieldValue)
+        protected bool SyncVarEqual<T>(T value, T fieldValue)
         {
             // newly initialized or changed value?
             return EqualityComparer<T>.Default.Equals(value, fieldValue);
