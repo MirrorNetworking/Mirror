@@ -130,11 +130,11 @@ namespace Mirror.Tests
         });
 
         int spawnDelegateTestCalled;
-        GameObject SpawnDelegateTest(Vector3 position, Guid assetId)
+        GameObject SpawnDelegateTest(SpawnMessage msg)
         {
             spawnDelegateTestCalled++;
 
-            GameObject prefab = clientObjectManager.GetPrefab(assetId);
+            GameObject prefab = clientObjectManager.GetPrefab(msg.assetId);
             if (!(prefab is null))
             {
                 return Object.Instantiate(prefab);

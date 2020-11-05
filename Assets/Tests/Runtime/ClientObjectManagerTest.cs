@@ -156,7 +156,7 @@ namespace Mirror.Tests
             Object.Destroy(prefabObject);
         }
 
-        GameObject TestSpawnDelegate(Vector3 position, Guid assetId)
+        GameObject TestSpawnDelegate(SpawnMessage msg)
         {
             return new GameObject();
         }

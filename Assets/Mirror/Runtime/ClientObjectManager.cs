@@ -231,20 +231,6 @@ namespace Mirror
         /// <param name="prefab">A Prefab that will be spawned.</param>
         /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
         /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
-        public void RegisterPrefab(GameObject prefab, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
-        {
-            RegisterPrefab(prefab, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
-        }
-
-        /// <summary>
-        /// Registers a prefab with the spawning system.
-        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
-        /// <para>The ClientObjectManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
-        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
-        /// </summary>
-        /// <param name="prefab">A Prefab that will be spawned.</param>
-        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
-        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
         public void RegisterPrefab(GameObject prefab, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
@@ -282,18 +268,6 @@ namespace Mirror
         #endregion
 
         #region Spawn Handler
-
-        /// <summary>
-        /// This is an advanced spawning function that registers a custom assetId with the UNET spawning system.
-        /// <para>This can be used to register custom spawning methods for an assetId - instead of the usual method of registering spawning methods for a prefab. This should be used when no prefab exists for the spawned objects - such as when they are constructed dynamically at runtime from configuration data.</para>
-        /// </summary>
-        /// <param name="assetId">Custom assetId string.</param>
-        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
-        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
-        public void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
-        {
-            RegisterSpawnHandler(assetId, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
-        }
 
         /// <summary>
         /// This is an advanced spawning function that registers a custom assetId with the UNET spawning system.
