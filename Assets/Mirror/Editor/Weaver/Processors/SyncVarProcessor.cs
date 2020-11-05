@@ -88,13 +88,13 @@ namespace Mirror.Weaver
             // [SyncVar] NetworkIdentity?
             if (fd.FieldType.Is<NetworkIdentity>())
             {
-                // return this.GetSyncVarNetworkIdentity(ref field, uint netId);
+                // return this.GetSyncVarNetworkIdentity(netId, field);
                 // this.
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, netFieldId));
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldflda, fd));
+                worker.Append(worker.Create(OpCodes.Ldfld, fd));
                 worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getSyncVarNetworkIdentityReference));
                 worker.Append(worker.Create(OpCodes.Ret));
             }

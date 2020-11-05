@@ -396,7 +396,7 @@ namespace Mirror
         // helper function for [SyncVar] NetworkIdentities.
         // -> ref GameObject as second argument makes OnDeserialize processing easier
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
+        protected NetworkIdentity GetSyncVarNetworkIdentity(uint netId, NetworkIdentity identityField)
         {
             // server always uses the field
             if (IsServer)
