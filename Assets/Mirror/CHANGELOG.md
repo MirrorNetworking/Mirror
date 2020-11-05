@@ -1,3 +1,13 @@
+# [58.0.0](https://github.com/MirrorNG/MirrorNG/compare/v57.0.0...v58.0.0) (2020-11-05)
+
+
+* ClientObjectManager now requires NetworkIdentity (#475) ([103593b](https://github.com/MirrorNG/MirrorNG/commit/103593bdb3ffb78ad27714f68424e2250ed99008)), closes [#475](https://github.com/MirrorNG/MirrorNG/issues/475)
+
+
+### BREAKING CHANGES
+
+* Now you can only assign prefabs with NetworkIdentity to the ClientObjectManager
+
 # [57.0.0](https://github.com/MirrorNG/MirrorNG/compare/v56.5.0...v57.0.0) (2020-11-05)
 
 
