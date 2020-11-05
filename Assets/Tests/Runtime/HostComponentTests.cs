@@ -4,6 +4,8 @@ using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using NSubstitute;
+using UnityEngine.Events;
 
 namespace Mirror.Tests
 {
@@ -103,5 +105,21 @@ namespace Mirror.Tests
             Assert.That(server.LocalClientActive, Is.False);
         });
 
+        [UnityTest]
+        public IEnumerator ClientSceneChangedOnReconnect() => UniTask.ToCoroutine(async () =>
+        {
+            server.Disconnect();
+
+            // wait for server to disconnect
+            await UniTask.WaitUntil(() => !server.Active);
+
+            var mockListener = Substitute.For<UnityAction<string, SceneOperation>>();
+            sceneManager.ClientChangeScene.AddListener(mockListener);
+            await server.StartHost(client);
+
+            client.Update();
+
+            mockListener.Received().Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
+        });
     }
 }
