@@ -5,7 +5,7 @@
 - name: Script Templates
   href: ScriptTemplates.md
 - name: Showcase
-  href: https://mirror-networking.com/showcase/
+  href: Showcase.md
 - name: Integrations
   href: Integrations/index.md
 - name: Troubleshooting
