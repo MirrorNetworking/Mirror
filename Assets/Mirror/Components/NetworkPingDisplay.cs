@@ -14,6 +14,8 @@ namespace Mirror
         [SerializeField] Vector2 position = new Vector2(200, 0);
         [SerializeField] int fontSize = 24;
         [SerializeField] Color textColor = new Color32(255, 255, 255, 80);
+        [SerializeField] string textPrefix;
+        [SerializeField] string textSuffix;
 
         GUIStyle style;
 
@@ -23,6 +25,38 @@ namespace Mirror
             style.alignment = TextAnchor.UpperLeft;
             style.fontSize = fontSize;
             style.normal.textColor = textColor;
+        }
+
+        public void UpdateShowPing(bool newShowPing)
+        {
+            showPing = newShowPing;
+        }
+
+        public void UpdatePosition(Vector2 newTextPosition)
+        {
+            position = newTextPosition;
+        }
+
+        public void UpdateFontSize(int newFontSize)
+        {
+            fontSize = newFontSize;
+            style.fontSize = fontSize;
+        }
+
+        public void UpdateTextColor(Color newTextColor)
+        {
+            textColor = newTextColor;
+            style.normal.textColor = textColor;
+        }
+
+        public void UpdateTextPrefix(string newTextPrefix)
+        {
+            textPrefix = newTextPrefix;
+        }
+
+        public void UpdateTextSuffix(string newTextSuffix)
+        {
+            textSuffix = newTextSuffix;
         }
 
         void OnGUI()
@@ -35,7 +69,7 @@ namespace Mirror
             int height = Screen.height;
             Rect rect = new Rect(position.x, position.y, width - 200, height * 2 / 100);
 
-            GUI.Label(rect, text, style);
+            GUI.Label(rect,textPrefix + text + textSuffix, style);
         }
     }
 }
