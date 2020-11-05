@@ -4,6 +4,14 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // Handles requests to spawn objects on the client
+    public delegate GameObject SpawnDelegate(Vector3 position, Guid assetId);
+
+    public delegate GameObject SpawnHandlerDelegate(SpawnMessage msg);
+
+    // Handles requests to unspawn objects on the client
+    public delegate void UnSpawnDelegate(GameObject spawned);
+
     public interface IClientObjectManager
     {
         GameObject GetPrefab(Guid assetId);
