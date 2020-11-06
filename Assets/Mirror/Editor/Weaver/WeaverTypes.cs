@@ -9,7 +9,6 @@ namespace Mirror.Weaver
         public static MethodReference ScriptableObjectCreateInstanceMethod;
 
         public static MethodReference NetworkBehaviourDirtyBitsReference;
-        public static MethodReference RecycleWriterReference;
 
         public static MethodReference BehaviorConnectionToServerReference;
 
@@ -112,8 +111,6 @@ namespace Mirror.Weaver
             MethodInvocationExceptionConstructor = Resolvers.ResolveMethodWithArg(MethodInvocationExceptionType, currentAssembly, ".ctor", "System.String");
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "SyncVarDirtyBits");
-            TypeReference NetworkWriterPoolType = Import(typeof(NetworkWriterPool));
-            RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, currentAssembly, "Recycle");
 
             BehaviorConnectionToServerReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "get_ConnectionToServer");
 

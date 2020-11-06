@@ -182,7 +182,7 @@ namespace Mirror.Weaver
 
             // NetworkWriterPool.Recycle(writer);
             worker.Append(worker.Create(OpCodes.Ldloc, writer));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.RecycleWriterReference));
+            worker.Append(worker.Create(OpCodes.Call, md.Module.ImportReference(() => NetworkWriterPool.Recycle(default))));
 
             worker.Append(worker.Create(OpCodes.Ret));
 
