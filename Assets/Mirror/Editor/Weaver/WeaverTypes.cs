@@ -39,7 +39,6 @@ namespace Mirror.Weaver
         public static MethodReference registerRpcDelegateReference;
         public static MethodReference getTypeReference;
         public static MethodReference getTypeFromHandleReference;
-        public static MethodReference logErrorReference;
 
         private static AssemblyDefinition currentAssembly;
 
@@ -93,8 +92,6 @@ namespace Mirror.Weaver
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkIdentity");
             registerServerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterServerRpcDelegate");
             registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
-            TypeReference unityDebug = Import(typeof(Debug));
-            logErrorReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogError");
 
             TypeReference typeType = Import(typeof(Type));
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, currentAssembly, "GetTypeFromHandle");
