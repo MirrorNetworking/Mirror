@@ -37,7 +37,6 @@ namespace Mirror.Weaver
         public static MethodReference getSyncVarNetworkIdentityReference;
         public static MethodReference registerServerRpcDelegateReference;
         public static MethodReference registerRpcDelegateReference;
-        public static MethodReference getTypeReference;
 
         private static AssemblyDefinition currentAssembly;
 
