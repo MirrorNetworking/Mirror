@@ -24,7 +24,7 @@ namespace Mirror.Weaver
             return type.Resolve().ImplementsInterface<INetworkConnection>();
         }
 
-        public bool WriteArguments(ILProcessor worker, MethodDefinition method, RemoteCallType callType)
+        public bool WriteArguments(ILProcessor worker, MethodDefinition method, VariableDefinition writer, RemoteCallType callType)
         {
             // write each argument
             // example result
@@ -63,7 +63,7 @@ namespace Mirror.Weaver
 
                 // use built-in writer func on writer object
                 // NetworkWriter object
-                worker.Append(worker.Create(OpCodes.Ldloc_0));
+                worker.Append(worker.Create(OpCodes.Ldloc, writer));
                 // add argument to call
                 worker.Append(worker.Create(OpCodes.Ldarg, argNum));
                 // call writer extension method

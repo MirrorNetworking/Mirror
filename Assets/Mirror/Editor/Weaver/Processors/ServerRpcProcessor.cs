@@ -64,7 +64,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Stloc, writer));
 
             // write all the arguments that the user passed to the Cmd call
-            if (!WriteArguments(worker, md, RemoteCallType.ServerRpc))
+            if (!WriteArguments(worker, md, writer, RemoteCallType.ServerRpc))
                 return cmd;
 
             string cmdName = md.Name;

@@ -143,7 +143,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Stloc, writer));
 
             // write all the arguments that the user passed to the Rpc call
-            if (!WriteArguments(worker, md, RemoteCallType.ClientRpc))
+            if (!WriteArguments(worker, md, writer, RemoteCallType.ClientRpc))
                 return rpc;
 
             string rpcName = md.Name;
