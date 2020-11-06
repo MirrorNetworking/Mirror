@@ -5,7 +5,6 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using FieldAttributes = Mono.Cecil.FieldAttributes;
 using MethodAttributes = Mono.Cecil.MethodAttributes;
-using ParameterAttributes = Mono.Cecil.ParameterAttributes;
 using PropertyAttributes = Mono.Cecil.PropertyAttributes;
 
 namespace Mirror.Weaver
@@ -602,8 +601,8 @@ namespace Mirror.Weaver
                     WeaverTypes.Import(typeof(void)));
             netBehaviourSubclass.Methods.Add(serialize);
 
-            var readerParam = serialize.AddParam<NetworkReader>("reader");
-            var initializeParam = serialize.AddParam<bool>("initialState");
+            ParameterDefinition readerParam = serialize.AddParam<NetworkReader>("reader");
+            ParameterDefinition initializeParam = serialize.AddParam<bool>("initialState");
             ILProcessor serWorker = serialize.Body.GetILProcessor();
             // setup local for dirty bits
             serialize.Body.InitLocals = true;
