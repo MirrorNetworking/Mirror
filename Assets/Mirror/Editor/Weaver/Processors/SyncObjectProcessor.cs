@@ -88,7 +88,7 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition fd in syncObjects)
             {
-                GenerateSyncObjectInitializer(ctorWorker, fd);
+                GenerateSyncObjectRegistration(ctorWorker, fd);
             }
 
             // finish ctor
@@ -96,12 +96,6 @@ namespace Mirror.Weaver
 
             // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
             netBehaviourSubclass.Attributes &= ~TypeAttributes.BeforeFieldInit;
-        }
-
-        static void GenerateSyncObjectInitializer(ILProcessor worker, FieldDefinition fd)
-        {
-            // register syncobject in network behaviour
-            GenerateSyncObjectRegistration(worker, fd);
         }
 
         public static bool ImplementsSyncObject(TypeReference typeRef)
