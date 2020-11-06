@@ -173,7 +173,7 @@ namespace Mirror.Weaver
             if (target == Client.Observers)
             {
                 worker.Append(worker.Create(excludeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
-                MethodReference sendRpcRef = md.Module.ImportReference<NetworkBehaviour>(nb => nb.SendRpcInternal(default, default, default, default, default, default));
+                MethodReference sendRpcRef = md.Module.ImportReference<NetworkBehaviour>(nb => nb.SendRpcInternal(default, default, default, default, default));
                 worker.Append(worker.Create(OpCodes.Callvirt, sendRpcRef));
             }
             else
