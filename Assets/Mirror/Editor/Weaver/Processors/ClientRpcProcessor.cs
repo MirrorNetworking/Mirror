@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -164,7 +165,8 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ldtoken, md.DeclaringType));
             // invokerClass
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
+            MethodReference getTypeFromHandleRef = md.Module.ImportReference(() => Type.GetTypeFromHandle(default));
+            worker.Append(worker.Create(OpCodes.Call, getTypeFromHandleRef));
             worker.Append(worker.Create(OpCodes.Ldstr, rpcName));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc, writer));
@@ -234,7 +236,8 @@ namespace Mirror.Weaver
             TypeDefinition netBehaviourSubclass = func.DeclaringType;
             MethodReference registerMethod = WeaverTypes.registerRpcDelegateReference;
             worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
+            MethodReference getTypeFromHandleRef = func.Module.ImportReference(() => Type.GetTypeFromHandle(default));
+            worker.Append(worker.Create(OpCodes.Call, getTypeFromHandleRef));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             worker.Append(worker.Create(OpCodes.Ldnull));
             CreateRpcDelegate(worker, func);
