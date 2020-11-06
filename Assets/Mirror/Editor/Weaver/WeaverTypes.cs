@@ -12,7 +12,6 @@ namespace Mirror.Weaver
 
         public static MethodReference BehaviorConnectionToServerReference;
 
-        public static MethodReference NetworkServerGetActive;
         public static MethodReference NetworkServerGetLocalClientActive;
 
         public static MethodReference NetworkBehaviourGetIdentity;
@@ -45,7 +44,6 @@ namespace Mirror.Weaver
             WeaverTypes.currentAssembly = currentAssembly;
 
             TypeReference NetworkServerType = Import<NetworkServer>();
-            NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_Active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_LocalClientActive");
 
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
