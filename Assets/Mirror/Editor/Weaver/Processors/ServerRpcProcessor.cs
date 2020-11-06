@@ -59,7 +59,7 @@ namespace Mirror.Weaver
 
             // NetworkWriter writer = NetworkWriterPool.GetWriter()
             VariableDefinition writer = md.AddLocal<PooledNetworkWriter>();
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.GetPooledWriterReference));
+            worker.Append(worker.Create(OpCodes.Call, md.Module.ImportReference(() => NetworkWriterPool.GetWriter())));
             worker.Append(worker.Create(OpCodes.Stloc, writer));
 
             // write all the arguments that the user passed to the Cmd call
