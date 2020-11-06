@@ -1,3 +1,16 @@
+# [59.0.0](https://github.com/MirrorNG/MirrorNG/compare/v58.0.1...v59.0.0) (2020-11-06)
+
+
+* Transport now has connected and started events. (#479) ([3e7f688](https://github.com/MirrorNG/MirrorNG/commit/3e7f688d05a0252aed8af8f058441b904cd13531)), closes [#479](https://github.com/MirrorNG/MirrorNG/issues/479)
+
+
+### BREAKING CHANGES
+
+* Add Connected event to Transport API
+* Add Started event to Transport API
+* ListenAsync returns a task that completes when the transport stops
+* Remove AcceptAsync from transports
+
 ## [58.0.1](https://github.com/MirrorNG/MirrorNG/compare/v58.0.0...v58.0.1) (2020-11-05)
 
 
