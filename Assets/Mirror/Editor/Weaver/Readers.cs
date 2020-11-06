@@ -193,23 +193,24 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable)
+        static MethodDefinition GenerateClassOrStructReadFunction(TypeReference type)
         {
-            MethodDefinition readerFunc = GenerateReaderFunction(variable);
+            MethodDefinition readerFunc = GenerateReaderFunction(type);
 
             // create local for return value
-            readerFunc.Body.Variables.Add(new VariableDefinition(variable));
+            var variable = new VariableDefinition(type);
+            readerFunc.Body.Variables.Add(variable);
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
 
-            TypeDefinition td = variable.Resolve();
+            TypeDefinition td = type.Resolve();
 
             if (!td.IsValueType)
                 GenerateNullCheck(worker);
 
             CreateNew(variable, worker, td);
-            ReadAllFields(variable, worker);
+            ReadAllFields(type, worker);
 
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ret));
@@ -233,35 +234,36 @@ namespace Mirror.Weaver
         }
 
         // Initialize the local variable with a new instance
-        static void CreateNew(TypeReference variable, ILProcessor worker, TypeDefinition td)
+        static void CreateNew(VariableDefinition variable, ILProcessor worker, TypeDefinition td)
         {
-            if (variable.IsValueType)
+            TypeReference type = variable.VariableType;
+            if (type.IsValueType)
             {
                 // structs are created with Initobj
-                worker.Append(worker.Create(OpCodes.Ldloca, 0));
-                worker.Append(worker.Create(OpCodes.Initobj, variable));
+                worker.Append(worker.Create(OpCodes.Ldloca, variable));
+                worker.Append(worker.Create(OpCodes.Initobj, type));
             }
             else if (td.IsDerivedFrom<UnityEngine.ScriptableObject>())
             {
                 var genericInstanceMethod = new GenericInstanceMethod(WeaverTypes.ScriptableObjectCreateInstanceMethod);
-                genericInstanceMethod.GenericArguments.Add(variable);
+                genericInstanceMethod.GenericArguments.Add(type);
                 worker.Append(worker.Create(OpCodes.Call, genericInstanceMethod));
-                worker.Append(worker.Create(OpCodes.Stloc_0));
+                worker.Append(worker.Create(OpCodes.Stloc, variable));
             }
             else
             {
                 // classes are created with their constructor
-                MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
+                MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(type);
                 if (ctor == null)
                 {
-                    Weaver.Error($"{variable.Name} can't be deserialized because it has no default constructor", variable);
+                    Weaver.Error($"{type.Name} can't be deserialized because it has no default constructor", type);
                     return;
                 }
 
                 MethodReference ctorRef = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);
 
                 worker.Append(worker.Create(OpCodes.Newobj, ctorRef));
-                worker.Append(worker.Create(OpCodes.Stloc_0));
+                worker.Append(worker.Create(OpCodes.Stloc, variable));
             }
         }
 
