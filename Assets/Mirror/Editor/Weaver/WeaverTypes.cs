@@ -12,8 +12,6 @@ namespace Mirror.Weaver
 
         public static MethodReference BehaviorConnectionToServerReference;
 
-        public static MethodReference NetworkBehaviourGetIdentity;
-
         public static MethodReference NetworkBehaviourIsServer;
         public static MethodReference NetworkBehaviourIsClient;
         public static MethodReference NetworkBehaviourIsLocalClient;
@@ -45,8 +43,6 @@ namespace Mirror.Weaver
 
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
             TypeReference RemoteCallHelperType = Import(typeof(RemoteCalls.RemoteCallHelper));
-
-            NetworkBehaviourGetIdentity = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "get_NetIdentity");
 
             NetworkBehaviourIsServer = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "IsServer");
             NetworkBehaviourIsClient = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "IsClient");
