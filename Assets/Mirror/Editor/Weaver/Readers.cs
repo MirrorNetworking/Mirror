@@ -110,8 +110,6 @@ namespace Mirror.Weaver
         static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
         {
             readFuncs[typeReference.FullName] = newReaderFunc;
-
-            Weaver.WeaveLists.GeneratedCode().Methods.Add(newReaderFunc);
         }
 
         static MethodDefinition GenerateEnumReadFunc(TypeReference variable)
@@ -155,7 +153,7 @@ namespace Mirror.Weaver
             string functionName = "_Read_" + variable.FullName;
 
             // create new reader for this type
-            var readerFunc = new MethodDefinition(functionName,
+            MethodDefinition readerFunc = Weaver.WeaveLists.GeneratedCode().AddMethod(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,

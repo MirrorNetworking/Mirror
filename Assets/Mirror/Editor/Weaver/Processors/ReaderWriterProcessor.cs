@@ -234,10 +234,9 @@ namespace Mirror.Weaver
         /// <param name="currentAssembly"></param>
         public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly)
         {
-            var rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
+            var rwInitializer = Weaver.WeaveLists.GeneratedCode().AddMethod("InitReadWriters", MethodAttributes.Public |
                     MethodAttributes.Static,
                     WeaverTypes.Import(typeof(void)));
-            Weaver.WeaveLists.GeneratedCode().Methods.Add(rwInitializer);
 
             System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
 

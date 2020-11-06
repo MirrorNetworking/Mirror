@@ -58,7 +58,7 @@ namespace Mirror.Weaver
             ILProcessor worker = md.Body.GetILProcessor();
 
             // NetworkWriter writer = NetworkWriterPool.GetWriter()
-            var writer = md.AddLocal<PooledNetworkWriter>();
+            VariableDefinition writer = md.AddLocal<PooledNetworkWriter>();
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.GetPooledWriterReference));
             worker.Append(worker.Create(OpCodes.Stloc, writer));
 
@@ -140,11 +140,10 @@ namespace Mirror.Weaver
         /// </remarks>
         MethodDefinition GenerateSkeleton(MethodDefinition method, MethodDefinition userCodeFunc)
         {
-            var cmd = new MethodDefinition(MethodProcessor.SkeletonPrefix + method.Name,
+            MethodDefinition cmd = method.DeclaringType.AddMethod(MethodProcessor.SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 userCodeFunc.ReturnType);
 
-            method.DeclaringType.Methods.Add(cmd);
             _ = cmd.AddParam<NetworkBehaviour>("obj");
             _ = cmd.AddParam<NetworkReader>("reader");
             _ = cmd.AddParam<INetworkConnection>("senderConnection");

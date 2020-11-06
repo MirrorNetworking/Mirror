@@ -81,12 +81,11 @@ namespace Mirror.Weaver
         static MethodDefinition GenerateSyncVarGetter(FieldDefinition fd, string originalName, FieldDefinition netFieldId)
         {
             //Create the get method
-            var get = new MethodDefinition(
+            MethodDefinition get = fd.DeclaringType.AddMethod(
                     "get_Network" + originalName, MethodAttributes.Public |
                     MethodAttributes.SpecialName |
                     MethodAttributes.HideBySig,
                     fd.FieldType);
-            fd.DeclaringType.Methods.Add(get);
 
             ILProcessor worker = get.Body.GetILProcessor();
 
@@ -119,11 +118,10 @@ namespace Mirror.Weaver
         static MethodDefinition GenerateSyncVarSetter(FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
         {
             //Create the set method
-            var set = new MethodDefinition("set_Network" + originalName, MethodAttributes.Public |
+            MethodDefinition set = fd.DeclaringType.AddMethod("set_Network" + originalName, MethodAttributes.Public |
                     MethodAttributes.SpecialName |
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
-            fd.DeclaringType.Methods.Add(set);
             ParameterDefinition valueParam = set.AddParam(fd.FieldType, "value");
             set.SemanticsAttributes = MethodSemanticsAttributes.Setter;
 
@@ -425,11 +423,9 @@ namespace Mirror.Weaver
                 return;
             }
 
-            var serialize = new MethodDefinition(SerializeMethodName,
+            MethodDefinition serialize = netBehaviourSubclass.AddMethod(SerializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     WeaverTypes.Import<bool>());
-
-            netBehaviourSubclass.Methods.Add(serialize);
 
             ParameterDefinition writerParameter = serialize.AddParam<NetworkWriter>("writer");
             ParameterDefinition initializeParameter = serialize.AddParam<bool>("initialize");
@@ -590,10 +586,9 @@ namespace Mirror.Weaver
                 return;
             }
 
-            var serialize = new MethodDefinition(DeserializeMethodName,
+            MethodDefinition serialize = netBehaviourSubclass.AddMethod(DeserializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
-            netBehaviourSubclass.Methods.Add(serialize);
 
             ParameterDefinition readerParam = serialize.AddParam<NetworkReader>("reader");
             ParameterDefinition initializeParam = serialize.AddParam<bool>("initialState");

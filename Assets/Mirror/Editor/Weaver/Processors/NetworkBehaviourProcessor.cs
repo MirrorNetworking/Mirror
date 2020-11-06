@@ -72,10 +72,9 @@ namespace Mirror.Weaver
         {
             if (!WasProcessed(td))
             {
-                var versionMethod = new MethodDefinition(ProcessedFunctionName, MethodAttributes.Private, WeaverTypes.Import(typeof(void)));
+                MethodDefinition versionMethod = td.AddMethod(ProcessedFunctionName, MethodAttributes.Private, WeaverTypes.Import(typeof(void)));
                 ILProcessor worker = versionMethod.Body.GetILProcessor();
                 worker.Append(worker.Create(OpCodes.Ret));
-                td.Methods.Add(versionMethod);
             }
         }
         #endregion
@@ -106,13 +105,12 @@ namespace Mirror.Weaver
             else
             {
                 // make one!
-                cctor = new MethodDefinition(".cctor", MethodAttributes.Private |
+                cctor = netBehaviourSubclass.AddMethod(".cctor", MethodAttributes.Private |
                         MethodAttributes.HideBySig |
                         MethodAttributes.SpecialName |
                         MethodAttributes.RTSpecialName |
                         MethodAttributes.Static,
                         WeaverTypes.Import(typeof(void)));
-                netBehaviourSubclass.Methods.Add(cctor);
             }
 
             ILProcessor cctorWorker = cctor.Body.GetILProcessor();

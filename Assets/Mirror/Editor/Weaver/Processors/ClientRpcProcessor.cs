@@ -42,12 +42,11 @@ namespace Mirror.Weaver
         /// </remarks>
         MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc, CustomAttribute clientRpcAttr)
         {
-            var rpc = new MethodDefinition(
+            MethodDefinition rpc = md.DeclaringType.AddMethod(
                 MethodProcessor.SkeletonPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 WeaverTypes.Import(typeof(void)));
 
-            md.DeclaringType.Methods.Add(rpc);
             _ = rpc.AddParam<NetworkBehaviour>("obj");
             _ = rpc.AddParam<NetworkReader>("reader");
             _ = rpc.AddParam<INetworkConnection>("senderConnection");

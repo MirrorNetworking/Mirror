@@ -25,8 +25,6 @@ namespace Mirror.Weaver
         static void RegisterWriteFunc(TypeReference typeReference, MethodDefinition newWriterFunc)
         {
             writeFuncs[typeReference.FullName] = newWriterFunc;
-
-            Weaver.WeaveLists.GeneratedCode().Methods.Add(newWriterFunc);
         }
 
         /// <summary>
@@ -159,7 +157,7 @@ namespace Mirror.Weaver
         {
             string functionName = "_Write_" + variable.FullName;
             // create new writer for this type
-            var writerFunc = new MethodDefinition(functionName,
+            MethodDefinition writerFunc = Weaver.WeaveLists.GeneratedCode().AddMethod(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
