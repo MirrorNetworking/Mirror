@@ -40,7 +40,6 @@ namespace Mirror.Weaver
         public static MethodReference getTypeReference;
         public static MethodReference getTypeFromHandleReference;
         public static MethodReference logErrorReference;
-        public static MethodReference logWarningReference;
 
         private static AssemblyDefinition currentAssembly;
 
@@ -96,7 +95,6 @@ namespace Mirror.Weaver
             registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
             TypeReference unityDebug = Import(typeof(Debug));
             logErrorReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogError");
-            logWarningReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogWarning");
 
             TypeReference typeType = Import(typeof(Type));
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, currentAssembly, "GetTypeFromHandle");
