@@ -36,7 +36,6 @@ namespace Mirror.Weaver
         public static MethodReference setSyncVarNetworkIdentityReference;
         public static MethodReference getSyncVarNetworkIdentityReference;
         public static MethodReference registerServerRpcDelegateReference;
-        public static MethodReference registerRpcDelegateReference;
 
         private static AssemblyDefinition currentAssembly;
 
@@ -89,7 +88,6 @@ namespace Mirror.Weaver
             setSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SetSyncVarNetworkIdentity");
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkIdentity");
             registerServerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterServerRpcDelegate");
-            registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
         }
     }
 }
