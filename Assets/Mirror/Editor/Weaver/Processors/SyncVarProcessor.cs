@@ -438,10 +438,10 @@ namespace Mirror.Weaver
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     WeaverTypes.Import<bool>());
 
-            var writerParameter = new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<NetworkWriter>());
-            serialize.Parameters.Add(writerParameter);
-            var initializeParameter = new ParameterDefinition("initialize", ParameterAttributes.None, WeaverTypes.Import<bool>());
-            serialize.Parameters.Add(initializeParameter);
+            netBehaviourSubclass.Methods.Add(serialize);
+
+            ParameterDefinition writerParameter = serialize.AddParam<NetworkWriter>("writer");
+            ParameterDefinition initializeParameter = serialize.AddParam<bool>("initialize");
             ILProcessor worker = serialize.Body.GetILProcessor();
 
             serialize.Body.InitLocals = true;
@@ -556,7 +556,6 @@ namespace Mirror.Weaver
             // generate: return dirtyLocal
             worker.Append(worker.Create(OpCodes.Ldloc, dirtyLocal));
             worker.Append(worker.Create(OpCodes.Ret));
-            netBehaviourSubclass.Methods.Add(serialize);
         }
 
 
@@ -604,9 +603,10 @@ namespace Mirror.Weaver
             var serialize = new MethodDefinition(DeserializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
+            netBehaviourSubclass.Methods.Add(serialize);
 
-            serialize.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
-            serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, WeaverTypes.Import<bool>()));
+            var readerParam = serialize.AddParam<NetworkReader>("reader");
+            var initializeParam = serialize.AddParam<bool>("initialState");
             ILProcessor serWorker = serialize.Body.GetILProcessor();
             // setup local for dirty bits
             serialize.Body.InitLocals = true;
@@ -619,16 +619,16 @@ namespace Mirror.Weaver
                 // base
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                 // reader
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg,readerParam));
                 // initialState
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg,initializeParam));
                 serWorker.Append(serWorker.Create(OpCodes.Call, baseDeserialize));
             }
 
             // Generates: if (initialState);
             Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
 
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg, initializeParam));
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
             foreach (FieldDefinition syncVar in syncVars)
@@ -642,7 +642,7 @@ namespace Mirror.Weaver
             serWorker.Append(initialStateLabel);
 
             // get dirty bits
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg, readerParam));
             serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.Import<ulong>())));
             serWorker.Append(serWorker.Create(OpCodes.Stloc, dirtyBitsLocal));
 
@@ -666,7 +666,6 @@ namespace Mirror.Weaver
             }
 
             serWorker.Append(serWorker.Create(OpCodes.Ret));
-            netBehaviourSubclass.Methods.Add(serialize);
         }
 
         /// <summary>

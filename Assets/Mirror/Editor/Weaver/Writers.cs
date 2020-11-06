@@ -165,7 +165,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<NetworkWriter>()));
+            _ = writerFunc.AddParam<NetworkWriter>("writer");
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
             writerFunc.Body.InitLocals = true;
 
