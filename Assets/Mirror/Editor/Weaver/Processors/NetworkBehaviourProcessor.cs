@@ -59,12 +59,6 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static void WriteSetupLocals(ILProcessor worker)
-        {
-            worker.Body.InitLocals = true;
-            worker.Body.Variables.Add(new VariableDefinition(WeaverTypes.Import<PooledNetworkWriter>()));
-        }
-
         public static void WriteCreateWriter(ILProcessor worker)
         {
             // create writer

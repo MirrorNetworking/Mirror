@@ -136,7 +136,9 @@ namespace Mirror.Weaver
 
             ILProcessor worker = md.Body.GetILProcessor();
 
-            NetworkBehaviourProcessor.WriteSetupLocals(worker);
+            // NetworkWriter writer
+            var writer = new VariableDefinition(WeaverTypes.Import<PooledNetworkWriter>());
+            md.Body.Variables.Add(writer);
 
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
@@ -164,7 +166,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
             worker.Append(worker.Create(OpCodes.Ldstr, rpcName));
             // writer
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ldloc, writer));
             worker.Append(worker.Create(OpCodes.Ldc_I4, channel));
 
             if (target == Client.Observers)

@@ -248,6 +248,5 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldftn, func));
             worker.Append(worker.Create(OpCodes.Newobj, CmdDelegateConstructor));
         }
-
     }
 }
