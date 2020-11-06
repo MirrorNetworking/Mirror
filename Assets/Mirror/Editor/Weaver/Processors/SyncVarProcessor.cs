@@ -159,8 +159,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Brtrue, endOfMethod));
 
             // T oldValue = value;
-            var oldValue = new VariableDefinition(fd.FieldType);
-            set.Body.Variables.Add(oldValue);
+            VariableDefinition oldValue = set.AddLocal(fd.FieldType);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldfld, fd));
             worker.Append(worker.Create(OpCodes.Stloc, oldValue));
@@ -439,8 +438,7 @@ namespace Mirror.Weaver
             serialize.Body.InitLocals = true;
 
             // loc_0,  this local variable is to determine if any variable was dirty
-            var dirtyLocal = new VariableDefinition(WeaverTypes.Import<bool>());
-            serialize.Body.Variables.Add(dirtyLocal);
+            VariableDefinition dirtyLocal = serialize.AddLocal<bool>();
 
             MethodReference baseSerialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, SerializeMethodName);
             if (baseSerialize != null)
@@ -602,8 +600,7 @@ namespace Mirror.Weaver
             ILProcessor serWorker = serialize.Body.GetILProcessor();
             // setup local for dirty bits
             serialize.Body.InitLocals = true;
-            var dirtyBitsLocal = new VariableDefinition(WeaverTypes.Import<long>());
-            serialize.Body.Variables.Add(dirtyBitsLocal);
+            VariableDefinition dirtyBitsLocal = serialize.AddLocal<long>();
 
             MethodReference baseDeserialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, DeserializeMethodName);
             if (baseDeserialize != null)
@@ -689,8 +686,7 @@ namespace Mirror.Weaver
             }
 
             // T oldValue = value;
-            var oldValue = new VariableDefinition(syncVar.FieldType);
-            deserialize.Body.Variables.Add(oldValue);
+            VariableDefinition oldValue = deserialize.AddLocal(syncVar.FieldType);
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
             serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
             serWorker.Append(serWorker.Create(OpCodes.Stloc, oldValue));
@@ -778,15 +774,13 @@ namespace Mirror.Weaver
             FieldDefinition netIdField = syncVarNetIds[syncVar];
 
             // uint oldNetId = ___qNetId;
-            var oldNetId = new VariableDefinition(WeaverTypes.Import<uint>());
-            deserialize.Body.Variables.Add(oldNetId);
+            VariableDefinition oldNetId = deserialize.AddLocal<uint>();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldfld, netIdField));
             worker.Append(worker.Create(OpCodes.Stloc, oldNetId));
 
             // GameObject/NetworkIdentity oldSyncVar = syncvar.getter;
-            var oldSyncVar = new VariableDefinition(syncVar.FieldType);
-            deserialize.Body.Variables.Add(oldSyncVar);
+            VariableDefinition oldSyncVar = deserialize.AddLocal(syncVar.FieldType);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
             worker.Append(worker.Create(OpCodes.Stloc, oldSyncVar));
