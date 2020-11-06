@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
@@ -41,6 +42,7 @@ namespace Mirror.Tests
             conn1 = Substitute.For<IConnection>();
             conn2 = Substitute.For<IConnection>();
 
+            transport.Start();
         }
 
         [TearDown]
@@ -50,47 +52,54 @@ namespace Mirror.Tests
         }
         #endregion
 
-        [UnityTest]
-        public IEnumerator AcceptTransport1() => UniTask.ToCoroutine(async () =>
+        [Test]
+        public void AcceptTransport1()
         {
-            transport1.AcceptAsync().Returns(UniTask.FromResult(conn1));
+            var connectedDelegate = Substitute.For<UnityAction<IConnection>>();
 
-            Assert.That(await transport.AcceptAsync(), Is.SameAs(conn1));
-        });
+            transport.Connected.AddListener(connectedDelegate);
+            transport1.Connected.Invoke(conn1);
 
-        [UnityTest]
-        public IEnumerator AcceptTransport2() => UniTask.ToCoroutine(async () =>
+            connectedDelegate.Received().Invoke(conn1);
+        }
+
+        [Test]
+        public void AcceptTransport2()
         {
-            transport2.AcceptAsync().Returns(UniTask.FromResult(conn1));
-            // transport1 task never ends
-            transport1.AcceptAsync().Returns(new UniTaskCompletionSource<IConnection>().Task);
-            Assert.That(await transport.AcceptAsync(), Is.SameAs(conn1));
-        });
+            var connectedDelegate = Substitute.For<UnityAction<IConnection>>();
+            transport.Connected.AddListener(connectedDelegate);
 
-        [UnityTest]
-        public IEnumerator AcceptMultiple() => UniTask.ToCoroutine(async () =>
+            transport2.Connected.Invoke(conn1);
+
+            connectedDelegate.Received().Invoke(conn1);
+        }
+
+        [Test]
+        public void AcceptMultiple()
         {
-            transport1.AcceptAsync().Returns(UniTask.FromResult(conn1), UniTask.FromResult(conn2));
-            // transport2 task never ends
-            transport2.AcceptAsync().Returns(new UniTaskCompletionSource<IConnection>().Task);
-            Assert.That(await transport.AcceptAsync(), Is.SameAs(conn1));
-            Assert.That(await transport.AcceptAsync(), Is.SameAs(conn2));
-        });
+            var connectedDelegate = Substitute.For<UnityAction<IConnection>>();
+            transport.Connected.AddListener(connectedDelegate);
 
-        [UnityTest]
-        public IEnumerator AcceptUntilAllGone() => UniTask.ToCoroutine(async () =>
+            transport1.Connected.Invoke(conn1);
+            transport2.Connected.Invoke(conn2);
+
+            connectedDelegate.Received().Invoke(conn1);
+            connectedDelegate.Received().Invoke(conn2);
+        }
+
+        [Test]
+        public void AcceptUntilAllGone()
         {
-            transport1.AcceptAsync().Returns(x => UniTask.FromResult(conn1), x => UniTask.FromResult<IConnection>(null));
-            // transport2 task never ends
-            transport2.AcceptAsync().Returns(x => UniTask.FromResult(conn2), x => UniTask.FromResult<IConnection>(null));
+            var connectedDelegate = Substitute.For<UnityAction<IConnection>>();
+            transport.Connected.AddListener(connectedDelegate);
 
-            IConnection accepted1 = await transport.AcceptAsync();
-            IConnection accepted2 = await transport.AcceptAsync();
+            transport1.Connected.Invoke(conn1);
+            transport1.Disconnect();
+            transport2.Connected.Invoke(conn2);
 
-            Assert.That(new[] { accepted1, accepted2 }, Is.EquivalentTo(new[] { conn1, conn2 }));
-
-            Assert.That(await transport.AcceptAsync(), Is.Null);
-        });
+            connectedDelegate.Received().Invoke(conn1);
+            connectedDelegate.Received().Invoke(conn2);
+        }
 
         [UnityTest]
         public IEnumerator Listen() => UniTask.ToCoroutine(async () =>

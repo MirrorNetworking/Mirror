@@ -7,32 +7,28 @@ namespace Mirror.Tests
 
     public class MockTransport : Transport
     {
-        public readonly Channel<IConnection> AcceptConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<IConnection>();
-
-        public override UniTask<IConnection> AcceptAsync()
-        {
-            return AcceptConnections.Reader.ReadAsync();
-        }
-
-        public readonly Channel<IConnection> ConnectConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<IConnection>();
-
         public override IEnumerable<string> Scheme => new []{"kcp"};
 
         public override bool Supported => true;
 
         public override UniTask<IConnection> ConnectAsync(Uri uri)
         {
-            return ConnectConnections.Reader.ReadAsync();
+            return UniTask.FromResult<IConnection>(default);
         }
+
+        UniTaskCompletionSource completionSource;
 
         public override void Disconnect()
         {
-            AcceptConnections.Writer.TryWrite(null);
+            completionSource.TrySetResult();
         }
 
         public override UniTask ListenAsync()
         {
-            return UniTask.CompletedTask;
+            Started.Invoke();
+
+            completionSource = new UniTaskCompletionSource();
+            return completionSource.Task;
         }
 
         public override IEnumerable<Uri> ServerUri()

@@ -10,11 +10,6 @@ namespace Mirror.Tests
     {
         public readonly Channel<IConnection> AcceptConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<IConnection>();
 
-        public override async UniTask<IConnection> AcceptAsync()
-        {
-            return await AcceptConnections.Reader.ReadAsync();
-        }
-
         public override IEnumerable<string> Scheme => new [] { "local" };
 
         public override bool Supported => true;
@@ -22,19 +17,22 @@ namespace Mirror.Tests
         public override UniTask<IConnection> ConnectAsync(Uri uri)
         {
             (IConnection c1, IConnection c2) = PipeConnection.CreatePipe();
-            AcceptConnections.Writer.TryWrite(c2);
-
+            Connected.Invoke(c2);
             return UniTask.FromResult(c1);
         }
 
+        UniTaskCompletionSource listenCompletionSource;
+
         public override void Disconnect()
         {
-            AcceptConnections.Writer.TryWrite(null);
+            listenCompletionSource?.TrySetResult();
         }
 
         public override UniTask ListenAsync()
         {
-            return UniTask.CompletedTask;
+            Started.Invoke();
+            listenCompletionSource = new UniTaskCompletionSource();
+            return listenCompletionSource.Task;
         }
 
         public override IEnumerable<Uri> ServerUri()

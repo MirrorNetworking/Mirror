@@ -177,33 +177,14 @@ namespace Mirror
         {
             Initialize();
 
-            // only start server if we want to listen
-            if (Listening)
-            {
-                await transport.ListenAsync();
-                logger.Log("Server started listening");
-            }
-
-            Active = true;
-
-            // (useful for loading & spawning stuff from database etc.)
-            Started.Invoke();
-
-            AcceptAsync().Forget();
-        }
-
-        // accept connections from clients
-        async UniTaskVoid AcceptAsync()
-        {
             try
             {
-                IConnection connection;
-
-                while ((connection = await transport.AcceptAsync()) != null)
+                // only start server if we want to listen
+                if (Listening)
                 {
-                    INetworkConnection networkConnectionToClient = GetNewConnection(connection);
-
-                    ConnectionAcceptedAsync(networkConnectionToClient).Forget();
+                    transport.Started.AddListener(TransportStarted);
+                    transport.Connected.AddListener(TransportConnected);
+                    await transport.ListenAsync();
                 }
             }
             catch (Exception ex)
@@ -212,21 +193,39 @@ namespace Mirror
             }
             finally
             {
+                transport.Connected.RemoveListener(TransportConnected);
+                transport.Started.RemoveListener(TransportStarted);
                 Cleanup();
             }
+        }
+
+        private void TransportStarted()
+        {
+            logger.Log("Server started listening");
+            Active = true;
+            // (useful for loading & spawning stuff from database etc.)
+            Started.Invoke();
+        }
+
+        private void TransportConnected(IConnection connection)
+        {
+            INetworkConnection networkConnectionToClient = GetNewConnection(connection);
+            ConnectionAcceptedAsync(networkConnectionToClient).Forget();
         }
 
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
         /// </summary>
-        public async UniTask StartHost(NetworkClient client)
+        public UniTask StartHost(NetworkClient client)
         {
             if (!client)
                 throw new InvalidOperationException("NetworkClient not assigned. Unable to StartHost()");
 
             // start listening to network connections
-            await ListenAsync();
+            UniTask task = ListenAsync();
+
+            Active = true;
 
             client.ConnectHost(this);
 
@@ -236,6 +235,7 @@ namespace Mirror
             OnStartHost.Invoke();
 
             logger.Log("NetworkServer StartHost");
+            return task;
         }
 
         /// <summary>

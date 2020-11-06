@@ -41,17 +41,15 @@ namespace Mirror.Tests
             sceneManager.server = server;
             serverObjectManager.server = server;
             serverObjectManager.networkSceneManager = sceneManager;
-            serverObjectManager.Start();
             clientObjectManager.client = client;
             clientObjectManager.networkSceneManager = sceneManager;
 
             ExtraSetup();
 
-            // wait for client and server to initialize themselves
-            await UniTask.Delay(1);
+            // wait for all Start() methods to get invoked
+            await UniTask.DelayFrame(1);
 
-            // now start the host
-            await manager.server.StartHost(client);
+            await StartHost();
 
             playerGO = new GameObject("playerGO", typeof(Rigidbody));
             identity = playerGO.AddComponent<NetworkIdentity>();
@@ -61,6 +59,24 @@ namespace Mirror.Tests
 
             client.Update();
         });
+
+
+        protected async UniTask StartHost()
+        {
+            var completionSource = new UniTaskCompletionSource();
+
+            void Started()
+            {
+                completionSource.TrySetResult();
+            }
+
+            server.Started.AddListener(Started);
+            // now start the host
+            manager.server.StartHost(client).Forget();
+
+            await completionSource.Task;
+            server.Started.RemoveListener(Started);
+        }
 
         public virtual void ExtraTearDown() { }
 

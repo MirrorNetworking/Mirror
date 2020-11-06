@@ -28,7 +28,7 @@ namespace Mirror.Tests.Performance.Runtime
             // load host
             benchmarker = Object.FindObjectOfType<NetworkManager>();
 
-            await benchmarker.server.StartHost(benchmarker.client);
+            benchmarker.server.StartHost(benchmarker.client).Forget();
 
         });
 

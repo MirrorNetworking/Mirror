@@ -45,7 +45,11 @@ namespace Mirror.Tests.Performance.Runtime
 
             server.Authenticated.AddListener(conn => serverObjectManager.SetClientReady(conn));
 
-            await server.ListenAsync();
+            var started = new UniTaskCompletionSource();
+            server.Started.AddListener(()=> started.TrySetResult());
+            server.ListenAsync().Forget();
+
+            await started.Task;
 
             transport = Object.FindObjectOfType<Transport>();
 

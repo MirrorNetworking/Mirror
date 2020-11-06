@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace Mirror
 {
@@ -10,11 +9,6 @@ namespace Mirror
     {
 
         public Transport[] transports;
-
-        AutoResetUniTaskCompletionSource completionSource;
-
-        Queue<IConnection> acceptedConnections;
-        Queue<Transport> acceptedTransport;
 
         public override IEnumerable<string> Scheme =>
             transports
@@ -33,67 +27,6 @@ namespace Mirror
 
         public override bool Supported => GetTransport() != null;
 
-        public override async UniTask<IConnection> AcceptAsync()
-        {
-            if (acceptedTransport == null)
-            {
-                acceptedTransport = new Queue<Transport>();
-                acceptedConnections = new Queue<IConnection>();
-
-                foreach (Transport transport in transports)
-                {
-                    acceptedTransport.Enqueue(transport);
-                }
-            }
-
-            while (true)
-            {
-                if (acceptedConnections.Count > 0)
-                    return acceptedConnections.Dequeue();
-
-                // all transports already closed
-                if (acceptedTransport.Count == 0)
-                    return null;
-
-                completionSource = AutoResetUniTaskCompletionSource.Create();
-
-                // no pending connections, accept from any transport again
-                while (acceptedTransport.Count > 0 && acceptedConnections.Count == 0)
-                {
-                    Transport transport = acceptedTransport.Dequeue();
-                    AcceptConnection(transport).Forget();
-                }
-
-                await completionSource.Task;
-
-                completionSource = null;
-
-            }
-
-        }
-
-        private async UniTaskVoid AcceptConnection(Transport transport)
-        {
-            try
-            {
-                IConnection connection = await transport.AcceptAsync();
-
-                if (connection != null)
-                {
-                    acceptedConnections.Enqueue(connection);
-                    acceptedTransport.Enqueue(transport);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogException(ex);
-            }
-            finally
-            {
-                completionSource?.TrySetResult();
-            }
-        }
-
         public override UniTask<IConnection> ConnectAsync(Uri uri)
         {
             foreach (Transport transport in transports)
@@ -110,12 +43,18 @@ namespace Mirror
                 transport.Disconnect();
         }
 
-        public override async UniTask ListenAsync()
+        public void Start()
         {
-            IEnumerable<UniTask> tasks = from t in transports select t.ListenAsync();
-            await UniTask.WhenAll(tasks);
-            acceptedTransport = null;
-            acceptedConnections = null;
+            foreach (Transport t in transports)
+            {
+                t.Connected.AddListener(c => Connected.Invoke(c));
+                t.Started.AddListener(() => Started.Invoke());
+            }
+        }
+        
+        public override UniTask ListenAsync()
+        {
+            return UniTask.WhenAll(transports.Select(t => t.ListenAsync()));
         }
 
         public override IEnumerable<Uri> ServerUri() =>

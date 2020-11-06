@@ -20,13 +20,14 @@ namespace Mirror.KCP
 
         public KcpDelayMode delayMode = KcpDelayMode.Normal;
         internal readonly Dictionary<IPEndPoint, KcpServerConnection> connectedClients = new Dictionary<IPEndPoint, KcpServerConnection>(new IPEndpointComparer());
-        Channel<KcpServerConnection> acceptedConnections;
 
         public override IEnumerable<string> Scheme => new[] { "kcp" };
 
         readonly byte[] buffer = new byte[1500];
 
         public long ReceivedMessageCount { get; private set; }
+
+        private AutoResetUniTaskCompletionSource ListenCompletionSource;
 
         /// <summary>
         ///     Open up the port and listen for connections
@@ -36,13 +37,24 @@ namespace Mirror.KCP
         /// <returns></returns>
         public override UniTask ListenAsync()
         {
-            socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp)
+            try
             {
-                DualMode = true
-            };
-            socket.Bind(new IPEndPoint(IPAddress.IPv6Any, Port));
-            acceptedConnections = Cysharp.Threading.Tasks.Channel.CreateSingleConsumerUnbounded<KcpServerConnection>();
-            return UniTask.CompletedTask;
+                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp)
+                {
+                    DualMode = true
+                };
+                socket.Bind(new IPEndPoint(IPAddress.IPv6Any, Port));
+
+                // transport started
+                Started.Invoke();
+
+                ListenCompletionSource = AutoResetUniTaskCompletionSource.Create();
+                return ListenCompletionSource.Task;
+            }
+            catch (Exception ex)
+            {
+                return UniTask.FromException(ex);
+            }
         }
 
         EndPoint newClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
@@ -98,7 +110,7 @@ namespace Mirror.KCP
             await connection.HandshakeAsync();
 
             // once handshake is completed,  then the connection has been accepted
-            acceptedConnections.Writer.TryWrite(connection);
+            Connected.Invoke(connection);
         }
 
         private readonly HashSet<HashCash> used = new HashSet<HashCash>();
@@ -153,28 +165,7 @@ namespace Mirror.KCP
         {
             socket?.Close();
             socket = null;
-            acceptedConnections.Writer.TryComplete();
-        }
-
-        /// <summary>
-        ///     Accepts a connection from a client.
-        ///     After ListenAsync completes,  clients will queue up until you call AcceptAsync
-        ///     then you get the connection to the client
-        /// </summary>
-        /// <returns>The connection to a client</returns>
-        public override async UniTask<IConnection> AcceptAsync()
-        {
-            if (socket == null)
-                return null;
-
-            try
-            {
-                return await acceptedConnections.Reader.ReadAsync();
-            }
-            catch (ChannelClosedException)
-            {
-                return null;
-            }
+            ListenCompletionSource?.TrySetResult();
         }
 
         /// <summary>

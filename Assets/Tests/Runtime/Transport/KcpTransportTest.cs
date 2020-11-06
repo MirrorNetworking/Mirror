@@ -22,6 +22,9 @@ namespace Mirror.Tests
 
         Uri testUri;
 
+        UniTask listenTask;
+
+
         [UnitySetUp]
         public IEnumerator Setup() => UniTask.ToCoroutine(async () =>
         {
@@ -37,10 +40,11 @@ namespace Mirror.Tests
             transport.Port = port;
             // speed this up
             transport.HashCashBits = 3;
-            
-            await transport.ListenAsync();
+       
+            transport.Connected.AddListener(connection => serverConnection = (KcpConnection)connection);
 
-            UniTask<IConnection> acceptTask = transport.AcceptAsync();
+            listenTask = transport.ListenAsync();
+
             var uriBuilder = new UriBuilder
             {
                 Host = "localhost",
@@ -50,10 +54,9 @@ namespace Mirror.Tests
 
             testUri = uriBuilder.Uri;
 
-            UniTask<IConnection> connectTask = transport.ConnectAsync(uriBuilder.Uri);
+            clientConnection = (KcpConnection)await transport.ConnectAsync(uriBuilder.Uri);
 
-            serverConnection = (KcpConnection)await acceptTask;
-            clientConnection = (KcpConnection)await connectTask;
+            await UniTask.WaitUntil(() => serverConnection != null);
 
             // for our tests,  lower the timeout to just 0.1s
             // so that the tests run quickly.
@@ -68,21 +71,7 @@ namespace Mirror.Tests
             serverConnection?.Disconnect();
             transport.Disconnect();
 
-            try
-            {
-                // make sure we are done accepting,
-                // the transport might take a little bit of time to disconnect
-                while (await transport.AcceptAsync() != null)
-                {
-                    // fine,  just wait until transport stops accepting
-                }
-
-            }
-            catch (Exception)
-            {
-                // fine,  just wait until it is done
-            }
-
+            await listenTask;
             UnityEngine.Object.Destroy(transport.gameObject);
             // wait a frame so object will be destroyed
         });

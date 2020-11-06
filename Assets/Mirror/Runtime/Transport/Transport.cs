@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using UnityEngine.Events;
 
 namespace Mirror
 {
@@ -11,11 +12,24 @@ namespace Mirror
     /// </summary>
     public abstract class Transport : MonoBehaviour
     {
+        public class ConnectEvent : UnityEvent<IConnection> { }
+
         public abstract IEnumerable<string> Scheme { get; }
+
+        /// <summary>
+        /// Event that gets fired when a client is accepted by the transport
+        /// </summary>
+        public ConnectEvent Connected = new ConnectEvent();
+
+        /// <summary>
+        /// Raised when the transport starts
+        /// </summary>
+        public UnityEvent Started = new UnityEvent();
 
         /// <summary>
         /// Open up the port and listen for connections
         /// Use in servers.
+        /// Note the task ends when we stop listening
         /// </summary>
         /// <exception>If we cannot start the transport</exception>
         /// <returns></returns>
@@ -39,14 +53,6 @@ namespace Mirror
         /// <returns>The connection to the server</returns>
         /// <exception>If connection cannot be established</exception>
         public abstract UniTask<IConnection> ConnectAsync(Uri uri);
-
-        /// <summary>
-        /// Accepts a connection from a client. 
-        /// After ListenAsync completes,  clients will queue up until you call AcceptAsync
-        /// then you get the connection to the client
-        /// </summary>
-        /// <returns>The connection to a client</returns>
-        public abstract UniTask<IConnection> AcceptAsync();
 
         /// <summary>
         /// Retrieves the address of this server.

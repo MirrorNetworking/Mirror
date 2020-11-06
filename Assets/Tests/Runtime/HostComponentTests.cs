@@ -115,10 +115,9 @@ namespace Mirror.Tests
 
             var mockListener = Substitute.For<UnityAction<string, SceneOperation>>();
             sceneManager.ClientChangeScene.AddListener(mockListener);
-            await server.StartHost(client);
+            await StartHost();
 
             client.Update();
-
             mockListener.Received().Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
         });
     }

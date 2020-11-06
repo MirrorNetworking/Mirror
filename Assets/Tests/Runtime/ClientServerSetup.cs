@@ -82,9 +82,11 @@ namespace Mirror.Tests
             await UniTask.Delay(1);
 
             // start the server
-            await server.ListenAsync();
+            var started = new UniTaskCompletionSource();
+            server.Started.AddListener(() => started.TrySetResult());
+            server.ListenAsync().Forget();
 
-            await UniTask.Delay(1);
+            await started.Task;
 
             var builder = new UriBuilder
             {
