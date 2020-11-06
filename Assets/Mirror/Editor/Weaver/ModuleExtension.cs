@@ -12,14 +12,21 @@ namespace Mirror.Weaver
 
         public static MethodReference ImportReference(this ModuleDefinition module, LambdaExpression expression)
         {
-            if (!(expression.Body is MethodCallExpression outermostExpression))
+            if (expression.Body is MethodCallExpression outermostExpression)
             {
-                throw new ArgumentException("Invalid Expression. Expression should consist of a Method call only.");
+                MethodInfo methodInfo = outermostExpression.Method;
+                return module.ImportReference(methodInfo);
             }
 
-            MethodInfo methodInfo = outermostExpression.Method;
+            if (expression.Body is NewExpression newExpression)
+            {
+                ConstructorInfo methodInfo = newExpression.Constructor;
+                // constructor is null when creating an ArraySegment<object>
+                methodInfo = methodInfo ?? newExpression.Type.GetConstructors()[0];
+                return module.ImportReference(methodInfo);
+            }
 
-            return module.ImportReference(methodInfo);
+            throw new ArgumentException("Invalid Expression. Expression should consist of a Method call only.");
         }
     }
 }

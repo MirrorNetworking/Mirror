@@ -31,9 +31,6 @@ namespace Mirror.Weaver
         // custom attribute types
         public static MethodReference InitSyncObjectReference;
 
-        // array segment
-        public static MethodReference ArraySegmentConstructorReference;
-
         public static MethodReference syncVarEqualReference;
         public static MethodReference syncVarNetworkIdentityEqualReference;
         public static MethodReference setSyncVarHookGuard;
@@ -60,9 +57,6 @@ namespace Mirror.Weaver
         {
             // system types
             WeaverTypes.currentAssembly = currentAssembly;
-
-            TypeReference ArraySegmentType = Import(typeof(ArraySegment<>));
-            ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, currentAssembly, ".ctor");
 
             TypeReference NetworkServerType = Import<NetworkServer>();
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_Active");
