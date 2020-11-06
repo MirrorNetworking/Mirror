@@ -303,7 +303,7 @@ namespace Mirror.Weaver
 
             TypeReference genericReaderClassRef = module.ImportReference(typeof(Reader<>));
 
-            var readProperty = typeof(Reader<>).GetProperty(nameof(Reader<object>.Read));
+            System.Reflection.PropertyInfo readProperty = typeof(Reader<>).GetProperty(nameof(Reader<object>.Read));
             MethodReference fieldRef = module.ImportReference(readProperty.GetSetMethod());
             TypeReference networkReaderRef = module.ImportReference(typeof(NetworkReader));
             TypeReference funcRef = module.ImportReference(typeof(Func<,>));
