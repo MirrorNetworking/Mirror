@@ -14,10 +14,8 @@ namespace Mirror.Weaver
 
         public static MethodReference NetworkServerGetActive;
         public static MethodReference NetworkServerGetLocalClientActive;
-        public static MethodReference NetworkClientGetActive;
 
         public static MethodReference NetworkBehaviourGetIdentity;
-        public static MethodReference NetworkIdentityGetServer;
         public static MethodReference NetworkIdentityGetClient;
 
         public static MethodReference NetworkBehaviourIsServer;
@@ -50,15 +48,12 @@ namespace Mirror.Weaver
             TypeReference NetworkServerType = Import<NetworkServer>();
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_Active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_LocalClientActive");
-            TypeReference NetworkClientType = Import<NetworkClient>();
-            NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, currentAssembly, "get_Active");
 
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
             TypeReference RemoteCallHelperType = Import(typeof(RemoteCalls.RemoteCallHelper));
 
             NetworkBehaviourGetIdentity = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "get_NetIdentity");
             TypeReference NetworkIdentityType = Import<NetworkIdentity>();
-            NetworkIdentityGetServer = Resolvers.ResolveMethod(NetworkIdentityType, currentAssembly, "get_Server");
             NetworkIdentityGetClient = Resolvers.ResolveMethod(NetworkIdentityType, currentAssembly, "get_Client");
 
             NetworkBehaviourIsServer = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "IsServer");
