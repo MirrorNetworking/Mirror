@@ -230,9 +230,9 @@ namespace Mirror.Weaver
 
             TypeReference returnType = taskReturnType.GenericArguments[0];
 
-            MethodReference genericRegisterMethod = func.Module.ImportReference(() => RemoteCallHelper.RegisterRequestDelegate<object>(default, default, default, default));
+            GenericInstanceMethod genericRegisterMethod = func.Module.ImportReference(() => RemoteCallHelper.RegisterRequestDelegate<object>(default, default, default, default)) as GenericInstanceMethod;
 
-            var registerInstance = new GenericInstanceMethod(genericRegisterMethod);
+            var registerInstance = new GenericInstanceMethod(genericRegisterMethod.ElementMethod);
             registerInstance.GenericArguments.Add(returnType);
             return registerInstance;
         }
