@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
 using Mirror.RemoteCalls;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using ParameterAttributes = Mono.Cecil.ParameterAttributes;
 
 namespace Mirror.Weaver
 {
