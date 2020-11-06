@@ -461,7 +461,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldarg, initializeParameter));
                 worker.Append(worker.Create(OpCodes.Call, baseSerialize));
                 // set dirtyLocal to result of base.OnSerialize()
-                worker.Append(worker.Create(OpCodes.Stloc_0));
+                worker.Append(worker.Create(OpCodes.Stloc, dirtyLocal));
             }
 
             // Generates: if (forceAll);
@@ -547,14 +547,14 @@ namespace Mirror.Weaver
                 // something was dirty
                 worker.Append(worker.Create(OpCodes.Ldc_I4_1));
                 // set dirtyLocal to true
-                worker.Append(worker.Create(OpCodes.Stloc_0));
+                worker.Append(worker.Create(OpCodes.Stloc, dirtyLocal));
 
                 worker.Append(varLabel);
                 dirtyBit += 1;
             }
 
             // generate: return dirtyLocal
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ldloc, dirtyLocal));
             worker.Append(worker.Create(OpCodes.Ret));
             netBehaviourSubclass.Methods.Add(serialize);
         }
