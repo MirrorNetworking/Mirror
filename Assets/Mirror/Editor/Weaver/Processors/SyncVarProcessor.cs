@@ -111,8 +111,6 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ret));
             }
 
-            get.Body.Variables.Add(new VariableDefinition(fd.FieldType));
-            get.Body.InitLocals = true;
             get.SemanticsAttributes = MethodSemanticsAttributes.Getter;
 
             return get;
