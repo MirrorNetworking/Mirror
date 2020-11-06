@@ -224,15 +224,13 @@ namespace Mirror.Weaver
         private static MethodReference GetRegisterMethod(MethodDefinition func)
         {
             if (func.ReturnType.Is(typeof(void)))
-                return WeaverTypes.registerServerRpcDelegateReference;
+                return func.Module.ImportReference(() => RemoteCallHelper.RegisterServerRpcDelegate(default, default, default, default));
 
             var taskReturnType = func.ReturnType as GenericInstanceType;
 
             TypeReference returnType = taskReturnType.GenericArguments[0];
 
-            MethodInfo method = typeof(RemoteCallHelper).GetMethods(BindingFlags.NonPublic | BindingFlags.Static).First(m => m.Name == nameof(RemoteCallHelper.RegisterRequestDelegate));
-
-            MethodReference genericRegisterMethod = func.Module.ImportReference(method);
+            MethodReference genericRegisterMethod = func.Module.ImportReference(() => RemoteCallHelper.RegisterRequestDelegate<object>(default, default, default, default));
 
             var registerInstance = new GenericInstanceMethod(genericRegisterMethod);
             registerInstance.GenericArguments.Add(returnType);
