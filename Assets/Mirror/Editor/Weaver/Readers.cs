@@ -212,7 +212,7 @@ namespace Mirror.Weaver
             CreateNew(variable, worker, td);
             ReadAllFields(type, worker);
 
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ldloc, variable));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
         }
