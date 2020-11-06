@@ -165,8 +165,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldfld, fd));
             worker.Append(worker.Create(OpCodes.Stloc, oldValue));
 
-
-
             if (fd.FieldType.Is<NetworkIdentity>())
             {
                 // this
