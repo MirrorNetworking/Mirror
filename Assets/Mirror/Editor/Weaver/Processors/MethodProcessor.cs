@@ -35,6 +35,7 @@ namespace Mirror.Weaver
         {
             string newName = UserCodePrefix + md.Name;
             var cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
+            md.DeclaringType.Methods.Add(cmd);
 
             // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
@@ -55,9 +56,6 @@ namespace Mirror.Weaver
             md.CustomDebugInformations.Clear();
 
             (md.DebugInformation.Scope, cmd.DebugInformation.Scope) = (cmd.DebugInformation.Scope, md.DebugInformation.Scope);
-
-            md.DeclaringType.Methods.Add(cmd);
-            cmd.DeclaringType = md.DeclaringType;
 
             FixRemoteCallToBaseMethod(md.DeclaringType, cmd);
             return cmd;
