@@ -35,7 +35,6 @@ namespace Mirror.Weaver
         public static MethodReference ArraySegmentConstructorReference;
         public static MethodReference ArraySegmentArrayReference;
         public static MethodReference ArraySegmentOffsetReference;
-        public static MethodReference ArraySegmentCountReference;
 
         public static MethodReference syncVarEqualReference;
         public static MethodReference syncVarNetworkIdentityEqualReference;
@@ -66,7 +65,6 @@ namespace Mirror.Weaver
 
             TypeReference ArraySegmentType = Import(typeof(ArraySegment<>));
             ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Array");
-            ArraySegmentCountReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Count");
             ArraySegmentOffsetReference = Resolvers.ResolveProperty(ArraySegmentType, currentAssembly, "Offset");
             ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, currentAssembly, ".ctor");
 
