@@ -87,6 +87,7 @@ namespace Mirror.Weaver
                     MethodAttributes.SpecialName |
                     MethodAttributes.HideBySig,
                     fd.FieldType);
+            fd.DeclaringType.Methods.Add(get);
 
             ILProcessor worker = get.Body.GetILProcessor();
 
@@ -115,7 +116,6 @@ namespace Mirror.Weaver
             get.Body.InitLocals = true;
             get.SemanticsAttributes = MethodSemanticsAttributes.Getter;
 
-            get.DeclaringType = fd.DeclaringType;
             return get;
         }
 
@@ -126,10 +126,9 @@ namespace Mirror.Weaver
                     MethodAttributes.SpecialName |
                     MethodAttributes.HideBySig,
                     WeaverTypes.Import(typeof(void)));
-            var valueParam = new ParameterDefinition("value", ParameterAttributes.In, fd.FieldType);
-            set.Parameters.Add(valueParam);
+            fd.DeclaringType.Methods.Add(set);
+            ParameterDefinition valueParam = set.AddParam(fd.FieldType, "value");
             set.SemanticsAttributes = MethodSemanticsAttributes.Setter;
-            set.DeclaringType = fd.DeclaringType;
 
             ILProcessor worker = set.Body.GetILProcessor();
 
@@ -281,8 +280,6 @@ namespace Mirror.Weaver
 
             propertyDefinition.DeclaringType = fd.DeclaringType;
             //add the methods and property to the type.
-            fd.DeclaringType.Methods.Add(get);
-            fd.DeclaringType.Methods.Add(set);
             fd.DeclaringType.Properties.Add(propertyDefinition);
             Weaver.WeaveLists.replacementSetterProperties[fd] = set;
 

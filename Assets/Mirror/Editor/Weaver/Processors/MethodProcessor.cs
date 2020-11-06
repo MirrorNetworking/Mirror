@@ -40,7 +40,7 @@ namespace Mirror.Weaver
             // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
             {
-                cmd.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
+                _ = cmd.AddParam(pd.ParameterType, pd.Name);
             }
 
             // swap bodies
