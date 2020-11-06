@@ -336,9 +336,9 @@ namespace Mirror
         /// </summary>
         public void StartServer()
         {
-            if (NetworkServer.active)
+            if (NetworkServer.active || NetworkClient.active)
             {
-                logger.LogWarning("Server already started.")
+                logger.LogWarning("Server or Client already started.")
                 return;
             }
 
@@ -380,9 +380,9 @@ namespace Mirror
         /// </summary>
         public void StartClient()
         {
-            if (NetworkClient.active)
+            if (NetworkServer.active || NetworkClient.active)
             {
-                logger.LogWarning("Client already started.")
+                logger.LogWarning("Server or Client already started.")
                 return;
             }
 
@@ -422,9 +422,9 @@ namespace Mirror
         /// <param name="uri">location of the server to connect to</param>
         public void StartClient(Uri uri)
         {
-            if (NetworkClient.active)
+            if (NetworkServer.active || NetworkClient.active)
             {
-                logger.LogWarning("Client already started.")
+                logger.LogWarning("Server or Client already started.")
                 return;
             }
 
@@ -461,9 +461,9 @@ namespace Mirror
         /// </summary>
         public void StartHost()
         {
-            if (NetworkServer.active)
+            if (NetworkServer.active || NetworkClient.active)
             {
-                logger.LogWarning("Server already started.")
+                logger.LogWarning("Server or Client already started.")
                 return;
             }
 
