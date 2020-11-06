@@ -43,7 +43,6 @@ namespace Mirror.Weaver
         public static MethodReference getTypeFromHandleReference;
         public static MethodReference logErrorReference;
         public static MethodReference logWarningReference;
-        public static MethodReference sendServerRpcInternal;
 
         private static AssemblyDefinition currentAssembly;
 
@@ -103,7 +102,6 @@ namespace Mirror.Weaver
 
             TypeReference typeType = Import(typeof(Type));
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, currentAssembly, "GetTypeFromHandle");
-            sendServerRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendServerRpcInternal");
 
             InitSyncObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "InitSyncObject");
 

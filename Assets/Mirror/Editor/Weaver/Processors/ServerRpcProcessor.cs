@@ -98,7 +98,8 @@ namespace Mirror.Weaver
         {
             if (md.ReturnType.Is(typeof(void)))
             {
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.sendServerRpcInternal));
+                MethodReference sendServerRpcRef = md.Module.ImportReference<NetworkBehaviour>(nb => nb.SendServerRpcInternal(default, default, default, default, default));
+                worker.Append(worker.Create(OpCodes.Call, sendServerRpcRef));
             }
             else
             {
