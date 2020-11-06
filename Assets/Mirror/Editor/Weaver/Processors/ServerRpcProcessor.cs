@@ -58,8 +58,7 @@ namespace Mirror.Weaver
             ILProcessor worker = md.Body.GetILProcessor();
 
             // NetworkWriter writer = NetworkWriterPool.GetWriter()
-            var writer = new VariableDefinition(WeaverTypes.Import<PooledNetworkWriter>());
-            md.Body.Variables.Add(writer);
+            var writer = md.AddLocal<PooledNetworkWriter>();
             worker.Append(worker.Create(OpCodes.Call, WeaverTypes.GetPooledWriterReference));
             worker.Append(worker.Create(OpCodes.Stloc, writer));
 
