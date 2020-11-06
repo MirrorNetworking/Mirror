@@ -166,7 +166,7 @@ namespace Mirror.Weaver
                     WeaverTypes.Import(typeof(void)));
 
             _ = writerFunc.AddParam<NetworkWriter>("writer");
-            writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
+            _ = writerFunc.AddParam(Weaver.CurrentAssembly.MainModule.ImportReference(variable), "value");
             writerFunc.Body.InitLocals = true;
 
             RegisterWriteFunc(variable, writerFunc);
