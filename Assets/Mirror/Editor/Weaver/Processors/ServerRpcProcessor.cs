@@ -57,11 +57,11 @@ namespace Mirror.Weaver
 
             ILProcessor worker = md.Body.GetILProcessor();
 
+            // NetworkWriter writer = NetworkWriterPool.GetWriter()
             var writer = new VariableDefinition(WeaverTypes.Import<PooledNetworkWriter>());
             md.Body.Variables.Add(writer);
-
-            // NetworkWriter writer = new NetworkWriter();
-            NetworkBehaviourProcessor.WriteCreateWriter(worker);
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.GetPooledWriterReference));
+            worker.Append(worker.Create(OpCodes.Stloc, writer));
 
             // write all the arguments that the user passed to the Cmd call
             if (!WriteArguments(worker, md, RemoteCallType.ServerRpc))

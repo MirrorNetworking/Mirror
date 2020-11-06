@@ -136,11 +136,11 @@ namespace Mirror.Weaver
 
             ILProcessor worker = md.Body.GetILProcessor();
 
-            // NetworkWriter writer
+            // NetworkWriter writer = NetworkWriterPool.GetWriter()
             var writer = new VariableDefinition(WeaverTypes.Import<PooledNetworkWriter>());
             md.Body.Variables.Add(writer);
-
-            NetworkBehaviourProcessor.WriteCreateWriter(worker);
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.GetPooledWriterReference));
+            worker.Append(worker.Create(OpCodes.Stloc, writer));
 
             // write all the arguments that the user passed to the Rpc call
             if (!WriteArguments(worker, md, RemoteCallType.ClientRpc))

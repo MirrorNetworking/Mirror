@@ -59,13 +59,6 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static void WriteCreateWriter(ILProcessor worker)
-        {
-            // create writer
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.GetPooledWriterReference));
-            worker.Append(worker.Create(OpCodes.Stloc_0));
-        }
-
         public static void WriteRecycleWriter(ILProcessor worker)
         {
             // NetworkWriterPool.Recycle(writer);
