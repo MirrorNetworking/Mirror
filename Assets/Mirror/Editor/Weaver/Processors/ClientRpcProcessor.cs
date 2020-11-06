@@ -179,7 +179,9 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Callvirt, WeaverTypes.sendTargetRpcInternal));
             }
 
-            NetworkBehaviourProcessor.WriteRecycleWriter(worker);
+            // NetworkWriterPool.Recycle(writer);
+            worker.Append(worker.Create(OpCodes.Ldloc, writer));
+            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.RecycleWriterReference));
 
             worker.Append(worker.Create(OpCodes.Ret));
 

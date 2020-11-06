@@ -59,13 +59,6 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static void WriteRecycleWriter(ILProcessor worker)
-        {
-            // NetworkWriterPool.Recycle(writer);
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.RecycleWriterReference));
-        }
-
         #region mark / check type as processed
         public const string ProcessedFunctionName = "MirrorProcessed";
 
