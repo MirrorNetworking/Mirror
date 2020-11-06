@@ -1,3 +1,5 @@
+using System;
+using System.Linq.Expressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -25,6 +27,13 @@ namespace Mirror.Weaver
             var local = new VariableDefinition(type);
             method.Body.Variables.Add(local);
             return local;
+        }
+
+
+        public static Instruction Create(this ILProcessor worker, OpCode code, Expression<Action> expression)
+        {
+            var typeref = worker.Body.Method.Module.ImportReference(expression);
+            return worker.Create(code, typeref);
         }
     }
 }

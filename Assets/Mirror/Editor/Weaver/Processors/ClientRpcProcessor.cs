@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Mirror.RemoteCalls;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 namespace Mirror.Weaver
@@ -141,7 +142,7 @@ namespace Mirror.Weaver
 
             // NetworkWriter writer = NetworkWriterPool.GetWriter()
             VariableDefinition writer = md.AddLocal<PooledNetworkWriter>();
-            worker.Append(worker.Create(OpCodes.Call, md.Module.ImportReference(() => NetworkWriterPool.GetWriter())));
+            worker.Append(worker.Create(OpCodes.Call, () => NetworkWriterPool.GetWriter()));
             worker.Append(worker.Create(OpCodes.Stloc, writer));
 
             // write all the arguments that the user passed to the Rpc call
@@ -165,8 +166,7 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ldtoken, md.DeclaringType));
             // invokerClass
-            MethodReference getTypeFromHandleRef = md.Module.ImportReference(() => Type.GetTypeFromHandle(default));
-            worker.Append(worker.Create(OpCodes.Call, getTypeFromHandleRef));
+            worker.Append(worker.Create(OpCodes.Call, () => Type.GetTypeFromHandle(default)));
             worker.Append(worker.Create(OpCodes.Ldstr, rpcName));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc, writer));
@@ -186,7 +186,7 @@ namespace Mirror.Weaver
 
             // NetworkWriterPool.Recycle(writer);
             worker.Append(worker.Create(OpCodes.Ldloc, writer));
-            worker.Append(worker.Create(OpCodes.Call, md.Module.ImportReference(() => NetworkWriterPool.Recycle(default))));
+            worker.Append(worker.Create(OpCodes.Call, () => NetworkWriterPool.Recycle(default)));
 
             worker.Append(worker.Create(OpCodes.Ret));
 
@@ -234,14 +234,12 @@ namespace Mirror.Weaver
         void GenerateRegisterRemoteDelegate(ILProcessor worker, MethodDefinition func, string cmdName)
         {
             TypeDefinition netBehaviourSubclass = func.DeclaringType;
-            MethodReference registerMethod = WeaverTypes.registerRpcDelegateReference;
             worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
-            MethodReference getTypeFromHandleRef = func.Module.ImportReference(() => Type.GetTypeFromHandle(default));
-            worker.Append(worker.Create(OpCodes.Call, getTypeFromHandleRef));
+            worker.Append(worker.Create(OpCodes.Call, () => Type.GetTypeFromHandle(default)));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             worker.Append(worker.Create(OpCodes.Ldnull));
             CreateRpcDelegate(worker, func);
-            worker.Append(worker.Create(OpCodes.Call, registerMethod));
+            worker.Append(worker.Create(OpCodes.Call, () => RemoteCallHelper.RegisterRpcDelegate(default, default, default)));
         }
 
         public void ProcessClientRpc(MethodDefinition md, CustomAttribute clientRpcAttr)

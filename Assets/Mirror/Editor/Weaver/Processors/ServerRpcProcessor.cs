@@ -77,8 +77,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldtoken, md.DeclaringType));
             // invokerClass
-            MethodReference getTypeFromHandleRef = md.Module.ImportReference(() => Type.GetTypeFromHandle(default));
-            worker.Append(worker.Create(OpCodes.Call, getTypeFromHandleRef));
+            worker.Append(worker.Create(OpCodes.Call, () => Type.GetTypeFromHandle(default)));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             // writer
             worker.Append(worker.Create(OpCodes.Ldloc, writer));
@@ -88,7 +87,7 @@ namespace Mirror.Weaver
 
             // NetworkWriterPool.Recycle(writer);
             worker.Append(worker.Create(OpCodes.Ldloc, writer));
-            worker.Append(worker.Create(OpCodes.Call, md.Module.ImportReference(() => NetworkWriterPool.Recycle(default))));
+            worker.Append(worker.Create(OpCodes.Call, () => NetworkWriterPool.Recycle(default)));
 
             worker.Append(worker.Create(OpCodes.Ret));
 
@@ -212,8 +211,7 @@ namespace Mirror.Weaver
 
             TypeDefinition netBehaviourSubclass = skeleton.DeclaringType;
             worker.Append(worker.Create(OpCodes.Ldtoken, netBehaviourSubclass));
-            MethodReference getTypeFromHandleRef = skeleton.Module.ImportReference(() => Type.GetTypeFromHandle(default));
-            worker.Append(worker.Create(OpCodes.Call, getTypeFromHandleRef));
+            worker.Append(worker.Create(OpCodes.Call, () => Type.GetTypeFromHandle(default)));
             worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
             worker.Append(worker.Create(OpCodes.Ldnull));
             CreateRpcDelegate(worker, skeleton);
