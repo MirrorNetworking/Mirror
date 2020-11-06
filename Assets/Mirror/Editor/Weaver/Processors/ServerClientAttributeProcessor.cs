@@ -92,13 +92,12 @@ namespace Mirror.Weaver
                 {
                     TypeReference elementType = param.ParameterType.GetElementType();
 
-                    md.Body.Variables.Add(new VariableDefinition(elementType));
-                    md.Body.InitLocals = true;
+                    VariableDefinition elementLocal = md.AddLocal(elementType);
 
                     worker.InsertBefore(top, worker.Create(OpCodes.Ldarg, index + offset));
-                    worker.InsertBefore(top, worker.Create(OpCodes.Ldloca_S, (byte)(md.Body.Variables.Count - 1)));
+                    worker.InsertBefore(top, worker.Create(OpCodes.Ldloca_S, elementLocal));
                     worker.InsertBefore(top, worker.Create(OpCodes.Initobj, elementType));
-                    worker.InsertBefore(top, worker.Create(OpCodes.Ldloc, md.Body.Variables.Count - 1));
+                    worker.InsertBefore(top, worker.Create(OpCodes.Ldloc, elementLocal));
                     worker.InsertBefore(top, worker.Create(OpCodes.Stobj, elementType));
                 }
             }
@@ -109,12 +108,10 @@ namespace Mirror.Weaver
         {
             if (!md.ReturnType.Is(typeof(void)))
             {
-                md.Body.Variables.Add(new VariableDefinition(md.ReturnType));
-                md.Body.InitLocals = true;
-
-                worker.InsertBefore(top, worker.Create(OpCodes.Ldloca_S, (byte)(md.Body.Variables.Count - 1)));
+                VariableDefinition returnLocal = md.AddLocal(md.ReturnType);
+                worker.InsertBefore(top, worker.Create(OpCodes.Ldloca_S, returnLocal));
                 worker.InsertBefore(top, worker.Create(OpCodes.Initobj, md.ReturnType));
-                worker.InsertBefore(top, worker.Create(OpCodes.Ldloc, md.Body.Variables.Count - 1));
+                worker.InsertBefore(top, worker.Create(OpCodes.Ldloc, returnLocal));
             }
         }
     }

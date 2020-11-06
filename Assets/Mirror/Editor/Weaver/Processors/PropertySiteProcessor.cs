@@ -85,8 +85,7 @@ namespace Mirror.Weaver
                     //     var tmp = new MyStruct();
                     //     this.set_Networkxxxx(tmp);
                     ILProcessor worker = md.Body.GetILProcessor();
-                    var tmpVariable = new VariableDefinition(opField.FieldType);
-                    md.Body.Variables.Add(tmpVariable);
+                    VariableDefinition tmpVariable = md.AddLocal(opField.FieldType);
 
                     worker.InsertBefore(instr, worker.Create(OpCodes.Ldloca, tmpVariable));
                     worker.InsertBefore(instr, worker.Create(OpCodes.Initobj, opField.FieldType));

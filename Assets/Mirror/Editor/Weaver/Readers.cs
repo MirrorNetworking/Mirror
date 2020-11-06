@@ -198,8 +198,7 @@ namespace Mirror.Weaver
             MethodDefinition readerFunc = GenerateReaderFunction(type);
 
             // create local for return value
-            var variable = new VariableDefinition(type);
-            readerFunc.Body.Variables.Add(variable);
+            VariableDefinition variable = readerFunc.AddLocal(type);
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 

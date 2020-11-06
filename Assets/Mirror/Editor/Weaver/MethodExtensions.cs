@@ -1,4 +1,5 @@
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
@@ -8,17 +9,22 @@ namespace Mirror.Weaver
     public static class MethodExtensions
     {
         public static ParameterDefinition AddParam<T>(this MethodDefinition method, string name, ParameterAttributes attributes = ParameterAttributes.None)
-        {
-            var param = new ParameterDefinition(name, attributes, WeaverTypes.Import<T>());
-            method.Parameters.Add(param);
-            return param;
-        }
+            => AddParam(method, WeaverTypes.Import<T>(), name, attributes);
 
         public static ParameterDefinition AddParam(this MethodDefinition method, TypeReference typeRef, string name, ParameterAttributes attributes = ParameterAttributes.None)
         {
             var param = new ParameterDefinition(name, attributes, typeRef);
             method.Parameters.Add(param);
             return param;
+        }
+
+        public static VariableDefinition AddLocal<T>(this MethodDefinition method) => AddLocal(method, WeaverTypes.Import<T>());
+
+        public static VariableDefinition AddLocal(this MethodDefinition method, TypeReference type)
+        {
+            var local = new VariableDefinition(type);
+            method.Body.Variables.Add(local);
+            return local;
         }
     }
 }
