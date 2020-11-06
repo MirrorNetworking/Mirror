@@ -26,7 +26,6 @@ namespace Mirror.Weaver
         public static MethodReference setSyncVarHookGuard;
         public static MethodReference getSyncVarHookGuard;
         public static MethodReference setSyncVarNetworkIdentityReference;
-        public static MethodReference getSyncVarNetworkIdentityReference;
 
         private static AssemblyDefinition currentAssembly;
 
@@ -68,7 +67,6 @@ namespace Mirror.Weaver
             getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarHookGuard");
 
             setSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SetSyncVarNetworkIdentity");
-            getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkIdentity");
         }
     }
 }

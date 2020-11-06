@@ -99,7 +99,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldfld, netFieldId));
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, fd));
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getSyncVarNetworkIdentityReference));
+                worker.Append(worker.Create<NetworkBehaviour>(OpCodes.Call, nb => nb.GetSyncVarNetworkIdentity(default, default)));
                 worker.Append(worker.Create(OpCodes.Ret));
             }
             // [SyncVar] int, string, etc.

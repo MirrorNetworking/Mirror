@@ -35,5 +35,11 @@ namespace Mirror.Weaver
             var typeref = worker.Body.Method.Module.ImportReference(expression);
             return worker.Create(code, typeref);
         }
+
+        public static Instruction Create<T>(this ILProcessor worker, OpCode code, Expression<Action<T>> expression)
+        {
+            var typeref = worker.Body.Method.Module.ImportReference(expression);
+            return worker.Create(code, typeref);
+        }
     }
 }
