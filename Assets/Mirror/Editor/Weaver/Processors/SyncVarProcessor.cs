@@ -644,7 +644,7 @@ namespace Mirror.Weaver
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
             serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.Import<ulong>())));
-            serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
+            serWorker.Append(serWorker.Create(OpCodes.Stloc, dirtyBitsLocal));
 
             // conditionally read each syncvar
             // start at number of syncvars in parent
@@ -654,7 +654,7 @@ namespace Mirror.Weaver
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
 
                 // check if dirty bit is set
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldloc, dirtyBitsLocal));
                 serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, 1L << dirtyBit));
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
