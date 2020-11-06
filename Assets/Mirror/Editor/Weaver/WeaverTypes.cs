@@ -29,8 +29,6 @@ namespace Mirror.Weaver
         public static MethodReference MethodInvocationExceptionConstructor;
 
         // custom attribute types
-        public static MethodReference InitSyncObjectReference;
-
         public static MethodReference syncVarEqualReference;
         public static MethodReference syncVarNetworkIdentityEqualReference;
         public static MethodReference setSyncVarHookGuard;
@@ -102,8 +100,6 @@ namespace Mirror.Weaver
 
             TypeReference typeType = Import(typeof(Type));
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, currentAssembly, "GetTypeFromHandle");
-
-            InitSyncObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "InitSyncObject");
 
         }
     }

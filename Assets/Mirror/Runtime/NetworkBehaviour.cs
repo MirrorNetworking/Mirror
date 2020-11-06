@@ -194,7 +194,7 @@ namespace Mirror
         // this gets called in the constructor by the weaver
         // for every SyncObject in the component (e.g. SyncLists).
         // We collect all of them and we synchronize them with OnSerialize/OnDeserialize
-        protected void InitSyncObject(ISyncObject syncObject)
+        internal protected void InitSyncObject(ISyncObject syncObject)
         {
             syncObjects.Add(syncObject);
             syncObject.OnChange += SyncObject_OnChange;

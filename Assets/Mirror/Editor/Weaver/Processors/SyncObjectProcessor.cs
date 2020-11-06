@@ -134,8 +134,8 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldfld, fd));
 
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.InitSyncObjectReference));
+            MethodReference initSyncObjectRef = worker.Body.Method.Module.ImportReference<NetworkBehaviour>(nb => nb.InitSyncObject(default));
+            worker.Append(worker.Create(OpCodes.Call, initSyncObjectRef));
         }
-
     }
 }
