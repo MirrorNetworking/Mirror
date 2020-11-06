@@ -47,8 +47,11 @@ namespace Mirror.Weaver
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 WeaverTypes.Import(typeof(void)));
 
-            AddInvokeParameters(rpc.Parameters);
             md.DeclaringType.Methods.Add(rpc);
+            _ = rpc.AddParam<NetworkBehaviour>("obj");
+            _ = rpc.AddParam<NetworkReader>("reader");
+            _ = rpc.AddParam<INetworkConnection>("senderConnection");
+            _ = rpc.AddParam<int>("replyId");
 
             ILProcessor worker = rpc.Body.GetILProcessor();
 

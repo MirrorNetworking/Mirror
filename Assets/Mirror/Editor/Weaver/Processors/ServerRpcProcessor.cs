@@ -145,8 +145,12 @@ namespace Mirror.Weaver
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 userCodeFunc.ReturnType);
 
-            AddInvokeParameters(cmd.Parameters);
             method.DeclaringType.Methods.Add(cmd);
+            _ = cmd.AddParam<NetworkBehaviour>("obj");
+            _ = cmd.AddParam<NetworkReader>("reader");
+            _ = cmd.AddParam<INetworkConnection>("senderConnection");
+            _ = cmd.AddParam<int>("replyId");
+
 
             ILProcessor worker = cmd.Body.GetILProcessor();
 

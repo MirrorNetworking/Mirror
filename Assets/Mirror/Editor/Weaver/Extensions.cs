@@ -254,5 +254,13 @@ namespace Mirror.Weaver
                 }
             }
         }
+
+        public static ParameterDefinition AddParam<T>(this MethodDefinition method, string name, ParameterAttributes attributes = ParameterAttributes.None)
+        {
+            var param = new ParameterDefinition("obj", attributes, WeaverTypes.Import<T>());
+            method.Parameters.Add(param);
+            return param;
+        }
+
     }
 }

@@ -124,16 +124,6 @@ namespace Mirror.Weaver
             return true;
         }
 
-
-        public static void AddInvokeParameters(ICollection<ParameterDefinition> collection)
-        {
-            collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, WeaverTypes.Import<NetworkBehaviour>()));
-            collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
-            // senderConnection is only used for commands but NetworkBehaviour.CmdDelegate is used for all remote calls
-            collection.Add(new ParameterDefinition("senderConnection", ParameterAttributes.None, WeaverTypes.Import<INetworkConnection>()));
-            collection.Add(new ParameterDefinition("replyId", ParameterAttributes.None, WeaverTypes.Import<int>()));
-        }
-
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
         public static bool ValidateRemoteCallAndParameters(MethodDefinition method, RemoteCallType callType)
         {
