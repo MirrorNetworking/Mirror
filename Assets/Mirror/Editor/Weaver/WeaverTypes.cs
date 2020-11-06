@@ -40,7 +40,6 @@ namespace Mirror.Weaver
         // list
         public static MethodReference ListConstructorReference;
         public static MethodReference ListCountReference;
-        public static MethodReference ListGetItemReference;
 
         public static MethodReference syncVarEqualReference;
         public static MethodReference syncVarNetworkIdentityEqualReference;
@@ -77,7 +76,6 @@ namespace Mirror.Weaver
 
             TypeReference ListType = Import(typeof(System.Collections.Generic.List<>));
             ListCountReference = Resolvers.ResolveProperty(ListType, currentAssembly, "Count");
-            ListGetItemReference = Resolvers.ResolveMethod(ListType, currentAssembly, "get_Item");
             ListConstructorReference = Resolvers.ResolveMethod(ListType, currentAssembly, ".ctor");
 
             TypeReference NetworkServerType = Import<NetworkServer>();
