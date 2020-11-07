@@ -34,10 +34,7 @@ namespace Mirror.Weaver
             // system types
             WeaverTypes.currentAssembly = currentAssembly;
 
-            TypeReference NetworkServerType = Import<NetworkServer>();
-
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
-            TypeReference RemoteCallHelperType = Import(typeof(RemoteCalls.RemoteCallHelper));
 
             NetworkBehaviourIsServer = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "IsServer");
             NetworkBehaviourIsClient = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "IsClient");
