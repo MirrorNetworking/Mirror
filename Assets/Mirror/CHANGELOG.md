@@ -1,3 +1,10 @@
+## [59.0.1](https://github.com/MirrorNG/MirrorNG/compare/v59.0.0...v59.0.1) (2020-11-07)
+
+
+### Bug Fixes
+
+* don't consume so much memory registering prefabs ([#486](https://github.com/MirrorNG/MirrorNG/issues/486)) ([d451782](https://github.com/MirrorNG/MirrorNG/commit/d451782f60a9f7066686f2dff2b68cc60fa8c725))
+
 # [59.0.0](https://github.com/MirrorNG/MirrorNG/compare/v58.0.1...v59.0.0) (2020-11-06)
 
 
