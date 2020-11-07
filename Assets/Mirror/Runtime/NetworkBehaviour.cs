@@ -371,7 +371,7 @@ namespace Mirror
 
         // helper function for [SyncVar] NetworkIdentities.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
+        internal protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
         {
             if (GetSyncVarHookGuard(dirtyBit))
                 return;

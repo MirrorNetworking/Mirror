@@ -182,7 +182,9 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldflda, netFieldId));
 
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.setSyncVarNetworkIdentityReference));
+                NetworkIdentity ni = default;
+                uint netIdField = default;
+                worker.Append(worker.Create<NetworkBehaviour>(OpCodes.Call, nb => nb.SetSyncVarNetworkIdentity(default,ref ni, default, ref netIdField )));
             }
             else
             {
