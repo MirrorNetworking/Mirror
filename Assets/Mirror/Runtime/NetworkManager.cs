@@ -336,7 +336,7 @@ namespace Mirror
         /// </summary>
         public void StartServer()
         {
-            if (NetworkServer.active || NetworkClient.active)
+            if (NetworkServer.active)
             {
                 logger.LogWarning("Server or Client already started.")
                 return;
