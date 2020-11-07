@@ -203,6 +203,8 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="msg">The message object to process.</param>
         /// <returns>Returns true if the handler was successfully invoked</returns>
+        // todo remove this in 3 months, Obsoleted 2020-11-07
+        [Obsolete("InvokeHandler is only used to invoke messages locally, instead call the methods directly. see https://github.com/vis2k/Mirror/pull/2397")]
         public bool InvokeHandler<T>(T msg, int channelId)
             where T : struct, NetworkMessage
         {
