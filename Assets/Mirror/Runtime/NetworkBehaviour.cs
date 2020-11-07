@@ -113,7 +113,7 @@ namespace Mirror
 
         public NetworkTime NetworkTime => IsClient ? Client.Time : Server.Time;
 
-        protected ulong SyncVarDirtyBits { get; private set; }
+        protected internal ulong SyncVarDirtyBits { get; private set; }
         ulong syncVarHookGuard;
 
         internal protected bool GetSyncVarHookGuard(ulong dirtyBit)

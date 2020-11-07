@@ -487,7 +487,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg, writerParameter));
             // base
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkBehaviourDirtyBitsReference));
+            worker.Append(worker.Create(OpCodes.Call, (NetworkBehaviour nb) => nb.SyncVarDirtyBits));
             MethodReference writeUint64Func = Writers.GetWriteFunc(WeaverTypes.Import<ulong>());
             worker.Append(worker.Create(OpCodes.Call, writeUint64Func));
 
@@ -502,7 +502,7 @@ namespace Mirror.Weaver
                 // Generates: if ((base.get_syncVarDirtyBits() & 1uL) != 0uL)
                 // base
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.NetworkBehaviourDirtyBitsReference));
+                worker.Append(worker.Create(OpCodes.Call, (NetworkBehaviour nb) => nb.SyncVarDirtyBits));
                 // 8 bytes = long
                 worker.Append(worker.Create(OpCodes.Ldc_I8, 1L << dirtyBit));
                 worker.Append(worker.Create(OpCodes.And));

@@ -8,8 +8,6 @@ namespace Mirror.Weaver
     {
         public static MethodReference ScriptableObjectCreateInstanceMethod;
 
-        public static MethodReference NetworkBehaviourDirtyBitsReference;
-
         public static MethodReference NetworkBehaviourIsServer;
         public static MethodReference NetworkBehaviourIsClient;
         public static MethodReference NetworkBehaviourIsLocalClient;
@@ -42,8 +40,6 @@ namespace Mirror.Weaver
             ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(
                 ScriptableObjectType, currentAssembly,
                 md => md.Name == "CreateInstance" && md.HasGenericParameters);
-
-            NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "SyncVarDirtyBits");
 
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarEqual");
         }
