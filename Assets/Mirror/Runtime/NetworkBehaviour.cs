@@ -116,7 +116,7 @@ namespace Mirror
         protected ulong SyncVarDirtyBits { get; private set; }
         ulong syncVarHookGuard;
 
-        protected bool GetSyncVarHookGuard(ulong dirtyBit)
+        internal protected bool GetSyncVarHookGuard(ulong dirtyBit)
         {
             return (syncVarHookGuard & dirtyBit) != 0UL;
         }

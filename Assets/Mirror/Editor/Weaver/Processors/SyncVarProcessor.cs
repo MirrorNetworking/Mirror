@@ -215,7 +215,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Brfalse, label));
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldc_I8, dirtyBit));
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getSyncVarHookGuard));
+                worker.Append(worker.Create<NetworkBehaviour>(OpCodes.Call, nb => nb.GetSyncVarHookGuard(default)));
                 worker.Append(worker.Create(OpCodes.Brtrue, label));
 
                 // setSyncVarHookGuard(dirtyBit, true);
