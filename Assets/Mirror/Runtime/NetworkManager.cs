@@ -380,7 +380,7 @@ namespace Mirror
         /// </summary>
         public void StartClient()
         {
-            if (NetworkServer.active || NetworkClient.active)
+            if (NetworkClient.active)
             {
                 logger.LogWarning("Server or Client already started.")
                 return;
