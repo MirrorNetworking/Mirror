@@ -26,7 +26,13 @@ namespace Mirror.Weaver
                 return module.ImportReference(methodInfo);
             }
 
-            throw new ArgumentException("Invalid Expression. Expression should consist of a Method call only.");
+            if (expression.Body is MemberExpression memberExpression)
+            {
+                var property = memberExpression.Member as PropertyInfo;
+                return module.ImportReference(property.GetGetMethod());
+            }
+
+            throw new ArgumentException($"Invalid Expression {expression.Body.GetType()}");
         }
     }
 }
