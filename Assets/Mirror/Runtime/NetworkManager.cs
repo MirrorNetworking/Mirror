@@ -422,7 +422,7 @@ namespace Mirror
         /// <param name="uri">location of the server to connect to</param>
         public void StartClient(Uri uri)
         {
-            if (NetworkServer.active || NetworkClient.active)
+            if (NetworkClient.active)
             {
                 logger.LogWarning("Server or Client already started.")
                 return;
