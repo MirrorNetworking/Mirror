@@ -30,10 +30,12 @@ namespace Mirror
 
     public struct AddPlayerMessage : NetworkMessage { }
 
-    [System.Obsolete("this message is never sent over network, replace with an event", true)]
+    // todo remove this in 3 months, Obsoleted 2020-11-07
+    [System.Obsolete("This message is never sent over network, Replaced with NetworkServer.OnDisconnected and NetworkClient.OnDisconnected events", true)]
     public struct DisconnectMessage : NetworkMessage { }
 
-    [System.Obsolete("this message is never sent over network, replace with an event", true)]
+    // todo remove this in 3 months, Obsoleted 2020-11-07
+    [System.Obsolete("This message is never sent over network, Replaced with NetworkServer.OnConnected and NetworkClient.OnConnected events", true)]
     public struct ConnectMessage : NetworkMessage { }
 
     public struct SceneMessage : NetworkMessage
