@@ -351,7 +351,7 @@ namespace Mirror
         // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver
         //            can't resolve it
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
+        internal protected bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
         {
             uint newNetId = 0;
             if (newIdentity != null)

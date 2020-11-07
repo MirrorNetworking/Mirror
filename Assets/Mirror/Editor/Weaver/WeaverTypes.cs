@@ -22,7 +22,6 @@ namespace Mirror.Weaver
 
         // custom attribute types
         public static MethodReference syncVarEqualReference;
-        public static MethodReference syncVarNetworkIdentityEqualReference;
 
         private static AssemblyDefinition currentAssembly;
 
@@ -59,7 +58,6 @@ namespace Mirror.Weaver
             BehaviorConnectionToServerReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "get_ConnectionToServer");
 
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarEqual");
-            syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarNetworkIdentityEqual");
         }
     }
 }
