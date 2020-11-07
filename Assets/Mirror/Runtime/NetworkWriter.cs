@@ -142,32 +142,6 @@ namespace Mirror
             position += count;
         }
 
-        public void WriteUInt32(uint value)
-        {
-            EnsureLength(position + 4);
-            buffer[position++] = (byte)value;
-            buffer[position++] = (byte)(value >> 8);
-            buffer[position++] = (byte)(value >> 16);
-            buffer[position++] = (byte)(value >> 24);
-        }
-
-        public void WriteInt32(int value) => WriteUInt32((uint)value);
-
-        public void WriteUInt64(ulong value)
-        {
-            EnsureLength(position + 8);
-            buffer[position++] = (byte)value;
-            buffer[position++] = (byte)(value >> 8);
-            buffer[position++] = (byte)(value >> 16);
-            buffer[position++] = (byte)(value >> 24);
-            buffer[position++] = (byte)(value >> 32);
-            buffer[position++] = (byte)(value >> 40);
-            buffer[position++] = (byte)(value >> 48);
-            buffer[position++] = (byte)(value >> 56);
-        }
-
-        public void WriteInt64(long value) => WriteUInt64((ulong)value);
-
         /// <summary>
         /// Writes any type that mirror supports
         /// </summary>
@@ -207,6 +181,30 @@ namespace Mirror
         }
 
         public static void WriteInt16(this NetworkWriter writer, short value) => writer.WriteUInt16((ushort)value);
+
+        public static void WriteUInt32(this NetworkWriter writer, uint value)
+        {
+            writer.WriteByte((byte)value);
+            writer.WriteByte((byte)(value >> 8));
+            writer.WriteByte((byte)(value >> 16));
+            writer.WriteByte((byte)(value >> 24));
+        }
+
+        public static void WriteInt32(this NetworkWriter writer, int value) => writer.WriteUInt32((uint)value);
+
+        public static void WriteUInt64(this NetworkWriter writer, ulong value)
+        {
+            writer.WriteByte((byte)value);
+            writer.WriteByte((byte)(value >> 8));
+            writer.WriteByte((byte)(value >> 16));
+            writer.WriteByte((byte)(value >> 24));
+            writer.WriteByte((byte)(value >> 32));
+            writer.WriteByte((byte)(value >> 40));
+            writer.WriteByte((byte)(value >> 48));
+            writer.WriteByte((byte)(value >> 56));
+        }
+
+        public static void WriteInt64(this NetworkWriter writer, long value) => writer.WriteUInt64((ulong)value);
 
         public static void WriteSingle(this NetworkWriter writer, float value)
         {
