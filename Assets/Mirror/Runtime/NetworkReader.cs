@@ -63,30 +63,6 @@ namespace Mirror
             }
             return buffer.Array[buffer.Offset + Position++];
         }
-        public int ReadInt32() => (int)ReadUInt32();
-        public uint ReadUInt32()
-        {
-            uint value = 0;
-            value |= ReadByte();
-            value |= (uint)(ReadByte() << 8);
-            value |= (uint)(ReadByte() << 16);
-            value |= (uint)(ReadByte() << 24);
-            return value;
-        }
-        public long ReadInt64() => (long)ReadUInt64();
-        public ulong ReadUInt64()
-        {
-            ulong value = 0;
-            value |= ReadByte();
-            value |= ((ulong)ReadByte()) << 8;
-            value |= ((ulong)ReadByte()) << 16;
-            value |= ((ulong)ReadByte()) << 24;
-            value |= ((ulong)ReadByte()) << 32;
-            value |= ((ulong)ReadByte()) << 40;
-            value |= ((ulong)ReadByte()) << 48;
-            value |= ((ulong)ReadByte()) << 56;
-            return value;
-        }
 
         // read bytes into the passed buffer
         public byte[] ReadBytes(byte[] bytes, int count)
