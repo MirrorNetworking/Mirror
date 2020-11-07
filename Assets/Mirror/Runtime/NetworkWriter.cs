@@ -516,44 +516,6 @@ namespace Mirror
             writer.WritePackedUInt32(value.netId);
         }
 
-        public static void WriteTransform(this NetworkWriter writer, Transform value)
-        {
-            if (value == null)
-            {
-                writer.WritePackedUInt32(0);
-                return;
-            }
-            NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
-            if (identity != null)
-            {
-                writer.WritePackedUInt32(identity.netId);
-            }
-            else
-            {
-                logger.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
-                writer.WritePackedUInt32(0);
-            }
-        }
-
-        public static void WriteGameObject(this NetworkWriter writer, GameObject value)
-        {
-            if (value == null)
-            {
-                writer.WritePackedUInt32(0);
-                return;
-            }
-            NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
-            if (identity != null)
-            {
-                writer.WritePackedUInt32(identity.netId);
-            }
-            else
-            {
-                logger.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
-                writer.WritePackedUInt32(0);
-            }
-        }
-
         public static void WriteUri(this NetworkWriter writer, Uri uri)
         {
             writer.WriteString(uri.ToString());
