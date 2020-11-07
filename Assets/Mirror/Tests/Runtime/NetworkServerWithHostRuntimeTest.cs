@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -56,7 +56,7 @@ namespace Mirror.Tests.Runtime
             const int remoteConnectionId = 1;
             const int localConnectionId = 0;
             NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(remoteConnectionId);
-            NetworkServer.OnConnected(remoteConnection);
+            NetworkServer.OnConnectedInternal(remoteConnection);
             NetworkServer.AddPlayerForConnection(remoteConnection, remotePlayer);
 
             // There's a host player from HostSetup + remotePlayer

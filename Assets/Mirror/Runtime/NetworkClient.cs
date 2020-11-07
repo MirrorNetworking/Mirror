@@ -33,8 +33,6 @@ namespace Mirror
         public static NetworkConnection connection { get; internal set; }
 
         internal static ConnectState connectState = ConnectState.None;
-        internal static event ConnectionEvent OnConnectedEvent;
-        internal static event ConnectionEvent OnDisconnectEvent;
 
         /// <summary>
         /// The IP address of the server that this client is connected to.
@@ -57,6 +55,16 @@ namespace Mirror
         /// NetworkClient can connect to local server in host mode too
         /// </summary>
         public static bool isLocalClient => connection is ULocalConnectionToServer;
+
+        /// <summary>
+        /// Called after successfully connected to server
+        /// </summary>
+        public static event ConnectionEvent OnConnected;
+
+        /// <summary>
+        /// Called after disconnected from server
+        /// </summary>
+        public static event ConnectionEvent OnDisconnected;
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
@@ -126,10 +134,10 @@ namespace Mirror
         /// </summary>
         public static void ConnectLocalServer()
         {
-            NetworkServer.OnConnected(NetworkServer.localConnection);
+            NetworkServer.OnConnectedInternal(NetworkServer.localConnection);
 
             Debug.Assert(connection is ULocalConnectionToServer, "Connection should be local connection");
-            OnConnectedEvent?.Invoke(connection);
+            OnConnected?.Invoke(connection);
         }
 
         /// <summary>
@@ -145,7 +153,7 @@ namespace Mirror
                 // local connection. should we send a DisconnectMessage here too?
                 // (if we do then we get an Unknown Message ID log)
                 //NetworkServer.localConnection.Send(new DisconnectMessage());
-                NetworkServer.OnDisconnected(NetworkServer.localConnection.connectionId);
+                NetworkServer.OnDisconnectedInternal(NetworkServer.localConnection.connectionId);
             }
         }
 
@@ -162,13 +170,16 @@ namespace Mirror
             logger.LogException(exception);
         }
 
-        static void OnDisconnected()
+        /// <summary>
+        /// Handles OnClientDisconnected from transport
+        /// </summary>
+        static void OnDisconnectedInternal()
         {
             connectState = ConnectState.Disconnected;
 
             ClientScene.HandleClientDisconnect(connection);
 
-            OnDisconnectEvent?.Invoke(connection);
+            OnDisconnected?.Invoke(connection);
         }
 
         internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
@@ -180,7 +191,10 @@ namespace Mirror
             else logger.LogError("Skipped Data message handling because connection is null.");
         }
 
-        static void OnConnected()
+        /// <summary>
+        /// Handles OnClientConnected from transport
+        /// </summary>
+        static void OnConnectedInternal()
         {
             if (connection != null)
             {
@@ -191,7 +205,7 @@ namespace Mirror
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
                 NetworkTime.UpdateClient();
-                OnConnectedEvent?.Invoke(connection);
+                OnConnected?.Invoke(connection);
             }
             else logger.LogError("Skipped Connect message handling because connection is null.");
         }
@@ -211,7 +225,7 @@ namespace Mirror
                 if (isConnected)
                 {
                     Debug.Assert(connection is ULocalConnectionToServer, "Connection should be local connection");
-                    OnDisconnectEvent?.Invoke(connection);
+                    OnDisconnected?.Invoke(connection);
                 }
                 NetworkServer.RemoveLocalConnection();
             }

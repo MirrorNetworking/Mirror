@@ -75,11 +75,12 @@ namespace Mirror
         /// <summary>
         /// Called after new connection is set up on server
         /// </summary>
-        public static event ConnectionEvent OnConnectedEvent;
+        public static event ConnectionEvent OnConnected;
+
         /// <summary>
         /// Called after connection disconnects from server
         /// </summary>
-        public static event ConnectionEvent OnDisconnectEvent;
+        public static event ConnectionEvent OnDisconnected;
 
         /// <summary>
         /// This shuts down the server and disconnects all clients.
@@ -504,7 +505,7 @@ namespace Mirror
             Transport.activeTransport.OnServerError = OnError;
         }
 
-        static void OnConnected(int connectionId)
+        static void OnConnectedInternal(int connectionId)
         {
             if (logger.LogEnabled()) logger.Log("Server accepted client:" + connectionId);
 
@@ -543,16 +544,16 @@ namespace Mirror
             }
         }
 
-        internal static void OnConnected(NetworkConnectionToClient conn)
+        internal static void OnConnectedInternal(NetworkConnectionToClient conn)
         {
             if (logger.LogEnabled()) logger.Log("Server accepted client:" + conn);
 
             // add connection and invoke connected event
             AddConnection(conn);
-            OnConnectedEvent?.Invoke(conn);
+            OnConnected?.Invoke(conn);
         }
 
-        internal static void OnDisconnected(int connectionId)
+        internal static void OnDisconnectedInternal(int connectionId)
         {
             if (logger.LogEnabled()) logger.Log("Server disconnect client:" + connectionId);
 
@@ -562,14 +563,14 @@ namespace Mirror
                 RemoveConnection(connectionId);
                 if (logger.LogEnabled()) logger.Log("Server lost client:" + connectionId);
 
-                OnDisconnected(conn);
+                OnDisconnectedInternal(conn);
             }
         }
 
-        static void OnDisconnected(NetworkConnection conn)
+        static void OnDisconnectedInternal(NetworkConnection conn)
         {
             // todo change to event instead of message
-            OnDisconnectEvent?.Invoke(conn);
+            OnDisconnected?.Invoke(conn);
             if (logger.LogEnabled()) logger.Log("Server lost client:" + conn);
         }
 
