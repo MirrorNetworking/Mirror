@@ -338,7 +338,7 @@ namespace Mirror
         {
             if (NetworkServer.active)
             {
-                logger.LogWarning("Server already started.")
+                logger.LogWarning("Server already started.");
                 return;
             }
 
@@ -382,7 +382,7 @@ namespace Mirror
         {
             if (NetworkClient.active)
             {
-                logger.LogWarning("Client already started.")
+                logger.LogWarning("Client already started.");
                 return;
             }
 
@@ -424,7 +424,7 @@ namespace Mirror
         {
             if (NetworkClient.active)
             {
-                logger.LogWarning("Client already started.")
+                logger.LogWarning("Client already started.");
                 return;
             }
 
@@ -463,7 +463,7 @@ namespace Mirror
         {
             if (NetworkServer.active || NetworkClient.active)
             {
-                logger.LogWarning("Server or Client already started.")
+                logger.LogWarning("Server or Client already started.");
                 return;
             }
 
