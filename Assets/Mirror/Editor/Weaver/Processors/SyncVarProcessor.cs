@@ -193,15 +193,10 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldarg, valueParam));
                 worker.Append(worker.Create(OpCodes.Stfld, fd));
 
-                // SetDirtyBit(dirtyBit);
-                MethodInfo setDirtyBitMethod = typeof(NetworkBehaviour).GetMethod(nameof(NetworkBehaviour.SetDirtyBit));
-                MethodReference setDirtyBitRef = fd.Module.ImportReference(setDirtyBitMethod);
-
+                // this.SetDirtyBit(dirtyBit)
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldc_I8, dirtyBit));
-
-                // invoke SetSyncVar
-                worker.Append(worker.Create(OpCodes.Call, setDirtyBitRef));
+                worker.Append(worker.Create<NetworkBehaviour>(OpCodes.Call, nb => nb.SetDirtyBit(default)));
             }
 
             MethodDefinition hookMethod = GetHookMethod(fd);
