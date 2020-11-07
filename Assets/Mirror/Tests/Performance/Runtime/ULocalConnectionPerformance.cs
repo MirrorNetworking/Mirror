@@ -97,22 +97,22 @@ namespace Mirror.Tests.Performance.Runtime
                 using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                 {
                     // write mask
-                    writer.WritePackedUInt64(1);
+                    writer.WriteUInt64(1);
                     // behaviour length
                     writer.WriteInt32(1);
 
                     // behaviour delta
 
                     //  sync object mask
-                    writer.WritePackedUInt64(0);
+                    writer.WriteUInt64(0);
                     // sync object delta
                     //      assume no sync objects for this test
 
                     // sync var mask
-                    writer.WritePackedUInt64(1);
+                    writer.WriteUInt64(1);
                     // sync var delta
                     //      assume sync var has changed its value to 10
-                    writer.WritePackedInt32(10);
+                    writer.WriteInt32(10);
 
 
                     // send message

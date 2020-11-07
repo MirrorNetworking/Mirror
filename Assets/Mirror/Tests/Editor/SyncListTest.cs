@@ -399,9 +399,7 @@ namespace Mirror.Tests
 
                 using (PooledNetworkReader reader = NetworkReaderPool.GetReader(writer.ToArraySegment()))
                 {
-                    uint count = reader.ReadPackedUInt32();
-
-                    return count;
+                    return reader.ReadUInt32();
                 }
             }
         }
