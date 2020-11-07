@@ -18,8 +18,6 @@ namespace Mirror.Weaver
         public static MethodReference NetworkBehaviourHasAuthority;
         public static MethodReference NetworkBehaviourIsLocalPlayer;
 
-        public static MethodReference MethodInvocationExceptionConstructor;
-
         // custom attribute types
         public static MethodReference syncVarEqualReference;
 
@@ -46,9 +44,6 @@ namespace Mirror.Weaver
             ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(
                 ScriptableObjectType, currentAssembly,
                 md => md.Name == "CreateInstance" && md.HasGenericParameters);
-
-            TypeReference MethodInvocationExceptionType = Import<MethodInvocationException>();
-            MethodInvocationExceptionConstructor = Resolvers.ResolveMethodWithArg(MethodInvocationExceptionType, currentAssembly, ".ctor", "System.String");
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "SyncVarDirtyBits");
 

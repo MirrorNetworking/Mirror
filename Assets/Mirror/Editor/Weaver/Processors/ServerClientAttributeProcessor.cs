@@ -72,7 +72,7 @@ namespace Mirror.Weaver
             if (throwError)
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, message));
-                worker.InsertBefore(top, worker.Create(OpCodes.Newobj, WeaverTypes.MethodInvocationExceptionConstructor));
+                worker.InsertBefore(top, worker.Create(OpCodes.Newobj, () => new MethodInvocationException("")));
                 worker.InsertBefore(top, worker.Create(OpCodes.Throw));
             }
             InjectGuardParameters(md, worker, top);
