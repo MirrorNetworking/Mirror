@@ -217,7 +217,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldc_I8, dirtyBit));
                 worker.Append(worker.Create(OpCodes.Ldc_I4_1));
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.setSyncVarHookGuard));
+                worker.Append(worker.Create<NetworkBehaviour>(OpCodes.Call, nb => nb.SetSyncVarHookGuard(default, default)));
 
                 // call hook (oldValue, newValue)
                 // Generates: OnValueChanged(oldValue, value);
@@ -227,7 +227,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldc_I8, dirtyBit));
                 worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-                worker.Append(worker.Create(OpCodes.Call, WeaverTypes.setSyncVarHookGuard));
+                worker.Append(worker.Create<NetworkBehaviour>(OpCodes.Call, nb => nb.SetSyncVarHookGuard(default, default)));
 
                 worker.Append(label);
             }

@@ -121,7 +121,7 @@ namespace Mirror
             return (syncVarHookGuard & dirtyBit) != 0UL;
         }
 
-        protected void SetSyncVarHookGuard(ulong dirtyBit, bool value)
+        internal protected void SetSyncVarHookGuard(ulong dirtyBit, bool value)
         {
             if (value)
                 syncVarHookGuard |= dirtyBit;
