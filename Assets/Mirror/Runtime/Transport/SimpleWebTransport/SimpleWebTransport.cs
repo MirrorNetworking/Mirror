@@ -16,7 +16,7 @@ namespace Mirror.SimpleWeb
 
 
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
-        public int maxMessageSize = 16 * 1024;
+        public ushort maxMessageSize = 16 * 1024;
 
         [Tooltip("Max size for http header send as handshake for websockets")]
         public int handshakeMaxSize = 3000;
@@ -81,7 +81,7 @@ namespace Mirror.SimpleWeb
         {
             return true;
         }
-        public override int GetMaxPacketSize(int channelId = 0)
+        public override ushort GetMaxPacketSize(int channelId = 0)
         {
             return maxMessageSize;
         }

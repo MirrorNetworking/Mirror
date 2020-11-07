@@ -158,7 +158,7 @@ namespace Mirror
             available.Shutdown();
         }
 
-        public override int GetMaxPacketSize(int channelId = 0)
+        public override ushort GetMaxPacketSize(int channelId = 0)
         {
             // finding the max packet size in a fallback environment has to be
             // done very carefully:
@@ -171,11 +171,11 @@ namespace Mirror
             //   different platforms seeing a different game state.
             // => the safest solution is to use the smallest max size for all
             //    transports. that will never fail.
-            int mininumAllowedSize = int.MaxValue;
+            ushort mininumAllowedSize = ushort.MaxValue;
             foreach (Transport transport in transports)
             {
-                int size = transport.GetMaxPacketSize(channelId);
-                mininumAllowedSize = Mathf.Min(size, mininumAllowedSize);
+                ushort size = transport.GetMaxPacketSize(channelId);
+                mininumAllowedSize = Math.Min(size, mininumAllowedSize);
             }
             return mininumAllowedSize;
         }

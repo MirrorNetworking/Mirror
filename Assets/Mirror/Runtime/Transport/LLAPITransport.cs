@@ -360,7 +360,7 @@ namespace Mirror
             Debug.Log("LLAPITransport.Shutdown");
         }
 
-        public override int GetMaxPacketSize(int channelId)
+        public override ushort GetMaxPacketSize(int channelId)
         {
             return globalConfig.MaxPacketSize;
         }

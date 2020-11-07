@@ -175,10 +175,13 @@ namespace Mirror
         /// Transport isn't running, or isn't Available(). This is because
         /// Fallback and Multiplex transports need to find the smallest possible
         /// packet size at runtime.
+        ///
+        /// ushort limit of 64KB is more than enough for any multiplayer game
+        /// and allows Mirror to easily pool writers.
         /// </summary>
         /// <param name="channelId">channel id</param>
         /// <returns>the size in bytes that can be sent via the provided channel</returns>
-        public abstract int GetMaxPacketSize(int channelId = Channels.DefaultReliable);
+        public abstract ushort GetMaxPacketSize(int channelId = Channels.DefaultReliable);
 
         /// <summary>
         /// Shut down the transport, both as client and server
