@@ -18,12 +18,8 @@ namespace Mirror.Tests
             inspector.RegisterPrefabs(client);
 
             Assert.That(client.spawnPrefabs, Has.Count.GreaterThan(2));
-
-            foreach (var prefab in client.spawnPrefabs)
-            {
-                Assert.That(prefab.GetComponent<NetworkIdentity>(), Is.Not.Null);
-            }
             GameObject.DestroyImmediate(gameObject);
+            GameObject.DestroyImmediate(inspector);
         }
 
         [Test]
