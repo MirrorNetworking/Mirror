@@ -337,7 +337,7 @@ private int selectedWeaponLocal = 1;
 public GameObject[] weaponArray;
 
 [SyncVar(hook = nameof(OnWeaponChanged))]
-public int activeWeaponSynced;
+public int activeWeaponSynced = 1;
 
 void OnWeaponChanged(int _Old, int _New)
 {
@@ -656,17 +656,21 @@ In the  ‘OnWeaponChanged’ function, update it with the new line, so it shoul
 ```cs
 void OnWeaponChanged(int _Old, int _New)
 {
-    activeWeaponSynced = _New;
-    foreach (var item in weaponArray)
+    // disable old weapon
+    // in range and not null
+    if (0 < _Old && _Old < weaponArray.Length && weaponArray[_Old] != null)
     {
-        if (item != null) { item.SetActive(false); }
+        weaponArray[_Old].SetActive(false);
     }
-    if (_New < weaponArray.Length && weaponArray[_New] != null)
+    
+    // enable new weapon
+    // in range and not null
+    if (0 < _New && _New < weaponArray.Length && weaponArray[_New] != null)
     {
         weaponArray[_New].SetActive(true);
         activeWeapon = weaponArray[activeWeaponSynced].GetComponent<Weapon>();
         if( isLocalPlayer ) { sceneScript.UIAmmo(activeWeapon.weaponAmmo); }
-     }
+    }
 }
 ```
 
