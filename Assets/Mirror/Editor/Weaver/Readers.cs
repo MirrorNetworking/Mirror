@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
+using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -243,7 +244,8 @@ namespace Mirror.Weaver
             }
             else if (td.IsDerivedFrom<UnityEngine.ScriptableObject>())
             {
-                var genericInstanceMethod = new GenericInstanceMethod(WeaverTypes.ScriptableObjectCreateInstanceMethod);
+                MethodReference createScriptableObjectInstance = td.Module.ImportReference(() => ScriptableObject.CreateInstance<ScriptableObject>());
+                var genericInstanceMethod = new GenericInstanceMethod(createScriptableObjectInstance.GetElementMethod());
                 genericInstanceMethod.GenericArguments.Add(type);
                 worker.Append(worker.Create(OpCodes.Call, genericInstanceMethod));
                 worker.Append(worker.Create(OpCodes.Stloc, variable));

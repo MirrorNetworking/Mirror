@@ -6,8 +6,6 @@ namespace Mirror.Weaver
 {
     public static class WeaverTypes
     {
-        public static MethodReference ScriptableObjectCreateInstanceMethod;
-
         public static MethodReference NetworkBehaviourIsServer;
         public static MethodReference NetworkBehaviourIsClient;
         public static MethodReference NetworkBehaviourIsLocalClient;
@@ -34,11 +32,6 @@ namespace Mirror.Weaver
             NetworkBehaviourIsLocalClient = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "IsLocalClient");
             NetworkBehaviourHasAuthority = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "HasAuthority");
             NetworkBehaviourIsLocalPlayer = Resolvers.ResolveProperty(NetworkBehaviourType, currentAssembly, "IsLocalPlayer");
-
-            TypeReference ScriptableObjectType = Import<ScriptableObject>();
-            ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(
-                ScriptableObjectType, currentAssembly,
-                md => md.Name == "CreateInstance" && md.HasGenericParameters);
         }
     }
 }
