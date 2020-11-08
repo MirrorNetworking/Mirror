@@ -14,13 +14,15 @@ namespace Mirror.Tests
         public void SetupNetworkManager()
         {
             gameObject = new GameObject();
-            gameObject.AddComponent<MemoryTransport>();
+            Transport.activeTransport = gameObject.AddComponent<MemoryTransport>();
             manager = gameObject.AddComponent<NetworkManager>();
         }
 
         [TearDown]
         public void TearDownNetworkManager()
         {
+            NetworkServer.Shutdown();
+            NetworkClient.Shutdown();
             GameObject.DestroyImmediate(gameObject);
         }
 
