@@ -15,7 +15,6 @@ namespace Mirror.Weaver
         public static MethodReference NetworkBehaviourIsLocalPlayer;
 
         // custom attribute types
-        public static MethodReference syncVarEqualReference;
 
         private static AssemblyDefinition currentAssembly;
 
@@ -40,8 +39,6 @@ namespace Mirror.Weaver
             ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(
                 ScriptableObjectType, currentAssembly,
                 md => md.Name == "CreateInstance" && md.HasGenericParameters);
-
-            syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarEqual");
         }
     }
 }

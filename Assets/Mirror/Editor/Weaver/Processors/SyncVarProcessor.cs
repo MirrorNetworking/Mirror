@@ -147,8 +147,8 @@ namespace Mirror.Weaver
             {
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, fd));
-
-                var syncVarEqualGm = new GenericInstanceMethod(WeaverTypes.syncVarEqualReference);
+                var syncVarEqual = fd.Module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
+                var syncVarEqualGm = new GenericInstanceMethod(syncVarEqual.GetElementMethod());
                 syncVarEqualGm.GenericArguments.Add(fd.FieldType);
                 worker.Append(worker.Create(OpCodes.Call, syncVarEqualGm));
             }
@@ -719,7 +719,8 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
                 // call the function
-                var syncVarEqualGm = new GenericInstanceMethod(WeaverTypes.syncVarEqualReference);
+                var syncVarEqual = syncVar.Module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
+                var syncVarEqualGm = new GenericInstanceMethod(syncVarEqual.GetElementMethod());
                 syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
                 serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
                 serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
@@ -824,8 +825,8 @@ namespace Mirror.Weaver
                 // 'ref this.__netId'
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, netIdField));
-                // call the function
-                var syncVarEqualGm = new GenericInstanceMethod(WeaverTypes.syncVarEqualReference);
+                var syncVarEqual = syncVar.Module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
+                var syncVarEqualGm = new GenericInstanceMethod(syncVarEqual.GetElementMethod());
                 syncVarEqualGm.GenericArguments.Add(netIdField.FieldType);
                 worker.Append(worker.Create(OpCodes.Call, syncVarEqualGm));
                 worker.Append(worker.Create(OpCodes.Brtrue, syncVarEqualLabel));
