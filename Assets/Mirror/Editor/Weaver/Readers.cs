@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
@@ -38,7 +39,7 @@ namespace Mirror.Weaver
 
             if (variableReference.IsArray)
             {
-                return GenerateReadCollection(variableReference, variableReference.GetElementType(), nameof(NetworkReaderExtensions.ReadArray));
+                return GenerateReadCollection(variableReference, variableReference.GetElementType(), () => NetworkReaderExtensions.ReadArray<object>(default));
             }
 
             TypeDefinition variableDefinition = variableReference.Resolve();
@@ -57,7 +58,7 @@ namespace Mirror.Weaver
                 var genericInstance = (GenericInstanceType)variableReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
-                return GenerateReadCollection(variableReference, elementType, nameof(NetworkReaderExtensions.ReadList));
+                return GenerateReadCollection(variableReference, elementType, () => NetworkReaderExtensions.ReadList<object>(default));
             }
             if (variableDefinition.IsEnum)
             {
@@ -168,17 +169,16 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateReadCollection(TypeReference variable, TypeReference elementType, string readerFunction)
+        static MethodDefinition GenerateReadCollection(TypeReference variable, TypeReference elementType, Expression<Action> readerFunction)
         {
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
             // generate readers for the element
             GetReadFunc(elementType);
 
             ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
-            TypeReference readerExtensions = module.ImportReference(typeof(NetworkReaderExtensions));
-            MethodReference listReader = Resolvers.ResolveMethod(readerExtensions, Weaver.CurrentAssembly, readerFunction);
+            MethodReference listReader = module.ImportReference(readerFunction);
 
-            var methodRef = new GenericInstanceMethod(listReader);
+            var methodRef = new GenericInstanceMethod(listReader.GetElementMethod());
             methodRef.GenericArguments.Add(elementType);
 
             // generates
