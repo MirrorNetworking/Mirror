@@ -56,17 +56,6 @@ namespace Mirror.Weaver
             return TryResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
         }
         
-        // System.Byte[] arguments need a version with a string
-        public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, string argTypeFullName)
-        {
-            bool Match(MethodDefinition method) =>
-                    method.Name == name
-                    && (method.Parameters.Count == 1)
-                    && method.Parameters[0].ParameterType.FullName == argTypeFullName;
-
-            return ResolveMethod(tr, scriptDef, Match);
-        }
-
         public static MethodDefinition ResolveDefaultPublicCtor(TypeReference variable)
         {
             foreach (MethodDefinition methodRef in variable.Resolve().Methods)
