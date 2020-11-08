@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using kcp2k;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
-using kcp2k;
 
 namespace Mirror
 {
@@ -623,6 +623,8 @@ namespace Mirror
 
             logger.Log("NetworkManager StopServer");
             isNetworkActive = false;
+            NetworkServer.OnConnected -= OnServerConnectInternal;
+            NetworkServer.OnDisconnected -= OnServerDisconnectInternal;
             NetworkServer.Shutdown();
 
             // set offline mode BEFORE changing scene so that FinishStartScene
@@ -656,6 +658,8 @@ namespace Mirror
             isNetworkActive = false;
 
             // shutdown client
+            NetworkClient.OnConnected -= OnClientConnectInternal;
+            NetworkClient.OnDisconnected -= OnClientDisconnectInternal;
             NetworkClient.Disconnect();
             NetworkClient.Shutdown();
 
