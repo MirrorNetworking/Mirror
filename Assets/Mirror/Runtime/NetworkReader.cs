@@ -206,7 +206,7 @@ namespace Mirror
         {
             // count = 0 means the array was null
             // otherwise count -1 is the length of the array
-            uint count = reader.ReadPackedUInt32();
+            uint count = reader.ReadUInt32();
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }
 
@@ -214,11 +214,12 @@ namespace Mirror
         {
             // count = 0 means the array was null
             // otherwise count - 1 is the length of the array
-            uint count = reader.ReadPackedUInt32();
+            uint count = reader.ReadUInt32();
             return count == 0 ? default : reader.ReadBytesSegment(checked((int)(count - 1u)));
         }
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [Obsolete("Use ReadInt32 or the smallest possible data type instead.")]
         public static int ReadPackedInt32(this NetworkReader reader)
         {
             uint data = reader.ReadPackedUInt32();
@@ -228,15 +229,18 @@ namespace Mirror
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         // NOTE: big endian.
         // Use checked() to force it to throw OverflowException if data is invalid
+        [Obsolete("Use ReadUInt32 or the smallest possible data type instead.")]
         public static uint ReadPackedUInt32(this NetworkReader reader) => checked((uint)reader.ReadPackedUInt64());
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [Obsolete("Use ReadUInt64 or the smallest possible data type instead.")]
         public static long ReadPackedInt64(this NetworkReader reader)
         {
             ulong data = reader.ReadPackedUInt64();
             return ((long)(data >> 1)) ^ -((long)data & 1);
         }
 
+        [Obsolete("Use ReadUInt64 or the smallest possible data type instead.")]
         public static ulong ReadPackedUInt64(this NetworkReader reader)
         {
             byte a0 = reader.ReadByte();
@@ -299,8 +303,8 @@ namespace Mirror
         public static Vector2 ReadVector2(this NetworkReader reader) => new Vector2(reader.ReadSingle(), reader.ReadSingle());
         public static Vector3 ReadVector3(this NetworkReader reader) => new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         public static Vector4 ReadVector4(this NetworkReader reader) => new Vector4(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-        public static Vector2Int ReadVector2Int(this NetworkReader reader) => new Vector2Int(reader.ReadPackedInt32(), reader.ReadPackedInt32());
-        public static Vector3Int ReadVector3Int(this NetworkReader reader) => new Vector3Int(reader.ReadPackedInt32(), reader.ReadPackedInt32(), reader.ReadPackedInt32());
+        public static Vector2Int ReadVector2Int(this NetworkReader reader) => new Vector2Int(reader.ReadInt32(), reader.ReadInt32());
+        public static Vector3Int ReadVector3Int(this NetworkReader reader) => new Vector3Int(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
         public static Color ReadColor(this NetworkReader reader) => new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         public static Color32 ReadColor32(this NetworkReader reader) => new Color32(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
         public static Quaternion ReadQuaternion(this NetworkReader reader) => new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
@@ -355,7 +359,7 @@ namespace Mirror
 
         public static NetworkIdentity ReadNetworkIdentity(this NetworkReader reader)
         {
-            uint netId = reader.ReadPackedUInt32();
+            uint netId = reader.ReadUInt32();
             if (netId == 0)
                 return null;
 
@@ -370,7 +374,7 @@ namespace Mirror
 
         public static List<T> ReadList<T>(this NetworkReader reader)
         {
-            int length = reader.ReadPackedInt32();
+            int length = reader.ReadInt32();
             if (length < 0)
                 return null;
             List<T> result = new List<T>(length);
@@ -383,7 +387,7 @@ namespace Mirror
 
         public static T[] ReadArray<T>(this NetworkReader reader)
         {
-            int length = reader.ReadPackedInt32();
+            int length = reader.ReadInt32();
             if (length < 0)
                 return null;
             T[] result = new T[length];

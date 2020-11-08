@@ -273,10 +273,10 @@ namespace Mirror
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
             if (buffer == null)
             {
-                writer.WritePackedUInt32(0u);
+                writer.WriteUInt32(0u);
                 return;
             }
-            writer.WritePackedUInt32(checked((uint)count) + 1u);
+            writer.WriteUInt32(checked((uint)count) + 1u);
             writer.WriteBytes(buffer, offset, count);
         }
 
@@ -294,6 +294,7 @@ namespace Mirror
         }
 
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [Obsolete("Use WriteInt32 or the smallest possible data type instead.")]
         public static void WritePackedInt32(this NetworkWriter writer, int i)
         {
             uint zigzagged = (uint)((i >> 31) ^ (i << 1));
@@ -301,6 +302,7 @@ namespace Mirror
         }
 
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
+        [Obsolete("Use WriteUInt32 or the smallest possible data type instead.")]
         public static void WritePackedUInt32(this NetworkWriter writer, uint value)
         {
             // for 32 bit values WritePackedUInt64 writes the
@@ -309,12 +311,14 @@ namespace Mirror
         }
 
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [Obsolete("Use WriteInt64 or the smallest possible data type instead.")]
         public static void WritePackedInt64(this NetworkWriter writer, long i)
         {
             ulong zigzagged = (ulong)((i >> 63) ^ (i << 1));
             writer.WritePackedUInt64(zigzagged);
         }
 
+        [Obsolete("Use WriteUInt64 or the smallest possible data type instead.")]
         public static void WritePackedUInt64(this NetworkWriter writer, ulong value)
         {
             if (value <= 240)
@@ -423,15 +427,15 @@ namespace Mirror
 
         public static void WriteVector2Int(this NetworkWriter writer, Vector2Int value)
         {
-            writer.WritePackedInt32(value.x);
-            writer.WritePackedInt32(value.y);
+            writer.WriteInt32(value.x);
+            writer.WriteInt32(value.y);
         }
 
         public static void WriteVector3Int(this NetworkWriter writer, Vector3Int value)
         {
-            writer.WritePackedInt32(value.x);
-            writer.WritePackedInt32(value.y);
-            writer.WritePackedInt32(value.z);
+            writer.WriteInt32(value.x);
+            writer.WriteInt32(value.y);
+            writer.WriteInt32(value.z);
         }
 
         public static void WriteColor(this NetworkWriter writer, Color value)
@@ -508,28 +512,28 @@ namespace Mirror
         {
             if (value == null)
             {
-                writer.WritePackedUInt32(0);
+                writer.WriteUInt32(0);
                 return;
             }
-            writer.WritePackedUInt32(value.netId);
+            writer.WriteUInt32(value.netId);
         }
 
         public static void WriteTransform(this NetworkWriter writer, Transform value)
         {
             if (value == null)
             {
-                writer.WritePackedUInt32(0);
+                writer.WriteUInt32(0);
                 return;
             }
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
-                writer.WritePackedUInt32(identity.netId);
+                writer.WriteUInt32(identity.netId);
             }
             else
             {
                 logger.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
-                writer.WritePackedUInt32(0);
+                writer.WriteUInt32(0);
             }
         }
 
@@ -537,18 +541,18 @@ namespace Mirror
         {
             if (value == null)
             {
-                writer.WritePackedUInt32(0);
+                writer.WriteUInt32(0);
                 return;
             }
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
-                writer.WritePackedUInt32(identity.netId);
+                writer.WriteUInt32(identity.netId);
             }
             else
             {
                 logger.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
-                writer.WritePackedUInt32(0);
+                writer.WriteUInt32(0);
             }
         }
 
@@ -561,10 +565,10 @@ namespace Mirror
         {
             if (list is null)
             {
-                writer.WritePackedInt32(-1);
+                writer.WriteInt32(-1);
                 return;
             }
-            writer.WritePackedInt32(list.Count);
+            writer.WriteInt32(list.Count);
             for (int i = 0; i < list.Count; i++)
                 writer.Write(list[i]);
         }
@@ -573,10 +577,10 @@ namespace Mirror
         {
             if (array is null)
             {
-                writer.WritePackedInt32(-1);
+                writer.WriteInt32(-1);
                 return;
             }
-            writer.WritePackedInt32(array.Length);
+            writer.WriteInt32(array.Length);
             for (int i = 0; i < array.Length; i++)
                 writer.Write(array[i]);
         }
@@ -584,7 +588,7 @@ namespace Mirror
         public static void WriteArraySegment<T>(this NetworkWriter writer, ArraySegment<T> segment)
         {
             int length = segment.Count;
-            writer.WritePackedInt32(length);
+            writer.WriteInt32(length);
             for (int i = 0; i < length; i++)
             {
                 writer.Write(segment.Array[segment.Offset + i]);

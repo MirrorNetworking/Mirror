@@ -14,7 +14,7 @@ namespace Mirror.Tests.Performance
 #else
         [PerformanceTest]
 #endif
-        public void WritePackedInt32()
+        public void RunWriteInt32()
         {
             Measure.Method(WriteInt32)
                 .WarmupCount(10)
@@ -30,7 +30,7 @@ namespace Mirror.Tests.Performance
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        writer.WritePackedInt32(i * 1000);
+                        writer.WriteInt32(i * 1000);
                     }
                 }
             }
