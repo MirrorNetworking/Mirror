@@ -36,6 +36,8 @@ namespace Mirror.Tests
         {
             GameObject.DestroyImmediate(gameObject);
             GameObject.DestroyImmediate(playerPrefab);
+            NetworkServer.Shutdown();
+            NetworkClient.Shutdown();
         }
 
         // test to prevent https://github.com/vis2k/Mirror/issues/1515
