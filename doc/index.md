@@ -4,22 +4,17 @@
 
 MirrorNG has nearly all of the components and features from UNet, making networking easy, concise and maintainable, whether you're starting from scratch or converting an existing project.
 
-Built to support games of any scale, from LAN party games to dedicated high-volume authoritative servers running hundreds of players, MirrorNG is the core networking solution for [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212), [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015), [Cubica](https://www.cubica.net/), and [more](https://mirror-networking.com/showcase/)!
+Built to support games of any scale, from LAN party games to dedicated high-volume authoritative servers running hundreds of players, MirrorNG is the core networking solution for [Cubica](https://www.cubica.net/), and [more](Articles/General/Showcase.md)!
 
-uMMORPG was possible with \<6000 lines of code. We needed a networking library that allows us to launch our games, period!
 -   **Full Source included** for debugging convenience
 -   Several working examples included
 -   Active [Discord](https://discord.gg/2BvnM4R) for prompt support
 -   **Requires Unity 2018.4 LTS and Runtime .Net 4.x (default in Unity 2019) and .Net 2.0 Compatibility is recommended**
 -   Alpha / Beta Unity versions cannot be supported
 
-**List Server**
-
-We've developed a [List Server](https://mirror-networking.com/list-server/) where game servers can register and clients can connect to find those servers to play on them.
-
 **Key Features & Components:**
 -   [Transports](Articles/Transports/index.md) are interchangeable components
--   Additive Scene handling
+-   [NetworkSceneManager](Articles/Components/NetworkSceneManager.md) to load normal and additive network scenes.
 -   Single and separated Unity projects supported
 -   [Network Authenticators](Articles/Components/Authenticators/index.md) to manage access to your game
 -   [Network Discovery](Articles/Components/NetworkDiscovery.md) to easily connect LAN players to a LAN Server or Host
@@ -32,14 +27,4 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 -   [Network Scene Checker](Articles/Components/NetworkSceneChecker.md) to isolate players and networked objects to Additive scene instances
 -   [Network Match Checker](Articles/Components/NetworkMatchChecker.md) to isolate players and networked objects by [Network Visibility](Articles/Guides/Visibility.md)
 -   [SyncVar](Articles/Guides/Sync/SyncVars.md), [SyncList](Articles/Guides/Sync/SyncLists.md), [SyncDictionary](Articles/Guides/Sync/SyncDictionary.md), and [SyncHashSet](Articles/Guides/Sync/SyncHashSet.md)
-
-**Integrations**
--   [Dissonance Voice Chat](https://assetstore.unity.com/packages/tools/audio/dissonance-voice-chat-70078)
--   [Network Sync Transform](https://github.com/emotitron/NetworkSyncTransform)
--   [Noble Connect Free](https://assetstore.unity.com/packages/tools/network/noble-connect-free-141599)
--   [Rucksack](https://assetstore.unity.com/packages/templates/systems/rucksack-multiplayer-inventory-system-114921)
--   [RTS Engine](https://assetstore.unity.com/packages/templates/packs/rts-engine-79732)
--   [Smooth Sync](https://assetstore.unity.com/packages/tools/network/smooth-sync-96925)
--   [Weather Maker](https://assetstore.unity.com/packages/tools/particles-effects/weather-maker-unity-weather-system-sky-water-volumetric-clouds-a-60955)
--   [Steamworks Networking](https://assetstore.unity.com/packages/tools/integration/steamworks-networking-151300)
--   [Master Audio Multiplayer](https://assetstore.unity.com/packages/tools/audio/master-audio-multiplayer-69547)
+-   [List Server](https://mirror-networking.com/list-server/) where game servers can register and clients can connect to find those servers to play on them.

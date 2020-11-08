@@ -9,8 +9,6 @@
   href: NetworkDiscovery.md
 - name: Network Identity
   href: NetworkIdentity.md
-- name: Network Headless Logger
-  href: NetworkHeadlessLogger.md
 - name: Network Log Settings
   href: NetworkLogSettings.md
 - name: Network Manager

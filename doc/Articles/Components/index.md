@@ -10,10 +10,8 @@ These core components are included in MirrorNG:
     Network Discovery uses a UDP broadcast on the LAN enabling clients to find the running server and connect to it.
 -   [Network Identity](NetworkIdentity.md)  
     The Network Identity component is at the heart of the MirrorNG networking high-level API. It controls a game object’s unique identity on the network, and it uses that identity to make the networking system aware of the game object. It offers two different options for configuration and they are mutually exclusive, which means either one of the options or none can be checked.
--   [Network Headless Logger](NetworkHeadlessLogger.md)
-    Network Headless Logger adds color to log when running in headless mode
--   [Network Log Settings](NetworkLogSettings.md)  
-    The Network Log Settings component allows you to configure logging levels and load the settings in a build.
+-   [Network LogSettings](NetworkLogSettings.md)  
+    Adds logging levels per class for Mirror components
 -   [Network Manager](NetworkManager.md)  
     The Network Manager is a component for managing the networking aspects of a multiplayer game.
 -   [Network Manager HUD](NetworkManagerHUD.md)  
