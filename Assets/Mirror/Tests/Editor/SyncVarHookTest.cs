@@ -141,7 +141,7 @@ namespace Mirror.Tests
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="serverObject"></param>
@@ -150,13 +150,13 @@ namespace Mirror.Tests
         /// <returns>If data was written by OnSerialize</returns>
         public static bool SyncToClient<T>(T serverObject, T clientObject, bool initialState) where T : NetworkBehaviour
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
             bool written = serverObject.OnSerialize(writer, initialState);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
             clientObject.OnDeserialize(reader, initialState);
 
-            int writeLength = writer.Length;
+            int writeLength = writer.Position;
             int readLength = reader.Position;
             Assert.That(writeLength == readLength, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
 

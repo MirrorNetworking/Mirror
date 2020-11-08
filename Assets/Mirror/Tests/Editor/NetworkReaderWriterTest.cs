@@ -20,7 +20,7 @@ namespace Mirror.Tests
         [Test]
         public void TestAccessingCustomWriterAndReader()
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
             writer.Write<int>(3);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             int copy = reader.Read<int>();

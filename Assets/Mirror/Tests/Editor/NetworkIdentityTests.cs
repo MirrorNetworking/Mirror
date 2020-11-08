@@ -930,8 +930,8 @@ namespace Mirror.Tests
             comp2.syncMode = SyncMode.Owner;
 
             // serialize all - should work even if compExc throws an exception
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
+            NetworkWriter ownerWriter = new NetworkWriter(ushort.MaxValue);
+            NetworkWriter observersWriter = new NetworkWriter(ushort.MaxValue);
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
             identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
@@ -989,8 +989,8 @@ namespace Mirror.Tests
 
 
             // try to serialize
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
+            NetworkWriter ownerWriter = new NetworkWriter(ushort.MaxValue);
+            NetworkWriter observersWriter = new NetworkWriter(ushort.MaxValue);
 
             identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
@@ -1033,8 +1033,8 @@ namespace Mirror.Tests
             comp2.value = "67890";
 
             // serialize
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
+            NetworkWriter ownerWriter = new NetworkWriter(ushort.MaxValue);
+            NetworkWriter observersWriter = new NetworkWriter(ushort.MaxValue);
             identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // reset component values

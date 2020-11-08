@@ -39,7 +39,7 @@ namespace Mirror.Tests
         // SendCommandInternal is protected. let's expose it so we can test it.
         public void CallSendCommandInternal()
         {
-            SendCommandInternal(GetType(), nameof(CommandGenerated), new NetworkWriter(), 0);
+            SendCommandInternal(GetType(), nameof(CommandGenerated), new NetworkWriter(ushort.MaxValue), 0);
         }
     }
 
@@ -59,7 +59,7 @@ namespace Mirror.Tests
         // SendCommandInternal is protected. let's expose it so we can test it.
         public void CallSendRPCInternal()
         {
-            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(), 0, false);
+            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(ushort.MaxValue), 0, false);
         }
     }
 
@@ -79,7 +79,7 @@ namespace Mirror.Tests
         // SendCommandInternal is protected. let's expose it so we can test it.
         public void CallSendTargetRPCInternal(NetworkConnection conn)
         {
-            SendTargetRPCInternal(conn, GetType(), nameof(TargetRPCGenerated), new NetworkWriter(), 0);
+            SendTargetRPCInternal(conn, GetType(), nameof(TargetRPCGenerated), new NetworkWriter(ushort.MaxValue), 0);
         }
     }
 
@@ -1382,7 +1382,7 @@ namespace Mirror.Tests
             comp.InitSyncObjectExposed(list);
 
             // serialize it
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
             comp.SerializeObjectsAll(writer);
 
             // clear original list
@@ -1411,7 +1411,7 @@ namespace Mirror.Tests
             comp.InitSyncObjectExposed(list);
 
             // serialize it
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
             comp.SerializeObjectsDelta(writer);
 
             // clear original list

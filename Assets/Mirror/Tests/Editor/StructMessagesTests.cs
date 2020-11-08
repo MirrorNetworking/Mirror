@@ -17,7 +17,7 @@ namespace Mirror.Tests.StructMessages
         [Test]
         public void SerializeAreAddedWhenEmptyInStruct()
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
 
             const int someValue = 3;
             writer.Write(new SomeStructMessage
@@ -32,7 +32,7 @@ namespace Mirror.Tests.StructMessages
 
             Assert.AreEqual(someValue, received.someValue);
 
-            int writeLength = writer.Length;
+            int writeLength = writer.Position;
             int readLength = reader.Position;
             Assert.That(writeLength == readLength, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
         }

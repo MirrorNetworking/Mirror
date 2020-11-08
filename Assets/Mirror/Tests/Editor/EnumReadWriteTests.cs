@@ -48,11 +48,11 @@ namespace Mirror.Tests
         {
             ByteMessage msg = new ByteMessage() { byteEnum = MyByteEnum.B };
 
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
             writer.Write(msg);
 
             // should be 1 byte for null check and 1 byte for data
-            Assert.That(writer.Length, Is.EqualTo(2));
+            Assert.That(writer.Position, Is.EqualTo(2));
         }
 
         [Test]
@@ -60,11 +60,11 @@ namespace Mirror.Tests
         {
             ShortMessage msg = new ShortMessage() { shortEnum = MyShortEnum.G };
 
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
             writer.Write(msg);
 
             // should be 1 byte for null check and 2 bytes for data
-            Assert.That(writer.Length, Is.EqualTo(3));
+            Assert.That(writer.Position, Is.EqualTo(3));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace Mirror.Tests
         }
         T SerializeAndDeserializeMessage<T>(T msg) where T : NetworkMessage
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
 
             writer.Write(msg);
 

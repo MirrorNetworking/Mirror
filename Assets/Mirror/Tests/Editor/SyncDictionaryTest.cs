@@ -14,7 +14,7 @@ namespace Mirror.Tests
 
         void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
             fromList.OnSerializeAll(writer);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeAll(reader);
@@ -22,7 +22,7 @@ namespace Mirror.Tests
 
         void SerializeDeltaTo<T>(T fromList, T toList) where T : SyncObject
         {
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
             fromList.OnSerializeDelta(writer);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeDelta(reader);

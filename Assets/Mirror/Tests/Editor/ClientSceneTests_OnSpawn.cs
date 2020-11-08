@@ -578,8 +578,8 @@ namespace Mirror.Tests.ClientSceneTests
             serverPayloadBehaviour.value = value;
             serverPayloadBehaviour.direction = direction;
 
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
+            NetworkWriter ownerWriter = new NetworkWriter(ushort.MaxValue);
+            NetworkWriter observersWriter = new NetworkWriter(ushort.MaxValue);
             serverIdentity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // check that Serialize was called

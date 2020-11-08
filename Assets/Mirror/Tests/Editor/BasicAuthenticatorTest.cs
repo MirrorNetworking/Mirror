@@ -30,7 +30,7 @@ namespace Mirror.Tests
             Assert.That(message.authPassword, Is.EqualTo("123"));
 
             // serialize
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
             writer.Write(message);
             byte[] writerData = writer.ToArray();
 
@@ -54,7 +54,7 @@ namespace Mirror.Tests
             Assert.That(message.message, Is.EqualTo("abc"));
 
             // serialize
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
             writer.Write(message);
             byte[] writerData = writer.ToArray();
 

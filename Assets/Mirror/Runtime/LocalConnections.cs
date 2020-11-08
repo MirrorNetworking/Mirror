@@ -42,7 +42,7 @@ namespace Mirror
 
     internal class LocalConnectionBuffer
     {
-        readonly NetworkWriter writer = new NetworkWriter();
+        readonly NetworkWriter writer = new NetworkWriter(ushort.MaxValue);
         readonly NetworkReader reader = new NetworkReader(default(ArraySegment<byte>));
         // The buffer is atleast 1500 bytes long. So need to keep track of
         // packet count to know how many ArraySegments are in the buffer
@@ -71,7 +71,7 @@ namespace Mirror
 
         public void ResetBuffer()
         {
-            writer.Reset();
+            writer.Position = 0;
             reader.Position = 0;
         }
     }

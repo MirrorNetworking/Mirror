@@ -120,9 +120,9 @@ namespace Mirror.Tests
             player1.guild = myGuild;
 
             // serialize all the data as we would for the network
-            NetworkWriter ownerWriter = new NetworkWriter();
+            NetworkWriter ownerWriter = new NetworkWriter(ushort.MaxValue);
             // not really used in this Test
-            NetworkWriter observersWriter = new NetworkWriter();
+            NetworkWriter observersWriter = new NetworkWriter(ushort.MaxValue);
             identity1.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // set up a "client" object

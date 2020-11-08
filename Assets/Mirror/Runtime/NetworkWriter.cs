@@ -26,93 +26,30 @@ namespace Mirror
     {
         public const int MaxStringLength = 1024 * 32;
 
-        // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
-        // note: BinaryWriter allocates too much, so we only use a MemoryStream
-        // => 1500 bytes by default because on average, most packets will be <= MTU
-        byte[] buffer = new byte[1500];
+        // fixed size buffer so we can pool it and don't need runtime resizing.
+        readonly byte[] buffer;
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
-        int position;
-        int length;
+        public int Position;
 
-        public int Length => length;
+        // helper field to calculate space in bytes remaining to write
+        public int Space => buffer.Length - Position;
 
-        public int Position
+        // totol capacity independent of position
+        public int Capacity => buffer.Length;
+
+        // create new writer with size
+        public NetworkWriter(int size)
         {
-            get => position;
-            set
-            {
-                position = value;
-                EnsureLength(value);
-            }
+            buffer = new byte[size];
         }
 
-        /// <summary>
-        /// Reset both the position and length of the stream
-        /// </summary>
-        /// <remarks>
-        /// Leaves the capacity the same so that we can reuse this writer without extra allocations
-        /// </remarks>
-        public void Reset()
-        {
-            position = 0;
-            length = 0;
-        }
-
-        /// <summary>
-        /// Sets length, moves position if it is greater than new length
-        /// </summary>
-        /// <param name="newLength"></param>
-        /// <remarks>
-        /// Zeros out any extra length created by setlength
-        /// </remarks>
-        public void SetLength(int newLength)
-        {
-            int oldLength = length;
-
-            // ensure length & capacity
-            EnsureLength(newLength);
-
-            // zero out new length
-            if (oldLength < newLength)
-            {
-                Array.Clear(buffer, oldLength, newLength - oldLength);
-            }
-
-            length = newLength;
-            position = Mathf.Min(position, length);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void EnsureLength(int value)
-        {
-            if (length < value)
-            {
-                length = value;
-                EnsureCapacity(value);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void EnsureCapacity(int value)
-        {
-            if (buffer.Length < value)
-            {
-                int capacity = Math.Max(value, buffer.Length * 2);
-                Array.Resize(ref buffer, capacity);
-            }
-        }
-
-        // MemoryStream has 3 values: Position, Length and Capacity.
-        // Position is used to indicate where we are writing
-        // Length is how much data we have written
-        // capacity is how much memory we have allocated
-        // ToArray returns all the data we have written,  regardless of the current position
+        // ToArray copies all the data until .Position into an array.
         public byte[] ToArray()
         {
-            byte[] data = new byte[length];
-            Array.ConstrainedCopy(buffer, 0, data, 0, length);
+            byte[] data = new byte[Position];
+            Array.ConstrainedCopy(buffer, 0, data, 0, Position);
             return data;
         }
 
@@ -120,26 +57,37 @@ namespace Mirror
         // this is similar to ToArray(),  but it gets the data in O(1)
         // and without allocations.
         // Do not write anything else or modify the NetworkWriter
-        // while you are using the ArraySegment
+        // while using the ArraySegment
         public ArraySegment<byte> ToArraySegment()
         {
-            return new ArraySegment<byte>(buffer, 0, length);
+            return new ArraySegment<byte>(buffer, 0, Position);
         }
 
         public void WriteByte(byte value)
         {
-            EnsureLength(position + 1);
-            buffer[position++] = value;
+            // enough space in buffer?
+            if (Space >= 1)
+            {
+                buffer[Position++] = value;
+            }
+            else throw new IndexOutOfRangeException($"Can't write 1 more byte to writer with Position={Position}, Capacity={Capacity}");
         }
-
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
-        public void WriteBytes(byte[] buffer, int offset, int count)
+        public void WriteBytes(byte[] bytes, int offset, int count)
         {
-            EnsureLength(position + count);
-            Array.ConstrainedCopy(buffer, offset, this.buffer, position, count);
-            position += count;
+            // enough space in buffer?
+            if (Space >= count)
+            {
+                // anything to write?
+                if (bytes != null && count > 0)
+                {
+                    Array.ConstrainedCopy(bytes, offset, buffer, Position, count);
+                    Position += count;
+                }
+            }
+            else throw new IndexOutOfRangeException($"Can't write {count} more bytes to writer with Position={Position}, Capacity={Capacity}");
         }
 
         /// <summary>
