@@ -11,7 +11,7 @@ namespace Mirror.Weaver
     public static class MethodExtensions
     {
         public static ParameterDefinition AddParam<T>(this MethodDefinition method, string name, ParameterAttributes attributes = ParameterAttributes.None)
-            => AddParam(method, WeaverTypes.Import<T>(), name, attributes);
+            => AddParam(method, method.Module.ImportReference(typeof(T)), name, attributes);
 
         public static ParameterDefinition AddParam(this MethodDefinition method, TypeReference typeRef, string name, ParameterAttributes attributes = ParameterAttributes.None)
         {
@@ -20,7 +20,7 @@ namespace Mirror.Weaver
             return param;
         }
 
-        public static VariableDefinition AddLocal<T>(this MethodDefinition method) => AddLocal(method, WeaverTypes.Import<T>());
+        public static VariableDefinition AddLocal<T>(this MethodDefinition method) => AddLocal(method, method.Module.ImportReference(typeof(T)));
 
         public static VariableDefinition AddLocal(this MethodDefinition method, TypeReference type)
         {
