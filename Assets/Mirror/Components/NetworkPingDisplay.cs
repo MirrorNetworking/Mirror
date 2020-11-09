@@ -30,7 +30,6 @@ namespace Mirror
         {
             if (!showPing) { return; }
 
-            string format = "{0}ms";
             string text = string.Format(format, (int)(NetworkTime.rtt * 1000));
 
             // leave here or create special method to update fontSize and textColor
