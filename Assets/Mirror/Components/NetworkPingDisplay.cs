@@ -14,8 +14,7 @@ namespace Mirror
         public Vector2 position = new Vector2(200, 0);
         public int fontSize = 24;
         public Color textColor = new Color32(255, 255, 255, 80);
-        public string prefix;
-        public string suffix;
+        public string format = "{0}ms";
 
         GUIStyle style;
 
