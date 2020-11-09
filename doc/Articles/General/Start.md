@@ -68,7 +68,7 @@ See [Networked Actions](../Guides/Communications/index.md).
 ## Non-player game objects
 
 Fix non-player prefabs such as enemies:
--   Add the NetworkIdentify component
+-   Add the NetworkIdentity component
 -   Add the NetworkTransform component
 -   Register spawnable Prefabs with the NetworkManager
 -   Update scripts with game state and actions
