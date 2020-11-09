@@ -456,7 +456,7 @@ namespace Mirror
 
             // Check for dead clients but exclude the host client because it
             // doesn't ping itself and therefore may appear inactive.
-            CheckForInavtiveConnections();
+            CheckForInactiveConnections();
 
             // update all server objects
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
@@ -475,7 +475,7 @@ namespace Mirror
             }
         }
 
-        static void CheckForInavtiveConnections()
+        static void CheckForInactiveConnections()
         {
             if (!disconnectInactiveConnections)
                 return;
