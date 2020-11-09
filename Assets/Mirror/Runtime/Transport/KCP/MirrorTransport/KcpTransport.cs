@@ -2,8 +2,8 @@
 using System;
 using System.Linq;
 using System.Net;
-using Mirror;
 using UnityEngine;
+using Mirror;
 
 namespace kcp2k
 {
@@ -17,7 +17,7 @@ namespace kcp2k
         public ushort Port = 7777;
         [Tooltip("NoDelay is recommended to reduce latency. This also scales better without buffers getting full.")]
         public bool NoDelay = true;
-        [Tooltip("KCP internal update interval. 10ms is KCP default, but a lower interval is recommended to minimize latency and to scale to more networked entities.")]
+        [Tooltip("KCP internal update interval. 100ms is KCP default, but a lower interval is recommended to minimize latency and to scale to more networked entities.")]
         public uint Interval = 10;
         [Header("Advanced")]
         [Tooltip("KCP fastresend parameter. Faster resend for the cost of higher bandwidth.")]
@@ -119,8 +119,8 @@ namespace kcp2k
         // common
         public override void Shutdown() {}
 
-        // MTU
-        public override int GetMaxPacketSize(int channelId = Channels.DefaultReliable) => Kcp.MTU_DEF;
+        // max message size
+        public override int GetMaxPacketSize(int channelId = Channels.DefaultReliable) => KcpConnection.MaxMessageSize;
 
         public override string ToString()
         {
