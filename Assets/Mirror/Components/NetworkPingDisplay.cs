@@ -41,7 +41,7 @@ namespace Mirror
             int height = Screen.height;
             Rect rect = new Rect(position.x, position.y, width - 200, height * 2 / 100);
 
-            GUI.Label(rect,prefix + text + suffix, style);
+            GUI.Label(rect, text, style);
         }
     }
 }
