@@ -1,4 +1,6 @@
 // Injects server/client active checks for [Server/Client] attributes
+using System;
+using System.Linq.Expressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -33,19 +35,20 @@ namespace Mirror.Weaver
 
         static bool ProcessMethodAttributes(MethodDefinition md)
         {
-            bool modified = InjectGuard<ServerAttribute>(md, WeaverTypes.NetworkBehaviourIsServer, "[Server] function '" + md.FullName + "' called on client");
+            bool modified = InjectGuard<ServerAttribute>(md, (NetworkBehaviour nb) => nb.IsServer, "[Server] function '" + md.FullName + "' called on client");
 
-            modified |= InjectGuard<ClientAttribute>(md, WeaverTypes.NetworkBehaviourIsClient, "[Client] function '" + md.FullName + "' called on server");
+            modified |= InjectGuard<ClientAttribute>(md, (NetworkBehaviour nb) => nb.IsClient, "[Client] function '" + md.FullName + "' called on server");
 
-            modified |= InjectGuard<HasAuthorityAttribute>(md, WeaverTypes.NetworkBehaviourHasAuthority, "[Has Authority] function '" + md.FullName + "' called on player without authority");
+            modified |= InjectGuard<HasAuthorityAttribute>(md, (NetworkBehaviour nb) => nb.HasAuthority, "[Has Authority] function '" + md.FullName + "' called on player without authority");
 
-            modified |= InjectGuard<LocalPlayerAttribute>(md, WeaverTypes.NetworkBehaviourIsLocalPlayer, "[Local Player] function '" + md.FullName + "' called on nonlocal player");
+            modified |= InjectGuard<LocalPlayerAttribute>(md, (NetworkBehaviour nb) => nb.IsLocalPlayer, "[Local Player] function '" + md.FullName + "' called on nonlocal player");
 
             return modified;
         }
 
-        static bool InjectGuard<TAttribute>(MethodDefinition md, MethodReference predicate, string message)
+        static bool InjectGuard<TAttribute>(MethodDefinition md, Expression<Func<NetworkBehaviour, bool>> predExpression, string message)
         {
+            MethodReference predicate = md.Module.ImportReference(predExpression);
             CustomAttribute attribute = md.GetCustomAttribute<TAttribute>();
             if (attribute == null)
                 return false;
