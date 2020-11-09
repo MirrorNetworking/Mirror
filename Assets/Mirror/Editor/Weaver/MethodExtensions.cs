@@ -29,7 +29,6 @@ namespace Mirror.Weaver
             return local;
         }
 
-
         public static Instruction Create(this ILProcessor worker, OpCode code, Expression<Action> expression)
         {
             MethodReference typeref = worker.Body.Method.Module.ImportReference(expression);
