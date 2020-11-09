@@ -1,5 +1,7 @@
+using System;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using NUnit.Framework;
@@ -12,7 +14,9 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourServer()
         {
             Assert.That(weaverErrors, Is.Empty);
-            CheckAddedCode(WeaverTypes.NetworkBehaviourIsServer, "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
+            CheckAddedCode(
+                (NetworkBehaviour nb) => nb.IsServer,
+                "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
 
         }
 
@@ -20,21 +24,27 @@ namespace Mirror.Weaver.Tests
         public void NetworkBehaviourClient()
         {
             Assert.That(weaverErrors, Is.Empty);
-            CheckAddedCode(WeaverTypes.NetworkBehaviourIsClient, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
+            CheckAddedCode(
+                (NetworkBehaviour nb) => nb.IsClient,
+                "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
         }
 
         [Test]
         public void NetworkBehaviourHasAuthority()
         {
             Assert.That(weaverErrors, Is.Empty);
-            CheckAddedCode(WeaverTypes.NetworkBehaviourHasAuthority, "WeaverClientServerAttributeTests.NetworkBehaviourHasAuthority.NetworkBehaviourHasAuthority", "HasAuthorityMethod");
+            CheckAddedCode(
+                (NetworkBehaviour nb) => nb.HasAuthority,
+                "WeaverClientServerAttributeTests.NetworkBehaviourHasAuthority.NetworkBehaviourHasAuthority", "HasAuthorityMethod");
         }
 
         [Test]
         public void NetworkBehaviourLocalPlayer()
         {
             Assert.That(weaverErrors, Is.Empty);
-            CheckAddedCode(WeaverTypes.NetworkBehaviourIsLocalPlayer, "WeaverClientServerAttributeTests.NetworkBehaviourLocalPlayer.NetworkBehaviourLocalPlayer", "LocalPlayerMethod");
+            CheckAddedCode(
+                (NetworkBehaviour nb) => nb.IsLocalPlayer,
+                "WeaverClientServerAttributeTests.NetworkBehaviourLocalPlayer.NetworkBehaviourLocalPlayer", "LocalPlayerMethod");
         }
 
         /// <summary>
@@ -42,7 +52,7 @@ namespace Mirror.Weaver.Tests
         /// </summary>
         /// <param name="addedString"></param>
         /// <param name="methodName"></param>
-        static void CheckAddedCode(MethodReference methodRef, string className, string methodName)
+        static void CheckAddedCode(Expression<Func<NetworkBehaviour, bool>> pred, string className, string methodName)
         {
             string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory, WeaverAssembler.OutputFile);
             using (var assembly = AssemblyDefinition.ReadAssembly(assemblyName))
@@ -53,6 +63,8 @@ namespace Mirror.Weaver.Tests
 
                 Instruction top = body.Instructions[0];
                 Assert.That(top.OpCode, Is.EqualTo(OpCodes.Ldarg_0));
+
+                var methodRef = assembly.MainModule.ImportReference(pred);
 
                 Instruction call = body.Instructions[1];
 
