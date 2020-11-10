@@ -43,7 +43,7 @@ namespace Mirror.Weaver
         {
             foreach (MethodDefinition methodRef in variable.Resolve().Methods)
             {
-                if (methodRef.Name == ".ctor" &&
+                if (methodRef.IsConstructor &&
                     methodRef.Resolve().IsPublic &&
                     methodRef.Parameters.Count == 0)
                 {
