@@ -234,7 +234,7 @@ namespace Mirror.Weaver
         /// <param name="currentAssembly"></param>
         public static void InitializeReaderAndWriters(ModuleDefinition module)
         {
-            MethodDefinition rwInitializer = Weaver.WeaveLists.GeneratedCode().AddMethod(
+            MethodDefinition rwInitializer = module.GeneratedClass().AddMethod(
                 "InitReadWriters",
                 MethodAttributes.Public | MethodAttributes.Static);
 
@@ -260,9 +260,6 @@ namespace Mirror.Weaver
             RegisterMessages(module, worker);
 
             worker.Append(worker.Create(OpCodes.Ret));
-
-            Weaver.WeaveLists.GeneratedCode();
-
         }
 
         private static void RegisterMessages(ModuleDefinition module, ILProcessor worker)

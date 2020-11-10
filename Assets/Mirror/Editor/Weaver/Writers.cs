@@ -157,7 +157,7 @@ namespace Mirror.Weaver
         {
             string functionName = "_Write_" + variable.FullName;
             // create new writer for this type
-            MethodDefinition writerFunc = Weaver.WeaveLists.GeneratedCode().AddMethod(functionName,
+            MethodDefinition writerFunc = Weaver.CurrentAssembly.MainModule.GeneratedClass().AddMethod(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig);

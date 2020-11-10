@@ -14,8 +14,6 @@ namespace Mirror.Weaver
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
 
-        private TypeDefinition generateContainerClass ;
-
         // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
 
@@ -29,18 +27,6 @@ namespace Mirror.Weaver
         public void SetNumSyncVars(string className, int num)
         {
             numSyncVars[className] = num;
-        }
-
-        public TypeDefinition GeneratedCode()
-        {
-            if (generateContainerClass == null)
-            {
-                generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
-                        TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
-                        WeaverTypes.Import<object>());
-                Weaver.CurrentAssembly.MainModule.Types.Add(generateContainerClass);
-            }
-            return generateContainerClass;
         }
     }
 

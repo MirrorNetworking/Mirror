@@ -156,7 +156,7 @@ namespace Mirror.Weaver
             string functionName = "_Read_" + variable.FullName;
 
             // create new reader for this type
-            MethodDefinition readerFunc = Weaver.WeaveLists.GeneratedCode().AddMethod(functionName,
+            MethodDefinition readerFunc = Weaver.CurrentAssembly.MainModule.GeneratedClass().AddMethod(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,

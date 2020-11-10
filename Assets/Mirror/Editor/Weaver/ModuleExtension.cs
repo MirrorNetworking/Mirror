@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Mono.Cecil;
+using TypeAttributes = Mono.Cecil.TypeAttributes;
 
 namespace Mirror.Weaver
 {
@@ -35,6 +36,21 @@ namespace Mirror.Weaver
             }
 
             throw new ArgumentException($"Invalid Expression {expression.Body.GetType()}");
+        }
+
+
+        public static TypeDefinition GeneratedClass(this ModuleDefinition module)
+        {
+            TypeDefinition type = module.GetType("Mirror", "GeneratedNetworkCode");
+
+            if (type != null)
+                return type;
+
+            type = new TypeDefinition("Mirror", "GeneratedNetworkCode",
+                        TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
+                        WeaverTypes.Import<object>());
+            module.Types.Add(type);
+            return type;
         }
     }
 }
