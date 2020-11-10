@@ -217,9 +217,9 @@ namespace Mirror.Weaver
             }
         }
 
-        private static bool IsEditorAssembly(AssemblyDefinition currentAssembly)
+        private static bool IsEditorAssembly(ModuleDefinition module)
         {
-            return currentAssembly.MainModule.AssemblyReferences.Any(assemblyReference =>
+            return module.AssemblyReferences.Any(assemblyReference =>
                 assemblyReference.Name == nameof(UnityEditor)
                 ) ;
         }
@@ -232,7 +232,7 @@ namespace Mirror.Weaver
         /// executed before mirror runtime code
         /// </summary>
         /// <param name="currentAssembly"></param>
-        public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly)
+        public static void InitializeReaderAndWriters(ModuleDefinition module)
         {
             var rwInitializer = Weaver.WeaveLists.GeneratedCode().AddMethod(
                 "InitReadWriters",
@@ -240,15 +240,15 @@ namespace Mirror.Weaver
 
             System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
 
-            var customAttributeRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(attributeconstructor));
+            var customAttributeRef = new CustomAttribute(module.ImportReference(attributeconstructor));
             customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(WeaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
             rwInitializer.CustomAttributes.Add(customAttributeRef);
 
-            if (IsEditorAssembly(currentAssembly))
+            if (IsEditorAssembly(module))
             {
                 // editor assembly,  add InitializeOnLoadMethod too.  Useful for the editor tests
                 System.Reflection.ConstructorInfo initializeOnLoadConstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructor(new Type[0]);
-                var initializeCustomConstructorRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(initializeOnLoadConstructor));
+                var initializeCustomConstructorRef = new CustomAttribute(module.ImportReference(initializeOnLoadConstructor));
                 rwInitializer.CustomAttributes.Add(initializeCustomConstructorRef);
             }
 
@@ -257,7 +257,7 @@ namespace Mirror.Weaver
             Writers.InitializeWriters(worker);
             Readers.InitializeReaders(worker);
 
-            RegisterMessages(currentAssembly.MainModule, worker);
+            RegisterMessages(module, worker);
 
             worker.Append(worker.Create(OpCodes.Ret));
 

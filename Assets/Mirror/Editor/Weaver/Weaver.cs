@@ -165,6 +165,7 @@ namespace Mirror.Weaver
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(unityAssembly.outputPath, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
             {
                 AddPaths(asmResolver, unityAssembly);
+                ModuleDefinition module = CurrentAssembly.MainModule;
 
                 WeaverTypes.SetupTargetTypes(CurrentAssembly);
                 var rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -172,10 +173,9 @@ namespace Mirror.Weaver
                 rwstopwatch.Stop();
                 Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
 
-                ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
-                Console.WriteLine($"Script Module: {moduleDefinition.Name}");
+                Console.WriteLine($"Script Module: {module.Name}");
 
-                modified |= WeaveModule(moduleDefinition);
+                modified |= WeaveModule(module);
 
                 if (WeavingFailed)
                 {
@@ -184,7 +184,7 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    ReaderWriterProcessor.InitializeReaderAndWriters(CurrentAssembly);
+                    ReaderWriterProcessor.InitializeReaderAndWriters(module);
 
                     // write to outputDir if specified, otherwise perform in-place write
                     var writeParams = new WriterParameters { WriteSymbols = true };
