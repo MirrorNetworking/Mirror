@@ -38,23 +38,6 @@ namespace Mirror.Weaver
             Weaver.Error($"Method not found in type {t.Name}", t);
             return null;
         }
-
-        public static MethodReference TryResolveMethodInParents(TypeReference tr, AssemblyDefinition scriptDef, string name)
-        {
-            if (tr == null)
-            {
-                return null;
-            }
-            foreach (MethodDefinition methodRef in tr.Resolve().Methods)
-            {
-                if (methodRef.Name == name)
-                {
-                    return scriptDef.MainModule.ImportReference(methodRef);
-                }
-            }
-            // Could not find the method in this class,  try the parent
-            return TryResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
-        }
         
         public static MethodDefinition ResolveDefaultPublicCtor(TypeReference variable)
         {

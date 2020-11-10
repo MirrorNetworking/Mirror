@@ -406,7 +406,7 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(netBehaviourSubclass, "  GenerateSerialization");
 
-            const string SerializeMethodName = "SerializeSyncVars";
+            const string SerializeMethodName = nameof(NetworkBehaviour.SerializeSyncVars);
             if (netBehaviourSubclass.GetMethod(SerializeMethodName) != null)
                 return;
 
@@ -429,7 +429,7 @@ namespace Mirror.Weaver
             // loc_0,  this local variable is to determine if any variable was dirty
             VariableDefinition dirtyLocal = serialize.AddLocal<bool>();
 
-            MethodReference baseSerialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, SerializeMethodName);
+            MethodDefinition baseSerialize = netBehaviourSubclass.BaseType.Resolve().GetMethodInBaseType(SerializeMethodName);
             if (baseSerialize != null)
             {
                 // base
@@ -438,7 +438,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldarg, writerParameter));
                 // forceAll
                 worker.Append(worker.Create(OpCodes.Ldarg, initializeParameter));
-                worker.Append(worker.Create(OpCodes.Call, baseSerialize));
+                worker.Append(worker.Create(OpCodes.Call, netBehaviourSubclass.Module.ImportReference(baseSerialize)));
                 // set dirtyLocal to result of base.OnSerialize()
                 worker.Append(worker.Create(OpCodes.Stloc, dirtyLocal));
             }
@@ -569,7 +569,7 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(netBehaviourSubclass, "  GenerateDeSerialization");
 
-            const string DeserializeMethodName = "DeserializeSyncVars";
+            const string DeserializeMethodName = nameof(NetworkBehaviour.DeserializeSyncVars);
             if (netBehaviourSubclass.GetMethod(DeserializeMethodName) != null)
                 return;
 
@@ -589,7 +589,7 @@ namespace Mirror.Weaver
             serialize.Body.InitLocals = true;
             VariableDefinition dirtyBitsLocal = serialize.AddLocal<long>();
 
-            MethodReference baseDeserialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, DeserializeMethodName);
+            MethodDefinition baseDeserialize = netBehaviourSubclass.BaseType.Resolve().GetMethodInBaseType(DeserializeMethodName);
             if (baseDeserialize != null)
             {
                 // base
@@ -598,7 +598,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg,readerParam));
                 // initialState
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg,initializeParam));
-                serWorker.Append(serWorker.Create(OpCodes.Call, baseDeserialize));
+                serWorker.Append(serWorker.Create(OpCodes.Call, netBehaviourSubclass.Module.ImportReference(baseDeserialize)));
             }
 
             // Generates: if (initialState);
