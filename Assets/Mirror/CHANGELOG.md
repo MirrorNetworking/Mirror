@@ -1,3 +1,11 @@
+## [59.0.3](https://github.com/MirrorNG/MirrorNG/compare/v59.0.2...v59.0.3) (2020-11-10)
+
+
+### Bug Fixes
+
+* calling base command in other assemblies ([e49fda1](https://github.com/MirrorNG/MirrorNG/commit/e49fda13bdb227c80185d3bd02062649bc2124b1))
+* error importing scriptable object from another module ([6cdd112](https://github.com/MirrorNG/MirrorNG/commit/6cdd1127b88117765953c74d49071e19af471817))
+
 ## [59.0.2](https://github.com/MirrorNG/MirrorNG/compare/v59.0.1...v59.0.2) (2020-11-10)
 
 
