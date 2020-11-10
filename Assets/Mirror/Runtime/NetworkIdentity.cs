@@ -186,13 +186,6 @@ namespace Mirror
         public ulong sceneId;
 
         /// <summary>
-        /// Flag to make this object only exist when the game is running as a server (or host).
-        /// </summary>
-        [FormerlySerializedAs("m_ServerOnly")]
-        [Tooltip("Prevents this object from being spawned / enabled on clients")]
-        public bool serverOnly;
-
-        /// <summary>
         /// Set to try before Destroy is called so that OnDestroy doesn't try to destroy the object again
         /// </summary>
         internal bool destroyCalled;

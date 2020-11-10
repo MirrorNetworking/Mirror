@@ -1034,9 +1034,6 @@ namespace Mirror
 
         internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
         {
-            if (identity.serverOnly)
-                return;
-
             // for easier debugging
             if (logger.LogEnabled()) logger.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId);
 
