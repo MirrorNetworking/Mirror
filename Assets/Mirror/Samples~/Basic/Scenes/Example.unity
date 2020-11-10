@@ -160,6 +160,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3fbf0a5cb914b1c9bbb8a42e081f4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Started:
+    m_PersistentCalls:
+      m_Calls: []
   Port: 7777
   HashCashBits: 18
   delayMode: 0
@@ -344,21 +347,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Levels:
-  - Name: PlayerSpawner
-    level: 2
-  - Name: NetworkSceneManager
-    level: 2
-  - Name: NetworkIdentity
+  - Name: ServerObjectManager
     level: 2
   - Name: NetworkBehaviour
     level: 2
-  - Name: ClientObjectManager
+  - Name: NetworkIdentity
     level: 2
   - Name: NetworkServer
     level: 2
   - Name: NetworkTime
     level: 2
-  - Name: ServerObjectManager
+  - Name: ClientObjectManager
+    level: 2
+  - Name: NetworkSceneManager
+    level: 2
+  - Name: PlayerSpawner
     level: 2
   - Name: NetworkClient
     level: 2
@@ -373,6 +376,12 @@ MonoBehaviour:
   - Name: NetworkReaderExtensions
     level: 2
   - Name: NetworkReaderPool
+    level: 2
+  - Name: RemoteCallHelper
+    level: 2
+  - Name: BasicAuthenticator
+    level: 2
+  - Name: NetworkRigidbody
     level: 2
 --- !u!1 &288173824
 GameObject:
