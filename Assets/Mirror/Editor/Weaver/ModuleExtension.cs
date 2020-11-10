@@ -10,6 +10,8 @@ namespace Mirror.Weaver
         public static MethodReference ImportReference(this ModuleDefinition module, Expression<Action> expression) => ImportReference(module, (LambdaExpression)expression);
         public static MethodReference ImportReference<T>(this ModuleDefinition module, Expression<Action<T>> expression) => ImportReference(module, (LambdaExpression)expression);
 
+        public static TypeReference ImportReference<T>(this ModuleDefinition module) => module.ImportReference(typeof(T));
+
         public static MethodReference ImportReference(this ModuleDefinition module, LambdaExpression expression)
         {
             if (expression.Body is MethodCallExpression outermostExpression)

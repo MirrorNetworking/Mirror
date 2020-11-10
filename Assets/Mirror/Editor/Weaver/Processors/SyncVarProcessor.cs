@@ -249,7 +249,7 @@ namespace Mirror.Weaver
             {
                 netIdField = new FieldDefinition("___" + fd.Name + "NetId",
                     FieldAttributes.Private,
-                    WeaverTypes.Import<uint>());
+                    fd.Module.ImportReference<uint>());
 
                 fd.DeclaringType.Fields.Add(netIdField);
                 syncVarNetIds[fd] = netIdField;
@@ -418,7 +418,7 @@ namespace Mirror.Weaver
 
             MethodDefinition serialize = netBehaviourSubclass.AddMethod(SerializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                    WeaverTypes.Import<bool>());
+                    netBehaviourSubclass.Module.ImportReference<bool>());
 
             ParameterDefinition writerParameter = serialize.AddParam<NetworkWriter>("writer");
             ParameterDefinition initializeParameter = serialize.AddParam<bool>("initialize");
