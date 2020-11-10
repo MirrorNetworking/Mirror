@@ -20,15 +20,10 @@ namespace Mirror
 
         public static int GetId<T>() where T : struct, NetworkMessage
         {
-            return GetId(typeof(T));
-        }
-
-        public static int GetId(Type type)
-        {
             // paul: 16 bits is enough to avoid collisions
             //  - keeps the message size small because it gets varinted
             //  - in case of collisions,  Mirror will display an error
-            return type.FullName.GetStableHashCode() & 0xFFFF;
+            return typeof(T).FullName.GetStableHashCode() & 0xFFFF;
         }
 
         // pack message before sending
