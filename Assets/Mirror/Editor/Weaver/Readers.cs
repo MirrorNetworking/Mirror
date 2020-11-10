@@ -260,7 +260,7 @@ namespace Mirror.Weaver
                     return;
                 }
 
-                MethodReference ctorRef = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);
+                MethodReference ctorRef = worker.Body.Method.Module.ImportReference(ctor);
 
                 worker.Append(worker.Create(OpCodes.Newobj, ctorRef));
                 worker.Append(worker.Create(OpCodes.Stloc, variable));
