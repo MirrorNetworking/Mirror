@@ -251,6 +251,7 @@ namespace Mirror.Weaver
                     FieldAttributes.Private,
                     WeaverTypes.Import<uint>());
 
+                fd.DeclaringType.Fields.Add(netIdField);
                 syncVarNetIds[fd] = netIdField;
             }
 
@@ -286,8 +287,10 @@ namespace Mirror.Weaver
             // start assigning syncvars at the place the base class stopped, if any
             int dirtyBitCounter = Weaver.WeaveLists.GetSyncVarStart(td.BaseType.FullName);
 
+            List<FieldDefinition> fields = new List<FieldDefinition>(td.Fields);
+
             // find syncvars
-            foreach (FieldDefinition fd in td.Fields)
+            foreach (FieldDefinition fd in fields)
             {
                 if (!fd.HasCustomAttribute<SyncVarAttribute>())
                 {
@@ -322,11 +325,6 @@ namespace Mirror.Weaver
                 Weaver.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
             }
 
-            // add all the new SyncVar __netId fields
-            foreach (FieldDefinition fd in syncVarNetIds.Values)
-            {
-                td.Fields.Add(fd);
-            }
             Weaver.WeaveLists.SetNumSyncVars(td.FullName, syncVars.Count);
 
             GenerateSerialization(td);
