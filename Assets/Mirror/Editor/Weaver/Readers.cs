@@ -242,9 +242,9 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldloca, variable));
                 worker.Append(worker.Create(OpCodes.Initobj, type));
             }
-            else if (td.IsDerivedFrom<UnityEngine.ScriptableObject>())
+            else if (td.IsDerivedFrom<ScriptableObject>())
             {
-                MethodReference createScriptableObjectInstance = td.Module.ImportReference(() => ScriptableObject.CreateInstance<ScriptableObject>());
+                MethodReference createScriptableObjectInstance = worker.Body.Method.Module.ImportReference(() => ScriptableObject.CreateInstance<ScriptableObject>());
                 var genericInstanceMethod = new GenericInstanceMethod(createScriptableObjectInstance.GetElementMethod());
                 genericInstanceMethod.GenericArguments.Add(type);
                 worker.Append(worker.Create(OpCodes.Call, genericInstanceMethod));
