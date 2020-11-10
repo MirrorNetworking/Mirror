@@ -99,7 +99,7 @@ namespace Mirror.Weaver
                         return;
                     }
 
-                    instruction.Operand = baseMethod;
+                    instruction.Operand = method.Module.ImportReference(baseMethod);
 
                     Weaver.DLog(type, "Replacing call to '{0}' with '{1}' inside '{2}'", calledMethod.FullName, baseMethod.FullName, method.FullName);
                 }
