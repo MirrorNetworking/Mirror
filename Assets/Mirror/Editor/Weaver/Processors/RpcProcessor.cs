@@ -9,6 +9,7 @@ namespace Mirror.Weaver
 {
     public abstract class RpcProcessor
     {
+        public static string InvokeRpcPrefix => "InvokeUserCode_";
 
         // helper functions to check if the method has a NetworkConnection parameter
         public bool HasNetworkConnectionParameter(MethodDefinition md)

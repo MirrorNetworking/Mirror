@@ -27,7 +27,7 @@ namespace Mirror.Weaver
         {
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
-                md.Name.StartsWith(Weaver.InvokeRpcPrefix))
+                md.Name.StartsWith(RpcProcessor.InvokeRpcPrefix))
                 return false;
 
             return ProcessMethodAttributes(md);
