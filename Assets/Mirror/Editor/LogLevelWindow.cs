@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -8,8 +9,6 @@ namespace Mirror
     [CustomEditor(typeof(LogSettings), true)]
     public class LogSettingEditor : Editor
     {
-        private static Dictionary<string, LogType> levels = new Dictionary<string, LogType>();
-        
         #region GUI
         public override void OnInspectorGUI()
         {
@@ -23,7 +22,6 @@ namespace Mirror
             EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.BeginVertical(EditorStyles.inspectorDefaultMargins);
-            SetLevels();
 
             foreach (KeyValuePair<string, ILogger> item in LogFactory.loggers)
             {
@@ -37,18 +35,9 @@ namespace Mirror
             }
         }
 
-        private void SetLevels()
-        {
-            foreach (KeyValuePair<string, LogType> kvp in levels)
-            {
-                LogFactory.GetLogger(kvp.Key).filterLogType = kvp.Value;
-            }
-        }
-
         void DrawLoggerField(string loggerName, ILogger logger)
         {
             logger.filterLogType = (LogType)EditorGUILayout.EnumPopup(new GUIContent(loggerName), logger.filterLogType);
-            levels[loggerName] = logger.filterLogType;
         }
 
         #endregion
@@ -65,5 +54,62 @@ namespace Mirror
         }
 
         #endregion
+    }
+
+    public struct LogLevelContainer
+    {
+        public List<LogSettings.Level> levels;
+
+        public LogLevelContainer(List<LogSettings.Level> levels)
+        {
+            this.levels = levels;
+        }
+    }
+
+    [InitializeOnLoad]
+    public static class LogSettingsSaver
+    {
+        static LogSettingsSaver()
+        {
+            EditorApplication.playModeStateChanged += OnChangePlayModeState;
+            Load();
+        }
+
+        private static void OnChangePlayModeState(PlayModeStateChange state)
+        {
+            // Create backups of the scenes before you enter play mode, because this thing is pretty destructive and you can lose work if it goes wrong.
+            if (state == PlayModeStateChange.ExitingPlayMode)
+            {
+                Save();
+            }
+            else if (state == PlayModeStateChange.EnteredEditMode)
+            {
+                Load();
+            }
+        }
+
+        private static void Load()
+        {
+            string leveljson = EditorPrefs.GetString("Log Levels", "{\"levels\": [] }");
+
+            var levelContainer = JsonUtility.FromJson<LogLevelContainer>(leveljson);
+            var levels = levelContainer.levels;
+
+            foreach (LogSettings.Level level in levels)
+            {
+                LogFactory.GetLogger(level.Name).filterLogType = level.level;
+            }
+        }
+
+        private static void Save()
+        {
+            var levels = LogFactory.loggers.Select(kvp => new LogSettings.Level { Name = kvp.Key, level = kvp.Value.filterLogType }).ToList();
+
+            var levelContainer = new LogLevelContainer(levels);
+
+            string leveljson = JsonUtility.ToJson(levelContainer);
+
+            EditorPrefs.SetString("Log Levels", leveljson);
+        }
     }
 }
