@@ -8,6 +8,50 @@ namespace Mirror
 {
     public class NetworkScenePostProcess : MonoBehaviour
     {
+        // Coburn: This runs to ensure people haven't done things like
+        // attempting to put a NetworkIdentity on a NetworkManager, or
+        // NetworkBehaviours on a NetworkManager.
+        [PostProcessScene]
+        public static void DetectWrongUsageOfNetworkBehavioursAndIdentities()
+        {
+            IEnumerable<NetworkManager> netManagers = Resources.FindObjectsOfTypeAll<NetworkManager>()
+                .Where(netManager => netManager.gameObject.hideFlags != HideFlags.NotEditable &&
+                                   netManager.gameObject.hideFlags != HideFlags.HideAndDontSave &&
+                                   netManager.gameObject.scene.name != "DontDestroyOnLoad" &&
+                                   !PrefabUtility.IsPartOfPrefabAsset(netManager.gameObject));
+
+            int netManCount = netManagers.Count();
+            if (netManCount > 0)
+            {
+                if (netManCount > 1)
+                {
+                    // Very bad idea to have more than one NetworkManager.
+                    Debug.LogError("Multiple NetworkManagers detected in scene, this may cause problems!");
+                }
+
+                foreach (NetworkManager netManager in netManagers)
+                {
+                    // NetworkBehaviour check.
+                    NetworkBehaviour[] checkForNetBehaviours = netManager.gameObject.GetComponents<NetworkBehaviour>();
+                    if (checkForNetBehaviours.Length > 0)
+                    {
+                        // Throw an error saying that this is not supported.
+                        Debug.LogError("Detected one or more NetworkBehaviours on the same GameObject as the NetworkManager. NetworkBehaviours should never be added to a " +
+                            $"GameObject with the NetworkManager script attached. Remove these components from the '{netManager.gameObject.name}' GameObject.");
+                    }
+
+                    // NetworkIdentity check.
+                    NetworkIdentity checkForNetIdentity = netManager.gameObject.GetComponent<NetworkIdentity>();
+                    if (checkForNetIdentity != null)
+                    {
+                        // Throw an error saying this will cause problems. Mirror later checks to see if the NetworkManager has a NetworkIdentity, but this one pin-points the issue.
+                        Debug.LogError("Detected a NetworkIdentity on the same GameObject as the NetworkManager. A NetworkIdentity should never be added to a " +
+                            $"GameObject with the NetworkManager script attached. Remove this component from the '{netManager.gameObject.name}' GameObject.");
+                    }
+                }
+            }
+        }
+
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
