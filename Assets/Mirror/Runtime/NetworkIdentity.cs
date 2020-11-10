@@ -189,6 +189,7 @@ namespace Mirror
         /// Flag to make this object only exist when the game is running as a server (or host).
         /// </summary>
         [FormerlySerializedAs("m_ServerOnly")]
+        [Tooltip("Prevents this object from being spawned / enabled on clients")]
         public bool serverOnly;
 
         /// <summary>
