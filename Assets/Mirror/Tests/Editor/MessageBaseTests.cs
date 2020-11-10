@@ -35,43 +35,25 @@ namespace Mirror.Tests.MessageTests
         public int IntValue;
         public string StringValue;
         public double DoubleValue;
-
-        // Mirror will fill out these empty methods
-        public void Deserialize(NetworkReader reader) { }
-        public void Serialize(NetworkWriter writer) { }
     }
 
     class ClassWithoutBaseMessage : NetworkMessage
     {
         public int[] array;
-
-        // Mirror will fill out these empty methods
-        public void Deserialize(NetworkReader reader) { }
-        public void Serialize(NetworkWriter writer) { }
     }
 
     abstract class AbstractMessage : NetworkMessage
     {
-        public abstract void Deserialize(NetworkReader reader);
-        public abstract void Serialize(NetworkWriter writer);
     }
 
     class OverrideMessage : AbstractMessage
     {
         public int someValue;
-
-        // Mirror will fill out these empty methods
-        public override void Serialize(NetworkWriter writer) { }
-        public override void Deserialize(NetworkReader reader) { }
     }
 
     class Layer1Message : NetworkMessage
     {
         public int value1;
-
-        // Mirror will fill out these empty methods
-        public virtual void Serialize(NetworkWriter writer) { }
-        public virtual void Deserialize(NetworkReader reader) { }
     }
 
     class Layer2Message : Layer1Message

@@ -9,10 +9,6 @@ namespace Mirror.Tests.MessageTests
         // Weaver should ignore these methods because they have no args
         public void Serialize() { /* method with no arg */ }
         public void Deserialize() { /* method with no arg */ }
-
-        // Mirror will fill out these empty methods
-        public void Serialize(NetworkWriter writer) { }
-        public void Deserialize(NetworkReader reader) { }
     }
 
     class TwoArgMethodMessage : NetworkMessage
@@ -22,11 +18,6 @@ namespace Mirror.Tests.MessageTests
         // Weaver should ignore these methods because they have two args
         public void Serialize(NetworkWriter writer, int AnotherValue) { /* method with 2 args */ }
         public void Deserialize(NetworkReader reader, int AnotherValue) { /* method with 2 args */ }
-
-
-        // Mirror will fill out these empty methods
-        public void Serialize(NetworkWriter writer) { }
-        public void Deserialize(NetworkReader reader) { }
     }
 
     public class OverloadMethodTest

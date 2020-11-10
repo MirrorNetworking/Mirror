@@ -42,10 +42,6 @@ namespace Mirror.Tests
         public string StringValue;
         public double DoubleValue;
 #pragma warning restore CS0649 // Field is never assigned to
-
-        // Mirror will fill out these empty methods
-        public void Deserialize(NetworkReader reader) { }
-        public void Serialize(NetworkWriter writer) { }
     }
 
     public class CommandTestNetworkBehaviour : NetworkBehaviour
