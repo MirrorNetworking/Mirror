@@ -234,7 +234,7 @@ namespace Mirror.Weaver
         /// <param name="currentAssembly"></param>
         public static void InitializeReaderAndWriters(ModuleDefinition module)
         {
-            var rwInitializer = Weaver.WeaveLists.GeneratedCode().AddMethod(
+            MethodDefinition rwInitializer = Weaver.WeaveLists.GeneratedCode().AddMethod(
                 "InitReadWriters",
                 MethodAttributes.Public | MethodAttributes.Static);
 
