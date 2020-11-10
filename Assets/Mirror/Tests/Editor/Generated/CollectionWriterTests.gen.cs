@@ -10,7 +10,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class Array_int_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public int[] collection;
         }
@@ -74,7 +74,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class Array_string_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public string[] collection;
         }
@@ -138,7 +138,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class Array_Vector3_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public Vector3[] collection;
         }
@@ -202,7 +202,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class Array_FloatStringStruct_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public FloatStringStruct[] collection;
         }
@@ -266,7 +266,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class Array_ClassWithNoConstructor_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public ClassWithNoConstructor[] collection;
         }
@@ -330,7 +330,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class ArraySegment_int_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public ArraySegment<int> collection;
         }
@@ -408,7 +408,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class ArraySegment_string_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public ArraySegment<string> collection;
         }
@@ -486,7 +486,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class ArraySegment_Vector3_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public ArraySegment<Vector3> collection;
         }
@@ -564,7 +564,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class ArraySegment_FloatStringStruct_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public ArraySegment<FloatStringStruct> collection;
         }
@@ -642,7 +642,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class ArraySegment_ClassWithNoConstructor_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public ArraySegment<ClassWithNoConstructor> collection;
         }
@@ -720,7 +720,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class List_int_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public List<int> collection;
         }
@@ -784,7 +784,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class List_string_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public List<string> collection;
         }
@@ -848,7 +848,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class List_Vector3_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public List<Vector3> collection;
         }
@@ -912,7 +912,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class List_FloatStringStruct_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public List<FloatStringStruct> collection;
         }
@@ -976,7 +976,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
     public class List_ClassWithNoConstructor_Test
     {
-        public class Message : NetworkMessage
+        public struct Message : NetworkMessage
         {
             public List<ClassWithNoConstructor> collection;
         }
