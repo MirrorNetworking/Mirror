@@ -48,7 +48,7 @@ namespace Mirror.Weaver
 
             type = new TypeDefinition("Mirror", "GeneratedNetworkCode",
                         TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
-                        WeaverTypes.Import<object>());
+                        module.ImportReference<object>());
             module.Types.Add(type);
             return type;
         }
