@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -46,7 +45,7 @@ namespace Mirror
 
         private void SaveLevels()
         {
-            LogSettings settings = target as LogSettings;
+            var settings = target as LogSettings;
 
             Undo.RecordObject(settings, "Update log settings");
             settings.Levels = new List<LogSettings.Level>();
@@ -92,8 +91,8 @@ namespace Mirror
         {
             string leveljson = EditorPrefs.GetString("Log Levels", "{\"levels\": [] }");
 
-            var levelContainer = JsonUtility.FromJson<LogLevelContainer>(leveljson);
-            var levels = levelContainer.levels;
+            LogLevelContainer levelContainer = JsonUtility.FromJson<LogLevelContainer>(leveljson);
+            List<LogSettings.Level> levels = levelContainer.levels;
 
             foreach (LogSettings.Level level in levels)
             {
