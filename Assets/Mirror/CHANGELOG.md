@@ -1,3 +1,10 @@
+## [59.0.2](https://github.com/MirrorNG/MirrorNG/compare/v59.0.1...v59.0.2) (2020-11-10)
+
+
+### Bug Fixes
+
+* logs now save properly when reloading ([19c86e7](https://github.com/MirrorNG/MirrorNG/commit/19c86e7d5c68ff044f5a92f374a2a1944c05895e))
+
 ## [59.0.1](https://github.com/MirrorNG/MirrorNG/compare/v59.0.0...v59.0.1) (2020-11-07)
 
 
