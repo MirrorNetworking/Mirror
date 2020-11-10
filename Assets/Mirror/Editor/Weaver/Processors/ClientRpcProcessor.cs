@@ -46,8 +46,7 @@ namespace Mirror.Weaver
         {
             MethodDefinition rpc = md.DeclaringType.AddMethod(
                 MethodProcessor.SkeletonPrefix + md.Name,
-                MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                WeaverTypes.Import(typeof(void)));
+                MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig);
 
             _ = rpc.AddParam<NetworkBehaviour>("obj");
             _ = rpc.AddParam<NetworkReader>("reader");

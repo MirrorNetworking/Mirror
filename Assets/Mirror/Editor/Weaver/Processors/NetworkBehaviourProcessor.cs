@@ -72,7 +72,7 @@ namespace Mirror.Weaver
         {
             if (!WasProcessed(td))
             {
-                MethodDefinition versionMethod = td.AddMethod(ProcessedFunctionName, MethodAttributes.Private, WeaverTypes.Import(typeof(void)));
+                MethodDefinition versionMethod = td.AddMethod(ProcessedFunctionName, MethodAttributes.Private);
                 ILProcessor worker = versionMethod.Body.GetILProcessor();
                 worker.Append(worker.Create(OpCodes.Ret));
             }
@@ -109,8 +109,7 @@ namespace Mirror.Weaver
                         MethodAttributes.HideBySig |
                         MethodAttributes.SpecialName |
                         MethodAttributes.RTSpecialName |
-                        MethodAttributes.Static,
-                        WeaverTypes.Import(typeof(void)));
+                        MethodAttributes.Static);
             }
 
             ILProcessor cctorWorker = cctor.Body.GetILProcessor();

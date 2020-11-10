@@ -160,8 +160,7 @@ namespace Mirror.Weaver
             MethodDefinition writerFunc = Weaver.WeaveLists.GeneratedCode().AddMethod(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
-                    MethodAttributes.HideBySig,
-                    WeaverTypes.Import(typeof(void)));
+                    MethodAttributes.HideBySig);
 
             _ = writerFunc.AddParam<NetworkWriter>("writer");
             _ = writerFunc.AddParam(Weaver.CurrentAssembly.MainModule.ImportReference(variable), "value");

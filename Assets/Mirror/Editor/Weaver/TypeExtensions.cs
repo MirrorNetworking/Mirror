@@ -95,5 +95,8 @@ namespace Mirror.Weaver
             typeDefinition.Methods.Add(method);
             return method;
         }
+
+        public static MethodDefinition AddMethod(this TypeDefinition typeDefinition, string name, MethodAttributes attributes) =>
+            AddMethod(typeDefinition, name, attributes, typeDefinition.Module.ImportReference(typeof(void)));
     }
 }

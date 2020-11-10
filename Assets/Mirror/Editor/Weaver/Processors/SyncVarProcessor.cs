@@ -119,8 +119,7 @@ namespace Mirror.Weaver
             //Create the set method
             MethodDefinition set = fd.DeclaringType.AddMethod("set_Network" + originalName, MethodAttributes.Public |
                     MethodAttributes.SpecialName |
-                    MethodAttributes.HideBySig,
-                    WeaverTypes.Import(typeof(void)));
+                    MethodAttributes.HideBySig);
             ParameterDefinition valueParam = set.AddParam(fd.FieldType, "value");
             set.SemanticsAttributes = MethodSemanticsAttributes.Setter;
 
@@ -583,8 +582,7 @@ namespace Mirror.Weaver
             }
 
             MethodDefinition serialize = netBehaviourSubclass.AddMethod(DeserializeMethodName,
-                    MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                    WeaverTypes.Import(typeof(void)));
+                    MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig);
 
             ParameterDefinition readerParam = serialize.AddParam<NetworkReader>("reader");
             ParameterDefinition initializeParam = serialize.AddParam<bool>("initialState");
