@@ -32,7 +32,7 @@ namespace Mirror
                 foreach (NetworkManager netManager in netManagers)
                 {
                     // NetworkBehaviour check.
-                    NetworkBehaviour[] checkForNetBehaviours = netManager.gameObject.GetComponents<NetworkBehaviour>();
+                    NetworkBehaviour[] checkForNetBehaviours = netManager.gameObject.GetComponentsInChildren<NetworkBehaviour>();
                     if (checkForNetBehaviours.Length > 0)
                     {
                         // Throw an error saying that this is not supported.
@@ -41,8 +41,8 @@ namespace Mirror
                     }
 
                     // NetworkIdentity check.
-                    NetworkIdentity checkForNetIdentity = netManager.gameObject.GetComponent<NetworkIdentity>();
-                    if (checkForNetIdentity != null)
+                    NetworkIdentity[] checkForNetIdentities = netManager.gameObject.GetComponentsInChildren<NetworkIdentity>();
+                    if (checkForNetIdentities.Length > 0)
                     {
                         // Throw an error saying this will cause problems. Mirror later checks to see if the NetworkManager has a NetworkIdentity, but this one pin-points the issue.
                         Debug.LogError("Detected a NetworkIdentity on the same GameObject as the NetworkManager. A NetworkIdentity should never be added to a " +
