@@ -50,7 +50,7 @@ Check out our [Documentation](https://mirror-networking.com/docs/) to learn how 
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/Articles/General/Migration.html).
 
 ## Made with Mirror
-![Population One](https://steamcdn-a.akamaihd.net/steam/apps/691260/header.jpg?t=1603846067)
+![Population: ONE](https://steamcdn-a.akamaihd.net/steam/apps/691260/header.jpg?t=1603846067)
 
 [Population: ONE](http://www.populationonevr.com/)
 
@@ -58,7 +58,10 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 
 [Zooba](https://wildlifestudios.com/games/zooba/)
 
-SCP: Secret Laboratory: https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/
+![SCP: Secret Laboratory](https://steamcdn-a.akamaihd.net/steam/apps/700330/header.jpg?t=1604668607)
+
+[SCP: Secret Laboratory](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/)
+
 Naïca Online: https://naicaonline.com/
 The Wall: https://store.steampowered.com/app/719200/The_Wall/
 
