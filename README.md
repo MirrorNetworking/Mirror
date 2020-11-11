@@ -62,7 +62,7 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 
 [SCP: Secret Laboratory](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/)
 
-![Naïca Online](https://i.imgur.com/Ov11zHs.png)
+![Naïca Online](https://i.imgur.com/VrBqvtz.png)
 [Naïca Online](https://naicaonline.com/)
 
 The Wall: https://store.steampowered.com/app/719200/The_Wall/
