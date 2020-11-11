@@ -18,29 +18,21 @@ namespace Mirror
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(MessagePacker));
 
-        public static int GetId<T>() where T : NetworkMessage
-        {
-            return GetId(typeof(T));
-        }
-
-        public static int GetId(Type type)
+        public static int GetId<T>() where T : struct, NetworkMessage
         {
             // paul: 16 bits is enough to avoid collisions
             //  - keeps the message size small because it gets varinted
             //  - in case of collisions,  Mirror will display an error
-            return type.FullName.GetStableHashCode() & 0xFFFF;
+            return typeof(T).FullName.GetStableHashCode() & 0xFFFF;
         }
 
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
         //    and do an allocation free send before recycling it.
-        public static void Pack<T>(T message, NetworkWriter writer) where T : NetworkMessage
+        public static void Pack<T>(T message, NetworkWriter writer)
+            where T : struct, NetworkMessage
         {
-            // if it is a value type,  just use typeof(T) to avoid boxing
-            // this works because value types cannot be derived
-            // if it is a reference type (for example NetworkMessage),
-            // ask the message for the real type
-            int msgType = GetId(default(T) != null ? typeof(T) : message.GetType());
+            int msgType = GetId<T>();
             writer.WriteUInt16((ushort)msgType);
 
             // serialize message into writer
@@ -48,7 +40,8 @@ namespace Mirror
         }
 
         // unpack a message we received
-        public static T Unpack<T>(byte[] data) where T : NetworkMessage
+        public static T Unpack<T>(byte[] data)
+            where T : struct, NetworkMessage
         {
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(data))
             {
@@ -82,7 +75,7 @@ namespace Mirror
         }
 
         internal static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
-            where T : NetworkMessage
+            where T : struct, NetworkMessage
             where C : NetworkConnection
             => (conn, reader, channelId) =>
         {

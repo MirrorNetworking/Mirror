@@ -37,45 +37,6 @@ namespace Mirror.Tests.MessageTests
         public double DoubleValue;
     }
 
-    class ClassWithoutBaseMessage : NetworkMessage
-    {
-        public int[] array;
-    }
-
-    abstract class AbstractMessage : NetworkMessage
-    {
-    }
-
-    class OverrideMessage : AbstractMessage
-    {
-        public int someValue;
-    }
-
-    class Layer1Message : NetworkMessage
-    {
-        public int value1;
-    }
-
-    class Layer2Message : Layer1Message
-    {
-        public int value2;
-    }
-    class Layer3Message : Layer2Message
-    {
-        public int value3;
-    }
-
-    class NullableObject
-    {
-        public int id = 3;
-    }
-
-    class NullableObjectMessage : NetworkMessage
-    {
-        public string name;
-        public NullableObject nullObj;
-    }
-
     [TestFixture]
     public class MessageBaseTests
     {
@@ -97,76 +58,6 @@ namespace Mirror.Tests.MessageTests
             Assert.AreEqual(1, t.IntValue);
             Assert.AreEqual("2", t.StringValue);
             Assert.AreEqual(3.3, t.DoubleValue);
-        }
-
-        [Test]
-        public void ClassWithEmptyMethods()
-        {
-            ClassWithoutBaseMessage intMessage = new ClassWithoutBaseMessage
-            {
-                array = new[] { 3, 4, 5 }
-            };
-
-            byte[] data = MessagePackerTest.PackToByteArray(intMessage);
-
-            ClassWithoutBaseMessage unpacked = MessagePacker.Unpack<ClassWithoutBaseMessage>(data);
-
-            Assert.That(unpacked.array, Is.EquivalentTo(new int[] { 3, 4, 5 }));
-        }
-
-        [Test]
-        public void AbstractBaseClassWorks()
-        {
-            const int value = 10;
-            OverrideMessage intMessage = new OverrideMessage
-            {
-                someValue = value
-            };
-
-            byte[] data = MessagePackerTest.PackToByteArray(intMessage);
-
-            OverrideMessage unpacked = MessagePacker.Unpack<OverrideMessage>(data);
-
-            Assert.That(unpacked.someValue, Is.EqualTo(value));
-        }
-
-        [Test]
-        public void MessageInheirtanceWorksWithMultipleLayers()
-        {
-            const int value1 = 10;
-            const int value2 = 13;
-            const int value3 = 15;
-            Layer3Message intMessage = new Layer3Message
-            {
-                value1 = value1,
-                value2 = value2,
-                value3 = value3
-            };
-
-            byte[] data = MessagePackerTest.PackToByteArray(intMessage);
-
-            Layer3Message unpacked = MessagePacker.Unpack<Layer3Message>(data);
-
-            Assert.That(unpacked.value1, Is.EqualTo(value1));
-            Assert.That(unpacked.value2, Is.EqualTo(value2));
-            Assert.That(unpacked.value3, Is.EqualTo(value3));
-        }
-
-        [Test]
-        public void NullObjectMessageTest()
-        {
-            NullableObjectMessage nullableObjectMessage = new NullableObjectMessage
-            {
-                name = "pepe",
-                nullObj = null
-            };
-
-            byte[] data = MessagePackerTest.PackToByteArray(nullableObjectMessage);
-
-            NullableObjectMessage unpacked = MessagePacker.Unpack<NullableObjectMessage>(data);
-
-            Assert.That(unpacked.name, Is.EqualTo("pepe"));
-            Assert.That(unpacked.nullObj, Is.Null);
         }
     }
 }

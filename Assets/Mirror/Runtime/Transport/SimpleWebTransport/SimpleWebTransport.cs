@@ -153,8 +153,8 @@ namespace Mirror.SimpleWeb
             client.onData += (ArraySegment<byte> data) => OnClientDataReceived.Invoke(data, Channels.DefaultReliable);
             client.onError += (Exception e) =>
             {
-                ClientDisconnect();
                 OnClientError.Invoke(e);
+                ClientDisconnect();
             };
 
             client.Connect(builder.Uri);
