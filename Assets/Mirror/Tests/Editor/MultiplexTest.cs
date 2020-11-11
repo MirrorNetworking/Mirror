@@ -2,7 +2,6 @@ using System;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Mirror.Tests
 {
@@ -137,8 +136,8 @@ namespace Mirror.Tests
         [Test]
         public void TestClient1Connected()
         {
-            UnityAction callback = Substitute.For<UnityAction>();
-            transport.ClientConnectedCallback.AddListener(callback);
+            OnClientConnect callback = Substitute.For<OnClientConnect>();
+            transport.ClientConnectedCallback = callback;
             transport1.ClientConnectedCallback.Invoke();
             callback.Received().Invoke();
         }
@@ -146,8 +145,8 @@ namespace Mirror.Tests
         [Test]
         public void TestClient2Connected()
         {
-            UnityAction callback = Substitute.For<UnityAction>();
-            transport.ClientConnectedCallback.AddListener(callback);
+            OnClientConnect callback = Substitute.For<OnClientConnect>();
+            transport.ClientConnectedCallback = callback;
             transport2.ClientConnectedCallback.Invoke();
             callback.Received().Invoke();
         }
@@ -169,9 +168,9 @@ namespace Mirror.Tests
                 transport.ServerSend(connectionId, 5, segment);
             }
 
-            transport.OnServerConnected.AddListener(SendMessage);
+            transport.ServerConnectedCallback = SendMessage;
 
-            transport1.OnServerConnected.Invoke(1);
+            transport1.ServerConnectedCallback.Invoke(1);
 
             transport1.Received().ServerSend(1, 5, segment);
         }

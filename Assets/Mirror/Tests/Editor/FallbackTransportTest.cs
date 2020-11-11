@@ -2,7 +2,6 @@ using System;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Mirror.Tests
 {
@@ -114,7 +113,7 @@ namespace Mirror.Tests
             transport1.Available().Returns(true);
             transport2.Available().Returns(true);
 
-            UnityAction callback = Substitute.For<UnityAction>();
+            OnClientConnect callback = Substitute.For<OnClientConnect>();
             transport.Awake();
             transport.ClientConnectedCallback = callback;
             transport1.ClientConnectedCallback.Invoke();
@@ -127,7 +126,7 @@ namespace Mirror.Tests
             transport1.Available().Returns(true);
             transport2.Available().Returns(true);
 
-            UnityAction callback = Substitute.For<UnityAction>();
+            OnClientConnect callback = Substitute.For<OnClientConnect>();
             transport.Awake();
             transport.ClientConnectedCallback = callback;
             transport2.ClientConnectedCallback.Invoke();
