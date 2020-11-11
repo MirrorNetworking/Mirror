@@ -209,6 +209,8 @@ namespace Mirror.Tests
             {
                 called++;
             };
+            // connect to give callback to inner
+            middleware.ClientConnect("localhost");
 
             inner.ClientConnectedCallback.Invoke();
             Assert.That(called, Is.EqualTo(1));
@@ -234,7 +236,8 @@ namespace Mirror.Tests
                 Assert.That(d.Offset, Is.EqualTo(segment.Offset));
                 Assert.That(d.Count, Is.EqualTo(segment.Count));
             };
-
+            // connect to give callback to inner
+            middleware.ClientConnect("localhost");
 
             inner.ClientDataReceivedCallback.Invoke(segment, channel);
             Assert.That(called, Is.EqualTo(1));
@@ -255,6 +258,8 @@ namespace Mirror.Tests
             {
                 called++;
             };
+            // connect to give callback to inner
+            middleware.ClientConnect("localhost");
 
             inner.ClientDisconnectedCallback.Invoke();
             Assert.That(called, Is.EqualTo(1));
@@ -274,6 +279,8 @@ namespace Mirror.Tests
                 called++;
                 Assert.That(e, Is.EqualTo(exception));
             };
+            // connect to give callback to inner
+            middleware.ClientConnect("localhost");
 
             inner.ClientErrorCallback.Invoke(exception);
             Assert.That(called, Is.EqualTo(1));
@@ -296,6 +303,8 @@ namespace Mirror.Tests
                 called++;
                 Assert.That(i, Is.EqualTo(id));
             };
+            // start to give callback to inner
+            middleware.ServerStart();
 
             inner.ServerConnectedCallback.Invoke(id);
             Assert.That(called, Is.EqualTo(1));
@@ -326,7 +335,8 @@ namespace Mirror.Tests
                 Assert.That(d.Offset, Is.EqualTo(segment.Offset));
                 Assert.That(d.Count, Is.EqualTo(segment.Count));
             };
-
+            // start to give callback to inner
+            middleware.ServerStart();
 
             inner.ServerDataReceivedCallback.Invoke(id, segment, channel);
             Assert.That(called, Is.EqualTo(1));
@@ -351,6 +361,8 @@ namespace Mirror.Tests
                 called++;
                 Assert.That(i, Is.EqualTo(id));
             };
+            // start to give callback to inner
+            middleware.ServerStart();
 
             inner.ServerDisconnectedCallback.Invoke(id);
             Assert.That(called, Is.EqualTo(1));
@@ -374,6 +386,8 @@ namespace Mirror.Tests
                 Assert.That(i, Is.EqualTo(id));
                 Assert.That(e, Is.EqualTo(exception));
             };
+            // start to give callback to inner
+            middleware.ServerStart();
 
             inner.ServerErrorCallback.Invoke(id, exception);
             Assert.That(called, Is.EqualTo(1));

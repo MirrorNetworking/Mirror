@@ -136,8 +136,15 @@ namespace Mirror.Tests
         [Test]
         public void TestClient1Connected()
         {
+            transport1.Available().Returns(true);
+            transport2.Available().Returns(true);
+
             OnClientConnect callback = Substitute.For<OnClientConnect>();
+            // find available
+            transport.Awake();
+            // set event and connect to give event to inner
             transport.ClientConnectedCallback = callback;
+            transport.ClientConnect("localhost");
             transport1.ClientConnectedCallback.Invoke();
             callback.Received().Invoke();
         }
@@ -145,8 +152,15 @@ namespace Mirror.Tests
         [Test]
         public void TestClient2Connected()
         {
+            transport1.Available().Returns(false);
+            transport2.Available().Returns(true);
+
             OnClientConnect callback = Substitute.For<OnClientConnect>();
+            // find available
+            transport.Awake();
+            // set event and connect to give event to inner
             transport.ClientConnectedCallback = callback;
+            transport.ClientConnect("localhost");
             transport2.ClientConnectedCallback.Invoke();
             callback.Received().Invoke();
         }
@@ -168,7 +182,9 @@ namespace Mirror.Tests
                 transport.ServerSend(connectionId, 5, segment);
             }
 
+            // set event and Start to give event to inner
             transport.ServerConnectedCallback = SendMessage;
+            transport.ServerStart();
 
             transport1.ServerConnectedCallback.Invoke(1);
 
