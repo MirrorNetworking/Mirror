@@ -50,7 +50,7 @@ Check out our [Documentation](https://mirror-networking.com/docs/) to learn how 
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/Articles/General/Migration.html).
 
 ## Popular Games made with Mirror
-![Population One](http://www.populationonevr.com/wp-content/uploads/elementor/thumbs/xpopulation_one_logo-of33mji96mkl06wc4k4iznjtz5mkolaq89pazkjfde.png.pagespeed.ic.L3MqRzT56P.png)
+![Population One](https://steamcdn-a.akamaihd.net/steam/apps/691260/header.jpg?t=1603846067)
 Population: ONE: http://www.populationonevr.com/
 
 Zooba: https://wildlifestudios.com/games/zooba/
