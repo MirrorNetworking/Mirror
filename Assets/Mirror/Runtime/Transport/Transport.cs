@@ -1,15 +1,17 @@
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Mirror
 {
-    // UnityEvent definitions
-    [Serializable] public class ClientDataReceivedEvent : UnityEvent<ArraySegment<byte>, int> { }
-    [Serializable] public class UnityEventException : UnityEvent<Exception> { }
-    [Serializable] public class UnityEventInt : UnityEvent<int> { }
-    [Serializable] public class ServerDataReceivedEvent : UnityEvent<int, ArraySegment<byte>, int> { }
-    [Serializable] public class UnityEventIntException : UnityEvent<int, Exception> { }
+    public delegate void OnClientConnect();
+    public delegate void OnClientDisconnect();
+    public delegate void OnClientData(ArraySegment<byte> data, int channel);
+    public delegate void OnClientError(Exception exception);
+
+    public delegate void OnServerConnect(int connId);
+    public delegate void OnServerDisconnect(int connId);
+    public delegate void OnServerData(int connId, ArraySegment<byte> data, int channel);
+    public delegate void OnServerError(int connId, Exception exception);
 
     /// <summary>
     /// Abstract transport layer component
@@ -37,23 +39,22 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when when this client establish a successful connection to the server
         /// </summary>
-        [HideInInspector] public UnityEvent OnClientConnected = new UnityEvent();
+        public OnClientConnect ClientConnectedCallback;
 
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// </summary>
-        // Note: we provide channelId for NetworkDiagnostics.
-        [HideInInspector] public ClientDataReceivedEvent OnClientDataReceived = new ClientDataReceivedEvent();
+        public OnClientData ClientDataReceivedCallback;
 
         /// <summary>
         /// Notify subscribers when this client encounters an error communicating with the server
         /// </summary>
-        [HideInInspector] public UnityEventException OnClientError = new UnityEventException();
+        public OnClientError ClientErrorCallback;
 
         /// <summary>
         /// Notify subscribers when this client disconnects from the server
         /// </summary>
-        [HideInInspector] public UnityEvent OnClientDisconnected = new UnityEvent();
+        public OnClientDisconnect ClientDisconnectedCallback;
 
         /// <summary>
         /// Determines if we are currently connected to the server
@@ -107,23 +108,22 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when a client connects to this server
         /// </summary>
-        [HideInInspector] public UnityEventInt OnServerConnected = new UnityEventInt();
+        public OnServerConnect ServerConnectedCallback;
 
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// </summary>
-        // Note: we provide channelId for NetworkDiagnostics.
-        [HideInInspector] public ServerDataReceivedEvent OnServerDataReceived = new ServerDataReceivedEvent();
+        public OnServerData ServerDataReceivedCallback;
 
         /// <summary>
         /// Notify subscribers when this server has some problem communicating with the client
         /// </summary>
-        [HideInInspector] public UnityEventIntException OnServerError = new UnityEventIntException();
+        public OnServerError ServerErrorCallback;
 
         /// <summary>
         /// Notify subscribers when a client disconnects from this server
         /// </summary>
-        [HideInInspector] public UnityEventInt OnServerDisconnected = new UnityEventInt();
+        public OnServerDisconnect ServerDisconnectedCallback;
 
         /// <summary>
         /// Determines if the server is up and running
