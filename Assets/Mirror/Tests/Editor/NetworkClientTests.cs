@@ -89,5 +89,42 @@ namespace Mirror.Tests
             // received it on server?
             Assert.That(called, Is.EqualTo(1));
         }
+
+        [Test]
+        public void ShutdownClearsEvents()
+        {
+            int called = 0;
+            NetworkClient.OnConnected += (c) => { called++; };
+
+            NetworkClient.Connect("localhost");
+            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+
+            Assert.That(called, Is.EqualTo(1));
+
+            // remove events
+            NetworkClient.Disconnect();
+            NetworkClient.Shutdown();
+
+            NetworkClient.Connect("localhost");
+            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+
+            Assert.That(called, Is.EqualTo(1), "Call count should still be 1");
+
+            // reset
+            NetworkClient.Disconnect();
+            NetworkClient.Shutdown();
+
+
+            // add event again
+            NetworkClient.OnConnected += (c) =>
+            {
+                called++;
+            };
+
+            NetworkClient.Connect("localhost");
+            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+
+            Assert.That(called, Is.EqualTo(2), "Call count should now be 2");
+        }
     }
 }

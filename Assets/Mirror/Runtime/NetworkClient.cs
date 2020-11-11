@@ -194,7 +194,7 @@ namespace Mirror
         /// <summary>
         /// Handles OnClientConnected from transport
         /// </summary>
-        static void OnConnectedInternal()
+        internal static void OnConnectedInternal()
         {
             if (connection != null)
             {
@@ -393,7 +393,11 @@ namespace Mirror
             // we do NOT call Transport.Shutdown, because someone only called
             // NetworkClient.Shutdown. we can't assume that the server is
             // supposed to be shut down too!
-            Transport.activeTransport.ClientDisconnect();
+            Transport.activeTransport?.ClientDisconnect();
+
+            // clear event listeners
+            OnConnected = null;
+            OnDisconnected = null;
         }
     }
 }

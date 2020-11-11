@@ -108,6 +108,9 @@ namespace Mirror
 
             CleanupNetworkIdentities();
             NetworkIdentity.ResetNextNetworkId();
+
+            OnConnected = null;
+            OnDisconnected = null;
         }
 
         static void CleanupNetworkIdentities()
@@ -437,7 +440,7 @@ namespace Mirror
                 conn.Disconnect();
                 // call OnDisconnected unless local player in host mode
                 if (conn.connectionId != NetworkConnection.LocalConnectionId)
-                    OnDisconnected(conn);
+                    OnDisconnectedInternal(conn);
             }
             connections.Clear();
         }
@@ -534,7 +537,7 @@ namespace Mirror
             {
                 // add connection
                 NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
-                OnConnected(conn);
+                OnConnectedInternal(conn);
             }
             else
             {
