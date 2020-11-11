@@ -85,6 +85,8 @@ Add the following to your PlayerScript.
 using Mirror;
 using UnityEngine;
 
+namespace QuickStart
+{
     public class PlayerScript : NetworkBehaviour
     {
         public override void OnStartLocalPlayer()
@@ -104,6 +106,7 @@ using UnityEngine;
             transform.Translate(0, 0, moveZ);
         }
     }
+}
 ```
 
 
@@ -144,6 +147,8 @@ Update your PlayerScript.cs with this:
 using Mirror;
 using UnityEngine;
 
+namespace QuickStart
+{
     public class PlayerScript : NetworkBehaviour
     {
         public TextMesh playerNameText;
@@ -207,6 +212,7 @@ using UnityEngine;
             transform.Translate(0, 0, moveZ);
         }
     }
+}
 ```
 
 
@@ -273,6 +279,9 @@ Add this code to SceneScript.cs
 using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
+
+namespace QuickStart
+{
     public class SceneScript : NetworkBehaviour
     {
         public Text canvasStatusText;
@@ -295,6 +304,7 @@ using UnityEngine.UI;
             }
         }
     }
+}
 ```
 
 
@@ -445,9 +455,14 @@ So our chosen workaround is to have our GameObject.Find() get the non-networked 
 Create a new script called SceneReference.cs, and add this one variable.
 
 ```cs
-public class SceneReference : MonoBehaviour
+using UnityEngine;
+
+namespace QuickStart
 {
-	public SceneScript sceneScript;
+    public class SceneReference : MonoBehaviour
+    {
+        public SceneScript sceneScript;
+    }
 }
 ```
 
@@ -522,11 +537,15 @@ Add the code to Menu.cs, then in the Button, drag the Menu gameobject into the O
 ```cs
 using UnityEngine;
 using UnityEngine.SceneManagement;
-public class Menu : MonoBehaviour
+
+namespace QuickStart
 {
-    public void LoadScene()
+    public class Menu : MonoBehaviour
     {
-        SceneManager.LoadScene("GamesList");
+        public void LoadScene()
+        {
+            SceneManager.LoadScene("GamesList");
+        }
     }
 }
 ```
@@ -546,11 +565,14 @@ Adjust a canvas button to say Menu (this is our back button). It should look lik
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GamesList : MonoBehaviour
+namespace QuickStart
 {
-    public void LoadScene()
+    public class GamesList : MonoBehaviour
     {
-        SceneManager.LoadScene("Menu");
+        public void LoadScene()
+        {
+            SceneManager.LoadScene("Menu");
+        }
     }
 }
 ```
@@ -592,15 +614,19 @@ Create a Weapon.cs script, add it to the Weapon1 and Weapon 2 gameObjects inside
 
 ```cs
 using UnityEngine;
-public class Weapon : MonoBehaviour
+
+namespace QuickStart
 {
-    public float weaponSpeed = 15.0f;
-    public float weaponLife = 3.0f;
-    public float weaponCooldown = 1.0f;
-    public int weaponAmmo = 15;
-    
-    public GameObject weaponBullet;
-    public Transform weaponFirePosition;
+    public class Weapon : MonoBehaviour
+    {
+        public float weaponSpeed = 15.0f;
+        public float weaponLife = 3.0f;
+        public float weaponCooldown = 1.0f;
+        public int weaponAmmo = 15;
+
+        public GameObject weaponBullet;
+        public Transform weaponFirePosition;
+    }
 }
 ```
 
