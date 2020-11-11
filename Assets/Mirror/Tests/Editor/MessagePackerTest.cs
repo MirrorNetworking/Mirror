@@ -6,7 +6,8 @@ namespace Mirror.Tests
     public class MessagePackerTest
     {
         // helper function to pack message into a simple byte[]
-        public static byte[] PackToByteArray<T>(T message) where T : NetworkMessage
+        public static byte[] PackToByteArray<T>(T message)
+            where T : struct, NetworkMessage
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
