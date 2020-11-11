@@ -54,7 +54,7 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 
 [Population: ONE](http://www.populationonevr.com/)
 
-![Zooba](https://i.imgur.com/OFl9sjX.png)
+![Zooba](https://i.imgur.com/4TY0XoY.png)
 
 [Zooba](https://wildlifestudios.com/games/zooba/)
 
