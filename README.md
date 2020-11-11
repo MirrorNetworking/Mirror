@@ -51,7 +51,8 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 
 ## Popular Games made with Mirror
 ![Population One](https://steamcdn-a.akamaihd.net/steam/apps/691260/header.jpg?t=1603846067)
-Population: ONE: http://www.populationonevr.com/
+
+[Population: ONE](http://www.populationonevr.com/)
 
 Zooba: https://wildlifestudios.com/games/zooba/
 SCP: Secret Laboratory: https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/
