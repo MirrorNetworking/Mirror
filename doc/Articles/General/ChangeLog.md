@@ -4,6 +4,13 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
+## Version 27.x.x -- In Progress
+- Fixed: Better presentation of Network Ping Display
+- Fixed: Middleware Transport now listens for inner events correctly
+- Fixed: Calling StartServer / StartClient more than once is now prevented
+- Changed: **Breaking** Force NetworkMessage to use structs in all cases - Classes no longer supported
+- Changed: **Breaking** Removed ReadPacked / WritePacked functions
+
 ## Version 26.2.2 -- 2020-Nov-20
 - Added: [KCP Transport](../Transports/KCPTransport.md)
 - Added: [Libuv2k Transport](../Transports/Libuv2k.md)
@@ -94,6 +101,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: Network Room Player template now includes base Network Behaviour overrides.
 - Added: Network Room Player now has a virtual hook for the index SyncVar, and the override is in the template.
 - Added: Experimental Network Transform with more control settings and features.
+- Added: [Network Ping Display](../Components/NetworkPingDisplay.md) component
 - Fixed: Network Room Manager.minPlayers is now protected so it's available for derived classes.
 - Fixed: Network Room Manager no longer does redundant player prefab registration in `OnStartClient`.
 - Fixed: Network Room Player `OnClientEnterRoom` now correctly only fires on clients.
