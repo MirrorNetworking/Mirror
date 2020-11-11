@@ -85,8 +85,6 @@ Add the following to your PlayerScript.
 using Mirror;
 using UnityEngine;
 
-namespace QuickStart
-{
     public class PlayerScript : NetworkBehaviour
     {
         public override void OnStartLocalPlayer()
@@ -106,7 +104,6 @@ namespace QuickStart
             transform.Translate(0, 0, moveZ);
         }
     }
-}
 ```
 
 
@@ -147,8 +144,6 @@ Update your PlayerScript.cs with this:
 using Mirror;
 using UnityEngine;
 
-namespace QuickStart
-{
     public class PlayerScript : NetworkBehaviour
     {
         public TextMesh playerNameText;
@@ -212,7 +207,6 @@ namespace QuickStart
             transform.Translate(0, 0, moveZ);
         }
     }
-}
 ```
 
 
@@ -279,9 +273,6 @@ Add this code to SceneScript.cs
 using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
-
-namespace QuickStart
-{
     public class SceneScript : NetworkBehaviour
     {
         public Text canvasStatusText;
@@ -304,7 +295,6 @@ namespace QuickStart
             }
         }
     }
-}
 ```
 
 
