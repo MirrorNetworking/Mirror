@@ -181,21 +181,21 @@ namespace Mirror
             if (networkError != NetworkError.Ok)
             {
                 string message = "NetworkTransport.Receive failed: hostid=" + clientId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError;
-                OnClientError.Invoke(new Exception(message));
+                ClientErrorCallback.Invoke(new Exception(message));
             }
 
             // raise events
             switch (networkEvent)
             {
                 case NetworkEventType.ConnectEvent:
-                    OnClientConnected.Invoke();
+                    ClientConnectedCallback.Invoke();
                     break;
                 case NetworkEventType.DataEvent:
                     ArraySegment<byte> data = new ArraySegment<byte>(clientReceiveBuffer, 0, receivedSize);
-                    OnClientDataReceived.Invoke(data, channel);
+                    ClientDataReceivedCallback.Invoke(data, channel);
                     break;
                 case NetworkEventType.DisconnectEvent:
-                    OnClientDisconnected.Invoke();
+                    ClientDisconnectedCallback.Invoke();
                     break;
                 default:
                     return false;
@@ -290,7 +290,7 @@ namespace Mirror
                 string message = "NetworkTransport.Receive failed: hostid=" + serverHostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError;
 
                 // TODO write a TransportException or better
-                OnServerError.Invoke(connectionId, new Exception(message));
+                ServerErrorCallback.Invoke(connectionId, new Exception(message));
             }
 
             // LLAPI client sends keep alive messages (75-6C-6C) on channel=110.
@@ -303,14 +303,14 @@ namespace Mirror
             switch (networkEvent)
             {
                 case NetworkEventType.ConnectEvent:
-                    OnServerConnected.Invoke(connectionId);
+                    ServerConnectedCallback.Invoke(connectionId);
                     break;
                 case NetworkEventType.DataEvent:
                     ArraySegment<byte> data = new ArraySegment<byte>(serverReceiveBuffer, 0, receivedSize);
-                    OnServerDataReceived.Invoke(connectionId, data, channel);
+                    ServerDataReceivedCallback.Invoke(connectionId, data, channel);
                     break;
                 case NetworkEventType.DisconnectEvent:
-                    OnServerDisconnected.Invoke(connectionId);
+                    ServerDisconnectedCallback.Invoke(connectionId);
                     break;
                 default:
                     // nothing or a message we don't recognize

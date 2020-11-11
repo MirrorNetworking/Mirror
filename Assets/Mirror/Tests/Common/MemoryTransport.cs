@@ -1,4 +1,4 @@
-﻿// memory transport for easier testing
+// memory transport for easier testing
 // note: file needs to be outside of Editor folder, otherwise AddComponent
 //       can't be called with MemoryTransport
 using System;
@@ -91,15 +91,15 @@ namespace Mirror.Tests
                 {
                     case EventType.Connected:
                         Debug.Log("MemoryTransport Client Message: Connected");
-                        OnClientConnected.Invoke();
+                        ClientConnectedCallback.Invoke();
                         break;
                     case EventType.Data:
                         Debug.Log("MemoryTransport Client Message: Data: " + BitConverter.ToString(message.data));
-                        OnClientDataReceived.Invoke(new ArraySegment<byte>(message.data), 0);
+                        ClientDataReceivedCallback.Invoke(new ArraySegment<byte>(message.data), 0);
                         break;
                     case EventType.Disconnected:
                         Debug.Log("MemoryTransport Client Message: Disconnected");
-                        OnClientDisconnected.Invoke();
+                        ClientDisconnectedCallback.Invoke();
                         break;
                 }
             }
@@ -167,15 +167,15 @@ namespace Mirror.Tests
                 {
                     case EventType.Connected:
                         Debug.Log("MemoryTransport Server Message: Connected");
-                        OnServerConnected.Invoke(message.connectionId);
+                        ServerConnectedCallback.Invoke(message.connectionId);
                         break;
                     case EventType.Data:
                         Debug.Log("MemoryTransport Server Message: Data: " + BitConverter.ToString(message.data));
-                        OnServerDataReceived.Invoke(message.connectionId, new ArraySegment<byte>(message.data), 0);
+                        ServerDataReceivedCallback.Invoke(message.connectionId, new ArraySegment<byte>(message.data), 0);
                         break;
                     case EventType.Disconnected:
                         Debug.Log("MemoryTransport Server Message: Disconnected");
-                        OnServerDisconnected.Invoke(message.connectionId);
+                        ServerDisconnectedCallback.Invoke(message.connectionId);
                         break;
                 }
             }

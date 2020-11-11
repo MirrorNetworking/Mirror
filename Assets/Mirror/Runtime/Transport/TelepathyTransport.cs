@@ -88,18 +88,18 @@ namespace Mirror
                 switch (message.eventType)
                 {
                     case Telepathy.EventType.Connected:
-                        OnClientConnected.Invoke();
+                        ClientConnectedCallback.Invoke();
                         break;
                     case Telepathy.EventType.Data:
-                        OnClientDataReceived.Invoke(new ArraySegment<byte>(message.data), Channels.DefaultReliable);
+                        ClientDataReceivedCallback.Invoke(new ArraySegment<byte>(message.data), Channels.DefaultReliable);
                         break;
                     case Telepathy.EventType.Disconnected:
-                        OnClientDisconnected.Invoke();
+                        ClientDisconnectedCallback.Invoke();
                         break;
                     default:
                         // TODO:  Telepathy does not report errors at all
                         // it just disconnects,  should be fixed
-                        OnClientDisconnected.Invoke();
+                        ClientDisconnectedCallback.Invoke();
                         break;
                 }
                 return true;
@@ -185,17 +185,17 @@ namespace Mirror
                 switch (message.eventType)
                 {
                     case Telepathy.EventType.Connected:
-                        OnServerConnected.Invoke(message.connectionId);
+                        ServerConnectedCallback.Invoke(message.connectionId);
                         break;
                     case Telepathy.EventType.Data:
-                        OnServerDataReceived.Invoke(message.connectionId, new ArraySegment<byte>(message.data), Channels.DefaultReliable);
+                        ServerDataReceivedCallback.Invoke(message.connectionId, new ArraySegment<byte>(message.data), Channels.DefaultReliable);
                         break;
                     case Telepathy.EventType.Disconnected:
-                        OnServerDisconnected.Invoke(message.connectionId);
+                        ServerDisconnectedCallback.Invoke(message.connectionId);
                         break;
                     default:
                         // TODO handle errors from Telepathy when telepathy can report errors
-                        OnServerDisconnected.Invoke(message.connectionId);
+                        ServerDisconnectedCallback.Invoke(message.connectionId);
                         break;
                 }
                 return true;

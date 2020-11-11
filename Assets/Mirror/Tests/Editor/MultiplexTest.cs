@@ -138,8 +138,8 @@ namespace Mirror.Tests
         public void TestClient1Connected()
         {
             UnityAction callback = Substitute.For<UnityAction>();
-            transport.OnClientConnected.AddListener(callback);
-            transport1.OnClientConnected.Invoke();
+            transport.ClientConnectedCallback.AddListener(callback);
+            transport1.ClientConnectedCallback.Invoke();
             callback.Received().Invoke();
         }
 
@@ -147,8 +147,8 @@ namespace Mirror.Tests
         public void TestClient2Connected()
         {
             UnityAction callback = Substitute.For<UnityAction>();
-            transport.OnClientConnected.AddListener(callback);
-            transport2.OnClientConnected.Invoke();
+            transport.ClientConnectedCallback.AddListener(callback);
+            transport2.ClientConnectedCallback.Invoke();
             callback.Received().Invoke();
         }
 
