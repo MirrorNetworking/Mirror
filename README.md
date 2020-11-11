@@ -49,12 +49,14 @@ Check out our [Documentation](https://mirror-networking.com/docs/) to learn how 
 
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/Articles/General/Migration.html).
 
-## Popular games made with Mirror
-* Population: ONE: http://www.populationonevr.com/
-* Zooba: https://wildlifestudios.com/games/zooba/
-* SCP: Secret Laboratory: https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/
-* Naïca Online: https://naicaonline.com/
-* The Wall: https://store.steampowered.com/app/719200/The_Wall/
+## Popular Games made with Mirror
+![Population One](http://www.populationonevr.com/wp-content/uploads/elementor/thumbs/xpopulation_one_logo-of33mji96mkl06wc4k4iznjtz5mkolaq89pazkjfde.png.pagespeed.ic.L3MqRzT56P.png)
+Population: ONE: http://www.populationonevr.com/
+
+Zooba: https://wildlifestudios.com/games/zooba/
+SCP: Secret Laboratory: https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/
+Naïca Online: https://naicaonline.com/
+The Wall: https://store.steampowered.com/app/719200/The_Wall/
 
 ## Funding
 Mirror is free & open source software funded by Donations. If you love it, please consider supporting [Mirror on GitHub](https://github.com/sponsors/vis2k). As reward, you'll receive our [Network Profiler](https://mirror-networking.com/docs/Articles/Guides/Profiler.html?q=Profiler), priority support and more :)
