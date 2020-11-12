@@ -34,7 +34,7 @@ namespace Mirror
             if (!showPing) { return; }
             if (showRoundTripTime) { rttMultiplier = 1; } else { rttMultiplier = 2; }
 
-            string text = string.Format(format, (int)((NetworkTime.rtt / rttMultiplyer) * 1000));
+            string text = string.Format(format, (int)((NetworkTime.rtt / rttMultiplier) * 1000));
 
             // leave here or create special method to update fontSize and textColor
             style.fontSize = fontSize;
