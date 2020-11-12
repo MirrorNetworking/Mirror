@@ -139,7 +139,7 @@ namespace Mirror.Tests
             transport1.Available().Returns(true);
             transport2.Available().Returns(true);
 
-            OnClientConnect callback = Substitute.For<OnClientConnect>();
+            Action callback = Substitute.For<Action>();
             // find available
             transport.Awake();
             // set event and connect to give event to inner
@@ -155,7 +155,7 @@ namespace Mirror.Tests
             transport1.Available().Returns(false);
             transport2.Available().Returns(true);
 
-            OnClientConnect callback = Substitute.For<OnClientConnect>();
+            Action callback = Substitute.For<Action>();
             // find available
             transport.Awake();
             // set event and connect to give event to inner

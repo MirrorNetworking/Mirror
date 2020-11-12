@@ -3,16 +3,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public delegate void OnClientConnect();
-    public delegate void OnClientDisconnect();
-    public delegate void OnClientData(ArraySegment<byte> data, int channel);
-    public delegate void OnClientError(Exception exception);
-
-    public delegate void OnServerConnect(int connId);
-    public delegate void OnServerDisconnect(int connId);
-    public delegate void OnServerData(int connId, ArraySegment<byte> data, int channel);
-    public delegate void OnServerError(int connId, Exception exception);
-
     /// <summary>
     /// Abstract transport layer component
     /// </summary>
@@ -39,22 +29,22 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when when this client establish a successful connection to the server
         /// </summary>
-        public OnClientConnect ClientConnectedCallback;
+        public Action ClientConnectedCallback;
 
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// </summary>
-        public OnClientData ClientDataReceivedCallback;
+        public Action<ArraySegment<byte>, int> ClientDataReceivedCallback;
 
         /// <summary>
         /// Notify subscribers when this client encounters an error communicating with the server
         /// </summary>
-        public OnClientError ClientErrorCallback;
+        public Action<Exception> ClientErrorCallback;
 
         /// <summary>
         /// Notify subscribers when this client disconnects from the server
         /// </summary>
-        public OnClientDisconnect ClientDisconnectedCallback;
+        public Action ClientDisconnectedCallback;
 
         /// <summary>
         /// Determines if we are currently connected to the server
@@ -108,22 +98,22 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when a client connects to this server
         /// </summary>
-        public OnServerConnect ServerConnectedCallback;
+        public Action<int> ServerConnectedCallback;
 
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// </summary>
-        public OnServerData ServerDataReceivedCallback;
+        public Action<int, ArraySegment<byte>, int> ServerDataReceivedCallback;
 
         /// <summary>
         /// Notify subscribers when this server has some problem communicating with the client
         /// </summary>
-        public OnServerError ServerErrorCallback;
+        public Action<int, Exception> ServerErrorCallback;
 
         /// <summary>
         /// Notify subscribers when a client disconnects from this server
         /// </summary>
-        public OnServerDisconnect ServerDisconnectedCallback;
+        public Action<int> ServerDisconnectedCallback;
 
         /// <summary>
         /// Determines if the server is up and running
