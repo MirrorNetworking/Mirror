@@ -32,7 +32,7 @@ namespace Mirror
         void OnGUI()
         {
             if (!showPing) { return; }
-            if (!showRoundTripTime) { rttMultiplyer = 2; } else { rttMultiplyer = 2; }
+            if (showRoundTripTime) { rttMultiplyer = 1; } else { rttMultiplyer = 2; }
 
             string text = string.Format(format, (int)((NetworkTime.rtt / rttMultiplyer) * 1000));
 
