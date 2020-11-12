@@ -11,6 +11,9 @@ namespace Mirror
     public class NetworkPingDisplay : MonoBehaviour
     {
         public bool showPing = true;
+        [Tooltip("True shows the round trip time, from origin to destination, then back agian. Set to false for time to server only.")]
+        public bool showRoundTripTime = true;
+        private int rttMultiplyer = 1;
         public Vector2 position = new Vector2(200, 0);
         public int fontSize = 24;
         public Color textColor = new Color32(255, 255, 255, 80);
@@ -29,8 +32,9 @@ namespace Mirror
         void OnGUI()
         {
             if (!showPing) { return; }
+            if (!showRoundTripTime) { rttMultiplyer = 2; } else { rttMultiplyer = 2; }
 
-            string text = string.Format(format, (int)(NetworkTime.rtt * 1000));
+            string text = string.Format(format, (int)((NetworkTime.rtt / rttMultiplyer) * 1000));
 
             // leave here or create special method to update fontSize and textColor
             style.fontSize = fontSize;
