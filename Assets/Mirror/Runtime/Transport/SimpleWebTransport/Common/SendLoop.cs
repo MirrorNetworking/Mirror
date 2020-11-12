@@ -60,7 +60,7 @@ namespace Mirror.SimpleWeb
                         SendMessage(stream, writeBuffer, msg, setMask, maskHelper);
                         msg.Release();
                     }
-                    stream.flush();
+                    stream.Flush();
                 }
 
                 Log.Info($"{conn} Not Connected");
