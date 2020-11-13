@@ -1210,5 +1210,28 @@ namespace Mirror.Tests
             // clean up
             NetworkServer.Shutdown();
         }
+
+        // updating NetworkServer with a null entry in NetworkIdentity.spawned
+        // should log a warning.
+        // => need extra test because of Unity's custom null check
+        [Test]
+        public void UpdateDetectsDestroyedEntryInSpawned()
+        {
+            // start
+            NetworkServer.Listen(1);
+
+            // add destroyed
+            GameObject go = new GameObject();
+            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            NetworkIdentity.spawned[42] = ni;
+            GameObject.DestroyImmediate(go);
+
+            // update
+            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned list.*"));
+            NetworkServer.Update();
+
+            // clean up
+            NetworkServer.Shutdown();
+        }
     }
 }
