@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 namespace Mirror
 {
@@ -8,9 +7,8 @@ namespace Mirror
     /// </summary>
     public class PooledNetworkReader : NetworkReader, IDisposable
     {
-        internal PooledNetworkReader(byte[] bytes) : base(bytes) { }
-
-        internal PooledNetworkReader(ArraySegment<byte> segment) : base(segment) { }
+        internal PooledNetworkReader(byte[] bytes) : base(bytes) {}
+        internal PooledNetworkReader(ArraySegment<byte> segment) : base(segment) {}
 
         public void Dispose()
         {
@@ -25,42 +23,13 @@ namespace Mirror
     /// </summary>
     public static class NetworkReaderPool
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkReaderPool), LogType.Error);
-
-        /// <summary>
-        /// Size of the pool
-        /// <para>If pool is too small getting readers will causes memory allocation</para>
-        /// <para>Default value: 100</para>
-        /// </summary>
-        public static int Capacity
-        {
-            get => pool.Length;
-            set
-            {
-                // resize the array
-                Array.Resize(ref pool, value);
-
-                // if capacity is smaller than before, then we need to adjust
-                // 'next' so it doesn't point to an index out of range
-                // -> if we set '0' then next = min(_, 0-1) => -1
-                // -> if we set '2' then next = min(_, 2-1) =>  1
-                next = Mathf.Min(next, pool.Length - 1);
-            }
-        }
-
-        /// <summary>
-        /// Mirror usually only uses up to 4 readers in nested usings,
-        /// 100 is a good margin for edge cases when users need a lot readers at
-        /// the same time.
-        ///
-        /// <para>keep in mind, most entries of the pool will be null in most cases</para>
-        /// </summary>
-        ///
-        /// Note: we use an Array instead of a Stack because it's significantly
-        ///       faster: https://github.com/vis2k/Mirror/issues/1614
-        static PooledNetworkReader[] pool = new PooledNetworkReader[100];
-
-        static int next = -1;
+        // reuse Pool<T>
+        // we still wrap it in NetworkReaderPool.Get/Recyle so we can reset the
+        // position and array before reusing.
+        static readonly Pool<PooledNetworkReader> pool = new Pool<PooledNetworkReader>(
+            // byte[] will be assigned in GetReader
+            () => new PooledNetworkReader(new byte[]{})
+        );
 
         /// <summary>
         /// Get the next reader in the pool
@@ -68,17 +37,10 @@ namespace Mirror
         /// </summary>
         public static PooledNetworkReader GetReader(byte[] bytes)
         {
-            if (next == -1)
-            {
-                return new PooledNetworkReader(bytes);
-            }
-
-            PooledNetworkReader reader = pool[next];
-            pool[next] = null;
-            next--;
-
-            // reset buffer
-            SetBuffer(reader, bytes);
+            // grab from from pool & set buffer
+            PooledNetworkReader reader = pool.Take();
+            reader.buffer = new ArraySegment<byte>(bytes);
+            reader.Position = 0;
             return reader;
         }
 
@@ -88,17 +50,10 @@ namespace Mirror
         /// </summary>
         public static PooledNetworkReader GetReader(ArraySegment<byte> segment)
         {
-            if (next == -1)
-            {
-                return new PooledNetworkReader(segment);
-            }
-
-            PooledNetworkReader reader = pool[next];
-            pool[next] = null;
-            next--;
-
-            // reset buffer
-            SetBuffer(reader, segment);
+            // grab from from pool & set buffer
+            PooledNetworkReader reader = pool.Take();
+            reader.buffer = segment;
+            reader.Position = 0;
             return reader;
         }
 
@@ -108,28 +63,7 @@ namespace Mirror
         /// </summary>
         public static void Recycle(PooledNetworkReader reader)
         {
-            if (next < pool.Length - 1)
-            {
-                next++;
-                pool[next] = reader;
-            }
-            else
-            {
-                logger.LogWarning("NetworkReaderPool.Recycle, Pool was full leaving extra reader for GC");
-            }
-        }
-
-        // SetBuffer methods mirror constructor for ReaderPool
-        static void SetBuffer(NetworkReader reader, byte[] bytes)
-        {
-            reader.buffer = new ArraySegment<byte>(bytes);
-            reader.Position = 0;
-        }
-
-        static void SetBuffer(NetworkReader reader, ArraySegment<byte> segment)
-        {
-            reader.buffer = segment;
-            reader.Position = 0;
+            pool.Return(reader);
         }
     }
 }
