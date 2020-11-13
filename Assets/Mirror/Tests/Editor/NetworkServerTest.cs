@@ -1195,7 +1195,7 @@ namespace Mirror.Tests
         // updating NetworkServer with a null entry in NetworkIdentity.spawned
         // should log a warning.
         [Test]
-        public void UpdateWithNullEntryInSpawned()
+        public void UpdateDetectsNullEntryInSpawned()
         {
             // start
             NetworkServer.Listen(1);
