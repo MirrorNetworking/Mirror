@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Mirror.RemoteCalls;
 using NUnit.Framework;
 using UnityEngine;
@@ -1189,6 +1190,25 @@ namespace Mirror.Tests
 
             NetworkServer.connections.Clear();
             NetworkServer.RemoveLocalConnection();
+        }
+
+        // updating NetworkServer with a null entry in NetworkIdentity.spawned
+        // should log a warning.
+        [Test]
+        public void UpdateWithNullEntryInSpawned()
+        {
+            // start
+            NetworkServer.Listen(1);
+
+            // add null
+            NetworkIdentity.spawned[42] = null;
+
+            // update
+            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned list.*"));
+            NetworkServer.Update();
+
+            // clean up
+            NetworkServer.Shutdown();
         }
     }
 }
