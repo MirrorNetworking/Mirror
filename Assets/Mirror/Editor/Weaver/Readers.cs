@@ -109,7 +109,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            return GenerateClassOrStructReadFunction(typeReference);
+            return GenerateClassOrStructReadFunction(module, typeReference);
         }
 
         static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
@@ -119,7 +119,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateEnumReadFunc(ModuleDefinition module, TypeReference variable)
         {
-            MethodDefinition readerFunc = GenerateReaderFunction(variable);
+            MethodDefinition readerFunc = GenerateReaderFunction(module, variable);
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
@@ -138,7 +138,7 @@ namespace Mirror.Weaver
             var genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
 
-            MethodDefinition readerFunc = GenerateReaderFunction(variable);
+            MethodDefinition readerFunc = GenerateReaderFunction(module, variable);
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
@@ -154,12 +154,12 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        private static MethodDefinition GenerateReaderFunction(TypeReference variable)
+        private static MethodDefinition GenerateReaderFunction(ModuleDefinition module, TypeReference variable)
         {
             string functionName = "_Read_" + variable.FullName;
 
             // create new reader for this type
-            MethodDefinition readerFunc = Weaver.CurrentAssembly.MainModule.GeneratedClass().AddMethod(functionName,
+            MethodDefinition readerFunc = module.GeneratedClass().AddMethod(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
@@ -174,7 +174,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateReadCollection(ModuleDefinition module, TypeReference variable, TypeReference elementType, Expression<Action> readerFunction)
         {
-            MethodDefinition readerFunc = GenerateReaderFunction(variable);
+            MethodDefinition readerFunc = GenerateReaderFunction(module, variable);
             // generate readers for the element
             module.GetReadFunc(elementType);
 
@@ -195,9 +195,9 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateClassOrStructReadFunction(TypeReference type)
+        static MethodDefinition GenerateClassOrStructReadFunction(ModuleDefinition module, TypeReference type)
         {
-            MethodDefinition readerFunc = GenerateReaderFunction(type);
+            MethodDefinition readerFunc = GenerateReaderFunction(module, type);
 
             // create local for return value
             VariableDefinition variable = readerFunc.AddLocal(type);
