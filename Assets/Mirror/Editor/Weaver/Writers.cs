@@ -102,12 +102,12 @@ namespace Mirror.Weaver
             }
 
             // check for invalid types
-            TypeDefinition variableDefinition = typeReference.Resolve();
-            if (variableDefinition == null)
+            TypeDefinition typeDefinition = typeReference.Resolve();
+            if (typeDefinition == null)
             {
                 throw new GenerateWriterException($"{typeReference.Name} is not a supported type. Use a supported type or provide a custom writer", typeReference);
             }
-            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
+            if (typeDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
                 throw new GenerateWriterException($"Cannot generate writer for component type {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
@@ -123,15 +123,15 @@ namespace Mirror.Weaver
             {
                 throw new GenerateWriterException($"Cannot generate writer for {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
-            if (variableDefinition.HasGenericParameters)
+            if (typeDefinition.HasGenericParameters)
             {
                 throw new GenerateWriterException($"Cannot generate writer for generic type {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
-            if (variableDefinition.IsInterface)
+            if (typeDefinition.IsInterface)
             {
                 throw new GenerateWriterException($"Cannot generate writer for interface {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
-            if (variableDefinition.IsAbstract)
+            if (typeDefinition.IsAbstract)
             {
                 throw new GenerateWriterException($"Cannot generate writer for abstract class {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
