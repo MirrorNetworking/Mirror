@@ -67,7 +67,7 @@ namespace Mirror.Weaver
             {
                 return GenerateEnumReadFunc(module, typeReference);
             }
-            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
+            if (variableDefinition.IsDerivedFrom<Component>())
             {
                 Weaver.Error($"Cannot generate reader for component type {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
@@ -77,12 +77,12 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
-            if (typeReference.Is<UnityEngine.ScriptableObject>())
+            if (typeReference.Is<ScriptableObject>())
             {
                 Weaver.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
-            if (typeReference.Is<UnityEngine.GameObject>())
+            if (typeReference.Is<GameObject>())
             {
                 Weaver.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
