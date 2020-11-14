@@ -31,6 +31,12 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void CreatesForTypeThatUsesDifferentAssemblies()
+        {
+            IsSuccess();
+        }
+
+        [Test]
         public void CreatesForClassFromDifferentAssembliesWithValidConstructor()
         {
             IsSuccess();

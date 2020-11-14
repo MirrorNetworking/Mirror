@@ -68,6 +68,7 @@
     <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForClassFromDifferentAssembliesWithValidConstructor.cs" />
     <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForComplexTypeFromDifferentAssemblies.cs" />
     <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForStructFromDifferentAssemblies.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForTypeThatUsesDifferentAssemblies.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CanUseCustomReadWriteForAbstractClass.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CanUseCustomReadWriteForInterfaces.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForArraySegment.cs" />
