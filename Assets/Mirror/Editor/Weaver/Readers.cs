@@ -170,7 +170,7 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    Weaver.CurrentAssembly.MainModule.ImportReference(variable));
+                    variable);
 
             readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
             readerFunc.Body.InitLocals = true;
@@ -209,7 +209,7 @@ namespace Mirror.Weaver
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
             // create local for return value
-            readerFunc.Body.Variables.Add(new VariableDefinition(Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
+            readerFunc.Body.Variables.Add(new VariableDefinition(variable));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
@@ -218,7 +218,7 @@ namespace Mirror.Weaver
             if (!td.IsValueType)
                 GenerateNullCheck(worker);
 
-            CreateNew(Weaver.CurrentAssembly.MainModule.ImportReference(variable), worker, td);
+            CreateNew(variable, worker, td);
             ReadAllFields(variable, worker);
 
             worker.Append(worker.Create(OpCodes.Ldloc_0));
