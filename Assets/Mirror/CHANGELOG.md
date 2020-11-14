@@ -1,3 +1,11 @@
+## [59.0.5](https://github.com/MirrorNG/MirrorNG/compare/v59.0.4...v59.0.5) (2020-11-14)
+
+
+### Bug Fixes
+
+* generate reader for types in other assemblies ([b685226](https://github.com/MirrorNG/MirrorNG/commit/b685226bbc9442d5901d4968492b63dc852e2704))
+* generate writer for types in other assemblies ([8385c29](https://github.com/MirrorNG/MirrorNG/commit/8385c29c23a2b702e2c0d7f156a803d57efc0f5d))
+
 ## [59.0.4](https://github.com/MirrorNG/MirrorNG/compare/v59.0.3...v59.0.4) (2020-11-14)
 
 
