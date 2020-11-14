@@ -31,12 +31,12 @@ namespace Mirror.Weaver
         /// Finds existing writer for type, if non exists trys to create one
         /// <para>This method is recursive</para>
         /// </summary>
-        /// <param name="variable"></param>
+        /// <param name="typeReference"></param>
         /// <param name="recursionCount"></param>
         /// <returns>Returns <see cref="MethodReference"/> or null</returns>
-        public static MethodReference GetWriteFunc(TypeReference variable)
+        public static MethodReference GetWriteFunc(TypeReference typeReference)
         {
-            if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
+            if (writeFuncs.TryGetValue(typeReference.FullName, out MethodReference foundFunc))
             {
                 return foundFunc;
             }
@@ -45,7 +45,7 @@ namespace Mirror.Weaver
                 // this try/catch will be removed in future PR and make `GetWriteFunc` throw instead
                 try
                 {
-                    return GenerateWriter(variable);
+                    return GenerateWriter(typeReference);
                 }
                 catch (GenerateWriterException e)
                 {
@@ -56,85 +56,85 @@ namespace Mirror.Weaver
         }
 
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
-        static MethodDefinition GenerateWriter(TypeReference variableReference)
+        static MethodDefinition GenerateWriter(TypeReference typeReference)
         {
-            if (variableReference.IsByReference)
+            if (typeReference.IsByReference)
             {
-                throw new GenerateWriterException($"Cannot pass {variableReference.Name} by reference", variableReference);
+                throw new GenerateWriterException($"Cannot pass {typeReference.Name} by reference", typeReference);
             }
 
             // Arrays are special, if we resolve them, we get the element type,
             // eg int[] resolves to int
             // therefore process this before checks below
-            if (variableReference.IsArray)
+            if (typeReference.IsArray)
             {
-                if (variableReference.IsMultidimensionalArray())
+                if (typeReference.IsMultidimensionalArray())
                 {
-                    throw new GenerateWriterException($"{variableReference.Name} is an unsupported type. Multidimensional arrays are not supported", variableReference);
+                    throw new GenerateWriterException($"{typeReference.Name} is an unsupported type. Multidimensional arrays are not supported", typeReference);
                 }
-                TypeReference elementType = variableReference.GetElementType();
-                return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteArray));
+                TypeReference elementType = typeReference.GetElementType();
+                return GenerateCollectionWriter(typeReference, elementType, nameof(NetworkWriterExtensions.WriteArray));
             }
 
-            if (variableReference.Resolve()?.IsEnum ?? false)
+            if (typeReference.Resolve()?.IsEnum ?? false)
             {
                 // serialize enum as their base type
-                return GenerateEnumWriteFunc(variableReference);
+                return GenerateEnumWriteFunc(typeReference);
             }
 
             // check for collections
-            if (variableReference.Is(typeof(ArraySegment<>)))
+            if (typeReference.Is(typeof(ArraySegment<>)))
             {
-                var genericInstance = (GenericInstanceType)variableReference;
+                var genericInstance = (GenericInstanceType)typeReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
-                return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteArraySegment));
+                return GenerateCollectionWriter(typeReference, elementType, nameof(NetworkWriterExtensions.WriteArraySegment));
             }
-            if (variableReference.Is(typeof(List<>)))
+            if (typeReference.Is(typeof(List<>)))
             {
-                var genericInstance = (GenericInstanceType)variableReference;
+                var genericInstance = (GenericInstanceType)typeReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
-                return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteList));
+                return GenerateCollectionWriter(typeReference, elementType, nameof(NetworkWriterExtensions.WriteList));
             }
 
             // check for invalid types
-            TypeDefinition variableDefinition = variableReference.Resolve();
+            TypeDefinition variableDefinition = typeReference.Resolve();
             if (variableDefinition == null)
             {
-                throw new GenerateWriterException($"{variableReference.Name} is not a supported type. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"{typeReference.Name} is not a supported type. Use a supported type or provide a custom writer", typeReference);
             }
             if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
-                throw new GenerateWriterException($"Cannot generate writer for component type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for component type {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
-            if (variableReference.Is<UnityEngine.Object>())
+            if (typeReference.Is<UnityEngine.Object>())
             {
-                throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
-            if (variableReference.Is<UnityEngine.ScriptableObject>())
+            if (typeReference.Is<UnityEngine.ScriptableObject>())
             {
-                throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
-            if (variableReference.Is<UnityEngine.GameObject>())
+            if (typeReference.Is<UnityEngine.GameObject>())
             {
-                throw new GenerateWriterException($"Cannot generate writer for {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
             if (variableDefinition.HasGenericParameters)
             {
-                throw new GenerateWriterException($"Cannot generate writer for generic type {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for generic type {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
             if (variableDefinition.IsInterface)
             {
-                throw new GenerateWriterException($"Cannot generate writer for interface {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for interface {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
             if (variableDefinition.IsAbstract)
             {
-                throw new GenerateWriterException($"Cannot generate writer for abstract class {variableReference.Name}. Use a supported type or provide a custom writer", variableReference);
+                throw new GenerateWriterException($"Cannot generate writer for abstract class {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
 
             // generate writer for class/struct
-            return GenerateClassOrStructWriterFunction(variableReference);
+            return GenerateClassOrStructWriterFunction(typeReference);
         }
 
         private static MethodDefinition GenerateEnumWriteFunc(TypeReference variable)
