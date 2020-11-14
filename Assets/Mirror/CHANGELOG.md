@@ -1,3 +1,10 @@
+## [59.0.4](https://github.com/MirrorNG/MirrorNG/compare/v59.0.3...v59.0.4) (2020-11-14)
+
+
+### Bug Fixes
+
+* using mathematics in commands and rpcs ([#492](https://github.com/MirrorNG/MirrorNG/issues/492)) ([ee27841](https://github.com/MirrorNG/MirrorNG/commit/ee278415652ff6087fd8e45f15be3cf7f01181b8))
+
 ## [59.0.3](https://github.com/MirrorNG/MirrorNG/compare/v59.0.2...v59.0.3) (2020-11-10)
 
 
