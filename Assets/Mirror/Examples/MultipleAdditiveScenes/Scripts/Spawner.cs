@@ -1,27 +1,30 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
-    public class Spawner : NetworkBehaviour
+    internal class Spawner : MonoBehaviour
     {
-        public NetworkIdentity prizePrefab;
+        [FormerlySerializedAs("prizePrefab")]
+        internal static GameObject rewardPrefab;
 
-        public override void OnStartServer()
+        internal static void InitialSpawn(Scene scene)
         {
+            if (!NetworkServer.active) return;
+
             for (int i = 0; i < 10; i++)
-                SpawnPrize();
+                SpawnReward(scene);
         }
 
-        public void SpawnPrize()
+        internal static void SpawnReward(Scene scene)
         {
+            if (!NetworkServer.active) return;
+
             Vector3 spawnPosition = new Vector3(Random.Range(-19, 20), 1, Random.Range(-19, 20));
-
-            // spawn as child of the spawner that's already in the additive scene at 0,0,0 so we don't have to move it
-            GameObject newPrize = Instantiate(prizePrefab.gameObject, spawnPosition, Quaternion.identity, transform);
-            Reward reward = newPrize.gameObject.GetComponent<Reward>();
-            reward.spawner = this;
-
-            NetworkServer.Spawn(newPrize);
+            GameObject reward = Instantiate(rewardPrefab, spawnPosition, Quaternion.identity);
+            SceneManager.MoveGameObjectToScene(reward, scene);
+            NetworkServer.Spawn(reward);
         }
     }
 }

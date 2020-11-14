@@ -8,6 +8,10 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     [AddComponentMenu("")]
     public class MultiSceneNetManager : NetworkManager
     {
+        [Header("Spawner Setup")]
+        [Tooltip("Reward Prefab for the Spawner")]
+        public GameObject rewardPrefab;
+
         [Header("MultiScene Setup")]
         public int instances = 3;
 
@@ -66,6 +70,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         /// </summary>
         public override void OnStartServer()
         {
+            Spawner.rewardPrefab = rewardPrefab;
             StartCoroutine(ServerLoadSubScenes());
         }
 
@@ -77,7 +82,10 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             for (int index = 1; index <= instances; index++)
             {
                 yield return SceneManager.LoadSceneAsync(gameScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
-                subScenes.Add(SceneManager.GetSceneAt(index));
+
+                Scene newScene = SceneManager.GetSceneAt(index);
+                subScenes.Add(newScene);
+                Spawner.InitialSpawn(newScene);
             }
 
             subscenesLoaded = true;
