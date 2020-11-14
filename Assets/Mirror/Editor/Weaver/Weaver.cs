@@ -151,7 +151,6 @@ namespace Mirror.Weaver
                 AddPaths(asmResolver, unityAssembly);
                 ModuleDefinition module = CurrentAssembly.MainModule;
 
-                WeaverTypes.SetupTargetTypes(CurrentAssembly);
                 var rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 bool modified = ReaderWriterProcessor.Process(CurrentAssembly, unityAssembly);
                 rwstopwatch.Stop();
