@@ -19,7 +19,6 @@ namespace Mirror
     /// <summary>
     /// Pool of NetworkReaders
     /// <para>Use this pool instead of <see cref="NetworkReader">NetworkReader</see> to reduce memory allocation</para>
-    /// <para>Use <see cref="Capacity">Capacity</see> to change size of pool</para>
     /// </summary>
     public static class NetworkReaderPool
     {

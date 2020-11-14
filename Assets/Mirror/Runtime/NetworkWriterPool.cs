@@ -16,7 +16,6 @@ namespace Mirror
     /// <summary>
     /// Pool of NetworkWriters
     /// <para>Use this pool instead of <see cref="NetworkWriter">NetworkWriter</see> to reduce memory allocation</para>
-    /// <para>Use <see cref="Capacity">Capacity</see> to change size of pool</para>
     /// </summary>
     public static class NetworkWriterPool
     {
