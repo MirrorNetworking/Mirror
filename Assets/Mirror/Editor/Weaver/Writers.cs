@@ -140,13 +140,13 @@ namespace Mirror.Weaver
             return GenerateClassOrStructWriterFunction(typeReference);
         }
 
-        private static MethodDefinition GenerateEnumWriteFunc(ModuleDefinition module, TypeReference variable)
+        private static MethodDefinition GenerateEnumWriteFunc(ModuleDefinition module, TypeReference typeReference)
         {
-            MethodDefinition writerFunc = GenerateWriterFunc(variable);
+            MethodDefinition writerFunc = GenerateWriterFunc(typeReference);
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
-            MethodReference underlyingWriter = module.GetWriteFunc(variable.Resolve().GetEnumUnderlyingType());
+            MethodReference underlyingWriter = module.GetWriteFunc(typeReference.Resolve().GetEnumUnderlyingType());
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldarg_1));
