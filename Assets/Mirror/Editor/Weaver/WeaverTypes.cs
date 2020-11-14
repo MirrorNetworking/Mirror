@@ -1,6 +1,5 @@
 using System;
 using Mono.Cecil;
-using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -9,8 +8,6 @@ namespace Mirror.Weaver
         // custom attribute types
 
         private static AssemblyDefinition currentAssembly;
-
-        public static TypeReference Import<T>() => Import(typeof(T));
 
         public static TypeReference Import(Type t) => currentAssembly.MainModule.ImportReference(t);
 

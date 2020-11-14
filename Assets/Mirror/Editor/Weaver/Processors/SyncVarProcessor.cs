@@ -485,7 +485,7 @@ namespace Mirror.Weaver
             // base
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, (NetworkBehaviour nb) => nb.SyncVarDirtyBits));
-            MethodReference writeUint64Func = netBehaviourSubclass.Module.GetWriteFunc(WeaverTypes.Import<ulong>());
+            MethodReference writeUint64Func = netBehaviourSubclass.Module.GetWriteFunc<ulong>();
             worker.Append(worker.Create(OpCodes.Call, writeUint64Func));
 
             // generate a writer call for any dirty variable in this class
@@ -619,7 +619,7 @@ namespace Mirror.Weaver
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg, readerParam));
-            serWorker.Append(serWorker.Create(OpCodes.Call, netBehaviourSubclass.Module.GetReadFunc(WeaverTypes.Import<ulong>())));
+            serWorker.Append(serWorker.Create(OpCodes.Call, netBehaviourSubclass.Module.GetReadFunc<ulong>()));
             serWorker.Append(serWorker.Create(OpCodes.Stloc, dirtyBitsLocal));
 
             // conditionally read each syncvar
@@ -788,7 +788,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             // Read()
             ModuleDefinition module = worker.Body.Method.Module;
-            worker.Append(worker.Create(OpCodes.Call, module.GetReadFunc(WeaverTypes.Import<uint>())));
+            worker.Append(worker.Create(OpCodes.Call, module.GetReadFunc<uint>()));
             // netId
             worker.Append(worker.Create(OpCodes.Stfld, netIdField));
 

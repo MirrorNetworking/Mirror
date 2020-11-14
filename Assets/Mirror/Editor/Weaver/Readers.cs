@@ -24,6 +24,9 @@ namespace Mirror.Weaver
             readFuncs[dataType.FullName] = methodReference;
         }
 
+        public static MethodReference GetReadFunc<T>(this ModuleDefinition module) =>
+            GetReadFunc(module, module.ImportReference<T>());
+
         public static MethodReference GetReadFunc(this ModuleDefinition module, TypeReference typeReference)
         {
             if (readFuncs.TryGetValue(typeReference.FullName, out MethodReference foundFunc))
@@ -223,7 +226,7 @@ namespace Mirror.Weaver
             //   return null;
             // }
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, module.GetReadFunc(WeaverTypes.Import<bool>())));
+            worker.Append(worker.Create(OpCodes.Call, module.GetReadFunc<bool>()));
 
             Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
             worker.Append(worker.Create(OpCodes.Brtrue, labelEmptyArray));

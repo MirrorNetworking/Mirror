@@ -27,6 +27,9 @@ namespace Mirror.Weaver
             writeFuncs[typeReference.FullName] = newWriterFunc;
         }
 
+        public static MethodReference GetWriteFunc<T>(this ModuleDefinition module) =>
+            GetWriteFunc(module, module.ImportReference<T>());
+       
         /// <summary>
         /// Finds existing writer for type, if non exists trys to create one
         /// <para>This method is recursive</para>
@@ -200,14 +203,14 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Brtrue, labelNotNull));
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Call,  worker.Body.Method.Module.GetWriteFunc(WeaverTypes.Import<bool>())));
+            worker.Append(worker.Create(OpCodes.Call,  worker.Body.Method.Module.GetWriteFunc<bool>()));
             worker.Append(worker.Create(OpCodes.Ret));
             worker.Append(labelNotNull);
 
             // write.WriteBoolean(true);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
-            worker.Append(worker.Create(OpCodes.Call, worker.Body.Method.Module.GetWriteFunc(WeaverTypes.Import<bool>())));
+            worker.Append(worker.Create(OpCodes.Call, worker.Body.Method.Module.GetWriteFunc<bool>()));
         }
 
         /// <summary>
