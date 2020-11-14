@@ -24,6 +24,8 @@ namespace Mirror
     /// </summary>
     public class NetworkWriter
     {
+       static readonly ILogger logger = LogFactory.GetLogger<NetworkWriter>();
+
         public const int MaxStringLength = 1024 * 32;
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
@@ -149,7 +151,15 @@ namespace Mirror
         /// <param name="value"></param>
         public void Write<T>(T value)
         {
-            Writer<T>.write(this, value);
+            Action<NetworkWriter, T> writeDelegate = Writer<T>.write;
+            if (writeDelegate == null)
+            {
+                logger.LogError($"No writer found for {typeof(T)}. Use a type supported by Mirror or define a custom writer");
+            }
+            else
+            {
+                writeDelegate(this, value);
+            }
         }
     }
 

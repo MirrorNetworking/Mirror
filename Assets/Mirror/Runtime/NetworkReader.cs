@@ -35,6 +35,8 @@ namespace Mirror
     /// </summary>
     public class NetworkReader
     {
+        static readonly ILogger logger = LogFactory.GetLogger<NetworkReader>();
+
         // internal buffer
         // byte[] pointer would work, but we use ArraySegment to also support
         // the ArraySegment constructor
@@ -105,7 +107,13 @@ namespace Mirror
         /// <returns></returns>
         public T Read<T>()
         {
-            return Reader<T>.read(this);
+            Func<NetworkReader, T> readerDelegate = Reader<T>.read;
+            if (readerDelegate == null)
+            {
+                logger.LogError($"No reader found for {typeof(T)}. Use a type supported by Mirror or define a custom reader");
+                return default;
+            }
+            return readerDelegate(this);
         }
     }
 
