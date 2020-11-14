@@ -24,89 +24,89 @@ namespace Mirror.Weaver
             readFuncs[dataType.FullName] = methodReference;
         }
 
-        public static MethodReference GetReadFunc(TypeReference variableReference)
+        public static MethodReference GetReadFunc(TypeReference typeReference)
         {
-            if (readFuncs.TryGetValue(variableReference.FullName, out MethodReference foundFunc))
+            if (readFuncs.TryGetValue(typeReference.FullName, out MethodReference foundFunc))
             {
                 return foundFunc;
             }
 
-            if (variableReference.IsMultidimensionalArray())
+            if (typeReference.IsMultidimensionalArray())
             {
-                Weaver.Error($"{variableReference.Name} is an unsupported type. Multidimensional arrays are not supported", variableReference);
+                Weaver.Error($"{typeReference.Name} is an unsupported type. Multidimensional arrays are not supported", typeReference);
                 return null;
             }
 
-            if (variableReference.IsArray)
+            if (typeReference.IsArray)
             {
-                return GenerateReadCollection(variableReference, variableReference.GetElementType(), () => NetworkReaderExtensions.ReadArray<object>(default));
+                return GenerateReadCollection(typeReference, typeReference.GetElementType(), () => NetworkReaderExtensions.ReadArray<object>(default));
             }
 
-            TypeDefinition variableDefinition = variableReference.Resolve();
+            TypeDefinition variableDefinition = typeReference.Resolve();
 
             if (variableDefinition == null)
             {
-                Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
+                Weaver.Error($"{typeReference.Name} is not a supported type", typeReference);
                 return null;
             }
             if (variableDefinition.Is(typeof(ArraySegment<>)))
             {
-                return GenerateArraySegmentReadFunc(variableReference);
+                return GenerateArraySegmentReadFunc(typeReference);
             }
             if (variableDefinition.Is(typeof(List<>)))
             {
-                var genericInstance = (GenericInstanceType)variableReference;
+                var genericInstance = (GenericInstanceType)typeReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
-                return GenerateReadCollection(variableReference, elementType, () => NetworkReaderExtensions.ReadList<object>(default));
+                return GenerateReadCollection(typeReference, elementType, () => NetworkReaderExtensions.ReadList<object>(default));
             }
             if (variableDefinition.IsEnum)
             {
-                return GenerateEnumReadFunc(variableReference);
+                return GenerateEnumReadFunc(typeReference);
             }
             if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
-                Weaver.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for component type {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
-            if (variableReference.Is<UnityEngine.Object>())
+            if (typeReference.Is<UnityEngine.Object>())
             {
-                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
-            if (variableReference.Is<UnityEngine.ScriptableObject>())
+            if (typeReference.Is<UnityEngine.ScriptableObject>())
             {
-                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
-            if (variableReference.Is<UnityEngine.GameObject>())
+            if (typeReference.Is<UnityEngine.GameObject>())
             {
-                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
-            if (variableReference.IsByReference)
+            if (typeReference.IsByReference)
             {
                 // error??
-                Weaver.Error($"Cannot pass type {variableReference.Name} by reference", variableReference);
+                Weaver.Error($"Cannot pass type {typeReference.Name} by reference", typeReference);
                 return null;
             }
             if (variableDefinition.HasGenericParameters)
             {
-                Weaver.Error($"Cannot generate reader for generic variable {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for generic variable {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
             if (variableDefinition.IsInterface)
             {
-                Weaver.Error($"Cannot generate reader for interface {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for interface {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
             if (variableDefinition.IsAbstract)
             {
-                Weaver.Error($"Cannot generate reader for abstract class {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for abstract class {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
 
-            return GenerateClassOrStructReadFunction(variableReference);
+            return GenerateClassOrStructReadFunction(typeReference);
         }
 
         static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
