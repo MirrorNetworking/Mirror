@@ -306,7 +306,7 @@ namespace Mirror.Weaver
         /// <param name="worker"></param>
         internal static void InitializeReaders(ILProcessor worker)
         {
-            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
+            ModuleDefinition module = worker.Body.Method.Module;
 
             TypeReference genericReaderClassRef = module.ImportReference(typeof(Reader<>));
 
