@@ -3,9 +3,9 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
+    [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkTransform))]
-    [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
@@ -23,12 +23,11 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         void Start()
         {
             capsuleCollider.enabled = isServer;
+            characterController.enabled = isLocalPlayer;
         }
 
         public override void OnStartLocalPlayer()
         {
-            characterController.enabled = true;
-
             Camera.main.orthographic = false;
             Camera.main.transform.SetParent(transform);
             Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
