@@ -137,12 +137,12 @@ namespace Mirror.Weaver
             }
 
             // generate writer for class/struct
-            return GenerateClassOrStructWriterFunction(typeReference);
+            return GenerateClassOrStructWriterFunction(module, typeReference);
         }
 
         private static MethodDefinition GenerateEnumWriteFunc(ModuleDefinition module, TypeReference typeReference)
         {
-            MethodDefinition writerFunc = GenerateWriterFunc(typeReference);
+            MethodDefinition writerFunc = GenerateWriterFunc(module, typeReference);
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
@@ -156,33 +156,33 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        private static MethodDefinition GenerateWriterFunc(TypeReference typeReference)
+        private static MethodDefinition GenerateWriterFunc(ModuleDefinition module, TypeReference typeReference)
         {
             string functionName = "_Write_" + typeReference.FullName;
             // create new writer for this type
-            MethodDefinition writerFunc = Weaver.CurrentAssembly.MainModule.GeneratedClass().AddMethod(functionName,
+            MethodDefinition writerFunc = module.GeneratedClass().AddMethod(functionName,
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig);
 
             _ = writerFunc.AddParam<NetworkWriter>("writer");
-            _ = writerFunc.AddParam(Weaver.CurrentAssembly.MainModule.ImportReference(typeReference), "value");
+            _ = writerFunc.AddParam(typeReference, "value");
             writerFunc.Body.InitLocals = true;
 
             RegisterWriteFunc(typeReference, writerFunc);
             return writerFunc;
         }
 
-        static MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable)
+        static MethodDefinition GenerateClassOrStructWriterFunction(ModuleDefinition module, TypeReference typeReference)
         {
-            MethodDefinition writerFunc = GenerateWriterFunc(variable);
+            MethodDefinition writerFunc = GenerateWriterFunc(module, typeReference);
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
-            if (!variable.Resolve().IsValueType)
+            if (!typeReference.Resolve().IsValueType)
                 WriteNullCheck(worker);
 
-            if (!WriteAllFields(variable, worker))
+            if (!WriteAllFields(typeReference, worker))
                 return writerFunc;
 
             worker.Append(worker.Create(OpCodes.Ret));
@@ -245,7 +245,7 @@ namespace Mirror.Weaver
         static MethodDefinition GenerateCollectionWriter(ModuleDefinition module, TypeReference variable, TypeReference elementType, string writerFunction)
         {
            
-            MethodDefinition writerFunc = GenerateWriterFunc(variable);
+            MethodDefinition writerFunc = GenerateWriterFunc(module, variable);
 
             MethodReference elementWriteFunc = module.GetWriteFunc(elementType);
 
