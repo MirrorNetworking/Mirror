@@ -17,6 +17,8 @@ namespace Mirror.Examples.Additive
 
         void OnTriggerEnter(Collider other)
         {
+            if (!NetworkServer.active) return;
+
             if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Loading {0}", subScene);
 
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
@@ -25,6 +27,8 @@ namespace Mirror.Examples.Additive
 
         void OnTriggerExit(Collider other)
         {
+            if (!NetworkServer.active) return;
+
             if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "Unloading {0}", subScene);
 
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
