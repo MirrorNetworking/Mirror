@@ -26,7 +26,7 @@ namespace Mirror.Weaver
     {
         private static readonly HashSet<TypeReference> messages = new HashSet<TypeReference>(new TypeReferenceComparer());
 
-        public static bool Process(AssemblyDefinition CurrentAssembly, Assembly unityAssembly)
+        public static bool Process(ModuleDefinition module, Assembly unityAssembly)
         {
             // darn global state causing bugs
             Readers.Init();
@@ -39,7 +39,7 @@ namespace Mirror.Weaver
                     using (var asmResolver = new DefaultAssemblyResolver())
                     using (var assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
                     {
-                        ProcessAssemblyClasses(CurrentAssembly, assembly);
+                        ProcessAssemblyClasses(module, assembly.MainModule);
                     }
                 }
             }
@@ -47,28 +47,28 @@ namespace Mirror.Weaver
             int writeCount = Writers.Count;
             int readCount = Readers.Count;
 
-            ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly);
+            ProcessAssemblyClasses(module, module);
 
             return Writers.Count != writeCount || Readers.Count != readCount;
         }
 
-        static void ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly)
+        static void ProcessAssemblyClasses(ModuleDefinition module, ModuleDefinition dependencyModule)
         {
-            foreach (TypeDefinition klass in assembly.MainModule.Types)
+            foreach (TypeDefinition klass in dependencyModule.Types)
             {
                 // extension methods only live in static classes
                 // static classes are represented as sealed and abstract
                 if (klass.IsAbstract && klass.IsSealed)
                 {
-                    LoadDeclaredWriters(CurrentAssembly, klass);
-                    LoadDeclaredReaders(CurrentAssembly, klass);
+                    LoadDeclaredWriters(module, klass);
+                    LoadDeclaredReaders(module, klass);
                 }
             }
 
             // Generate readers and writers
             // find all the Send<> and Register<> calls and generate
             // readers and writers for them.
-            CodePass.ForEachInstruction(assembly.MainModule, (md, instr) => GenerateReadersWriters(CurrentAssembly.MainModule, instr));
+            CodePass.ForEachInstruction(dependencyModule, (md, instr) => GenerateReadersWriters(module, instr));
         }
 
         private static Instruction GenerateReadersWriters(ModuleDefinition module, Instruction instruction)
@@ -167,7 +167,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static void LoadDeclaredWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
+        static void LoadDeclaredWriters(ModuleDefinition module, TypeDefinition klass)
         {
             // register all the writers in this class.  Skip the ones with wrong signature
             foreach (MethodDefinition method in klass.Methods)
@@ -188,11 +188,11 @@ namespace Mirror.Weaver
                     continue;
 
                 TypeReference dataType = method.Parameters[1].ParameterType;
-                Writers.Register(dataType, currentAssembly.MainModule.ImportReference(method));
+                Writers.Register(dataType, module.ImportReference(method));
             }
         }
 
-        static void LoadDeclaredReaders(AssemblyDefinition currentAssembly, TypeDefinition klass)
+        static void LoadDeclaredReaders(ModuleDefinition module, TypeDefinition klass)
         {
             // register all the reader in this class.  Skip the ones with wrong signature
             foreach (MethodDefinition method in klass.Methods)
@@ -212,7 +212,7 @@ namespace Mirror.Weaver
                 if (method.HasGenericParameters)
                     continue;
 
-                Readers.Register(method.ReturnType, currentAssembly.MainModule.ImportReference(method));
+                Readers.Register(method.ReturnType, module.ImportReference(method));
             }
         }
 

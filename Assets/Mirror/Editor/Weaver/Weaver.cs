@@ -152,7 +152,7 @@ namespace Mirror.Weaver
                 ModuleDefinition module = CurrentAssembly.MainModule;
 
                 var rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
-                bool modified = ReaderWriterProcessor.Process(CurrentAssembly, unityAssembly);
+                bool modified = ReaderWriterProcessor.Process(module, unityAssembly);
                 rwstopwatch.Stop();
                 Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
 
