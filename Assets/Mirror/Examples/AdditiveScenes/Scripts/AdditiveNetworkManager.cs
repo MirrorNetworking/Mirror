@@ -9,6 +9,9 @@ namespace Mirror.Examples.Additive
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(AdditiveNetworkManager));
 
+        [Tooltip("Trigger Zone Prefab")]
+        public GameObject Zone;
+
         [Scene]
         [Tooltip("Add all sub-scenes to this list")]
         public string[] subScenes;
@@ -19,6 +22,9 @@ namespace Mirror.Examples.Additive
 
             // load all subscenes on the server only
             StartCoroutine(LoadSubScenes());
+
+            // Instantiate Zone Handler on server only
+            Instantiate(Zone);
         }
 
         IEnumerator LoadSubScenes()
