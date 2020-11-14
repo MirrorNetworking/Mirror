@@ -34,6 +34,7 @@ namespace Mirror.Weaver
                 return foundFunc;
             }
 
+            typeReference = module.ImportReference(typeReference);
             if (typeReference.IsMultidimensionalArray())
             {
                 Weaver.Error($"{typeReference.Name} is an unsupported type. Multidimensional arrays are not supported", typeReference);
@@ -163,7 +164,7 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    module.ImportReference(variable));
+                    variable);
 
             _ = readerFunc.AddParam<NetworkReader>("reader");
             readerFunc.Body.InitLocals = true;
@@ -282,8 +283,7 @@ namespace Mirror.Weaver
                 OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
                 worker.Append(worker.Create(opcode, 0));
 
-                TypeReference fieldTypeRef = module.ImportReference(field.FieldType);
-                MethodReference readFunc = module.GetReadFunc(fieldTypeRef);
+                MethodReference readFunc = module.GetReadFunc(field.FieldType);
                 if (readFunc != null)
                 {
                     worker.Append(worker.Create(OpCodes.Ldarg_0));
