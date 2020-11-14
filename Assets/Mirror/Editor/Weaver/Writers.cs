@@ -32,7 +32,6 @@ namespace Mirror.Weaver
         /// <para>This method is recursive</para>
         /// </summary>
         /// <param name="variable"></param>
-        /// <param name="recursionCount"></param>
         /// <returns>Returns <see cref="MethodReference"/> or null</returns>
         public static MethodReference GetWriteFunc(TypeReference variable)
         {
