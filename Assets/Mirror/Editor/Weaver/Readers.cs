@@ -163,7 +163,7 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    Weaver.CurrentAssembly.MainModule.ImportReference(variable));
+                    module.ImportReference(variable));
 
             _ = readerFunc.AddParam<NetworkReader>("reader");
             readerFunc.Body.InitLocals = true;
