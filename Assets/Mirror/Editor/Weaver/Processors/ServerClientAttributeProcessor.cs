@@ -35,13 +35,13 @@ namespace Mirror.Weaver
 
         static bool ProcessMethodAttributes(MethodDefinition md)
         {
-            bool modified = InjectGuard<ServerAttribute>(md, (NetworkBehaviour nb) => nb.IsServer, "[Server] function '" + md.FullName + "' called on client");
+            bool modified = InjectGuard<ServerAttribute>(md,  nb => nb.IsServer, "[Server] function '" + md.FullName + "' called on client");
 
-            modified |= InjectGuard<ClientAttribute>(md, (NetworkBehaviour nb) => nb.IsClient, "[Client] function '" + md.FullName + "' called on server");
+            modified |= InjectGuard<ClientAttribute>(md, nb => nb.IsClient, "[Client] function '" + md.FullName + "' called on server");
 
-            modified |= InjectGuard<HasAuthorityAttribute>(md, (NetworkBehaviour nb) => nb.HasAuthority, "[Has Authority] function '" + md.FullName + "' called on player without authority");
+            modified |= InjectGuard<HasAuthorityAttribute>(md, nb => nb.HasAuthority, "[Has Authority] function '" + md.FullName + "' called on player without authority");
 
-            modified |= InjectGuard<LocalPlayerAttribute>(md, (NetworkBehaviour nb) => nb.IsLocalPlayer, "[Local Player] function '" + md.FullName + "' called on nonlocal player");
+            modified |= InjectGuard<LocalPlayerAttribute>(md, nb => nb.IsLocalPlayer, "[Local Player] function '" + md.FullName + "' called on nonlocal player");
 
             return modified;
         }
