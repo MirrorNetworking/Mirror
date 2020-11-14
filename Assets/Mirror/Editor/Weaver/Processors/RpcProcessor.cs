@@ -53,7 +53,7 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                MethodReference writeFunc = Writers.GetWriteFunc(param.ParameterType);
+                MethodReference writeFunc = method.Module.GetWriteFunc(param.ParameterType);
                 if (writeFunc == null)
                 {
                     Weaver.Error($"{method.Name} has invalid parameter {param}", method);
@@ -99,7 +99,7 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                MethodReference readFunc = Readers.GetReadFunc(param.ParameterType);
+                MethodReference readFunc = method.Module.GetReadFunc(param.ParameterType);
 
                 if (readFunc == null)
                 {

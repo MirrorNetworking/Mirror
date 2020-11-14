@@ -457,7 +457,7 @@ namespace Mirror.Weaver
                 // this
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
-                MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
+                MethodReference writeFunc = netBehaviourSubclass.Module.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
                 {
                     worker.Append(worker.Create(OpCodes.Call, writeFunc));
@@ -485,7 +485,7 @@ namespace Mirror.Weaver
             // base
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, (NetworkBehaviour nb) => nb.SyncVarDirtyBits));
-            MethodReference writeUint64Func = Writers.GetWriteFunc(WeaverTypes.Import<ulong>());
+            MethodReference writeUint64Func = netBehaviourSubclass.Module.GetWriteFunc(WeaverTypes.Import<ulong>());
             worker.Append(worker.Create(OpCodes.Call, writeUint64Func));
 
             // generate a writer call for any dirty variable in this class
@@ -512,7 +512,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
 
-                MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
+                MethodReference writeFunc = netBehaviourSubclass.Module.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
                 {
                     worker.Append(worker.Create(OpCodes.Call, writeFunc));
@@ -619,7 +619,7 @@ namespace Mirror.Weaver
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg, readerParam));
-            serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.Import<ulong>())));
+            serWorker.Append(serWorker.Create(OpCodes.Call, netBehaviourSubclass.Module.GetReadFunc(WeaverTypes.Import<ulong>())));
             serWorker.Append(serWorker.Create(OpCodes.Stloc, dirtyBitsLocal));
 
             // conditionally read each syncvar
@@ -664,8 +664,8 @@ namespace Mirror.Weaver
                     OnSetA(oldValue, Networka);
                 }
              */
-
-            MethodReference readFunc = Readers.GetReadFunc(syncVar.FieldType);
+            ModuleDefinition module = serWorker.Body.Method.Module;
+            MethodReference readFunc = module.GetReadFunc(syncVar.FieldType);
             if (readFunc == null)
             {
                 Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
@@ -787,7 +787,8 @@ namespace Mirror.Weaver
             // reader. for 'reader.Read()' below
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             // Read()
-            worker.Append(worker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.Import<uint>())));
+            ModuleDefinition module = worker.Body.Method.Module;
+            worker.Append(worker.Create(OpCodes.Call, module.GetReadFunc(WeaverTypes.Import<uint>())));
             // netId
             worker.Append(worker.Create(OpCodes.Stfld, netIdField));
 
@@ -821,7 +822,7 @@ namespace Mirror.Weaver
                 // 'ref this.__netId'
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldfld, netIdField));
-                MethodReference syncVarEqual = syncVar.Module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
+                MethodReference syncVarEqual = module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
                 var syncVarEqualGm = new GenericInstanceMethod(syncVarEqual.GetElementMethod());
                 syncVarEqualGm.GenericArguments.Add(netIdField.FieldType);
                 worker.Append(worker.Create(OpCodes.Call, syncVarEqualGm));

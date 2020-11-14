@@ -163,8 +163,8 @@ namespace Mirror.Weaver
                 }
 
                 parameterType = module.ImportReference(parameterType);
-                Writers.GetWriteFunc(parameterType);
-                Readers.GetReadFunc(parameterType);
+                module.GetWriteFunc(parameterType);
+                module.GetReadFunc(parameterType);
             }
         }
 

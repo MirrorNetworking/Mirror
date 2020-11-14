@@ -34,7 +34,7 @@ namespace Mirror.Weaver
         /// <param name="typeReference"></param>
         /// <param name="recursionCount"></param>
         /// <returns>Returns <see cref="MethodReference"/> or null</returns>
-        public static MethodReference GetWriteFunc(TypeReference typeReference)
+        public static MethodReference GetWriteFunc(this ModuleDefinition module, TypeReference typeReference)
         {
             if (writeFuncs.TryGetValue(typeReference.FullName, out MethodReference foundFunc))
             {
@@ -45,7 +45,7 @@ namespace Mirror.Weaver
                 // this try/catch will be removed in future PR and make `GetWriteFunc` throw instead
                 try
                 {
-                    return GenerateWriter(typeReference);
+                    return GenerateWriter(module, typeReference);
                 }
                 catch (GenerateWriterException e)
                 {
@@ -56,7 +56,7 @@ namespace Mirror.Weaver
         }
 
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
-        static MethodDefinition GenerateWriter(TypeReference typeReference)
+        static MethodDefinition GenerateWriter(ModuleDefinition module, TypeReference typeReference)
         {
             if (typeReference.IsByReference)
             {
@@ -73,13 +73,13 @@ namespace Mirror.Weaver
                     throw new GenerateWriterException($"{typeReference.Name} is an unsupported type. Multidimensional arrays are not supported", typeReference);
                 }
                 TypeReference elementType = typeReference.GetElementType();
-                return GenerateCollectionWriter(typeReference, elementType, nameof(NetworkWriterExtensions.WriteArray));
+                return GenerateCollectionWriter(module, typeReference, elementType, nameof(NetworkWriterExtensions.WriteArray));
             }
 
             if (typeReference.Resolve()?.IsEnum ?? false)
             {
                 // serialize enum as their base type
-                return GenerateEnumWriteFunc(typeReference);
+                return GenerateEnumWriteFunc(module, typeReference);
             }
 
             // check for collections
@@ -88,14 +88,14 @@ namespace Mirror.Weaver
                 var genericInstance = (GenericInstanceType)typeReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
-                return GenerateCollectionWriter(typeReference, elementType, nameof(NetworkWriterExtensions.WriteArraySegment));
+                return GenerateCollectionWriter(module, typeReference, elementType, nameof(NetworkWriterExtensions.WriteArraySegment));
             }
             if (typeReference.Is(typeof(List<>)))
             {
                 var genericInstance = (GenericInstanceType)typeReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
-                return GenerateCollectionWriter(typeReference, elementType, nameof(NetworkWriterExtensions.WriteList));
+                return GenerateCollectionWriter(module, typeReference, elementType, nameof(NetworkWriterExtensions.WriteList));
             }
 
             // check for invalid types
@@ -137,13 +137,13 @@ namespace Mirror.Weaver
             return GenerateClassOrStructWriterFunction(typeReference);
         }
 
-        private static MethodDefinition GenerateEnumWriteFunc(TypeReference variable)
+        private static MethodDefinition GenerateEnumWriteFunc(ModuleDefinition module, TypeReference variable)
         {
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
-            MethodReference underlyingWriter = GetWriteFunc(variable.Resolve().GetEnumUnderlyingType());
+            MethodReference underlyingWriter = module.GetWriteFunc(variable.Resolve().GetEnumUnderlyingType());
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldarg_1));
@@ -200,14 +200,14 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Brtrue, labelNotNull));
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Call,  GetWriteFunc(WeaverTypes.Import<bool>())));
+            worker.Append(worker.Create(OpCodes.Call,  worker.Body.Method.Module.GetWriteFunc(WeaverTypes.Import<bool>())));
             worker.Append(worker.Create(OpCodes.Ret));
             worker.Append(labelNotNull);
 
             // write.WriteBoolean(true);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
-            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(WeaverTypes.Import<bool>())));
+            worker.Append(worker.Create(OpCodes.Call, worker.Body.Method.Module.GetWriteFunc(WeaverTypes.Import<bool>())));
         }
 
         /// <summary>
@@ -219,14 +219,16 @@ namespace Mirror.Weaver
         static bool WriteAllFields(TypeReference variable, ILProcessor worker)
         {
             uint fields = 0;
+            ModuleDefinition module = worker.Body.Method.Module;
+
             foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
-                TypeReference fieldTypeRef = worker.Body.Method.Module.ImportReference(field.FieldType);
-                MethodReference writeFunc = GetWriteFunc(fieldTypeRef);
+                TypeReference fieldTypeRef = module.ImportReference(field.FieldType);
+                MethodReference writeFunc = module.GetWriteFunc(fieldTypeRef);
                 // need this null check till later PR when GetWriteFunc throws exception instead
                 if (writeFunc == null) { return false; }
 
-                FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
+                FieldReference fieldRef = module.ImportReference(field);
 
                 fields++;
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -238,12 +240,12 @@ namespace Mirror.Weaver
             return true;
         }
 
-        static MethodDefinition GenerateCollectionWriter(TypeReference variable, TypeReference elementType, string writerFunction)
+        static MethodDefinition GenerateCollectionWriter(ModuleDefinition module, TypeReference variable, TypeReference elementType, string writerFunction)
         {
            
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
-            MethodReference elementWriteFunc = GetWriteFunc(elementType);
+            MethodReference elementWriteFunc = module.GetWriteFunc(elementType);
 
             // need this null check till later PR when GetWriteFunc throws exception instead
             if (elementWriteFunc == null)
@@ -252,7 +254,6 @@ namespace Mirror.Weaver
                 return writerFunc;
             }
 
-            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
             TypeReference readerExtensions = module.ImportReference(typeof(NetworkWriterExtensions));
             MethodReference collectionWriter = Resolvers.ResolveMethod(readerExtensions, Weaver.CurrentAssembly, writerFunction);
 

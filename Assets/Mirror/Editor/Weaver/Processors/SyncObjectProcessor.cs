@@ -26,7 +26,7 @@ namespace Mirror.Weaver
                         continue;
                     }
 
-                    GenerateReadersAndWriters(fd.FieldType);
+                    GenerateReadersAndWriters(td.Module, fd.FieldType);
 
                     syncObjects.Add(fd);
                 }
@@ -40,7 +40,7 @@ namespace Mirror.Weaver
         /// </summary>
         /// <param name="td">The synclist class</param>
         /// <param name="mirrorBaseType">the base SyncObject td inherits from</param>
-        static void GenerateReadersAndWriters(TypeReference tr)
+        static void GenerateReadersAndWriters(ModuleDefinition module, TypeReference tr)
         {
             if (tr is GenericInstanceType genericInstance)
             {
@@ -48,15 +48,15 @@ namespace Mirror.Weaver
                 {
                     if (!argument.IsGenericParameter)
                     {
-                        Readers.GetReadFunc(argument);
-                        Writers.GetWriteFunc(argument);
+                        module.GetReadFunc(argument);
+                        module.GetWriteFunc(argument);
                     }
                 }
             }
 
             if (tr != null)
             {
-                GenerateReadersAndWriters(tr.Resolve().BaseType);
+                GenerateReadersAndWriters(module, tr.Resolve().BaseType);
             }
         }
 

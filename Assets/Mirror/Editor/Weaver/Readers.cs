@@ -24,7 +24,7 @@ namespace Mirror.Weaver
             readFuncs[dataType.FullName] = methodReference;
         }
 
-        public static MethodReference GetReadFunc(TypeReference typeReference)
+        public static MethodReference GetReadFunc(this ModuleDefinition module, TypeReference typeReference)
         {
             if (readFuncs.TryGetValue(typeReference.FullName, out MethodReference foundFunc))
             {
@@ -39,7 +39,7 @@ namespace Mirror.Weaver
 
             if (typeReference.IsArray)
             {
-                return GenerateReadCollection(typeReference, typeReference.GetElementType(), () => NetworkReaderExtensions.ReadArray<object>(default));
+                return GenerateReadCollection(module, typeReference, typeReference.GetElementType(), () => NetworkReaderExtensions.ReadArray<object>(default));
             }
 
             TypeDefinition variableDefinition = typeReference.Resolve();
@@ -51,18 +51,18 @@ namespace Mirror.Weaver
             }
             if (variableDefinition.Is(typeof(ArraySegment<>)))
             {
-                return GenerateArraySegmentReadFunc(typeReference);
+                return GenerateArraySegmentReadFunc(module, typeReference);
             }
             if (variableDefinition.Is(typeof(List<>)))
             {
                 var genericInstance = (GenericInstanceType)typeReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
-                return GenerateReadCollection(typeReference, elementType, () => NetworkReaderExtensions.ReadList<object>(default));
+                return GenerateReadCollection(module, typeReference, elementType, () => NetworkReaderExtensions.ReadList<object>(default));
             }
             if (variableDefinition.IsEnum)
             {
-                return GenerateEnumReadFunc(typeReference);
+                return GenerateEnumReadFunc(module, typeReference);
             }
             if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
@@ -114,7 +114,7 @@ namespace Mirror.Weaver
             readFuncs[typeReference.FullName] = newReaderFunc;
         }
 
-        static MethodDefinition GenerateEnumReadFunc(TypeReference variable)
+        static MethodDefinition GenerateEnumReadFunc(ModuleDefinition module, TypeReference variable)
         {
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
@@ -123,14 +123,14 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
 
             TypeReference underlyingType = variable.Resolve().GetEnumUnderlyingType();
-            MethodReference underlyingFunc = GetReadFunc(underlyingType);
+            MethodReference underlyingFunc = module.GetReadFunc(underlyingType);
 
             worker.Append(worker.Create(OpCodes.Call, underlyingFunc));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
         }
 
-        static MethodDefinition GenerateArraySegmentReadFunc(TypeReference variable)
+        static MethodDefinition GenerateArraySegmentReadFunc(ModuleDefinition module, TypeReference variable)
         {
             var genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
@@ -142,7 +142,7 @@ namespace Mirror.Weaver
             // $array = reader.Read<[T]>()
             ArrayType arrayType = elementType.MakeArrayType();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(arrayType)));
+            worker.Append(worker.Create(OpCodes.Call, module.GetReadFunc(arrayType)));
 
             // return new ArraySegment<T>($array);
             var arraySegmentConstructor = readerFunc.Module.ImportReference(() => new ArraySegment<object>());
@@ -169,13 +169,12 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateReadCollection(TypeReference variable, TypeReference elementType, Expression<Action> readerFunction)
+        static MethodDefinition GenerateReadCollection(ModuleDefinition module, TypeReference variable, TypeReference elementType, Expression<Action> readerFunction)
         {
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
             // generate readers for the element
-            GetReadFunc(elementType);
+            module.GetReadFunc(elementType);
 
-            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
             MethodReference listReader = module.ImportReference(readerFunction);
 
             var methodRef = new GenericInstanceMethod(listReader.GetElementMethod());
@@ -218,11 +217,13 @@ namespace Mirror.Weaver
 
         private static void GenerateNullCheck(ILProcessor worker)
         {
+            ModuleDefinition module = worker.Body.Method.Module;
+
             // if (!reader.ReadBoolean()) {
             //   return null;
             // }
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(WeaverTypes.Import<bool>())));
+            worker.Append(worker.Create(OpCodes.Call, module.GetReadFunc(WeaverTypes.Import<bool>())));
 
             Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
             worker.Append(worker.Create(OpCodes.Brtrue, labelEmptyArray));
@@ -269,6 +270,8 @@ namespace Mirror.Weaver
 
         static void ReadAllFields(TypeReference variable, ILProcessor worker)
         {
+            ModuleDefinition module = worker.Body.Method.Module;
+
             uint fields = 0;
             foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
@@ -276,8 +279,8 @@ namespace Mirror.Weaver
                 OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
                 worker.Append(worker.Create(opcode, 0));
 
-                TypeReference fieldTypeRef = worker.Body.Method.Module.ImportReference(field.FieldType);
-                MethodReference readFunc = GetReadFunc(fieldTypeRef);
+                TypeReference fieldTypeRef = module.ImportReference(field.FieldType);
+                MethodReference readFunc = module.GetReadFunc(fieldTypeRef);
                 if (readFunc != null)
                 {
                     worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -287,7 +290,7 @@ namespace Mirror.Weaver
                 {
                     Weaver.Error($"{field.Name} has an unsupported type", field);
                 }
-                FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
+                FieldReference fieldRef = module.ImportReference(field);
 
                 worker.Append(worker.Create(OpCodes.Stfld, fieldRef));
                 fields++;
