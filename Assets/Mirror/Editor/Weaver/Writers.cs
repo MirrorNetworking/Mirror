@@ -47,8 +47,8 @@ namespace Mirror.Weaver
             {
                 // this try/catch will be removed in future PR and make `GetWriteFunc` throw instead
                 try
-                {
-                    return GenerateWriter(module, typeReference);
+                {   
+                    return GenerateWriter(module, module.ImportReference(typeReference));
                 }
                 catch (GenerateWriterException e)
                 {
@@ -226,8 +226,7 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
-                TypeReference fieldTypeRef = module.ImportReference(field.FieldType);
-                MethodReference writeFunc = module.GetWriteFunc(fieldTypeRef);
+                MethodReference writeFunc = module.GetWriteFunc(field.FieldType);
                 // need this null check till later PR when GetWriteFunc throws exception instead
                 if (writeFunc == null) { return false; }
 
