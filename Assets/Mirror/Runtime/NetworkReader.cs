@@ -35,7 +35,7 @@ namespace Mirror
     /// </summary>
     public class NetworkReader
     {
-        private static readonly ILogger logger = LogFactory.GetLogger<NetworkReader>();
+        static readonly ILogger logger = LogFactory.GetLogger<NetworkReader>();
 
         // internal buffer
         // byte[] pointer would work, but we use ArraySegment to also support
