@@ -48,7 +48,7 @@ namespace Mirror.Tests
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            QuestMessage unpacked = MessagePacker.Unpack<QuestMessage>(data);
+            QuestMessage unpacked = MessagePackerTest.UnpackFromByteArray<QuestMessage>(data);
 
             Assert.That(unpacked.quest.Id, Is.EqualTo(100));
         }

@@ -25,7 +25,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             int[] unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -41,7 +41,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             int[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -61,7 +61,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             int[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -89,7 +89,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             string[] unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -105,7 +105,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             string[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -125,7 +125,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             string[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -153,7 +153,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             Vector3[] unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -169,7 +169,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             Vector3[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -189,7 +189,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             Vector3[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -217,7 +217,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             FloatStringStruct[] unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -233,7 +233,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             FloatStringStruct[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -253,7 +253,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             FloatStringStruct[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -281,7 +281,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -297,7 +297,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -317,7 +317,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -345,7 +345,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<int> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
@@ -368,7 +368,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<int> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -395,7 +395,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<int> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -423,7 +423,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<string> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
@@ -446,7 +446,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<string> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -473,7 +473,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<string> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -501,7 +501,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
@@ -524,7 +524,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -551,7 +551,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -579,7 +579,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
@@ -602,7 +602,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -629,7 +629,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -657,7 +657,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
@@ -680,7 +680,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -707,7 +707,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -735,7 +735,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<int> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -751,7 +751,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<int> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -771,7 +771,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<int> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -799,7 +799,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<string> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -815,7 +815,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<string> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -835,7 +835,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<string> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -863,7 +863,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -879,7 +879,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -899,7 +899,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -927,7 +927,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -943,7 +943,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -963,7 +963,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -991,7 +991,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -1007,7 +1007,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -1027,7 +1027,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            Message unpacked = MessagePacker.Unpack<Message>(data);
+            Message unpacked = MessagePackerTest.UnpackFromByteArray<Message>(data);
             List<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);

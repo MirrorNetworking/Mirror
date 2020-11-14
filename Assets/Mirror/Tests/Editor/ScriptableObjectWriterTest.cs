@@ -33,7 +33,7 @@ namespace Mirror.Tests
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            ScriptableObjectMessage unpacked = MessagePacker.Unpack<ScriptableObjectMessage>(data);
+            ScriptableObjectMessage unpacked = MessagePackerTest.UnpackFromByteArray<ScriptableObjectMessage>(data);
 
             Assert.That(unpacked.scriptableObject, Is.Not.Null);
             Assert.That(unpacked.scriptableObject.someData, Is.EqualTo(10));

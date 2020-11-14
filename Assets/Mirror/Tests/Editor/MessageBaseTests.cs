@@ -44,7 +44,7 @@ namespace Mirror.Tests.MessageTests
         public void StructWithMethods()
         {
             byte[] arr = MessagePackerTest.PackToByteArray(new TestMessage(1, "2", 3.3));
-            TestMessage t = MessagePacker.Unpack<TestMessage>(arr);
+            TestMessage t = MessagePackerTest.UnpackFromByteArray<TestMessage>(arr);
 
             Assert.AreEqual(1, t.IntValue);
         }
@@ -53,7 +53,7 @@ namespace Mirror.Tests.MessageTests
         public void StructWithEmptyMethods()
         {
             byte[] arr = MessagePackerTest.PackToByteArray(new StructWithEmptyMethodMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
-            StructWithEmptyMethodMessage t = MessagePacker.Unpack<StructWithEmptyMethodMessage>(arr);
+            StructWithEmptyMethodMessage t = MessagePackerTest.UnpackFromByteArray<StructWithEmptyMethodMessage>(arr);
 
             Assert.AreEqual(1, t.IntValue);
             Assert.AreEqual("2", t.StringValue);
