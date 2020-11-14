@@ -195,7 +195,7 @@ namespace Mirror.Weaver
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
             // create local for return value
-            readerFunc.Body.Variables.Add(new VariableDefinition(variable));
+            readerFunc.Body.Variables.Add(new VariableDefinition(Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
@@ -204,7 +204,7 @@ namespace Mirror.Weaver
             if (!td.IsValueType)
                 GenerateNullCheck(worker);
 
-            CreateNew(variable, worker, td);
+            CreateNew(Weaver.CurrentAssembly.MainModule.ImportReference(variable), worker, td);
             ReadAllFields(variable, worker);
 
             worker.Append(worker.Create(OpCodes.Ldloc_0));
