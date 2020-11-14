@@ -156,9 +156,9 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        private static MethodDefinition GenerateWriterFunc(TypeReference variable)
+        private static MethodDefinition GenerateWriterFunc(TypeReference typeReference)
         {
-            string functionName = "_Write_" + variable.FullName;
+            string functionName = "_Write_" + typeReference.FullName;
             // create new writer for this type
             MethodDefinition writerFunc = Weaver.CurrentAssembly.MainModule.GeneratedClass().AddMethod(functionName,
                     MethodAttributes.Public |
@@ -166,10 +166,10 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig);
 
             _ = writerFunc.AddParam<NetworkWriter>("writer");
-            _ = writerFunc.AddParam(Weaver.CurrentAssembly.MainModule.ImportReference(variable), "value");
+            _ = writerFunc.AddParam(Weaver.CurrentAssembly.MainModule.ImportReference(typeReference), "value");
             writerFunc.Body.InitLocals = true;
 
-            RegisterWriteFunc(variable, writerFunc);
+            RegisterWriteFunc(typeReference, writerFunc);
             return writerFunc;
         }
 
