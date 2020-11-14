@@ -218,7 +218,8 @@ namespace Mirror.Weaver
             uint fields = 0;
             foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
-                MethodReference writeFunc = GetWriteFunc(field.FieldType);
+                TypeReference fieldTypeRef = Weaver.CurrentAssembly.MainModule.ImportReference(field.FieldType);
+                MethodReference writeFunc = GetWriteFunc(fieldTypeRef);
                 // need this null check till later PR when GetWriteFunc throws exception instead
                 if (writeFunc == null) { return false; }
 
