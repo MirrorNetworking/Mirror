@@ -276,7 +276,8 @@ namespace Mirror.Weaver
                 OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
                 worker.Append(worker.Create(opcode, 0));
 
-                MethodReference readFunc = GetReadFunc(field.FieldType);
+                TypeReference fieldTypeRef = worker.Body.Method.Module.ImportReference(field.FieldType);
+                MethodReference readFunc = GetReadFunc(fieldTypeRef);
                 if (readFunc != null)
                 {
                     worker.Append(worker.Create(OpCodes.Ldarg_0));
