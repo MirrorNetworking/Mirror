@@ -48,6 +48,7 @@
     <None Remove="WeaverClientServerAttributeTests.cs.meta" />
     <None Remove="WeaverCommandTests.cs.meta" />
     <None Remove="WeaverGeneralTests.cs.meta" />
+    <None Remove="WeaverGeneratedReaderWriterAnotherAssemblyTests.cs.meta" />
     <None Remove="WeaverGeneratedReaderWriterTests.cs.meta" />
     <None Remove="WeaverMessageTests.cs.meta" />
     <None Remove="WeaverMonoBehaviourTests.cs.meta" />
@@ -62,20 +63,22 @@
     <None Remove="WeaverTests.cs.meta" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CanUseCustomReadWriteForTypesFromDifferentAssemblies.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForClassFromDifferentAssemblies.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForClassFromDifferentAssembliesWithValidConstructor.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForComplexTypeFromDifferentAssemblies.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForStructFromDifferentAssemblies.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForTypeThatUsesDifferentAssemblies.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CanUseCustomReadWriteForAbstractClass.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CanUseCustomReadWriteForInterfaces.cs" />
-    <Compile Include="WeaverGeneratedReaderWriterTests~\CanUseCustomReadWriteForTypesFromDifferentAssemblies.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForArraySegment.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForClass.cs" />
-    <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForClassFromDifferentAssemblies.cs" />
-    <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForClassFromDifferentAssembliesWithValidConstructor.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForClassInherited.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForClassWithValidConstructor.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForEnums.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForInheritedFromScriptableObject.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForList.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForStructArraySegment.cs" />
-    <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForStructFromDifferentAssemblies.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForStructList.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForStructs.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\ExcludesNonSerializedFields.cs" />

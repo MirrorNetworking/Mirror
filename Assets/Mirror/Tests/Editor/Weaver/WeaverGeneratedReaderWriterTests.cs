@@ -4,14 +4,6 @@ namespace Mirror.Weaver.Tests
 {
     public class WeaverGeneratedReaderWriterTests : WeaverTestsBuildFromTestName
     {
-        [SetUp]
-        public override void TestSetup()
-        {
-            WeaverAssembler.AddReferencesByAssemblyName(new string[] { "WeaverTestExtraAssembly.dll" });
-
-            base.TestSetup();
-        }
-
         [Test]
         public void CreatesForStructs()
         {
@@ -45,30 +37,6 @@ namespace Mirror.Weaver.Tests
 
         [Test]
         public void CreatesForInheritedFromScriptableObject()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CreatesForStructFromDifferentAssemblies()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CreatesForClassFromDifferentAssemblies()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CreatesForClassFromDifferentAssembliesWithValidConstructor()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CanUseCustomReadWriteForTypesFromDifferentAssemblies()
         {
             IsSuccess();
         }

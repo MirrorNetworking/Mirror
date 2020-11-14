@@ -20,13 +20,27 @@ namespace Mirror.Weaver
             readFuncs[dataType.FullName] = methodReference;
         }
 
-        public static MethodReference GetReadFunc(TypeReference variableReference)
+        /// <summary>
+        /// Finds existing reader for type, if non exists trys to create one
+        /// <para>This method is recursive</para>
+        /// </summary>
+        /// <param name="variable"></param>
+        /// <returns>Returns <see cref="MethodReference"/> or null</returns>
+        public static MethodReference GetReadFunc(TypeReference variable)
         {
-            if (readFuncs.TryGetValue(variableReference.FullName, out MethodReference foundFunc))
+            if (readFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
             {
                 return foundFunc;
             }
+            else
+            {
+                TypeReference importedVariable = Weaver.CurrentAssembly.MainModule.ImportReference(variable);
+                return GenerateReader(importedVariable);
+            }
+        }
 
+        private static MethodReference GenerateReader(TypeReference variableReference)
+        {
             // Arrays are special,  if we resolve them, we get teh element type,
             // so the following ifs might choke on it for scriptable objects
             // or other objects that require a custom serializer
@@ -156,7 +170,7 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    Weaver.CurrentAssembly.MainModule.ImportReference(variable));
+                    variable);
 
             readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
             readerFunc.Body.InitLocals = true;
