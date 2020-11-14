@@ -282,7 +282,7 @@ namespace Mirror.Weaver
         /// <param name="worker"></param>
         internal static void InitializeWriters(ILProcessor worker)
         {
-            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
+            ModuleDefinition module = worker.Body.Method.Module;
 
             TypeReference genericWriterClassRef = module.ImportReference(typeof(Writer<>));
 
