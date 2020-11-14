@@ -24,7 +24,7 @@ namespace Mirror
     /// </summary>
     public class NetworkWriter
     {
-        private ILogger logger = LogFactory.GetLogger<NetworkWriter>();
+        private static readonly ILogger logger = LogFactory.GetLogger<NetworkWriter>();
 
         public const int MaxStringLength = 1024 * 32;
 
