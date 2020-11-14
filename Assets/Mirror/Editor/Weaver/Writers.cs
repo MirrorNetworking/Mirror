@@ -44,7 +44,8 @@ namespace Mirror.Weaver
                 // this try/catch will be removed in future PR and make `GetWriteFunc` throw instead
                 try
                 {
-                    return GenerateWriter(variable);
+                    TypeReference importedVariable = Weaver.CurrentAssembly.MainModule.ImportReference(variable);
+                    return GenerateWriter(importedVariable);
                 }
                 catch (GenerateWriterException e)
                 {

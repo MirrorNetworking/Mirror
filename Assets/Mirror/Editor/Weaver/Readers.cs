@@ -34,7 +34,8 @@ namespace Mirror.Weaver
             }
             else
             {
-                return GenerateReader(variable);
+                TypeReference importedVariable = Weaver.CurrentAssembly.MainModule.ImportReference(variable);
+                return GenerateReader(importedVariable);
             }
         }
 
