@@ -71,6 +71,7 @@
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForClassFromDifferentAssembliesWithValidConstructor.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForClassInherited.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForClassWithValidConstructor.cs" />
+    <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForComplexTypeFromDifferentAssemblies.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForEnums.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForInheritedFromScriptableObject.cs" />
     <Compile Include="WeaverGeneratedReaderWriterTests~\CreatesForList.cs" />
