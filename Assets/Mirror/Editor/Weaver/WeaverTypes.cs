@@ -9,8 +9,6 @@ namespace Mirror.Weaver
 
         private static AssemblyDefinition currentAssembly;
 
-        public static TypeReference Import(Type t) => currentAssembly.MainModule.ImportReference(t);
-
         public static void SetupTargetTypes(AssemblyDefinition currentAssembly)
         {
             // system types

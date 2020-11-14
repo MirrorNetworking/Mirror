@@ -217,7 +217,7 @@ namespace Mirror.Weaver
                 var taskReturnType = func.ReturnType as GenericInstanceType;
 
                 TypeReference returnType = taskReturnType.GenericArguments[0];
-                TypeReference genericDelegate = WeaverTypes.Import(typeof(RequestDelegate<int>).GetGenericTypeDefinition());
+                TypeReference genericDelegate = func.Module.ImportReference(typeof(RequestDelegate<int>).GetGenericTypeDefinition());
 
                 var delegateInstance = new GenericInstanceType(genericDelegate);
                 delegateInstance.GenericArguments.Add(returnType);
