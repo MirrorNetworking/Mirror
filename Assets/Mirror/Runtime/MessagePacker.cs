@@ -48,6 +48,7 @@ namespace Mirror
         // -> pass NetworkReader so it's less strange if we create it in here
         //    and pass it upwards.
         // -> NetworkReader will point at content afterwards!
+        [Obsolete("use ReadUInt16 instead", true)]
         public static bool Unpack(NetworkReader messageReader, out int msgType)
         {
             // read message type (varint)
