@@ -62,7 +62,7 @@ namespace Mirror
         public static bool UnpackMessage(NetworkReader messageReader, out int msgType) =>
             Unpack(messageReader, out msgType);
 
-        internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
+        internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T> handler, bool requireAuthentication)
             where T : struct, NetworkMessage
             where C : NetworkConnection
             => (conn, reader, channelId) =>
@@ -82,7 +82,7 @@ namespace Mirror
             T message = default;
             try
             {
-                if (requireAuthenication && !conn.isAuthenticated)
+                if (requireAuthentication && !conn.isAuthenticated)
                 {
                     // message requires authentication, but the connection was not authenticated
                     logger.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
