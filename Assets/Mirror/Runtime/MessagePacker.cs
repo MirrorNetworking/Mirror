@@ -108,6 +108,7 @@ namespace Mirror
                 NetworkDiagnostics.OnReceive(message, channelId, reader.Length);
             }
 
+            // user handler exception should not stop the whole server
             try
             {
                 // user implemented hanlder
