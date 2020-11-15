@@ -43,7 +43,7 @@ namespace Mirror
         // -> pass NetworkReader so it's less strange if we create it in here
         //    and pass it upwards.
         // -> NetworkReader will point at content afterwards!
-        public static bool UnpackMessage(NetworkReader messageReader, out int msgType)
+        public static bool Unpack(NetworkReader messageReader, out int msgType)
         {
             // read message type (varint)
             try
@@ -58,7 +58,10 @@ namespace Mirror
             }
         }
 
-        // wraps a handler function with extra code
+        [Obsolete("MessagePacker.UnpackMessage was renamed to Unpack for consistency with Pack.")]
+        public static bool UnpackMessage(NetworkReader messageReader, out int msgType) =>
+            Unpack(messageReader, out msgType);
+
         internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
             where T : struct, NetworkMessage
             where C : NetworkConnection

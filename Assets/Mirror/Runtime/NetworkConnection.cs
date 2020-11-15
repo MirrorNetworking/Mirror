@@ -242,7 +242,7 @@ namespace Mirror
             // unpack message
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(buffer))
             {
-                if (MessagePacker.UnpackMessage(networkReader, out int msgType))
+                if (MessagePacker.Unpack(networkReader, out int msgType))
                 {
                     // logging
                     if (logger.LogEnabled()) logger.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
