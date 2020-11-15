@@ -241,14 +241,14 @@ namespace Mirror
             }
 
             // unpack message
-            using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(buffer))
+            using (PooledNetworkReader reader = NetworkReaderPool.GetReader(buffer))
             {
-                int msgId = networkReader.ReadUInt16();
+                int msgId = reader.ReadUInt16();
 
                 if (logger.LogEnabled()) logger.Log("ConnectionRecv " + this + " msgType:" + msgId + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                 // try to invoke the handler for that message
-                if (InvokeHandler(msgId, networkReader, channelId))
+                if (InvokeHandler(msgId, reader, channelId))
                 {
                     lastMessageTime = Time.time;
                 }
