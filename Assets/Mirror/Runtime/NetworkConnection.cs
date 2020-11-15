@@ -245,12 +245,12 @@ namespace Mirror
             {
                 int msgId = reader.ReadUInt16();
 
-                // try to invoke the handler for that message
-                if (InvokeHandler(msgId, reader, channelId))
+                if (messageHandlers.TryGetValue(msgId, out NetworkMessageDelegate msgDelegate))
                 {
+                    msgDelegate(this, reader, channelId);
                     lastMessageTime = Time.time;
                 }
-
+                else if (logger.LogEnabled()) logger.Log($"Unknown message ID {msgId} {this}. May be due to no existing RegisterHandler for this message.");
             }
         }
 
