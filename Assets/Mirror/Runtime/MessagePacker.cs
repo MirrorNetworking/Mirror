@@ -111,7 +111,7 @@ namespace Mirror
             // user handler exception should not stop the whole server
             try
             {
-                // user implemented hanlder
+                // user implemented handler
                 handler((C)conn, message);
             }
             catch (Exception e)
