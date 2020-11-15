@@ -596,7 +596,7 @@ namespace Mirror
             {
                 logger.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
-            handlers[msgType] = MessagePacker.MessageHandler(handler, requireAuthentication);
+            handlers[msgType] = MessagePacker.WrapHandler(handler, requireAuthentication);
         }
 
         /// <summary>
@@ -623,7 +623,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             int msgType = MessagePacker.GetId<T>();
-            handlers[msgType] = MessagePacker.MessageHandler(handler, requireAuthentication);
+            handlers[msgType] = MessagePacker.WrapHandler(handler, requireAuthentication);
         }
 
         /// <summary>
