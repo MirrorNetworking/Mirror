@@ -244,9 +244,6 @@ namespace Mirror
             {
                 if (MessagePacker.UnpackMessage(networkReader, out int msgType))
                 {
-                    // logging
-                    if (logger.LogEnabled()) logger.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
-
                     // try to invoke the handler for that message
                     if (InvokeHandler(msgType, networkReader, channelId))
                     {
