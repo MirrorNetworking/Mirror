@@ -243,22 +243,16 @@ namespace Mirror
             // unpack message
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(buffer))
             {
-                if (MessagePacker.UnpackMessage(networkReader, out int msgType))
-                {
-                    // logging
-                    if (logger.LogEnabled()) logger.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+                int msgId = networkReader.ReadUInt16();
 
-                    // try to invoke the handler for that message
-                    if (InvokeHandler(msgType, networkReader, channelId))
-                    {
-                        lastMessageTime = Time.time;
-                    }
-                }
-                else
+                if (logger.LogEnabled()) logger.Log("ConnectionRecv " + this + " msgType:" + msgId + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+
+                // try to invoke the handler for that message
+                if (InvokeHandler(msgId, networkReader, channelId))
                 {
-                    logger.LogError("Closed connection: " + this + ". Invalid message header.");
-                    Disconnect();
+                    lastMessageTime = Time.time;
                 }
+
             }
         }
 
