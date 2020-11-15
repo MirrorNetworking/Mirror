@@ -245,8 +245,6 @@ namespace Mirror
             {
                 int msgId = reader.ReadUInt16();
 
-                if (logger.LogEnabled()) logger.Log("ConnectionRecv " + this + " msgType:" + msgId + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
-
                 // try to invoke the handler for that message
                 if (InvokeHandler(msgId, reader, channelId))
                 {
