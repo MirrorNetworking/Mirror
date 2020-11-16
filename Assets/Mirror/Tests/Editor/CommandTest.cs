@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -46,6 +47,17 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void CmdSendInt(int someInt, NetworkConnectionToClient conn = null)
         {
             onSendInt?.Invoke(someInt, conn);
+        }
+    }
+
+    class ThrowBehaviour : NetworkBehaviour
+    {
+        public const string ErrorMessage = "Bad things happened";
+
+        [Command]
+        public void SendThrow(int someInt)
+        {
+            throw new Exception(ErrorMessage);
         }
     }
 
@@ -165,6 +177,23 @@ namespace Mirror.Tests.RemoteAttrributeTest
             hostBehaviour.CmdSendInt(someInt);
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void CommandThatThrowsShouldBeCaught()
+        {
+            ThrowBehaviour hostBehaviour = CreateHostObject<ThrowBehaviour>(true);
+
+            const int someInt = 20;
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections[0];
+            Debug.Assert(connectionToClient != null, $"connectionToClient was null, This means that the test is broken and will give the wrong results");
+
+            LogAssert.Expect(LogType.Error, new Regex($".*{ThrowBehaviour.ErrorMessage}.*"));
+            Assert.DoesNotThrow(() =>
+            {
+                hostBehaviour.SendThrow(someInt);
+                ProcessMessages();
+            }, "Processing new message should not throw, the execption from SendThrow should be caught");
         }
     }
 }
