@@ -830,17 +830,17 @@ namespace Mirror
 
             if (logger.logEnabled) logger.Log("ServerChangeScene " + newSceneName);
             NetworkServer.SetAllClientsNotReady();
-            networkSceneName = newSceneName;
-
+            
             // Let server prepare for scene change
             OnServerChangeScene(newSceneName);
+            networkSceneName = newSceneName;
 
             // Suspend the server's transport while changing scenes
             // It will be re-enabled in FinishScene.
             Transport.activeTransport.enabled = false;
 
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
-
+            loadingSceneAsync.allowSceneActivation = false;
             // ServerChangeScene can be called when stopping the server
             // when this happens the server is not active so does not need to tell clients about the change
             if (NetworkServer.active)
@@ -920,6 +920,9 @@ namespace Mirror
                     break;
             }
 
+            // don't load scene immediately after loading. 
+            loadingSceneAsync.allowSceneActivation = false;
+
             // don't change the client's current networkSceneName when loading additive scene content
             if (sceneOperation == SceneOperation.Normal)
                 networkSceneName = newSceneName;
@@ -954,12 +957,22 @@ namespace Mirror
 
         static void UpdateScene()
         {
-            if (singleton != null && loadingSceneAsync != null && loadingSceneAsync.isDone)
+            // When AsyncOperation.allowSceneActivation set to false, it loads only to 90%. 
+            if (singleton != null && loadingSceneAsync != null && loadingSceneAsync.progress >= 0.9f)
             {
-                if (logger.LogEnabled()) logger.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
-                singleton.FinishLoadScene();
-                loadingSceneAsync.allowSceneActivation = true;
-                loadingSceneAsync = null;
+                if (singleton.CanSceneBeChanged())
+                {
+                    // After allowing, scene will continue to load and will pop up when it is done.
+                    loadingSceneAsync.allowSceneActivation = true;
+                }
+
+                if (loadingSceneAsync.isDone)
+                {
+                    if (logger.LogEnabled()) logger.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
+                    singleton.FinishLoadScene();
+                    loadingSceneAsync = null;
+                }
+
             }
         }
 
@@ -988,6 +1001,7 @@ namespace Mirror
             }
             // otherwise we called it after stopping when loading offline scene.
             // do nothing then.
+
         }
 
         // finish load scene part for host mode. makes code easier and is
@@ -1483,5 +1497,15 @@ namespace Mirror
         public virtual void OnStopHost() { }
 
         #endregion
+
+        /// <summary>
+        /// Called from client and server. Indicates whether loaded scene can changed. For example when server changing scenes, it does it immediately when it is ready.
+        /// This method is called each frame and let user control moment of scene change.
+        /// Useful when dealing with scene transitions.
+        /// </summary>
+        public virtual bool CanSceneBeChanged()
+        {
+            return true;
+        }
     }
 }
