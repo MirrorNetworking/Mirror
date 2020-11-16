@@ -90,13 +90,15 @@ namespace Mirror
                     return;
                 }
 
+                if (logger.LogEnabled()) logger.Log($"ConnectionRecv {conn} msgType:{typeof(T)} content:{BitConverter.ToString(reader.buffer.Array, reader.buffer.Offset, reader.buffer.Count)}");
+
                 // if it is a value type, just use defult(T)
                 // otherwise allocate a new instance
                 message = reader.Read<T>();
             }
             catch (Exception exception)
             {
-                logger.LogError("Closed connection: " + conn + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
+                logger.LogError($"Closed connection: {conn}. This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: {exception}");
                 conn.Disconnect();
                 return;
             }
