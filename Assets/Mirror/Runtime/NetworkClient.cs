@@ -67,7 +67,7 @@ namespace Mirror
 
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
-            InitializeTransportHandlers();
+            AddTransportHandlers();
 
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(address);
@@ -88,7 +88,7 @@ namespace Mirror
 
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
-            InitializeTransportHandlers();
+            AddTransportHandlers();
 
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(uri);
@@ -145,7 +145,7 @@ namespace Mirror
             }
         }
 
-        static void InitializeTransportHandlers()
+        static void AddTransportHandlers()
         {
             Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
             Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
