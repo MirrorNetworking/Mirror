@@ -16,6 +16,31 @@ namespace Mirror
         /// </summary>
         public static Transport activeTransport;
 
+        public Transport()
+        {
+            // use contructor instead of awake
+            // - other transports dont need to override
+            // - setting actions here is safe because it doesn't effect unity things
+            ResetClientHandlers();
+            ResetServerHandlers();
+        }
+
+        public void ResetClientHandlers()
+        {
+            onClientConnected = () => Debug.LogWarning("onClientConnected called with no handler");
+            onClientDataReceived = (_data, _channel) => Debug.LogWarning("onClientDataReceived called with no handler");
+            onClientDisconnected = () => Debug.LogWarning("onClientDisconnected called with no handler");
+            onClientError = (_error) => Debug.LogWarning("onClientError called with no handler");
+        }
+
+        public void ResetServerHandlers()
+        {
+            onServerConnected = (_connId) => Debug.LogWarning("onServerConnected called with no handler");
+            onServerDataReceived = (_connId, _data, _channel) => Debug.LogWarning("onServerDataReceived called with no handler");
+            onServerDisconnected = (_connId) => Debug.LogWarning("onServerDisconnected called with no handler");
+            onServerError = (_connId, _error) => Debug.LogWarning("onServerError called with no handler");
+        }
+
         /// <summary>
         /// Is this transport available in the current platform?
         /// <para>Some transports might only be available in mobile</para>

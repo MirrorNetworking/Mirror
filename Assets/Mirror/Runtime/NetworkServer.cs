@@ -499,10 +499,7 @@ namespace Mirror
 
         static void RemoveTransportHandlers()
         {
-            Transport.activeTransport.onServerConnected = null;
-            Transport.activeTransport.onServerDataReceived = null;
-            Transport.activeTransport.onServerDisconnected = null;
-            Transport.activeTransport.onServerError = null;
+            Transport.activeTransport.ResetServerHandlers();
         }
 
         static void OnConnected(int connectionId)

@@ -155,10 +155,7 @@ namespace Mirror
 
         static void RemoveTransportHandlers()
         {
-            Transport.activeTransport.onClientConnected = null;
-            Transport.activeTransport.onClientDataReceived = null;
-            Transport.activeTransport.onClientDisconnected = null;
-            Transport.activeTransport.onClientError = null;
+            Transport.activeTransport.ResetClientHandlers();
         }
 
         static void OnError(Exception exception)
