@@ -166,6 +166,11 @@ namespace Mirror
             }
 #endif
             // calculate size
+            //   sizeof(T) gets the managed size at compile time.
+            //   Marshal.SizeOf<T> gets the unmanaged size at runtime (slow).
+            // => our 1mio writes benchmark is 6x slower with Marshal.SizeOf<T>
+            // => for blittable types, sizeof(T) is even recommended:
+            // https://docs.microsoft.com/en-us/dotnet/standard/native-interop/best-practices
             int size = sizeof(T);
 
             // ensure length
