@@ -25,15 +25,10 @@ namespace Mirror.Tests.Performance
 
         static void WriteInt32()
         {
-            for (int j = 0; j < 1000; j++)
+            NetworkWriter writer = new NetworkWriter();
+            for (int i = 0; i < 100000; i++)
             {
-                using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        writer.WriteInt32(i * 1000);
-                    }
-                }
+                writer.WriteInt32(i);
             }
         }
         // A Test behaves as an ordinary method
