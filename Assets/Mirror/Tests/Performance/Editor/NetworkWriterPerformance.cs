@@ -1,5 +1,6 @@
 #if !UNITY_2019_2_OR_NEWER || UNITY_PERFORMANCE_TESTS_1_OR_OLDER
 using NUnit.Framework;
+using UnityEngine;
 using Unity.PerformanceTesting;
 
 namespace Mirror.Tests.Performance
@@ -32,6 +33,32 @@ namespace Mirror.Tests.Performance
                     {
                         writer.WriteInt32(i * 1000);
                     }
+                }
+            }
+        }
+        // A Test behaves as an ordinary method
+        [Test]
+#if UNITY_2019_2_OR_NEWER
+        [Performance]
+#else
+        [PerformanceTest]
+#endif
+        public void RunWriteQuaternion()
+        {
+            Measure.Method(WriteQuaternion)
+                .WarmupCount(10)
+                .MeasurementCount(100)
+                .Run();
+        }
+
+        static void WriteQuaternion()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            for (int j = 0; j < 1000; j++)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    writer.WriteQuaternion(Quaternion.identity);
                 }
             }
         }
