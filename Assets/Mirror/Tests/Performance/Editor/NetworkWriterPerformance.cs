@@ -49,7 +49,7 @@ namespace Mirror.Tests.Performance
         static void WriteQuaternion()
         {
             NetworkWriter writer = new NetworkWriter();
-            for (int j = 0; j < 100000; j++)
+            for (int i = 0; i < 100000; i++)
             {
                 writer.WriteQuaternion(Quaternion.identity);
             }
