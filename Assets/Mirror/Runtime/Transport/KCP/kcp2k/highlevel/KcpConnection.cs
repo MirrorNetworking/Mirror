@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using Debug = UnityEngine.Debug;
 
 namespace kcp2k
 {
@@ -96,7 +95,7 @@ namespace kcp2k
             //       only ever happen if the connection is truly gone.
             if (time >= lastReceiveTime + TIMEOUT)
             {
-                Debug.LogWarning($"KCP: Connection timed out after {TIMEOUT}ms. Disconnecting.");
+                Log.Warning($"KCP: Connection timed out after {TIMEOUT}ms. Disconnecting.");
                 Disconnect();
             }
         }
@@ -106,7 +105,7 @@ namespace kcp2k
             // kcp has 'dead_link' detection. might as well use it.
             if (kcp.state == -1)
             {
-                Debug.LogWarning("KCP Connection dead_link detected. Disconnecting.");
+                Log.Warning("KCP Connection dead_link detected. Disconnecting.");
                 Disconnect();
             }
         }
@@ -118,7 +117,7 @@ namespace kcp2k
             if (time >= lastPingTime + PING_INTERVAL)
             {
                 // ping again and reset time
-                //Debug.Log("KCP: sending ping...");
+                //Log.Debug("KCP: sending ping...");
                 Send(Ping);
                 lastPingTime = time;
             }
@@ -132,7 +131,7 @@ namespace kcp2k
                         kcp.rcv_buf.Count + kcp.snd_buf.Count;
             if (total >= QueueDisconnectThreshold)
             {
-                Debug.LogWarning($"KCP: disconnecting connection because it can't process data fast enough.\n" +
+                Log.Warning($"KCP: disconnecting connection because it can't process data fast enough.\n" +
                                  $"Queue total {total}>{QueueDisconnectThreshold}. rcv_queue={kcp.rcv_queue.Count} snd_queue={kcp.snd_queue.Count} rcv_buf={kcp.rcv_buf.Count} snd_buf={kcp.snd_buf.Count}\n" +
                                  $"* Try to Enable NoDelay, decrease INTERVAL, disable Congestion Window (= enable NOCWND!), increase SEND/RECV WINDOW or compress data.\n" +
                                  $"* Or perhaps the network is simply too slow on our end, or on the other end.\n");
@@ -167,7 +166,7 @@ namespace kcp2k
                         // return false if it was a ping message. true otherwise.
                         if (Utils.SegmentsEqual(message, Ping))
                         {
-                            //Debug.Log("KCP: received ping.");
+                            //Log.Debug("KCP: received ping.");
                             return false;
                         }
                         return true;
@@ -175,7 +174,7 @@ namespace kcp2k
                     else
                     {
                         // if receive failed, close everything
-                        Debug.LogWarning($"Receive failed with error={received}. closing connection.");
+                        Log.Warning($"Receive failed with error={received}. closing connection.");
                         Disconnect();
                     }
                 }
@@ -183,7 +182,7 @@ namespace kcp2k
                 // attacker. let's disconnect to avoid allocation attacks etc.
                 else
                 {
-                    Debug.LogWarning($"KCP: possible allocation attack for msgSize {msgSize} > max {MaxMessageSize}. Disconnecting the connection.");
+                    Log.Warning($"KCP: possible allocation attack for msgSize {msgSize} > max {MaxMessageSize}. Disconnecting the connection.");
                     Disconnect();
                 }
             }
@@ -206,7 +205,7 @@ namespace kcp2k
                 // handshake message?
                 if (Utils.SegmentsEqual(message, Hello))
                 {
-                    Debug.Log("KCP: received handshake");
+                    Log.Info("KCP: received handshake");
                     state = KcpState.Authenticated;
                     OnAuthenticated?.Invoke();
                 }
@@ -214,7 +213,7 @@ namespace kcp2k
                 // from a legitimate player. disconnect.
                 else
                 {
-                    Debug.LogWarning("KCP: received random data before handshake. Disconnecting the connection.");
+                    Log.Warning("KCP: received random data before handshake. Disconnecting the connection.");
                     Disconnect();
                 }
             }
@@ -236,7 +235,7 @@ namespace kcp2k
                 // disconnect message?
                 if (Utils.SegmentsEqual(message, Goodbye))
                 {
-                    Debug.Log("KCP: received disconnect message");
+                    Log.Info("KCP: received disconnect message");
                     Disconnect();
                     break;
                 }
@@ -244,7 +243,7 @@ namespace kcp2k
                 else
                 {
                     // only accept regular messages
-                    //Debug.LogWarning($"Kcp recv msg: {BitConverter.ToString(buffer, 0, msgSize)}");
+                    //Log.Warning($"Kcp recv msg: {BitConverter.ToString(buffer, 0, msgSize)}");
                     OnData?.Invoke(message);
                 }
             }
@@ -278,19 +277,19 @@ namespace kcp2k
             catch (SocketException exception)
             {
                 // this is ok, the connection was closed
-                Debug.Log($"KCP Connection: Disconnecting because {exception}. This is fine.");
+                Log.Info($"KCP Connection: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (ObjectDisposedException exception)
             {
                 // fine, socket was closed
-                Debug.Log($"KCP Connection: Disconnecting because {exception}. This is fine.");
+                Log.Info($"KCP Connection: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (Exception ex)
             {
                 // unexpected
-                Debug.LogException(ex);
+                Log.Error(ex.ToString());
                 Disconnect();
             }
         }
@@ -300,7 +299,7 @@ namespace kcp2k
             int input = kcp.Input(buffer, msgLength);
             if (input != 0)
             {
-                Debug.LogWarning($"Input failed with error={input} for buffer with length={msgLength}");
+                Log.Warning($"Input failed with error={input} for buffer with length={msgLength}");
             }
         }
 
@@ -315,10 +314,10 @@ namespace kcp2k
                 int sent = kcp.Send(data.Array, data.Offset, data.Count);
                 if (sent < 0)
                 {
-                    Debug.LogWarning($"Send failed with error={sent} for segment with length={data.Count}");
+                    Log.Warning($"Send failed with error={sent} for segment with length={data.Count}");
                 }
             }
-            else Debug.LogError($"Failed to send message of size {data.Count} because it's larger than MaxMessageSize={MaxMessageSize}");
+            else Log.Error($"Failed to send message of size {data.Count} because it's larger than MaxMessageSize={MaxMessageSize}");
         }
 
         // server & client need to send handshake at different times, so we need
@@ -328,7 +327,7 @@ namespace kcp2k
         //   (server should not reply to random internet messages with handshake)
         public void SendHandshake()
         {
-            Debug.Log("KcpConnection: sending Handshake to other end!");
+            Log.Info("KcpConnection: sending Handshake to other end!");
             Send(Hello);
         }
 
@@ -367,7 +366,7 @@ namespace kcp2k
             }
 
             // set as Disconnected, call event
-            Debug.Log("KCP Connection: Disconnected.");
+            Log.Info("KCP Connection: Disconnected.");
             state = KcpState.Disconnected;
             OnDisconnected?.Invoke();
         }

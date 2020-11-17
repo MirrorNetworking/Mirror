@@ -1,7 +1,25 @@
-V1.1
+V1.3 [2020-11-17]
+- Log.Info/Warning/Error so logging doesn't depend on UnityEngine anymore
+- fix: Server.Tick catches SocketException which happens if Android client is killed
+- MirrorTransport: debugLog option added that can be checked in Unity Inspector
+- Utils.Clamp so Kcp.cs doesn't depend on UnityEngine
+- Utils.SegmentsEqual: use Linq SequenceEqual so it doesn't depend on UnityEngine
+=> kcp2k can now be used in any C# project even without Unity
+
+V1.2 [2020-11-10]
+- more tests added
+- fix: raw receive buffers are now all of MTU size
+- fix: raw receive detects error where buffer was too small for msgLength and
+  result in excess data being dropped silently
+- KcpConnection.MaxMessageSize added for use in high level
+- KcpConnection.MaxMessageSize increased from 1200 bytes to to maximum allowed
+  message size of 145KB for kcp (based on mtu, overhead, wnd_rcv)
+
+
+V1.1 [2020-10-30]
 - high level cleanup, fixes, improvements
 
-V1.0
+V1.0 [2020-10-22]
 - Kcp.cs now mirrors original Kcp.c behaviour
   (this fixes dozens of bugs)
 

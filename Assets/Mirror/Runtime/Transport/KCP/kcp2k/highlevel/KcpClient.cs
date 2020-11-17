@@ -1,7 +1,6 @@
 // kcp client logic abstracted into a class.
 // for use in Mirror, DOTSNET, testing, etc.
 using System;
-using UnityEngine;
 
 namespace kcp2k
 {
@@ -27,7 +26,7 @@ namespace kcp2k
         {
             if (connected)
             {
-                Debug.LogWarning("KCP: client already connected!");
+                Log.Warning("KCP: client already connected!");
                 return;
             }
 
@@ -36,18 +35,18 @@ namespace kcp2k
             // setup events
             connection.OnAuthenticated = () =>
             {
-                Debug.Log($"KCP: OnClientConnected");
+                Log.Info($"KCP: OnClientConnected");
                 connected = true;
                 OnConnected.Invoke();
             };
             connection.OnData = (message) =>
             {
-                //Debug.Log($"KCP: OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
+                //Log.Debug($"KCP: OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
                 OnData.Invoke(message);
             };
             connection.OnDisconnected = () =>
             {
-                Debug.Log($"KCP: OnClientDisconnected");
+                Log.Info($"KCP: OnClientDisconnected");
                 connected = false;
                 connection = null;
                 OnDisconnected.Invoke();
@@ -63,7 +62,7 @@ namespace kcp2k
             {
                 connection.Send(segment);
             }
-            else Debug.LogWarning("KCP: can't send because client not connected!");
+            else Log.Warning("KCP: can't send because client not connected!");
         }
 
         public void Disconnect()

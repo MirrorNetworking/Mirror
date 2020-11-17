@@ -4,6 +4,14 @@ namespace kcp2k
 {
     public static partial class Utils
     {
+        // Clamp so we don't have to depend on UnityEngine
+        public static int Clamp(int value, int min, int max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+
         // encode 8 bits unsigned int
         public static int Encode8u(byte[] p, int offset, byte c)
         {

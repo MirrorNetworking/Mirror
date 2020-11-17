@@ -1,4 +1,3 @@
-using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
 
@@ -14,7 +13,7 @@ namespace kcp2k
 
         public void Connect(string host, ushort port, bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV)
         {
-            Debug.Log($"KcpClient: connect to {host}:{port}");
+            Log.Info($"KcpClient: connect to {host}:{port}");
             IPAddress[] ipAddress = Dns.GetHostAddresses(host);
             if (ipAddress.Length < 1)
                 throw new SocketException((int)SocketError.HostNotFound);
@@ -46,12 +45,12 @@ namespace kcp2k
                         //            (see ReceiveFrom documentation)
                         if (msgLength <= rawReceiveBuffer.Length)
                         {
-                            //Debug.Log($"KCP: client raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
+                            //Log.Debug($"KCP: client raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
                             RawInput(rawReceiveBuffer, msgLength);
                         }
                         else
                         {
-                            Debug.LogError($"KCP ClientConnection: message of size {msgLength} does not fit into buffer of size {rawReceiveBuffer.Length}. The excess was silently dropped. Disconnecting.");
+                            Log.Error($"KCP ClientConnection: message of size {msgLength} does not fit into buffer of size {rawReceiveBuffer.Length}. The excess was silently dropped. Disconnecting.");
                             Disconnect();
                         }
                     }
