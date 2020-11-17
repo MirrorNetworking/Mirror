@@ -25,8 +25,14 @@ namespace Mirror.Tests.Performance
 
         static void WriteInt32()
         {
+            int count = 100000;
+
+            // create big enough writer so we don't need to resize when testing
             NetworkWriter writer = new NetworkWriter();
-            for (int i = 0; i < 100000; i++)
+            writer.SetLength(count * 4);
+            writer.Position = 0;
+
+            for (int i = 0; i < count; i++)
             {
                 writer.WriteInt32(i);
             }
@@ -48,8 +54,14 @@ namespace Mirror.Tests.Performance
 
         static void WriteQuaternion()
         {
+            int count = 100000;
+
+            // create big enough writer so we don't need to resize when testing
             NetworkWriter writer = new NetworkWriter();
-            for (int i = 0; i < 100000; i++)
+            writer.SetLength(count * 16);
+            writer.Position = 0;
+
+            for (int i = 0; i < count; i++)
             {
                 writer.WriteQuaternion(Quaternion.identity);
             }
