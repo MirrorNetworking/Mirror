@@ -23,6 +23,43 @@ namespace Mirror.Tests
         }
         */
 
+        struct TestStruct
+        {
+            public int data;
+            public byte data2;
+        }
+
+        [Test]
+        public unsafe void BlittableOnThisPlatform()
+        {
+            // we assume NetworkWriter.WriteBlittable<T> to behave the same on
+            // all platforms:
+            // - need to be little endian (atm all Unity platforms are)
+            // - padded structs need to be same size across all platforms
+            //   (C# int, byte, etc. should be same on all platforms, and
+            //    C# should do the same padding on all platforms)
+            //   https://kalapos.net/Blog/ShowPost/DotNetConceptOfTheWeek13_DotNetMemoryLayout
+            // => let's have a test that we can run on different platforms to
+            //    be 100% sure
+
+            // let's assume little endian.
+            // it would also be ok if server and client are both big endian,
+            // but that's extremely unlikely.
+            Assert.That(BitConverter.IsLittleEndian, Is.True);
+
+            // TestStruct biggest member is 'int' = 4 bytes.
+            // so C# aligns it to 4 bytes, hence does padding for the byte:
+            //   0 int
+            //   1 int
+            //   2 int
+            //   3 int
+            //   4 byte
+            //   5 padding
+            //   6 padding
+            //   7 padding
+            Assert.That(sizeof(TestStruct), Is.EqualTo(8));
+        }
+
         [Test]
         public void TestWritingSmallMessage()
         {

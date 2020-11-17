@@ -154,6 +154,7 @@ namespace Mirror
         // Note:
         //   WriteBlittable assumes same endianness for server & client.
         //   All Unity 2018+ platforms are little endian.
+        //   => run NetworkWriterTests.BlittableOnThisPlatform() to verify!
         public unsafe void WriteBlittable<T>(T value)
             where T : unmanaged
         {
