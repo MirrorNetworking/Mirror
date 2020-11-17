@@ -3,9 +3,15 @@ using System.IO;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading;
+using UnityEngine.Profiling;
 
 namespace Mirror.SimpleWeb
 {
+    public static class SendLoopConfig
+    {
+        public static volatile bool batchSend = false;
+        public static volatile bool sleepBeforeSend = false;
+    }
     internal static class SendLoop
     {
         public struct Config
@@ -29,10 +35,11 @@ namespace Mirror.SimpleWeb
             }
         }
 
-
         public static void Loop(Config config)
         {
             (Connection conn, int bufferSize, bool setMask) = config;
+
+            Profiler.BeginThreadProfiling("SimpleWeb", $"SendLoop {conn.connId}");
 
             // create write buffer for this thread
             byte[] writeBuffer = new byte[bufferSize];
@@ -50,15 +57,50 @@ namespace Mirror.SimpleWeb
                 {
                     // wait for message
                     conn.sendPending.Wait();
+                    // wait for 1ms for mirror to send other messages
+                    if (SendLoopConfig.sleepBeforeSend)
+                    {
+                        Thread.Sleep(1);
+                    }
                     conn.sendPending.Reset();
 
-                    while (conn.sendQueue.TryDequeue(out ArrayBuffer msg))
+                    if (SendLoopConfig.batchSend)
                     {
-                        // check if connected before sending message
-                        if (!client.Connected) { Log.Info($"SendLoop {conn} not connected"); return; }
+                        int offset = 0;
+                        while (conn.sendQueue.TryDequeue(out ArrayBuffer msg))
+                        {
+                            // check if connected before sending message
+                            if (!client.Connected) { Log.Info($"SendLoop {conn} not connected"); return; }
 
-                        SendMessage(stream, writeBuffer, msg, setMask, maskHelper);
-                        msg.Release();
+                            int maxLength = msg.count + Constants.HeaderSize + Constants.MaskSize;
+
+                            // if next writer could overflow, write to stream and clear buffer
+                            if (offset + maxLength > bufferSize)
+                            {
+                                stream.Write(writeBuffer, 0, offset);
+                                offset = 0;
+                            }
+
+                            offset = SendMessage(writeBuffer, offset, msg, setMask, maskHelper);
+                            msg.Release();
+                        }
+
+                        // after no message in queue, send remaining messages
+                        // dont need to check offset > 0 because last message in queue will always be sent here
+
+                        stream.Write(writeBuffer, 0, offset);
+                    }
+                    else
+                    {
+                        while (conn.sendQueue.TryDequeue(out ArrayBuffer msg))
+                        {
+                            // check if connected before sending message
+                            if (!client.Connected) { Log.Info($"SendLoop {conn} not connected"); return; }
+
+                            int length = SendMessage(writeBuffer, 0, msg, setMask, maskHelper);
+                            stream.Write(writeBuffer, 0, length);
+                            msg.Release();
+                        }
                     }
                 }
 
@@ -72,55 +114,57 @@ namespace Mirror.SimpleWeb
             }
             finally
             {
+                Profiler.EndThreadProfiling();
                 conn.Dispose();
                 maskHelper?.Dispose();
             }
         }
 
-        static void SendMessage(Stream stream, byte[] buffer, ArrayBuffer msg, bool setMask, MaskHelper maskHelper)
+        /// <returns>new offset in buffer</returns>
+        static int SendMessage(byte[] buffer, int startOffset, ArrayBuffer msg, bool setMask, MaskHelper maskHelper)
         {
             int msgLength = msg.count;
-            int sendLength = WriteHeader(buffer, msgLength, setMask);
+            int offset = WriteHeader(buffer, startOffset, msgLength, setMask);
 
             if (setMask)
             {
-                sendLength = maskHelper.WriteMask(buffer, sendLength);
+                offset = maskHelper.WriteMask(buffer, offset);
             }
 
-            msg.CopyTo(buffer, sendLength);
-            sendLength += msgLength;
+            msg.CopyTo(buffer, offset);
+            offset += msgLength;
 
             // dump before mask on
-            Log.DumpBuffer("Send", buffer, 0, sendLength);
+            Log.DumpBuffer("Send", buffer, startOffset, offset);
 
             if (setMask)
             {
-                int messageOffset = sendLength - msgLength;
+                int messageOffset = offset - msgLength;
                 MessageProcessor.ToggleMask(buffer, messageOffset, msgLength, buffer, messageOffset - Constants.MaskSize);
             }
 
-            stream.Write(buffer, 0, sendLength);
+            return offset;
         }
 
-        static int WriteHeader(byte[] buffer, int msgLength, bool setMask)
+        static int WriteHeader(byte[] buffer, int startOffset, int msgLength, bool setMask)
         {
             int sendLength = 0;
             const byte finished = 128;
             const byte byteOpCode = 2;
 
-            buffer[0] = finished | byteOpCode;
+            buffer[startOffset + 0] = finished | byteOpCode;
             sendLength++;
 
             if (msgLength <= Constants.BytePayloadLength)
             {
-                buffer[1] = (byte)msgLength;
+                buffer[startOffset + 1] = (byte)msgLength;
                 sendLength++;
             }
             else if (msgLength <= ushort.MaxValue)
             {
-                buffer[1] = 126;
-                buffer[2] = (byte)(msgLength >> 8);
-                buffer[3] = (byte)msgLength;
+                buffer[startOffset + 1] = 126;
+                buffer[startOffset + 2] = (byte)(msgLength >> 8);
+                buffer[startOffset + 3] = (byte)msgLength;
                 sendLength += 3;
             }
             else
@@ -130,10 +174,10 @@ namespace Mirror.SimpleWeb
 
             if (setMask)
             {
-                buffer[1] |= 0b1000_0000;
+                buffer[startOffset + 1] |= 0b1000_0000;
             }
 
-            return sendLength;
+            return sendLength + startOffset;
         }
 
         sealed class MaskHelper : IDisposable

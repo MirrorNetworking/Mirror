@@ -36,6 +36,17 @@ namespace Mirror.SimpleWeb
         [Tooltip("Caps the number of messages the client will process per tick. Allows LateUpdate to finish to let the reset of unity contiue incase more messages arrive before they are processed")]
         public int clientMaxMessagesPerTick = 1000;
 
+        [Header("Server settings")]
+
+        [Tooltip("Groups messages in queue before calling Stream.Send")]
+        public bool batchSend = true;
+
+        [Tooltip("Waits for 1ms before grouping and sending messages. " +
+            "This gives time for mirror to finish adding message to queue so that less groups need to be made. " +
+            "If WaitBeforeSend is true then BatchSend Will also be set to true")]
+        public bool waitBeforeSend = false;
+
+
         [Header("Ssl Settings")]
         public bool sslEnabled;
         [Tooltip("Path to json file that contains path to cert and its password\n\nUse Json file so that cert password is not included in client builds\n\nSee cert.example.Json")]
@@ -210,6 +221,9 @@ namespace Mirror.SimpleWeb
             server.onDisconnect += OnServerDisconnected.Invoke;
             server.onData += (int connId, ArraySegment<byte> data) => OnServerDataReceived.Invoke(connId, data, Channels.DefaultReliable);
             server.onError += OnServerError.Invoke;
+
+            SendLoopConfig.batchSend = batchSend || waitBeforeSend;
+            SendLoopConfig.sleepBeforeSend = waitBeforeSend;
 
             server.Start(port);
         }
