@@ -30,25 +30,25 @@ namespace Mirror
         /// Notify subscribers when when this client establish a successful connection to the server
         /// <para>callback()</para>
         /// </summary>
-        public Action ClientConnectedCallback;
+        public Action onClientConnected;
 
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// <para>callback(ArraySegment&lt;byte&gt; data, int channel)</para>
         /// </summary>
-        public Action<ArraySegment<byte>, int> ClientDataReceivedCallback;
+        public Action<ArraySegment<byte>, int> onClientDataReceived;
 
         /// <summary>
         /// Notify subscribers when this client encounters an error communicating with the server
         /// <para>callback(Exception e)</para>
         /// </summary>
-        public Action<Exception> ClientErrorCallback;
+        public Action<Exception> onClientError;
 
         /// <summary>
         /// Notify subscribers when this client disconnects from the server
         /// <para>callback()</para>
         /// </summary>
-        public Action ClientDisconnectedCallback;
+        public Action onClientDisconnected;
 
         /// <summary>
         /// Determines if we are currently connected to the server
@@ -103,25 +103,25 @@ namespace Mirror
         /// Notify subscribers when a client connects to this server
         /// <para>callback(int connId)</para>
         /// </summary>
-        public Action<int> ServerConnectedCallback;
+        public Action<int> onServerConnected;
 
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// <para>callback(int connId, ArraySegment&lt;byte&gt; data, int channel)</para>
         /// </summary>
-        public Action<int, ArraySegment<byte>, int> ServerDataReceivedCallback;
+        public Action<int, ArraySegment<byte>, int> onServerDataReceived;
 
         /// <summary>
         /// Notify subscribers when this server has some problem communicating with the client
         /// <para>callback(int connId, Exception e)</para>
         /// </summary>
-        public Action<int, Exception> ServerErrorCallback;
+        public Action<int, Exception> onServerError;
 
         /// <summary>
         /// Notify subscribers when a client disconnects from this server
         /// <para>callback(int connId)</para>
         /// </summary>
-        public Action<int> ServerDisconnectedCallback;
+        public Action<int> onServerDisconnected;
 
         /// <summary>
         /// Determines if the server is up and running

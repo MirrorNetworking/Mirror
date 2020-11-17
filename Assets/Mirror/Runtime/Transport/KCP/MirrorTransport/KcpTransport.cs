@@ -47,15 +47,15 @@ namespace kcp2k
 
             // TODO simplify after converting Mirror Transport events to Action
             client = new KcpClient(
-                () => ClientConnectedCallback.Invoke(),
-                (message) => ClientDataReceivedCallback.Invoke(message, Channels.DefaultReliable),
-                () => ClientDisconnectedCallback.Invoke()
+                () => onClientConnected.Invoke(),
+                (message) => onClientDataReceived.Invoke(message, Channels.DefaultReliable),
+                () => onClientDisconnected.Invoke()
             );
             // TODO simplify after converting Mirror Transport events to Action
             server = new KcpServer(
-                (connectionId) => ServerConnectedCallback.Invoke(connectionId),
-                (connectionId, message) => ServerDataReceivedCallback.Invoke(connectionId, message, Channels.DefaultReliable),
-                (connectionId) => ServerDisconnectedCallback.Invoke(connectionId),
+                (connectionId) => onServerConnected.Invoke(connectionId),
+                (connectionId, message) => onServerDataReceived.Invoke(connectionId, message, Channels.DefaultReliable),
+                (connectionId) => onServerDisconnected.Invoke(connectionId),
                 NoDelay,
                 Interval,
                 FastResend,

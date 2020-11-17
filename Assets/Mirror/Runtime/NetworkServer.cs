@@ -491,18 +491,18 @@ namespace Mirror
 
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.ServerConnectedCallback = OnConnected;
-            Transport.activeTransport.ServerDataReceivedCallback = OnDataReceived;
-            Transport.activeTransport.ServerDisconnectedCallback = OnDisconnected;
-            Transport.activeTransport.ServerErrorCallback = OnError;
+            Transport.activeTransport.onServerConnected = OnConnected;
+            Transport.activeTransport.onServerDataReceived = OnDataReceived;
+            Transport.activeTransport.onServerDisconnected = OnDisconnected;
+            Transport.activeTransport.onServerError = OnError;
         }
 
         static void RemoveTransportHandlers()
         {
-            Transport.activeTransport.ServerConnectedCallback = null;
-            Transport.activeTransport.ServerDataReceivedCallback = null;
-            Transport.activeTransport.ServerDisconnectedCallback = null;
-            Transport.activeTransport.ServerErrorCallback = null;
+            Transport.activeTransport.onServerConnected = null;
+            Transport.activeTransport.onServerDataReceived = null;
+            Transport.activeTransport.onServerDisconnected = null;
+            Transport.activeTransport.onServerError = null;
         }
 
         static void OnConnected(int connectionId)

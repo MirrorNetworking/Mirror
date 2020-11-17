@@ -91,15 +91,15 @@ namespace Mirror.Tests
                 {
                     case EventType.Connected:
                         Debug.Log("MemoryTransport Client Message: Connected");
-                        ClientConnectedCallback.Invoke();
+                        onClientConnected.Invoke();
                         break;
                     case EventType.Data:
                         Debug.Log("MemoryTransport Client Message: Data: " + BitConverter.ToString(message.data));
-                        ClientDataReceivedCallback.Invoke(new ArraySegment<byte>(message.data), 0);
+                        onClientDataReceived.Invoke(new ArraySegment<byte>(message.data), 0);
                         break;
                     case EventType.Disconnected:
                         Debug.Log("MemoryTransport Client Message: Disconnected");
-                        ClientDisconnectedCallback.Invoke();
+                        onClientDisconnected.Invoke();
                         break;
                 }
             }
@@ -167,15 +167,15 @@ namespace Mirror.Tests
                 {
                     case EventType.Connected:
                         Debug.Log("MemoryTransport Server Message: Connected");
-                        ServerConnectedCallback.Invoke(message.connectionId);
+                        onServerConnected.Invoke(message.connectionId);
                         break;
                     case EventType.Data:
                         Debug.Log("MemoryTransport Server Message: Data: " + BitConverter.ToString(message.data));
-                        ServerDataReceivedCallback.Invoke(message.connectionId, new ArraySegment<byte>(message.data), 0);
+                        onServerDataReceived.Invoke(message.connectionId, new ArraySegment<byte>(message.data), 0);
                         break;
                     case EventType.Disconnected:
                         Debug.Log("MemoryTransport Server Message: Disconnected");
-                        ServerDisconnectedCallback.Invoke(message.connectionId);
+                        onServerDisconnected.Invoke(message.connectionId);
                         break;
                 }
             }

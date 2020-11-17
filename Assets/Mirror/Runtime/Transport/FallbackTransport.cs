@@ -54,10 +54,10 @@ namespace Mirror
 
         public override void ClientConnect(string address)
         {
-            available.ClientConnectedCallback = ClientConnectedCallback;
-            available.ClientDataReceivedCallback = ClientDataReceivedCallback;
-            available.ClientErrorCallback = ClientErrorCallback;
-            available.ClientDisconnectedCallback = ClientDisconnectedCallback;
+            available.onClientConnected = onClientConnected;
+            available.onClientDataReceived = onClientDataReceived;
+            available.onClientError = onClientError;
+            available.onClientDisconnected = onClientDisconnected;
             available.ClientConnect(address);
         }
 
@@ -122,10 +122,10 @@ namespace Mirror
 
         public override void ServerStart()
         {
-            available.ServerConnectedCallback = ServerConnectedCallback;
-            available.ServerDataReceivedCallback = ServerDataReceivedCallback;
-            available.ServerErrorCallback = ServerErrorCallback;
-            available.ServerDisconnectedCallback = ServerDisconnectedCallback;
+            available.onServerConnected = onServerConnected;
+            available.onServerDataReceived = onServerDataReceived;
+            available.onServerError = onServerError;
+            available.onServerDisconnected = onServerDisconnected;
             available.ServerStart();
         }
 
