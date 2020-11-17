@@ -161,15 +161,6 @@ namespace Mirror
             Transport.activeTransport.ClientErrorCallback = null;
         }
 
-        static void RemoveTransportHandlers()
-        {
-            // so that we don't register them more than once
-            Transport.activeTransport.OnClientConnected.RemoveListener(OnConnected);
-            Transport.activeTransport.OnClientDataReceived.RemoveListener(OnDataReceived);
-            Transport.activeTransport.OnClientDisconnected.RemoveListener(OnDisconnected);
-            Transport.activeTransport.OnClientError.RemoveListener(OnError);
-        }
-
         static void OnError(Exception exception)
         {
             logger.LogException(exception);
