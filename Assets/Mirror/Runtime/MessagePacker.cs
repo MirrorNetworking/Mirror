@@ -108,7 +108,17 @@ namespace Mirror
                 NetworkDiagnostics.OnReceive(message, channelId, reader.Length);
             }
 
-            handler((C)conn, message);
+            // user handler exception should not stop the whole server
+            try
+            {
+                // user implemented handler
+                handler((C)conn, message);
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"Exception in MessageHandler: {e.GetType().Name} {e.Message} {e.StackTrace}");
+                conn.Disconnect();
+            }
         };
     }
 }
