@@ -215,7 +215,7 @@ namespace Mirror
             {
                 // pack message and send allocation free
                 MessagePacker.Pack(msg, writer);
-                NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
+                NetworkDiagnostics.OnSend(msg, channelId, writer.Length, 1);
                 return SendAsync(writer.ToArraySegment(), channelId);
             }
         }
