@@ -403,13 +403,13 @@ namespace Mirror
         {
             if (string.IsNullOrEmpty(RoomScene))
             {
-                logger.LogError("NetworkRoomManager RoomScene is empty. Set the RoomScene in the inspector for the NetworkRoomMangaer");
+                logger.LogError("NetworkRoomManager RoomScene is empty. Set the RoomScene in the inspector for the NetworkRoomManager");
                 return;
             }
 
             if (string.IsNullOrEmpty(GameplayScene))
             {
-                logger.LogError("NetworkRoomManager PlayScene is empty. Set the PlayScene in the inspector for the NetworkRoomMangaer");
+                logger.LogError("NetworkRoomManager PlayScene is empty. Set the PlayScene in the inspector for the NetworkRoomManager");
                 return;
             }
 
