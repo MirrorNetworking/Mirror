@@ -19,10 +19,10 @@ namespace Mirror
         #region Client
         public override void ClientConnect(string address)
         {
-            inner.onClientConnected = onClientConnected;
-            inner.onClientDataReceived = onClientDataReceived;
-            inner.onClientDisconnected = onClientDisconnected;
-            inner.onClientError = onClientError;
+            inner.OnClientConnected = OnClientConnected;
+            inner.OnClientDataReceived = OnClientDataReceived;
+            inner.OnClientDisconnected = OnClientDisconnected;
+            inner.OnClientError = OnClientError;
             inner.ClientConnect(address);
         }
 
@@ -35,10 +35,10 @@ namespace Mirror
         public override bool ServerActive() => inner.ServerActive();
         public override void ServerStart()
         {
-            inner.onServerConnected = onServerConnected;
-            inner.onServerDataReceived = onServerDataReceived;
-            inner.onServerDisconnected = onServerDisconnected;
-            inner.onServerError = onServerError;
+            inner.OnServerConnected = OnServerConnected;
+            inner.OnServerDataReceived = OnServerDataReceived;
+            inner.OnServerDisconnected = OnServerDisconnected;
+            inner.OnServerError = OnServerError;
             inner.ServerStart();
         }
 

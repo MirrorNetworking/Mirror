@@ -153,18 +153,18 @@ namespace Mirror.SimpleWeb
             client = SimpleWebClient.Create(maxMessageSize, clientMaxMessagesPerTick, TcpConfig);
             if (client == null) { return; }
 
-            client.onConnect += onClientConnected.Invoke;
+            client.onConnect += OnClientConnected.Invoke;
             client.onDisconnect += () =>
             {
-                onClientDisconnected.Invoke();
+                OnClientDisconnected.Invoke();
                 // clear client here after disconnect event has been sent
                 // there should be no more messages after disconnect
                 client = null;
             };
-            client.onData += (ArraySegment<byte> data) => onClientDataReceived.Invoke(data, Channels.DefaultReliable);
+            client.onData += (ArraySegment<byte> data) => OnClientDataReceived.Invoke(data, Channels.DefaultReliable);
             client.onError += (Exception e) =>
             {
-                onClientError.Invoke(e);
+                OnClientError.Invoke(e);
                 ClientDisconnect();
             };
 
@@ -217,10 +217,10 @@ namespace Mirror.SimpleWeb
             SslConfig config = SslConfigLoader.Load(this);
             server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, handshakeMaxSize, config);
 
-            server.onConnect += onServerConnected.Invoke;
-            server.onDisconnect += onServerDisconnected.Invoke;
-            server.onData += (int connId, ArraySegment<byte> data) => onServerDataReceived.Invoke(connId, data, Channels.DefaultReliable);
-            server.onError += onServerError.Invoke;
+            server.onConnect += OnServerConnected.Invoke;
+            server.onDisconnect += OnServerDisconnected.Invoke;
+            server.onData += (int connId, ArraySegment<byte> data) => OnServerDataReceived.Invoke(connId, data, Channels.DefaultReliable);
+            server.onError += OnServerError.Invoke;
 
             SendLoopConfig.batchSend = batchSend || waitBeforeSend;
             SendLoopConfig.sleepBeforeSend = waitBeforeSend;

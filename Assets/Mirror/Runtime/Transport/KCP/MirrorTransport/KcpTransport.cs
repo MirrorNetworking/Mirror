@@ -2,8 +2,8 @@
 using System;
 using System.Linq;
 using System.Net;
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
 namespace kcp2k
 {
@@ -47,15 +47,15 @@ namespace kcp2k
 
             // TODO simplify after converting Mirror Transport events to Action
             client = new KcpClient(
-                () => onClientConnected.Invoke(),
-                (message) => onClientDataReceived.Invoke(message, Channels.DefaultReliable),
-                () => onClientDisconnected.Invoke()
+                () => OnClientConnected.Invoke(),
+                (message) => OnClientDataReceived.Invoke(message, Channels.DefaultReliable),
+                () => OnClientDisconnected.Invoke()
             );
             // TODO simplify after converting Mirror Transport events to Action
             server = new KcpServer(
-                (connectionId) => onServerConnected.Invoke(connectionId),
-                (connectionId, message) => onServerDataReceived.Invoke(connectionId, message, Channels.DefaultReliable),
-                (connectionId) => onServerDisconnected.Invoke(connectionId),
+                (connectionId) => OnServerConnected.Invoke(connectionId),
+                (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.DefaultReliable),
+                (connectionId) => OnServerDisconnected.Invoke(connectionId),
                 NoDelay,
                 Interval,
                 FastResend,
@@ -123,7 +123,7 @@ namespace kcp2k
         public override void ServerStop() => server.Stop();
 
         // common
-        public override void Shutdown() {}
+        public override void Shutdown() { }
 
         // max message size
         public override int GetMaxPacketSize(int channelId = Channels.DefaultReliable) => KcpConnection.MaxMessageSize;

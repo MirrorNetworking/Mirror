@@ -205,17 +205,17 @@ namespace Mirror.Tests
         public void TestClientConnectedCallback()
         {
             int called = 0;
-            middleware.onClientConnected = () =>
+            middleware.OnClientConnected = () =>
             {
                 called++;
             };
             // connect to give callback to inner
             middleware.ClientConnect("localhost");
 
-            inner.onClientConnected.Invoke();
+            inner.OnClientConnected.Invoke();
             Assert.That(called, Is.EqualTo(1));
 
-            inner.onClientConnected.Invoke();
+            inner.OnClientConnected.Invoke();
             Assert.That(called, Is.EqualTo(2));
         }
 
@@ -228,7 +228,7 @@ namespace Mirror.Tests
             ArraySegment<byte> segment = new ArraySegment<byte>(data, 1, 2);
 
             int called = 0;
-            middleware.onClientDataReceived = (d, c) =>
+            middleware.OnClientDataReceived = (d, c) =>
             {
                 called++;
                 Assert.That(c, Is.EqualTo(channel));
@@ -239,14 +239,14 @@ namespace Mirror.Tests
             // connect to give callback to inner
             middleware.ClientConnect("localhost");
 
-            inner.onClientDataReceived.Invoke(segment, channel);
+            inner.OnClientDataReceived.Invoke(segment, channel);
             Assert.That(called, Is.EqualTo(1));
 
 
             data = new byte[4];
             segment = new ArraySegment<byte>(data, 0, 3);
 
-            inner.onClientDataReceived.Invoke(segment, channel);
+            inner.OnClientDataReceived.Invoke(segment, channel);
             Assert.That(called, Is.EqualTo(2));
         }
 
@@ -254,17 +254,17 @@ namespace Mirror.Tests
         public void TestClientDisconnectedCallback()
         {
             int called = 0;
-            middleware.onClientDisconnected = () =>
+            middleware.OnClientDisconnected = () =>
             {
                 called++;
             };
             // connect to give callback to inner
             middleware.ClientConnect("localhost");
 
-            inner.onClientDisconnected.Invoke();
+            inner.OnClientDisconnected.Invoke();
             Assert.That(called, Is.EqualTo(1));
 
-            inner.onClientDisconnected.Invoke();
+            inner.OnClientDisconnected.Invoke();
             Assert.That(called, Is.EqualTo(2));
         }
 
@@ -274,7 +274,7 @@ namespace Mirror.Tests
             Exception exception = new InvalidDataException();
 
             int called = 0;
-            middleware.onClientError = (e) =>
+            middleware.OnClientError = (e) =>
             {
                 called++;
                 Assert.That(e, Is.EqualTo(exception));
@@ -282,12 +282,12 @@ namespace Mirror.Tests
             // connect to give callback to inner
             middleware.ClientConnect("localhost");
 
-            inner.onClientError.Invoke(exception);
+            inner.OnClientError.Invoke(exception);
             Assert.That(called, Is.EqualTo(1));
 
             exception = new NullReferenceException();
 
-            inner.onClientError.Invoke(exception);
+            inner.OnClientError.Invoke(exception);
             Assert.That(called, Is.EqualTo(2));
         }
 
@@ -298,7 +298,7 @@ namespace Mirror.Tests
         public void TestServerConnectedCallback(int id)
         {
             int called = 0;
-            middleware.onServerConnected = (i) =>
+            middleware.OnServerConnected = (i) =>
             {
                 called++;
                 Assert.That(i, Is.EqualTo(id));
@@ -306,10 +306,10 @@ namespace Mirror.Tests
             // start to give callback to inner
             middleware.ServerStart();
 
-            inner.onServerConnected.Invoke(id);
+            inner.OnServerConnected.Invoke(id);
             Assert.That(called, Is.EqualTo(1));
 
-            inner.onServerConnected.Invoke(id);
+            inner.OnServerConnected.Invoke(id);
             Assert.That(called, Is.EqualTo(2));
         }
 
@@ -326,7 +326,7 @@ namespace Mirror.Tests
             ArraySegment<byte> segment = new ArraySegment<byte>(data, 1, 2);
 
             int called = 0;
-            middleware.onServerDataReceived = (i, d, c) =>
+            middleware.OnServerDataReceived = (i, d, c) =>
             {
                 called++;
                 Assert.That(i, Is.EqualTo(id));
@@ -338,14 +338,14 @@ namespace Mirror.Tests
             // start to give callback to inner
             middleware.ServerStart();
 
-            inner.onServerDataReceived.Invoke(id, segment, channel);
+            inner.OnServerDataReceived.Invoke(id, segment, channel);
             Assert.That(called, Is.EqualTo(1));
 
 
             data = new byte[4];
             segment = new ArraySegment<byte>(data, 0, 3);
 
-            inner.onServerDataReceived.Invoke(id, segment, channel);
+            inner.OnServerDataReceived.Invoke(id, segment, channel);
             Assert.That(called, Is.EqualTo(2));
         }
 
@@ -356,7 +356,7 @@ namespace Mirror.Tests
         public void TestServerDisconnectedCallback(int id)
         {
             int called = 0;
-            middleware.onServerDisconnected = (i) =>
+            middleware.OnServerDisconnected = (i) =>
             {
                 called++;
                 Assert.That(i, Is.EqualTo(id));
@@ -364,10 +364,10 @@ namespace Mirror.Tests
             // start to give callback to inner
             middleware.ServerStart();
 
-            inner.onServerDisconnected.Invoke(id);
+            inner.OnServerDisconnected.Invoke(id);
             Assert.That(called, Is.EqualTo(1));
 
-            inner.onServerDisconnected.Invoke(id);
+            inner.OnServerDisconnected.Invoke(id);
             Assert.That(called, Is.EqualTo(2));
         }
 
@@ -380,7 +380,7 @@ namespace Mirror.Tests
             Exception exception = new InvalidDataException();
 
             int called = 0;
-            middleware.onServerError = (i, e) =>
+            middleware.OnServerError = (i, e) =>
             {
                 called++;
                 Assert.That(i, Is.EqualTo(id));
@@ -389,12 +389,12 @@ namespace Mirror.Tests
             // start to give callback to inner
             middleware.ServerStart();
 
-            inner.onServerError.Invoke(id, exception);
+            inner.OnServerError.Invoke(id, exception);
             Assert.That(called, Is.EqualTo(1));
 
             exception = new NullReferenceException();
 
-            inner.onServerError.Invoke(id, exception);
+            inner.OnServerError.Invoke(id, exception);
             Assert.That(called, Is.EqualTo(2));
         }
     }

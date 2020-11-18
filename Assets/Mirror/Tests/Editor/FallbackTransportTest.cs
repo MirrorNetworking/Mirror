@@ -117,9 +117,9 @@ namespace Mirror.Tests
             // find available
             transport.Awake();
             // set event and connect to give event to inner
-            transport.onClientConnected = callback;
+            transport.OnClientConnected = callback;
             transport.ClientConnect("localhost");
-            transport1.onClientConnected.Invoke();
+            transport1.OnClientConnected.Invoke();
             callback.Received().Invoke();
         }
 
@@ -133,9 +133,9 @@ namespace Mirror.Tests
             // find available
             transport.Awake();
             // set event and connect to give event to inner
-            transport.onClientConnected = callback;
+            transport.OnClientConnected = callback;
             transport.ClientConnect("localhost");
-            transport2.onClientConnected.Invoke();
+            transport2.OnClientConnected.Invoke();
             callback.Received().Invoke();
         }
 
@@ -162,10 +162,10 @@ namespace Mirror.Tests
             }
 
             // set event and Start to give event to inner
-            transport.onServerConnected = SendMessage;
+            transport.OnServerConnected = SendMessage;
             transport.ServerStart();
 
-            transport1.onServerConnected.Invoke(1);
+            transport1.OnServerConnected.Invoke(1);
 
             transport1.Received().ServerSend(1, 5, segment);
         }

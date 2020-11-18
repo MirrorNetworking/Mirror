@@ -57,10 +57,10 @@ namespace Mirror
                 if (transport.Available())
                 {
                     available = transport;
-                    transport.onClientConnected = onClientConnected;
-                    transport.onClientDataReceived = onClientDataReceived;
-                    transport.onClientError = onClientError;
-                    transport.onClientDisconnected = onClientDisconnected;
+                    transport.OnClientConnected = OnClientConnected;
+                    transport.OnClientDataReceived = OnClientDataReceived;
+                    transport.OnClientError = OnClientError;
+                    transport.OnClientDisconnected = OnClientDisconnected;
                     transport.ClientConnect(address);
                     return;
                 }
@@ -77,10 +77,10 @@ namespace Mirror
                     try
                     {
                         available = transport;
-                        transport.onClientConnected = onClientConnected;
-                        transport.onClientDataReceived = onClientDataReceived;
-                        transport.onClientError = onClientError;
-                        transport.onClientDisconnected = onClientDisconnected;
+                        transport.OnClientConnected = OnClientConnected;
+                        transport.OnClientDataReceived = OnClientDataReceived;
+                        transport.OnClientError = OnClientError;
+                        transport.OnClientDisconnected = OnClientDisconnected;
                         transport.ClientConnect(uri);
                         return;
                     }
@@ -142,23 +142,23 @@ namespace Mirror
                 int locali = i;
                 Transport transport = transports[i];
 
-                transport.onServerConnected = (baseConnectionId =>
+                transport.OnServerConnected = (baseConnectionId =>
                 {
-                    onServerConnected.Invoke(FromBaseId(locali, baseConnectionId));
+                    OnServerConnected.Invoke(FromBaseId(locali, baseConnectionId));
                 });
 
-                transport.onServerDataReceived = (baseConnectionId, data, channel) =>
+                transport.OnServerDataReceived = (baseConnectionId, data, channel) =>
                 {
-                    onServerDataReceived.Invoke(FromBaseId(locali, baseConnectionId), data, channel);
+                    OnServerDataReceived.Invoke(FromBaseId(locali, baseConnectionId), data, channel);
                 };
 
-                transport.onServerError = (baseConnectionId, error) =>
+                transport.OnServerError = (baseConnectionId, error) =>
                 {
-                    onServerError.Invoke(FromBaseId(locali, baseConnectionId), error);
+                    OnServerError.Invoke(FromBaseId(locali, baseConnectionId), error);
                 };
-                transport.onServerDisconnected = baseConnectionId =>
+                transport.OnServerDisconnected = baseConnectionId =>
                 {
-                    onServerDisconnected.Invoke(FromBaseId(locali, baseConnectionId));
+                    OnServerDisconnected.Invoke(FromBaseId(locali, baseConnectionId));
                 };
             }
         }

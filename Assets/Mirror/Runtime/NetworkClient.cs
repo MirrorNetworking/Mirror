@@ -147,10 +147,10 @@ namespace Mirror
 
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.onClientConnected = OnConnected;
-            Transport.activeTransport.onClientDataReceived = OnDataReceived;
-            Transport.activeTransport.onClientDisconnected = OnDisconnected;
-            Transport.activeTransport.onClientError = OnError;
+            Transport.activeTransport.OnClientConnected = OnConnected;
+            Transport.activeTransport.OnClientDataReceived = OnDataReceived;
+            Transport.activeTransport.OnClientDisconnected = OnDisconnected;
+            Transport.activeTransport.OnClientError = OnError;
         }
 
         static void RemoveTransportHandlers()

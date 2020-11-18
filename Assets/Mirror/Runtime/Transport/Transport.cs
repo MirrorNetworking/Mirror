@@ -27,18 +27,18 @@ namespace Mirror
 
         public void ResetClientHandlers()
         {
-            onClientConnected = () => Debug.LogWarning("onClientConnected called with no handler");
-            onClientDataReceived = (_data, _channel) => Debug.LogWarning("onClientDataReceived called with no handler");
-            onClientDisconnected = () => Debug.LogWarning("onClientDisconnected called with no handler");
-            onClientError = (_error) => Debug.LogWarning("onClientError called with no handler");
+            OnClientConnected = () => Debug.LogWarning("onClientConnected called with no handler");
+            OnClientDataReceived = (_data, _channel) => Debug.LogWarning("onClientDataReceived called with no handler");
+            OnClientDisconnected = () => Debug.LogWarning("onClientDisconnected called with no handler");
+            OnClientError = (_error) => Debug.LogWarning("onClientError called with no handler");
         }
 
         public void ResetServerHandlers()
         {
-            onServerConnected = (_connId) => Debug.LogWarning("onServerConnected called with no handler");
-            onServerDataReceived = (_connId, _data, _channel) => Debug.LogWarning("onServerDataReceived called with no handler");
-            onServerDisconnected = (_connId) => Debug.LogWarning("onServerDisconnected called with no handler");
-            onServerError = (_connId, _error) => Debug.LogWarning("onServerError called with no handler");
+            OnServerConnected = (_connId) => Debug.LogWarning("onServerConnected called with no handler");
+            OnServerDataReceived = (_connId, _data, _channel) => Debug.LogWarning("onServerDataReceived called with no handler");
+            OnServerDisconnected = (_connId) => Debug.LogWarning("onServerDisconnected called with no handler");
+            OnServerError = (_connId, _error) => Debug.LogWarning("onServerError called with no handler");
         }
 
         /// <summary>
@@ -55,25 +55,25 @@ namespace Mirror
         /// Notify subscribers when when this client establish a successful connection to the server
         /// <para>callback()</para>
         /// </summary>
-        public Action onClientConnected;
+        public Action OnClientConnected;
 
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// <para>callback(ArraySegment&lt;byte&gt; data, int channel)</para>
         /// </summary>
-        public Action<ArraySegment<byte>, int> onClientDataReceived;
+        public Action<ArraySegment<byte>, int> OnClientDataReceived;
 
         /// <summary>
         /// Notify subscribers when this client encounters an error communicating with the server
         /// <para>callback(Exception e)</para>
         /// </summary>
-        public Action<Exception> onClientError;
+        public Action<Exception> OnClientError;
 
         /// <summary>
         /// Notify subscribers when this client disconnects from the server
         /// <para>callback()</para>
         /// </summary>
-        public Action onClientDisconnected;
+        public Action OnClientDisconnected;
 
         /// <summary>
         /// Determines if we are currently connected to the server
@@ -128,25 +128,25 @@ namespace Mirror
         /// Notify subscribers when a client connects to this server
         /// <para>callback(int connId)</para>
         /// </summary>
-        public Action<int> onServerConnected;
+        public Action<int> OnServerConnected;
 
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// <para>callback(int connId, ArraySegment&lt;byte&gt; data, int channel)</para>
         /// </summary>
-        public Action<int, ArraySegment<byte>, int> onServerDataReceived;
+        public Action<int, ArraySegment<byte>, int> OnServerDataReceived;
 
         /// <summary>
         /// Notify subscribers when this server has some problem communicating with the client
         /// <para>callback(int connId, Exception e)</para>
         /// </summary>
-        public Action<int, Exception> onServerError;
+        public Action<int, Exception> OnServerError;
 
         /// <summary>
         /// Notify subscribers when a client disconnects from this server
         /// <para>callback(int connId)</para>
         /// </summary>
-        public Action<int> onServerDisconnected;
+        public Action<int> OnServerDisconnected;
 
         /// <summary>
         /// Determines if the server is up and running
