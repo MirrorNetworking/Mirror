@@ -19,7 +19,7 @@ and use it as your Network manager.
 3) Create a message that describes your player. For example:
 
 ``` cs
-public class CreateMMOCharacterMessage : NetworkMessage
+public struct CreateMMOCharacterMessage : NetworkMessage
 {
     public Race race;
     public string name;

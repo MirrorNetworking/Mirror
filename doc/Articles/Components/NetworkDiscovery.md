@@ -56,18 +56,18 @@ This will create a script in your project with 2 empty message classes and a cus
 The message classes define what is sent between the client and server. As long as you keep your messages simple using the [data types](../Guides/DataTypes.md) that Mirror can serialize, you won't need to write custom serializers for them.
 
 ```cs
-public class DiscoveryRequest : NetworkMessage
+public struct DiscoveryRequest : NetworkMessage
 {
-    public string language="en";
+    public string language;
 
     // Add properties for whatever information you want sent by clients
     // in their broadcast messages that servers will consume.
 }
 
-public class DiscoveryResponse : NetworkMessage
-{
-    enum GameMode {PvP, PvE};
+enum GameMode {PvP, PvE};
 
+public struct DiscoveryResponse : NetworkMessage
+{
     // you probably want uri so clients know how to connect to the server
     public Uri uri;
 
