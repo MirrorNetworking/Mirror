@@ -2,8 +2,8 @@
 using System;
 using System.Linq;
 using System.Net;
-using Mirror;
 using UnityEngine;
+using Mirror;
 
 namespace kcp2k
 {
