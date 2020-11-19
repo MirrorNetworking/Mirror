@@ -153,11 +153,6 @@ namespace Mirror
             Transport.activeTransport.OnClientError = OnError;
         }
 
-        static void RemoveTransportHandlers()
-        {
-            Transport.activeTransport.ResetClientHandlers();
-        }
-
         static void OnError(Exception exception)
         {
             logger.LogException(exception);
@@ -221,7 +216,6 @@ namespace Mirror
                 {
                     connection.Disconnect();
                     connection = null;
-                    RemoveTransportHandlers();
                 }
             }
         }
