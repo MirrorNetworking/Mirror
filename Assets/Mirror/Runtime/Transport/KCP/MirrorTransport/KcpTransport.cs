@@ -123,7 +123,7 @@ namespace kcp2k
         public override void ServerStop() => server.Stop();
 
         // common
-        public override void Shutdown() { }
+        public override void Shutdown() {}
 
         // max message size
         public override int GetMaxPacketSize(int channelId = Channels.DefaultReliable) => KcpConnection.MaxMessageSize;
