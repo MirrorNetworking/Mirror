@@ -27,18 +27,18 @@ namespace Mirror
 
         public void ResetClientHandlers()
         {
-            OnClientConnected = () => Debug.LogWarning("onClientConnected called with no handler");
-            OnClientDataReceived = (_data, _channel) => Debug.LogWarning("onClientDataReceived called with no handler");
-            OnClientDisconnected = () => Debug.LogWarning("onClientDisconnected called with no handler");
-            OnClientError = (_error) => Debug.LogWarning("onClientError called with no handler");
+            OnClientConnected = () => Debug.LogWarning("OnClientConnected called with no handler");
+            OnClientDataReceived = (_data, _channel) => Debug.LogWarning("OnClientDataReceived called with no handler");
+            OnClientDisconnected = () => Debug.LogWarning("OnClientDisconnected called with no handler");
+            OnClientError = (_error) => Debug.LogWarning("OnClientError called with no handler");
         }
 
         public void ResetServerHandlers()
         {
-            OnServerConnected = (_connId) => Debug.LogWarning("onServerConnected called with no handler");
-            OnServerDataReceived = (_connId, _data, _channel) => Debug.LogWarning("onServerDataReceived called with no handler");
-            OnServerDisconnected = (_connId) => Debug.LogWarning("onServerDisconnected called with no handler");
-            OnServerError = (_connId, _error) => Debug.LogWarning("onServerError called with no handler");
+            OnServerConnected = (_connId) => Debug.LogWarning("OnServerConnected called with no handler");
+            OnServerDataReceived = (_connId, _data, _channel) => Debug.LogWarning("OnServerDataReceived called with no handler");
+            OnServerDisconnected = (_connId) => Debug.LogWarning("OnServerDisconnected called with no handler");
+            OnServerError = (_connId, _error) => Debug.LogWarning("OnServerError called with no handler");
         }
 
         /// <summary>
