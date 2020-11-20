@@ -2,7 +2,6 @@ using System;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Mirror.Tests
 {
@@ -114,9 +113,12 @@ namespace Mirror.Tests
             transport1.Available().Returns(true);
             transport2.Available().Returns(true);
 
-            UnityAction callback = Substitute.For<UnityAction>();
+            Action callback = Substitute.For<Action>();
+            // find available
             transport.Awake();
-            transport.OnClientConnected.AddListener(callback);
+            // set event and connect to give event to inner
+            transport.OnClientConnected = callback;
+            transport.ClientConnect("localhost");
             transport1.OnClientConnected.Invoke();
             callback.Received().Invoke();
         }
@@ -124,12 +126,15 @@ namespace Mirror.Tests
         [Test]
         public void TestClient2Connected()
         {
-            transport1.Available().Returns(true);
+            transport1.Available().Returns(false);
             transport2.Available().Returns(true);
 
-            UnityAction callback = Substitute.For<UnityAction>();
+            Action callback = Substitute.For<Action>();
+            // find available
             transport.Awake();
-            transport.OnClientConnected.AddListener(callback);
+            // set event and connect to give event to inner
+            transport.OnClientConnected = callback;
+            transport.ClientConnect("localhost");
             transport2.OnClientConnected.Invoke();
             callback.Received().Invoke();
         }
@@ -146,7 +151,9 @@ namespace Mirror.Tests
 
             transport1.Available().Returns(true);
             transport2.Available().Returns(true);
+            // find available
             transport.Awake();
+
 
             // on connect, send a message back
             void SendMessage(int connectionId)
@@ -154,7 +161,9 @@ namespace Mirror.Tests
                 transport.ServerSend(connectionId, 5, segment);
             }
 
-            transport.OnServerConnected.AddListener(SendMessage);
+            // set event and Start to give event to inner
+            transport.OnServerConnected = SendMessage;
+            transport.ServerStart();
 
             transport1.OnServerConnected.Invoke(1);
 

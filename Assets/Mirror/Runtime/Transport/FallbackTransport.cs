@@ -20,8 +20,6 @@ namespace Mirror
             {
                 throw new Exception("FallbackTransport requires at least 1 underlying transport");
             }
-            InitClient();
-            InitServer();
             available = GetAvailableTransport();
             Debug.Log("FallbackTransport available: " + available.GetType());
         }
@@ -54,21 +52,12 @@ namespace Mirror
             return available.Available();
         }
 
-        // clients always pick the first transport
-        void InitClient()
-        {
-            // wire all the base transports to our events
-            foreach (Transport transport in transports)
-            {
-                transport.OnClientConnected.AddListener(OnClientConnected.Invoke);
-                transport.OnClientDataReceived.AddListener(OnClientDataReceived.Invoke);
-                transport.OnClientError.AddListener(OnClientError.Invoke);
-                transport.OnClientDisconnected.AddListener(OnClientDisconnected.Invoke);
-            }
-        }
-
         public override void ClientConnect(string address)
         {
+            available.OnClientConnected = OnClientConnected;
+            available.OnClientDataReceived = OnClientDataReceived;
+            available.OnClientError = OnClientError;
+            available.OnClientDisconnected = OnClientDisconnected;
             available.ClientConnect(address);
         }
 
@@ -107,18 +96,6 @@ namespace Mirror
             available.ClientSend(channelId, segment);
         }
 
-        void InitServer()
-        {
-            // wire all the base transports to our events
-            foreach (Transport transport in transports)
-            {
-                transport.OnServerConnected.AddListener(OnServerConnected.Invoke);
-                transport.OnServerDataReceived.AddListener(OnServerDataReceived.Invoke);
-                transport.OnServerError.AddListener(OnServerError.Invoke);
-                transport.OnServerDisconnected.AddListener(OnServerDisconnected.Invoke);
-            }
-        }
-
         // right now this just returns the first available uri,
         // should we return the list of all available uri?
         public override Uri ServerUri() => available.ServerUri();
@@ -145,6 +122,10 @@ namespace Mirror
 
         public override void ServerStart()
         {
+            available.OnServerConnected = OnServerConnected;
+            available.OnServerDataReceived = OnServerDataReceived;
+            available.OnServerError = OnServerError;
+            available.OnServerDisconnected = OnServerDisconnected;
             available.ServerStart();
         }
 

@@ -17,8 +17,6 @@ namespace Mirror
             {
                 Debug.LogError("Multiplex transport requires at least 1 underlying transport");
             }
-            InitClient();
-            InitServer();
         }
 
         void OnEnable()
@@ -51,18 +49,6 @@ namespace Mirror
         }
 
         #region Client
-        // clients always pick the first transport
-        void InitClient()
-        {
-            // wire all the base transports to my events
-            foreach (Transport transport in transports)
-            {
-                transport.OnClientConnected.AddListener(OnClientConnected.Invoke);
-                transport.OnClientDataReceived.AddListener(OnClientDataReceived.Invoke);
-                transport.OnClientError.AddListener(OnClientError.Invoke);
-                transport.OnClientDisconnected.AddListener(OnClientDisconnected.Invoke);
-            }
-        }
 
         public override void ClientConnect(string address)
         {
@@ -71,6 +57,10 @@ namespace Mirror
                 if (transport.Available())
                 {
                     available = transport;
+                    transport.OnClientConnected = OnClientConnected;
+                    transport.OnClientDataReceived = OnClientDataReceived;
+                    transport.OnClientError = OnClientError;
+                    transport.OnClientDisconnected = OnClientDisconnected;
                     transport.ClientConnect(address);
                     return;
                 }
@@ -86,8 +76,12 @@ namespace Mirror
                 {
                     try
                     {
-                        transport.ClientConnect(uri);
                         available = transport;
+                        transport.OnClientConnected = OnClientConnected;
+                        transport.OnClientDataReceived = OnClientDataReceived;
+                        transport.OnClientError = OnClientError;
+                        transport.OnClientDisconnected = OnClientDisconnected;
+                        transport.ClientConnect(uri);
                         return;
                     }
                     catch (ArgumentException)
@@ -138,7 +132,7 @@ namespace Mirror
             return connectionId % transports.Length;
         }
 
-        void InitServer()
+        void AddServerCallbacks()
         {
             // wire all the base transports to my events
             for (int i = 0; i < transports.Length; i++)
@@ -148,24 +142,24 @@ namespace Mirror
                 int locali = i;
                 Transport transport = transports[i];
 
-                transport.OnServerConnected.AddListener(baseConnectionId =>
+                transport.OnServerConnected = (baseConnectionId =>
                 {
                     OnServerConnected.Invoke(FromBaseId(locali, baseConnectionId));
                 });
 
-                transport.OnServerDataReceived.AddListener((baseConnectionId, data, channel) =>
+                transport.OnServerDataReceived = (baseConnectionId, data, channel) =>
                 {
                     OnServerDataReceived.Invoke(FromBaseId(locali, baseConnectionId), data, channel);
-                });
+                };
 
-                transport.OnServerError.AddListener((baseConnectionId, error) =>
+                transport.OnServerError = (baseConnectionId, error) =>
                 {
                     OnServerError.Invoke(FromBaseId(locali, baseConnectionId), error);
-                });
-                transport.OnServerDisconnected.AddListener(baseConnectionId =>
+                };
+                transport.OnServerDisconnected = baseConnectionId =>
                 {
                     OnServerDisconnected.Invoke(FromBaseId(locali, baseConnectionId));
-                });
+                };
             }
         }
 
@@ -222,6 +216,7 @@ namespace Mirror
         {
             foreach (Transport transport in transports)
             {
+                AddServerCallbacks();
                 transport.ServerStart();
             }
         }
