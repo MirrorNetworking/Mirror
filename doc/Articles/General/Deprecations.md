@@ -236,6 +236,22 @@ Basic messages of simple types were all removed as unnecessary bloat. You can cr
 -   `DoubleMessage`
 -   `EmptyMessage`
 
+NetworkMessage requires structs in all cases - classes no longer supported
+
+### NetworkReader
+
+-   `Read(byte[] buffer, int offset, int count)`  
+    Use `ReadBytes` instead.
+
+-   `ReadPackedInt32(int value)` 
+    Use `ReadInt32(int value)` instead
+
+-   `ReadPackedUInt32(uint value)` 
+    Use `ReadUInt32(uint value)` instead
+
+-   `ReadPackedUInt64(ulong value)` 
+    Use `ReadUInt64(ulong value)` instead
+
 ### NetworkWriter
 
 -   `Write(bool value)`  
@@ -330,6 +346,15 @@ Basic messages of simple types were all removed as unnecessary bloat. You can cr
 
 -   `Write(byte[] buffer, int offset, int count)`  
     Use `WriteBytes` instead.
+
+-   `WritePackedInt32(int value)` 
+    Use `WriteInt32(int value)` instead
+
+-   `WritePackedUInt32(uint value)` 
+    Use `WriteUInt32(uint value)` instead
+
+-   `WritePackedUInt64(ulong value)` 
+    Use `WriteUInt64(ulong value)` instead
 
 ### Transport
 

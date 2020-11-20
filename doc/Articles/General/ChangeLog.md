@@ -4,92 +4,94 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
-## Version 27.x.x -- In Progress
-- Fixed: Better presentation of Network Ping Display
-- Fixed: Middleware Transport now listens for inner events correctly
-- Fixed: Calling StartServer / StartClient more than once is now prevented
-- Changed: **Breaking** Force NetworkMessage to use structs in all cases - Classes no longer supported
-- Changed: **Breaking** Removed ReadPacked / WritePacked functions
+## Version 28.x.x -- In Progress
+- Added: Network Reader/Writer now does Read/WriteBlittable<T> for better performance
+- Added: [KCP Transport](../Transports/KCPTransport.md) updated to version 1.3.
+- Fixed: Better presentation of Network Ping Display.
+- Fixed: Middleware Transport now listens for inner events correctly.
+- Fixed: Calling StartServer / StartClient more than once is now prevented.
+- Changed: **Breaking** Force NetworkMessage to use structs in all cases - classes no longer supported.
+- Changed: **Breaking** Removed ReadPacked / WritePacked functions - Use Read and Write variants instead.
 
 ## Version 26.2.2 -- 2020-Nov-20
-- Added: [KCP Transport](../Transports/KCPTransport.md)
-- Added: [Libuv2k Transport](../Transports/Libuv2k.md)
-- Added: Quaternion and float compression
-- Added: Option to configure handshakeMaxSize in SimpleWebTransport
-- Added: ServerTeleport to Experimental NetworkTransform
-- Added: Accept and Reject methods to Authenticator base class for ease of use
-- Fixed: Weaver failure on Authenticators and assemblies with only messages and no behaviors
-- Fixed: Examples no longer rely on sequential connectionId
-- Fixed: Eliminated errors when first importing due to preprocessor defines in transports
-- Fixed: Scene ID logging is now consistantly in hex format
-- Fixed: sceneId when using BuildPipeline.BuildPlayer with incorrect case in path
-- Fixed: Trigger not applied correctly for host in NetworkAnimator
-- Fixed: Ensure ReadHelper.Read reads exactly number of bytes in SimpleWebTransport
-- Changed: Minimum Unity version is now 2018.4.28 LTS
-- Changed: Script Templates are now avalable as a separate package [here](ScriptTemplates.md)
+- Added: [KCP Transport](../Transports/KCPTransport.md).
+- Added: [Libuv2k Transport](../Transports/Libuv2k.md).
+- Added: Quaternion and float compression.
+- Added: Option to configure handshakeMaxSize in SimpleWebTransport.
+- Added: ServerTeleport to Experimental NetworkTransform.
+- Added: Accept and Reject methods to Authenticator base class for ease of use.
+- Fixed: Weaver failure on Authenticators and assemblies with only messages and no behaviors.
+- Fixed: Examples no longer rely on sequential connectionId.
+- Fixed: Eliminated errors when first importing due to preprocessor defines in transports.
+- Fixed: Scene ID logging is now consistantly in hex format.
+- Fixed: sceneId when using BuildPipeline.BuildPlayer with incorrect case in path.
+- Fixed: Trigger not applied correctly for host in NetworkAnimator.
+- Fixed: Ensure ReadHelper.Read reads exactly number of bytes in SimpleWebTransport.
+- Changed: Minimum Unity version is now 2018.4.28 LTS.
+- Changed: Script Templates are now avalable as a separate package [here](ScriptTemplates.md).
 - Changed: Telepathy Transport is now obsolete - Use [KCP Transport](../Transports/KCPTransport.md) instead.
-- Changed: **Breaking** NetworkIdentity.clientAuthorityCallback is an event now
-- Changed: **Breaking** Removed older obsolete methods and tests
-- Changed: **Breaking** Transports no longer support sending to a List<int> of connectionIds
+- Changed: **Breaking** NetworkIdentity.clientAuthorityCallback is an event now.
+- Changed: **Breaking** Removed older obsolete methods and tests.
+- Changed: **Breaking** Transports no longer support sending to a List<int> of connectionIds.
 
 ## Version 23.0.3 -- 2020-Oct-24
-- Added: Support null when serializing classes 
-- Added: Support recursive data types
-- Added: Support jagged arrays 
-- Added: New generic Read and Write methods for typed used by mirror and user callbacks
-- Added: NetworkAnimator now syncs animator.speed 
-- Added: NetworkTransform Server Teleport function
-- Added: New websockets transport: [SimpleWebTransport](https://github.com/MirrorNetworking/SimpleWebTransport) 
-- Fixed: ClientScene.localplayer is now set to null when it is destroyed
-- Fixed: Fixing IndexChanged hook not being called for NetworkRoomPlayer 
-- Fixed: Fixing NullReferenceException when loading scene
-- Fixed: Fixing NetworkConnectionToClient for IL2CPP
-- Fixed: NullReferenceException in tanks example when running in headless server only
-- Changed: **Breaking** Use SyncLists/SyncSet/SyncDictionary directly, eg `SyncList<int>`, see [Pull Request 2307](https://github.com/vis2k/Mirror/pull/2307) 
-- Changed: **Breaking** Renamed `IMessageBase` to `NetworkMessage`, see [Pull Request 2317](https://github.com/vis2k/Mirror/pull/2317)
-- Changed: OnSerialize now includes the component index as byte before serializing each component. Better CPU performance at the cost of bandwidth
-- Changed: Can now have 256 NetworkBehaviours per NetworkIdentity
-- Removed: **Breaking** SyncEvents, see [Pull Request 2178](https://github.com/vis2k/Mirror/pull/2178)
-- Removed: **Breaking** Removing manual invoke for Cmd and RPC, see [Pull Request 2223](https://github.com/vis2k/Mirror/pull/2223)
-- Removed: **Breaking** Removed Serialize/Deserialize in messages, see [Pull Request 2317](https://github.com/vis2k/Mirror/pull/2317)
-- Removed: **Breaking** Removing auto initialize for SyncLists/SyncSet/SyncDictionary, see [Pull Request 2330](https://github.com/vis2k/Mirror/pull/2330)
-- Removed: **Breaking** Replacing [Ninja.WebSockets](https://github.com/MirrorNetworking/NinjaWebSocketsTransport) with [SimpleWebTransport](https://github.com/MirrorNetworking/SimpleWebTransport) 
+- Added: Support null when serializing classes.
+- Added: Support recursive data types.
+- Added: Support jagged arrays.
+- Added: New generic Read and Write methods for typed used by mirror and user callbacks.
+- Added: NetworkAnimator now syncs animator.speed.
+- Added: NetworkTransform Server Teleport function.
+- Added: New websockets transport: [SimpleWebTransport](https://github.com/MirrorNetworking/SimpleWebTransport).
+- Fixed: ClientScene.localplayer is now set to null when it is destroyed.
+- Fixed: Fixing IndexChanged hook not being called for NetworkRoomPlayer.
+- Fixed: Fixing NullReferenceException when loading scene.
+- Fixed: Fixing NetworkConnectionToClient for IL2CPP.
+- Fixed: NullReferenceException in tanks example when running in headless server only.
+- Changed: **Breaking** Use SyncLists/SyncSet/SyncDictionary directly, eg `SyncList<int>`, see [Pull Request 2307](https://github.com/vis2k/Mirror/pull/2307).
+- Changed: **Breaking** Renamed `IMessageBase` to `NetworkMessage`, see [Pull Request 2317](https://github.com/vis2k/Mirror/pull/2317).
+- Changed: OnSerialize now includes the component index as byte before serializing each component. Better CPU performance at the cost of bandwidth.
+- Changed: Can now have 256 NetworkBehaviours per NetworkIdentity.
+- Removed: **Breaking** SyncEvents, see [Pull Request 2178](https://github.com/vis2k/Mirror/pull/2178).
+- Removed: **Breaking** Removing manual invoke for Cmd and RPC, see [Pull Request 2223](https://github.com/vis2k/Mirror/pull/2223).
+- Removed: **Breaking** Removed Serialize/Deserialize in messages, see [Pull Request 2317](https://github.com/vis2k/Mirror/pull/2317).
+- Removed: **Breaking** Removing auto initialize for SyncLists/SyncSet/SyncDictionary, see [Pull Request 2330](https://github.com/vis2k/Mirror/pull/2330).
+- Removed: **Breaking** Replacing [Ninja.WebSockets](https://github.com/MirrorNetworking/NinjaWebSocketsTransport) with [SimpleWebTransport](https://github.com/MirrorNetworking/SimpleWebTransport).
 
 ## Version 17.3.0 -- 2020-Sep-04
-- Added: NetworkAnimator now syncs Layer Weight
-- Added: Lists can now be sent in Command/Rpc/Message/etc
-- Added: `[Server]`/`[Client]` can now be used outside of NetworkBehaviour 
+- Added: NetworkAnimator now syncs Layer Weight.
+- Added: Lists can now be sent in Command/Rpc/Message/etc.
+- Added: `[Server]`/`[Client]` can now be used outside of NetworkBehaviour.
 - Added: Experimental [NetworkLerpRigidbody](../Components/NetworkLerpRigidbody.md) component that syncs position and velocity and applies them using Lerp.
-- Fixed: NetworkAnimator now fires triggers immediately on owner
-- Fixed: `isServer` will now keep its value after calling `NetworkServer.Destroy`
-- Fixed: `[Client]` error message now correctly logs the name of the method
-- Fixed: Messages can now be nested within other Message types
-- Fixed: `[Server]`/`[Client]` now correctly give error when used on abstract method 
-- Fixed: Abstract classes can now implement IMessageBase 
-- Fixed: Weaver now correctly gives error when generating a reader methods for abstract classes
-- Changed: NetworkServer no longer runs update if there are no connections
-- Changed: NetworkBehaviour.IsDirty is now a public
-- Changed: SyncEvent are now obsolete and will be removed in the next version
-- Removed: isHeadless is now obsolete, Use preprocessor directive `#if UNITY_SERVER` instead
+- Fixed: NetworkAnimator now fires triggers immediately on owner.
+- Fixed: `isServer` will now keep its value after calling `NetworkServer.Destroy`.
+- Fixed: `[Client]` error message now correctly logs the name of the method.
+- Fixed: Messages can now be nested within other Message types.
+- Fixed: `[Server]`/`[Client]` now correctly give error when used on abstract method.
+- Fixed: Abstract classes can now implement IMessageBase.
+- Fixed: Weaver now correctly gives error when generating a reader methods for abstract classes.
+- Changed: NetworkServer no longer runs update if there are no connections.
+- Changed: NetworkBehaviour.IsDirty is now a public.
+- Changed: SyncEvent are now obsolete and will be removed in the next version.
+- Removed: isHeadless is now obsolete, Use preprocessor directive `#if UNITY_SERVER` instead.
 
 ## Version 16.9.0 -- 2020-Aug-01
-- Added: [NetworkHeadlessLogger](../Components/NetworkHeadlessLogger.md) log handler that sets console color
-- Added: New Mirror List Server, see [Cloud folder](https://github.com/vis2k/Mirror/tree/master/Assets/Mirror/Cloud)
-- Added: Experimental [NetworkRigidbody](../Components/NetworkRigidbody.md) component that syncs velocity and other rigidbody settings
-- Fixed: base method called inside Command/RPC now work if the first base class does not have an override
-- Fixed: NetworkRoomPlayer now cleans up roomSlots on disable
-- Fixed: Fallback and Multiplex now disable their transports when they are disabled
-- Fixed: Websockets transport SocketState now returns false if socket is `undefined`
-- Fixed: SyncEvents can now have the same name if they are in different classes
-- Fixed: You can now have multiple SyncEvents per class
-- Fixed: Message base classes are now processed even if they are declared later in the file
-- Fixed: Registering a prefab with and same GUID no longer gives an error
-- Fixed: Weaver now generates Serialize methods for classes that implement IMessageBase
-- Changed: NetworkProximityChecker now has slightly better performance
-- Changed: ClientRpc no longer need Rpc prefix
-- Changed: Commands no longer need Cmd prefix 
-- Changed: TargetRpc no longer need Target prefix
-- Changed: NetworkManager.networkSceneName is now protected set as it should not be set directly
+- Added: [NetworkHeadlessLogger](../Components/NetworkHeadlessLogger.md) log handler that sets console color.
+- Added: New Mirror List Server, see [Cloud folder](https://github.com/vis2k/Mirror/tree/master/Assets/Mirror/Cloud).
+- Added: Experimental [NetworkRigidbody](../Components/NetworkRigidbody.md) component that syncs velocity and other rigidbody settings.
+- Fixed: base method called inside Command/RPC now work if the first base class does not have an override.
+- Fixed: NetworkRoomPlayer now cleans up roomSlots on disable.
+- Fixed: Fallback and Multiplex now disable their transports when they are disabled.
+- Fixed: Websockets transport SocketState now returns false if socket is `undefined`.
+- Fixed: SyncEvents can now have the same name if they are in different classes.
+- Fixed: You can now have multiple SyncEvents per class.
+- Fixed: Message base classes are now processed even if they are declared later in the file.
+- Fixed: Registering a prefab with and same GUID no longer gives an error.
+- Fixed: Weaver now generates Serialize methods for classes that implement IMessageBase.
+- Changed: NetworkProximityChecker now has slightly better performance.
+- Changed: ClientRpc no longer need Rpc prefix.
+- Changed: Commands no longer need Cmd prefix.
+- Changed: TargetRpc no longer need Target prefix.
+- Changed: NetworkManager.networkSceneName is now protected set as it should not be set directly.
 
 ## Version 16.1.1 -- 2020-Jun-13
 - Added: [Command] now has an `ignoreAuthority` option for invoking Commands on objects the client doesn't have authority over, and Command methods can have an optional `NetworkConnectionToClient sender` parameter.
