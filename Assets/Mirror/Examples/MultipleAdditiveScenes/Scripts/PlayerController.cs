@@ -10,19 +10,15 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     public class PlayerController : NetworkBehaviour
     {
         public CharacterController characterController;
-        public CapsuleCollider capsuleCollider;
 
         void OnValidate()
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
-            if (capsuleCollider == null)
-                capsuleCollider = GetComponent<CapsuleCollider>();
         }
 
         void Start()
         {
-            capsuleCollider.enabled = isServer;
             characterController.enabled = isLocalPlayer;
         }
 

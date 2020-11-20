@@ -54,6 +54,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -194,7 +195,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 1480027675339556}
   m_Material: {fileID: 13400000, guid: 2debad4ac21a6644faf4fc93bd5b5869, type: 2}
   m_IsTrigger: 0
-  m_Enabled: 0
+  m_Enabled: 1
   m_Radius: 0.8
   m_Height: 2
   m_Direction: 1
@@ -231,6 +232,7 @@ MonoBehaviour:
   syncInterval: 0
   characterController: {fileID: 143011667059871024}
   capsuleCollider: {fileID: 4839740653866577337}
+  rigidbody3d: {fileID: 1849877933717427647}
   moveSpeed: 8
   turnSensitivity: 5
   maxTurnSpeed: 150
@@ -238,7 +240,6 @@ MonoBehaviour:
   vertical: 0
   turn: 0
   jumpSpeed: 0
-  jumpTime: 0
   isGrounded: 1
   isFalling: 0
   velocity: {x: 0, y: 0, z: 0}
@@ -333,6 +334,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
