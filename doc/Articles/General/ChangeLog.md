@@ -10,6 +10,8 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Better presentation of Network Ping Display.
 - Fixed: Middleware Transport now listens for inner events correctly.
 - Fixed: Calling StartServer / StartClient more than once is now prevented.
+- Fixed: NRE when no host player in PlayerScore in MultipleAdditiveScenes example
+- Fixed: player collisions in MultipleAdditiveScenes example
 - Changed: **Breaking** Force NetworkMessage to use structs in all cases - classes no longer supported.
 - Changed: **Breaking** Removed ReadPacked / WritePacked functions - Use Read and Write variants instead.
 
