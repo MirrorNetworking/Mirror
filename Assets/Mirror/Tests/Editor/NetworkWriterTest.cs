@@ -25,8 +25,10 @@ namespace Mirror.Tests
 
         struct TestStruct
         {
+#pragma warning disable 649
             public int data;
             public byte data2;
+#pragma warning restore 649
         }
 
         [Test]
