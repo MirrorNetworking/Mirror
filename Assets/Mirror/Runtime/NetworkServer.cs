@@ -90,8 +90,6 @@ namespace Mirror
                     Transport.activeTransport.ServerStop();
                 }
 
-                RemoveTransportHandlers();
-
                 initialized = false;
             }
             dontListen = false;
@@ -491,18 +489,10 @@ namespace Mirror
 
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.OnServerDisconnected.AddListener(OnDisconnected);
-            Transport.activeTransport.OnServerConnected.AddListener(OnConnected);
-            Transport.activeTransport.OnServerDataReceived.AddListener(OnDataReceived);
-            Transport.activeTransport.OnServerError.AddListener(OnError);
-        }
-
-        static void RemoveTransportHandlers()
-        {
-            Transport.activeTransport.OnServerDisconnected.RemoveListener(OnDisconnected);
-            Transport.activeTransport.OnServerConnected.RemoveListener(OnConnected);
-            Transport.activeTransport.OnServerDataReceived.RemoveListener(OnDataReceived);
-            Transport.activeTransport.OnServerError.RemoveListener(OnError);
+            Transport.activeTransport.OnServerConnected = OnConnected;
+            Transport.activeTransport.OnServerDataReceived = OnDataReceived;
+            Transport.activeTransport.OnServerDisconnected = OnDisconnected;
+            Transport.activeTransport.OnServerError = OnError;
         }
 
         static void OnConnected(int connectionId)

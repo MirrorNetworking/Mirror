@@ -1,4 +1,4 @@
-﻿// memory transport for easier testing
+// memory transport for easier testing
 // note: file needs to be outside of Editor folder, otherwise AddComponent
 //       can't be called with MemoryTransport
 using System;
