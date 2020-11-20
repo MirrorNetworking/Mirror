@@ -1,3 +1,10 @@
+## [59.0.6](https://github.com/MirrorNG/MirrorNG/compare/v59.0.5...v59.0.6) (2020-11-20)
+
+
+### Bug Fixes
+
+* script not found error with NetworkDiscoveryHud ([#494](https://github.com/MirrorNG/MirrorNG/issues/494)) ([8e39e21](https://github.com/MirrorNG/MirrorNG/commit/8e39e219aed3ca62b9f5766059e711da7540a629))
+
 ## [59.0.5](https://github.com/MirrorNG/MirrorNG/compare/v59.0.4...v59.0.5) (2020-11-14)
 
 
