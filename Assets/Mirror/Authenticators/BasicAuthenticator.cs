@@ -45,6 +45,16 @@ namespace Mirror.Authenticators
         }
 
         /// <summary>
+        /// Called on server from StopServer to reset the Authenticator
+        /// <para>Server message handlers should be registered in this method.</para>
+        /// </summary>
+        public override void OnStopServer()
+        {
+            // unregister the handler for the authentication request
+            NetworkServer.UnregisterHandler<AuthRequestMessage>();
+        }
+
+        /// <summary>
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection to client.</param>
@@ -116,6 +126,16 @@ namespace Mirror.Authenticators
         {
             // register a handler for the authentication response we expect from server
             NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
+        }
+
+        /// <summary>
+        /// Called on client from StopClient to reset the Authenticator
+        /// <para>Client message handlers should be unregistered in this method.</para>
+        /// </summary>
+        public override void OnStopClient()
+        {
+            // unregister the handler for the authentication response
+            NetworkClient.UnregisterHandler<AuthResponseMessage>();
         }
 
         /// <summary>
