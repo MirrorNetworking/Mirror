@@ -12,6 +12,8 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Calling StartServer / StartClient more than once is now prevented.
 - Fixed: NRE when no host player in PlayerScore in MultipleAdditiveScenes example
 - Fixed: player collisions in MultipleAdditiveScenes example
+- Fixed: Weaver now properly generates readers and writers for structs in other assemblies, e.g. `Mathematics`
+- Changed: Server Only scene objects in examples replaced with normal objects instantiated on server or just eliminated
 - Changed: **Breaking** Force NetworkMessage to use structs in all cases - classes no longer supported.
 - Changed: **Breaking** Removed ReadPacked / WritePacked functions - Use Read and Write variants instead.
 
