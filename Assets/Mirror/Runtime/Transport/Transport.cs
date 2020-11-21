@@ -7,7 +7,35 @@ namespace Mirror
     /// Abstract transport layer component
     /// </summary>
     /// <remarks>
-    /// note: Not all transports need a port, so add it to yours if needed.
+    /// <h2>
+    ///   Transport Rules 
+    /// </h2>
+    /// <list type="bullet">
+    ///   <listheader><description>
+    ///     All transports should follow these rules so that they work correctly with mirror
+    ///   </description></listheader>
+    ///   <item><description>
+    ///     When Monobehaviour is disabled the Transport should not invoke callbacks
+    ///   </description></item>
+    ///   <item><description>
+    ///     Callbacks should be invoked on main thread. It is best to do this from LateUpdate
+    ///   </description></item>
+    ///   <item><description>
+    ///     Callbacks can be invoked after <see cref="ServerStop"/> or <see cref="ClientDisconnect"/> as been called
+    ///   </description></item>
+    ///   <item><description>
+    ///     <see cref="ServerStop"/> or <see cref="ClientDisconnect"/> can be called by mirror multiple times
+    ///   </description></item>
+    ///   <item><description>
+    ///     <see cref="Available"/> should check the platform and 32 vs 64 bit if the transport only works on some of them
+    ///   </description></item>
+    ///   <item><description>
+    ///     <see cref="GetMaxPacketSize"/> should return size even if transport is not running
+    ///   </description></item>
+    ///   <item><description>
+    ///     Default channel should be reliable <see cref="Channels.DefaultReliable"/>
+    ///   </description></item>
+    /// </list>
     /// </remarks>
     public abstract class Transport : MonoBehaviour
     {
