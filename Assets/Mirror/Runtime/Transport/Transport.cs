@@ -32,6 +32,9 @@ namespace Mirror
     ///   <item><description>
     ///     <see cref="GetMaxPacketSize"/> should return size even if transport is not running
     ///   </description></item>
+    ///   <item><description>
+    ///     Default channel should be reliable <see cref="Channels.DefaultReliable"/>
+    ///   </description></item>
     /// </list>
     /// </remarks>
     public abstract class Transport : MonoBehaviour
