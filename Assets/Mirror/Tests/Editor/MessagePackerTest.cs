@@ -5,6 +5,8 @@ namespace Mirror.Tests
     [TestFixture]
     public class MessagePackerTest
     {
+        public struct EmptyMessage : NetworkMessage { }
+
         // helper function to pack message into a simple byte[]
         public static byte[] PackToByteArray<T>(T message)
             where T : struct, NetworkMessage
@@ -112,6 +114,17 @@ namespace Mirror.Tests
             bool result2 = MessagePacker.Unpack(reader2, out int msgType2);
             Assert.That(result2, Is.EqualTo(false));
             Assert.That(msgType2, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void MessageIdIsCorrectLength()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            MessagePacker.Pack(new EmptyMessage(), writer);
+
+            ArraySegment<byte> segment = writer.ToArraySegment();
+
+            Assert.That(segment.Count, Is.EqualTo(MessagePacker.HeaderSize), "Empty message should have same size as HeaderSize");
         }
     }
 }

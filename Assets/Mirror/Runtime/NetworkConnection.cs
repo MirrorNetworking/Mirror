@@ -233,9 +233,10 @@ namespace Mirror
         /// <param name="buffer">The data received.</param>
         internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
-            if (buffer.Count == 0)
+            if (buffer.Count < MessagePacker.HeaderSize)
             {
-                logger.LogError($"ConnectionRecv {this} Message was empty");
+                logger.LogError($"ConnectionRecv {this} Message was too short (messages should start with message id)");
+                Disconnect();
                 return;
             }
 
