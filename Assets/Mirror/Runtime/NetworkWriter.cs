@@ -8,10 +8,9 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>
-    /// a class that holds writers for the different types
-    /// Note that c# creates a different static variable for each
-    /// type
-    /// This will be populated by the weaver
+    /// A class that holds writers for the different types
+    /// <para>Note that c# creates a different static variable for each type</para>
+    /// <para>This will be populated by the weaver</para>
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public static class Writer<T>
