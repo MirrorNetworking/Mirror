@@ -106,16 +106,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void UnpackInvalidMessage()
-        {
-            // try an invalid message
-            NetworkReader reader2 = new NetworkReader(new byte[0]);
-            bool result2 = MessagePacker.Unpack(reader2, out int msgType2);
-            Assert.That(result2, Is.EqualTo(false));
-            Assert.That(msgType2, Is.EqualTo(0));
-        }
-
-        [Test]
         public void MessageIdIsCorrectLength()
         {
             NetworkWriter writer = new NetworkWriter();
