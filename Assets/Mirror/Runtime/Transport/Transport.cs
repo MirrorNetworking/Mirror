@@ -27,6 +27,11 @@ namespace Mirror
 
         #region Client
         /// <summary>
+        /// Is the server available on the current platform. <see cref="Available"/>
+        /// </summary>
+        public virtual bool ClientAvailable() => Available();
+
+        /// <summary>
         /// Notify subscribers when when this client establish a successful connection to the server
         /// <para>callback()</para>
         /// </summary>
@@ -90,7 +95,10 @@ namespace Mirror
         #endregion
 
         #region Server
-
+        /// <summary>
+        /// Is the client available on the current platform. <see cref="Available"/>
+        /// </summary>
+        public virtual bool ServerAvailable() => Available();
 
         /// <summary>
         /// Retrieves the address of this server.
