@@ -24,7 +24,7 @@ namespace Mirror
     /// </summary>
     public class NetworkWriter
     {
-       static readonly ILogger logger = LogFactory.GetLogger<NetworkWriter>();
+        static readonly ILogger logger = LogFactory.GetLogger<NetworkWriter>();
 
         public const int MaxStringLength = 1024 * 32;
 
@@ -38,8 +38,14 @@ namespace Mirror
         int position;
         int length;
 
+        /// <summary>
+        /// Number of bytes writen to the buffer
+        /// </summary>
         public int Length => length;
 
+        /// <summary>
+        /// Next position to write to the buffer
+        /// </summary>
         public int Position
         {
             get => position;
@@ -106,11 +112,11 @@ namespace Mirror
             }
         }
 
-        // MemoryStream has 3 values: Position, Length and Capacity.
-        // Position is used to indicate where we are writing
-        // Length is how much data we have written
-        // capacity is how much memory we have allocated
-        // ToArray returns all the data we have written,  regardless of the current position
+        /// <summary>
+        /// Copys buffer to new array with the size of <see cref="Length"/>
+        /// <para></para>
+        /// </summary>
+        /// <returns>all the data we have written, regardless of the current position</returns>
         public byte[] ToArray()
         {
             byte[] data = new byte[length];
@@ -118,11 +124,16 @@ namespace Mirror
             return data;
         }
 
-        // Gets the serialized data in an ArraySegment<byte>
-        // this is similar to ToArray(),  but it gets the data in O(1)
-        // and without allocations.
-        // Do not write anything else or modify the NetworkWriter
-        // while you are using the ArraySegment
+        /// <summary>
+        /// Create an ArraySegment using the buffer and <see cref="Length"/>
+        /// <para>
+        ///     Dont modify the NetworkWriter while using the ArraySegment as this can overwrite the bytes
+        /// </para>
+        /// <para>
+        ///     Use ToArraySegment instead of ToArray to avoid allocations
+        /// </para>
+        /// </summary>
+        /// <returns>all the data we have written, regardless of the current position</returns>
         public ArraySegment<byte> ToArraySegment()
         {
             return new ArraySegment<byte>(buffer, 0, length);
@@ -185,8 +196,17 @@ namespace Mirror
             Position += size;
         }
 
-        // for byte arrays with consistent size, where the reader knows how many to read
-        // (like a packet opcode that's always the same)
+
+        /// <summary>
+        /// Copys bytes from given array to <see cref="buffer"/>
+        /// <para>
+        ///     useful for byte arrays with consistent size, where the reader knows how many to read
+        ///     (like a packet opcode that's always the same)
+        /// </para>
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="offset"></param>
+        /// <param name="count"></param>
         public void WriteBytes(byte[] buffer, int offset, int count)
         {
             EnsureLength(position + count);
@@ -214,8 +234,12 @@ namespace Mirror
     }
 
 
-    // Mirror's Weaver automatically detects all NetworkWriter function types,
-    // but they do all need to be extensions.
+    /// <summary>
+    /// Built in Writer functions for Mirror
+    /// <para>
+    ///     Weaver automatically decects all extension methods for NetworkWriter 
+    /// </para>
+    /// </summary>
     public static class NetworkWriterExtensions
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkWriterExtensions));
