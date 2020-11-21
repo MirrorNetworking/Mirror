@@ -130,31 +130,27 @@ namespace Mirror
         }
 
         // WriteBlittable<T> from DOTSNET.
-        // this is extremely fast, but only works for blittable types.
-        //
-        // Benchmark:
-        //   WriteQuaternion x 100k, Macbook Pro 2015 @ 2.2Ghz, Unity 2018 LTS (debug mode)
-        //
-        //                | Median |  Min  |  Max  |  Avg  |  Std  | (ms)
-        //     before     |  30.35 | 29.86 | 48.99 | 32.54 |  4.93 |
-        //     blittable* |   5.69 |  5.52 | 27.51 |  7.78 |  5.65 |
-        //
-        //     * without IsBlittable check
-        //     => 4-6x faster!
-        //
-        //   WriteQuaternion x 100k, Macbook Pro 2015 @ 2.2Ghz, Unity 2020.1 (release mode)
-        //
-        //                | Median |  Min  |  Max  |  Avg  |  Std  | (ms)
-        //     before     |   9.41 |  8.90 | 23.02 | 10.72 |  3.07 |
-        //     blittable* |   1.48 |  1.40 | 16.03 |  2.60 |  2.71 |
-        //
-        //     * without IsBlittable check
-        //     => 6x faster!
-        //
-        // Note:
-        //   WriteBlittable assumes same endianness for server & client.
-        //   All Unity 2018+ platforms are little endian.
-        //   => run NetworkWriterTests.BlittableOnThisPlatform() to verify!
+        /// <summary>
+        /// Copies blittable type to buffer
+        /// <para>
+        ///     This is extremely fast, but only works for blittable types.
+        /// </para>
+        /// <para>
+        ///     Note:
+        ///     WriteBlittable assumes same endianness for server and client.
+        ///     All Unity 2018+ platforms are little endian.<br/>
+        ///     => run NetworkWriterTests.BlittableOnThisPlatform() to verify!
+        /// </para>
+        /// </summary>
+        /// <remarks>
+        ///     See <see href="https://docs.microsoft.com/en-us/dotnet/framework/interop/blittable-and-non-blittable-types">Blittable and Non-Blittable Types</see>
+        ///     for more info.
+        /// <para>
+        ///     For Benchmarks see <see href="https://github.com/vis2k/Mirror/pull/2441"/>
+        /// </para>
+        /// </remarks>
+        /// <typeparam name="T">Needs to be unmanaged, see <see href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/unmanaged-types">unmanaged types</see></typeparam>
+        /// <param name="value"></param>
         public unsafe void WriteBlittable<T>(T value)
             where T : unmanaged
         {
