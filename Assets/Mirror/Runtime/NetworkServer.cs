@@ -21,7 +21,13 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkServer));
 
         static bool initialized;
-        static int maxConnections;
+
+        /// <summary>
+        /// Max number of connects NetworkServer will accept
+        /// <para>If a new client tries to connect it will be disconnected immediately</para>
+        /// <para>This limit does include the host client, but the host bypasses the check and can always connect</para>
+        /// </summary>
+        public static int maxConnections;
 
         /// <summary>
         /// The connection to the host mode client (if any).

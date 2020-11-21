@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using kcp2k;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
-using kcp2k;
 
 namespace Mirror
 {
@@ -97,13 +97,25 @@ namespace Mirror
         [Tooltip("Network Address where the client should connect to the server. Server does not use this for anything.")]
         public string networkAddress = "localhost";
 
+        [FormerlySerializedAs("m_MaxConnections")]
+        [FormerlySerializedAs("maxConnections")] // renamed 2020-11-21
+        [Tooltip("Maximum number of concurrent connections.")]
+        [SerializeField] int _maxConnections = 4;
+
         /// <summary>
         /// The maximum number of concurrent network connections to support.
         /// <para>This effects the memory usage of the network layer.</para>
+        /// <para>Setting this property will also set <see cref="NetworkServer.maxConnections"/></para>
         /// </summary>
-        [FormerlySerializedAs("m_MaxConnections")]
-        [Tooltip("Maximum number of concurrent connections.")]
-        public int maxConnections = 4;
+        public int maxConnections
+        {
+            get => _maxConnections;
+            set
+            {
+                _maxConnections = value;
+                NetworkServer.maxConnections = value;
+            }
+        }
 
         // This value is passed to NetworkServer in SetupServer
         /// <summary>
