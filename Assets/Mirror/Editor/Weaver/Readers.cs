@@ -17,6 +17,12 @@ namespace Mirror.Weaver
 
         internal static void Register(TypeReference dataType, MethodReference methodReference)
         {
+            string typeName = dataType.FullName;
+            if (readFuncs.ContainsKey(typeName))
+            {
+                Weaver.Warning($"Registering a Read method for {typeName} when one already exists", methodReference);
+            }
+
             readFuncs[dataType.FullName] = methodReference;
         }
 
