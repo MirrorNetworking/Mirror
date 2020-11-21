@@ -19,9 +19,9 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger(typeof(MessagePacker));
 
         /// <summary>
-        /// Size of the Message Id Header, ths is the minimum size of a message that mirror will accept
+        /// this is the minimum size of a message that mirror will accept
         /// </summary>
-        internal const int IdSize = sizeof(ushort);
+        internal const int HeaderSize = sizeof(ushort);
 
         public static int GetId<T>() where T : struct, NetworkMessage
         {

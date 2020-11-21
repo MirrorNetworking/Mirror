@@ -124,7 +124,7 @@ namespace Mirror.Tests
 
             ArraySegment<byte> segment = writer.ToArraySegment();
 
-            Assert.That(segment.Count, Is.EqualTo(MessagePacker.IdSize), "Empty message should have same size as IdSize");
+            Assert.That(segment.Count, Is.EqualTo(MessagePacker.HeaderSize), "Empty message should have same size as HeaderSize");
         }
     }
 }
