@@ -1,11 +1,3 @@
-// Custom NetworkReader that doesn't use C#'s built in MemoryStream in order to
-// avoid allocations.
-//
-// Benchmark: 100kb byte[] passed to NetworkReader constructor 1000x
-//   before with MemoryStream
-//     0.8% CPU time, 250KB memory, 3.82ms
-//   now:
-//     0.0% CPU time,  32KB memory, 0.02ms
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,6 +29,15 @@ namespace Mirror
     public class NetworkReader
     {
         static readonly ILogger logger = LogFactory.GetLogger<NetworkReader>();
+
+        // Custom NetworkReader that doesn't use C#'s built in MemoryStream in order to
+        // avoid allocations.
+        //
+        // Benchmark: 100kb byte[] passed to NetworkReader constructor 1000x
+        //   before with MemoryStream
+        //     0.8% CPU time, 250KB memory, 3.82ms
+        //   now:
+        //     0.0% CPU time,  32KB memory, 0.02ms
 
         // internal buffer
         // byte[] pointer would work, but we use ArraySegment to also support
