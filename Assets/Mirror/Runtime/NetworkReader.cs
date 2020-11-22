@@ -123,7 +123,10 @@ namespace Mirror
             return value;
         }
 
-        // read bytes into the passed buffer
+        /// <summary>
+        /// read bytes into <paramref name="bytes"/>
+        /// </summary>
+        /// <returns><paramref name="bytes"/></returns>
         public byte[] ReadBytes(byte[] bytes, int count)
         {
             // check if passed byte array is big enough
