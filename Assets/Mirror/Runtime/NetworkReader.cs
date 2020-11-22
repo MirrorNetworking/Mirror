@@ -48,6 +48,9 @@ namespace Mirror
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
+        /// <summary>
+        /// Next position to read from the buffer
+        /// </summary>
         public int Position;
         public int Length => buffer.Count;
 
