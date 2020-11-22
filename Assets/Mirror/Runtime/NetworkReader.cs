@@ -140,7 +140,12 @@ namespace Mirror
             return bytes;
         }
 
-        // useful to parse payloads etc. without allocating
+        /// <summary>
+        /// Create Segment from current position
+        /// <para>
+        ///     Useful to parse payloads etc. without allocating
+        /// </para>
+        /// </summary>
         public ArraySegment<byte> ReadBytesSegment(int count)
         {
             // check if within buffer limits
