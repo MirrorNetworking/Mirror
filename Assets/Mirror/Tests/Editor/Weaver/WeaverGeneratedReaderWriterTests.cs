@@ -203,5 +203,16 @@ namespace Mirror.Weaver.Tests
             //HasError("Cannot generate reader for List because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
             //    "System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>");
         }
+
+        [Test]
+        public void GivesWarningWhenRegisteringExistingExtensionMethod()
+        {
+            const string typeName = "GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.MyType";
+            HasNoErrors();
+            HasWarning($"Registering a Write method for {typeName} when one already exists",
+                "System.Void GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.ReadWriteExtension::WriteMyType2(Mirror.NetworkWriter,GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.MyType)");
+            HasWarning($"Registering a Read method for {typeName} when one already exists",
+                "GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.MyType GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.ReadWriteExtension::ReadMyType2(Mirror.NetworkReader)");
+        }
     }
 }
