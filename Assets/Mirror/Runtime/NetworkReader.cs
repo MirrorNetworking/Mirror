@@ -52,6 +52,10 @@ namespace Mirror
         /// Next position to read from the buffer
         /// </summary>
         public int Position;
+
+        /// <summary>
+        /// Total number of bytes to read from buffer
+        /// </summary>
         public int Length => buffer.Count;
 
         public NetworkReader(byte[] bytes)
