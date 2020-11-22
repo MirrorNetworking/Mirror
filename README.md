@@ -42,7 +42,7 @@ When migrating a project from Mirror to MirrorNG, these will be the most notable
 | Send any data as messages                     | Messages must implement NetworkMessage |
 | Supports Unity 2019.3 or later                | Supports Unity 2018.4 or later         |
 
-MirrorNG has many features not present in Mirror
+MirrorNG has many new features
 * MirrorNG supports [fast domain reload](https://blogs.unity3d.com/2019/11/05/enter-play-mode-faster-in-unity-2019-3/)
 * Components can be added in child objects
 * Your client can connect to multiple servers. For example chat server and game server
