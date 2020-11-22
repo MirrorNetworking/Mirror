@@ -48,25 +48,18 @@ namespace Mirror
         // -> pass NetworkReader so it's less strange if we create it in here
         //    and pass it upwards.
         // -> NetworkReader will point at content afterwards!
-        [Obsolete("use ReadUInt16 instead", true)]
-        public static bool Unpack(NetworkReader messageReader, out int msgType)
+        public static int Unpack(NetworkReader messageReader)
         {
-            // read message type (varint)
-            try
-            {
-                msgType = messageReader.ReadUInt16();
-                return true;
-            }
-            catch (System.IO.EndOfStreamException)
-            {
-                msgType = 0;
-                return false;
-            }
+            ushort msgType = messageReader.ReadUInt16();
+            return msgType;
         }
 
         [Obsolete("MessagePacker.UnpackMessage was renamed to Unpack for consistency with Pack.")]
-        public static bool UnpackMessage(NetworkReader messageReader, out int msgType) =>
-            Unpack(messageReader, out msgType);
+        public static bool UnpackMessage(NetworkReader messageReader, out int msgType)
+        {
+            msgType = Unpack(messageReader);
+            return true;
+        }
 
         internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T> handler, bool requireAuthentication)
             where T : struct, NetworkMessage

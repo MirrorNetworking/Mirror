@@ -243,7 +243,7 @@ namespace Mirror
             // unpack message
             using (PooledNetworkReader reader = NetworkReaderPool.GetReader(buffer))
             {
-                int msgId = reader.ReadUInt16();
+                int msgId = MessagePacker.Unpack(reader);
 
                 // try to invoke the handler for that message
                 if (messageHandlers.TryGetValue(msgId, out NetworkMessageDelegate msgDelegate))

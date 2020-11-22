@@ -101,7 +101,7 @@ namespace Mirror.Tests
             byte[] data = PackToByteArray(message);
             NetworkReader reader = new NetworkReader(data);
 
-            int msgType = reader.ReadUInt16();
+            int msgType = MessagePacker.Unpack(reader);
             Assert.That(msgType, Is.EqualTo(BitConverter.ToUInt16(data, 0)));
         }
 
