@@ -170,7 +170,7 @@ namespace Mirror
         public static bool ReadBoolean(this NetworkReader reader) => reader.ReadBlittable<byte>() != 0; // bool isn't blittable
         public static short ReadInt16(this NetworkReader reader) => reader.ReadBlittable<short>();
         public static ushort ReadUInt16(this NetworkReader reader) => reader.ReadBlittable<ushort>();
-        public static int ReadInt32(this NetworkReader reader) =>  reader.ReadBlittable<int>();
+        public static int ReadInt32(this NetworkReader reader) => reader.ReadBlittable<int>();
         public static uint ReadUInt32(this NetworkReader reader) => reader.ReadBlittable<uint>();
         public static long ReadInt64(this NetworkReader reader) => reader.ReadBlittable<long>();
         public static ulong ReadUInt64(this NetworkReader reader) => reader.ReadBlittable<ulong>();
