@@ -160,9 +160,10 @@ namespace Mirror
             return result;
         }
 
+        /// <returns>Information about reader: pos, len, buffer contents</returns>
         public override string ToString()
         {
-            return "NetworkReader pos=" + Position + " len=" + Length + " buffer=" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count);
+            return $"NetworkReader pos={Position} len={Length} buffer={BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count)}";
         }
 
         /// <summary>
