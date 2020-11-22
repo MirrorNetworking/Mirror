@@ -52,10 +52,10 @@ MirrorNG has many features not present in Mirror
 * Server Rpcs can [return values](https://mirrorng.github.io/MirrorNG/Articles/Guides/Communications/RemoteActions.html)
 
 If you look under the hood,  the code base has some significant differences based on the core values of each project
-* MirrorNG tries to adhere to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID).
-* Mirror uses singletons.  MirrorNG avoids singletons and static state in general.
-* MirrorNG has better  [![Test Coverage](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=coverage)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG)
-* MirrorNG has much lower [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=sqale_index)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG)
+* MirrorNG follows the [SOLID principles](https://en.wikipedia.org/wiki/SOLID).
+* MirrorNG avoids singletons and static state in general.
+* MirrorNG has high [![Test Coverage](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=coverage)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG)
+* MirrorNG has low [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=MirrorNG_MirrorNG&metric=sqale_index)](https://sonarcloud.io/dashboard?id=MirrorNG_MirrorNG)
 * MirrorNG values code quality,  Mirror values API stability
 
 ## Installation
