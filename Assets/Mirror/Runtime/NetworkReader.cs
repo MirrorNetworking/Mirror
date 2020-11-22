@@ -212,13 +212,13 @@ namespace Mirror
         public static double ReadDouble(this NetworkReader reader) => reader.ReadBlittable<double>();
         public static decimal ReadDecimal(this NetworkReader reader) => reader.ReadBlittable<decimal>();
 
-        // note: this will throw an ArgumentException if an invalid utf8 string is sent
-        // null support, see NetworkWriter
+        /// <exception cref="ArgumentException">if an invalid utf8 string is sent</exception>
         public static string ReadString(this NetworkReader reader)
         {
             // read number of bytes
             ushort size = reader.ReadUInt16();
 
+            // null support, see NetworkWriter
             if (size == 0)
                 return null;
 
