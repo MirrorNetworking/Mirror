@@ -26,6 +26,13 @@ namespace Mirror.Weaver
             readFuncs[dataType.FullName] = methodReference;
         }
 
+        static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
+        {
+            Register(typeReference, newReaderFunc);
+
+            Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
+        }
+
         /// <summary>
         /// Finds existing reader for type, if non exists trys to create one
         /// <para>This method is recursive</para>
@@ -122,13 +129,6 @@ namespace Mirror.Weaver
             }
 
             return GenerateClassOrStructReadFunction(variableReference);
-        }
-
-        static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
-        {
-            readFuncs[typeReference.FullName] = newReaderFunc;
-
-            Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
         static MethodDefinition GenerateEnumReadFunc(TypeReference variable)
