@@ -19,12 +19,14 @@ namespace Mirror
         public static Func<NetworkReader, T> read;
     }
 
-    // Note: This class is intended to be extremely pedantic, and
-    // throw exceptions whenever stuff is going slightly wrong.
-    // The exceptions will be handled in NetworkServer/NetworkClient.
     /// <summary>
     /// Binary stream Reader. Supports simple types, buffers, arrays, structs, and nested types
     /// <para>Use <see cref="NetworkReaderPool.GetReader">NetworkReaderPool.GetReader</see> to reduce memory allocation</para>
+    /// <para>
+    /// Note: This class is intended to be extremely pedantic,
+    /// and throw exceptions whenever stuff is going slightly wrong.
+    /// The exceptions will be handled in NetworkServer/NetworkClient.
+    /// </para>
     /// </summary>
     public class NetworkReader
     {
