@@ -38,6 +38,12 @@ namespace Mirror
         public virtual void OnStartServer() { }
 
         /// <summary>
+        /// Called on server from StopServer to reset the Authenticator
+        /// <para>Server message handlers should be unregistered in this method.</para>
+        /// </summary>
+        public virtual void OnStopServer() { }
+
+        /// <summary>
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection to client.</param>
@@ -62,6 +68,12 @@ namespace Mirror
         /// <para>Client message handlers should be registered in this method.</para>
         /// </summary>
         public virtual void OnStartClient() { }
+
+        /// <summary>
+        /// Called on client from StopClient to reset the Authenticator
+        /// <para>Client message handlers should be unregistered in this method.</para>
+        /// </summary>
+        public virtual void OnStopClient() { }
 
         /// <summary>
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
