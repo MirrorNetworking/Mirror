@@ -77,7 +77,7 @@ namespace Mirror
         /// </para>
         /// <para>
         ///     Note:
-        ///     ReadBlittable assumes same endianness for server & client.
+        ///     ReadBlittable assumes same endianness for server and client.
         ///     All Unity 2018+ platforms are little endian.
         /// </para>
         /// </summary>
