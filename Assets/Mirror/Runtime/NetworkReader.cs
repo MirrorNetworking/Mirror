@@ -183,8 +183,12 @@ namespace Mirror
         }
     }
 
-    // Mirror's Weaver automatically detects all NetworkReader function types,
-    // but they do all need to be extensions.
+    /// <summary>
+    /// Built in Reader functions for Mirror
+    /// <para>
+    ///     Weaver automatically decects all extension methods for NetworkWriter 
+    /// </para>
+    /// </summary>
     public static class NetworkReaderExtensions
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkReaderExtensions));
