@@ -163,9 +163,6 @@ namespace Mirror
         /// <remarks>
         ///     See <see href="https://docs.microsoft.com/en-us/dotnet/framework/interop/blittable-and-non-blittable-types">Blittable and Non-Blittable Types</see>
         ///     for more info.
-        /// <para>
-        ///     For Benchmarks see <see href="https://github.com/vis2k/Mirror/pull/2441"/>
-        /// </para>
         /// </remarks>
         /// <typeparam name="T">Needs to be unmanaged, see <see href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/unmanaged-types">unmanaged types</see></typeparam>
         /// <param name="value"></param>
