@@ -69,13 +69,24 @@ namespace Mirror
         }
 
         // ReadBlittable<T> from DOTSNET
-        // this is extremely fast, but only works for blittable types.
-        //
         // Benchmark: see NetworkWriter.WriteBlittable!
-        //
-        // Note:
-        //   ReadBlittable assumes same endianness for server & client.
-        //   All Unity 2018+ platforms are little endian.
+        /// <summary>
+        /// Read blittable type from buffer
+        /// <para>
+        ///     this is extremely fast, but only works for blittable types.
+        /// </para>
+        /// <para>
+        ///     Note:
+        ///     ReadBlittable assumes same endianness for server & client.
+        ///     All Unity 2018+ platforms are little endian.
+        /// </para>
+        /// </summary>
+        /// <remarks>
+        ///     See <see href="https://docs.microsoft.com/en-us/dotnet/framework/interop/blittable-and-non-blittable-types">Blittable and Non-Blittable Types</see>
+        ///     for more info.
+        /// </remarks>
+        /// <typeparam name="T">Needs to be unmanaged, see <see href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/unmanaged-types">unmanaged types</see></typeparam>
+        /// <returns></returns>
         public unsafe T ReadBlittable<T>()
             where T : unmanaged
         {
