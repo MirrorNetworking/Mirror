@@ -236,21 +236,23 @@ namespace Mirror
             return encoding.GetString(data.Array, data.Offset, data.Count);
         }
 
-        // Use checked() to force it to throw OverflowException if data is invalid
-        // null support, see NetworkWriter
+        /// <exception cref="OverflowException">if count is invalid</exception>
         public static byte[] ReadBytesAndSize(this NetworkReader reader)
         {
             // count = 0 means the array was null
             // otherwise count -1 is the length of the array
             uint count = reader.ReadUInt32();
+            // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }
 
+        /// <exception cref="OverflowException">if count is invalid</exception>
         public static ArraySegment<byte> ReadBytesAndSizeSegment(this NetworkReader reader)
         {
             // count = 0 means the array was null
             // otherwise count - 1 is the length of the array
             uint count = reader.ReadUInt32();
+            // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? default : reader.ReadBytesSegment(checked((int)(count - 1u)));
         }
 
