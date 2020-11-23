@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 /*
 	Documentation: https://mirror-networking.com/docs/Components/NetworkManager.html
@@ -9,12 +10,26 @@ namespace Mirror.Examples.Basic
 {
     public class BasicNetManager : NetworkManager
     {
+        [Header("Canvas UI"), Tooltip("Assign Players Panel where player UI objects will be added")]
+        public RectTransform mainPanel;
+        public RectTransform playersPanel;
+
+        /// <summary>
+        /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
+        /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
+        /// </summary>
+        /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
             base.OnServerAddPlayer(conn);
             ResetPlayerNumbers();
         }
 
+        /// <summary>
+        /// Called on the server when a client disconnects.
+        /// <para>This is called on the Server when a Client disconnects from the Server. Use an override to decide what should happen when a disconnection is detected.</para>
+        /// </summary>
+        /// <param name="conn">Connection from client.</param>
         public override void OnServerDisconnect(NetworkConnection conn)
         {
             base.OnServerDisconnect(conn);
@@ -30,26 +45,5 @@ namespace Mirror.Examples.Basic
                 playerNumber++;
             }
         }
-
-        // Sequential index used in round-robin deployment of players into instances and score positioning
-        //int clientIndex;
-
-        /// <summary>
-        /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
-        /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
-        //public override void OnServerAddPlayer(NetworkConnection conn)
-        //{
-        //    GameObject go = Instantiate(playerPrefab);
-        //    Player player = go.GetComponent<Player>();
-        //    player.playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
-        //    player.playerNumber = clientIndex;
-
-        //    // increment the index after setting on player, so first player starts at 0
-        //    clientIndex++;
-
-        //    NetworkServer.AddPlayerForConnection(conn, go);
-        //}
     }
 }
