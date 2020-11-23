@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 /*
 	Documentation: https://mirror-networking.com/docs/Components/NetworkManager.html

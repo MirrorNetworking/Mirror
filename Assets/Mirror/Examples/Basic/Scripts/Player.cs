@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Mirror.Examples.Basic
 {
     public class Player : NetworkBehaviour
     {
         // Players List used by BasicNetManager to manage playerNumber
-        public readonly static List<Player> playersList = new List<Player>();
+        internal readonly static List<Player> playersList = new List<Player>();
 
         // Events that the UI will subscribe to
         public event System.Action<int> OnPlayerNumberChanged;
