@@ -5,7 +5,7 @@ plugins:
   - - '@semantic-release/changelog'
     - changelogFile: 'Assets/Mirror/CHANGELOG.md'
   - - '@semantic-release/npm'
-    - npmPublish: false,
+    - npmPublish: false
       pkgRoot: "Assets/Mirror"
   - - '@semantic-release/git'
     - assets: 
