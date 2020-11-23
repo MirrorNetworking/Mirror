@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -5,6 +6,8 @@ namespace Mirror.Examples.Basic
 {
     public class Player : NetworkBehaviour
     {
+        public readonly static List<Player> playersList = new List<Player>();
+
         [Header("Player Components")]
         public RectTransform rectTransform;
         public Image image;
@@ -15,17 +18,30 @@ namespace Mirror.Examples.Basic
 
         // These are set in BasicNetManager::OnServerAddPlayer
         [Header("SyncVars")]
-        [SyncVar]
+
+        [SyncVar(hook = nameof(OnPlayerNumberChanged))]
         public int playerNumber;
-        [SyncVar]
-        public Color playerColor;
+
+        // Color32 packs to 4 bytes
+        [SyncVar(hook = nameof(OnPlayerColorChanged))]
+        public Color32 playerColor;
 
         // This is updated by UpdateData which is called from OnStartServer via InvokeRepeating
         [SyncVar(hook = nameof(OnPlayerDataChanged))]
         public int playerData;
 
+        void OnPlayerNumberChanged(int _, int newPlayerNumber)
+        {
+            playerNameText.text = string.Format("Player {0:00}", newPlayerNumber);
+        }
+
+        void OnPlayerColorChanged(Color32 _, Color32 newPlayerColor)
+        {
+            playerNameText.color = newPlayerColor;
+        }
+
         // This is called by the hook of playerData SyncVar above
-        void OnPlayerDataChanged(int oldPlayerData, int newPlayerData)
+        void OnPlayerDataChanged(int _, int newPlayerData)
         {
             // Show the data in the UI
             playerDataText.text = string.Format("Data: {0:000}", newPlayerData);
@@ -35,6 +51,11 @@ namespace Mirror.Examples.Basic
         public override void OnStartServer()
         {
             base.OnStartServer();
+
+            playersList.Add(this);
+
+            playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
+            //playerNumber = NetworkManager.singleton.numPlayers - 1;
 
             // Start generating updates
             InvokeRepeating(nameof(UpdateData), 1, 1);
@@ -55,14 +76,14 @@ namespace Mirror.Examples.Basic
             // Make this a child of the layout panel in the Canvas
             transform.SetParent(GameObject.Find("PlayersPanel").transform);
 
-            // Calculate position in the layout panel
-            int x = 100 + ((playerNumber % 4) * 150);
-            int y = -170 - ((playerNumber / 4) * 80);
-            rectTransform.anchoredPosition = new Vector2(x, y);
+            //// Calculate position in the layout panel
+            //int x = 100 + ((playerNumber % 4) * 150);
+            //int y = -170 - ((playerNumber / 4) * 80);
+            //rectTransform.anchoredPosition = new Vector2(x, y);
 
-            // Apply SyncVar values
-            playerNameText.color = playerColor;
-            playerNameText.text = string.Format("Player {0:00}", playerNumber);
+            //// Apply SyncVar values
+            //playerNameText.color = playerColor;
+            //playerNameText.text = string.Format("Player {0:00}", playerNumber);
         }
 
         // This only fires on the local client when this player object is network-ready
@@ -72,6 +93,11 @@ namespace Mirror.Examples.Basic
 
             // apply a shaded background to our player
             image.color = new Color(1f, 1f, 1f, 0.1f);
+        }
+
+        public override void OnStopServer()
+        {
+            playersList.Remove(this);
         }
     }
 }
