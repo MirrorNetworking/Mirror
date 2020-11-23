@@ -1,3 +1,10 @@
+## [59.0.8](https://github.com/MirrorNG/MirrorNG/compare/v59.0.7...v59.0.8) (2020-11-23)
+
+
+### Bug Fixes
+
+* check for log level for warnings ([#445](https://github.com/MirrorNG/MirrorNG/issues/445)) ([90013ea](https://github.com/MirrorNG/MirrorNG/commit/90013eaaaab4668cbb99f8ffa2b463f136253006))
+
 ## [59.0.7](https://github.com/MirrorNG/MirrorNG/compare/v59.0.6...v59.0.7) (2020-11-23)
 
 
