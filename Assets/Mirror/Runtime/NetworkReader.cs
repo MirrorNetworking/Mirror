@@ -1,11 +1,3 @@
-// Custom NetworkReader that doesn't use C#'s built in MemoryStream in order to
-// avoid allocations.
-//
-// Benchmark: 100kb byte[] passed to NetworkReader constructor 1000x
-//   before with MemoryStream
-//     0.8% CPU time, 250KB memory, 3.82ms
-//   now:
-//     0.0% CPU time,  32KB memory, 0.02ms
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,16 +19,27 @@ namespace Mirror
         public static Func<NetworkReader, T> read;
     }
 
-    // Note: This class is intended to be extremely pedantic, and
-    // throw exceptions whenever stuff is going slightly wrong.
-    // The exceptions will be handled in NetworkServer/NetworkClient.
     /// <summary>
     /// Binary stream Reader. Supports simple types, buffers, arrays, structs, and nested types
     /// <para>Use <see cref="NetworkReaderPool.GetReader">NetworkReaderPool.GetReader</see> to reduce memory allocation</para>
+    /// <para>
+    /// Note: This class is intended to be extremely pedantic,
+    /// and throw exceptions whenever stuff is going slightly wrong.
+    /// The exceptions will be handled in NetworkServer/NetworkClient.
+    /// </para>
     /// </summary>
     public class NetworkReader
     {
         static readonly ILogger logger = LogFactory.GetLogger<NetworkReader>();
+
+        // Custom NetworkReader that doesn't use C#'s built in MemoryStream in order to
+        // avoid allocations.
+        //
+        // Benchmark: 100kb byte[] passed to NetworkReader constructor 1000x
+        //   before with MemoryStream
+        //     0.8% CPU time, 250KB memory, 3.82ms
+        //   now:
+        //     0.0% CPU time,  32KB memory, 0.02ms
 
         // internal buffer
         // byte[] pointer would work, but we use ArraySegment to also support
@@ -45,7 +48,14 @@ namespace Mirror
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
+        /// <summary>
+        /// Next position to read from the buffer
+        /// </summary>
         public int Position;
+
+        /// <summary>
+        /// Total number of bytes to read from buffer
+        /// </summary>
         public int Length => buffer.Count;
 
         public NetworkReader(byte[] bytes)
@@ -59,13 +69,24 @@ namespace Mirror
         }
 
         // ReadBlittable<T> from DOTSNET
-        // this is extremely fast, but only works for blittable types.
-        //
         // Benchmark: see NetworkWriter.WriteBlittable!
-        //
-        // Note:
-        //   ReadBlittable assumes same endianness for server & client.
-        //   All Unity 2018+ platforms are little endian.
+        /// <summary>
+        /// Read blittable type from buffer
+        /// <para>
+        ///     this is extremely fast, but only works for blittable types.
+        /// </para>
+        /// <para>
+        ///     Note:
+        ///     ReadBlittable assumes same endianness for server and client.
+        ///     All Unity 2018+ platforms are little endian.
+        /// </para>
+        /// </summary>
+        /// <remarks>
+        ///     See <see href="https://docs.microsoft.com/en-us/dotnet/framework/interop/blittable-and-non-blittable-types">Blittable and Non-Blittable Types</see>
+        ///     for more info.
+        /// </remarks>
+        /// <typeparam name="T">Needs to be unmanaged, see <see href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/unmanaged-types">unmanaged types</see></typeparam>
+        /// <returns></returns>
         public unsafe T ReadBlittable<T>()
             where T : unmanaged
         {
@@ -102,7 +123,10 @@ namespace Mirror
             return value;
         }
 
-        // read bytes into the passed buffer
+        /// <summary>
+        /// read bytes into <paramref name="bytes"/>
+        /// </summary>
+        /// <returns><paramref name="bytes"/></returns>
         public byte[] ReadBytes(byte[] bytes, int count)
         {
             // check if passed byte array is big enough
@@ -116,7 +140,12 @@ namespace Mirror
             return bytes;
         }
 
-        // useful to parse payloads etc. without allocating
+        /// <summary>
+        /// Create Segment from current position
+        /// <para>
+        ///     Useful to parse payloads etc. without allocating
+        /// </para>
+        /// </summary>
         public ArraySegment<byte> ReadBytesSegment(int count)
         {
             // check if within buffer limits
@@ -131,9 +160,10 @@ namespace Mirror
             return result;
         }
 
+        /// <returns>Information about reader: pos, len, buffer contents</returns>
         public override string ToString()
         {
-            return "NetworkReader pos=" + Position + " len=" + Length + " buffer=" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count);
+            return $"NetworkReader pos={Position} len={Length} buffer={BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count)}";
         }
 
         /// <summary>
@@ -153,8 +183,12 @@ namespace Mirror
         }
     }
 
-    // Mirror's Weaver automatically detects all NetworkReader function types,
-    // but they do all need to be extensions.
+    /// <summary>
+    /// Built in Reader functions for Mirror
+    /// <para>
+    ///     Weaver automatically decects all extension methods for NetworkWriter 
+    /// </para>
+    /// </summary>
     public static class NetworkReaderExtensions
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkReaderExtensions));
@@ -170,7 +204,7 @@ namespace Mirror
         public static bool ReadBoolean(this NetworkReader reader) => reader.ReadBlittable<byte>() != 0; // bool isn't blittable
         public static short ReadInt16(this NetworkReader reader) => reader.ReadBlittable<short>();
         public static ushort ReadUInt16(this NetworkReader reader) => reader.ReadBlittable<ushort>();
-        public static int ReadInt32(this NetworkReader reader) =>  reader.ReadBlittable<int>();
+        public static int ReadInt32(this NetworkReader reader) => reader.ReadBlittable<int>();
         public static uint ReadUInt32(this NetworkReader reader) => reader.ReadBlittable<uint>();
         public static long ReadInt64(this NetworkReader reader) => reader.ReadBlittable<long>();
         public static ulong ReadUInt64(this NetworkReader reader) => reader.ReadBlittable<ulong>();
@@ -178,13 +212,13 @@ namespace Mirror
         public static double ReadDouble(this NetworkReader reader) => reader.ReadBlittable<double>();
         public static decimal ReadDecimal(this NetworkReader reader) => reader.ReadBlittable<decimal>();
 
-        // note: this will throw an ArgumentException if an invalid utf8 string is sent
-        // null support, see NetworkWriter
+        /// <exception cref="ArgumentException">if an invalid utf8 string is sent</exception>
         public static string ReadString(this NetworkReader reader)
         {
             // read number of bytes
             ushort size = reader.ReadUInt16();
 
+            // null support, see NetworkWriter
             if (size == 0)
                 return null;
 
@@ -202,21 +236,23 @@ namespace Mirror
             return encoding.GetString(data.Array, data.Offset, data.Count);
         }
 
-        // Use checked() to force it to throw OverflowException if data is invalid
-        // null support, see NetworkWriter
+        /// <exception cref="OverflowException">if count is invalid</exception>
         public static byte[] ReadBytesAndSize(this NetworkReader reader)
         {
             // count = 0 means the array was null
             // otherwise count -1 is the length of the array
             uint count = reader.ReadUInt32();
+            // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }
 
+        /// <exception cref="OverflowException">if count is invalid</exception>
         public static ArraySegment<byte> ReadBytesAndSizeSegment(this NetworkReader reader)
         {
             // count = 0 means the array was null
             // otherwise count - 1 is the length of the array
             uint count = reader.ReadUInt32();
+            // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? default : reader.ReadBytesSegment(checked((int)(count - 1u)));
         }
 
