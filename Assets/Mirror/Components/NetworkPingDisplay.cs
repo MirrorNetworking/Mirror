@@ -7,7 +7,7 @@ namespace Mirror
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkPingDisplay")]
-    [HelpURL("https://mirror-networking.com/docs/Components/NetworkPingDisplay.html")]
+    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkPingDisplay.html")]
     public class NetworkPingDisplay : MonoBehaviour
     {
         public bool showPing = true;
