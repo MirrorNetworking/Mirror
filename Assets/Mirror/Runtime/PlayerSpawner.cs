@@ -48,6 +48,18 @@ namespace Mirror
             }
         }
 
+        void OnDestroy()
+        {
+            if (client != null)
+            {
+                sceneManager.ClientSceneChanged.RemoveListener(OnClientSceneChanged);
+            }
+            if (server != null)
+            {
+                server.Authenticated.RemoveListener(OnServerAuthenticated);
+            }
+        }
+
         private void OnServerAuthenticated(INetworkConnection connection)
         {
             // wait for client to send us an AddPlayerMessage
