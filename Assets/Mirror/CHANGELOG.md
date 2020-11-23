@@ -1,3 +1,10 @@
+## [59.0.7](https://github.com/MirrorNG/MirrorNG/compare/v59.0.6...v59.0.7) (2020-11-23)
+
+
+### Bug Fixes
+
+* use OnDestroy to Unsubscribe in comps like [#480](https://github.com/MirrorNG/MirrorNG/issues/480) ([#481](https://github.com/MirrorNG/MirrorNG/issues/481)) ([3dd66c0](https://github.com/MirrorNG/MirrorNG/commit/3dd66c079fbd2ad2b7c57c5d39421a85755c2e30))
+
 ## [59.0.6](https://github.com/MirrorNG/MirrorNG/compare/v59.0.5...v59.0.6) (2020-11-20)
 
 
