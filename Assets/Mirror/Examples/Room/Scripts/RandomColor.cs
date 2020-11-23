@@ -18,7 +18,7 @@ namespace Mirror.Examples.NetworkRoom
         // Cache it here and destroy it in OnDestroy to prevent a memory leak
         Material cachedMaterial;
 
-        void SetColor(Color32 oldColor, Color32 newColor)
+        void SetColor(Color32 _, Color32 newColor)
         {
             if (cachedMaterial == null) cachedMaterial = GetComponentInChildren<Renderer>().material;
             cachedMaterial.color = newColor;
