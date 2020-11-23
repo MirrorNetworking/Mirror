@@ -360,7 +360,7 @@ namespace Mirror
         {
             if (!server.Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) || identity is null)
             {
-                logger.LogWarning("Spawned object not found when handling ServerRpc message [netId=" + msg.netId + "]");
+                if (logger.WarnEnabled()) logger.LogWarning("Spawned object not found when handling ServerRpc message [netId=" + msg.netId + "]");
                 return;
             }
             Skeleton skeleton = RemoteCallHelper.GetSkeleton(msg.functionHash);
@@ -375,7 +375,7 @@ namespace Mirror
             //    only allow the ServerRpc if clientAuthorityOwner
             if (skeleton.cmdRequireAuthority && identity.ConnectionToClient != conn)
             {
-                logger.LogWarning("ServerRpc for object without authority [netId=" + msg.netId + "]");
+                if (logger.WarnEnabled()) logger.LogWarning("ServerRpc for object without authority [netId=" + msg.netId + "]");
                 return;
             }
 

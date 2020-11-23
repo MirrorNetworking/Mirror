@@ -287,7 +287,7 @@ namespace Mirror
             // This cannot use Server.active, as that is not specific to this object.
             if (!IsServer)
             {
-                logger.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
+                if (logger.WarnEnabled()) logger.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
             }
 
@@ -326,7 +326,7 @@ namespace Mirror
             // This cannot use Server.active, as that is not specific to this object.
             if (!IsServer)
             {
-                logger.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
+                if (logger.WarnEnabled()) logger.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
             }
 
@@ -380,7 +380,7 @@ namespace Mirror
             if (newIdentity != null)
             {
                 newNetId = newIdentity.NetId;
-                if (newNetId == 0)
+                if (newNetId == 0 && logger.WarnEnabled())
                 {
                     logger.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
                 }
