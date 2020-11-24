@@ -5,9 +5,6 @@ namespace Mirror.Examples.Basic
 {
     public class Player : NetworkBehaviour
     {
-        // Players List used by BasicNetManager to manage playerNumber
-        internal readonly static List<Player> playersList = new List<Player>();
-
         // Events that the UI will subscribe to
         public event System.Action<int> OnPlayerNumberChanged;
         public event System.Action<Color32> OnPlayerColorChanged;
@@ -65,7 +62,7 @@ namespace Mirror.Examples.Basic
             base.OnStartServer();
 
             // Add this to the static Players List
-            playersList.Add(this);
+            ((BasicNetManager)NetworkManager.singleton).playersList.Add(this);
 
             // set the Player Color SyncVar
             playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
@@ -81,7 +78,7 @@ namespace Mirror.Examples.Basic
         public override void OnStopServer()
         {
             CancelInvoke();
-            playersList.Remove(this);
+            ((BasicNetManager)NetworkManager.singleton).playersList.Remove(this);
         }
 
         // This only runs on the server, called from OnStartServer via InvokeRepeating

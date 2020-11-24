@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /*
@@ -9,6 +10,9 @@ namespace Mirror.Examples.Basic
 {
     public class BasicNetManager : NetworkManager
     {
+        // Players List to manage playerNumber
+        internal readonly List<Player> playersList = new List<Player>();
+
         [Header("Canvas UI"), Tooltip("Assign Players Panel where player UI objects will be added")]
         public RectTransform mainPanel;
         public RectTransform playersPanel;
