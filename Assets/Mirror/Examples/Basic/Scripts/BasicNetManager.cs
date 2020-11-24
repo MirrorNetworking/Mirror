@@ -13,8 +13,12 @@ namespace Mirror.Examples.Basic
         // Players List to manage playerNumber
         internal readonly List<Player> playersList = new List<Player>();
 
-        [Header("Canvas UI"), Tooltip("Assign Players Panel where player UI objects will be added")]
+        [Header("Canvas UI")]
+
+        [Tooltip("Assign Main Panel so it can be turned on from Player:OnStartClient")]
         public RectTransform mainPanel;
+
+        [Tooltip("Assign Players Panel for instantiating PlayerUI as child")]
         public RectTransform playersPanel;
 
         /// <summary>
