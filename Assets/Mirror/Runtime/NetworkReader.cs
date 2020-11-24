@@ -212,7 +212,7 @@ namespace Mirror
         public static double ReadDouble(this NetworkReader reader) => reader.ReadBlittable<double>();
         public static decimal ReadDecimal(this NetworkReader reader) => reader.ReadBlittable<decimal>();
 
-        /// <exception cref="ArgumentException">if an invalid utf8 string is sent</exception>
+        /// <exception cref="T:System.ArgumentException">if an invalid utf8 string is sent</exception>
         public static string ReadString(this NetworkReader reader)
         {
             // read number of bytes
@@ -236,7 +236,7 @@ namespace Mirror
             return encoding.GetString(data.Array, data.Offset, data.Count);
         }
 
-        /// <exception cref="OverflowException">if count is invalid</exception>
+        /// <exception cref="T:OverflowException">if count is invalid</exception>
         public static byte[] ReadBytesAndSize(this NetworkReader reader)
         {
             // count = 0 means the array was null
@@ -246,7 +246,7 @@ namespace Mirror
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }
 
-        /// <exception cref="OverflowException">if count is invalid</exception>
+        /// <exception cref="T:OverflowException">if count is invalid</exception>
         public static ArraySegment<byte> ReadBytesAndSizeSegment(this NetworkReader reader)
         {
             // count = 0 means the array was null
