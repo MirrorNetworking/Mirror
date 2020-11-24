@@ -42,7 +42,7 @@ namespace Mirror.Examples.Basic
         void ResetPlayerNumbers()
         {
             int playerNumber = 0;
-            foreach (Player player in Player.playersList)
+            foreach (Player player in playersList)
             {
                 player.playerNumber = playerNumber;
                 playerNumber++;
