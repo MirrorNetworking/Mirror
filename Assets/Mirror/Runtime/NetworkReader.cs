@@ -359,7 +359,11 @@ namespace Mirror
         public static T[] ReadArray<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt32();
-            if (length < 0 || length + reader.Position > reader.Length)
+            if (reader.Position + length > reader.Length)
+            {
+                throw new EndOfStreamException($"Received array that is too large {length}");
+            }            
+            if (length < 0)
                 return null;
             T[] result = new T[length];
             for (int i = 0; i < length; i++)
