@@ -185,6 +185,12 @@ namespace Mirror
         /// Scales float from minFloat->maxFloat to minUint->maxUint
         /// <para>values out side of minFloat/maxFloat will return either 0 or maxUint</para>
         /// </summary>
+        /// <param name="value"></param>
+        /// <param name="minFloat"></param>
+        /// <param name="maxFloat"></param>
+        /// <param name="minUint">should be a power of 2, can be 0</param>
+        /// <param name="maxUint">should be a power of 2, for example 1 &lt;&lt; 8 for value to take up 8 bytes</param>
+        /// <returns></returns>
         public static uint ScaleToUInt(float value, float minFloat, float maxFloat, uint minUint, uint maxUint)
         {
             // if out of range return min/max
@@ -205,6 +211,12 @@ namespace Mirror
         /// <summary>
         /// Scales uint from minUint->maxUint to minFloat->maxFloat 
         /// </summary>
+        /// <param name="value"></param>
+        /// <param name="minFloat"></param>
+        /// <param name="maxFloat"></param>
+        /// <param name="minUint">should be a power of 2, can be 0</param>
+        /// <param name="maxUint">should be a power of 2, for example 1 &lt;&lt; 8 for value to take up 8 bytes</param>
+        /// <returns></returns>
         public static float ScaleFromUInt(uint value, float minFloat, float maxFloat, uint minUint, uint maxUint)
         {
             // if out of range return min/max
