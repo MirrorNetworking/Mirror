@@ -11,7 +11,7 @@ namespace Mirror
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkManagerHUD")]
     [RequireComponent(typeof(NetworkManager))]
-    [HelpURL("https://mirror-networking.com/docs/Components/NetworkManagerHUD.html")]
+    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkManagerHUD.html")]
     public class NetworkManagerHUD : MonoBehaviour
     {
         NetworkManager manager;

@@ -12,7 +12,7 @@ namespace Mirror
     /// <para>The OnLobby*() functions have empty implementations on the NetworkLobbyManager base class, so the base class functions do not have to be called.</para>
     /// </remarks>
     [AddComponentMenu("Network/NetworkLobbyManager")]
-    [HelpURL("https://mirror-networking.com/docs/Components/NetworkRoomManager.html")]
+    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkRoomManager.html")]
     [Obsolete("Use / inherit from NetworkRoomManager instead")]
     public class NetworkLobbyManager : NetworkRoomManager { }
 }

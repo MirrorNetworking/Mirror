@@ -20,7 +20,7 @@ namespace Mirror
     /// </remarks>
     [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/docs/Guides/NetworkBehaviour.html")]
+    [HelpURL("https://mirror-networking.com/docs/Articles/Guides/NetworkBehaviour.html")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkBehaviour));

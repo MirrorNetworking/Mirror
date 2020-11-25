@@ -7,7 +7,7 @@ namespace Mirror.Logging
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkLogSettings")]
-    [HelpURL("https://mirror-networking.com/docs/Components/NetworkLogSettings.html")]
+    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkLogSettings.html")]
     public class NetworkLogSettings : MonoBehaviour
     {
         [Header("Log Settings Asset")]
