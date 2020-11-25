@@ -15,6 +15,8 @@ namespace Mirror.KCP
         protected EndPoint remoteEndpoint;
         protected Kcp kcp;
         protected Unreliable unreliable;
+        private int sendWindowSize;
+        private int receiveWindowSize;
 
         readonly KcpDelayMode delayMode;
         volatile bool open;
@@ -44,9 +46,11 @@ namespace Mirror.KCP
         internal static readonly ArraySegment<byte> Hello = new ArraySegment<byte>(new byte[] { 0 });
         private static readonly ArraySegment<byte> Goodby = new ArraySegment<byte>(new byte[] { 1 });
 
-        protected KcpConnection(KcpDelayMode delayMode)
+        protected KcpConnection(KcpDelayMode delayMode, int sendWindowSize, int receiveWindowSize)
         {
             this.delayMode = delayMode;
+            this.sendWindowSize = sendWindowSize;
+            this.receiveWindowSize = receiveWindowSize;
         }
 
         protected void SetupKcp()
@@ -62,6 +66,7 @@ namespace Mirror.KCP
             };
 
             kcp.SetNoDelay(delayMode);
+            kcp.SetWindowSize((uint)sendWindowSize, (uint)receiveWindowSize);
             open = true;
 
             Tick().Forget();

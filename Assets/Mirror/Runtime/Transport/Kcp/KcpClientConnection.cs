@@ -19,7 +19,7 @@ namespace Mirror.KCP
         /// </summary>
         /// <param name="host"></param>
         /// <param name="port"></param>
-        public KcpClientConnection(KcpDelayMode delayMode) : base(delayMode) 
+        public KcpClientConnection(KcpDelayMode delayMode, int sendWindowSize, int receiveWindowSize) : base(delayMode, sendWindowSize, receiveWindowSize) 
         {
         }
 

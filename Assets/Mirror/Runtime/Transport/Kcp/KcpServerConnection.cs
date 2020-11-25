@@ -8,7 +8,7 @@ namespace Mirror.KCP
 {
     public class KcpServerConnection : KcpConnection
     {
-        public KcpServerConnection(Socket socket, EndPoint remoteEndpoint, KcpDelayMode delayMode) : base(delayMode)
+        public KcpServerConnection(Socket socket, EndPoint remoteEndpoint, KcpDelayMode delayMode, int sendWindowSize, int receiveWindowSize) : base(delayMode, sendWindowSize, receiveWindowSize)
         {
             this.socket = socket;
             this.remoteEndpoint = remoteEndpoint;

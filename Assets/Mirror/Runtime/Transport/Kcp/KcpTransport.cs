@@ -18,6 +18,11 @@ namespace Mirror.KCP
         [Tooltip("Used for DoS prevention,  clients must mine a HashCash with these many bits in order to connect, higher means more secure, but slower for the clients")]
         public int HashCashBits = 18;
 
+        [Tooltip("How many messages can be sent simultaneously")]
+        public int SendWindowSize = 32;
+        [Tooltip("How many messages can be received")]
+        public int ReceiveWindowSize = 8192;
+
         public KcpDelayMode delayMode = KcpDelayMode.Normal;
         internal readonly Dictionary<IPEndPoint, KcpServerConnection> connectedClients = new Dictionary<IPEndPoint, KcpServerConnection>(new IPEndpointComparer());
 
@@ -97,7 +102,7 @@ namespace Mirror.KCP
 
         private async UniTaskVoid ServerHandshake(EndPoint endpoint, byte[] data, int msgLength)
         {
-            var connection = new KcpServerConnection(socket, endpoint, delayMode);
+            var connection = new KcpServerConnection(socket, endpoint, delayMode, SendWindowSize, ReceiveWindowSize);
             connectedClients.Add(endpoint as IPEndPoint, connection);
 
             connection.Disconnected += () =>
@@ -198,7 +203,7 @@ namespace Mirror.KCP
         /// <exception>If connection cannot be established</exception>
         public override async UniTask<IConnection> ConnectAsync(Uri uri)
         {
-            var client = new KcpClientConnection(delayMode)
+            var client = new KcpClientConnection(delayMode, SendWindowSize, ReceiveWindowSize)
             {
                 HashCashBits = HashCashBits
             };
