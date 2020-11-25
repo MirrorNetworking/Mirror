@@ -502,13 +502,13 @@ namespace Mirror
 
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.OnServerConnected = OnConnected;
+            Transport.activeTransport.OnServerConnected = OnConnectedTransport;
             Transport.activeTransport.OnServerDataReceived = OnDataReceived;
-            Transport.activeTransport.OnServerDisconnected = OnDisconnected;
+            Transport.activeTransport.OnServerDisconnected = OnDisconnectedTransport;
             Transport.activeTransport.OnServerError = OnError;
         }
 
-        static void OnConnectedInternal(int connectionId)
+        static void OnConnectedTransport(int connectionId)
         {
             if (logger.LogEnabled()) logger.Log("Server accepted client:" + connectionId);
 
@@ -556,7 +556,7 @@ namespace Mirror
             OnConnected?.Invoke(conn);
         }
 
-        internal static void OnDisconnectedInternal(int connectionId)
+        internal static void OnDisconnectedTransport(int connectionId)
         {
             if (logger.LogEnabled()) logger.Log("Server disconnect client:" + connectionId);
 

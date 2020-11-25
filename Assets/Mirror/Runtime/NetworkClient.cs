@@ -153,15 +153,15 @@ namespace Mirror
                 // local connection. should we send a DisconnectMessage here too?
                 // (if we do then we get an Unknown Message ID log)
                 //NetworkServer.localConnection.Send(new DisconnectMessage());
-                NetworkServer.OnDisconnectedInternal(NetworkServer.localConnection.connectionId);
+                NetworkServer.OnDisconnectedTransport(NetworkServer.localConnection.connectionId);
             }
         }
 
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.OnClientConnected = OnConnected;
+            Transport.activeTransport.OnClientConnected = OnConnectedTransport;
             Transport.activeTransport.OnClientDataReceived = OnDataReceived;
-            Transport.activeTransport.OnClientDisconnected = OnDisconnected;
+            Transport.activeTransport.OnClientDisconnected = OnDisconnectedTransport;
             Transport.activeTransport.OnClientError = OnError;
         }
 
@@ -173,7 +173,7 @@ namespace Mirror
         /// <summary>
         /// Handles OnClientDisconnected from transport
         /// </summary>
-        static void OnDisconnectedInternal()
+        static void OnDisconnectedTransport()
         {
             connectState = ConnectState.Disconnected;
 
@@ -194,7 +194,7 @@ namespace Mirror
         /// <summary>
         /// Handles OnClientConnected from transport
         /// </summary>
-        internal static void OnConnectedInternal()
+        internal static void OnConnectedTransport()
         {
             if (connection != null)
             {
