@@ -133,13 +133,15 @@ namespace Telepathy
             // protect against allocation attacks. an attacker might send
             // multiple fake '2GB header' packets in a row, causing the server
             // to allocate multiple 2GB byte arrays and run out of memory.
-            if (size <= MaxMessageSize)
+            //
+            // also protect against size <= 0 which would cause issues
+            if (size > 0 && size <= MaxMessageSize)
             {
                 // read exactly 'size' bytes for content (blocking)
                 content = new byte[size];
                 return stream.ReadExactly(content, size);
             }
-            Logger.LogWarning("ReadMessageBlocking: possible allocation attack with a header of: " + size + " bytes.");
+            Logger.LogWarning("ReadMessageBlocking: possible header attack with a header of: " + size + " bytes.");
             return false;
         }
 
