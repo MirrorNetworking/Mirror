@@ -137,6 +137,7 @@ namespace Mirror
             NetworkServer.OnConnectedInternal(NetworkServer.localConnection);
 
             Debug.Assert(connection is ULocalConnectionToServer, "Connection should be local connection");
+            // OnConnected should be called with connToServer
             OnConnected?.Invoke(connection);
         }
 
