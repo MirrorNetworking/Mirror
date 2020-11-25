@@ -1,3 +1,10 @@
+# [59.1.0](https://github.com/MirrorNG/MirrorNG/compare/v59.0.8...v59.1.0) (2020-11-25)
+
+
+### Features
+
+* User can now configure window size ([ec0b839](https://github.com/MirrorNG/MirrorNG/commit/ec0b8397d958f0317b3354f0f83d85f496495c49))
+
 ## [59.0.8](https://github.com/MirrorNG/MirrorNG/compare/v59.0.7...v59.0.8) (2020-11-23)
 
 
