@@ -359,7 +359,7 @@ namespace Mirror
         public static T[] ReadArray<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt32();
-            if (length < 0)
+            if (length < 0 || length + reader.Position > reader.Length)
                 return null;
             T[] result = new T[length];
             for (int i = 0; i < length; i++)
