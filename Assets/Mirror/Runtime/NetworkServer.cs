@@ -109,6 +109,7 @@ namespace Mirror
             CleanupNetworkIdentities();
             NetworkIdentity.ResetNextNetworkId();
 
+            // clear event listeners
             OnConnected = null;
             OnDisconnected = null;
         }
@@ -508,6 +509,9 @@ namespace Mirror
             Transport.activeTransport.OnServerError = OnError;
         }
 
+        /// <summary>
+        /// Handles OnServerConnected from transport
+        /// </summary>
         static void OnConnectedTransport(int connectionId)
         {
             if (logger.LogEnabled()) logger.Log("Server accepted client:" + connectionId);
@@ -547,6 +551,9 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Handles OnConnectedTransport and host connection
+        /// </summary>
         internal static void OnConnectedInternal(NetworkConnectionToClient conn)
         {
             if (logger.LogEnabled()) logger.Log("Server accepted client:" + conn);
@@ -556,6 +563,9 @@ namespace Mirror
             OnConnected?.Invoke(conn);
         }
 
+        /// <summary>
+        /// Handles OnServerDisconnected from transport
+        /// </summary>
         internal static void OnDisconnectedTransport(int connectionId)
         {
             if (logger.LogEnabled()) logger.Log("Server disconnect client:" + connectionId);
@@ -570,9 +580,11 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Handles OnDisconnectedTransport and host connection
+        /// </summary>
         static void OnDisconnectedInternal(NetworkConnection conn)
         {
-            // todo change to event instead of message
             OnDisconnected?.Invoke(conn);
             if (logger.LogEnabled()) logger.Log("Server lost client:" + conn);
         }
