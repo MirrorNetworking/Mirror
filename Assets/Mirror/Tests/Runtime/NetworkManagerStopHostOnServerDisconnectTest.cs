@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Runtime
 {
     class NetworkManagerOnServerDisconnect : NetworkManager
     {
@@ -22,7 +24,7 @@ namespace Mirror.Tests
         public void SetUp()
         {
             gameObject = new GameObject();
-            transport = gameObject.AddComponent<MemoryTransport>();
+            transport= gameObject.AddComponent<MemoryTransport>();
             manager = gameObject.AddComponent<NetworkManagerOnServerDisconnect>();
             playerPrefab = new GameObject("player");
             NetworkIdentity id = playerPrefab.AddComponent<NetworkIdentity>();
@@ -38,12 +40,17 @@ namespace Mirror.Tests
             GameObject.DestroyImmediate(playerPrefab);
             NetworkServer.Shutdown();
             NetworkClient.Shutdown();
+            Transport.activeTransport = null;
         }
 
         // test to prevent https://github.com/vis2k/Mirror/issues/1515
-        [Test]
-        public void StopHostCallsOnServerDisconnectForHostClient()
+        [UnityTest]
+        public IEnumerator StopHostCallsOnServerDisconnectForHostClient()
         {
+            // wait for awake to be called before setting activeTransport
+            yield return null;
+            Transport.activeTransport = transport;
+
             // OnServerDisconnect is always called when a client disconnects.
             // it should also be called for the host client when we stop the host
             Assert.That(manager.called, Is.EqualTo(0));
