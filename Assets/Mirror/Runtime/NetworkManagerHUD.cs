@@ -34,6 +34,7 @@ namespace Mirror
         /// <summary>
         /// Displays this devices IP information, useful if your are host/server.
         /// Only use this check when necessary, as it uses an external service for WAN.
+        /// For further connection information, visit: https://mirror-networking.com/docs/Articles/FAQ.html#how-to-connect
         /// </summary>
         [Tooltip("True displays your LAN and WAN IP address for debugging purposes in console log. See summary for more information.")]
         public bool getIPInformation = false;
