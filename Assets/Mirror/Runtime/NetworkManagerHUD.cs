@@ -1,5 +1,6 @@
 // vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
 // confusion if someone accidentally presses one.
+using System.Collections;
 using UnityEngine;
 
 namespace Mirror
@@ -30,10 +31,19 @@ namespace Mirror
         /// The vertical offset in pixels to draw the HUD runtime GUI at.
         /// </summary>
         public int offsetY;
+        
+        /// <summary>
+        /// Displays this devices IP information, useful if your are host/server.
+        /// Only use this check when necessary, as it uses an external service for WAN.
+        /// </summary>
+        [Tooltip("True displays your LAN and WAN IP address for debugging purposes in console log. See summary for more information.")]
+        public bool getIPInformation = false;
 
         void Awake()
         {
             manager = GetComponent<NetworkManager>();
+
+            if (getIPInformation) { StartCoroutine(GetIPInformation()); }
         }
 
         void OnGUI()
@@ -152,6 +162,26 @@ namespace Mirror
                 {
                     manager.StopServer();
                 }
+            }
+        }
+        
+        IEnumerator GetIPInformation()
+        {
+            
+            using (UnityEngine.Networking.UnityWebRequest webRequest = UnityEngine.Networking.UnityWebRequest.Get("https://api.ipify.org/"))
+            {
+                yield return webRequest.SendWebRequest();
+    
+                if (webRequest.isNetworkError || webRequest.isHttpError || webRequest.downloadHandler.text == "")
+                { Debug.Log("Public (WAN) IP Error: " + webRequest.error); }
+                else { Debug.Log("Public (WAN) IP: " + webRequest.downloadHandler.text); }
+            }
+            
+            using (System.Net.Sockets.Socket socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, 0))
+            {
+                socket.Connect("8.8.8.8", 65530);
+                System.Net.IPEndPoint endPoint = socket.LocalEndPoint as System.Net.IPEndPoint;
+                Debug.Log("Local Area Network (LAN) IP: " + endPoint.Address.ToString());
             }
         }
     }
