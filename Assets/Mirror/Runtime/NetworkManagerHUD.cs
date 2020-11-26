@@ -1,6 +1,5 @@
 // vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
 // confusion if someone accidentally presses one.
-using System.Collections;
 using UnityEngine;
 
 namespace Mirror
@@ -165,9 +164,8 @@ namespace Mirror
             }
         }
         
-        IEnumerator GetIPInformation()
+        System.Collections.IEnumerator GetIPInformation()
         {
-            
             using (UnityEngine.Networking.UnityWebRequest webRequest = UnityEngine.Networking.UnityWebRequest.Get("https://api.ipify.org/"))
             {
                 yield return webRequest.SendWebRequest();
