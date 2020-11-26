@@ -21,7 +21,7 @@ namespace Mirror
         static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkServer));
 
         static bool initialized;
-        static int maxConnections;
+        public static int maxConnections;
 
         /// <summary>
         /// The connection to the host mode client (if any).
