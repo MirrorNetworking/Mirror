@@ -1,43 +1,84 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Mirror.Examples.Basic
 {
     public class Player : NetworkBehaviour
     {
-        [Header("Player Components")]
-        public RectTransform rectTransform;
-        public Image image;
+        // Events that the UI will subscribe to
+        public event System.Action<int> OnPlayerNumberChanged;
+        public event System.Action<Color32> OnPlayerColorChanged;
+        public event System.Action<int> OnPlayerDataChanged;
 
-        [Header("Child Text Objects")]
-        public Text playerNameText;
-        public Text playerDataText;
+        [Header("Player UI")]
+        public GameObject playerUIPrefab;
+        GameObject playerUI;
 
-        // These are set in BasicNetManager::OnServerAddPlayer
         [Header("SyncVars")]
-        [SyncVar]
-        public int playerNumber;
-        [SyncVar]
-        public Color playerColor;
 
-        // This is updated by UpdateData which is called from OnStartServer via InvokeRepeating
-        [SyncVar(hook = nameof(OnPlayerDataChanged))]
-        public int playerData;
+        /// <summary>
+        /// This is appended to the player name text, e.g. "Player 01"
+        /// </summary>
+        [SyncVar(hook = nameof(PlayerNumberChanged))]
+        public int playerNumber = 0;
 
-        // This is called by the hook of playerData SyncVar above
-        void OnPlayerDataChanged(int oldPlayerData, int newPlayerData)
+        /// <summary>
+        /// This is updated by UpdateData which is called from OnStartServer via InvokeRepeating
+        /// </summary>
+        [SyncVar(hook = nameof(PlayerDataChanged))]
+        public int playerData = 0;
+
+        /// <summary>
+        /// Random color for the playerData text, assigned in OnStartServer
+        /// </summary>
+        [SyncVar(hook = nameof(PlayerColorChanged))]
+        public Color32 playerColor = Color.white;
+
+        // This is called by the hook of playerNumber SyncVar above
+        void PlayerNumberChanged(int _, int newPlayerNumber)
         {
-            // Show the data in the UI
-            playerDataText.text = string.Format("Data: {0:000}", newPlayerData);
+            OnPlayerNumberChanged?.Invoke(newPlayerNumber);
         }
 
-        // This fires on server when this player object is network-ready
+        // This is called by the hook of playerData SyncVar above
+        void PlayerDataChanged(int _, int newPlayerData)
+        {
+            OnPlayerDataChanged?.Invoke(newPlayerData);
+        }
+
+        // This is called by the hook of playerColor SyncVar above
+        void PlayerColorChanged(Color32 _, Color32 newPlayerColor)
+        {
+            OnPlayerColorChanged?.Invoke(newPlayerColor);
+        }
+
+        /// <summary>
+        /// This is invoked for NetworkBehaviour objects when they become active on the server.
+        /// <para>This could be triggered by NetworkServer.Listen() for objects in the scene, or by NetworkServer.Spawn() for objects that are dynamically created.</para>
+        /// <para>This will be called for objects on a "host" as well as for object on a dedicated server.</para>
+        /// </summary>
         public override void OnStartServer()
         {
             base.OnStartServer();
 
+            // Add this to the static Players List
+            ((BasicNetManager)NetworkManager.singleton).playersList.Add(this);
+
+            // set the Player Color SyncVar
+            playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
+
             // Start generating updates
             InvokeRepeating(nameof(UpdateData), 1, 1);
+        }
+
+        /// <summary>
+        /// Invoked on the server when the object is unspawned
+        /// <para>Useful for saving object data in persistant storage</para>
+        /// </summary>
+        public override void OnStopServer()
+        {
+            CancelInvoke();
+            ((BasicNetManager)NetworkManager.singleton).playersList.Remove(this);
         }
 
         // This only runs on the server, called from OnStartServer via InvokeRepeating
@@ -47,31 +88,39 @@ namespace Mirror.Examples.Basic
             playerData = Random.Range(100, 1000);
         }
 
-        // This fires on all clients when this player object is network-ready
+        /// <summary>
+        /// Called on every NetworkBehaviour when it is activated on a client.
+        /// <para>Objects on the host have this function called, as there is a local client on the host. The values of SyncVars on object are guaranteed to be initialized correctly with the latest state from the server when this function is called on the client.</para>
+        /// </summary>
         public override void OnStartClient()
         {
-            base.OnStartClient();
+            // Activate the main panel
+            ((BasicNetManager)NetworkManager.singleton).mainPanel.gameObject.SetActive(true);
 
-            // Make this a child of the layout panel in the Canvas
-            transform.SetParent(GameObject.Find("PlayersPanel").transform);
+            // Instantiate the player UI as child of the Players Panel
+            playerUI = Instantiate(playerUIPrefab, ((BasicNetManager)NetworkManager.singleton).playersPanel);
 
-            // Calculate position in the layout panel
-            int x = 100 + ((playerNumber % 4) * 150);
-            int y = -170 - ((playerNumber / 4) * 80);
-            rectTransform.anchoredPosition = new Vector2(x, y);
+            // Set this player object in PlayerUI to wire up event handlers
+            playerUI.GetComponent<PlayerUI>().SetPlayer(this, isLocalPlayer);
 
-            // Apply SyncVar values
-            playerNameText.color = playerColor;
-            playerNameText.text = string.Format("Player {0:00}", playerNumber);
+            // Invoke all event handlers with the current data
+            OnPlayerNumberChanged.Invoke(playerNumber);
+            OnPlayerColorChanged.Invoke(playerColor);
+            OnPlayerDataChanged.Invoke(playerData);
         }
 
-        // This only fires on the local client when this player object is network-ready
-        public override void OnStartLocalPlayer()
+        /// <summary>
+        /// This is invoked on clients when the server has caused this object to be destroyed.
+        /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
+        /// </summary>
+        public override void OnStopClient()
         {
-            base.OnStartLocalPlayer();
+            // Remove this player's UI object
+            Destroy(playerUI);
 
-            // apply a shaded background to our player
-            image.color = new Color(1f, 1f, 1f, 0.1f);
+            // Disable the main panel for local player
+            if (isLocalPlayer)
+                ((BasicNetManager)NetworkManager.singleton).mainPanel.gameObject.SetActive(false);
         }
     }
 }
