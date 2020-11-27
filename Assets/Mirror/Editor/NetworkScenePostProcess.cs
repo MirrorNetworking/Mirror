@@ -66,6 +66,10 @@ namespace Mirror
                             Debug.LogError($"{identity.name} is currently open in Prefab Edit Mode. Please open the actual scene before launching Mirror.");
                         else
                             Debug.LogError($"Scene {path} needs to be opened and resaved, because the scene object {identity.name} has no valid sceneId yet.");
+
+                        // either way we shouldn't continue. nothing good will
+                        // happen when trying to launch with invalid sceneIds.
+                        EditorApplication.isPlaying = false;
                     }
                 }
             }
