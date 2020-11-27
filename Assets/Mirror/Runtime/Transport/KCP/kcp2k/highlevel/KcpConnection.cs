@@ -20,6 +20,12 @@ namespace kcp2k
         public Action<ArraySegment<byte>> OnData;
         public Action OnDisconnected;
 
+        // Mirror needs a way to stop kcp message processing while loop
+        // immediately after a scene change message. Mirror can't process any
+        // other messages during a scene change.
+        // (could be useful for others too)
+        public Func<bool> OnCheckEnabled = () => true;
+
         // If we don't receive anything these many milliseconds
         // then consider us disconnected
         public const int TIMEOUT = 10000;
@@ -230,7 +236,19 @@ namespace kcp2k
             kcp.Update(time);
 
             // process all received messages
-            while (ReceiveNext(out ArraySegment<byte> message))
+            //
+            // Mirror scene changing requires transports to immediately stop
+            // processing any more messages after a scene message was
+            // received. and since we are in a while loop here, we need this
+            // extra check.
+            //
+            // note while that this is mainly for Mirror, but might be
+            // useful in other applications too.
+            //
+            // note that we check it BEFORE ever calling ReceiveNext. otherwise
+            // we would silently eat the received message and never process it.
+            while (OnCheckEnabled() &&
+                   ReceiveNext(out ArraySegment<byte> message))
             {
                 // disconnect message?
                 if (Utils.SegmentsEqual(message, Goodbye))
@@ -243,7 +261,7 @@ namespace kcp2k
                 else
                 {
                     // only accept regular messages
-                    //Log.Warning($"Kcp recv msg: {BitConverter.ToString(buffer, 0, msgSize)}");
+                    //Log.Warning($"Kcp recv msg: {BitConverter.ToString(message.Array, message.Offset, message.Count)}");
                     OnData?.Invoke(message);
                 }
             }

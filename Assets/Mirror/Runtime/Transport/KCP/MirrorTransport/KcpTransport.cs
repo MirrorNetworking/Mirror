@@ -20,10 +20,10 @@ namespace kcp2k
         [Tooltip("KCP internal update interval. 100ms is KCP default, but a lower interval is recommended to minimize latency and to scale to more networked entities.")]
         public uint Interval = 10;
         [Header("Advanced")]
-        [Tooltip("KCP fastresend parameter. Faster resend for the cost of higher bandwidth.")]
-        public int FastResend = 0;
-        [Tooltip("KCP congestion window can be disabled. This is necessary to Mirror 10k Benchmark. Disable this for high scale games if connections get chocked regularly.")]
-        public bool CongestionWindow = true; // KCP 'NoCongestionWindow' is false by default. here we negate it for ease of use.
+        [Tooltip("KCP fastresend parameter. Faster resend for the cost of higher bandwidth. 0 in normal mode, 2 in turbo mode.")]
+        public int FastResend = 2;
+        [Tooltip("KCP congestion window. Enabled in normal mode, disabled in turbo mode. Disable this for high scale games if connections get chocked regularly.")]
+        public bool CongestionWindow = false; // KCP 'NoCongestionWindow' is false by default. here we negate it for ease of use.
         [Tooltip("KCP window size can be modified to support higher loads. For example, Mirror Benchmark requires 128 for 4k monsters, 256 for 10k monsters (if CongestionWindow is disabled.)")]
         public uint SendWindowSize = 128; //Kcp.WND_SND; 32 by default. 128 is better for 4k Benchmark etc.
         [Tooltip("KCP window size can be modified to support higher loads. For example, Mirror Benchmark requires 128 for 4k monsters, 256 for 10k monsters (if CongestionWindow is disabled.)")]
@@ -45,13 +45,14 @@ namespace kcp2k
             Log.Warning = Debug.LogWarning;
             Log.Error = Debug.LogError;
 
-            // TODO simplify after converting Mirror Transport events to Action
+            // client
             client = new KcpClient(
                 () => OnClientConnected.Invoke(),
                 (message) => OnClientDataReceived.Invoke(message, Channels.DefaultReliable),
                 () => OnClientDisconnected.Invoke()
             );
-            // TODO simplify after converting Mirror Transport events to Action
+
+            // server
             server = new KcpServer(
                 (connectionId) => OnServerConnected.Invoke(connectionId),
                 (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.DefaultReliable),
@@ -63,6 +64,13 @@ namespace kcp2k
                 SendWindowSize,
                 ReceiveWindowSize
             );
+
+            // scene change message will disable transports.
+            // kcp processes messages in an internal loop which should be
+            // stopped immediately after scene change (= after disabled)
+            client.OnCheckEnabled = () => enabled;
+            server.OnCheckEnabled = () => enabled;
+
             Debug.Log("KcpTransport initialized!");
         }
 
@@ -89,9 +97,11 @@ namespace kcp2k
         //            spawns at the point before shoulder rotation.
         public void LateUpdate()
         {
-            // note: we need to check enabled in case we set it to false
-            // when LateUpdate already started.
-            // (https://github.com/vis2k/Mirror/pull/379)
+            // scene change messages disable transports to stop them from
+            // processing while changing the scene.
+            // -> we need to check enabled here
+            // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
+            // (see also: https://github.com/vis2k/Mirror/pull/379)
             if (!enabled)
                 return;
 

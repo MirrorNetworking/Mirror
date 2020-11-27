@@ -1,3 +1,11 @@
+V1.4 [2020-11-27]
+- fix: fix: OnCheckEnabled added. KcpConnection message processing while loop can now
+  be interrupted immediately. fixes Mirror Transport scene changes which need to stop
+  processing any messages immediately after a scene message)
+- perf: Mirror KcpTransport: FastResend enabled by default. turbo mode according to:
+  https://github.com/skywind3000/kcp/blob/master/README.en.md#protocol-configuration
+- perf: Mirror KcpTransport: CongestionControl disabled by default (turbo mode)
+
 V1.3 [2020-11-17]
 - Log.Info/Warning/Error so logging doesn't depend on UnityEngine anymore
 - fix: Server.Tick catches SocketException which happens if Android client is killed
@@ -14,7 +22,6 @@ V1.2 [2020-11-10]
 - KcpConnection.MaxMessageSize added for use in high level
 - KcpConnection.MaxMessageSize increased from 1200 bytes to to maximum allowed
   message size of 145KB for kcp (based on mtu, overhead, wnd_rcv)
-
 
 V1.1 [2020-10-30]
 - high level cleanup, fixes, improvements

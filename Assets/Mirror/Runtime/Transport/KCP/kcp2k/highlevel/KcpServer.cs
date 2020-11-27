@@ -14,6 +14,12 @@ namespace kcp2k
         public Action<int, ArraySegment<byte>> OnData;
         public Action<int> OnDisconnected;
 
+        // Mirror needs a way to stop kcp message processing while loop
+        // immediately after a scene change message. Mirror can't process any
+        // other messages during a scene change.
+        // (could be useful for others too)
+        public Func<bool> OnCheckEnabled = () => true;
+
         // configuration
         // NoDelay is recommended to reduce latency. This also scales better
         // without buffers getting full.
@@ -196,6 +202,10 @@ namespace kcp2k
                                 Log.Info($"KCP: OnServerConnected({connectionId})");
                                 OnConnected.Invoke(connectionId);
                             };
+
+                            // setup OnCheckEnabled to safely support Mirror
+                            // scene changes (see comments in Awake() above)
+                            connection.OnCheckEnabled = OnCheckEnabled;
 
                             // now input the message & tick
                             // connected event was set up.

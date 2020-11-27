@@ -985,10 +985,13 @@ namespace kcp2k
         }
 
         // ikcp_nodelay
-        //   Normal: false, 40, 0, 0
-        //   Fast:   false, 30, 2, 1
-        //   Fast2:   true, 20, 2, 1
-        //   Fast3:   true, 10, 2, 1
+        // configuration: https://github.com/skywind3000/kcp/blob/master/README.en.md#protocol-configuration
+        //   nodelay : Whether nodelay mode is enabled, 0 is not enabled; 1 enabled.
+        //   interval ：Protocol internal work interval, in milliseconds, such as 10 ms or 20 ms.
+        //   resend ：Fast retransmission mode, 0 represents off by default, 2 can be set (2 ACK spans will result in direct retransmission)
+        //   nc ：Whether to turn off flow control, 0 represents “Do not turn off” by default, 1 represents “Turn off”.
+        // Normal Mode: ikcp_nodelay(kcp, 0, 40, 0, 0);
+        // Turbo Mode： ikcp_nodelay(kcp, 1, 10, 2, 1);
         public void SetNoDelay(uint nodelay, uint interval = INTERVAL, int resend = 0, bool nocwnd = false)
         {
             this.nodelay = nodelay;
