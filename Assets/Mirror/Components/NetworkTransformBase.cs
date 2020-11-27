@@ -109,15 +109,12 @@ namespace Mirror
             // put it into a data point immediately
             DataPoint temp = new DataPoint
             {
-                // deserialize position
-                localPosition = reader.ReadVector3()
+                // deserialize position, rotation, scale
+                localPosition = reader.ReadVector3(),
+                localRotation = reader.ReadQuaternion(),
+                localScale = reader.ReadVector3(),
+                timeStamp = Time.time
             };
-
-            // deserialize rotation & scale
-            temp.localRotation = reader.ReadQuaternion();
-            temp.localScale = reader.ReadVector3();
-
-            temp.timeStamp = Time.time;
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
@@ -442,7 +439,7 @@ namespace Mirror
         {
             DoTeleport(newPosition, newRotation);
 
-            // only send finished if is owner and is ClientAuthority on server 
+            // only send finished if is owner and is ClientAuthority on server
             if (hasAuthority && isClientAuthority)
                 CmdTeleportFinished();
         }
