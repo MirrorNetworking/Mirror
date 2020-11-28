@@ -8,7 +8,7 @@ namespace Mirror.Examples.Additive
     public class ShootingTankBehaviour : NetworkBehaviour
     {
         [SyncVar]
-        public Quaternion rotation;
+        [SerializeField] Quaternion rotation;
 
         NetworkAnimator networkAnimator;
 
@@ -19,7 +19,7 @@ namespace Mirror.Examples.Additive
         }
 
         [Range(0, 1)]
-        public float turnSpeed = 0.1f;
+        [SerializeField] float turnSpeed = 0.1f;
 
         void Update()
         {

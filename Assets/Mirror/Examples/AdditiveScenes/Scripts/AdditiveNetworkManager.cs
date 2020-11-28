@@ -10,11 +10,11 @@ namespace Mirror.Examples.Additive
         static readonly ILogger logger = LogFactory.GetLogger(typeof(AdditiveNetworkManager));
 
         [Tooltip("Trigger Zone Prefab")]
-        public GameObject Zone;
+        [SerializeField] GameObject Zone;
 
         [Scene]
         [Tooltip("Add all sub-scenes to this list")]
-        public string[] subScenes;
+        [SerializeField] string[] subScenes;
 
         public override void OnStartServer()
         {

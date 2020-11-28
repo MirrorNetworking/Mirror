@@ -13,7 +13,7 @@ namespace Mirror.Examples.Additive
 
         [Scene]
         [Tooltip("Assign the sub-scene to load for this zone")]
-        public string subScene;
+        [SerializeField] string subScene;
 
         void OnTriggerEnter(Collider other)
         {

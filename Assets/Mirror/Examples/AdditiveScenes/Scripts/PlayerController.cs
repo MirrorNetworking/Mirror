@@ -8,20 +8,16 @@ namespace Mirror.Examples.Additive
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
-        public CharacterController characterController;
-        public CapsuleCollider capsuleCollider;
+        [SerializeField] CharacterController characterController;
 
         void OnValidate()
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
-            if (capsuleCollider == null)
-                capsuleCollider = GetComponent<CapsuleCollider>();
         }
 
         void Start()
         {
-            capsuleCollider.enabled = isServer;
             characterController.enabled = isLocalPlayer;
         }
 
@@ -45,18 +41,18 @@ namespace Mirror.Examples.Additive
         }
 
         [Header("Movement Settings")]
-        public float moveSpeed = 8f;
-        public float turnSensitivity = 5f;
-        public float maxTurnSpeed = 150f;
+        [SerializeField] float moveSpeed = 8f;
+        [SerializeField] float turnSensitivity = 5f;
+        [SerializeField] float maxTurnSpeed = 150f;
 
         [Header("Diagnostics")]
-        public float horizontal;
-        public float vertical;
-        public float turn;
-        public float jumpSpeed;
-        public bool isGrounded = true;
-        public bool isFalling;
-        public Vector3 velocity;
+        [SerializeField] float horizontal;
+        [SerializeField] float vertical;
+        [SerializeField] float turn;
+        [SerializeField] float jumpSpeed;
+        [SerializeField] bool isGrounded = true;
+        [SerializeField] bool isFalling;
+        [SerializeField] Vector3 velocity;
 
         void Update()
         {
