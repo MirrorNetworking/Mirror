@@ -5,14 +5,15 @@ namespace Mirror.Examples.Chat
     [AddComponentMenu("")]
     public class ChatNetworkManager : NetworkManager
     {
+        [Header("Chat GUI")]
+        [SerializeField] ChatWindow chatWindow;
+
         public string PlayerName { get; set; }
 
         public void SetHostname(string hostname)
         {
             networkAddress = hostname;
         }
-
-        public ChatWindow chatWindow;
 
         public struct CreatePlayerMessage : NetworkMessage
         {
