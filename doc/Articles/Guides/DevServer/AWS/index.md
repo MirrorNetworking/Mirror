@@ -79,6 +79,7 @@ Create a new security group and you can give it your own name and description. A
 
 -   RDP with source "Anywhere", Description can be whatever but put it as Remote Desktop Program.
 -   Custom TCP Rule with port 7777 and source "Anywhere", Description can be whatever but put it as Mirror.
+    - If you're using the default Kcp Transport in your Network Manager instead of the Telepathy Transport, create the above rule as a Custom UDP rule instead.
 -   SSH with source "Anywhere", Description can be whatever but put it as SSH.
 
 SSH is not strictly necessary but can be used to remote connect to it through other means than the RDP.
