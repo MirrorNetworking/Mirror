@@ -8,9 +8,9 @@ namespace Mirror.Examples.Chat
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(ChatWindow));
 
-        public InputField chatMessage;
-        public Text chatHistory;
-        public Scrollbar scrollbar;
+        [SerializeField] InputField chatMessage;
+        [SerializeField] Text chatHistory;
+        [SerializeField] Scrollbar scrollbar;
 
         public void Awake()
         {
