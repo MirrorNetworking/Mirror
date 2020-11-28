@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.Basic
 {
+    [AddComponentMenu("")]
     public class BasicNetManager : NetworkManager
     {
         // Players List to manage playerNumber
@@ -16,10 +17,10 @@ namespace Mirror.Examples.Basic
         [Header("Canvas UI")]
 
         [Tooltip("Assign Main Panel so it can be turned on from Player:OnStartClient")]
-        public RectTransform mainPanel;
+        [SerializeField] internal RectTransform mainPanel;
 
         [Tooltip("Assign Players Panel for instantiating PlayerUI as child")]
-        public RectTransform playersPanel;
+        [SerializeField] internal RectTransform playersPanel;
 
         /// <summary>
         /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
