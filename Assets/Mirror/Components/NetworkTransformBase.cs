@@ -75,11 +75,10 @@ namespace Mirror
         public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // serialize position, rotation, scale
-            // note: we do NOT compress rotation.
-            //       we are CPU constrained, not bandwidth constrained.
-            //       the code needs to WORK for the next 5-10 years of development.
+            // => compress rotation from 4*4=16 to 4 bytes
+            // => less bandwidth = better CCU tests / scale
             writer.WriteVector3(position);
-            writer.WriteQuaternion(rotation);
+            writer.WriteUInt32(Compression.CompressQuaternion(rotation));
             writer.WriteVector3(scale);
         }
 
@@ -110,8 +109,9 @@ namespace Mirror
             DataPoint temp = new DataPoint
             {
                 // deserialize position, rotation, scale
+                // (rotation is compressed)
                 localPosition = reader.ReadVector3(),
-                localRotation = reader.ReadQuaternion(),
+                localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
                 localScale = reader.ReadVector3(),
                 timeStamp = Time.time
             };
