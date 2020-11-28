@@ -138,7 +138,7 @@ namespace Mirror.Experimental
 
         void ServerUpdate()
         {
-            RpcMove(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+            RpcMove(targetTransform.localPosition, Compression.CompressQuaternion(targetTransform.localRotation), targetTransform.localScale);
         }
 
         void ClientAuthorityUpdate()
@@ -148,7 +148,7 @@ namespace Mirror.Experimental
                 // serialize
                 // local position/rotation for VR support
                 // send to server
-                CmdClientToServerSync(targetTransform.localPosition, targetTransform.localRotation, targetTransform.localScale);
+                CmdClientToServerSync(targetTransform.localPosition, Compression.CompressQuaternion(targetTransform.localRotation), targetTransform.localScale);
             }
         }
 
@@ -213,29 +213,29 @@ namespace Mirror.Experimental
 
         // local authority client sends sync message to server for broadcasting
         [Command]
-        void CmdClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale)
+        void CmdClientToServerSync(Vector3 position, uint packedRotation, Vector3 scale)
         {
             // Ignore messages from client if not in client authority mode
             if (!clientAuthority)
                 return;
 
             // deserialize payload
-            SetGoal(position, rotation, scale);
+            SetGoal(position, Compression.DecompressQuaternion(packedRotation), scale);
 
             // server-only mode does no interpolation to save computations, but let's set the position directly
             if (isServer && !isClient)
                 ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
 
-            RpcMove(position, rotation, scale);
+            RpcMove(position, packedRotation, scale);
         }
 
         [ClientRpc]
-        void RpcMove(Vector3 position, Quaternion rotation, Vector3 scale)
+        void RpcMove(Vector3 position, uint packedRotation, Vector3 scale)
         {
             if (hasAuthority && excludeOwnerUpdate) return;
 
             if (!isServer)
-                SetGoal(position, rotation, scale);
+                SetGoal(position, Compression.DecompressQuaternion(packedRotation), scale);
         }
 
         // serialization is needed by OnSerialize and by manual sending from authority
@@ -440,7 +440,7 @@ namespace Mirror.Experimental
             DoTeleport(localPosition, localRotation);
 
             // tell all clients about new values
-            RpcTeleport(localPosition, localRotation, clientAuthorityBeforeTeleport);
+            RpcTeleport(localPosition, Compression.CompressQuaternion(localRotation), clientAuthorityBeforeTeleport);
         }
 
         void DoTeleport(Vector3 newLocalPosition, Quaternion newLocalRotation)
@@ -457,9 +457,9 @@ namespace Mirror.Experimental
         }
 
         [ClientRpc]
-        void RpcTeleport(Vector3 newPosition, Quaternion newRotation, bool isClientAuthority)
+        void RpcTeleport(Vector3 newPosition, uint newPackedRotation, bool isClientAuthority)
         {
-            DoTeleport(newPosition, newRotation);
+            DoTeleport(newPosition, Compression.DecompressQuaternion(newPackedRotation));
 
             // only send finished if is owner and is ClientAuthority on server 
             if (hasAuthority && isClientAuthority)
