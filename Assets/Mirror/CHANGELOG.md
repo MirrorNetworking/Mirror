@@ -1,3 +1,10 @@
+# [59.2.0](https://github.com/MirrorNG/MirrorNG/compare/v59.1.0...v59.2.0) (2020-11-28)
+
+
+### Features
+
+* Quaternion compression ([#501](https://github.com/MirrorNG/MirrorNG/issues/501)) ([c67f873](https://github.com/MirrorNG/MirrorNG/commit/c67f8737bd20f61a4c403c0726d27d56f0464b07))
+
 # [59.1.0](https://github.com/MirrorNG/MirrorNG/compare/v59.0.8...v59.1.0) (2020-11-25)
 
 
