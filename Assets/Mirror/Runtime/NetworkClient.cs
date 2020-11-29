@@ -271,10 +271,6 @@ namespace Mirror
                 RegisterHandler<ObjectHideMessage>(ClientScene.OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>((conn, msg) => { }, false);
                 RegisterHandler<SpawnMessage>(ClientScene.OnHostClientSpawn);
-                // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => { });
-                // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => { });
                 RegisterHandler<UpdateVarsMessage>((conn, msg) => { });
             }
             else
@@ -283,8 +279,6 @@ namespace Mirror
                 RegisterHandler<ObjectHideMessage>(ClientScene.OnObjectHide);
                 RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
                 RegisterHandler<SpawnMessage>(ClientScene.OnSpawn);
-                RegisterHandler<ObjectSpawnStartedMessage>(ClientScene.OnObjectSpawnStarted);
-                RegisterHandler<ObjectSpawnFinishedMessage>(ClientScene.OnObjectSpawnFinished);
                 RegisterHandler<UpdateVarsMessage>(ClientScene.OnUpdateVarsMessage);
             }
             RegisterHandler<RpcMessage>(ClientScene.OnRPCMessage);

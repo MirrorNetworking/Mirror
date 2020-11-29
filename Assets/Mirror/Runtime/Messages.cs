@@ -116,10 +116,6 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    public struct ObjectSpawnStartedMessage : NetworkMessage { }
-
-    public struct ObjectSpawnFinishedMessage : NetworkMessage { }
-
     public struct ObjectDestroyMessage : NetworkMessage
     {
         public uint netId;
