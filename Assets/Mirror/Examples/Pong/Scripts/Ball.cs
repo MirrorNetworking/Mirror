@@ -4,8 +4,8 @@ namespace Mirror.Examples.Pong
 {
     public class Ball : NetworkBehaviour
     {
-        public float speed = 30;
-        public Rigidbody2D rigidbody2d;
+        [SerializeField] float speed = 30;
+        [SerializeField] Rigidbody2D rigidbody2d;
 
         public override void OnStartServer()
         {
