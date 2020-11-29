@@ -134,6 +134,7 @@ Start reading our code and you'll get the hang of it. We optimize for readabilit
 
 * We indent using 4 spaces (soft tabs)
 * We value simplicity. The code should be easy to read and avoid magic
+* No abbrevations. Use 'parentBody' instead of 'pB' or similar
 * **KISS / Occam's Razor** - always use the most simple solution.
 * **No Premature Optimizations**
 	MMOs need to run for weeks without issues or exploits.
