@@ -66,9 +66,6 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 ![Laurum Online](https://i.imgur.com/2I8wnxO.png)<br/>
 [Laurum Online](https://laurum.online/)<br/>
 
-![The Wall](https://steamcdn-a.akamaihd.net/steam/apps/719200/header.jpg?t=1588105839)<br>
-[The Wall](https://store.steampowered.com/app/719200/The_Wall/)
-
 ## Funding
 Mirror is free & open source software funded by Donations. If you love it, please consider supporting [Mirror on GitHub](https://github.com/sponsors/vis2k). As reward, you'll receive our [Network Profiler](https://mirror-networking.com/docs/Articles/Guides/Profiler.html?q=Profiler), priority support and more :)
 
