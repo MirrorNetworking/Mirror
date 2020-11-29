@@ -30,6 +30,7 @@ namespace Mirror
         {
             if (server != null)
             {
+                server.Started.AddListener(SpawnOrActivate);
                 server.Authenticated.AddListener(OnAuthenticated);
                 networkSceneManager.ServerChangeScene.AddListener(OnServerChangeScene);
                 networkSceneManager.ServerSceneChanged.AddListener(OnServerSceneChanged);
@@ -69,6 +70,7 @@ namespace Mirror
 
         void OnDestroy()
         {
+            server.Started.RemoveListener(SpawnOrActivate);
             server.Authenticated.RemoveListener(OnAuthenticated);
             networkSceneManager.ServerChangeScene.RemoveListener(OnServerChangeScene);
             networkSceneManager.ServerSceneChanged.RemoveListener(OnServerSceneChanged);
@@ -85,6 +87,11 @@ namespace Mirror
         }
 
         void OnServerSceneChanged(string scenePath, SceneOperation sceneOperation)
+        {
+            SpawnOrActivate();
+        }
+
+        void SpawnOrActivate()
         {
             // host mode?
             if (server.LocalClientActive)

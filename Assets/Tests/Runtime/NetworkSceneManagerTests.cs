@@ -14,9 +14,14 @@ namespace Mirror.Tests
     {
         AssetBundle bundle;
 
+        UnityAction<string, SceneOperation> sceneEventFunction;
+
         public override void ExtraSetup()
         {
             bundle = AssetBundle.LoadFromFile("Assets/Tests/Runtime/TestScene/testscene");
+
+            sceneEventFunction = Substitute.For<UnityAction<string, SceneOperation>>();
+            sceneManager.ServerSceneChanged.AddListener(sceneEventFunction);
         }
 
         public override void ExtraTearDown()
@@ -74,6 +79,12 @@ namespace Mirror.Tests
             Assert.That(invokeClientSceneMessage, Is.True);
             Assert.That(invokeNotReadyMessage, Is.True);
         });
+
+        [Test]
+        public void ServerChangedFiredOnceTest()
+        {
+            sceneEventFunction.Received(1).Invoke(Arg.Any<string>(), Arg.Any<SceneOperation>());
+        }
 
         [Test]
         public void ChangeServerSceneExceptionTest()

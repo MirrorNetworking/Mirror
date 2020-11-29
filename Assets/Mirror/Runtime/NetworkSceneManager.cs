@@ -69,7 +69,6 @@ namespace Mirror
             }
             if (server != null)
             {
-                server.Started.AddListener(() => FinishLoadScene(NetworkScenePath, SceneOperation.Normal));
                 server.Authenticated.AddListener(OnServerAuthenticated);
             }
         }
@@ -239,6 +238,8 @@ namespace Mirror
         /// <param name="scenePath">Path of the scene that's about to be loaded</param>
         internal void OnServerChangeScene(string scenePath, SceneOperation operation)
         {
+            logger.Log("OnServerChangeScene");
+
             ServerChangeScene.Invoke(scenePath, operation);
         }
 
@@ -248,6 +249,8 @@ namespace Mirror
         /// <param name="scenePath">The name of the new scene.</param>
         internal void OnServerSceneChanged(string scenePath, SceneOperation operation)
         {
+            logger.Log("OnServerSceneChanged");
+
             server.SendToAll(new SceneReadyMessage());
 
             ServerSceneChanged.Invoke(scenePath, operation);
