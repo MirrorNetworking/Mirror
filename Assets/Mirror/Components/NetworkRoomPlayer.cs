@@ -18,7 +18,7 @@ namespace Mirror
         /// <para>As this UI is rendered using the old GUI system, it is only recommended for testing purposes.</para>
         /// </summary>
         [Tooltip("This flag controls whether the default UI is shown for the room player")]
-        public bool showRoomGUI = true;
+        [SerializeField] bool showRoomGUI = true;
 
         [Header("Diagnostics")]
 
@@ -107,7 +107,7 @@ namespace Mirror
         /// <para>This function is called when the a client player calls CmdChangeReadyState.</para>
         /// </summary>
         /// <param name="newReadyState">New Ready State</param>
-        public virtual void ReadyStateChanged(bool oldReadyState, bool newReadyState) { }
+        public virtual void ReadyStateChanged(bool _, bool newReadyState) { }
 
         #endregion
 

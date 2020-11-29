@@ -5,10 +5,10 @@ namespace Mirror.Examples.NetworkRoom
     public class PlayerScore : NetworkBehaviour
     {
         [SyncVar]
-        public int index;
+        [SerializeField] internal int index;
 
         [SyncVar]
-        public uint score;
+        [SerializeField] internal uint score;
 
         void OnGUI()
         {

@@ -8,7 +8,7 @@ namespace Mirror.Examples.NetworkRoom
     {
         [Header("Spawner Setup")]
         [Tooltip("Reward Prefab for the Spawner")]
-        public GameObject rewardPrefab;
+        [SerializeField] internal GameObject rewardPrefab;
 
         /// <summary>
         /// This is called on the server when a networked scene finishes loading.
@@ -19,7 +19,6 @@ namespace Mirror.Examples.NetworkRoom
             // spawn the initial batch of Rewards
             if (sceneName == GameplayScene)
             {
-                Spawner.rewardPrefab = rewardPrefab;
                 Spawner.InitialSpawn();
             }
         }
