@@ -24,7 +24,7 @@ namespace Mirror
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
                 // unspawn all observers that are NOT in rebuild anymore
-                foreach (NetworkConnectionToClient observer in identity.observers)
+                foreach (NetworkConnectionToClient observer in identity.observersx)
                 {
                     //Debug.Log($"{identity.name} had {identity.observars.Count} observers and rebuild has {identity.rebuild.Count}");
                     if (!identity.rebuild.Contains(observer))
@@ -41,7 +41,7 @@ namespace Mirror
                 //
                 // note: IntersectWith version that returns removed values would
                 //       be even faster.
-                identity.observers.IntersectWith(identity.rebuild);
+                identity.observersx.IntersectWith(identity.rebuild);
             }
         }
 
@@ -66,14 +66,14 @@ namespace Mirror
                 foreach (NetworkConnectionToClient conn in identity.rebuild)
                 {
                     // was it not in old observers?
-                    if (!identity.observers.Contains(conn))
+                    if (!identity.observersx.Contains(conn))
                     {
                         // spawn identity for this connection
                         //Debug.LogWarning($"Spawning {identity.name} for connectionId {conn.connectionId}");
                         NetworkServer.ShowForConnection(identity, conn);
 
                         // add it to observers
-                        identity.observers.Add(conn);
+                        identity.observersx.Add(conn);
                     }
                 }
             }
