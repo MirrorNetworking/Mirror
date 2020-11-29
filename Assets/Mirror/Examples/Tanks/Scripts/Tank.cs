@@ -6,16 +6,16 @@ namespace Mirror.Examples.Tanks
     public class Tank : NetworkBehaviour
     {
         [Header("Components")]
-        public NavMeshAgent agent;
-        public Animator animator;
+        [SerializeField] NavMeshAgent agent;
+        [SerializeField] Animator animator;
 
         [Header("Movement")]
-        public float rotationSpeed = 100;
+        [SerializeField] float rotationSpeed = 100;
 
         [Header("Firing")]
-        public KeyCode shootKey = KeyCode.Space;
-        public GameObject projectilePrefab;
-        public Transform projectileMount;
+        [SerializeField] KeyCode shootKey = KeyCode.Space;
+        [SerializeField] GameObject projectilePrefab;
+        [SerializeField] Transform projectileMount;
 
         void Update()
         {
