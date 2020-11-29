@@ -128,30 +128,6 @@ namespace Mirror.Tests.MessageTests
         }
 
         [Test]
-        public void ObjectSpawnFinishedMessage()
-        {
-            // try setting value with constructor
-            ObjectSpawnFinishedMessage message = new ObjectSpawnFinishedMessage();
-            byte[] arr = MessagePackerTest.PackToByteArray(message);
-            Assert.DoesNotThrow(() =>
-            {
-                ObjectSpawnFinishedMessage fresh = MessagePackerTest.UnpackFromByteArray<ObjectSpawnFinishedMessage>(arr);
-            });
-        }
-
-        [Test]
-        public void ObjectSpawnStartedMessage()
-        {
-            // try setting value with constructor
-            ObjectSpawnStartedMessage message = new ObjectSpawnStartedMessage();
-            byte[] arr = MessagePackerTest.PackToByteArray(message);
-            Assert.DoesNotThrow(() =>
-            {
-                ObjectSpawnStartedMessage fresh = MessagePackerTest.UnpackFromByteArray<ObjectSpawnStartedMessage>(arr);
-            });
-        }
-
-        [Test]
         public void ReadyMessage()
         {
             // try setting value with constructor
