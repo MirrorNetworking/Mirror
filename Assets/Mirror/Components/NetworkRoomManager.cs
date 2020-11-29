@@ -31,17 +31,17 @@ namespace Mirror
         [FormerlySerializedAs("m_ShowRoomGUI")]
         [SerializeField]
         [Tooltip("This flag controls whether the default UI is shown for the room")]
-        internal bool showRoomGUI = true;
+        public bool showRoomGUI = true;
 
         [FormerlySerializedAs("m_MinPlayers")]
         [SerializeField]
         [Tooltip("Minimum number of players to auto-start the game")]
-        protected int minPlayers = 1;
+        public int minPlayers = 1;
 
         [FormerlySerializedAs("m_RoomPlayerPrefab")]
         [SerializeField]
         [Tooltip("Prefab to use for the Room Player")]
-        protected NetworkRoomPlayer roomPlayerPrefab;
+        public NetworkRoomPlayer roomPlayerPrefab;
 
         /// <summary>
         /// The scene to use for the room. This is similar to the offlineScene of the NetworkManager.

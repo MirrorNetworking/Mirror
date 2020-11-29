@@ -18,7 +18,7 @@ namespace Mirror
         /// <para>As this UI is rendered using the old GUI system, it is only recommended for testing purposes.</para>
         /// </summary>
         [Tooltip("This flag controls whether the default UI is shown for the room player")]
-        [SerializeField] bool showRoomGUI = true;
+        public bool showRoomGUI = true;
 
         [Header("Diagnostics")]
 
