@@ -19,9 +19,6 @@ namespace Mirror
         public const int LocalConnectionId = 0;
         static readonly ILogger logger = LogFactory.GetLogger<NetworkConnection>();
 
-        // internal so it can be tested
-        internal readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
-
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
         /// <summary>
@@ -155,34 +152,6 @@ namespace Mirror
         public override string ToString()
         {
             return $"connection({connectionId})";
-        }
-
-        internal void AddToVisList(NetworkIdentity identity)
-        {
-            visList.Add(identity);
-
-            // spawn identity for this conn
-            NetworkServer.ShowForConnection(identity, this);
-        }
-
-        internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
-        {
-            visList.Remove(identity);
-
-            if (!isDestroyed)
-            {
-                // hide identity for this conn
-                NetworkServer.HideForConnection(identity, this);
-            }
-        }
-
-        internal void RemoveObservers()
-        {
-            foreach (NetworkIdentity identity in visList)
-            {
-                identity.RemoveObserverInternal(this);
-            }
-            visList.Clear();
         }
 
         internal bool InvokeHandler(int msgType, NetworkReader reader, int channelId)

@@ -31,7 +31,6 @@ namespace Mirror
             // (might be client or host mode here)
             isReady = false;
             Transport.activeTransport.ServerDisconnect(connectionId);
-            RemoveObservers();
         }
     }
 }
