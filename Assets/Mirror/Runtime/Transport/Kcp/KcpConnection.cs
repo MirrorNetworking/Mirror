@@ -15,8 +15,8 @@ namespace Mirror.KCP
         protected EndPoint remoteEndpoint;
         protected Kcp kcp;
         protected Unreliable unreliable;
-        private int sendWindowSize;
-        private int receiveWindowSize;
+        private readonly int sendWindowSize;
+        private readonly int receiveWindowSize;
 
         readonly KcpDelayMode delayMode;
         volatile bool open;
