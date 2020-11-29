@@ -10,13 +10,13 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     {
         [Header("Spawner Setup")]
         [Tooltip("Reward Prefab for the Spawner")]
-        public GameObject rewardPrefab;
+        [SerializeField] internal GameObject rewardPrefab;
 
         [Header("MultiScene Setup")]
-        public int instances = 3;
+        [SerializeField] int instances = 3;
 
         [Scene]
-        public string gameScene;
+        [SerializeField] string gameScene;
 
         bool subscenesLoaded;
         readonly List<Scene> subScenes = new List<Scene>();
@@ -69,7 +69,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         /// </summary>
         public override void OnStartServer()
         {
-            Spawner.rewardPrefab = rewardPrefab;
             StartCoroutine(ServerLoadSubScenes());
         }
 
