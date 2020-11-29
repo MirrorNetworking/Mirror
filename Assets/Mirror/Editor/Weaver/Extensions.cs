@@ -84,6 +84,16 @@ namespace Mirror.Weaver
             return tr is ArrayType arrayType && arrayType.Rank > 1;
         }
 
+        /// <summary>
+        /// Is the field a NetworkIdentity or GameObject
+        /// </summary>
+        public static bool IsNetworkIdentityField(this FieldDefinition fd)
+        {
+            TypeReference fieldType = fd.FieldType;
+            return fieldType.Is<UnityEngine.GameObject>()
+                || fieldType.Is<NetworkIdentity>();
+        }
+
         public static bool CanBeResolved(this TypeReference parent)
         {
             while (parent != null)
