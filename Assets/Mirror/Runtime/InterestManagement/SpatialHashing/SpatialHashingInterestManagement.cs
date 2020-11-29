@@ -26,7 +26,7 @@ namespace Mirror
         Grid2D<NetworkConnectionToClient> grid = new Grid2D<NetworkConnectionToClient>();
 
         // project 3d position to grid
-        Vector2Int ProjectToGrid(Vector3 position)
+        static Vector2Int ProjectToGrid(Vector3 position, CheckMethod checkMethod, int resolution)
         {
             // simple rounding for now
             // 3D uses xz (horizontal plane)
@@ -53,7 +53,7 @@ namespace Mirror
             {
                 if (conn.isReady && conn.identity != null)
                 {
-                    Vector2Int gridPosition = ProjectToGrid(conn.identity.transform.position);
+                    Vector2Int gridPosition = ProjectToGrid(conn.identity.transform.position, checkMethod, resolution);
                     grid.Add(gridPosition, conn);
                 }
             }
@@ -67,7 +67,7 @@ namespace Mirror
                 // only add observers if not currently hidden from observers
                 if (!identity.forceHidden)
                 {
-                    Vector2Int gridPosition = ProjectToGrid(identity.transform.position);
+                    Vector2Int gridPosition = ProjectToGrid(identity.transform.position, checkMethod, resolution);
                     grid.GetWithNeighbours(gridPosition, identity.rebuild);
                 }
             }
