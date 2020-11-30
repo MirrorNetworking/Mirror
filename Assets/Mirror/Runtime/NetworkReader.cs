@@ -314,9 +314,9 @@ namespace Mirror
                 return null;
             }
 
-            byte index = reader.ReadByte();
+            byte componentIndex = reader.ReadByte();
 
-            return identity.NetworkBehaviours[index];
+            return identity.NetworkBehaviours[componentIndex];
         }
 
         public static T ReadNetworkBehaviour<T>(this NetworkReader reader) where T : NetworkBehaviour
