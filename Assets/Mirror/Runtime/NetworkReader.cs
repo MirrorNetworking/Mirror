@@ -306,6 +306,24 @@ namespace Mirror
             return null;
         }
 
+        public static NetworkBehaviour ReadNetworkBehaviour(this NetworkReader reader)
+        {
+            NetworkIdentity identity = reader.ReadNetworkIdentity();
+            if (identity == null)
+            {
+                return null;
+            }
+
+            byte index = reader.ReadByte();
+
+            return identity.NetworkBehaviours[index];
+        }
+
+        public static T ReadNetworkBehaviour<T>(this NetworkReader reader) where T : NetworkBehaviour
+        {
+            return reader.ReadNetworkBehaviour() as T;
+        }
+
         public static List<T> ReadList<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt32();
