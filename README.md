@@ -50,6 +50,9 @@ MirrorNG has many new features
 * Error handling
 * [Version defines](https://docs.unity3d.com/Manual/ScriptCompilationAssemblyDefinitionFiles.html#define-symbols)
 * Server Rpcs can [return values](https://mirrorng.github.io/MirrorNG/Articles/Guides/Communications/RemoteActions.html)
+* The default transport features DoS prevention
+* The default transport has CRC64 integrity check
+* MirrorNG provides unreliable channel out of the box
 
 If you look under the hood,  the code base has some significant differences based on the core values of each project
 * MirrorNG follows the [SOLID principles](https://en.wikipedia.org/wiki/SOLID).
