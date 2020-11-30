@@ -60,7 +60,7 @@ namespace Mirror
                 {
                     clientTime = LocalTime()
                 };
-                client.Connection.Send(pingMessage);
+                client.Connection.Send(pingMessage, Channel.Unreliable);
                 lastPingTime = UnityEngine.Time.time;
             }
         }
@@ -78,7 +78,7 @@ namespace Mirror
                 serverTime = LocalTime()
             };
 
-            conn.Send(pongMsg);
+            conn.Send(pongMsg, Channel.Unreliable);
         }
 
         // Executed at the client when we receive a Pong message
