@@ -84,6 +84,15 @@ namespace Mirror.Weaver
             return tr is ArrayType arrayType && arrayType.Rank > 1;
         }
 
+        /// <summary>
+        /// Does type use netId as backing field
+        /// </summary>
+        public static bool IsNetworkIdentityField(this TypeReference tr)
+        {
+            return tr.Is<UnityEngine.GameObject>()
+                || tr.Is<NetworkIdentity>();
+        }
+
         public static bool CanBeResolved(this TypeReference parent)
         {
             while (parent != null)
