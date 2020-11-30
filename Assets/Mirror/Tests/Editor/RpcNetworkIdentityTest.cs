@@ -36,6 +36,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
+    [Description("Test for sending NetworkIdentity fields (NI/GO/NB) in RPC")]
     public class RpcNetworkIdentityTest : RemoteTestBase
     {
         [Test]
