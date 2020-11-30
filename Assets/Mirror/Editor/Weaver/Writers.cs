@@ -105,6 +105,11 @@ namespace Mirror.Weaver
                 return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteList));
             }
 
+            if (variableReference.IsDerivedFrom<NetworkBehaviour>())
+            {
+                return GetNetworkBehaviourWriter(variableReference);
+            }
+
             // check for invalid types
             TypeDefinition variableDefinition = variableReference.Resolve();
             if (variableDefinition == null)
@@ -138,6 +143,21 @@ namespace Mirror.Weaver
 
             // generate writer for class/struct
             return GenerateClassOrStructWriterFunction(variableReference);
+        }
+
+        private static MethodReference GetNetworkBehaviourWriter(TypeReference variableReference)
+        {
+            // all NB can use the same write func
+            if (writeFuncs.TryGetValue(typeof(NetworkBehaviour).FullName, out MethodReference func))
+            {
+                return func;
+            }
+            else
+            {
+                throw new GenerateWriterException($"Could not find writer for NetworkBehaviour so could not" +
+                    $"Cannot generate writer for component type {variableReference.Name}. " +
+                    $"Use a supported type or provide a custom writer", variableReference);
+            }
         }
 
         private static MethodDefinition GenerateEnumWriteFunc(TypeReference variable)
