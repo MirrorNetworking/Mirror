@@ -1047,6 +1047,10 @@ namespace Mirror.Tests
         [Test]
         public void NetworkBehaviourFunctions()
         {
+            // check that other write func has been set, if it hasn't then NB will also not work
+            Assert.That(Writer<int>.write, Is.Not.Null, "int write function was not found");
+
+
             // needs a networkbehaviour that is included in an Message/Rpc/syncvar for this test
 
             Assert.That(Writer<RpcNetworkIdentityBehaviour>.write, Is.Not.Null, "write function was not found");
