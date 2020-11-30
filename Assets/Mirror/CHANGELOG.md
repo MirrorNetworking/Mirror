@@ -1,3 +1,15 @@
+## [59.2.1](https://github.com/MirrorNG/MirrorNG/compare/v59.2.0...v59.2.1) (2020-11-30)
+
+
+### Bug Fixes
+
+* font color in basic example ([a9dfb3f](https://github.com/MirrorNG/MirrorNG/commit/a9dfb3fdac79b68f900d71c48cdc9dc07cffba1e))
+
+
+### Performance Improvements
+
+* Ping now goes over unreliable channel ([#507](https://github.com/MirrorNG/MirrorNG/issues/507)) ([096d62d](https://github.com/MirrorNG/MirrorNG/commit/096d62dd6c6536358939614ac61c258f6f4e0a8d))
+
 # [59.2.0](https://github.com/MirrorNG/MirrorNG/compare/v59.1.0...v59.2.0) (2020-11-28)
 
 
