@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Mirror.Tests.RemoteAttrributeTest;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -1005,6 +1006,51 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArray());
             List<int> readList = reader.Read<List<int>>();
             Assert.That(readList, Is.Null);
+        }
+
+        [Test]
+        public void TestNetworkBehaviour()
+        {
+            //setup
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            RpcNetworkIdentityBehaviour behaviour = gameObject.AddComponent<RpcNetworkIdentityBehaviour>();
+
+            const int netId = 100;
+            identity.netId = netId;
+            int compIndex = behaviour.ComponentIndex;
+
+            NetworkIdentity.spawned[netId] = identity;
+
+            try
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WriteNetworkBehaviour(behaviour);
+
+                byte[] bytes = writer.ToArray();
+
+                Assert.That(bytes.Length, Is.EqualTo(5), "Networkbehaviour should be 5 bytes long.");
+
+                NetworkReader reader = new NetworkReader(bytes);
+                RpcNetworkIdentityBehaviour actual = reader.ReadNetworkBehaviour<RpcNetworkIdentityBehaviour>();
+                Assert.That(actual, Is.EqualTo(behaviour), "Read should find the same behaviour as written");
+            }
+            // use finally so object is destroyed evne if tests fails
+            finally
+            {
+                // teardown
+                NetworkIdentity.spawned[netId] = null;
+                GameObject.DestroyImmediate(gameObject);
+            }
+        }
+
+        [Test]
+        public void NetworkBehaviourFunctions()
+        {
+            // needs a networkbehaviour that is included in an Message/Rpc/syncvar for this test
+
+            Assert.That(Writer<RpcNetworkIdentityBehaviour>.write, Is.Not.Null, "write function was not found");
+            Assert.That(Reader<RpcNetworkIdentityBehaviour>.read, Is.Not.Null, "read function was not found");
         }
     }
 }
