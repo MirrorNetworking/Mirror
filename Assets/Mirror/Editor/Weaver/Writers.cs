@@ -62,7 +62,7 @@ namespace Mirror.Weaver
         }
 
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
-        static MethodDefinition GenerateWriter(TypeReference variableReference)
+        static MethodReference GenerateWriter(TypeReference variableReference)
         {
             if (variableReference.IsByReference)
             {
