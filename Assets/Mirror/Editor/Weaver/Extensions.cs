@@ -18,11 +18,11 @@ namespace Mirror.Weaver
 
         public static bool Is<T>(this TypeReference td) => Is(td, typeof(T));
 
-        public static bool IsDerivedFrom<T>(this TypeDefinition td) => IsDerivedFrom(td, typeof(T));
+        public static bool IsDerivedFrom<T>(this TypeReference tr) => IsDerivedFrom(tr, typeof(T));
 
-        public static bool IsDerivedFrom(this TypeDefinition td, Type baseClass)
+        public static bool IsDerivedFrom(this TypeReference tr, Type baseClass)
         {
-
+            TypeDefinition td = tr.Resolve();
             if (!td.IsClass)
                 return false;
 
