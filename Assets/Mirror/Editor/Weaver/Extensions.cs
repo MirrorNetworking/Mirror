@@ -108,6 +108,13 @@ namespace Mirror.Weaver
             return td.FullName.StartsWith("System.Collections.Generic.List`1", System.StringComparison.Ordinal);
         }
 
+        // does type use netId as backing field
+        public static bool IsNetworkIdentityField(this TypeReference tr)
+        {
+            return tr.FullName == WeaverTypes.gameObjectType.FullName ||
+                   tr.FullName == WeaverTypes.NetworkIdentityType.FullName;
+        }
+
         public static bool CanBeResolved(this TypeReference parent)
         {
             while (parent != null)

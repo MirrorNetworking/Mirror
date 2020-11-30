@@ -501,7 +501,7 @@ namespace Mirror.Weaver
             // check for Hook function
             MethodDefinition hookMethod = SyncVarProcessor.GetHookMethod(netBehaviourSubclass, syncVar);
 
-            if (IsNetworkIdentityField(syncVar))
+            if (syncVar.FieldType.IsNetworkIdentityField())
             {
                 DeserializeNetworkIdentityField(syncVar, worker, deserialize, hookMethod);
             }
@@ -509,17 +509,6 @@ namespace Mirror.Weaver
             {
                 DeserializeNormalField(syncVar, worker, deserialize, hookMethod);
             }
-        }
-
-        /// <summary>
-        /// Is the field a NetworkIdentity or GameObject
-        /// </summary>
-        /// <param name="syncVar"></param>
-        /// <returns></returns>
-        static bool IsNetworkIdentityField(FieldDefinition syncVar)
-        {
-            return syncVar.FieldType.FullName == WeaverTypes.gameObjectType.FullName ||
-                   syncVar.FieldType.FullName == WeaverTypes.NetworkIdentityType.FullName;
         }
 
         /// <summary>
