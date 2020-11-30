@@ -63,6 +63,7 @@
     <None Remove="WeaverTests.cs.meta" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WeaverClientRpcTests~\BehaviourCanBeSentInRpc.cs" />
     <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CanUseCustomReadWriteForTypesFromDifferentAssemblies.cs" />
     <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForClassFromDifferentAssemblies.cs" />
     <Compile Include="WeaverGeneratedReaderWriterAnotherAssemblyTests~\CreatesForClassFromDifferentAssembliesWithValidConstructor.cs" />
