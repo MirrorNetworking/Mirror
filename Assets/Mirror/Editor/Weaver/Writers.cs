@@ -150,6 +150,9 @@ namespace Mirror.Weaver
             // all NB can use the same write func
             if (writeFuncs.TryGetValue(typeof(NetworkBehaviour).FullName, out MethodReference func))
             {
+                // register function so it is added to writer<T>
+                RegisterWriteFunc(variableReference, func.Resolve());
+
                 return func;
             }
             else

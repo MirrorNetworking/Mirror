@@ -144,8 +144,12 @@ namespace Mirror.Weaver
             GenericInstanceMethod instance = new GenericInstanceMethod(generic);
             instance.GenericArguments.Add(variableReference);
 
-            // import before returning
-            return Weaver.CurrentAssembly.MainModule.ImportReference(instance);
+            MethodReference readFunc = Weaver.CurrentAssembly.MainModule.ImportReference(instance);
+
+            // register function so it is added to Reader<T>
+            RegisterReadFunc(variableReference, readFunc.Resolve());
+
+            return readFunc;
         }
 
         static MethodDefinition GenerateEnumReadFunc(TypeReference variable)
