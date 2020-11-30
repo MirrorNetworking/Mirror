@@ -85,13 +85,12 @@ namespace Mirror.Weaver
         }
 
         /// <summary>
-        /// Is the field a NetworkIdentity or GameObject
+        /// Does type use netId as backing field
         /// </summary>
-        public static bool IsNetworkIdentityField(this FieldDefinition fd)
+        public static bool IsNetworkIdentityField(this TypeReference tr)
         {
-            TypeReference fieldType = fd.FieldType;
-            return fieldType.Is<UnityEngine.GameObject>()
-                || fieldType.Is<NetworkIdentity>();
+            return tr.Is<UnityEngine.GameObject>()
+                || tr.Is<NetworkIdentity>();
         }
 
         public static bool CanBeResolved(this TypeReference parent)

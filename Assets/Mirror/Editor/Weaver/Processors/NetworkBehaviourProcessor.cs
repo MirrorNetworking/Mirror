@@ -500,7 +500,7 @@ namespace Mirror.Weaver
             // check for Hook function
             MethodDefinition hookMethod = SyncVarProcessor.GetHookMethod(netBehaviourSubclass, syncVar);
 
-            if (syncVar.IsNetworkIdentityField())
+            if (syncVar.FieldType.IsNetworkIdentityField())
             {
                 DeserializeNetworkIdentityField(syncVar, worker, deserialize, hookMethod);
             }
