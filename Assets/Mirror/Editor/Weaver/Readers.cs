@@ -147,7 +147,8 @@ namespace Mirror.Weaver
             MethodReference readFunc = Weaver.CurrentAssembly.MainModule.ImportReference(instance);
 
             // register function so it is added to Reader<T>
-            RegisterReadFunc(variableReference, readFunc.Resolve());
+            // use Register instead of RegisterWriteFunc because this is not a generated function
+            Register(variableReference, readFunc);
 
             return readFunc;
         }

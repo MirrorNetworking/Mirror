@@ -151,7 +151,8 @@ namespace Mirror.Weaver
             if (writeFuncs.TryGetValue(typeof(NetworkBehaviour).FullName, out MethodReference func))
             {
                 // register function so it is added to writer<T>
-                RegisterWriteFunc(variableReference, func.Resolve());
+                // use Register instead of RegisterWriteFunc because this is not a generated function
+                Register(variableReference, func);
 
                 return func;
             }
