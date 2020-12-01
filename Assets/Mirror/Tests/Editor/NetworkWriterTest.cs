@@ -1076,7 +1076,7 @@ namespace Mirror.Tests
             finally
             {
                 // teardown
-                NetworkIdentity.spawned[netId] = null;
+                NetworkIdentity.spawned.Remove(netId);
                 GameObject.DestroyImmediate(gameObject);
             }
         }
