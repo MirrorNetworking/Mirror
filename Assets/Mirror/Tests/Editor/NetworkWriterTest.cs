@@ -1043,5 +1043,42 @@ namespace Mirror.Tests
                 GameObject.DestroyImmediate(gameObject);
             }
         }
+
+        [Test]
+        [Description("Uses Generic read function to check weaver correctly creates it")]
+        public void TestNetworkBehaviourWeaverGenerated()
+        {
+            //setup
+            GameObject gameObject = new GameObject();
+            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
+            RpcNetworkIdentityBehaviour behaviour = gameObject.AddComponent<RpcNetworkIdentityBehaviour>();
+
+            const int netId = 100;
+            identity.netId = netId;
+            int compIndex = behaviour.ComponentIndex;
+
+            NetworkIdentity.spawned[netId] = identity;
+
+            try
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(behaviour);
+
+                byte[] bytes = writer.ToArray();
+
+                Assert.That(bytes.Length, Is.EqualTo(5), "Networkbehaviour should be 5 bytes long.");
+
+                NetworkReader reader = new NetworkReader(bytes);
+                RpcNetworkIdentityBehaviour actual = reader.Read<RpcNetworkIdentityBehaviour>();
+                Assert.That(actual, Is.EqualTo(behaviour), "Read should find the same behaviour as written");
+            }
+            // use finally so object is destroyed evne if tests fails
+            finally
+            {
+                // teardown
+                NetworkIdentity.spawned[netId] = null;
+                GameObject.DestroyImmediate(gameObject);
+            }
+        }
     }
 }
