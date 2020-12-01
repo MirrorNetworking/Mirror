@@ -158,9 +158,8 @@ namespace Mirror.Weaver
             }
             else
             {
-                throw new GenerateWriterException($"Could not find writer for NetworkBehaviour so could not" +
-                    $"Cannot generate writer for component type {variableReference.Name}. " +
-                    $"Use a supported type or provide a custom writer", variableReference);
+                // this exception only happens if mirror is missing the WriteNetworkBehaviour method
+                throw new MissingMethodException($"Could not find writer for NetworkBehaviour");
             }
         }
 
