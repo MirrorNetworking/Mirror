@@ -61,8 +61,7 @@ namespace Mirror.Tests
             Assert.That(reader, Is.Not.Null, "RpcNetworkIdentityBehaviour read function was not found");
 
             Func<NetworkReader, RpcNetworkIdentityBehaviour> action = NetworkReaderExtensions.ReadNetworkBehaviour<RpcNetworkIdentityBehaviour>;
-            Assert.That(reader.Method.Name, Is.EqualTo(action.Method.Name), "RpcNetworkIdentityBehaviour read function was incorrect value");
-            Assert.That(reader.Method.DeclaringType, Is.EqualTo(action.Method.DeclaringType), "RpcNetworkIdentityBehaviour read function was incorrect value");
+            Assert.That(reader, Is.EqualTo(action), "RpcNetworkIdentityBehaviour read function was incorrect value");
         }
     }
 }
