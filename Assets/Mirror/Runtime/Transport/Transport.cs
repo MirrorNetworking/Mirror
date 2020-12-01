@@ -37,6 +37,7 @@ namespace Mirror
     ///   </description></item>
     /// </list>
     /// </remarks>
+    [Obsolete("Use ClientTransport and ServerTransport instead")]
     public abstract class Transport : MonoBehaviour
     {
         /// <summary>
