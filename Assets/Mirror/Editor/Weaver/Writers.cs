@@ -8,22 +8,23 @@ namespace Mirror.Weaver
 {
     public static class Writers
     {
-        static Dictionary<string, MethodReference> writeFuncs;
+        static Dictionary<TypeReference, MethodReference> writeFuncs;
 
         public static void Init()
         {
-            writeFuncs = new Dictionary<string, MethodReference>();
+            writeFuncs = new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
         }
 
         public static void Register(TypeReference dataType, MethodReference methodReference)
         {
-            string typeName = dataType.FullName;
-            if (writeFuncs.ContainsKey(typeName))
+            if (writeFuncs.ContainsKey(dataType))
             {
-                Weaver.Warning($"Registering a Write method for {typeName} when one already exists", methodReference);
+                Weaver.Warning($"Registering a Write method for {dataType.FullName} when one already exists", methodReference);
             }
 
-            writeFuncs[typeName] = methodReference;
+            // we need to import type when we Initialize Writers so import here incase it is used anywhere else
+            TypeReference imported = Weaver.CurrentAssembly.MainModule.ImportReference(dataType);
+            writeFuncs[imported] = methodReference;
         }
 
         static void RegisterWriteFunc(TypeReference typeReference, MethodDefinition newWriterFunc)
@@ -41,7 +42,7 @@ namespace Mirror.Weaver
         /// <returns>Returns <see cref="MethodReference"/> or null</returns>
         public static MethodReference GetWriteFunc(TypeReference variable)
         {
-            if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
+            if (writeFuncs.TryGetValue(variable, out MethodReference foundFunc))
             {
                 return foundFunc;
             }
@@ -292,20 +293,20 @@ namespace Mirror.Weaver
             TypeReference actionRef = module.ImportReference(typeof(Action<,>));
             MethodReference actionConstructorRef = module.ImportReference(typeof(Action<,>).GetConstructors()[0]);
 
-            foreach (MethodReference writerMethod in writeFuncs.Values)
+            foreach (KeyValuePair<TypeReference, MethodReference> kvp in writeFuncs)
             {
-
-                TypeReference dataType = writerMethod.Parameters[1].ParameterType;
+                TypeReference targetType = kvp.Key;
+                MethodReference writeFunc = kvp.Value;
 
                 // create a Action<NetworkWriter, T> delegate
                 worker.Append(worker.Create(OpCodes.Ldnull));
-                worker.Append(worker.Create(OpCodes.Ldftn, writerMethod));
-                GenericInstanceType actionGenericInstance = actionRef.MakeGenericInstanceType(networkWriterRef, dataType);
+                worker.Append(worker.Create(OpCodes.Ldftn, writeFunc));
+                GenericInstanceType actionGenericInstance = actionRef.MakeGenericInstanceType(networkWriterRef, targetType);
                 MethodReference actionRefInstance = actionConstructorRef.MakeHostInstanceGeneric(actionGenericInstance);
                 worker.Append(worker.Create(OpCodes.Newobj, actionRefInstance));
 
                 // save it in Writer<T>.write
-                GenericInstanceType genericInstance = genericWriterClassRef.MakeGenericInstanceType(dataType);
+                GenericInstanceType genericInstance = genericWriterClassRef.MakeGenericInstanceType(targetType);
                 FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
                 worker.Append(worker.Create(OpCodes.Stsfld, specializedField));
             }

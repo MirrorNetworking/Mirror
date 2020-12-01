@@ -8,22 +8,23 @@ namespace Mirror.Weaver
 {
     public static class Readers
     {
-        static Dictionary<string, MethodReference> readFuncs;
+        static Dictionary<TypeReference, MethodReference> readFuncs;
 
         public static void Init()
         {
-            readFuncs = new Dictionary<string, MethodReference>();
+            readFuncs = new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
         }
 
         internal static void Register(TypeReference dataType, MethodReference methodReference)
         {
-            string typeName = dataType.FullName;
-            if (readFuncs.ContainsKey(typeName))
+            if (readFuncs.ContainsKey(dataType))
             {
-                Weaver.Warning($"Registering a Read method for {typeName} when one already exists", methodReference);
+                Weaver.Warning($"Registering a Read method for {dataType.FullName} when one already exists", methodReference);
             }
 
-            readFuncs[dataType.FullName] = methodReference;
+            // we need to import type when we Initialize Readers so import here incase it is used anywhere else
+            TypeReference imported = Weaver.CurrentAssembly.MainModule.ImportReference(dataType);
+            readFuncs[imported] = methodReference;
         }
 
         static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
@@ -41,7 +42,7 @@ namespace Mirror.Weaver
         /// <returns>Returns <see cref="MethodReference"/> or null</returns>
         public static MethodReference GetReadFunc(TypeReference variable)
         {
-            if (readFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
+            if (readFuncs.TryGetValue(variable, out MethodReference foundFunc))
             {
                 return foundFunc;
             }
@@ -322,19 +323,20 @@ namespace Mirror.Weaver
             TypeReference funcRef = module.ImportReference(typeof(Func<,>));
             MethodReference funcConstructorRef = module.ImportReference(typeof(Func<,>).GetConstructors()[0]);
 
-            foreach (MethodReference readFunc in readFuncs.Values)
+            foreach (KeyValuePair<TypeReference, MethodReference> kvp in readFuncs)
             {
-                TypeReference dataType = readFunc.ReturnType;
+                TypeReference targetType = kvp.Key;
+                MethodReference readFunc = kvp.Value;
 
                 // create a Func<NetworkReader, T> delegate
                 worker.Append(worker.Create(OpCodes.Ldnull));
                 worker.Append(worker.Create(OpCodes.Ldftn, readFunc));
-                GenericInstanceType funcGenericInstance = funcRef.MakeGenericInstanceType(networkReaderRef, dataType);
+                GenericInstanceType funcGenericInstance = funcRef.MakeGenericInstanceType(networkReaderRef, targetType);
                 MethodReference funcConstructorInstance = funcConstructorRef.MakeHostInstanceGeneric(funcGenericInstance);
                 worker.Append(worker.Create(OpCodes.Newobj, funcConstructorInstance));
 
-                // save it in Writer<T>.write
-                GenericInstanceType genericInstance = genericReaderClassRef.MakeGenericInstanceType(dataType);
+                // save it in Reader<T>.read
+                GenericInstanceType genericInstance = genericReaderClassRef.MakeGenericInstanceType(targetType);
                 FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
                 worker.Append(worker.Create(OpCodes.Stsfld, specializedField));
             }
