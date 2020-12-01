@@ -147,7 +147,7 @@ namespace Mirror.Weaver
 
         private static MethodReference GetNetworkBehaviourWriter(TypeReference variableReference)
         {
-            // all NB can use the same write func
+            // all NetworkBehaviours can use the same write function
             if (writeFuncs.TryGetValue(WeaverTypes.Import<NetworkBehaviour>(), out MethodReference func))
             {
                 // register function so it is added to writer<T>

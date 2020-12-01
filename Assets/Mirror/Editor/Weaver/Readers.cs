@@ -76,7 +76,8 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
                 return null;
             }
-            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>() && !variableReference.IsDerivedFrom<NetworkBehaviour>())
+            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>() &&
+                !variableReference.IsDerivedFrom<NetworkBehaviour>())
             {
                 Weaver.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;

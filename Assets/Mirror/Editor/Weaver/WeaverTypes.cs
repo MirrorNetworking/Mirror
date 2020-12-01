@@ -133,8 +133,8 @@ namespace Mirror.Weaver
             TypeReference readerExtensions = Import(typeof(NetworkReaderExtensions));
             readNetworkBehaviourGeneric = Resolvers.ResolveMethod(readerExtensions, currentAssembly, (md =>
             {
-                return md.Name == nameof(NetworkReaderExtensions.ReadNetworkBehaviour)
-                    && md.HasGenericParameters;
+                return md.Name == nameof(NetworkReaderExtensions.ReadNetworkBehaviour) &&
+                    md.HasGenericParameters;
             }));
         }
     }

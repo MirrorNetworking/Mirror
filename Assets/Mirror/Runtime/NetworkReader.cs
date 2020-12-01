@@ -315,7 +315,6 @@ namespace Mirror
             }
 
             byte componentIndex = reader.ReadByte();
-
             return identity.NetworkBehaviours[componentIndex];
         }
 
