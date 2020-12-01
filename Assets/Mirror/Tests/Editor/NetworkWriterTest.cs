@@ -1045,6 +1045,21 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestNetworkBehaviourNull()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteNetworkBehaviour(null);
+
+            byte[] bytes = writer.ToArray();
+
+            Assert.That(bytes.Length, Is.EqualTo(4), "null Networkbehaviour should be 4 bytes long.");
+
+            NetworkReader reader = new NetworkReader(bytes);
+            RpcNetworkIdentityBehaviour actual = reader.ReadNetworkBehaviour<RpcNetworkIdentityBehaviour>();
+            Assert.That(actual, Is.EqualTo(null), "Read should find the same behaviour as written");
+        }
+
+        [Test]
         [Description("Uses Generic read function to check weaver correctly creates it")]
         public void TestNetworkBehaviourWeaverGenerated()
         {
