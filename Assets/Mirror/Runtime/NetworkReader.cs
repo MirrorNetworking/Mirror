@@ -317,7 +317,7 @@ namespace Mirror
 
             if (!NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
             {
-                if (logger.WarnEnabled()) logger.LogFormat(LogType.Warning, "ReadNetworkIdentity netId:{0} not found in spawned", netId);
+                if (logger.WarnEnabled()) logger.LogFormat(LogType.Warning, "ReadNetworkBehaviour netId:{0} not found in spawned", netId);
                 return null;
             }
 
