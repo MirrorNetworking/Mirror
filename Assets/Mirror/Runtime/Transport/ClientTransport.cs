@@ -81,7 +81,7 @@ namespace Mirror
         /// <summary>
         /// Disconnect this client from the server
         /// </summary>
-        public abstract void ClientDisconnect();
+        public abstract void Disconnect();
 
         /// <summary>
         /// The maximum packet size for a given channel.  Unreliable transports
