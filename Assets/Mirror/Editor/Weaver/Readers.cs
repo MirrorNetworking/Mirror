@@ -142,10 +142,7 @@ namespace Mirror.Weaver
             // uses generic ReadNetworkBehaviour rather than having weaver create one for each NB
             MethodReference generic = WeaverTypes.readNetworkBehaviourGeneric;
 
-            GenericInstanceMethod instance = new GenericInstanceMethod(generic);
-            instance.GenericArguments.Add(variableReference);
-
-            MethodReference readFunc = Weaver.CurrentAssembly.MainModule.ImportReference(instance);
+            MethodReference readFunc = generic.MakeGeneric(variableReference);
 
             // register function so it is added to Reader<T>
             // use Register instead of RegisterWriteFunc because this is not a generated function
