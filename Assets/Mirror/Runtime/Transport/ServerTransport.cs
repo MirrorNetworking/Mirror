@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace Mirror
@@ -106,11 +106,6 @@ namespace Mirror
         /// <returns>the size in bytes that can be sent via the provided channel</returns>
         public abstract int GetMaxPacketSize(int channelId = Channels.DefaultReliable);
 
-        /// <summary>
-        /// Shut down the transport, both as client and server
-        /// </summary>
-        public abstract void Shutdown();
-
         // block Update() to force Transports to use LateUpdate to avoid race
         // conditions. messages should be processed after all the game state
         // was processed in Update.
@@ -139,7 +134,7 @@ namespace Mirror
             // (when pressing Stop in the Editor, Unity keeps threads alive
             //  until we press Start again. so if Transports use threads, we
             //  really want them to end now and not after next start)
-            Shutdown();
+            Stop();
         }
     }
 }
