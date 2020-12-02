@@ -329,6 +329,20 @@ namespace Mirror
             return reader.ReadNetworkBehaviour() as T;
         }
 
+        public static NetworkBehaviour.NetworkBehaviourSyncVar ReadNetworkBehaviourSyncVar(this NetworkReader reader)
+        {
+            uint netId = reader.ReadUInt32();
+            byte componentIndex = default;
+
+            // if netId is not 0, then index is also sent to read before returning
+            if (netId != 0)
+            {
+                componentIndex = reader.ReadByte();
+            }
+
+            return new NetworkBehaviour.NetworkBehaviourSyncVar(netId, componentIndex);
+        }
+
         public static List<T> ReadList<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt32();

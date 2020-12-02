@@ -90,7 +90,8 @@ namespace Mirror.Weaver
         public static bool IsNetworkIdentityField(this TypeReference tr)
         {
             return tr.Is<UnityEngine.GameObject>()
-                || tr.Is<NetworkIdentity>();
+                || tr.Is<NetworkIdentity>()
+                || tr.IsDerivedFrom<NetworkBehaviour>();
         }
 
         public static bool CanBeResolved(this TypeReference parent)
