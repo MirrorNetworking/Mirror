@@ -308,13 +308,19 @@ namespace Mirror
 
         public static NetworkBehaviour ReadNetworkBehaviour(this NetworkReader reader)
         {
-            NetworkIdentity identity = reader.ReadNetworkIdentity();
-            if (identity == null)
+            uint netId = reader.ReadUInt32();
+            if (netId == 0)
+                return null;
+
+            // if netId is not 0, then index is also sent to read before returning
+            byte componentIndex = reader.ReadByte();
+
+            if (!NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
             {
+                if (logger.WarnEnabled()) logger.LogFormat(LogType.Warning, "ReadNetworkIdentity netId:{0} not found in spawned", netId);
                 return null;
             }
 
-            byte componentIndex = reader.ReadByte();
             return identity.NetworkBehaviours[componentIndex];
         }
 
