@@ -54,6 +54,8 @@ namespace Mirror.Weaver
         public static MethodReference sendRpcInternal;
         public static MethodReference sendTargetRpcInternal;
 
+        public static MethodReference readNetworkBehaviourGeneric;
+
         private static AssemblyDefinition currentAssembly;
 
         public static TypeReference Import<T>() => Import(typeof(T));
@@ -127,6 +129,13 @@ namespace Mirror.Weaver
             sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SendTargetRPCInternal");
 
             InitSyncObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "InitSyncObject");
+
+            TypeReference readerExtensions = Import(typeof(NetworkReaderExtensions));
+            readNetworkBehaviourGeneric = Resolvers.ResolveMethod(readerExtensions, currentAssembly, (md =>
+            {
+                return md.Name == nameof(NetworkReaderExtensions.ReadNetworkBehaviour) &&
+                    md.HasGenericParameters;
+            }));
         }
     }
 }

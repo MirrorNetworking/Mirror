@@ -48,5 +48,11 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
         }
+
+        [Test]
+        public void BehaviourCanBeSentInRpc()
+        {
+            IsSuccess();
+        }
     }
 }

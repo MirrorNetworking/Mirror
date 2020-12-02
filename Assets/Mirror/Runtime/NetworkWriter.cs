@@ -360,6 +360,17 @@ namespace Mirror
             writer.WriteUInt32(value.netId);
         }
 
+        public static void WriteNetworkBehaviour(this NetworkWriter writer, NetworkBehaviour value)
+        {
+            if (value == null)
+            {
+                writer.WriteUInt32(0);
+                return;
+            }
+            writer.WriteUInt32(value.netId);
+            writer.WriteByte((byte)value.ComponentIndex);
+        }
+
         public static void WriteTransform(this NetworkWriter writer, Transform value)
         {
             if (value == null)

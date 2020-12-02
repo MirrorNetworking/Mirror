@@ -105,6 +105,11 @@ namespace Mirror.Weaver
                 return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteList));
             }
 
+            if (variableReference.IsDerivedFrom<NetworkBehaviour>())
+            {
+                return GetNetworkBehaviourWriter(variableReference);
+            }
+
             // check for invalid types
             TypeDefinition variableDefinition = variableReference.Resolve();
             if (variableDefinition == null)
@@ -138,6 +143,24 @@ namespace Mirror.Weaver
 
             // generate writer for class/struct
             return GenerateClassOrStructWriterFunction(variableReference);
+        }
+
+        private static MethodReference GetNetworkBehaviourWriter(TypeReference variableReference)
+        {
+            // all NetworkBehaviours can use the same write function
+            if (writeFuncs.TryGetValue(WeaverTypes.Import<NetworkBehaviour>(), out MethodReference func))
+            {
+                // register function so it is added to writer<T>
+                // use Register instead of RegisterWriteFunc because this is not a generated function
+                Register(variableReference, func);
+
+                return func;
+            }
+            else
+            {
+                // this exception only happens if mirror is missing the WriteNetworkBehaviour method
+                throw new MissingMethodException($"Could not find writer for NetworkBehaviour");
+            }
         }
 
         private static MethodDefinition GenerateEnumWriteFunc(TypeReference variable)

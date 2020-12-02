@@ -76,7 +76,8 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
                 return null;
             }
-            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
+            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>() &&
+                !variableReference.IsDerivedFrom<NetworkBehaviour>())
             {
                 Weaver.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 return null;
@@ -128,8 +129,29 @@ namespace Mirror.Weaver
 
                 return GenerateReadCollection(variableReference, elementType, nameof(NetworkReaderExtensions.ReadList));
             }
+            else if (variableReference.IsDerivedFrom<NetworkBehaviour>())
+            {
+                return GetNetworkBehaviourReader(variableReference);
+            }
 
             return GenerateClassOrStructReadFunction(variableReference);
+        }
+
+        private static MethodReference GetNetworkBehaviourReader(TypeReference variableReference)
+        {
+            // uses generic ReadNetworkBehaviour rather than having weaver create one for each NB
+            MethodReference generic = WeaverTypes.readNetworkBehaviourGeneric;
+
+            GenericInstanceMethod instance = new GenericInstanceMethod(generic);
+            instance.GenericArguments.Add(variableReference);
+
+            MethodReference readFunc = Weaver.CurrentAssembly.MainModule.ImportReference(instance);
+
+            // register function so it is added to Reader<T>
+            // use Register instead of RegisterWriteFunc because this is not a generated function
+            Register(variableReference, readFunc);
+
+            return readFunc;
         }
 
         static MethodDefinition GenerateEnumReadFunc(TypeReference variable)
