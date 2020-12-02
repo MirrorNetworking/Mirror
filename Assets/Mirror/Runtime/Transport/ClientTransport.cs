@@ -76,7 +76,7 @@ namespace Mirror
         /// but some transports might want to provide unreliable, encrypted, compressed, or any other feature
         /// as new channels</param>
         /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
-        public abstract void ClientSend(int channelId, ArraySegment<byte> segment);
+        public abstract void Send(int channelId, ArraySegment<byte> segment);
 
         /// <summary>
         /// Disconnect this client from the server
