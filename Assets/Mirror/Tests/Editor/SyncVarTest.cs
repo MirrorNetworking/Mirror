@@ -297,6 +297,7 @@ namespace Mirror.Tests.SyncVarTests
         [Test]
         [TestCase(true)]
         [TestCase(false)]
+        [Ignore("Transform backing field has not been implemented yet")]
         public void SyncVarCacheNetidForTransform(bool initialState)
         {
             SyncVarCacheNetidForGeneric<SyncVarTransform, Transform>(
