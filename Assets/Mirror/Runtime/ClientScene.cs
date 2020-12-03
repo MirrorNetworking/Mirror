@@ -951,22 +951,29 @@ namespace Mirror
             {
                 localObject.OnStopClient();
 
-                if (!InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
+                // user handling
+                if (InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
                 {
-                    // default handling
-                    if (localObject.sceneId == 0)
-                    {
-                        Object.Destroy(localObject.gameObject);
-                    }
-                    else
-                    {
-                        // scene object.. disable it in scene instead of destroying
-                        localObject.gameObject.SetActive(false);
-                        spawnableObjects[localObject.sceneId] = localObject;
-                    }
+                    // reset object after user's handler
+                    localObject.Reset();
                 }
+                // default handling
+                else if (localObject.sceneId == 0)
+                {
+                    // dont call reset before destroy so that values are still set in OnDestroy
+                    Object.Destroy(localObject.gameObject);
+                }
+                // scene object.. disable it in scene instead of destroying
+                else
+                {
+                    localObject.gameObject.SetActive(false);
+                    spawnableObjects[localObject.sceneId] = localObject;
+                    // reset for scene objects
+                    localObject.Reset();
+                }
+
+                // remove from dictionary no matter how it is unspawned
                 NetworkIdentity.spawned.Remove(netId);
-                localObject.Reset();
             }
             else
             {
