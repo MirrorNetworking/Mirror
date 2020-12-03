@@ -32,11 +32,10 @@ namespace Mirror
         public int offsetY;
         
         /// <summary>
-        /// Outputs the current devices IP to gui input, useful if your are host/server.
-        /// Only use the WAN check when necessary, as it uses an external service.
+        /// Outputs the current devices IP to gui input, only use the WAN check when necessary, as it uses an external service.
         /// For further connection information, visit: https://mirror-networking.com/docs/Articles/FAQ.html#how-to-connect
         /// </summary>
-        [Tooltip("localhost for games on same device, LAN for different devices same wifi, WAN for external connections. See summary for more information.")]
+        [Tooltip("Localhost for games on same device, LAN for different devices same wifi, WAN for external connections. See summary for more information.")]
         [SerializeField]
         private IPType _IPType = IPType.localhost;
         private string inputField; 
