@@ -32,18 +32,22 @@ namespace Mirror
         public int offsetY;
         
         /// <summary>
-        /// Displays this devices IP information, useful if your are host/server.
-        /// Only use this check when necessary, as it uses an external service for WAN.
+        /// Outputs the current devices IP to gui input, useful if your are host/server.
+        /// Only use the WAN check when necessary, as it uses an external service.
         /// For further connection information, visit: https://mirror-networking.com/docs/Articles/FAQ.html#how-to-connect
         /// </summary>
-        [Tooltip("True displays your LAN and WAN IP address for debugging purposes in console log. See summary for more information.")]
-        public bool getIPInformation = false;
+        [Tooltip("localhost for games on same device, LAN for different devices same wifi, WAN for external connections. See summary for more information.")]
+        [SerializeField]
+        private IPType _IPType = IPType.localhost;
+        private string inputField; 
+        [System.Serializable]
+        private enum IPType : int { localhost = 0, LAN = 1, WAN = 2 }
 
         void Awake()
         {
             manager = GetComponent<NetworkManager>();
 
-            if (getIPInformation) { StartCoroutine(GetIPInformation()); }
+            if (_IPType != IPType.localhost) { StartCoroutine(SetIPInformation()); }
         }
 
         void OnGUI()
@@ -99,7 +103,8 @@ namespace Mirror
                 {
                     manager.StartClient();
                 }
-                manager.networkAddress = GUILayout.TextField(manager.networkAddress);
+                inputField = manager.networkAddress;
+                manager.networkAddress = GUILayout.TextField(inputField);
                 GUILayout.EndHorizontal();
 
                 // Server Only
@@ -165,23 +170,32 @@ namespace Mirror
             }
         }
         
-        System.Collections.IEnumerator GetIPInformation()
+        System.Collections.IEnumerator SetIPInformation()
         {
-            using (UnityEngine.Networking.UnityWebRequest webRequest = UnityEngine.Networking.UnityWebRequest.Get("https://api.ipify.org/"))
+            if (_IPType == IPType.LAN)
             {
-                yield return webRequest.SendWebRequest();
-    
-                if (webRequest.isNetworkError || webRequest.isHttpError || webRequest.downloadHandler.text == "")
-                { Debug.Log("Public (WAN) IP Error: " + webRequest.error); }
-                else { Debug.Log("Public (WAN) IP: " + webRequest.downloadHandler.text); }
+                using (System.Net.Sockets.Socket socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, 0))
+                {
+                    socket.Connect("8.8.8.8", 65530);
+                    System.Net.IPEndPoint endPoint = socket.LocalEndPoint as System.Net.IPEndPoint;
+                   // Debug.Log("Local Area Network (LAN) IP: " + endPoint.Address.ToString());
+                    inputField = endPoint.Address.ToString();
+                   
+                }
             }
-            
-            using (System.Net.Sockets.Socket socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, 0))
+            else if (_IPType == IPType.WAN)
             {
-                socket.Connect("8.8.8.8", 65530);
-                System.Net.IPEndPoint endPoint = socket.LocalEndPoint as System.Net.IPEndPoint;
-                Debug.Log("Local Area Network (LAN) IP: " + endPoint.Address.ToString());
+                using (UnityEngine.Networking.UnityWebRequest webRequest = UnityEngine.Networking.UnityWebRequest.Get("https://api.ipify.org/"))
+                {
+                    yield return webRequest.SendWebRequest();
+
+                    if (webRequest.isNetworkError || webRequest.isHttpError || webRequest.downloadHandler.text == "")
+                    { Debug.Log("Public (WAN) IP Error: " + webRequest.error); }
+                    //else { Debug.Log("Public (WAN) IP: " + webRequest.downloadHandler.text); }
+                    inputField = webRequest.downloadHandler.text.ToString();
+                }
             }
+            manager.networkAddress = inputField;
         }
     }
 }
