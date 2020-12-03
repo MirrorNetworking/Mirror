@@ -963,9 +963,9 @@ namespace Mirror
                     // dont call reset before destroy so that values are still set in OnDestroy
                     Object.Destroy(localObject.gameObject);
                 }
+                // scene object.. disable it in scene instead of destroying
                 else
                 {
-                    // scene object.. disable it in scene instead of destroying
                     localObject.gameObject.SetActive(false);
                     spawnableObjects[localObject.sceneId] = localObject;
                     // reset for scene objects
