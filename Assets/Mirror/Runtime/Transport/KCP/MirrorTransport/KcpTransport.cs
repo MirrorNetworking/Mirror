@@ -42,6 +42,7 @@ namespace kcp2k
         {
             // logging
             if (debugLog) Log.Info = Debug.Log;
+            else Log.Info = (_) => { };
             Log.Warning = Debug.LogWarning;
             Log.Error = Debug.LogError;
 
