@@ -100,11 +100,6 @@ namespace Mirror
         {
             if (!NetworkClient.active)
             {
-                if (GUILayout.Button($"IP Type : {_ipType[_ipTypeSelectedIndex]}"))
-                {
-                    _ShowIpTypeDropdown = !_ShowIpTypeDropdown;
-                }
-
                 if (_ShowIpTypeDropdown)
                 {
                       using (var scope = new GUILayout.ScrollViewScope(scrollViewVector))
@@ -162,6 +157,11 @@ namespace Mirror
                 else
                 {
                     if (GUILayout.Button("Server Only")) manager.StartServer();
+                }
+                
+                if (GUILayout.Button($"IP Type : {_ipType[_ipTypeSelectedIndex]}"))
+                {
+                    _ShowIpTypeDropdown = !_ShowIpTypeDropdown;
                 }
             }
             else
