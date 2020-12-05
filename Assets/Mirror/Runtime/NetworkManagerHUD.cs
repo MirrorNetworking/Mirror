@@ -1,5 +1,7 @@
 // vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
 // confusion if someone accidentally presses one.
+using System.Collections;
+using System.Net;
 using UnityEngine;
 
 namespace Mirror
@@ -189,17 +191,17 @@ namespace Mirror
 
         private void GetLanAddress()
         {
-            string hostName = System.Net.Dns.GetHostName();
-            System.Net.IPAddress iPAddress = System.Net.Dns.GetHostEntry(hostName).AddressList[0];
+            string hostName = Dns.GetHostName();
+            IPAddress iPAddress = Dns.GetHostEntry(hostName).AddressList[0];
             
             if (hostName != "" && iPAddress != null && iPAddress.ToString() != "")
             {
-                inputField = System.Net.Dns.GetHostEntry(hostName).AddressList[0].ToString();
+                inputField = Dns.GetHostEntry(hostName).AddressList[0].ToString();
                 manager.networkAddress = inputField;
             }
         }
         
-        System.Collections.IEnumerator GetWanAddress()
+        IEnumerator GetWanAddress()
         {
             using (UnityEngine.Networking.UnityWebRequest webRequest = UnityEngine.Networking.UnityWebRequest.Get("https://api.ipify.org/"))
             {
