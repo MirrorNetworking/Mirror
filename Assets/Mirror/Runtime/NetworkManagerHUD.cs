@@ -1,5 +1,7 @@
 // vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
 // confusion if someone accidentally presses one.
+
+using System;
 using System.Collections;
 using System.Net;
 using UnityEngine;
@@ -32,7 +34,7 @@ namespace Mirror
         /// The vertical offset in pixels to draw the HUD runtime GUI at.
         /// </summary>
         public int offsetY;
-        
+
         /// <summary>
         /// Outputs the current devices IP to gui input, useful if your are host/server.
         /// Only use the WAN check when necessary, as it uses an external service.
@@ -41,15 +43,23 @@ namespace Mirror
         [Tooltip("localhost for games on same device, LAN for different devices same wifi, WAN for external connections. See summary for more information.")]
         [SerializeField]
         private IPType _IPType = IPType.localhost;
-        private string inputField; 
+        private string inputField;
         [System.Serializable]
         private enum IPType : int { localhost = 0, LAN = 1, WAN = 2 }
+        private string wanIP = "";
+
+        private string[] _ipType;
+        private int _ipTypeSelectedIndex = 0;
+        private bool _ShowIpTypeDropdown;
+        private Vector2 scrollViewVector = Vector2.zero;
 
         void Awake()
         {
             manager = GetComponent<NetworkManager>();
 
             SetIPInformation();
+
+            _ipType = Enum.GetNames(typeof(IPType));
         }
 
         void OnGUI()
@@ -90,6 +100,40 @@ namespace Mirror
         {
             if (!NetworkClient.active)
             {
+                if (GUILayout.Button($"IP Type : {_ipType[_ipTypeSelectedIndex]}"))
+                {
+                    _ShowIpTypeDropdown = !_ShowIpTypeDropdown;
+                }
+
+                if (_ShowIpTypeDropdown)
+                {
+                      using (var scope = new GUILayout.ScrollViewScope(scrollViewVector))
+                      {
+                        scrollViewVector = scope.scrollPosition;
+
+                        GUILayout.Box("");
+                        {
+                            for (int index = 0; index < _ipType.Length; index++)
+                            {
+                                if (!GUILayout.Button(_ipType[index]))
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    if (index == 0) { _IPType = IPType.localhost; }
+                                    else if (index == 1) { _IPType = IPType.LAN; }
+                                    else if (index == 2) { _IPType = IPType.WAN; }
+                                    SetIPInformation();
+                                }
+
+                                _ShowIpTypeDropdown = false;
+                                _ipTypeSelectedIndex = index;
+                            }
+                        }
+                    }
+                }
+
                 // Server + Client
                 if (Application.platform != RuntimePlatform.WebGLPlayer)
                 {
@@ -171,7 +215,7 @@ namespace Mirror
                 }
             }
         }
-        
+
         void SetIPInformation()
         {
             if (_IPType == IPType.localhost)
@@ -193,16 +237,18 @@ namespace Mirror
         {
             string hostName = Dns.GetHostName();
             IPAddress iPAddress = Dns.GetHostEntry(hostName).AddressList[0];
-            
+
             if (hostName != "" && iPAddress != null && iPAddress.ToString() != "")
             {
                 inputField = Dns.GetHostEntry(hostName).AddressList[0].ToString();
                 manager.networkAddress = inputField;
             }
         }
-        
+
         IEnumerator GetWanAddress()
         {
+            if (wanIP != "") { inputField = wanIP; yield break; }
+            
             using (UnityEngine.Networking.UnityWebRequest webRequest = UnityEngine.Networking.UnityWebRequest.Get("https://api.ipify.org/"))
             {
                 yield return webRequest.SendWebRequest();
@@ -213,8 +259,9 @@ namespace Mirror
                 }
                 else
                 {
-                    inputField = webRequest.downloadHandler.text;
-                    manager.networkAddress = inputField;
+                    wanIP = webRequest.downloadHandler.text;
+                    inputField = wanIP;
+                    manager.networkAddress = wanIP;
                 }
             }
         }
