@@ -32,10 +32,11 @@ namespace Mirror
         public int offsetY;
         
         /// <summary>
-        /// Outputs the current devices IP to gui input, only use the WAN check when necessary, as it uses an external service.
+        /// Outputs the current devices IP to gui input, useful if your are host/server.
+        /// Only use the WAN check when necessary, as it uses an external service.
         /// For further connection information, visit: https://mirror-networking.com/docs/Articles/FAQ.html#how-to-connect
         /// </summary>
-        [Tooltip("Localhost for games on same device, LAN for different devices same wifi, WAN for external connections. See summary for more information.")]
+        [Tooltip("localhost for games on same device, LAN for different devices same wifi, WAN for external connections. See summary for more information.")]
         [SerializeField]
         private IPType _IPType = IPType.localhost;
         private string inputField; 
@@ -46,7 +47,7 @@ namespace Mirror
         {
             manager = GetComponent<NetworkManager>();
 
-            if (_IPType != IPType.localhost) { StartCoroutine(SetIPInformation()); }
+            SetIPInformation();
         }
 
         void OnGUI()
@@ -169,32 +170,51 @@ namespace Mirror
             }
         }
         
-        System.Collections.IEnumerator SetIPInformation()
+        void SetIPInformation()
         {
-            if (_IPType == IPType.LAN)
+            if (_IPType == IPType.localhost)
             {
-                using (System.Net.Sockets.Socket socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, 0))
-                {
-                    socket.Connect("8.8.8.8", 65530);
-                    System.Net.IPEndPoint endPoint = socket.LocalEndPoint as System.Net.IPEndPoint;
-                   // Debug.Log("Local Area Network (LAN) IP: " + endPoint.Address.ToString());
-                    inputField = endPoint.Address.ToString();
-                   
-                }
+                inputField = "localhost";
+                manager.networkAddress = inputField;
+            }
+            else if (_IPType == IPType.LAN)
+            {
+                GetLanAddress();
             }
             else if (_IPType == IPType.WAN)
             {
-                using (UnityEngine.Networking.UnityWebRequest webRequest = UnityEngine.Networking.UnityWebRequest.Get("https://api.ipify.org/"))
-                {
-                    yield return webRequest.SendWebRequest();
+                StartCoroutine(GetWanAddress());
+            }
+        }
 
-                    if (webRequest.isNetworkError || webRequest.isHttpError || webRequest.downloadHandler.text == "")
-                    { Debug.Log("Public (WAN) IP Error: " + webRequest.error); }
-                    //else { Debug.Log("Public (WAN) IP: " + webRequest.downloadHandler.text); }
-                    inputField = webRequest.downloadHandler.text.ToString();
+        private void GetLanAddress()
+        {
+            string hostName = System.Net.Dns.GetHostName();
+            System.Net.IPAddress iPAddress = System.Net.Dns.GetHostEntry(hostName).AddressList[0];
+            
+            if (hostName != "" && iPAddress != null && iPAddress.ToString() != "")
+            {
+                inputField = System.Net.Dns.GetHostEntry(hostName).AddressList[0].ToString();
+                manager.networkAddress = inputField;
+            }
+        }
+        
+        System.Collections.IEnumerator GetWanAddress()
+        {
+            using (UnityEngine.Networking.UnityWebRequest webRequest = UnityEngine.Networking.UnityWebRequest.Get("https://api.ipify.org/"))
+            {
+                yield return webRequest.SendWebRequest();
+
+                if (webRequest.isNetworkError || webRequest.isHttpError || webRequest.downloadHandler.text == "")
+                {
+                    Debug.Log("Public (WAN) IP Error: " + webRequest.error);
+                }
+                else
+                {
+                    inputField = webRequest.downloadHandler.text;
+                    manager.networkAddress = inputField;
                 }
             }
-            manager.networkAddress = inputField;
         }
     }
 }
