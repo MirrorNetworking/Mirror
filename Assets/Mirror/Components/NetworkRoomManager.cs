@@ -125,7 +125,7 @@ namespace Mirror
             base.OnValidate();
         }
 
-        internal void ReadyStatusChanged()
+        public void ReadyStatusChanged()
         {
             int CurrentPlayers = 0;
             int ReadyPlayers = 0;
