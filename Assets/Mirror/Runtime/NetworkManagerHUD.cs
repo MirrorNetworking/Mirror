@@ -100,31 +100,40 @@ namespace Mirror
         {
             if (!NetworkClient.active)
             {
+            
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label($"IP Type : {_ipType[_ipTypeSelectedIndex]}");
+                    {
+                        if (GUILayout.Button("▼"))
+                        {
+                            _ShowIpTypeDropdown = !_ShowIpTypeDropdown;
+                        }
+                    }
+                }
+                GUILayout.EndHorizontal();
+
                 if (_ShowIpTypeDropdown)
                 {
-                      using (var scope = new GUILayout.ScrollViewScope(scrollViewVector))
-                      {
+                    using (GUILayout.ScrollViewScope scope = new GUILayout.ScrollViewScope(scrollViewVector))
+                    {
                         scrollViewVector = scope.scrollPosition;
-
-                        GUILayout.Box("");
+                        for (int index = 0; index < _ipType.Length; index++)
                         {
-                            for (int index = 0; index < _ipType.Length; index++)
+                            if (!GUILayout.Button(_ipType[index]))
                             {
-                                if (!GUILayout.Button(_ipType[index]))
-                                {
-                                    continue;
-                                }
-                                else
-                                {
-                                    if (index == 0) { _IPType = IPType.localhost; }
-                                    else if (index == 1) { _IPType = IPType.LAN; }
-                                    else if (index == 2) { _IPType = IPType.WAN; }
-                                    SetIPInformation();
-                                }
-
-                                _ShowIpTypeDropdown = false;
-                                _ipTypeSelectedIndex = index;
+                                continue;
                             }
+                            else
+                            {
+                                if (index == 0) { _IPType = IPType.localhost; }
+                                else if (index == 1) { _IPType = IPType.LAN; }
+                                else if (index == 2) { _IPType = IPType.WAN; }
+                                SetIPInformation();
+                            }
+
+                            _ShowIpTypeDropdown = false;
+                            _ipTypeSelectedIndex = index;
                         }
                     }
                 }
@@ -142,10 +151,12 @@ namespace Mirror
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Client"))
                 {
+                    manager.networkAddress = inputField;
                     manager.StartClient();
                 }
-                inputField = manager.networkAddress;
-                manager.networkAddress = GUILayout.TextField(inputField);
+                
+                inputField = GUILayout.TextField(inputField);
+                
                 GUILayout.EndHorizontal();
 
                 // Server Only
@@ -158,16 +169,11 @@ namespace Mirror
                 {
                     if (GUILayout.Button("Server Only")) manager.StartServer();
                 }
-                
-                if (GUILayout.Button($"IP Type : {_ipType[_ipTypeSelectedIndex]}"))
-                {
-                    _ShowIpTypeDropdown = !_ShowIpTypeDropdown;
-                }
             }
             else
             {
                 // Connecting
-                GUILayout.Label("Connecting to " + manager.networkAddress + "..");
+                GUILayout.Label("Connecting to " + inputField + "..");
                 if (GUILayout.Button("Cancel Connection Attempt"))
                 {
                     manager.StopClient();
@@ -182,9 +188,13 @@ namespace Mirror
             {
                 GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
             }
-            if (NetworkClient.isConnected)
+            if (NetworkServer.active)
             {
-                GUILayout.Label("Client: address=" + manager.networkAddress);
+                GUILayout.Label("Server address: " + inputField);
+            }
+            else if (NetworkClient.isConnected)
+            {
+                GUILayout.Label("Connected to: " + manager.networkAddress);
             }
         }
 
