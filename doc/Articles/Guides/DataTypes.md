@@ -148,14 +148,14 @@ public static class ItemSerializer
         {
             writer.WriteByte(WEAPON);
             writer.WriteString(weapon.name);
-            writer.WritePackedInt32(weapon.hitPoints);
+            writer.WriteInt32(weapon.hitPoints);
         }
         else if (item is Armor armor)
         {
             writer.WriteByte(ARMOR);
             writer.WriteString(armor.name);
-            writer.WritePackedInt32(armor.hitPoints);
-            writer.WritePackedInt32(armor.level);
+            writer.WriteInt32(armor.hitPoints);
+            writer.WriteInt32(armor.level);
         }
     }
 
@@ -168,14 +168,14 @@ public static class ItemSerializer
                 return new Weapon
                 {
                     name = reader.ReadString(),
-                    hitPoints = reader.ReadPackedInt32()
+                    hitPoints = reader.ReadInt32()
                 };
             case ARMOR:
                 return new Armor
                 {
                     name = reader.ReadString(),
-                    hitPoints = reader.ReadPackedInt32(),
-                    level = reader.ReadPackedInt32()
+                    hitPoints = reader.ReadInt32(),
+                    level = reader.ReadInt32()
                 };
             default:
                 throw new Exception($"Invalid weapon type {type}");
