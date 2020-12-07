@@ -476,6 +476,20 @@ namespace Mirror
             return false;
         }
 
+        /// <summary>
+        /// Used to check if the behaviour has a dirty bit ignoring syncInterval
+        /// </summary>
+        /// <param name="dirtyBit"></param>
+        /// <returns></returns>
+        public bool HasDirtybit()
+        {
+            return syncVarDirtyBits != 0;
+        }
+
+        /// <summary>
+        /// Checks if behaviour is dirty and has been syncInterval since last sync
+        /// </summary>
+        /// <returns></returns>
         public bool IsDirty()
         {
             if (Time.time - lastSyncTime >= syncInterval)
