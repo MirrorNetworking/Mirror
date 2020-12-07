@@ -40,7 +40,7 @@ namespace Mirror
         /// Only use the WAN check when necessary, as it uses an external service.
         /// For further connection information, visit: https://mirror-networking.com/docs/Articles/FAQ.html#how-to-connect
         /// </summary>
-        [Tooltip("localhost for games on same device, LAN for different devices same wifi, WAN for external connections. See summary for more information.")]
+        [Tooltip("localhost for games on same device, LAN for different devices same network, WAN for external connections. See summary for more information.")]
         [SerializeField]
         private IPType _IPType = IPType.localhost;
         private string inputField;
