@@ -44,7 +44,21 @@ namespace Mirror
         [Tooltip("If rotation exceeds this angle, it will be transmitted on the network")]
         public float localRotationSensitivity = .01f;
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
-        public float localScaleSensitivity = .01f;
+        public float localScaleSensitivity = .01f; 
+        
+        [Header("Other")]
+        //Off by default, it should be very rare cases that people want continuous scale sync, instantly saves ~25% bandwidth (12 bytes)
+        //Best to send change of scale via cmd/rpc, syncvar/hooks, only when required.
+        [Tooltip("Prevent scale data being sent un-necessarily over the network.")]
+        public bool sendScale = false;
+        static bool sendScaleStatic = false;
+        
+        //The crunch lowers the 3 floats (4 bytes each), to short (2 bytes each), lowering position data sent by half
+        //2 decimal places roundup provides enough close range precision for no noticable jitter, at the extent of small Network Position range limitation.
+        //If a Network Transform goes outside of this range, it appears at the inverse, so 328 will move to -327, no noticable problems other than that.
+        [Tooltip("Use only for small maps where Network Transform movement range is between (-327 , 327).  Rounds to 2 decimal places, halves position data compared to non-crunched")]
+        public bool crunchBandwidth = false;
+        static bool crunchBandwidthStatic = false;
 
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
@@ -70,6 +84,12 @@ namespace Mirror
 
         // local authority send time
         float lastClientSendTime;
+        
+        void Awake()
+        {
+            sendScaleStatic = sendScale;
+            crunchBandwidthStatic = crunchBandwidth;
+        }
 
         // serialization is needed by OnSerialize and by manual sending from authority
         // public only for tests
@@ -78,9 +98,18 @@ namespace Mirror
             // serialize position, rotation, scale
             // => compress rotation from 4*4=16 to 4 bytes
             // => less bandwidth = better CCU tests / scale
-            writer.WriteVector3(position);
+            if (crunchBandwidthStatic)
+            {
+                writer.WriteInt16(Compression.CompressPosition(position.x));
+                writer.WriteInt16(Compression.CompressPosition(position.y));
+                writer.WriteInt16(Compression.CompressPosition(position.z));
+            }
+            else
+            {
+                writer.WriteVector3(position);
+            }
             writer.WriteUInt32(Compression.CompressQuaternion(rotation));
-            writer.WriteVector3(scale);
+            if (sendScaleStatic) { writer.WriteVector3(scale); }
         }
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
@@ -107,15 +136,54 @@ namespace Mirror
         void DeserializeFromReader(NetworkReader reader)
         {
             // put it into a data point immediately
-            DataPoint temp = new DataPoint
+            // deserialize position, rotation, scale
+            // (rotation is compressed)
+                    
+            DataPoint temp;
+            if (crunchBandwidthStatic)
             {
-                // deserialize position, rotation, scale
-                // (rotation is compressed)
-                localPosition = reader.ReadVector3(),
-                localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
-                localScale = reader.ReadVector3(),
-                timeStamp = Time.time
-            };
+                if (sendScaleStatic)
+                {
+                    temp = new DataPoint
+                    {
+                        localPosition = new Vector3(reader.ReadInt16() / 100.0f, reader.ReadInt16() / 100.0f, reader.ReadInt16() / 100.0f),
+                        localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
+                        localScale = reader.ReadVector3(),
+                        timeStamp = Time.time
+                    };
+                }
+                else
+                {
+                    temp = new DataPoint
+                    {
+                        localPosition = new Vector3(reader.ReadInt16() / 100.0f, reader.ReadInt16() / 100.0f, reader.ReadInt16() / 100.0f),
+                        localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
+                        timeStamp = Time.time
+                    };
+                }
+            }
+            else
+            {
+                if (sendScaleStatic)
+                {
+                    temp = new DataPoint
+                    {
+                        localPosition = reader.ReadVector3(),
+                        localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
+                        localScale = reader.ReadVector3(),
+                        timeStamp = Time.time
+                    };
+                }
+                else
+                {
+                    temp = new DataPoint
+                    {
+                        localPosition = reader.ReadVector3(),
+                        localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
+                        timeStamp = Time.time
+                    };
+                }
+            }
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
@@ -180,7 +248,7 @@ namespace Mirror
                 {
                     start.localPosition = targetComponent.transform.localPosition;
                     start.localRotation = targetComponent.transform.localRotation;
-                    start.localScale = targetComponent.transform.localScale;
+                    if (sendScaleStatic) { start.localScale = targetComponent.transform.localScale; }
                 }
             }
 
@@ -304,7 +372,8 @@ namespace Mirror
                 // local position/rotation for VR support
                 lastPosition = targetComponent.transform.localPosition;
                 lastRotation = targetComponent.transform.localRotation;
-                lastScale = targetComponent.transform.localScale;
+                //if (sendScaleStatic) { 
+                lastScale = targetComponent.transform.localScale;// }
             }
             return change;
         }
@@ -315,7 +384,7 @@ namespace Mirror
             // local position/rotation for VR support
             targetComponent.transform.localPosition = position;
             targetComponent.transform.localRotation = rotation;
-            targetComponent.transform.localScale = scale;
+            if (sendScaleStatic) { targetComponent.transform.localScale = scale; }
         }
 
         void Update()
