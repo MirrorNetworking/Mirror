@@ -233,5 +233,18 @@ namespace Mirror
             float outValue = valueRelative * rangeFloat + minFloat;
             return outValue;
         }
+        
+        //rounds to 2 decimal places, and turns a float into a short ( -32,768 to 32,767 )
+        public static short CompressPosition(float value)
+        {
+            value = (Mathf.Round(value * 100f) / 100f) * 100;
+            return (short)value;
+        }
+        
+        //turns the 3 short position values back to a decimal float
+        public static Vector3 DecompressPosition(short valueX,short valueY,short valueZ)
+        {
+            return new Vector3((float)valueX / 100.0f, (float)valueY / 100.0f, (float)valueZ / 100.0f);
+        }
     }
 }
