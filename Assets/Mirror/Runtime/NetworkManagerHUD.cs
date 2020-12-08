@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections;
+using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using UnityEngine;
 
 namespace Mirror
@@ -46,6 +48,7 @@ namespace Mirror
         private string inputField;
         [System.Serializable]
         private enum IPType : int { localhost = 0, LAN = 1, WAN = 2 }
+        private string lanIP = "";
         private string wanIP = "";
 
         private string[] _ipType;
@@ -235,7 +238,7 @@ namespace Mirror
             }
             else if (_IPType == IPType.LAN)
             {
-                GetLanAddress();
+                StartCoroutine(GetLanAddress());
             }
             else if (_IPType == IPType.WAN)
             {
@@ -243,18 +246,23 @@ namespace Mirror
             }
         }
 
-        private void GetLanAddress()
+        IEnumerator GetLanAddress()
         {
-            string hostName = Dns.GetHostName();
-            IPAddress iPAddress = Dns.GetHostEntry(hostName).AddressList[0];
-
-            if (hostName != "" && iPAddress != null && iPAddress.ToString() != "")
+            if (lanIP != "") { inputField = lanIP; yield break; }
+            
+            #if UNITY_IOS
+            lanIP = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces().Where(x => x.Name.Equals("en0")).First().GetIPProperties().UnicastAddresses.Where(x => x.Address.AddressFamily == AddressFamily.InterNetwork).First().Address.ToString();
+            #else
+            lanIP = Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork).ToString();
+            #endif
+            
+            if (lanIP != "")
             {
-                inputField = Dns.GetHostEntry(hostName).AddressList[0].ToString();
-                manager.networkAddress = inputField;
+                inputField = lanIP;
+                manager.networkAddress = lanIP;
             }
         }
-
+        
         IEnumerator GetWanAddress()
         {
             if (wanIP != "") { inputField = wanIP; yield break; }
