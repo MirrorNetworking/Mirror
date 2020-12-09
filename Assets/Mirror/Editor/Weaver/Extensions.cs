@@ -90,7 +90,8 @@ namespace Mirror.Weaver
         public static bool IsNetworkIdentityField(this TypeReference tr)
         {
             return tr.Is<UnityEngine.GameObject>()
-                || tr.Is<NetworkIdentity>();
+                || tr.Is<NetworkIdentity>()
+                || tr.IsDerivedFrom<NetworkBehaviour>();
         }
 
         public static bool CanBeResolved(this TypeReference parent)
@@ -120,6 +121,20 @@ namespace Mirror.Weaver
             return true;
         }
 
+        /// <summary>
+        /// Makes T => Variable and imports function
+        /// </summary>
+        /// <param name="generic"></param>
+        /// <param name="variableReference"></param>
+        /// <returns></returns>
+        public static MethodReference MakeGeneric(this MethodReference generic, TypeReference variableReference)
+        {
+            GenericInstanceMethod instance = new GenericInstanceMethod(generic);
+            instance.GenericArguments.Add(variableReference);
+
+            MethodReference readFunc = Weaver.CurrentAssembly.MainModule.ImportReference(instance);
+            return readFunc;
+        }
 
         /// <summary>
         /// Given a method of a generic class such as ArraySegment`T.get_Count,

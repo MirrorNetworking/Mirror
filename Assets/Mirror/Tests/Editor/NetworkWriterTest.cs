@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Mirror.Tests.RemoteAttrributeTest;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -1009,6 +1010,37 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void ReadNetworkIdentityGivesWarningWhenNotFound()
+        {
+            const uint netId = 423;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteUInt32(netId);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+
+            LogAssert.Expect(LogType.Warning, $"ReadNetworkIdentity netId:{netId} not found in spawned");
+            NetworkIdentity actual = reader.ReadNetworkIdentity();
+            Assert.That(actual, Is.Null);
+
+            Assert.That(reader.Position, Is.EqualTo(4), "should read 4 bytes");
+        }
+
+        [Test]
+        public void ReadNetworkBehaviourGivesWarningWhenNotFound()
+        {
+            const uint netId = 424;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteUInt32(netId);
+            writer.WriteByte(0);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+
+            LogAssert.Expect(LogType.Warning, $"ReadNetworkBehaviour netId:{netId} not found in spawned");
+            NetworkBehaviour actual = reader.ReadNetworkBehaviour();
+            Assert.That(actual, Is.Null);
+
+            Assert.That(reader.Position, Is.EqualTo(5), "should read 5 bytes when netId is not 0");
+        }
+
+        [Test]
         public void TestNetworkBehaviour()
         {
             //setup
@@ -1056,7 +1088,9 @@ namespace Mirror.Tests
 
             NetworkReader reader = new NetworkReader(bytes);
             RpcNetworkIdentityBehaviour actual = reader.ReadNetworkBehaviour<RpcNetworkIdentityBehaviour>();
-            Assert.That(actual, Is.EqualTo(null), "Read should find the same behaviour as written");
+            Assert.That(actual, Is.Null, "should read null");
+
+            Assert.That(reader.Position, Is.EqualTo(4), "should read 4 bytes when netid is 0");
         }
 
         [Test]
