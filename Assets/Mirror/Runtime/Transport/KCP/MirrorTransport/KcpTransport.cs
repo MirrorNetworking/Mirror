@@ -41,7 +41,10 @@ namespace kcp2k
         void Awake()
         {
             // logging
-            if (debugLog) Log.Info = Debug.Log;
+            if (debugLog)
+                Log.Info = Debug.Log;
+            else
+                Log.Info = _ => {};
             Log.Warning = Debug.LogWarning;
             Log.Error = Debug.LogError;
 
