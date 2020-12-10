@@ -437,7 +437,7 @@ namespace Mirror.Tests
             // we need an observer because sendrpc sends to ready observers
             // creates observers
             identity.OnStartServer();
-            identity.observers[connectionToServer.connectionToClient.connectionId] = connectionToServer.connectionToClient;
+            identity.observersx.Add(connectionToServer.connectionToClient);
 
             // isServer needs to be true, otherwise we can't call rpcs
             Assert.That(comp.isServer, Is.True);
