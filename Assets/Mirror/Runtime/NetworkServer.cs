@@ -929,7 +929,16 @@ namespace Mirror
             {
                 if (logger.LogEnabled()) logger.Log("PlayerNotReady " + conn);
                 conn.isReady = false;
-                conn.RemoveObservers();
+
+                // interest management: setting not ready is basically the same
+                // as disconnecting from the game world.
+                // -> new interest management rebuilds all on disconnect
+                // -> so let's do it here too
+                if (interestManagement != null)
+                {
+                    interestManagement.RebuildAll();
+                }
+                else Debug.LogError($"InterestManagement not found. Please add an InterestManagement component like {typeof(BruteForceInterestManagement)} to the NetworkManager!");
 
                 conn.Send(new NotReadyMessage());
             }
