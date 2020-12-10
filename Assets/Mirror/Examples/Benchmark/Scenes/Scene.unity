@@ -239,6 +239,7 @@ GameObject:
   - component: {fileID: 1282001518}
   - component: {fileID: 1282001520}
   - component: {fileID: 1282001519}
+  - component: {fileID: 1282001522}
   - component: {fileID: 1282001521}
   m_Layer: 0
   m_Name: NetworkManager
@@ -332,6 +333,21 @@ MonoBehaviour:
   ReceiveWindowSize: 512
   debugLog: 0
   debugGUI: 1
+--- !u!114 &1282001522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282001517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73e1f068331b47ee98b21d4b2c7116dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  updateInterval: 1
+  visibilityRadius: 100
+  checkMethod: 0
 --- !u!1 &2054208274
 GameObject:
   m_ObjectHideFlags: 0
