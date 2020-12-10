@@ -832,6 +832,18 @@ namespace Mirror
             }
         }
 
+        // Mirror host mode: spawning/despawning objects works by setting host
+        // visbility. previously this lived in NetworkProximityChecker.
+        // now it lives in here.
+        // => the only reasonable way to do this is by enabling renderers
+        // => it's not modifiable anymore. but nobody really ever should.
+        // if someone needs to, re-evaluate.
+        internal void OnSetHostVisibility(bool visible)
+        {
+            foreach (Renderer rend in GetComponentsInChildren<Renderer>())
+                rend.enabled = visible;
+        }
+
         internal void OnStopClient()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
