@@ -1028,10 +1028,9 @@ namespace Mirror.Tests
             identity.isClient = true;
             // creates .observers and generates a netId
             identity.OnStartServer();
-            uint netId = identity.netId;
             identity.connectionToClient = new NetworkConnectionToClient(1);
             identity.connectionToServer = new NetworkConnectionToServer();
-            identity.observersx[43] = new NetworkConnectionToClient(2);
+            identity.observersx.Add(new NetworkConnectionToClient(2));
 
             // mark for reset and reset
             identity.Reset();
@@ -1190,7 +1189,7 @@ namespace Mirror.Tests
             {
                 { MessagePacker.GetId<UpdateVarsMessage>(), ((conn, reader, channelId) => ++observerCalled) }
             });
-            identity.observersx[observer.connectionId] = observer;
+            identity.observersx.Add(observer);
 
             // set components dirty again
             compA.SetDirtyBit(ulong.MaxValue);
