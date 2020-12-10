@@ -44,6 +44,18 @@ namespace Mirror
             sceneCheckerObjects[currentScene].Add(netIdentity);
         }
 
+        public override void OnStopServer()
+        {
+            if (sceneCheckerObjects.ContainsKey(currentScene))
+                Debug.LogError($"Before {sceneCheckerObjects[currentScene].Count}");
+
+            if (sceneCheckerObjects.ContainsKey(currentScene) && sceneCheckerObjects[currentScene].Remove(netIdentity))
+                RebuildSceneObservers();
+
+            if (sceneCheckerObjects.ContainsKey(currentScene))
+                Debug.LogError($"After {sceneCheckerObjects[currentScene].Count}");
+        }
+
         [ServerCallback]
         void Update()
         {
