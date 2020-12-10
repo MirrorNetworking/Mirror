@@ -83,6 +83,14 @@ namespace Mirror
             // identity.RebuildObservers is called right after this from NetworkServer.SpawnObject
         }
 
+        public override void OnStopServer()
+        {
+            if (currentMatch == Guid.Empty) return;
+
+            if (matchPlayers.ContainsKey(currentMatch) && matchPlayers[currentMatch].Remove(netIdentity))
+                RebuildMatchObservers(currentMatch);
+        }
+
         void RebuildMatchObservers(Guid specificMatch)
         {
             foreach (NetworkIdentity networkIdentity in matchPlayers[specificMatch])
