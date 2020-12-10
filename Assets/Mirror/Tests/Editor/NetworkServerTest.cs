@@ -92,6 +92,7 @@ namespace Mirror.Tests
         public void SetUp()
         {
             Transport.activeTransport = new GameObject().AddComponent<MemoryTransport>();
+            NetworkServer.interestManagement = new GameObject().AddComponent<BruteForceInterestManagement>();
         }
 
         [TearDown]
@@ -101,6 +102,7 @@ namespace Mirror.Tests
             // shutdown should be called before setting activeTransport to null
             NetworkServer.Shutdown();
 
+            GameObject.DestroyImmediate(NetworkServer.interestManagement.gameObject);
             GameObject.DestroyImmediate(Transport.activeTransport.gameObject);
             Transport.activeTransport = null;
         }
