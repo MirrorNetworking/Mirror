@@ -563,6 +563,28 @@ namespace Mirror
             // client will do things before the server is even fully started.
             logger.Log("StartHostClient called");
             StartHostClient();
+
+            // interest management:
+            // * a REAL client doesn't see the entity until rebuild adds
+            //   observers and sends out spawn messages
+            // * a HOST client will see them all by default because an entity is
+            //   visible after instantiating as it should be
+            // => NetworkServer.Spawn does hide at RUNTIME if in host mode
+            // => but we also need to hide when connecting host once because
+            //    the initial Spawn calls happen in StartServer, way before we
+            //    actually connect the host client so the initial spawn can't
+            //    know if it's going to be server-only or host m ode.
+            // => so we need to hide them all once AFTER connecting the host
+            //    client
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            {
+                // hide (except for local player)
+                if (!(identity.connectionToClient is ULocalConnectionToClient))
+                {
+                    identity.OnSetHostVisibility(false);
+                    //Debug.Log(identity.name + " was hidden after spawning in host mode at INITIALIZATION");
+                }
+            }
         }
 
         void StartHostClient()

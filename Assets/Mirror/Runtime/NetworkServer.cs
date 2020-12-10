@@ -1038,6 +1038,21 @@ namespace Mirror
 
             identity.OnStartServer();
 
+            // interest management:
+            // * a REAL client doesn't see the entity until rebuild adds
+            //   observers and sends out spawn messages
+            // * a HOST client will see them all by default because an entity is
+            //   visible after instantiating as it should be
+            // => NetworkServer.Spawn should force hide it in host mode, UNLESS
+            //    it's owned by the host itself of course
+            // => doing this only once in FinishStartHost is not enough because
+            //    entities can still spawn at runtime later on
+            if (NetworkClient.active && identity.connectionToClient != localConnection)
+            {
+                identity.OnSetHostVisibility(false);
+                //Debug.Log(identity.name + " was hidden after spawning in host mode at RUNTIME");
+            }
+
             if (logger.LogEnabled()) logger.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
         }
 
