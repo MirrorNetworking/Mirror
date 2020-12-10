@@ -36,7 +36,7 @@ namespace Mirror.Examples.Additive
             GameObject target = null;
             float distance = 100f;
 
-            foreach (NetworkConnection networkConnection in netIdentity.observersx.Values)
+            foreach (NetworkConnection networkConnection in netIdentity.observersx)
             {
                 GameObject tempTarget = networkConnection.identity.gameObject;
                 float tempDistance = Vector3.Distance(tempTarget.transform.position, transform.position);
