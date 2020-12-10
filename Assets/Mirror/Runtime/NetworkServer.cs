@@ -129,6 +129,13 @@ namespace Mirror
             if (initialized)
                 return;
 
+            // make sure interest management was assigned
+            if (interestManagement == null)
+            {
+                Debug.LogError($"InterestManagement not found. Please add an InterestManagement component like {typeof(BruteForceInterestManagement)} to the NetworkManager!");
+                return;
+            }
+
             initialized = true;
             if (logger.LogEnabled()) logger.Log("NetworkServer Created version " + Version.Current);
 
@@ -575,11 +582,7 @@ namespace Mirror
                 //       the unspawn messages.
                 //       In other words, always do a full rebuild because IT WORKS
                 //       perfectly.
-                if (interestManagement != null)
-                {
-                    interestManagement.RebuildAll();
-                }
-                else Debug.LogError($"InterestManagement not found. Please add an InterestManagement component like {typeof(BruteForceInterestManagement)} to the NetworkManager!");
+                interestManagement.RebuildAll();
             }
         }
 
@@ -934,11 +937,7 @@ namespace Mirror
                 // as disconnecting from the game world.
                 // -> new interest management rebuilds all on disconnect
                 // -> so let's do it here too
-                if (interestManagement != null)
-                {
-                    interestManagement.RebuildAll();
-                }
-                else Debug.LogError($"InterestManagement not found. Please add an InterestManagement component like {typeof(BruteForceInterestManagement)} to the NetworkManager!");
+                interestManagement.RebuildAll();
 
                 conn.Send(new NotReadyMessage());
             }
