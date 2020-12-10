@@ -27,7 +27,15 @@ namespace Mirror
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
-            RemoveObservers();
+
+            // interest management: special case!
+            // * disconnecting a REGULAR connection will cause Transport to call
+            //   NetworkServer.OnTransportDisconnected which rebuilds all.
+            // * disconnecting a HOST MODE connection won't. so we need to do
+            //   this manually.
+            // TODO consider calling NetworkServer.OnTransportDisconnected(0)
+            // here manually for consistency. but not in this PR.
+            NetworkServer.interestManagement.RebuildAll();
         }
 
         /// <summary>
