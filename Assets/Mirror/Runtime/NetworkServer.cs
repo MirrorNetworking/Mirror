@@ -843,12 +843,19 @@ namespace Mirror
                 ClientScene.InternalAddPlayer(identity);
             }
 
-            // add connection to observers AFTER the playerController was set.
-            // by definition, there is nothing to observe if there is no player
-            // controller.
-            //
-            // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
-            SpawnObserversForConnection(conn);
+            // NOTE: previously we called
+            //  SpawnObserversForConnection(conn);
+            // => new interest management does not rebuild immediately when
+            //    spawning
+            // => so we also don't need to rebuild immediately here
+            // => besides, if I change my player from archer to warrior, nobodys
+            //    observers should change. I am still the same connection.
+            // => BUT what we should do is transfer the archer's observers to
+            //    the new warrior's observers. this way all is like before.
+            // => not carrying over observers could cause the player to not send
+            //    to owner connection for a second or two, which might be odd.
+            identity.observersx = previousPlayer.observersx;
+            previousPlayer.observersx.Clear();
 
             if (logger.LogEnabled()) logger.Log("Replacing playerGameObject object netId: " + player.GetComponent<NetworkIdentity>().netId + " asset ID " + player.GetComponent<NetworkIdentity>().assetId);
 
