@@ -804,7 +804,7 @@ namespace Mirror
         {
             if (identity.netId == 0)
             {
-                // If the object has not been spawned, then do a full spawn and update observers
+                // If the object has not been spawned, then do a full spawn
                 Spawn(identity.gameObject, identity.connectionToClient);
             }
             else
