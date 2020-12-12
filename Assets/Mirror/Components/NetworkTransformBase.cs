@@ -51,7 +51,7 @@ namespace Mirror
         //Users in most scenarios are best to send change of scale via cmd/rpc, syncvar/hooks, only when required.
         [Tooltip("True syncs scale data over the network. Set false to not continuously sync scale which saves bandwidth.")]
         public bool syncScale = false;
-        static bool syncScaleStatic = false;
+        //static bool syncScale = false;
 
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
@@ -77,22 +77,17 @@ namespace Mirror
 
         // local authority send time
         float lastClientSendTime;
-        
-        void Awake()
-        {
-            syncScaleStatic = syncScale;
-        }
 
         // serialization is needed by OnSerialize and by manual sending from authority
         // public only for tests
-        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
+        public void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // serialize position, rotation, scale
             // => compress rotation from 4*4=16 to 4 bytes
             // => less bandwidth = better CCU tests / scale
             writer.WriteVector3(position);
             writer.WriteUInt32(Compression.CompressQuaternion(rotation));
-            if (syncScaleStatic) { writer.WriteVector3(scale); }
+            if (syncScale) { writer.WriteVector3(scale); }
         }
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
@@ -122,26 +117,15 @@ namespace Mirror
             // deserialize position, rotation, scale
             // (rotation is compressed)
                     
-            DataPoint temp;
-            if (syncScaleStatic)
+            DataPoint temp = new DataPoint
             {
-                temp = new DataPoint
-                {
-                    localPosition = reader.ReadVector3(),
-                    localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
-                    localScale = reader.ReadVector3(),
-                    timeStamp = Time.time
-                };
-            }
-            else
-            {
-                temp = new DataPoint
-                {
-                    localPosition = reader.ReadVector3(),
-                    localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
-                    timeStamp = Time.time
-                };
-            }
+                localPosition = reader.ReadVector3(),
+                localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
+                localScale = targetComponent.localScale,
+                timeStamp = Time.time
+            };
+            
+            if (syncScale) { temp.localScale = reader.ReadVector3(); }
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
@@ -206,7 +190,7 @@ namespace Mirror
                 {
                     start.localPosition = targetComponent.transform.localPosition;
                     start.localRotation = targetComponent.transform.localRotation;
-                    if (syncScaleStatic) { start.localScale = targetComponent.transform.localScale; }
+                    if (syncScale) { start.localScale = targetComponent.transform.localScale; }
                 }
             }
 
@@ -341,7 +325,7 @@ namespace Mirror
             // local position/rotation for VR support
             targetComponent.transform.localPosition = position;
             targetComponent.transform.localRotation = rotation;
-            if (syncScaleStatic) { targetComponent.transform.localScale = scale; }
+            if (syncScale) { targetComponent.transform.localScale = scale; }
         }
 
         void Update()
