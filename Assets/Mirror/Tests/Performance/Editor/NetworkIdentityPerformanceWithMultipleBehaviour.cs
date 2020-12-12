@@ -21,7 +21,7 @@ namespace Mirror.Tests.Performance
             gameObject = new GameObject();
             identity = gameObject.AddComponent<NetworkIdentity>();
             identity.connectionToClient = new FakeNetworkConnection(1);
-            identity.observersx.Add(identity.connectionToClient);
+            identity.observers.Add(identity.connectionToClient);
             health = new Health[healthCount];
             for (int i = 0; i < healthCount; i++)
             {

@@ -167,7 +167,7 @@ namespace Mirror
 
         // interest management
         internal HashSet<NetworkConnectionToClient> rebuild = new HashSet<NetworkConnectionToClient>();
-        public HashSet<NetworkConnectionToClient> observersx = new HashSet<NetworkConnectionToClient>();
+        public HashSet<NetworkConnectionToClient> observers = new HashSet<NetworkConnectionToClient>();
 
         // Enable to temporarily hide from players. For example, to hide a
         // monster while it's respawning. This way the monster still exists,
@@ -1178,7 +1178,7 @@ namespace Mirror
             connectionToClient = null;
             networkBehavioursCache = null;
 
-            observersx.Clear();
+            observers.Clear();
 
             if (isLocalPlayer)
             {
@@ -1191,7 +1191,7 @@ namespace Mirror
         /// </summary>
         internal void ServerUpdate()
         {
-            if (observersx.Count > 0)
+            if (observers.Count > 0)
             {
                 SendUpdateVarsMessage();
             }

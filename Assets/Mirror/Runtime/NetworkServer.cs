@@ -255,7 +255,7 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToObservers id:" + typeof(T));
 
-            if (identity == null || identity.observersx.Count == 0)
+            if (identity == null || identity.observers.Count == 0)
                 return;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -264,7 +264,7 @@ namespace Mirror
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
-                foreach (NetworkConnectionToClient conn in identity.observersx)
+                foreach (NetworkConnectionToClient conn in identity.observers)
                 {
                     // use local connection directly because it doesn't send via transport
                     if (conn is ULocalConnectionToClient)
@@ -274,7 +274,7 @@ namespace Mirror
                         conn.Send(segment, channelId);
                 }
 
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, identity.observersx.Count);
+                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, identity.observers.Count);
             }
         }
 
@@ -359,7 +359,7 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("Server.SendToReady msgType:" + typeof(T));
 
-            if (identity == null || identity.observersx.Count == 0)
+            if (identity == null || identity.observers.Count == 0)
                 return;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -369,7 +369,7 @@ namespace Mirror
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 int count = 0;
-                foreach (NetworkConnectionToClient conn in identity.observersx)
+                foreach (NetworkConnectionToClient conn in identity.observers)
                 {
                     bool isOwner = conn == identity.connectionToClient;
                     if ((!isOwner || includeOwner) && conn.isReady)

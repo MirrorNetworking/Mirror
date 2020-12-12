@@ -1030,7 +1030,7 @@ namespace Mirror.Tests
             identity.OnStartServer();
             identity.connectionToClient = new NetworkConnectionToClient(1);
             identity.connectionToServer = new NetworkConnectionToServer();
-            identity.observersx.Add(new NetworkConnectionToClient(2));
+            identity.observers.Add(new NetworkConnectionToClient(2));
 
             // mark for reset and reset
             identity.Reset();
@@ -1038,7 +1038,7 @@ namespace Mirror.Tests
             Assert.That(identity.netId, Is.EqualTo(0));
             Assert.That(identity.connectionToClient, Is.Null);
             Assert.That(identity.connectionToServer, Is.Null);
-            Assert.That(identity.observersx.Count, Is.EqualTo(0));
+            Assert.That(identity.observers.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -1189,7 +1189,7 @@ namespace Mirror.Tests
             {
                 { MessagePacker.GetId<UpdateVarsMessage>(), ((conn, reader, channelId) => ++observerCalled) }
             });
-            identity.observersx.Add(observer);
+            identity.observers.Add(observer);
 
             // set components dirty again
             compA.SetDirtyBit(ulong.MaxValue);

@@ -29,7 +29,7 @@ namespace Mirror.Tests.Performance
             gameObject = new GameObject();
             identity = gameObject.AddComponent<NetworkIdentity>();
             identity.connectionToClient = new FakeNetworkConnection(1);
-            identity.observersx.Add(identity.connectionToClient);
+            identity.observers.Add(identity.connectionToClient);
             health = gameObject.AddComponent<Health>();
             health.syncMode = SyncMode.Owner;
             health.syncInterval = 0f;
