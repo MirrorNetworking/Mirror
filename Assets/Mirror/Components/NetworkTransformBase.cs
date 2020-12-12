@@ -51,7 +51,6 @@ namespace Mirror
         //Users in most scenarios are best to send change of scale via cmd/rpc, syncvar/hooks, only when required.
         [Tooltip("True syncs scale data over the network. Set false to not continuously sync scale which saves bandwidth.")]
         public bool syncScale = false;
-        //static bool syncScale = false;
 
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
