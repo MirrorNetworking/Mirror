@@ -44,17 +44,18 @@ namespace Mirror
         /// </summary>
         [Tooltip("localhost for games on same device, LAN for different devices same network, WAN for external connections. See summary for more information.")]
         [SerializeField]
-        private IPType _IPType = IPType.localhost;
-        private string inputField;
+        IPType IPTypeVar = IPType.localhost;
+        string inputField;
         [System.Serializable]
-        private enum IPType : int { localhost = 0, LAN = 1, WAN = 2 }
-        private string lanIP = "";
-        private string wanIP = "";
+        enum IPType : int { localhost = 0, LAN = 1, WAN = 2 }
+        string lanIP = "";
+        string wanIP = "";
+        IEnumerator GetWanAddressIE;
 
-        private string[] _ipType;
-        private int _ipTypeSelectedIndex = 0;
-        private bool _ShowIpTypeDropdown;
-        private Vector2 scrollViewVector = Vector2.zero;
+        string[] ipTypeArray;
+        int ipTypeSelectedIndex = 0;
+        bool showIpTypeDropdown;
+        Vector2 scrollViewVector = Vector2.zero;
 
         void Awake()
         {
@@ -62,7 +63,7 @@ namespace Mirror
 
             SetIPInformation();
 
-            _ipType = Enum.GetNames(typeof(IPType));
+            ipTypeArray = Enum.GetNames(typeof(IPType));
         }
 
         void OnGUI()
@@ -106,37 +107,37 @@ namespace Mirror
             
                 GUILayout.BeginHorizontal();
                 {
-                    GUILayout.Label($"IP Type : {_ipType[_ipTypeSelectedIndex]}");
+                    GUILayout.Label($"IP Type : {ipTypeArray[ipTypeSelectedIndex]}");
                     {
                         if (GUILayout.Button("▼"))
                         {
-                            _ShowIpTypeDropdown = !_ShowIpTypeDropdown;
+                            showIpTypeDropdown = !showIpTypeDropdown;
                         }
                     }
                 }
                 GUILayout.EndHorizontal();
 
-                if (_ShowIpTypeDropdown)
+                if (showIpTypeDropdown)
                 {
                     using (GUILayout.ScrollViewScope scope = new GUILayout.ScrollViewScope(scrollViewVector))
                     {
                         scrollViewVector = scope.scrollPosition;
-                        for (int index = 0; index < _ipType.Length; index++)
+                        for (int index = 0; index < ipTypeArray.Length; index++)
                         {
-                            if (!GUILayout.Button(_ipType[index]))
+                            if (!GUILayout.Button(ipTypeArray[index]))
                             {
                                 continue;
                             }
                             else
                             {
-                                if (index == 0) { _IPType = IPType.localhost; }
-                                else if (index == 1) { _IPType = IPType.LAN; }
-                                else if (index == 2) { _IPType = IPType.WAN; }
+                                if (index == 0) { IPTypeVar = IPType.localhost; }
+                                else if (index == 1) { IPTypeVar = IPType.LAN; }
+                                else if (index == 2) { IPTypeVar = IPType.WAN; }
                                 SetIPInformation();
                             }
 
-                            _ShowIpTypeDropdown = false;
-                            _ipTypeSelectedIndex = index;
+                            showIpTypeDropdown = false;
+                            ipTypeSelectedIndex = index;
                         }
                     }
                 }
@@ -231,25 +232,25 @@ namespace Mirror
 
         void SetIPInformation()
         {
-            if (_IPType == IPType.localhost)
+            if (IPTypeVar == IPType.localhost)
             {
                 inputField = "localhost";
                 manager.networkAddress = inputField;
             }
-            else if (_IPType == IPType.LAN)
+            else if (IPTypeVar == IPType.LAN)
             {
-                StartCoroutine(GetLanAddress());
+                if (lanIP != "") { inputField = lanIP; }
+                else { GetLanAddress(); }
             }
-            else if (_IPType == IPType.WAN)
+            else if (IPTypeVar == IPType.WAN)
             {
-                StartCoroutine(GetWanAddress());
+                if (wanIP != "") { inputField = wanIP; }
+                else { StartCoroutine(GetWanAddress()); }
             }
         }
 
-        IEnumerator GetLanAddress()
+        void GetLanAddress()
         {
-            if (lanIP != "") { inputField = lanIP; yield break; }
-            
             #if UNITY_IOS
             lanIP = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces().Where(x => x.Name.Equals("en0")).First().GetIPProperties().UnicastAddresses.Where(x => x.Address.AddressFamily == AddressFamily.InterNetwork).First().Address.ToString();
             #else
@@ -265,8 +266,6 @@ namespace Mirror
         
         IEnumerator GetWanAddress()
         {
-            if (wanIP != "") { inputField = wanIP; yield break; }
-            
             using (UnityEngine.Networking.UnityWebRequest webRequest = UnityEngine.Networking.UnityWebRequest.Get("https://api.ipify.org/"))
             {
                 yield return webRequest.SendWebRequest();
