@@ -92,7 +92,7 @@ namespace Mirror.Tests.Performance.Runtime
 
         static void sendSomeMessages()
         {
-            for (uint i = 0; i < 10000u; i++)
+            for (ushort i = 0; i < 10000u; i++)
             {
                 using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                 {
