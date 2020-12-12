@@ -19,7 +19,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
         NetworkIdentity SpawnObject(bool localPlayer)
         {
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             GameObject go = new GameObject();
             _createdObjects.Add(go);
@@ -94,7 +94,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [UnityTest]
         public IEnumerator LocalPlayerIsSetToNullAfterNetworkDestroy()
         {
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             GameObject go = new GameObject();
 
@@ -123,7 +123,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [UnityTest]
         public IEnumerator LocalPlayerIsSetToNullAfterNetworkUnspawn()
         {
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             GameObject go = new GameObject();
 

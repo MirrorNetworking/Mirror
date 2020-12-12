@@ -354,10 +354,10 @@ namespace Mirror
         {
             if (value == null)
             {
-                writer.WriteUInt32(0);
+                writer.WriteUInt16(0);
                 return;
             }
-            writer.WriteUInt32(value.netId);
+            writer.WriteUInt16(value.netId);
         }
 
         public static void WriteNetworkBehaviour(this NetworkWriter writer, NetworkBehaviour value)
@@ -367,7 +367,7 @@ namespace Mirror
                 writer.WriteUInt32(0);
                 return;
             }
-            writer.WriteUInt32(value.netId);
+            writer.WriteUInt16(value.netId);
             writer.WriteByte((byte)value.ComponentIndex);
         }
 
@@ -381,7 +381,7 @@ namespace Mirror
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
-                writer.WriteUInt32(identity.netId);
+                writer.WriteUInt16(identity.netId);
             }
             else
             {
@@ -400,7 +400,7 @@ namespace Mirror
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
-                writer.WriteUInt32(identity.netId);
+                writer.WriteUInt16(identity.netId);
             }
             else
             {

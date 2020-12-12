@@ -813,9 +813,9 @@ namespace Mirror
             return true;
         }
 
-        static NetworkIdentity GetExistingObject(uint netid)
+        static NetworkIdentity GetExistingObject(ushort netId)
         {
-            NetworkIdentity.spawned.TryGetValue(netid, out NetworkIdentity localObject);
+            NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject);
             return localObject;
         }
 
@@ -910,14 +910,14 @@ namespace Mirror
             isSpawnFinished = true;
         }
 
-        static readonly List<uint> toRemoveFromSpawned = new List<uint>();
+        static readonly List<ushort> toRemoveFromSpawned = new List<ushort>();
         static void ClearNullFromSpawned()
         {
             // spawned has null objects after changing scenes on client using NetworkManager.ServerChangeScene
             // remove them here so that 2nd loop below does not get NullReferenceException 
             // see https://github.com/vis2k/Mirror/pull/2240
             // TODO fix scene logic so that client scene doesn't have null objects
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+            foreach (KeyValuePair<ushort, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
                 if (kvp.Value == null)
                 {
@@ -926,9 +926,9 @@ namespace Mirror
             }
 
             // can't modifiy NetworkIdentity.spawned inside foreach so need 2nd loop to remove
-            foreach (uint id in toRemoveFromSpawned)
+            foreach (ushort netId in toRemoveFromSpawned)
             {
-                NetworkIdentity.spawned.Remove(id);
+                NetworkIdentity.spawned.Remove(netId);
             }
             toRemoveFromSpawned.Clear();
         }
@@ -943,7 +943,7 @@ namespace Mirror
             DestroyObject(msg.netId);
         }
 
-        static void DestroyObject(uint netId)
+        static void DestroyObject(ushort netId)
         {
             if (logger.LogEnabled()) logger.Log("ClientScene.OnObjDestroy netId:" + netId);
 

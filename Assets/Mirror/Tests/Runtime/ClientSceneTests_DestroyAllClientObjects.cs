@@ -48,7 +48,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
     public class ClientSceneTests_DestroyAllClientObjects
     {
         public static readonly List<GameObject> _createdObjects = new List<GameObject>();
-        Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
+        Dictionary<ushort, NetworkIdentity> spawned => NetworkIdentity.spawned;
         Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
 
         [TearDown]
@@ -64,7 +64,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             unspawnHandlers.Clear();
         }
 
-        TestListenerBehaviour CreateAndAddObject(uint netId, ulong sceneId)
+        TestListenerBehaviour CreateAndAddObject(ushort netId, ulong sceneId)
         {
             GameObject go = new GameObject();
             _createdObjects.Add(go);

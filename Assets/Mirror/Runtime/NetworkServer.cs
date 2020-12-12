@@ -456,7 +456,7 @@ namespace Mirror
             CheckForInactiveConnections();
 
             // update all server objects
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+            foreach (KeyValuePair<ushort, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
                 NetworkIdentity identity = kvp.Value;
                 if (identity != null)

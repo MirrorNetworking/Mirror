@@ -293,7 +293,7 @@ namespace Mirror
 
         public static NetworkIdentity ReadNetworkIdentity(this NetworkReader reader)
         {
-            uint netId = reader.ReadUInt32();
+            ushort netId = reader.ReadUInt16();
             if (netId == 0)
                 return null;
 
@@ -308,7 +308,7 @@ namespace Mirror
 
         public static NetworkBehaviour ReadNetworkBehaviour(this NetworkReader reader)
         {
-            uint netId = reader.ReadUInt32();
+            ushort netId = reader.ReadUInt16();
             if (netId == 0)
                 return null;
 
@@ -331,7 +331,7 @@ namespace Mirror
 
         public static NetworkBehaviour.NetworkBehaviourSyncVar ReadNetworkBehaviourSyncVar(this NetworkReader reader)
         {
-            uint netId = reader.ReadUInt32();
+            ushort netId = reader.ReadUInt16();
             byte componentIndex = default;
 
             // if netId is not 0, then index is also sent to read before returning

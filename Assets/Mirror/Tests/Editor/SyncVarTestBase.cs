@@ -35,7 +35,7 @@ namespace Mirror.Tests
             return behaviour;
         }
 
-        protected NetworkIdentity CreateNetworkIdentity(uint netId)
+        protected NetworkIdentity CreateNetworkIdentity(ushort netId)
         {
             GameObject gameObject = new GameObject();
             spawned.Add(gameObject);

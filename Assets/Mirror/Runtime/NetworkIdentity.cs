@@ -175,7 +175,7 @@ namespace Mirror
         /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
         /// <para>This is a unique identifier for this particular GameObject instance. Use it to track GameObjects between networked clients and the server.</para>
         /// </summary>
-        public uint netId { get; internal set; }
+        public ushort netId { get; internal set; }
 
         /// <summary>
         /// A unique identifier for NetworkIdentity objects within a scene.
@@ -223,7 +223,7 @@ namespace Mirror
         /// <summary>
         /// All spawned NetworkIdentities by netId. Available on server and client.
         /// </summary>
-        public static readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
+        public static readonly Dictionary<ushort, NetworkIdentity> spawned = new Dictionary<ushort, NetworkIdentity>();
 
         public NetworkBehaviour[] NetworkBehaviours
         {
@@ -363,8 +363,10 @@ namespace Mirror
             connectionToClient = (NetworkConnectionToClient)conn;
         }
 
-        static uint nextNetworkId = 1;
-        internal static uint GetNextNetworkId() => nextNetworkId++;
+        internal static readonly Stack<ushort> netIds = new Stack<ushort>();
+
+        static ushort nextNetworkId = 1;
+        internal static ushort GetNextNetworkId() => netIds.Count > 0 ? netIds.Pop() : nextNetworkId++;
 
         /// <summary>
         /// Resets nextNetworkId = 1
@@ -669,6 +671,8 @@ namespace Mirror
             {
                 ClientScene.ClearLocalPlayer();
             }
+
+            netIds.Push(netId);
         }
 
         internal void OnStartServer()

@@ -79,7 +79,7 @@ namespace Mirror
         /// The unique network Id of this object.
         /// <para>This is assigned at runtime by the network server and will be unique for all objects for that network session.</para>
         /// </summary>
-        public uint netId => netIdentity.netId;
+        public ushort netId => netIdentity.netId;
 
         /// <summary>
         /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the client.
@@ -297,7 +297,7 @@ namespace Mirror
         // helper function for [SyncVar] GameObjects.
         // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver
         //            can't resolve it
-        protected bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
+        protected bool SyncVarGameObjectEqual(GameObject newGameObject, ushort netIdField)
         {
             uint newNetId = 0;
             if (newGameObject != null)
@@ -317,12 +317,12 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] GameObjects.
-        protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
+        protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref ushort netIdField)
         {
             if (getSyncVarHookGuard(dirtyBit))
                 return;
 
-            uint newNetId = 0;
+            ushort newNetId = 0;
             if (newGameObject != null)
             {
                 NetworkIdentity identity = newGameObject.GetComponent<NetworkIdentity>();
@@ -345,7 +345,7 @@ namespace Mirror
 
         // helper function for [SyncVar] GameObjects.
         // -> ref GameObject as second argument makes OnDeserialize processing easier
-        protected GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
+        protected GameObject GetSyncVarGameObject(ushort netId, ref GameObject gameObjectField)
         {
             // server always uses the field
             if (isServer)
@@ -363,7 +363,7 @@ namespace Mirror
         // helper function for [SyncVar] NetworkIdentities.
         // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver
         //            can't resolve it
-        protected bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
+        protected bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, ushort netIdField)
         {
             uint newNetId = 0;
             if (newIdentity != null)
@@ -380,12 +380,12 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] NetworkIdentities.
-        protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
+        protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref ushort netIdField)
         {
             if (getSyncVarHookGuard(dirtyBit))
                 return;
 
-            uint newNetId = 0;
+            ushort newNetId = 0;
             if (newIdentity != null)
             {
                 newNetId = newIdentity.netId;
@@ -404,7 +404,7 @@ namespace Mirror
 
         // helper function for [SyncVar] NetworkIdentities.
         // -> ref GameObject as second argument makes OnDeserialize processing easier
-        protected NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
+        protected NetworkIdentity GetSyncVarNetworkIdentity(ushort netId, ref NetworkIdentity identityField)
         {
             // server always uses the field
             if (isServer)
@@ -420,7 +420,7 @@ namespace Mirror
 
         protected bool SyncVarNetworkBehaviourEqual<T>(T newBehaviour, NetworkBehaviourSyncVar syncField) where T : NetworkBehaviour
         {
-            uint newNetId = 0;
+            ushort newNetId = 0;
             int newComponentIndex = 0;
             if (newBehaviour != null)
             {
@@ -442,7 +442,7 @@ namespace Mirror
             if (getSyncVarHookGuard(dirtyBit))
                 return;
 
-            uint newNetId = 0;
+            ushort newNetId = 0;
             int componentIndex = 0;
             if (newBehaviour != null)
             {
@@ -493,11 +493,11 @@ namespace Mirror
         /// </summary>
         public struct NetworkBehaviourSyncVar : IEquatable<NetworkBehaviourSyncVar>
         {
-            public uint netId;
+            public ushort netId;
             // limtied to 255 behaviours per identity
             public byte componentIndex;
 
-            public NetworkBehaviourSyncVar(uint netId, int componentIndex) : this()
+            public NetworkBehaviourSyncVar(ushort netId, int componentIndex) : this()
             {
                 this.netId = netId;
                 this.componentIndex = (byte)componentIndex;
@@ -508,7 +508,7 @@ namespace Mirror
                 return other.netId == netId && other.componentIndex == componentIndex;
             }
 
-            public bool Equals(uint netId, int componentIndex)
+            public bool Equals(ushort netId, int componentIndex)
             {
                 return this.netId == netId && this.componentIndex == componentIndex;
             }

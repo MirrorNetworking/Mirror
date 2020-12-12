@@ -59,7 +59,7 @@ namespace Mirror.Tests.ClientSceneTests
 
     public class ClientSceneTests_OnSpawn : ClientSceneTestsBase
     {
-        Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
+        Dictionary<ushort, NetworkIdentity> spawned => NetworkIdentity.spawned;
 
         [TearDown]
         public override void TearDown()
@@ -72,7 +72,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_FindExistingObject()
         {
-            const uint netId = 1000;
+            const ushort netId = 1000;
             GameObject go = new GameObject();
             NetworkIdentity existing = go.AddComponent<NetworkIdentity>();
             existing.netId = netId;
@@ -95,7 +95,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_ErrorWhenNoExistingAndAssetIdAndSceneIdAreBothEmpty()
         {
-            const uint netId = 1001;
+            const ushort netId = 1001;
             SpawnMessage msg = new SpawnMessage
             {
                 assetId = new Guid(),
@@ -113,7 +113,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_SpawnsFromPrefabDictionary()
         {
-            const uint netId = 1002;
+            const ushort netId = 1002;
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
@@ -136,7 +136,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_ErrorWhenPrefabInNullInDictionary()
         {
-            const uint netId = 1002;
+            const ushort netId = 1002;
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
@@ -158,7 +158,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_SpawnsFromPrefabIfBothPrefabAndHandlerExists()
         {
-            const uint netId = 1003;
+            const ushort netId = 1003;
             int handlerCalled = 0;
             SpawnMessage msg = new SpawnMessage
             {
@@ -187,7 +187,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_SpawnHandlerCalledFromDictionary()
         {
-            const uint netId = 1003;
+            const ushort netId = 1003;
             int handlerCalled = 0;
             SpawnMessage msg = new SpawnMessage
             {
@@ -218,7 +218,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_ErrorWhenSpawnHanlderReturnsNull()
         {
-            const uint netId = 1003;
+            const ushort netId = 1003;
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
@@ -240,7 +240,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_ErrorWhenSpawnHanlderReturnsWithoutNetworkIdentity()
         {
-            const uint netId = 1003;
+            const ushort netId = 1003;
             SpawnMessage msg = new SpawnMessage
             {
                 netId = netId,
@@ -278,7 +278,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_UsesSceneIdToSpawnFromSpawnableObjectsDictionary()
         {
-            const uint netId = 1003;
+            const ushort netId = 1003;
             const int sceneId = 100020;
             SpawnMessage msg = new SpawnMessage
             {
@@ -299,7 +299,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_SpawnsUsingSceneIdInsteadOfAssetId()
         {
-            const uint netId = 1003;
+            const ushort netId = 1003;
             const int sceneId = 100020;
             SpawnMessage msg = new SpawnMessage
             {
@@ -321,7 +321,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_ErrorWhenSceneIdIsNotInSpawnableObjectsDictionary()
         {
-            const uint netId = 1004;
+            const ushort netId = 1004;
             const int sceneId = 100021;
             SpawnMessage msg = new SpawnMessage
             {
@@ -341,7 +341,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ApplyPayload_AppliesTransform()
         {
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             GameObject go = new GameObject();
             _createdObjects.Add(go);
@@ -378,7 +378,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ApplyPayload_AppliesLocalValuesToTransform()
         {
-            const uint netId = 1000;
+            const ushort netId = 1000;
             GameObject parent = new GameObject();
             _createdObjects.Add(parent);
             parent.transform.position = new Vector3(100, 20, 0);
@@ -421,7 +421,7 @@ namespace Mirror.Tests.ClientSceneTests
         [TestCase(false)]
         public void ApplyPayload_AppliesAuthority(bool isOwner)
         {
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             GameObject go = new GameObject();
             _createdObjects.Add(go);
@@ -456,7 +456,7 @@ namespace Mirror.Tests.ClientSceneTests
         [TestCase(false)]
         public void ApplyPayload_EnablesObject(bool startActive)
         {
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             GameObject go = new GameObject();
             _createdObjects.Add(go);
@@ -487,7 +487,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ApplyPayload_SetsAssetId()
         {
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             GameObject go = new GameObject();
             _createdObjects.Add(go);
@@ -520,7 +520,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ApplyPayload_DoesNotSetAssetIdToEmpty()
         {
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             GameObject go = new GameObject();
             _createdObjects.Add(go);
@@ -555,7 +555,7 @@ namespace Mirror.Tests.ClientSceneTests
             const int value = 12;
             Vector3 direction = new Vector3(0, 1, 1);
 
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             // server object
             GameObject serverObject = new GameObject();
@@ -609,7 +609,7 @@ namespace Mirror.Tests.ClientSceneTests
         public void ApplyPayload_LocalPlayerAddsIdentityToConnection()
         {
             Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             GameObject go = new GameObject();
             _createdObjects.Add(go);
@@ -644,7 +644,7 @@ namespace Mirror.Tests.ClientSceneTests
         public void ApplyPayload_LocalPlayerWarningWhenNoReadyConnection()
         {
             Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
-            const uint netId = 1000;
+            const ushort netId = 1000;
 
             GameObject go = new GameObject();
             _createdObjects.Add(go);
@@ -700,7 +700,7 @@ namespace Mirror.Tests.ClientSceneTests
                 ClientScene.OnObjectSpawnFinished(new ObjectSpawnFinishedMessage { });
             }
 
-            const uint netId = 1000;
+            const ushort netId = 1000;
             GameObject go = new GameObject();
             _createdObjects.Add(go);
 

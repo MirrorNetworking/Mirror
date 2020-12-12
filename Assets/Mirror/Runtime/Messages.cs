@@ -54,7 +54,7 @@ namespace Mirror
     #region System Messages requried for code gen path
     public struct CommandMessage : NetworkMessage
     {
-        public uint netId;
+        public ushort netId;
         public int componentIndex;
         public int functionHash;
         // the parameters for the Cmd function
@@ -64,7 +64,7 @@ namespace Mirror
 
     public struct RpcMessage : NetworkMessage
     {
-        public uint netId;
+        public ushort netId;
         public int componentIndex;
         public int functionHash;
         // the parameters for the Cmd function
@@ -79,7 +79,7 @@ namespace Mirror
         /// <summary>
         /// netId of new or existing object
         /// </summary>
-        public uint netId;
+        public ushort netId;
         /// <summary>
         /// Is the spawning object the local player. Sets ClientScene.localPlayer
         /// </summary>
@@ -122,17 +122,17 @@ namespace Mirror
 
     public struct ObjectDestroyMessage : NetworkMessage
     {
-        public uint netId;
+        public ushort netId;
     }
 
     public struct ObjectHideMessage : NetworkMessage
     {
-        public uint netId;
+        public ushort netId;
     }
 
     public struct UpdateVarsMessage : NetworkMessage
     {
-        public uint netId;
+        public ushort netId;
         // the serialized component data
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
