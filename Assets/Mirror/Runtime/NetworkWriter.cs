@@ -386,7 +386,7 @@ namespace Mirror
             else
             {
                 logger.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
-                writer.WriteUInt32(0);
+                writer.WriteUInt16(0);
             }
         }
 
@@ -405,7 +405,7 @@ namespace Mirror
             else
             {
                 logger.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
-                writer.WriteUInt32(0);
+                writer.WriteUInt16(0);
             }
         }
 
