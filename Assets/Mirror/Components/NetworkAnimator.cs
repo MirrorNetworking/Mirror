@@ -54,6 +54,12 @@ namespace Mirror
         float[] layerWeight;
         float nextSendTime;
 
+        public bool HasAnimator => _animator != null;
+        public bool HasEnabledAnimator => _animator != null && _animator.enabled;
+        bool hasSetup;
+        // cache message if Animator not set
+        byte[] setupMsg;
+
         bool SendMessagesAllowed
         {
             get
@@ -90,26 +96,62 @@ namespace Mirror
                     return;
                 }
 
+                if (value == null)
+                {
+                    logger.LogError("animator should not be set to null");
+                    return;
+                }
+
                 _animator = value;
-                Setup();
+
+                // is not server or client yet dont worry, OnStartServer/Client will run the setup
+                if (isServer)
+                {
+                    SetupServer();
+                }
+                else if (isClient)
+                {
+                    SetupClient();
+                }
             }
         }
 
-        public bool HasAnimator => _animator != null;
-        bool hasSetup;
-        // cache message if Animator not set
-        byte[] setupMsg;
 
-        void Awake()
+        public override void OnStartServer()
         {
-            // if animator is set in inspector set up automatically 
             if (HasAnimator)
             {
-                Setup();
+                SetupServer();
             }
         }
 
-        void Setup()
+        /// <summary>
+        /// Called on Start or when Animator is first set
+        /// </summary>
+        void SetupServer()
+        {
+            logger.Assert(HasAnimator, "SetupServer called before animator set");
+
+            SetupArrayFields();
+        }
+
+        /// <summary>
+        /// Called when animator is first set
+        /// </summary>
+        void SetupClient()
+        {
+            logger.Assert(HasAnimator, "SetupClient called before animator set");
+
+            // if spawn message set setup now
+            if (setupMsg != null)
+            {
+                ApplyInitialState(new ArraySegment<byte>(setupMsg));
+                // clear setup message after setup
+                setupMsg = null;
+            }
+        }
+
+        void SetupArrayFields()
         {
             logger.Assert(animator.enabled, "Setup called when animator was disabled");
 
@@ -125,18 +167,6 @@ namespace Mirror
             animationHash = new int[animator.layerCount];
             transitionHash = new int[animator.layerCount];
             layerWeight = new float[animator.layerCount];
-
-            if (isServer)
-            {
-                SendSetupMessage();
-            }
-            // if server has already sent setup message
-            else if (setupMsg != null)
-            {
-                HandleAnimSetMsgBytes(new ArraySegment<byte>(setupMsg));
-                // clear setup message after setup
-                setupMsg = null;
-            }
         }
 
         void FixedUpdate()
@@ -144,7 +174,7 @@ namespace Mirror
             if (!hasSetup || !SendMessagesAllowed)
                 return;
 
-            if (!animator.enabled)
+            if (!HasEnabledAnimator)
                 return;
 
             CheckSendRate();
@@ -295,7 +325,7 @@ namespace Mirror
             // usually transitions will be triggered by parameters, if not, play anims directly.
             // NOTE: this plays "animations", not transitions, so any transitions will be skipped.
             // NOTE: there is no API to play a transition(?)
-            if (stateHash != 0 && animator.enabled)
+            if (stateHash != 0 && HasEnabledAnimator)
             {
                 animator.Play(stateHash, layerId, normalizedTime);
             }
@@ -316,18 +346,16 @@ namespace Mirror
 
         void HandleAnimTriggerMsg(int hash)
         {
-            if (animator.enabled)
+            if (HasEnabledAnimator)
             {
-                logger.Assert(HasAnimator, "HandleAnimTriggerMsg called before animator set");
                 animator.SetTrigger(hash);
             }
         }
 
         void HandleAnimResetTriggerMsg(int hash)
         {
-            if (animator.enabled)
+            if (HasEnabledAnimator)
             {
-                logger.Assert(HasAnimator, "HandleAnimResetTriggerMsg called before animator set");
                 animator.ResetTrigger(hash);
             }
         }
@@ -406,7 +434,7 @@ namespace Mirror
         {
             logger.Assert(HasAnimator, "ReadParameters called before animator set");
 
-            bool animatorEnabled = animator.enabled;
+            bool animatorEnabled = HasEnabledAnimator;
             // need to read values from NetworkReader even if animator is disabled
 
             ulong dirtyBits = reader.ReadUInt64();
@@ -644,61 +672,127 @@ namespace Mirror
         #endregion
 
         #region intial setup
+        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        {
+            _ = base.OnSerialize(writer, initialState);
+
+            // only write if HasAnimator
+            // and initial state (for late joiners, existing clients get send an RPC when Animator is set)
+            bool needtToWrite = HasAnimator && initialState;
+
+            // tell clients if they need to read or not
+            writer.WriteBoolean(needtToWrite);
+
+            if (needtToWrite)
+            {
+                using (PooledNetworkWriter innerWriter = NetworkWriterPool.GetWriter())
+                {
+                    WriteInitialState(innerWriter);
+                    // write arraysegment because client might not have HaveAnimator so wont know how much to read
+                    ArraySegment<byte> bytes = innerWriter.ToArraySegment();
+                    writer.WriteArraySegment(bytes);
+                }
+            }
+
+            // always writing atleast 1 byte if dirty
+            return true;
+        }
+
+        public override void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            base.OnDeserialize(reader, initialState);
+
+            bool needToRead = reader.ReadBoolean();
+
+            if (needToRead)
+            {
+                logger.Assert(initialState, "Should only be reading if initialState is true");
+                // always read so that reader is is correct position for next Component
+                ArraySegment<byte> data = reader.ReadBytesAndSizeSegment();
+                HandleInitialStateMessage(data);
+            }
+        }
+
         [Server]
-        void SendSetupMessage()
+        void SendSetupToObservers()
+        {
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                WriteInitialState(writer);
+                // write arraysegment because client might not have HaveAnimator so wont know how much to read
+                ArraySegment<byte> bytes = writer.ToArraySegment();
+                RpcInitialSetup(bytes);
+            }
+        }
+        [ClientRpc]
+        void RpcInitialSetup(ArraySegment<byte> data)
+        {
+            HandleInitialStateMessage(data);
+        }
+
+        [Server]
+        void WriteInitialState(NetworkWriter writer)
         {
             // mark ready on server
             hasSetup = true;
 
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            for (int i = 0; i < animator.layerCount; i++)
             {
-                for (int i = 0; i < animator.layerCount; i++)
+                if (animator.IsInTransition(i))
                 {
-                    if (animator.IsInTransition(i))
-                    {
-                        AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(i);
-                        writer.WriteInt32(st.fullPathHash);
-                        writer.WriteSingle(st.normalizedTime);
-                    }
-                    else
-                    {
-                        AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(i);
-                        writer.WriteInt32(st.fullPathHash);
-                        writer.WriteSingle(st.normalizedTime);
-                    }
-                    writer.WriteSingle(animator.GetLayerWeight(i));
+                    AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(i);
+                    writer.WriteInt32(st.fullPathHash);
+                    writer.WriteSingle(st.normalizedTime);
                 }
-                WriteParameters(writer, true);
-
-                ArraySegment<byte> bytes = writer.ToArraySegment();
-                RpcOnAnimatorSetClientMessage(bytes);
+                else
+                {
+                    AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(i);
+                    writer.WriteInt32(st.fullPathHash);
+                    writer.WriteSingle(st.normalizedTime);
+                }
+                writer.WriteSingle(animator.GetLayerWeight(i));
             }
+            WriteParameters(writer, true);
         }
 
-        [ClientRpc]
-        void RpcOnAnimatorSetClientMessage(ArraySegment<byte> setupByte)
+        /// <summary>
+        /// if animator set then apply payload right away, else store it until animator is set locally
+        /// </summary>
+        /// <param name="data"></param>
+        void HandleInitialStateMessage(ArraySegment<byte> data)
         {
             // host players doesnt need to be setup
             if (isServer) { return; }
 
             logger.Assert(!hasSetup, "Setup should not be called mutliple times");
+
             // if animator has been set, handle the message right way
-            // else wait for animator to be set and handle the message in setup
-            if (HasAnimator)
+            // and parameters have been set (they are set In OnClientStarts)
+            if (HasAnimator && parameters != null)
             {
-                HandleAnimSetMsgBytes(setupByte);
+                ApplyInitialState(data);
             }
+            // else wait for animator to be set and handle the message in setup
             else
             {
-                setupMsg = setupByte.ToArray();
+                // copy to array because ArraySegemnt could be re-used and overwritten
+                setupMsg = data.ToArray();
             }
         }
 
-        void HandleAnimSetMsgBytes(ArraySegment<byte> parameters)
+        /// <summary>
+        /// this method is called when both animator has been set, and setup payload has been recieved
+        /// </summary>
+        /// <param name="parameters"></param>
+        void ApplyInitialState(ArraySegment<byte> parameters)
         {
+            logger.Assert(HasAnimator, "HandleAnimSetMsg called before animator set");
+
+            // make sure to set up fields first
+            SetupArrayFields();
+
             using (PooledNetworkReader reader = NetworkReaderPool.GetReader(parameters))
             {
-                logger.Assert(HasAnimator, "HandleAnimSetMsg called before animator set");
                 for (int i = 0; i < animator.layerCount; i++)
                 {
                     int stateHash = reader.ReadInt32();
@@ -708,9 +802,10 @@ namespace Mirror
                 }
 
                 ReadParameters(reader);
-
-                hasSetup = true;
             }
+
+            // mark client as setup
+            hasSetup = true;
         }
         #endregion
     }
