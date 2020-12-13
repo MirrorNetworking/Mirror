@@ -310,7 +310,7 @@ namespace Mirror.Weaver
             {
                 netIdField = new FieldDefinition("___" + fd.Name + "NetId",
                     FieldAttributes.Private,
-                    WeaverTypes.Import<uint>());
+                    WeaverTypes.Import<ushort>());
 
                 syncVarNetIds[fd] = netIdField;
             }

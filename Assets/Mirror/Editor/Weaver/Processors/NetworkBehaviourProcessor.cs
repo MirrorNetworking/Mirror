@@ -545,7 +545,7 @@ namespace Mirror.Weaver
             FieldDefinition netIdField = syncVarNetIds[syncVar];
 
             // uint oldNetId = ___qNetId;
-            VariableDefinition oldNetId = new VariableDefinition(WeaverTypes.Import<uint>());
+            VariableDefinition oldNetId = new VariableDefinition(WeaverTypes.Import<ushort>());
             deserialize.Body.Variables.Add(oldNetId);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldfld, netIdField));
@@ -572,7 +572,7 @@ namespace Mirror.Weaver
             // reader. for 'reader.Read()' below
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             // Read()
-            worker.Append(worker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.Import<uint>())));
+            worker.Append(worker.Create(OpCodes.Call, Readers.GetReadFunc(WeaverTypes.Import<ushort>())));
             // netId
             worker.Append(worker.Create(OpCodes.Stfld, netIdField));
 
