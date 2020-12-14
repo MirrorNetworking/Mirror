@@ -706,7 +706,7 @@ namespace Mirror
                     WriteInitialState(innerWriter);
                     // write arraysegment because client might not have HaveAnimator so wont know how much to read
                     ArraySegment<byte> bytes = innerWriter.ToArraySegment();
-                    writer.WriteArraySegment(bytes);
+                    writer.WriteBytesAndSizeSegment(bytes);
                 }
             }
 
