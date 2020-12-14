@@ -56,6 +56,9 @@ namespace Mirror
 
         public bool HasAnimator => _animator != null;
         public bool HasEnabledAnimator => _animator != null && _animator.enabled;
+
+        bool FieldsAreInitialized => parameters != null;
+
         bool hasSetup;
         // cache message if Animator not set
         byte[] setupMsg;
@@ -104,10 +107,13 @@ namespace Mirror
 
                 _animator = value;
 
-                // is not server or client yet dont worry, OnStartServer/Client will run the setup
+                // is not server or client yet dont worry, OnStartServer will run the setup
                 if (isServer)
                 {
                     SetupServer();
+                    // if this is called before OnStartServer it is fine because there will be no observer
+                    // if called after OnStartServer then it will send to existing client that dont have the intial setup from desialize
+                    SendSetupToObservers();
                 }
                 else if (isClient)
                 {
@@ -132,7 +138,11 @@ namespace Mirror
         {
             logger.Assert(HasAnimator, "SetupServer called before animator set");
 
-            SetupArrayFields();
+            // only set up fields once
+            if (!FieldsAreInitialized)
+            {
+                SetupArrayFields();
+            }
         }
 
         /// <summary>
@@ -153,6 +163,12 @@ namespace Mirror
 
         void SetupArrayFields()
         {
+            if (FieldsAreInitialized)
+            {
+                logger.LogWarning("Trying to set up Array fields more than once");
+                return;
+            }
+
             logger.Assert(animator.enabled, "Setup called when animator was disabled");
 
             // store the animator parameters in a variable - the "Animator.parameters" getter allocates
@@ -767,8 +783,7 @@ namespace Mirror
             logger.Assert(!hasSetup, "Setup should not be called mutliple times");
 
             // if animator has been set, handle the message right way
-            // and parameters have been set (they are set In OnClientStarts)
-            if (HasAnimator && parameters != null)
+            if (HasAnimator)
             {
                 ApplyInitialState(data);
             }
