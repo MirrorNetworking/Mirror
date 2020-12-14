@@ -5,7 +5,7 @@ namespace Mirror
     /// <summary>
     /// NetworkWriter to be used with <see cref="NetworkWriterPool">NetworkWriterPool</see>
     /// </summary>
-    public class PooledNetworkWriter : NetworkWriter, IDisposable
+    public sealed class PooledNetworkWriter : NetworkWriter, IDisposable
     {
         public void Dispose()
         {
